@@ -1,9 +1,15 @@
 from django.db import transaction
 from django.utils.text import slugify
+from django.core.files.uploadedfile import UploadedFile
+
 from pydantic import BaseModel
+
 from ..models import Company
+
 from apps.core.users.models import CustomUser
 from apps.company.industries.models import Industry
+
+from ..utils.cloudinary import save_company_file, delete_company_file, validate_image_file
 
 
 class CompanyCreateInput(BaseModel):
@@ -113,3 +119,34 @@ def update_company(company: Company, data: CompanyUpdateInput) -> Company:
 def delete_company(company: Company) -> None:
     """Xóa công ty (Hard delete)"""
     company.delete()
+
+def upload_company_logo(company: Company, file: UploadedFile) -> str:
+    """
+    Upload logo cho công ty
+    """
+    validate_image_file(file, max_size_mb=2)
+    
+    if company.logo_url:
+        delete_company_file(company.logo_url)
+    
+    new_url = save_company_file(company.id, file, 'logo')
+    company.logo_url = new_url
+    company.save(update_fields=['logo_url'])
+    
+    return new_url
+    
+def upload_company_banner(company: Company, file: UploadedFile) -> str:
+    """
+    Upload banner cho công ty
+    """
+    validate_image_file(file, max_size_mb=5)
+    
+    if company.banner_url:
+        delete_company_file(company.banner_url)
+    
+    new_url = save_company_file(company.id, file, 'banner')
+    company.banner_url = new_url
+    company.save(update_fields=['banner_url'])
+    
+    return new_url
+    

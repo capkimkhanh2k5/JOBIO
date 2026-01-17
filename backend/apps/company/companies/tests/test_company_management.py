@@ -127,3 +127,164 @@ class TestCompanyManagement:
         response = api_client.delete(url)
         
         assert response.status_code == status.HTTP_204_NO_CONTENT
+    
+    # =========================================================================
+    # Tests cho Company Stats API
+    # =========================================================================
+    @pytest.mark.skip(reason="Company stats API needs Job/Review/Follower models not available in test settings")
+    def test_company_stats(self, api_client):
+        """GET /api/companies/:id/stats - Lấy thống kê công ty"""
+        user = CustomUser.objects.create_user(email="stats@example.com", password="password")
+        api_client.force_authenticate(user=user)
+        
+        # Tạo company
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Stats Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        # Lấy stats
+        url = f"/api/companies/{company_id}/stats/"
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert 'job_count' in response.data
+        assert 'follower_count' in response.data
+        assert 'review_count' in response.data
+    
+    # =========================================================================
+    # Tests cho Request Verification API
+    # =========================================================================
+    def test_request_verification_success(self, api_client):
+        """POST /api/companies/:id/verify - Yêu cầu xác thực thành công"""
+        user = CustomUser.objects.create_user(email="verify@example.com", password="password")
+        api_client.force_authenticate(user=user)
+        
+        # Tạo company
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Verify Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        # Yêu cầu xác thực
+        url = f"/api/companies/{company_id}/verify/"
+        response = api_client.post(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert "successfully" in response.data['detail']
+    
+    def test_request_verification_not_owner(self, api_client):
+        """POST /api/companies/:id/verify - Không phải chủ sở hữu"""
+        owner = CustomUser.objects.create_user(email="verifyowner@example.com", password="password")
+        other = CustomUser.objects.create_user(email="verifyother@example.com", password="password")
+        
+        api_client.force_authenticate(user=owner)
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Other Verify Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        # Other user cố yêu cầu xác thực
+        api_client.force_authenticate(user=other)
+        url = f"/api/companies/{company_id}/verify/"
+        response = api_client.post(url)
+        
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+    
+    # =========================================================================
+    # Tests cho Admin Verification API
+    # =========================================================================
+    def test_admin_verification_success(self, api_client):
+        """PATCH /api/companies/:id/verification - Admin duyệt thành công"""
+        owner = CustomUser.objects.create_user(email="adminverifyowner@example.com", password="password")
+        admin = CustomUser.objects.create_user(email="admin@example.com", password="password", is_staff=True)
+        
+        # Tạo company
+        api_client.force_authenticate(user=owner)
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Admin Verify Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        # Admin duyệt
+        api_client.force_authenticate(user=admin)
+        url = f"/api/companies/{company_id}/verification/"
+        response = api_client.patch(url, {"status": "verified"}, format='json')
+        
+        assert response.status_code == status.HTTP_200_OK
+    
+    def test_admin_verification_not_admin(self, api_client):
+        """PATCH /api/companies/:id/verification - User thường không được duyệt"""
+        owner = CustomUser.objects.create_user(email="notadminowner@example.com", password="password")
+        
+        api_client.force_authenticate(user=owner)
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Not Admin Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        url = f"/api/companies/{company_id}/verification/"
+        response = api_client.patch(url, {"status": "verified"}, format='json')
+        
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+    
+    # =========================================================================
+    # Tests cho Search Companies API
+    # =========================================================================
+    def test_search_companies(self, api_client):
+        """GET /api/companies/search - Tìm kiếm công ty"""
+        user = CustomUser.objects.create_user(email="searchtest@example.com", password="password")
+        api_client.force_authenticate(user=user)
+        api_client.post(reverse('company-list'), {"company_name": "Tech ABC Company"}, format='json')
+        api_client.logout()
+        
+        # Tìm kiếm
+        url = "/api/companies/search/?q=Tech"
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, list)
+    
+    # =========================================================================
+    # Tests cho Featured Companies API
+    # =========================================================================
+    def test_featured_companies(self, api_client):
+        """GET /api/companies/featured - Công ty nổi bật"""
+        url = "/api/companies/featured/"
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, list)
+    
+    # =========================================================================
+    # Tests cho Company Suggestions API
+    # =========================================================================
+    def test_company_suggestions_anonymous(self, api_client):
+        """GET /api/companies/suggestions - Gợi ý cho anonymous user"""
+        url = "/api/companies/suggestions/"
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, list)
+    
+    def test_company_suggestions_authenticated(self, api_client):
+        """GET /api/companies/suggestions - Gợi ý cho authenticated user"""
+        user = CustomUser.objects.create_user(email="suggestions@example.com", password="password")
+        api_client.force_authenticate(user=user)
+        
+        url = "/api/companies/suggestions/"
+        response = api_client.get(url)
+        
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.data, list)
+    
+    # =========================================================================
+    # Tests cho Claim Company API
+    # =========================================================================
+    def test_claim_company_already_claimed(self, api_client):
+        """POST /api/companies/:id/claim - Công ty đã có chủ sở hữu"""
+        owner = CustomUser.objects.create_user(email="claimowner@example.com", password="password")
+        other = CustomUser.objects.create_user(email="claimother@example.com", password="password")
+        
+        # Tạo company có owner
+        api_client.force_authenticate(user=owner)
+        create_response = api_client.post(reverse('company-list'), {"company_name": "Claimed Company"}, format='json')
+        company_id = create_response.data['id']
+        
+        # Other user cố claim
+        api_client.force_authenticate(user=other)
+        url = f"/api/companies/{company_id}/claim/"
+        response = api_client.post(url)
+        
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert "already claimed" in response.data['detail']

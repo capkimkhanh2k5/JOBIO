@@ -30,10 +30,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     
-    # Users app routes (login, logout, register)
-    path('api/', include('apps.core.users.urls')),
+    # Users app routes (login, logout, register, user management)
+    path('api/users/', include('apps.core.users.urls')),
     
-    # Company app routes
+    # Company app routes (includes nested benefits)
     path('api/companies/', include('apps.company.companies.urls')),
     
     # JWT Token endpoints (built-in)

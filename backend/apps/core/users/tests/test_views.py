@@ -7,12 +7,19 @@ from apps.core.users.models import CustomUser
 
 
 # ============================================================================
+# URL PATHS (sau refactoring sang ViewSet pattern)
+# ============================================================================
+# Auth URLs: /api/users/auth/...
+# User URLs: /api/users/...
+
+
+# ============================================================================
 # TEST: LOGIN API
 # ============================================================================
 
 @pytest.mark.django_db
 class TestLoginAPI:
-    """Test cases cho API POST /api/auth/login/"""
+    """Test cases cho API POST /api/users/auth/login/"""
     
     @pytest.fixture
     def api_client(self):
@@ -32,7 +39,7 @@ class TestLoginAPI:
     
     def test_login_success(self, api_client, active_user):
         """Test login API thành công"""
-        response = api_client.post('/api/auth/login/', {
+        response = api_client.post('/api/users/auth/login/', {
             'email': 'test@example.com',
             'password': 'password123'
         }, format='json')
@@ -45,7 +52,7 @@ class TestLoginAPI:
     
     def test_login_wrong_email(self, api_client):
         """Test login với email không tồn tại"""
-        response = api_client.post('/api/auth/login/', {
+        response = api_client.post('/api/users/auth/login/', {
             'email': 'notexist@example.com',
             'password': 'password123'
         }, format='json')
@@ -55,7 +62,7 @@ class TestLoginAPI:
     
     def test_login_wrong_password(self, api_client, active_user):
         """Test login với password sai"""
-        response = api_client.post('/api/auth/login/', {
+        response = api_client.post('/api/users/auth/login/', {
             'email': 'test@example.com',
             'password': 'wrongpassword'
         }, format='json')
@@ -65,7 +72,7 @@ class TestLoginAPI:
     
     def test_login_invalid_email_format(self, api_client):
         """Test login với email sai format"""
-        response = api_client.post('/api/auth/login/', {
+        response = api_client.post('/api/users/auth/login/', {
             'email': 'invalid-email',
             'password': 'password123'
         }, format='json')
@@ -74,7 +81,7 @@ class TestLoginAPI:
     
     def test_login_missing_password(self, api_client):
         """Test login thiếu password"""
-        response = api_client.post('/api/auth/login/', {
+        response = api_client.post('/api/users/auth/login/', {
             'email': 'test@example.com'
         }, format='json')
         
@@ -82,7 +89,7 @@ class TestLoginAPI:
     
     def test_login_empty_body(self, api_client):
         """Test login với body rỗng"""
-        response = api_client.post('/api/auth/login/', {}, format='json')
+        response = api_client.post('/api/users/auth/login/', {}, format='json')
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -93,7 +100,7 @@ class TestLoginAPI:
 
 @pytest.mark.django_db
 class TestRegisterAPI:
-    """Test cases cho API POST /api/auth/register/"""
+    """Test cases cho API POST /api/users/auth/register/"""
     
     @pytest.fixture
     def api_client(self):
@@ -101,7 +108,7 @@ class TestRegisterAPI:
     
     def test_register_success(self, api_client):
         """Test đăng ký thành công"""
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'newuser@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
@@ -117,7 +124,7 @@ class TestRegisterAPI:
     
     def test_register_with_company_role(self, api_client):
         """Test đăng ký với role company"""
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'company@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
@@ -130,7 +137,6 @@ class TestRegisterAPI:
     
     def test_register_duplicate_email(self, api_client):
         """Test đăng ký với email đã tồn tại"""
-        # Tạo user trước
         CustomUser.objects.create_user(
             email="existing@example.com",
             password="password123",
@@ -138,8 +144,7 @@ class TestRegisterAPI:
             role="recruiter"
         )
         
-        # Đăng ký với cùng email
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'existing@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
@@ -152,7 +157,7 @@ class TestRegisterAPI:
     
     def test_register_password_mismatch(self, api_client):
         """Test đăng ký với password_confirm không khớp"""
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'test@example.com',
             'password': 'password123',
             'password_confirm': 'differentpassword',
@@ -164,10 +169,10 @@ class TestRegisterAPI:
         assert 'password_confirm' in response.data
     
     def test_register_password_too_short(self, api_client):
-        """Test đăng ký với password quá ngắn (< 8 ký tự)"""
-        response = api_client.post('/api/auth/register/', {
+        """Test đăng ký với password quá ngắn (<8 ký tự)"""
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'test@example.com',
-            'password': '1234567',  # 7 ký tự
+            'password': '1234567',
             'password_confirm': '1234567',
             'full_name': 'Test User',
             'role': 'recruiter'
@@ -177,19 +182,19 @@ class TestRegisterAPI:
     
     def test_register_invalid_role(self, api_client):
         """Test đăng ký với role không hợp lệ"""
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'test@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
             'full_name': 'Test User',
-            'role': 'admin'  # Role không hợp lệ
+            'role': 'admin'
         }, format='json')
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
     
     def test_register_missing_full_name(self, api_client):
         """Test đăng ký thiếu full_name"""
-        response = api_client.post('/api/auth/register/', {
+        response = api_client.post('/api/users/auth/register/', {
             'email': 'test@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
@@ -205,7 +210,7 @@ class TestRegisterAPI:
 
 @pytest.mark.django_db
 class TestLogoutAPI:
-    """Test cases cho API POST /api/auth/logout/"""
+    """Test cases cho API POST /api/users/auth/logout/"""
     
     @pytest.fixture
     def api_client(self):
@@ -231,7 +236,7 @@ class TestLogoutAPI:
     
     def test_logout_success(self, api_client, authenticated_user):
         """Test logout thành công"""
-        response = api_client.post('/api/auth/logout/', {
+        response = api_client.post('/api/users/auth/logout/', {
             'refresh_token': authenticated_user['refresh_token']
         }, format='json')
         
@@ -240,7 +245,7 @@ class TestLogoutAPI:
     
     def test_logout_invalid_token(self, api_client, authenticated_user):
         """Test logout với refresh token sai"""
-        response = api_client.post('/api/auth/logout/', {
+        response = api_client.post('/api/users/auth/logout/', {
             'refresh_token': 'invalid_token_here'
         }, format='json')
         
@@ -248,7 +253,7 @@ class TestLogoutAPI:
     
     def test_logout_without_authentication(self, api_client):
         """Test logout mà chưa login (không có access token)"""
-        response = api_client.post('/api/auth/logout/', {
+        response = api_client.post('/api/users/auth/logout/', {
             'refresh_token': 'some_token'
         }, format='json')
         
@@ -256,7 +261,7 @@ class TestLogoutAPI:
     
     def test_logout_missing_refresh_token(self, api_client, authenticated_user):
         """Test logout thiếu refresh_token"""
-        response = api_client.post('/api/auth/logout/', {}, format='json')
+        response = api_client.post('/api/users/auth/logout/', {}, format='json')
         
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 

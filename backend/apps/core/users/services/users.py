@@ -6,6 +6,10 @@ import os
 from pydantic import BaseModel, EmailStr
 from ..models import CustomUser
 
+import time
+import cloudinary
+import cloudinary.uploader
+
 
 class UserCreateInput(BaseModel):
     email: EmailStr
@@ -105,24 +109,33 @@ def update_user_role(user: CustomUser, role: str) -> CustomUser:
 
 def upload_user_avatar(user: CustomUser, file) -> CustomUser:
     """
-    Upload avatar cho user.
-    Lưu file vào media/avatars/{user_id}/{filename}
+    Upload avatar cho user lên Cloudinary.
     """
-    # Tạo đường dẫn file
-    file_ext = os.path.splitext(file.name)[1]
-    file_path = f"avatars/{user.id}/avatar{file_ext}"
     
-    # Xóa file cũ nếu có
-    if default_storage.exists(file_path):
-        default_storage.delete(file_path)
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if file.content_type not in allowed_types:
+        raise ValueError("Loại file không hợp lệ. Chỉ chấp nhận: JPEG, PNG, GIF, WEBP")
     
-    # Lưu file mới
-    saved_path = default_storage.save(file_path, ContentFile(file.read()))
+    # Validate file size (max 2MB)
+    if file.size > 2 * 1024 * 1024:
+        raise ValueError("File quá lớn. Tối đa 2MB")
     
-    # Cập nhật URL
-    file_url = default_storage.url(saved_path)
+    # Upload to Cloudinary
+    public_id = f"avatars/{user.id}/avatar_{int(time.time())}"
+    try:
+        result = cloudinary.uploader.upload(
+            file,
+            public_id=public_id,
+            resource_type='image',
+            overwrite=True
+        )
+        avatar_url = result['secure_url']
+    except Exception as e:
+        raise ValueError(f"Upload avatar thất bại: {str(e)}")
     
-    user.avatar_url = file_url
+    # Update user
+    user.avatar_url = avatar_url
     user.save(update_fields=['avatar_url'])
     
     return user

@@ -2,7 +2,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .permissions import IsAdmin
 
@@ -13,11 +14,11 @@ from .services.auth import (
     social_login, verify_2fa,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
     ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
-    ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput, # New inputs
+    ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
     AuthenticationError
 )
 from .services.users import create_user, UserCreateInput, bulk_user_action, upload_user_avatar, update_user_role, update_user_status, delete_user, update_user, UserUpdateInput
-from .selectors.users import list_users, get_user_stats
+from .selectors.users import list_users, get_user_stats, export_users_csv
 from .serializers import (
     CustomUserSerializer, LoginSerializer, LogoutSerializer, 
     LoginResponseSerializer, RegisterSerializer, RegisterResponseSerializer, 
@@ -33,28 +34,37 @@ from apps.system.activity_logs.serializers import ActivityLogSerializer
 
 
 class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+    """
+    ViewSet cho quản lý User và Authentication
+    """
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Support filtering
         return list_users(filters=self.request.query_params)
 
     def get_permissions(self):
-        if self.action in ['create']:
+        # Public endpoints (không cần auth)
+        public_actions = [
+            'create', 'auth_login', 'auth_register', 'auth_forgot_password',
+            'auth_reset_password', 'auth_verify_email', 'auth_resend_verification',
+            'auth_check_email', 'auth_social_login'
+        ]
+        if self.action in public_actions:
             return [AllowAny()]
         
-        if self.action in ['destroy', 'update_status_action', 'update_role_action']:
+        # Admin only endpoints
+        admin_actions = ['destroy', 'update_status_action', 'update_role_action']
+        if self.action in admin_actions:
             return [IsAuthenticated(), IsAdmin()]
             
         return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
-        # Validate Input via Serializer
+        """POST /api/users/ - Tạo user mới"""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Call Service Layer
         try:
             user_input = UserCreateInput(
                 email=serializer.validated_data['email'],
@@ -65,11 +75,11 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3. Return Response
         output_serializer = self.get_serializer(user)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
+        """PUT /api/users/:id/ - Cập nhật user"""
         user = self.get_object()
         serializer = UserUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -82,13 +92,14 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         return Response(CustomUserSerializer(updated_user).data)
 
     def destroy(self, request, *args, **kwargs):
+        """DELETE /api/users/:id/ - Xóa user"""
         user = self.get_object()
-    
         delete_user(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['patch'], url_path='status')
     def update_status_action(self, request, pk=None):
+        """PATCH /api/users/:id/status - Cập nhật status"""
         user = self.get_object()
         serializer = UserStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -101,6 +112,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=True, methods=['patch'], url_path='role')
     def update_role_action(self, request, pk=None):
+        """PATCH /api/users/:id/role - Cập nhật role"""
         user = self.get_object()
         serializer = UserRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -111,8 +123,9 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['post', 'delete'], url_path='avatar')
+    @action(detail=True, methods=['post', 'delete'], url_path='avatar', parser_classes=[MultiPartParser, FormParser])
     def manage_avatar(self, request, pk=None):
+        """POST/DELETE /api/users/:id/avatar - Quản lý avatar"""
         user = self.get_object()
         
         if request.method == 'POST':
@@ -130,15 +143,16 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             user.save(update_fields=['avatar_url'])
             return Response(CustomUserSerializer(user).data)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):
+        """GET /api/users/me/ - Lấy thông tin user hiện tại"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'], url_path='activity-logs')
     def activity_logs(self, request, pk=None):
+        """GET /api/users/:id/activity-logs - Lịch sử hoạt động"""
         user = self.get_object()
-        # Lazy import to avoid circular dependency
         
         logs = ActivityLog.objects.filter(user=user)
         page = self.paginate_queryset(logs)
@@ -151,7 +165,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
-        # Admin only
+        """GET /api/users/stats/ - Thống kê users (admin only)"""
         if not request.user.role == CustomUser.Role.ADMIN:
              return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
              
@@ -160,13 +174,12 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=False, methods=['get'], url_path='export')
     def export(self, request):
-        # Admin only
+        """GET /api/users/export/ - Export users CSV (admin only)"""
         if not request.user.role == CustomUser.Role.ADMIN:
              return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
              
         try:
             csv_content = export_users_csv()
-
             response = HttpResponse(csv_content, content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="users_export.csv"'
             return response
@@ -175,13 +188,13 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=False, methods=['post'], url_path='bulk-action')
     def bulk_action(self, request):
-        # Admin only
+        """POST /api/users/bulk-action/ - Bulk actions (admin only)"""
         if not request.user.role == CustomUser.Role.ADMIN:
              return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
              
         ids = request.data.get('ids', [])
-        action_type = request.data.get('action') # 'delete', 'update_status'
-        value = request.data.get('value') # e.g. 'active', 'banned'
+        action_type = request.data.get('action')
+        value = request.data.get('value')
         
         if not ids or not action_type:
             return Response({"detail": "Missing ids or action"}, status=status.HTTP_400_BAD_REQUEST)
@@ -192,20 +205,16 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+    # =========================================================================
+    # AUTH ENDPOINTS (chuyển từ APIView sang @action)
+    # =========================================================================
 
-class LoginView(APIView):
-    """
-    POST /api/auth/login/
-    Login user và trả về JWT tokens
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        # 1. Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/login')
+    def auth_login(self, request):
+        """POST /api/users/auth/login/ - Đăng nhập"""
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # 2. Gọi service layer
         try:
             result = login_user(data=LoginInput(
                 email=serializer.validated_data['email'],
@@ -214,24 +223,15 @@ class LoginView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # 3. Trả về response
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-
-class LogoutView(APIView):
-    """
-    POST /api/auth/logout/
-    Logout user và blacklist refresh token
-    """
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        # 1. Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/logout')
+    def auth_logout(self, request):
+        """POST /api/users/auth/logout/ - Đăng xuất"""
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # 2. Gọi service layer
         try:
             logout_user(data=LogoutInput(
                 refresh_token=serializer.validated_data['refresh_token']
@@ -239,23 +239,14 @@ class LogoutView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 3. Trả về response
-        return Response({"detail": "Đăng xuất thành công"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Logout successfully"}, status=status.HTTP_200_OK)
 
-
-class RegisterView(APIView):
-    """
-    POST /api/auth/register/
-    Đăng ký tài khoản mới
-    """
-    permission_classes = [AllowAny]  # Cho phép anonymous
-    
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/register')
+    def auth_register(self, request):
+        """POST /api/users/auth/register/ - Đăng ký"""
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             result = register_user(data=RegisterInput(
                 email=serializer.validated_data['email'],
@@ -266,23 +257,15 @@ class RegisterView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
         output_serializer = RegisterResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
-class ForgotPasswordView(APIView):
-    """
-    POST /api/auth/forgot-password/
-    Quên mật khẩu
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/forgot-password')
+    def auth_forgot_password(self, request):
+        """POST /api/users/auth/forgot-password/ - Quên mật khẩu"""
         serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             forgot_password(data=ForgotPasswordInput(
                 email=serializer.validated_data['email']
@@ -290,22 +273,14 @@ class ForgotPasswordView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
-        return Response({"detail": "Email đã được gửi"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Email has been sent"}, status=status.HTTP_200_OK)
 
-class ResetPasswordView(APIView):
-    """
-    POST /api/auth/reset-password/
-    Reset mật khẩu
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/reset-password')
+    def auth_reset_password(self, request):
+        """POST /api/users/auth/reset-password/ - Reset mật khẩu"""
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             reset_password(data=ResetPasswordInput(
                 reset_token=serializer.validated_data['token'],
@@ -314,22 +289,14 @@ class ResetPasswordView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
-        return Response({"detail": "Mật khẩu đã được đổi"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Password has been changed"}, status=status.HTTP_200_OK)
 
-class VerifyEmailView(APIView):
-    """
-    POST /api/auth/verify-email/
-    Verify email
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/verify-email')
+    def auth_verify_email(self, request):
+        """POST /api/users/auth/verify-email/ - Xác thực email"""
         serializer = VerifyEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             verify_email(data=VerifyEmailInput(
                 token=serializer.validated_data['email_verification_token']
@@ -337,22 +304,14 @@ class VerifyEmailView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
-        return Response({"detail": "Email đã được xác minh"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Email has been verified"}, status=status.HTTP_200_OK)
 
-class ResendVerificationView(APIView):
-    """
-    POST /api/auth/resend-verification/
-    Resend verification email
-    """
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/resend-verification')
+    def auth_resend_verification(self, request):
+        """POST /api/users/auth/resend-verification/ - Gửi lại email xác thực"""
         serializer = ResendVerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             resend_verification(data=ResendVerificationInput(
                 email=serializer.validated_data['email']
@@ -360,22 +319,14 @@ class ResendVerificationView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
-        return Response({"detail": "Email xác minh đã được gửi lại"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Email verification has been resend"}, status=status.HTTP_200_OK)
 
-class ChangePasswordView(APIView):
-    """
-    POST /api/auth/change-password/
-    Thay đổi mật khẩu
-    """
-    permission_classes = [IsAuthenticated] # Login mới đổi
-
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/change-password')
+    def auth_change_password(self, request):
+        """POST /api/users/auth/change-password/ - Đổi mật khẩu"""
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             change_password(data=ChangePasswordInput(
                 user_id=request.user.id,
@@ -385,43 +336,33 @@ class ChangePasswordView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
-        return Response({"detail": "Mật khẩu đã được đổi"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Password has been changed"}, status=status.HTTP_200_OK)
 
-class CheckEmailView(APIView):
-    """
-    POST /api/auth/check-email/
-    Kiểm tra email
-    """
-    permission_classes = [AllowAny]
-    
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/check-email')
+    def auth_check_email(self, request):
+        """POST /api/users/auth/check-email/ - Kiểm tra email"""
         serializer = CheckEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             result = check_email(data=CheckEmailInput(email=serializer.validated_data['email']))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
         return Response(result, status=status.HTTP_200_OK)
 
-class SocialLoginView(APIView):
-    """
-    POST /api/auth/social/(google|facebook|linkedin)/
-    Đăng nhập với tài khoản xã hội
-    """
-    permission_classes = [AllowAny]
-    
-    def post(self, request, provider):
-        # Validate input via serializer
+    @action(detail=False, methods=['get'], url_path='auth/me')
+    def auth_me(self, request):
+        """GET /api/users/auth/me/ - Lấy thông tin user hiện tại"""
+        serializer = CustomUserSerializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'], url_path='auth/social/(?P<provider>[^/.]+)')
+    def auth_social_login(self, request, provider=None):
+        """POST /api/users/auth/social/:provider/ - Đăng nhập social"""
         serializer = SocialAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             result = social_login(data=SocialLoginInput(
                 provider=provider,
@@ -433,23 +374,15 @@ class SocialLoginView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-class Verify2FAView(APIView):
-    """
-    POST /api/auth/verify-2fa/
-    Kiểm tra mã 2FA
-    """
-    permission_classes = [IsAuthenticated]
-    
-    def post(self, request):
-        # Validate input via serializer
+    @action(detail=False, methods=['post'], url_path='auth/verify-2fa')
+    def auth_verify_2fa(self, request):
+        """POST /api/users/auth/verify-2fa/ - Xác thực 2FA"""
         serializer = Verify2FASerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Gọi service layer
         try:
             result = verify_2fa(data=Verify2FAInput(
                 user_id=request.user.id,
@@ -458,19 +391,4 @@ class Verify2FAView(APIView):
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Trả về response
         return Response(result, status=status.HTTP_200_OK)
-
-class AuthMeView(APIView):
-    """
-    GET /api/auth/me/
-    Lấy thông tin người dùng
-    """
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        # Validate input via serializer
-        serializer = CustomUserSerializer(request.user)
-        
-        # Trả về response
-        return Response(serializer.data)

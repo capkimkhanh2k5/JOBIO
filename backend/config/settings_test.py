@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     # Company Domain (cho company tests)
     'apps.company.companies',
     'apps.company.industries',
+    'apps.company.benefit_categories',
+    'apps.company.company_benefits',
     # Geography Domain (FK dependencies)
     'apps.geography.provinces',
     'apps.geography.communes',
