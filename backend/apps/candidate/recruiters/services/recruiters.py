@@ -29,21 +29,6 @@ class RecruiterInput(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-# TODO: Define new services for Extended APIs
-# 1. calculate_profile_completeness_service(recruiter: Recruiter) -> dict
-#    - Input: Recruiter instance
-#    - Logic: Check fields (bio, position, avatar...), calculate score, update DB.
-#    - Return: {'score': 80, 'missing_fields': ['bio', 'avatar']}
-#
-# 2. upload_recruiter_avatar_service(user: CustomUser, file_data: RecruiterAvatarInput) -> str
-#    - Input: User, file
-#    - Logic: Upload to Cloudinary, update user.avatar_url
-#    - Return: New Avatar URL
-#
-# 3. update_recruiter_privacy_service(recruiter: Recruiter, is_public: bool) -> Recruiter
-#    - Input: Recruiter, bool
-#    - Logic: Update is_profile_public
-
 @transaction.atomic
 def create_recruiter_service(user, data: RecruiterInput) -> Recruiter:
     """
@@ -89,3 +74,100 @@ def delete_recruiter_service(recruiter: Recruiter) -> None:
     Xóa hồ sơ ứng viên.
     """
     recruiter.delete()
+
+def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
+    """
+    Tính toán mức độ hoàn thiện hồ sơ.
+    """
+    score = 0
+    missing_fields = []
+    
+    #TODO: Điều chỉnh để có thể phù hợp sau này tích hợp AI để có thể đánh giá mức độ hoàn thiện hồ sơ
+    
+    # Check fields
+    if recruiter.bio:
+        score += 10
+    else:
+        missing_fields.append('bio')
+    
+    if recruiter.current_position:
+        score += 10
+    else:
+        missing_fields.append('current_position')
+    
+    if recruiter.current_company:
+        score += 10
+    else:
+        missing_fields.append('current_company')
+    
+    if recruiter.years_of_experience:
+        score += 10
+    else:
+        missing_fields.append('years_of_experience')
+    
+    if recruiter.highest_education_level:
+        score += 10
+    else:
+        missing_fields.append('highest_education_level')
+
+    if recruiter.user.avatar_url:
+        score += 10
+    else:
+        missing_fields.append('avatar') 
+    
+    if recruiter.address:
+        score += 10
+    else:
+        missing_fields.append('address')
+
+    if recruiter.linkedin_url:
+        score += 10
+    else:
+        missing_fields.append('linkedin_url')
+
+    if recruiter.facebook_url:
+        score += 10
+    else:
+        missing_fields.append('facebook_url')
+
+    if recruiter.portfolio_url:
+        score += 10
+    else:
+        missing_fields.append('portfolio_url')
+
+    # Update DB
+    recruiter.profile_completeness_score = score
+    recruiter.save()
+    
+    return {'score': score, 'missing_fields': missing_fields}
+
+def upload_recruiter_avatar_service(recruiter: Recruiter, file_data: dict) -> Recruiter:
+    """
+    Cập nhật ảnh đại diện cho hồ sơ ứng viên.
+    """
+    recruiter.user.avatar_url = file_data.get('avatar')
+    recruiter.user.save()
+    return recruiter
+
+def update_recruiter_privacy_service(recruiter: Recruiter, is_public: bool) -> Recruiter:
+    """
+    Cập nhật trạng thái riêng tư của hồ sơ ứng viên.
+    """
+    recruiter.is_profile_public = is_public
+    recruiter.save()
+    return recruiter
+
+#TODO: Thực hiện xác minh số điện thoại với SMS hoặc Telegram sau khi có API
+def send_phone_otp_service(user, phone: str) -> bool:
+    # def send_phone_otp_service(user, phone: str) -> bool:
+    #     - Generate OTP, store in cache/db
+    #     - Send SMS via Twilio/other provider
+    #     - Return: success status
+    return True
+
+#TODO: Thực hiện xác minh số điện thoại với SMS hoặc Telegram sau khi có API
+def verify_phone_otp_service(user, otp_code: str) -> bool:
+    #     - Validate OTP from cache/db
+    #     - Update user.phone_verified = True
+    #     - Return: success status
+    return True

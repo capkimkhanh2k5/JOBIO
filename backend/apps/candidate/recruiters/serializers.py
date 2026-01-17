@@ -2,19 +2,6 @@ from rest_framework import serializers
 from .models import Recruiter
 from apps.core.users.serializers import CustomUserSerializer
 
-# TODO: Define new serializers for Extended APIs
-# 1. ProfileCompletenessSerializer
-#    - Fields: score (int), missing_fields (list[str])
-# 2. RecruiterAvatarSerializer
-#    - Fields: avatar (FileField/ImageField)
-#    - Validation: Max size 5MB, formats [jpg, png]
-# 3. RecruiterPublicProfileSerializer
-#    - Fields: Safe fields only (Name, Bio, Position, Experience, Skills, LinkedIn...)
-#    - Exclude: Phone, Email, Salary info
-# 4. RecruiterPrivacySerializer
-#    - Fields: is_profile_public (bool)
-# 5. RecruiterStatsSerializer
-#    - Fields: profile_views (int), following_companies_count (int)
 
 class RecruiterSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
@@ -61,3 +48,62 @@ class RecruiterUpdateSerializer(serializers.ModelSerializer):
 
 class JobSearchStatusSerializer(serializers.Serializer):
     job_search_status = serializers.ChoiceField(choices=Recruiter.JobSearchStatus.choices)
+
+class ProfileCompletenessSerializer(serializers.Serializer):
+    score = serializers.IntegerField(read_only=True)
+    missing_fields = serializers.ListField(child=serializers.CharField(), read_only=True)
+
+class RecruiterAvatarSerializer(serializers.Serializer):
+    avatar = serializers.ImageField(max_length=None, use_url=True)
+    
+class RecruiterPublicProfileSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(read_only=True)
+    
+    class Meta:
+        model = Recruiter
+        fields = [
+            'id', 'user', 'current_company', 'current_position', 
+            'bio', 'linkedin_url', 'github_url', 'portfolio_url',
+            'years_of_experience', 'highest_education_level',
+        ]
+        read_only_fields = ['id']
+
+class RecruiterPrivacySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recruiter
+        fields = ['is_profile_public']
+
+class RecruiterStatsSerializer(serializers.Serializer):
+    profile_views = serializers.IntegerField(read_only=True)
+    following_companies = serializers.IntegerField(read_only=True)
+
+class RecruiterSearchFilterSerializer(serializers.Serializer):
+    skills = serializers.ListField(child=serializers.CharField())
+    location = serializers.CharField()
+    min_experience = serializers.IntegerField()
+    job_status = serializers.CharField()
+
+class PhoneVerificationSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+    otp_code = serializers.CharField(required=False) #TODO: Có thể xử lí OTP SMS hoặc telegram sau
+
+class MatchingJobSerializer(serializers.Serializer):
+    job_id = serializers.IntegerField()
+    job_title = serializers.CharField()
+    company_name = serializers.CharField()
+    match_score = serializers.IntegerField()
+
+class RecruiterApplicationSerializer(serializers.Serializer):
+    """Placeholder cho danh sách đơn ứng tuyển"""
+    id = serializers.IntegerField()
+    job_title = serializers.CharField()
+    company_name = serializers.CharField()
+    status = serializers.CharField()
+    applied_at = serializers.DateTimeField()
+
+class SavedJobSerializer(serializers.Serializer):
+    """Placeholder cho danh sách việc làm đã lưu"""
+    id = serializers.IntegerField()
+    job_title = serializers.CharField()
+    company_name = serializers.CharField()
+    saved_at = serializers.DateTimeField()
