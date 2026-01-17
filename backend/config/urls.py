@@ -34,7 +34,12 @@ urlpatterns = [
     path('api/users/', include('apps.core.users.urls')),
     
     # Company app routes (includes nested benefits)
+    # Company Followers routes (must be before generic company routes)
+    path('api/companies/', include('apps.social.company_followers.urls')),
     path('api/companies/', include('apps.company.companies.urls')),
+    
+    # Recruiter app routes
+    path('api/recruiters/', include('apps.candidate.recruiters.urls')),
     
     # JWT Token endpoints (built-in)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -27,14 +27,15 @@ def validate_image_file(file: UploadedFile, max_size_mb: int = 2) -> None:
         raise ValueError(f"File quá lớn. Tối đa {max_size_mb}MB")
 
 
-def save_company_file(company_id: int, file: UploadedFile, file_type: str) -> str:
+def save_company_file(company_id: int, file: UploadedFile, file_type: str, resource_type: str = 'auto') -> str:
     """
     Lưu file vào Cloudinary
     
     Args:
         company_id: ID của company
         file: File upload
-        file_type: Loại file (logo, banner, ...)
+        file_type: Loại file (logo, banner, office_photo, ...)
+        resource_type: Loại resource ('image', 'video', 'raw', 'auto'). Mặc định là 'auto'.
     
     Returns:
         URL của file đã upload
@@ -44,7 +45,7 @@ def save_company_file(company_id: int, file: UploadedFile, file_type: str) -> st
         result = cloudinary.uploader.upload(
             file, 
             public_id=public_id, 
-            resource_type='image', 
+            resource_type=resource_type, 
             overwrite=True
         )
         return result['secure_url']
@@ -52,12 +53,13 @@ def save_company_file(company_id: int, file: UploadedFile, file_type: str) -> st
         raise ValueError(f"Upload file thất bại: {str(e)}")
 
 
-def delete_company_file(file_url: str) -> bool:
+def delete_company_file(file_url: str, resource_type: str = 'image') -> bool:
     """
     Xóa file từ Cloudinary dựa trên URL
     
     Args:
         file_url: URL của file cần xóa
+        resource_type: Loại resource ('image', 'video', 'raw')
     
     Returns:
         True nếu xóa thành công, False nếu thất bại
@@ -72,7 +74,7 @@ def delete_company_file(file_url: str) -> bool:
     
     public_id = match.group(1)
     try:
-        result = cloudinary.uploader.destroy(public_id, resource_type='image')
+        result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
         return result.get('result') == 'ok'
     except Exception:
         return False
