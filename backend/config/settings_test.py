@@ -27,6 +27,16 @@ INSTALLED_APPS = [
     'corsheaders',
     # Core (chỉ test users)
     'apps.core.users',
+    # Company Domain (cho company tests)
+    'apps.company.companies',
+    'apps.company.industries',
+    # Geography Domain (FK dependencies)
+    'apps.geography.provinces',
+    'apps.geography.communes',
+    'apps.geography.addresses',
+    # System Domain (FK dependencies cho Activity Logs)
+    'apps.system.activity_logs',
+    'apps.system.activity_log_types',
 ]
 
 MIDDLEWARE = [

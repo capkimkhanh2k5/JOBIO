@@ -49,6 +49,7 @@ class Industry(models.Model):
     
     class Meta:
         db_table = 'industries'
+        app_label = 'company_industries'
         verbose_name = 'Ngành nghề'
         verbose_name_plural = 'Ngành nghề'
         ordering = ['display_order', 'name']

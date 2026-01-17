@@ -45,6 +45,7 @@ class Province(models.Model):
     
     class Meta:
         db_table = 'provinces'
+        app_label = 'geography_provinces'
         verbose_name = 'Tỉnh/Thành phố'
         verbose_name_plural = 'Tỉnh/Thành phố'
         ordering = ['province_name']

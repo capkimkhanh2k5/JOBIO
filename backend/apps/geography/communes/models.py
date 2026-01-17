@@ -37,6 +37,7 @@ class Commune(models.Model):
     
     class Meta:
         db_table = 'communes'
+        app_label = 'geography_communes'
         verbose_name = 'Xã/Phường/Thị trấn'
         verbose_name_plural = 'Xã/Phường/Thị trấn'
         ordering = ['commune_name']

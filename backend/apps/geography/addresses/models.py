@@ -53,6 +53,7 @@ class Address(models.Model):
     
     class Meta:
         db_table = 'addresses'
+        app_label = 'geography_addresses'
         verbose_name = 'Địa chỉ'
         verbose_name_plural = 'Địa chỉ'
         indexes = [

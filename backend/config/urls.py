@@ -33,6 +33,9 @@ urlpatterns = [
     # Users app routes (login, logout, register)
     path('api/', include('apps.core.users.urls')),
     
+    # Company app routes
+    path('api/companies/', include('apps.company.companies.urls')),
+    
     # JWT Token endpoints (built-in)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

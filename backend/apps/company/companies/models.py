@@ -132,6 +132,7 @@ class Company(models.Model):
     
     class Meta:
         db_table = 'companies'
+        app_label = 'company_companies'
         verbose_name = 'Công ty'
         verbose_name_plural = 'Công ty'
     
