@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     'apps.company.industries',
     'apps.company.benefit_categories',
     'apps.company.company_benefits',
+    'apps.company.media_types',
+    'apps.company.company_media',
     # Geography Domain (FK dependencies)
     'apps.geography.provinces',
     'apps.geography.communes',
@@ -47,11 +49,28 @@ INSTALLED_APPS = [
     'apps.candidate.recruiter_certifications',
     'apps.candidate.recruiter_languages',
     'apps.candidate.recruiter_projects',
+    'apps.candidate.skill_categories',
     'apps.candidate.skills',
     'apps.candidate.languages',
     # Social Domain (follower dependencies)
     'apps.social.company_followers',
     'apps.social.skill_endorsements',
+    # Recruitment Domain (jobs)
+    'apps.recruitment.jobs',
+    'apps.recruitment.job_categories',
+    'apps.recruitment.applications',
+    'apps.recruitment.application_status_history',
+    'apps.recruitment.job_skills',
+    'apps.recruitment.job_locations',
+    'apps.recruitment.saved_jobs',
+    'apps.recruitment.job_views',
+    'apps.recruitment.interviews',
+    'apps.recruitment.interview_types',
+    'apps.recruitment.interview_interviewers',
+    # Candidate Domain (CV Builder)
+    'apps.candidate.cv_templates',
+    'apps.candidate.cv_template_categories',
+    'apps.candidate.recruiter_cvs',
 ]
 
 MIDDLEWARE = [
@@ -84,15 +103,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database - dùng PostgreSQL từ Docker
+# Database - dùng SQLite cho local tests (không cần Docker)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'jobportal_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
     }
 }
 

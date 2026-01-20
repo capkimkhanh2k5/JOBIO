@@ -83,6 +83,7 @@ class RecruiterSearchFilterSerializer(serializers.Serializer):
     min_experience = serializers.IntegerField()
     job_status = serializers.CharField()
 
+#TODO: Xử lí OTP SMS hoặc telegram sau
 class PhoneVerificationSerializer(serializers.Serializer):
     phone = serializers.CharField()
     otp_code = serializers.CharField(required=False) #TODO: Có thể xử lí OTP SMS hoặc telegram sau
@@ -102,8 +103,20 @@ class RecruiterApplicationSerializer(serializers.Serializer):
     applied_at = serializers.DateTimeField()
 
 class SavedJobSerializer(serializers.Serializer):
-    """Placeholder cho danh sách việc làm đã lưu"""
-    id = serializers.IntegerField()
-    job_title = serializers.CharField()
-    company_name = serializers.CharField()
-    saved_at = serializers.DateTimeField()
+    """Serializer cho danh sách việc làm đã lưu"""
+    id = serializers.SerializerMethodField()
+    job_title = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+    saved_at = serializers.SerializerMethodField()
+    
+    def get_id(self, obj):
+        return obj.id
+    
+    def get_job_title(self, obj):
+        return obj.job.title if obj.job else None
+    
+    def get_company_name(self, obj):
+        return obj.job.company.company_name if obj.job and obj.job.company else None
+    
+    def get_saved_at(self, obj):
+        return obj.created_at

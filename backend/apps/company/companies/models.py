@@ -20,6 +20,8 @@ class Company(models.Model):
     user = models.OneToOneField(
         'core_users.CustomUser',
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name='company_profile',
         verbose_name='Tài khoản'
     )

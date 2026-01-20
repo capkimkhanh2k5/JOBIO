@@ -1,19 +1,3 @@
-"""
-URL configuration for config project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
@@ -55,6 +39,56 @@ urlpatterns = [
     
     # Languages public routes
     path('api/languages/', include('apps.candidate.languages.urls')),
+    
+    # Jobs routes
+    path('api/jobs/', include('apps.recruitment.jobs.urls')),
+    
+    # Applications flat routes (CRUD + status/rating)
+    path('api/applications/', include('apps.recruitment.applications.urls')),
+    
+    # Job Applications nested routes
+    path('api/jobs/<int:job_id>/applications/', include('apps.recruitment.applications.urls_nested')),
+    
+    # Job Skills nested routes
+    path('api/jobs/<int:job_id>/skills/', include('apps.recruitment.job_skills.urls')),
+    
+    # Job Locations nested routes
+    path('api/jobs/<int:job_id>/locations/', include('apps.recruitment.job_locations.urls')),
+    
+    # Saved Jobs routes
+    path('api/saved-jobs/', include('apps.recruitment.saved_jobs.urls')),
+    # Recruiter Saved Jobs nested routes
+    path('api/recruiters/<int:recruiter_id>/saved-jobs/', 
+         include('apps.recruitment.saved_jobs.urls_nested')),
+    
+    # Interviews routes
+    path('api/interviews/', include('apps.recruitment.interviews.urls')),
+    
+    # Interview Types routes
+    path('api/interview-types/', include('apps.recruitment.interview_types.urls')),
+    
+    # CV Templates routes (CV Builder Module)
+    path('api/cv-templates/', include('apps.candidate.cv_templates.urls')),
+    
+    # Recruiter CVs nested routes
+    path('api/recruiters/<int:recruiter_id>/cvs/', include('apps.candidate.recruiter_cvs.urls')),
+    
+    # Industries routes (Taxonomy)
+    path('api/industries/', include('apps.company.industries.urls')),
+    
+    # Job Categories routes (Taxonomy)
+    path('api/job-categories/', include('apps.recruitment.job_categories.urls')),
+    
+    # Skills routes (Taxonomy)
+    path('api/skills/', include('apps.candidate.skills.urls')),
+    
+    # Benefit Categories routes
+    path('api/benefit-categories/', include('apps.company.benefit_categories.urls')),
+    
+    # Geography routes
+    path('api/provinces/', include('apps.geography.provinces.urls')),
+    path('api/communes/', include('apps.geography.communes.urls')),
+    path('api/addresses/', include('apps.geography.addresses.urls')),
     
     # JWT Token endpoints (built-in)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

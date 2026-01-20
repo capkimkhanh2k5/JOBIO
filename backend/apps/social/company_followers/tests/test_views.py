@@ -14,7 +14,12 @@ class CompanyFollowerViewTest(TestCase):
         self.client.force_authenticate(user=self.user)
         
         self.company_user = CustomUser.objects.create_user(email="company@test.com", password="password")
-        self.company = Company.objects.create(user=self.company_user, company_name="Test Company", follower_count=0)
+        self.company = Company.objects.create(
+            user=self.company_user, 
+            company_name="Test Company", 
+            slug="test-company-followers-views",
+            follower_count=0
+        )
 
     def test_follow_company_api(self):
         response = self.client.post(f'/api/companies/{self.company.id}/follow/')
@@ -42,8 +47,16 @@ class CompanyFollowerViewTest(TestCase):
         self.assertFalse(response.data['is_following'])
 
     def test_list_following_companies_api(self):
-        c1 = Company.objects.create(user=CustomUser.objects.create_user(email="c1@t.com", password="p"), company_name="C1")
-        c2 = Company.objects.create(user=CustomUser.objects.create_user(email="c2@t.com", password="p"), company_name="C2")
+        c1 = Company.objects.create(
+            user=CustomUser.objects.create_user(email="c1@t.com", password="p"), 
+            company_name="C1",
+            slug="c1-company"
+        )
+        c2 = Company.objects.create(
+            user=CustomUser.objects.create_user(email="c2@t.com", password="p"), 
+            company_name="C2",
+            slug="c2-company"
+        )
         
         CompanyFollower.objects.create(recruiter=self.recruiter, company=c1)
         CompanyFollower.objects.create(recruiter=self.recruiter, company=c2)

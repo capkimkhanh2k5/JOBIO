@@ -98,6 +98,111 @@ class RecruiterViewTest(APITestCase):
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    # ========== Tests for Avatar Upload API ==========
+    
+    def test_upload_avatar_success(self):
+        """Test POST /api/recruiters/:id/avatar - upload success"""
+        from PIL import Image
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        
+        recruiter = Recruiter.objects.create(user=self.user)
+        url = reverse('recruiter-upload-avatar', args=[recruiter.id])
+        
+        # Create a test image
+        image = Image.new('RGB', (100, 100), color='red')
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        avatar_file = SimpleUploadedFile(
+            name='test_avatar.png',
+            content=buffer.read(),
+            content_type='image/png'
+        )
+        
+        response = self.client.post(url, {'avatar': avatar_file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_upload_avatar_not_owner(self):
+        """Test POST avatar by non-owner returns 403"""
+        from PIL import Image
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        
+        recruiter2 = Recruiter.objects.create(user=self.user2)
+        url = reverse('recruiter-upload-avatar', args=[recruiter2.id])
+        
+        image = Image.new('RGB', (100, 100), color='red')
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        avatar_file = SimpleUploadedFile(
+            name='test_avatar.png',
+            content=buffer.read(),
+            content_type='image/png'
+        )
+        
+        response = self.client.post(url, {'avatar': avatar_file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_upload_avatar_unauthenticated(self):
+        """Test POST avatar without auth returns 401"""
+        recruiter = Recruiter.objects.create(user=self.user)
+        url = reverse('recruiter-upload-avatar', args=[recruiter.id])
+        
+        self.client.logout()
+        response = self.client.post(url, {}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_upload_avatar_no_file(self):
+        """Test POST avatar without file returns 400"""
+        recruiter = Recruiter.objects.create(user=self.user)
+        url = reverse('recruiter-upload-avatar', args=[recruiter.id])
+        
+        response = self.client.post(url, {}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_upload_avatar_recruiter_not_found(self):
+        """Test POST avatar with non-existent recruiter returns 404"""
+        url = reverse('recruiter-upload-avatar', args=[99999])
+        
+        from PIL import Image
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        
+        image = Image.new('RGB', (100, 100), color='red')
+        buffer = BytesIO()
+        image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        avatar_file = SimpleUploadedFile(
+            name='test_avatar.png',
+            content=buffer.read(),
+            content_type='image/png'
+        )
+        
+        response = self.client.post(url, {'avatar': avatar_file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_upload_avatar_invalid_type(self):
+        """Test POST avatar with non-image file returns 400"""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        
+        recruiter = Recruiter.objects.create(user=self.user)
+        url = reverse('recruiter-upload-avatar', args=[recruiter.id])
+        
+        # Create a text file (not an image)
+        text_file = SimpleUploadedFile(
+            name='test_file.txt',
+            content=b'This is not an image file',
+            content_type='text/plain'
+        )
+        
+        response = self.client.post(url, {'avatar': text_file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     # ========== Tests for Extended APIs ==========
     
     def test_get_profile_completeness(self):

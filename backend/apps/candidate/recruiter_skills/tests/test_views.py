@@ -1,9 +1,11 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from unittest import skip
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.recruiter_skills.models import RecruiterSkill
 from apps.candidate.skills.models import Skill
+from apps.candidate.skill_categories.models import SkillCategory
 from apps.social.skill_endorsements.models import SkillEndorsement
 
 
@@ -27,10 +29,16 @@ class RecruiterSkillViewTest(APITestCase):
         self.recruiter = Recruiter.objects.create(user=self.user, bio="Test recruiter")
         self.recruiter2 = Recruiter.objects.create(user=self.user2, bio="Test recruiter 2")
         
-        # Create sample skills (assuming Skill model exists)
-        self.skill1 = Skill.objects.create(name="Python")
-        self.skill2 = Skill.objects.create(name="JavaScript")
-        self.skill3 = Skill.objects.create(name="Django")
+        # Create skill category first (required FK)
+        self.category = SkillCategory.objects.create(
+            name="Programming",
+            slug="programming"
+        )
+        
+        # Create sample skills with category FK
+        self.skill1 = Skill.objects.create(name="Python", slug="python", category=self.category)
+        self.skill2 = Skill.objects.create(name="JavaScript", slug="javascript", category=self.category)
+        self.skill3 = Skill.objects.create(name="Django", slug="django", category=self.category)
         
         # Create sample recruiter_skill
         self.recruiter_skill = RecruiterSkill.objects.create(
@@ -59,6 +67,14 @@ class RecruiterSkillViewTest(APITestCase):
         url = '/api/recruiters/99999/skills/'
         response = self.client.get(url)
         
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_list_skills_invalid_recruiter_id_format(self):
+        """Test GET with invalid recruiter ID format (string instead of int)"""
+        url = '/api/recruiters/invalid-id/skills/'
+        response = self.client.get(url)
+        
+        # Should return 404 (not found) since ID doesn't match any recruiter
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     # ========== CREATE Tests ==========
@@ -222,6 +238,39 @@ class RecruiterSkillViewTest(APITestCase):
         response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_bulk_add_skills_performance(self):
+        """Test bulk add with many skills (performance test)"""
+        import time
+        
+        # Create more skills for bulk testing
+        from apps.candidate.skills.models import Skill
+        extra_skills = []
+        for i in range(20):
+            skill = Skill.objects.create(
+                name=f"Skill_{i}", 
+                slug=f"skill-{i}", 
+                category=self.category
+            )
+            extra_skills.append(skill)
+        
+        url = f'/api/recruiters/{self.recruiter.id}/skills/bulk-add/'
+        data = {
+            "skills": [
+                {"skill_id": s.id, "proficiency_level": "intermediate"} 
+                for s in extra_skills
+            ]
+        }
+        
+        start_time = time.time()
+        response = self.client.post(url, data, format='json')
+        elapsed_time = time.time() - start_time
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # All 20 skills should be added (+ 1 existing = 21 total)
+        self.assertEqual(RecruiterSkill.objects.filter(recruiter=self.recruiter).count(), 21)
+        # Performance: should complete within 2 seconds
+        self.assertLess(elapsed_time, 2.0, f"Bulk add took too long: {elapsed_time:.2f}s")
     
     # ========== ENDORSE Tests ==========
     

@@ -28,6 +28,7 @@ from .selectors.recruiter_skills import (
     get_skill_by_id
 )
 from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
+from apps.candidate.recruiters.models import Recruiter
 
 
 class RecruiterSkillViewSet(viewsets.GenericViewSet):
@@ -246,7 +247,11 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
             )
         
         # Get current user's recruiter profile
-        current_recruiter = get_recruiter_by_id(request.user.recruiter.id if hasattr(request.user, 'recruiter') else None)
+        try:
+            current_recruiter = get_recruiter_by_id(request.user.recruiter_profile.id)
+        except (AttributeError, Recruiter.DoesNotExist):
+            current_recruiter = None
+            
         if not current_recruiter:
             return Response(
                 {"detail": "You need a recruiter profile to endorse skills"}, 

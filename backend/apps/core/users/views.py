@@ -35,7 +35,7 @@ from apps.system.activity_logs.serializers import ActivityLogSerializer
 
 class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
     """
-    ViewSet cho quản lý User và Authentication
+        ViewSet cho quản lý User và Authentication
     """
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
@@ -81,6 +81,14 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     def update(self, request, *args, **kwargs):
         """PUT /api/users/:id/ - Cập nhật user"""
         user = self.get_object()
+        
+        # Quyền: Chỉ user hoặc admin mới được cập nhật
+        if request.user.id != user.id and request.user.role != CustomUser.Role.ADMIN:
+            return Response(
+                {"detail": "Bạn không có quyền cập nhật thông tin user này."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
         serializer = UserUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -112,7 +120,9 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=True, methods=['patch'], url_path='role')
     def update_role_action(self, request, pk=None):
-        """PATCH /api/users/:id/role - Cập nhật role"""
+        """
+            PATCH /api/users/:id/role - Cập nhật role
+        """
         user = self.get_object()
         serializer = UserRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -125,8 +135,17 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     @action(detail=True, methods=['post', 'delete'], url_path='avatar', parser_classes=[MultiPartParser, FormParser])
     def manage_avatar(self, request, pk=None):
-        """POST/DELETE /api/users/:id/avatar - Quản lý avatar"""
+        """
+            POST/DELETE /api/users/:id/avatar - Quản lý avatar
+        """
         user = self.get_object()
+        
+        # Permission check: chỉ chính user hoặc admin mới được quản lý avatar
+        if request.user.id != user.id and request.user.role != CustomUser.Role.ADMIN:
+            return Response(
+                {"detail": "Bạn không có quyền quản lý avatar của user này."},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
         if request.method == 'POST':
             serializer = UserAvatarSerializer(data=request.data)
@@ -204,10 +223,6 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             return Response(result)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    # =========================================================================
-    # AUTH ENDPOINTS (chuyển từ APIView sang @action)
-    # =========================================================================
 
     @action(detail=False, methods=['post'], url_path='auth/login')
     def auth_login(self, request):
