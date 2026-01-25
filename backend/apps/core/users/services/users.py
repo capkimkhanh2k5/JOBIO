@@ -122,7 +122,7 @@ def upload_user_avatar(user: CustomUser, file) -> CustomUser:
         raise ValueError("File quá lớn. Tối đa 2MB")
     
     # Upload to Cloudinary
-    public_id = f"avatars/{user.id}/avatar_{int(time.time())}"
+    public_id = f"Jobio/Avatars/{user.id}/avatar_{int(time.time())}"
     try:
         result = cloudinary.uploader.upload(
             file,

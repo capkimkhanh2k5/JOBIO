@@ -40,7 +40,8 @@ def save_company_file(company_id: int, file: UploadedFile, file_type: str, resou
     Returns:
         URL của file đã upload
     """
-    public_id = f"companies/{company_id}/{file_type}_{company_id}_{int(time.time())}"
+    # Updated path to use Jobio root folder
+    public_id = f"Jobio/Companies/{company_id}/{file_type}_{company_id}_{int(time.time())}"
     try: 
         result = cloudinary.uploader.upload(
             file, 
@@ -92,7 +93,8 @@ def save_raw_file(folder: str, file, prefix: str) -> str:
     Returns:
         URL của file đã upload
     """
-    public_id = f"{folder}/{prefix}_{int(time.time())}"
+    # Updated path to use Jobio root folder
+    public_id = f"Jobio/{folder}/{prefix}_{int(time.time())}"
     try:
         result = cloudinary.uploader.upload(
             file,
