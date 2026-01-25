@@ -53,7 +53,8 @@ class ReferralService:
         # Upload CV to Cloudinary if file provided
         cv_url = ''
         if cv_file:
-            cv_url = save_raw_file('referrals/cvs', cv_file, 'cv')
+            # save_raw_file will verify 'Jobio/' prefix
+            cv_url = save_raw_file('Referrals/CVs', cv_file, 'cv')
 
         referral = Referral.objects.create(
             program_id=data.program_id,
