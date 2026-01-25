@@ -139,6 +139,11 @@ class Recruiter(models.Model):
         default=0,
         verbose_name='Điểm hoàn thiện hồ sơ'
     )
+    ai_assessment_result = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Kết quả đánh giá AI'
+    )
     is_profile_public = models.BooleanField(
         default=True,
         verbose_name='Hồ sơ công khai'

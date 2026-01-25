@@ -30,7 +30,7 @@ MATCHING_WEIGHTS_BASIC = {
     'salary': Decimal('0.15'),      # 15%
 }
 
-# Matching weights with semantic (when OpenAI enabled)
+# Matching weights with semantic (when Gemini/AI enabled)
 MATCHING_WEIGHTS_SEMANTIC = {
     'skill': Decimal('0.25'),       # 25% (reduced)
     'experience': Decimal('0.20'),  # 20% (reduced)
@@ -104,7 +104,7 @@ def calculate_single_match(input_data: CalculateMatchInput) -> AIMatchingScore:
     location_result = calculate_location_score(job, recruiter)
     salary_result = calculate_salary_score(job, recruiter)
     
-    # Calculate semantic score if OpenAI is enabled
+    # Calculate semantic score if AI/Gemini is enabled
     semantic_result = None
     use_semantic = is_semantic_enabled()
     

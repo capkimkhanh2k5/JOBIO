@@ -1,59 +1,21 @@
-#TODO: Cần điều chỉnh cho phù hợp, lấy API ngoài để đánh giá CV
-
-
-import os
+#TODO: Đã chuyển sang Gemini API
 import logging
 from decimal import Decimal
 from typing import Optional
 
-from django.conf import settings
+from apps.assessment.ai_matching_scores.services.gemini_service import GeminiService
 
 logger = logging.getLogger(__name__)
 
 
-# OpenAI client (lazy initialization)
-_openai_client = None
-
-
-def get_openai_client():
-    """
-    Get or create OpenAI client.
-    Uses lazy initialization to avoid import errors if openai not installed.
-    """
-    global _openai_client
-    
-    if _openai_client is not None:
-        return _openai_client
-    
-    try:
-        from openai import OpenAI
-        
-        api_key = os.environ.get('OPENAI_API_KEY') or getattr(settings, 'OPENAI_API_KEY', None)
-        
-        if not api_key:
-            logger.warning("OPENAI_API_KEY not configured. Semantic matching disabled.")
-            return None
-        
-        _openai_client = OpenAI(api_key=api_key)
-        return _openai_client
-        
-    except ImportError:
-        logger.warning("openai package not installed. Run: pip install openai")
-        return None
-
-
 def get_embedding_model() -> str:
-    """Get the embedding model from environment or settings."""
-    return (
-        os.environ.get('OPENAI_EMBEDDING_MODEL') or 
-        getattr(settings, 'OPENAI_EMBEDDING_MODEL', None) or 
-        'text-embedding-3-small'
-    )
+    """Get the embedding model name."""
+    return 'models/text-embedding-004'
 
 
 def get_embedding(text: str) -> Optional[list[float]]:
     """
-    Get embedding vector for a text using OpenAI API.
+    Get embedding vector for a text using Gemini API.
     
     Args:
         text: Text to embed
@@ -61,41 +23,12 @@ def get_embedding(text: str) -> Optional[list[float]]:
     Returns:
         List of floats representing the embedding, or None if failed
     """
-    client = get_openai_client()
-    if not client:
-        return None
-    
-    try:
-        # Clean and truncate text (max 8191 tokens for text-embedding-3-small)
-        text = text.strip()
-        if len(text) > 30000:  # Rough character limit
-            text = text[:30000]
-        
-        if not text:
-            return None
-        
-        response = client.embeddings.create(
-            model=get_embedding_model(),
-            input=text
-        )
-        
-        return response.data[0].embedding
-        
-    except Exception as e:
-        logger.error(f"OpenAI embedding error: {e}")
-        return None
+    return GeminiService.get_embedding(text)
 
 
 def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     """
     Calculate cosine similarity between two vectors.
-    
-    Args:
-        vec1: First vector
-        vec2: Second vector
-        
-    Returns:
-        Similarity score between -1 and 1
     """
     if not vec1 or not vec2 or len(vec1) != len(vec2):
         return 0.0
@@ -112,27 +45,16 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
 
 def calculate_semantic_score(job, recruiter) -> dict:
     """
-    Calculate semantic similarity score between Job and Recruiter.
-    
-    Uses OpenAI embeddings to compare:
-    - Job description + requirements VS Recruiter bio + skills
-    
-    Args:
-        job: Job instance
-        recruiter: Recruiter instance
-        
-    Returns:
-        dict with score (0-100), details, and is_semantic flag
+    Calculate semantic similarity score between Job and Recruiter using Gemini.
     """
-    # Check if OpenAI is available
-    client = get_openai_client()
-    if not client:
+    # Check if AI is available
+    if not is_semantic_enabled():
         return {
             'score': Decimal('0.00'),
             'is_semantic': False,
             'details': {
                 'status': 'disabled',
-                'message': 'OpenAI not configured. Using rule-based matching only.',
+                'message': 'Gemini API not configured. Using rule-based matching only.',
             }
         }
     
@@ -163,15 +85,14 @@ def calculate_semantic_score(job, recruiter) -> dict:
                 'is_semantic': False,
                 'details': {
                     'status': 'embedding_failed',
-                    'message': 'Failed to generate embeddings',
+                    'message': 'Failed to generate embeddings via Gemini',
                 }
             }
         
         # Calculate similarity
         similarity = cosine_similarity(job_embedding, recruiter_embedding)
         
-        # Convert to 0-100 score (similarity is -1 to 1, but usually 0 to 1 for similar content)
-        # Scale: 0.0 -> 0, 0.5 -> 50, 1.0 -> 100
+        # Convert to 0-100 score
         score = Decimal(str(max(0, min(100, similarity * 100))))
         score = score.quantize(Decimal('0.01'))
         
@@ -275,5 +196,6 @@ def _build_recruiter_text(recruiter) -> str:
 
 
 def is_semantic_enabled() -> bool:
-    """Check if semantic matching is enabled (OpenAI configured)."""
-    return get_openai_client() is not None
+    """Check if semantic matching is enabled (Gemini configured)."""
+    # GeminiService._configure() checks settings and returns boolean
+    return GeminiService._configure()
