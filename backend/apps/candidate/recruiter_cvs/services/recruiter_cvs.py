@@ -1,6 +1,12 @@
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+
+import weasyprint
 
 from ..models import RecruiterCV
 
@@ -11,6 +17,7 @@ from apps.candidate.recruiter_experience.models import RecruiterExperience
 from apps.candidate.recruiter_certifications.models import RecruiterCertification
 from apps.candidate.recruiter_projects.models import RecruiterProject
 from apps.candidate.recruiter_languages.models import RecruiterLanguage
+from apps.company.companies.utils.cloudinary import save_raw_file
 
 @transaction.atomic
 def set_cv_as_default(cv: RecruiterCV) -> RecruiterCV:
@@ -26,40 +33,83 @@ def set_cv_as_default(cv: RecruiterCV) -> RecruiterCV:
     cv.save()
     return cv
 
-#TODO: Cần hoàn thiện download CV sau
-def generate_cv_download(cv: RecruiterCV, file_format: str = 'pdf') -> dict:
+def render_cv_to_html(cv: RecruiterCV) -> str:
     """
-    Tạo URL download CV (mock).
+    Render CV data to HTML string using default modern template.
     """
-    # Increment download count
-    cv.download_count += 1
-    cv.save(update_fields=['download_count'])
+    # Pick template. If cv.template is set, use it (future), else unique template.
+    template_name = 'cv/modern.html' 
     
-    # Mock response
-    expires_at = timezone.now() + timedelta(hours=1)
+    context = {
+        'data': cv.cv_data,
+        'cv': cv
+    }
+    
+    html_string = render_to_string(template_name, context)
+    return html_string
+
+
+def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dict:
+    """
+    Generate PDF for CV using WeasyPrint.
+    Uploads to Cloudinary and returns URL.
+    """
+    # Use cached URL if exists and not forced
+    if cv.cv_url and not force_regenerate:
+        # Increment download count
+        cv.download_count += 1
+        cv.save(update_fields=['download_count'])
+        return {
+            "download_url": cv.cv_url,
+            "format": "pdf",
+            "message": "Retrieved from cache"
+        }
+
+    # Render HTML
+    html_string = render_to_string('cv/modern.html', {'data': cv.cv_data})
+    
+    # Generate PDF (In-Memory)
+    pdf_file = weasyprint.HTML(string=html_string).write_pdf()
+    
+    # Upload to Cloudinary
+    # save_raw_file requires a file-like object or content file.
+    # Convert bytes to ContentFile
+    content_file = ContentFile(pdf_file, name=f"{cv.cv_name}.pdf")
+    
+    # Path: Jobio/Referrals/CVs/... (or Jobio/CVs) - user decided Jobio/CVs in previous turn if I recall?
+    # Actually user approved "Jobio/Referrals/CVs" for referrals.
+    # For user's personal CV, let's use "Jobio/CVs".
+    
+    try:
+        cv_url = save_raw_file('CVs', content_file, f"cv_{cv.id}")
+    except Exception as e:
+        # Fallback for dev without Cloudinary credentials? or raise
+        raise ValueError(f"Failed to upload CV: {str(e)}")
+
+    # Update CV
+    cv.cv_url = cv_url
+    cv.download_count += 1
+    cv.save(update_fields=['cv_url', 'download_count'])
     
     return {
-        "download_url": f"https://example.com/cv/{cv.id}/download.{file_format}",
-        "format": file_format,
-        "expires_at": expires_at.isoformat(),
-        "message": "Mock URL - integrate PDF generator later"
+        "download_url": cv_url,
+        "format": "pdf",
+        "message": "Generated new PDF"
     }
 
-#TODO: Cần hoàn thiện preview CV sau
+
 def generate_cv_preview(cv: RecruiterCV) -> dict:
     """
-    Tạo preview cho CV (mock).
+    Return HTML for preview.
     """
-    # Increment view count
     cv.view_count += 1
     cv.save(update_fields=['view_count'])
     
-    # Mock response
+    html_content = render_to_string('cv/modern.html', {'data': cv.cv_data})
+    
     return {
-        "preview_url": f"https://example.com/cv/{cv.id}/preview/",
-        "preview_data": cv.cv_data,
-        "template_id": cv.template_id,
-        "message": "Mock preview - integrate template renderer later"
+        "html_content": html_content,
+        "template_id": cv.template_id
     }
 
 

@@ -124,11 +124,10 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         updated = set_cv_as_default(cv)
         return Response(RecruiterCVListSerializer(updated).data)
     
-    #TODO: Cần hoàn thiện download CV sau
     def download(self, request, *args, **kwargs):
         """
         POST /:cvId/download/
-        Download CV (mock)
+        Download CV (Real PDF Generation)
         """
         from .services.recruiter_cvs import generate_cv_download
         
@@ -137,15 +136,23 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
             return error
         
         cv = self.get_object()
-        file_format = request.data.get('format', 'pdf')
-        result = generate_cv_download(cv, file_format)
-        return Response(result)
+        
+        # Check if user wants to force regenerate
+        force = request.data.get('force', False)
+        
+        try:
+            result = generate_cv_download(cv, force_regenerate=force)
+            return Response(result)
+        except Exception as e:
+            return Response(
+                {"detail": f"Error generating PDF: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
-    #TODO: Cần hoàn thiện preview CV sau
     def preview(self, request, *args, **kwargs):
         """
         POST /:cvId/preview/
-        Preview CV (mock)
+        Preview CV (Real HTML Render)
         """
         from .services.recruiter_cvs import generate_cv_preview
         
@@ -154,8 +161,19 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
             return error
         
         cv = self.get_object()
-        result = generate_cv_preview(cv)
-        return Response(result)
+        try:
+            result = generate_cv_preview(cv)
+            # If client accepts 'text/html', return raw HTML
+            if 'text/html' in request.META.get('HTTP_ACCEPT', ''):
+                from django.http import HttpResponse
+                return HttpResponse(result['html_content'])
+            
+            return Response(result)
+        except Exception as e:
+             return Response(
+                {"detail": f"Error rendering preview: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     def set_privacy(self, request, *args, **kwargs):
         """
