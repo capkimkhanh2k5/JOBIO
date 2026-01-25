@@ -1,6 +1,7 @@
 from typing import Optional
 from django.db.models import QuerySet
 from apps.candidate.recruiters.models import Recruiter
+from apps.assessment.ai_matching_scores.models import AIMatchingScore
 
 def get_recruiter_by_user(user) -> Optional[Recruiter]:
     """
@@ -51,14 +52,28 @@ def search_recruiters(filters: dict) -> QuerySet:
     if filters.get('location'):
         queryset = queryset.filter(address__city__icontains=filters['location'])
     
+    # Filter by skills
+    if filters.get('skills'):
+        skills = filters['skills']
+        if isinstance(skills, str):
+            skills = [skills]
+        # Filter recruiters who have at least one of the skills
+        queryset = queryset.filter(skills__skill__name__in=skills).distinct()
+    
     return queryset
 
 def get_matching_jobs(recruiter: Recruiter) -> list:
     """
     Tìm kiếm công việc phù hợp với hồ sơ ứng viên.
+    Sử dụng kết quả matching AI đã tính toán sẵn.
     """
-    # TODO: Bổ sung thuật toán matching AI/Algorithm based matching
-    return []
+    # Get top 10 jobs with highest overall score
+    matches = AIMatchingScore.objects.filter(
+        recruiter=recruiter,
+        is_valid=True
+    ).select_related('job', 'job__company', 'job__address').order_by('-overall_score')[:10]
+    
+    return [match.job for match in matches]
 
 def get_recruiter_applications(recruiter: Recruiter) -> QuerySet:
     """
