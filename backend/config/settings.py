@@ -334,3 +334,7 @@ VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:3000/billing/paym
 # ===== MongoDB Configuration (Chat) =====
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://mongo:27017/')
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'jobportal_chat')
+
+# ===== AI Configuration =====
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')

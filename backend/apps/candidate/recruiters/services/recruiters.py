@@ -135,11 +135,48 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     else:
         missing_fields.append('portfolio_url')
 
+    # Calculate Hard Score (Max 140 points based on 14 items * 10)
+    # Normalize Hard Score to 0-100
+    TOTAL_HARD_ITEMS = 14
+    max_hard_score = TOTAL_HARD_ITEMS * 10
+    normalized_hard_score = (score / max_hard_score) * 100
+    
+    # AI Evaluation Integration
+    ai_score = 0
+    from apps.candidate.recruiters.services.ai_evaluation import ProfileEvaluator
+    
+    try:
+        # Only call AI if we have enough basic info (e.g. at least 30% complete)
+        # to avoid wasting quota on empty profiles
+        if normalized_hard_score > 30:
+            ai_result = ProfileEvaluator.evaluate(recruiter)
+            if ai_result:
+                recruiter.ai_assessment_result = ai_result
+                ai_score = ai_result.get('score', 0)
+    except Exception as e:
+        print(f"AI Eval failed: {e}")
+
+    # Hybrid Formula: 70% Hard + 30% AI
+    # If AI failed or not run, ai_score is 0. 
+    # To avoid penalizing too much when AI fails, we might just use Hard Score or re-weight.
+    # Logic: If AI ran (ai_score > 0 OR we have result), combine. Else use Hard Score only (or partial).
+    
+    if recruiter.ai_assessment_result:
+         final_score = (normalized_hard_score * 0.7) + (ai_score * 0.3)
+    else:
+         final_score = normalized_hard_score
+
     # Update DB
-    recruiter.profile_completeness_score = score
+    recruiter.profile_completeness_score = int(final_score)
     recruiter.save()
     
-    return {'score': score, 'missing_fields': missing_fields}
+    return {
+        'score': int(final_score), 
+        'hard_score': int(normalized_hard_score),
+        'ai_score': int(ai_score),
+        'missing_fields': missing_fields, 
+        'ai_result': getattr(recruiter, 'ai_assessment_result', {})
+    }
 
 def upload_recruiter_avatar_service(recruiter: Recruiter, file_data: dict) -> Recruiter:
     """
