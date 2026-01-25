@@ -1,3 +1,5 @@
+import weasyprint
+
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
@@ -5,8 +7,6 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-
-import weasyprint
 
 from ..models import RecruiterCV
 
@@ -158,8 +158,8 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     for exp in experiences:
         experience_data.append({
             "company_name": exp.company_name,
-            "position": exp.position,
-            "location": exp.location or "",
+            "job_title": exp.job_title,
+            # "location": exp.location or "", # Model doesn't have location string, check if needed
             "start_date": exp.start_date.isoformat() if exp.start_date else None,
             "end_date": exp.end_date.isoformat() if exp.end_date else None,
             "is_current": exp.is_current,
@@ -184,12 +184,12 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     projects = RecruiterProject.objects.filter(recruiter=recruiter).order_by('-start_date')
     for proj in projects:
         projects_data.append({
-            "name": proj.name,
+            "project_name": proj.project_name,
             "description": proj.description or "",
-            "url": proj.url or "",
+            "project_url": proj.project_url or "",
             "start_date": proj.start_date.isoformat() if proj.start_date else None,
             "end_date": proj.end_date.isoformat() if proj.end_date else None,
-            "technologies": proj.technologies or [],
+            "technologies_used": proj.technologies_used or "",
         })
     
     # Fetch languages

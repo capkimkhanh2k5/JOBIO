@@ -11,6 +11,11 @@ from .serializers import (
 
 from apps.candidate.recruiters.models import Recruiter
 
+from .services.recruiter_cvs import auto_generate_cv
+from .services.recruiter_cvs import generate_cv_preview
+from .services.recruiter_cvs import generate_cv_download
+from .services.recruiter_cvs import set_cv_as_default
+
 
 class RecruiterCVViewSet(viewsets.ModelViewSet):
     """
@@ -114,7 +119,6 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         PATCH /:cvId/default/
         Đặt CV làm mặc định
         """
-        from .services.recruiter_cvs import set_cv_as_default
         
         recruiter, error = self._get_recruiter_or_403(request)
         if error:
@@ -129,7 +133,6 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         POST /:cvId/download/
         Download CV (Real PDF Generation)
         """
-        from .services.recruiter_cvs import generate_cv_download
         
         recruiter, error = self._get_recruiter_or_403(request)
         if error:
@@ -154,7 +157,6 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         POST /:cvId/preview/
         Preview CV (Real HTML Render)
         """
-        from .services.recruiter_cvs import generate_cv_preview
         
         recruiter, error = self._get_recruiter_or_403(request)
         if error:
@@ -203,7 +205,6 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         POST /generate/
         Tự động tạo CV từ profile
         """
-        from .services.recruiter_cvs import auto_generate_cv
         
         recruiter, error = self._get_recruiter_or_403(request)
         if error:
