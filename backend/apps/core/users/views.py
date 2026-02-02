@@ -6,6 +6,10 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .permissions import IsAdmin
+from apps.core.throttles import (
+    LoginRateThrottle, RegisterRateThrottle, PasswordResetRateThrottle,
+    EmailVerificationRateThrottle, SocialAuthRateThrottle
+)
 
 from .models import CustomUser
 from .services.auth import (
@@ -224,7 +228,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='auth/login')
+    @action(detail=False, methods=['post'], url_path='auth/login', throttle_classes=[LoginRateThrottle])
     def auth_login(self, request):
         """POST /api/users/auth/login/ - Đăng nhập"""
         serializer = LoginSerializer(data=request.data)
@@ -256,7 +260,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
         return Response({"detail": "Logout successfully"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/register')
+    @action(detail=False, methods=['post'], url_path='auth/register', throttle_classes=[RegisterRateThrottle])
     def auth_register(self, request):
         """POST /api/users/auth/register/ - Đăng ký"""
         serializer = RegisterSerializer(data=request.data)
@@ -275,7 +279,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         output_serializer = RegisterResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['post'], url_path='auth/forgot-password')
+    @action(detail=False, methods=['post'], url_path='auth/forgot-password', throttle_classes=[PasswordResetRateThrottle])
     def auth_forgot_password(self, request):
         """POST /api/users/auth/forgot-password/ - Quên mật khẩu"""
         serializer = ForgotPasswordSerializer(data=request.data)
@@ -321,7 +325,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         
         return Response({"detail": "Email has been verified"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/resend-verification')
+    @action(detail=False, methods=['post'], url_path='auth/resend-verification', throttle_classes=[EmailVerificationRateThrottle])
     def auth_resend_verification(self, request):
         """POST /api/users/auth/resend-verification/ - Gửi lại email xác thực"""
         serializer = ResendVerificationSerializer(data=request.data)
@@ -372,7 +376,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         serializer = CustomUserSerializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'], url_path='auth/social/(?P<provider>[^/.]+)')
+    @action(detail=False, methods=['post'], url_path='auth/social/(?P<provider>[^/.]+)', throttle_classes=[SocialAuthRateThrottle])
     def auth_social_login(self, request, provider=None):
         """POST /api/users/auth/social/:provider/ - Đăng nhập social"""
         serializer = SocialAuthSerializer(data=request.data)

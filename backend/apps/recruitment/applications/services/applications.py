@@ -8,6 +8,10 @@ from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
 from apps.recruitment.application_status_history.services.application_status_history import log_status_history
 from apps.email.services import EmailService
+from apps.recruitment.applications.state_machine import (
+    ApplicationStateMachine, ApplicationStatus, 
+    InvalidTransitionError, validate_status_transition
+)
 
 class ApplicationCreateInput(BaseModel):
     """
@@ -104,23 +108,26 @@ def change_application_status(
 ) -> Application:
     """
         Đổi trạng thái đơn ứng tuyển (bởi job owner).
+        Sử dụng State Machine để validate transition.
     """
-    valid_statuses = ['reviewing', 'shortlisted', 'interview', 'offered', 'rejected', 'accepted']
+    # Validate transition using state machine
+    is_valid, error_msg = validate_status_transition(application.status, status)
+    if not is_valid:
+        raise ValueError(error_msg)
     
-    if status not in valid_statuses:
-        raise ValueError(f"Invalid status: {status}")
+    # Use state machine for transition
+    state_machine = ApplicationStateMachine(application)
     
-    if application.status == 'withdrawn':
-        raise ValueError("You cannot change the status of this application!")
-    
-    application.status = status
-    application.reviewed_by = reviewed_by
-    application.reviewed_at = timezone.now()
-    
-    if notes:
-        application.notes = notes
-    
-    application.save()
+    try:
+        target_status = ApplicationStatus(status)
+        result = state_machine.transition_to(
+            target_status,
+            performed_by=reviewed_by,
+            notes=notes
+        )
+        application = result.application
+    except InvalidTransitionError as e:
+        raise ValueError(str(e))
     
     # Send Status Update Email
     status_display = status.capitalize()
@@ -141,6 +148,16 @@ def change_application_status(
     )
 
     return application
+
+
+def get_available_status_transitions(application: Application) -> list:
+    """
+        Lấy danh sách các trạng thái có thể chuyển đến.
+        Dùng cho frontend hiển thị các action buttons.
+    """
+    state_machine = ApplicationStateMachine(application)
+    available = state_machine.get_available_transitions()
+    return [s.value for s in available]
 
 
 @transaction.atomic

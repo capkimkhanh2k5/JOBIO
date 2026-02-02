@@ -15,7 +15,8 @@ from apps.billing.services.subscriptions import SubscriptionService
 from apps.billing.services.payments import PaymentService
 from apps.billing.services.plans import PlanService
 from apps.core.permissions import IsCompanyOwner
-from apps.billing.services.vnpay import VNPayService
+from apps.billing.services.vnpay import VNPayService, VNPaySecurityError
+
 
 class SubscriptionPlanViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SubscriptionPlan.objects.filter(is_active=True)
@@ -104,50 +105,28 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
     def payment_return(self, request):
         """
         Handle VNPay Return URL (Callback from User Browser).
+        Enhanced với security validation và idempotency.
         """
-        
-        # 1. Validate Checksum
-        if not VNPayService.validate_payment(request.GET):
-            return Response({"error": "Invalid Checksum"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        # 2. Get Transaction
-        txn_ref = request.GET.get('vnp_TxnRef')
-        response_code = request.GET.get('vnp_ResponseCode')
-        
         try:
-            txn = Transaction.objects.get(reference_code=txn_ref)
-        except Transaction.DoesNotExist:
-            return Response({"error": "Transaction not found"}, status=status.HTTP_404_NOT_FOUND)
+            # Use secure callback processing
+            result = VNPayService.process_callback_secure(request.GET)
             
-        if txn.status == Transaction.Status.COMPLETED:
-             return Response({"message": "Transaction already completed"})
-
-        # 3. Update Transaction
-        txn.vnp_TransactionNo = request.GET.get('vnp_TransactionNo')
-        txn.vnp_BankCode = request.GET.get('vnp_BankCode')
-        txn.vnp_CardType = request.GET.get('vnp_CardType')
-        txn.vnp_OrderInfo = request.GET.get('vnp_OrderInfo')
-        
-        if response_code == '00':
-            txn.status = Transaction.Status.COMPLETED
-            txn.save()
-            
-            # 4. Activate Subscription (Parse from description)
-            # Format: PLAN_ID:1|SUB_ID:5
-            try:
-                parts = txn.description.split('|')
-                sub_id = parts[1].split(':')[1]
-                sub = CompanySubscription.objects.get(id=sub_id)
-                sub.status = CompanySubscription.Status.ACTIVE
-                sub.save()
-            except:
-                pass # Handle manually
+            if result['success']:
+                return Response({
+                    "message": result['message'],
+                    "transaction_ref": result['transaction'].reference_code if result['transaction'] else None,
+                    "subscription_id": str(result['subscription'].id) if result['subscription'] else None
+                })
+            else:
+                return Response({
+                    "error": result['message'],
+                    "transaction_ref": result['transaction'].reference_code if result['transaction'] else None
+                }, status=status.HTTP_400_BAD_REQUEST)
                 
-            return Response({"message": "Payment Successful", "data": request.GET})
-        else:
-            txn.status = Transaction.Status.FAILED
-            txn.save()
-            return Response({"message": "Payment Failed", "code": response_code}, status=status.HTTP_400_BAD_REQUEST)
+        except VNPaySecurityError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": f"Internal error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'], url_path='cancel')
     def cancel(self, request):
