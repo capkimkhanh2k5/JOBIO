@@ -4,6 +4,7 @@ import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
 import Profile from '@/pages/Profile';
 import Jobs from '@/pages/Jobs';
+import JobDetail from '@/pages/JobDetailPage';
 import { AuroraBackground } from '@/components/shared/AuroraBackground';
 import { useUiStore } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
@@ -55,6 +56,7 @@ export default function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/jobs" element={<Jobs />} />
+                        <Route path="/jobs/:id" element={<JobDetail />} />
                         <Route path="/profile" element={<Profile />} />
                         {/* Các routes khác sẽ được thêm tại đây */}
                     </Routes>

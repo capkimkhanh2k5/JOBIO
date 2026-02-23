@@ -1,3 +1,4 @@
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,12 @@ interface JobCardProps {
 
 export function JobCard({ job, view }: JobCardProps) {
     const { toggleSaveJob, isSaved } = useUIStore();
+    const navigate = useNavigate();
     const saved = isSaved(job.id);
+
+    const handleCardClick = () => {
+        navigate(`/jobs/${job.id}`);
+    };
 
     const formatSalary = (min: number, max: number) => {
         if (!job.is_salary_visible) return "Thỏa thuận";
@@ -59,6 +65,8 @@ export function JobCard({ job, view }: JobCardProps) {
             exit={{ opacity: 0, scale: 0.95 }}
             whileHover={{ y: -4 }}
             transition={{ duration: 0.3 }}
+            onClick={handleCardClick}
+            className="cursor-pointer"
         >
             <Card className={cn(
                 "group relative overflow-hidden glass-card-tinted transition-all duration-300 shadow-xl hover:shadow-primary/10",
@@ -83,8 +91,13 @@ export function JobCard({ job, view }: JobCardProps) {
                                     <img src={job.logo_url} alt={job.company_name} className="w-full h-full object-contain" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
-                                    <p className="text-sm text-muted-foreground hover:underline cursor-pointer">{job.company_name}</p>
+                                    <div>
+                                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{job.title}</h3>
+                                        <p className="text-sm text-muted-foreground hover:underline cursor-pointer" onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/companies/${job.id}`);
+                                        }}>{job.company_name}</p>
+                                    </div>
                                 </div>
                             </div>
                             <MatchScoreRing score={job.match_score} size="md" />
@@ -133,35 +146,32 @@ export function JobCard({ job, view }: JobCardProps) {
                         </div>
 
                         <div className="flex gap-2 pt-2">
-                            <Button asChild className="flex-1 relative overflow-hidden bg-primary text-primary-foreground group/btn border-none shadow-lg shadow-primary/20 transition-all duration-500">
-                                <motion.button
-                                    whileHover={{
-                                        scale: 1.03,
-                                        boxShadow: "0 0 25px rgba(var(--primary), 0.5)"
-                                    }}
-                                    whileTap={{ scale: 0.97 }}
-                                    className="relative z-10 w-full h-full flex items-center justify-center bg-primary"
-                                >
-                                    {/* Dynamic Background Gradient on Hover */}
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-primary to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"
-                                    />
-
-                                    <span className="relative z-20 font-black tracking-tight">Ứng tuyển ngay</span>
-
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_2s_infinite]"
-                                        initial={{ x: '-100%' }}
-                                        whileHover={{ x: '100%' }}
-                                        transition={{ duration: 0.7 }}
-                                    />
-                                </motion.button>
+                            <Button
+                                className="flex-1 relative overflow-hidden bg-primary text-primary-foreground group/btn border-none shadow-lg shadow-primary/20 transition-all duration-500 font-black tracking-tight rounded-xl h-11"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCardClick();
+                                }}
+                            >
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-primary to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"
+                                />
+                                <span className="relative z-20">Ứng tuyển ngay</span>
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_2s_infinite]"
+                                    initial={{ x: '-100%' }}
+                                    whileHover={{ x: '100%' }}
+                                    transition={{ duration: 0.7 }}
+                                />
                             </Button>
                             <Button
                                 variant="outline"
                                 size="icon"
-                                className={cn("border-white/10 bg-white/5 hover:bg-white/10 transition-colors", saved && "text-red-500")}
-                                onClick={() => toggleSaveJob(job.id)}
+                                className={cn("border-white/10 bg-white/5 hover:bg-white/10 transition-colors h-11 w-11 rounded-xl", saved && "text-red-500")}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSaveJob(job.id);
+                                }}
                             >
                                 <Heart className={cn("h-4 w-4", saved && "fill-current")} />
                             </Button>
@@ -180,7 +190,10 @@ export function JobCard({ job, view }: JobCardProps) {
                                 {job.is_featured && <Badge variant="secondary" className="text-[10px] h-4 bg-primary/20 text-primary border-primary/10">Featured</Badge>}
                             </div>
                             <div className="flex items-center gap-4 text-sm">
-                                <span className="text-muted-foreground hover:underline cursor-pointer">{job.company_name}</span>
+                                <span className="text-muted-foreground hover:underline cursor-pointer" onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/companies/${job.id}`);
+                                }}>{job.company_name}</span>
                                 <span className="flex items-center gap-1 text-muted-foreground/80"><MapPin className="h-3 w-3 text-primary" /> {job.locations}</span>
                                 <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold"><DollarSign className="h-3 w-3" /> {formatSalary(job.salary_min, job.salary_max)}</span>
                             </div>
@@ -194,33 +207,34 @@ export function JobCard({ job, view }: JobCardProps) {
                         <div className="flex items-center gap-6 pr-2">
                             <MatchScoreRing score={job.match_score} size="md" />
                             <div className="flex flex-col items-end gap-2 pr-4">
-                                <Button asChild size="sm" className="w-32 relative overflow-hidden bg-primary text-primary-foreground group/btn border-none shadow-md shadow-primary/10 transition-all duration-500">
-                                    <motion.button
-                                        whileHover={{
-                                            scale: 1.05,
-                                            boxShadow: "0 0 20px rgba(var(--primary), 0.4)"
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="relative z-10 w-full h-full flex items-center justify-center bg-primary"
-                                    >
-                                        <motion.div
-                                            className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-primary to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"
-                                        />
-                                        <span className="relative z-20 font-bold">Ứng tuyển</span>
-                                        <motion.div
-                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
-                                            initial={{ x: '-100%' }}
-                                            whileHover={{ x: '100%' }}
-                                            transition={{ duration: 0.6 }}
-                                        />
-                                    </motion.button>
+                                <Button
+                                    size="sm"
+                                    className="w-32 relative overflow-hidden bg-primary text-primary-foreground group/btn border-none shadow-md shadow-primary/10 transition-all duration-500 font-bold rounded-xl h-9"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCardClick();
+                                    }}
+                                >
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-primary to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500"
+                                    />
+                                    <span className="relative z-20">Ứng tuyển</span>
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full"
+                                        initial={{ x: '-100%' }}
+                                        whileHover={{ x: '100%' }}
+                                        transition={{ duration: 0.6 }}
+                                    />
                                 </Button>
                                 <div className="flex items-center gap-3">
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         className={cn("h-8 w-8", saved && "text-red-500")}
-                                        onClick={() => toggleSaveJob(job.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleSaveJob(job.id);
+                                        }}
                                     >
                                         <Heart className={cn("h-4 w-4", saved && "fill-current")} />
                                     </Button>

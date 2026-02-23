@@ -5,7 +5,7 @@ import { apiClient } from "../services/apiClient";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
 import { Badge } from "../components/ui/badge";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -207,11 +207,18 @@ const FeaturedJobsSection = () => {
 };
 
 const JobCard = ({ job }: { job: any }) => {
+    const navigate = useNavigate();
+
+    const handleCardClick = () => {
+        navigate(`/jobs/${job.id}`);
+    };
+
     return (
         <motion.div
             whileHover={{ y: -8 }}
             transition={{ duration: 0.2, ease: [0.1, 0.9, 0.2, 1] }}
             className="glass-effect p-8 rounded-[40px] flex flex-col gap-6 cursor-pointer group border-[oklch(1_0_0/10%)] hover:border-primary/40 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
+            onClick={handleCardClick}
         >
             <div className="flex items-start justify-between relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
                 <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center p-3 shadow-lg group-hover:scale-105 transition-transform duration-300">
@@ -230,8 +237,13 @@ const JobCard = ({ job }: { job: any }) => {
             </div>
 
             <div className="space-y-4 relative z-10 transition-transform duration-300 group-hover:-translate-y-2">
-                <h3 className="font-black text-2xl leading-tight group-hover:text-primary transition-colors line-clamp-2">{job.title}</h3>
-                <div className="flex items-center text-[15px] font-bold text-muted-foreground/80">
+                <h3 className="font-black text-2xl leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                    {job.title}
+                </h3>
+                <div className="flex items-center text-[15px] font-bold text-muted-foreground/80 cursor-pointer hover:underline" onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/companies/${job.id}`);
+                }}>
                     <Building className="w-5 h-5 mr-2 text-primary/40" /> {job.company_name}
                 </div>
             </div>
@@ -255,7 +267,13 @@ const JobCard = ({ job }: { job: any }) => {
 
             {/* Premium Hover Interaction */}
             <div className="absolute inset-x-0 bottom-0 p-6 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                <Button className="w-full h-12 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20">
+                <Button
+                    className="w-full h-12 rounded-2xl bg-primary text-white font-black text-lg shadow-xl shadow-primary/20 h-14"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleCardClick();
+                    }}
+                >
                     Apply Now
                 </Button>
             </div>

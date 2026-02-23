@@ -139,7 +139,121 @@ export const mockApi = {
             { id: "6", name: "Dịch vụ khách hàng", icon_url: "Headphones", company_count: 150 },
         ];
     },
-    // Profile related endpoints
+    getJobById: async (id: string) => {
+        await delay(600);
+        // Find in featured jobs or normal jobs or generate mock
+        const mockJob = {
+            id,
+            title: "Senior Frontend Engineer (React/TypeScript)",
+            company_id: "c1",
+            company_name: "JOBIO NextGen",
+            industry_name: "Technology",
+            logo_url: "https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO",
+            banner_url: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+            job_type: "full_time",
+            level: "senior",
+            salary_min: 2500,
+            salary_max: 4500,
+            salary_currency: "USD",
+            is_salary_visible: true,
+            is_remote: true,
+            deadline: "2024-05-30",
+            created_at: new Date().toISOString(),
+            is_featured: true,
+            views_count: 1240,
+            applications_count: 45,
+            experience_min: 3,
+            experience_max: 6,
+            quantity: 2,
+            description: `
+                <p>Chúng tôi đang tìm kiếm một Senior Frontend Engineer tài năng để tham gia vào đội ngũ phát triển sản phẩm đột phá JOBIO. Bạn sẽ chịu trách nhiệm chính trong việc xây dựng trải nghiệm người dùng hiện đại, hiệu năng cao và mượt mà.</p>
+                <ul>
+                    <li>Phát triển các component UI phức tạp sử dụng React và Framer Motion.</li>
+                    <li>Tối ưu hóa hiệu năng ứng dụng cho cả Desktop và Mobile.</li>
+                    <li>Cùng team thiết kế đưa ra các giải pháp UX sáng tạo.</li>
+                    <li>Code review và hướng dẫn các thành viên junior.</li>
+                </ul>
+            `,
+            requirements: `
+                <ul>
+                    <li>Ít nhất 4 năm kinh nghiệm làm việc chuyên sâu với React.</li>
+                    <li>Thành thạo TypeScript và các pattern nâng cao.</li>
+                    <li>Kinh nghiệm tốt với TailwindCSS và animation libraries (Framer Motion, GSAP).</li>
+                    <li>Am hiểu về Web Performance Tuning và Accessibility.</li>
+                    <li>Có tư duy sản phẩm và khả năng giao tiếp tốt.</li>
+                </ul>
+            `,
+            benefits: `
+                <ul>
+                    <li>Mức lương cạnh tranh lên tới $4500 + Bonus theo performance.</li>
+                    <li>Làm việc Remote 100% hoặc hybrid tùy chọn.</li>
+                    <li>Gói bảo hiểm sức khỏe cao cấp cho bản thân và gia đình.</li>
+                    <li>Cung cấp MacBook Pro/Màn hình 4K đời mới nhất.</li>
+                    <li>15 ngày phép năm và các ngày nghỉ lễ theo quy định.</li>
+                    <li>Môi trường startup năng động, không ngại thay đổi.</li>
+                </ul>
+            `
+        };
+        return mockJob;
+    },
+    getJobSkills: async (jobId: string) => {
+        await delay(400);
+        return [
+            { id: "s1", name: "React", is_required: true, proficiency_level: "expert" },
+            { id: "s2", name: "TypeScript", is_required: true, proficiency_level: "advanced" },
+            { id: "s3", name: "Framer Motion", is_required: false, proficiency_level: "middle" },
+            { id: "s4", name: "TailwindCSS", is_required: true, proficiency_level: "advanced" },
+            { id: "s5", name: "GSAP", is_required: false, proficiency_level: "basic" }
+        ];
+    },
+    getJobLocations: async (jobId: string) => {
+        await delay(300);
+        return [
+            { id: "l1", province: "Hồ Chí Minh", address: "Q1, TP.HCM" },
+            { id: "l2", province: "Hà Nội", address: "Cầu Giấy, Hà Nội" }
+        ];
+    },
+    getRequiredTests: async (jobId: string) => {
+        await delay(500);
+        return [
+            { id: "t1", title: "React Core Concepts", type: "Multiple Choice", difficulty: "Intermediate", duration: 30, is_mandatory: true, minimum_score: 70 },
+            { id: "t2", title: "Algorithmic Thinking", type: "Coding", difficulty: "Hard", duration: 60, is_mandatory: true, minimum_score: 60 }
+        ];
+    },
+    getCompanyById: async (id: string) => {
+        await delay(600);
+        return {
+            id,
+            company_name: "JOBIO NextGen",
+            industry_name: "Technology & HR Tech",
+            logo_url: "https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO",
+            banner_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+            company_size: "50-150 nhân viên",
+            founded_year: "2020",
+            website_url: "https://jobio.dev",
+            verification_status: "verified",
+            follower_count: 12500,
+            job_count: 12,
+            description: "JOBIO là nền tảng tuyển dụng thế hệ mới, ứng dụng AI để kết nối ứng viên và nhà tuyển dụng một cách thông minh và hiệu quả nhất.",
+            headquarters: "Hồ Chí Minh, Việt Nam"
+        };
+    },
+    followCompany: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    applyForJob: async (data: { jobId: string, cvId: string, coverLetter?: string }) => {
+        await delay(1000);
+        return { success: true, application_id: "app_" + Math.random().toString(36).substr(2, 9) };
+    },
+    getRecruiterCvs: async (recruiterId: string) => {
+        await delay(500);
+        return [
+            { id: "cv1", name: "Frontend_Developer_Dev.pdf", uploaded_at: "2024-02-15" },
+            { id: "cv2", name: "Fullstack_Engineer_Portfolio.pdf", uploaded_at: "2023-11-10" }
+        ];
+    },
+    // Keep existing profile related endpoints
     getProfile: async (id: string) => {
         await delay(600);
         return {

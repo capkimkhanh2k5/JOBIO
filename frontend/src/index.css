@@ -82,17 +82,17 @@
   backdrop-filter: blur(30px) saturate(210%);
   border: 1px solid oklch(1 0 0 / 40%);
   box-shadow:
-    0 20px 25px -5px oklch(0 0 0 / 0.1),
-    0 10px 10px -5px oklch(0 0 0 / 0.04),
-    0 50px 100px -20px oklch(0 0 0 / 0.2);
+    0 10px 15px -3px oklch(0 0 0 / 0.04),
+    0 4px 6px -4px oklch(0 0 0 / 0.02),
+    0 20px 40px -10px oklch(0 0 0 / 0.08);
 
   @variant dark {
     background: linear-gradient(135deg, oklch(0.15 0.03 260 / 30%), oklch(0.1 0.02 260 / 40%));
     border: 1px solid oklch(1 0 0 / 20%);
     box-shadow:
-      0 20px 25px -5px oklch(0 0 0 / 0.5),
-      0 10px 10px -5px oklch(0 0 0 / 0.3),
-      0 50px 100px -20px oklch(0 0 0 / 0.8);
+      0 10px 15px -3px oklch(0 0 0 / 0.15),
+      0 4px 6px -4px oklch(0 0 0 / 0.1),
+      0 30px 60px -15px oklch(0 0 0 / 0.4);
   }
 }
 
