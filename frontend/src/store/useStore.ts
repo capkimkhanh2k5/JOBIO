@@ -3,17 +3,24 @@ import { persist } from 'zustand/middleware';
 
 interface FilterState {
   search: string;
-  location: string;
-  type: string[];
-  remote: string[];
+  category: string;
+  province: string;
+  job_type: string[];
+  level: string[];
   salaryRange: [number, number];
-  tags: string[];
+  experienceRange: [number, number];
+  isRemote: boolean | null;
+  skills: string[];
+
   setSearch: (search: string) => void;
-  setLocation: (location: string) => void;
-  setType: (type: string[]) => void;
-  setRemote: (remote: string[]) => void;
+  setCategory: (category: string) => void;
+  setProvince: (province: string) => void;
+  setJobType: (type: string[]) => void;
+  setLevel: (level: string[]) => void;
   setSalaryRange: (range: [number, number]) => void;
-  setTags: (tags: string[]) => void;
+  setExperienceRange: (range: [number, number]) => void;
+  setIsRemote: (isRemote: boolean | null) => void;
+  setSkills: (skills: string[]) => void;
   resetFilters: () => void;
 }
 
@@ -40,24 +47,34 @@ interface UserState {
 
 export const useFilterStore = create<FilterState>((set) => ({
   search: '',
-  location: '',
-  type: [],
-  remote: [],
-  salaryRange: [0, 300000],
-  tags: [],
+  category: 'all',
+  province: 'all',
+  job_type: [],
+  level: [],
+  salaryRange: [0, 10000],
+  experienceRange: [0, 15],
+  isRemote: null,
+  skills: [],
+
   setSearch: (search) => set({ search }),
-  setLocation: (location) => set({ location }),
-  setType: (type) => set({ type }),
-  setRemote: (remote) => set({ remote }),
+  setCategory: (category) => set({ category }),
+  setProvince: (province) => set({ province }),
+  setJobType: (job_type) => set({ job_type }),
+  setLevel: (level) => set({ level }),
   setSalaryRange: (salaryRange) => set({ salaryRange }),
-  setTags: (tags) => set({ tags }),
+  setExperienceRange: (experienceRange) => set({ experienceRange }),
+  setIsRemote: (isRemote) => set({ isRemote }),
+  setSkills: (skills) => set({ skills }),
   resetFilters: () => set({
     search: '',
-    location: '',
-    type: [],
-    remote: [],
-    salaryRange: [0, 300000],
-    tags: []
+    category: 'all',
+    province: 'all',
+    job_type: [],
+    level: [],
+    salaryRange: [0, 10000],
+    experienceRange: [0, 15],
+    isRemote: null,
+    skills: []
   })
 }));
 
@@ -67,8 +84,8 @@ export const useUIStore = create<UIState>()(
       theme: 'dark',
       commandOpen: false,
       savedJobs: [],
-      toggleTheme: () => set((state) => ({ 
-        theme: state.theme === 'dark' ? 'light' : 'dark' 
+      toggleTheme: () => set((state) => ({
+        theme: state.theme === 'dark' ? 'light' : 'dark'
       })),
       setCommandOpen: (commandOpen) => set({ commandOpen }),
       toggleSaveJob: (jobId) => set((state) => ({

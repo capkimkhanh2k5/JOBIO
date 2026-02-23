@@ -13,20 +13,99 @@ export const mockApi = {
     getFeaturedJobs: async () => {
         await delay(600);
         return Array(8).fill(null).map((_, i) => ({
-            id: i.toString(),
+            id: `f-${i}`,
             title: ["Senior Frontend Engineer", "Product Manager", "UI/UX Designer", "Backend Developer", "DevOps Engineer", "Project Manager", "Data Scientist", "Mobile Developer"][i % 8],
             company_name: ["TechCorp", "InnovateVN", "FintechX", "HealthStartup", "GreenEnergy", "EduLink", "LogiTech", "AutoAI"][i % 8],
             logo_url: `https://api.dicebear.com/7.x/initials/svg?seed=C${i}`,
-            job_type: i % 2 === 0 ? "Full-time" : "Contract",
-            level: i % 3 === 0 ? "Senior" : i % 3 === 1 ? "Mid-level" : "Junior",
+            job_type: i % 2 === 0 ? "full_time" : "contract",
+            level: i % 3 === 0 ? "senior" : i % 3 === 1 ? "middle" : "junior",
             salary_min: 1500 + (i * 100),
             salary_max: 3000 + (i * 200),
             salary_currency: "USD",
-            is_salary_visible: i % 5 !== 0,
+            is_salary_visible: true,
             locations: ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Remote"][i % 4],
             is_remote: i % 2 === 0,
-            deadline: "2024-12-31"
+            deadline: "2024-12-31",
+            created_at: new Date().toISOString(),
+            is_featured: true,
+            views_count: Math.floor(Math.random() * 1000),
+            applications_count: Math.floor(Math.random() * 50),
+            skills: ["React", "TypeScript", "TailwindCSS"].slice(0, (i % 3) + 1),
+            match_score: 85 + (i % 15)
         }));
+    },
+    getJobs: async (params: any) => {
+        await delay(800);
+        const { search, category, province, job_type, level, salary_min, salary_max, is_remote, experience_min, experience_max, skills } = params;
+
+        let jobs = Array(40).fill(null).map((_, i) => ({
+            id: i.toString(),
+            title: ["Frotnend Dev", "Backend Dev", "Designer", "Mobile Dev", "DevOps", "Data Science", "Tester", "Product Owner"][i % 8] + " " + i,
+            company_id: (i % 8).toString(),
+            company_name: ["Google", "Microsoft", "Amazon", "Meta", "VinFast", "FPT Software", "VNG Corporation", "Viettel"][i % 8],
+            industry_name: ["Technology", "Software", "E-commerce", "Social Media", "Automotive", "IT Services", "Gaming", "Telecommunications"][i % 8],
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=${i % 8}`,
+            job_type: ["full_time", "part_time", "contract", "internship", "freelance"][i % 5],
+            level: ["intern", "fresher", "junior", "middle", "senior", "lead", "manager", "director"][i % 8],
+            salary_min: 500 + (i * 100),
+            salary_max: 1500 + (i * 200),
+            salary_currency: "USD",
+            is_salary_visible: i % 7 !== 0,
+            locations: ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ", "Bình Dương"][i % 5],
+            is_remote: i % 3 === 0,
+            deadline: "2024-12-31",
+            created_at: new Date(Date.now() - i * 3600000).toISOString(),
+            is_featured: i % 10 === 0,
+            views_count: Math.floor(Math.random() * 2000),
+            applications_count: Math.floor(Math.random() * 100),
+            skills: ["React", "Node.js", "Python", "Docker", "Figma", "AWS", "Go", "SQL"].slice(i % 4, (i % 4) + 3),
+            match_score: Math.floor(Math.random() * 40) + 60
+        }));
+
+        if (search) {
+            jobs = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()) || j.company_name.toLowerCase().includes(search.toLowerCase()));
+        }
+        if (category && category !== 'all') {
+            jobs = jobs.filter(j => j.industry_name === category || j.industry_name.toLowerCase().includes(category.toLowerCase()));
+        }
+        if (province && province !== 'all') {
+            jobs = jobs.filter(j => j.locations === province);
+        }
+        if (job_type && job_type.length > 0) {
+            jobs = jobs.filter(j => job_type.includes(j.job_type));
+        }
+        if (level && level.length > 0) {
+            jobs = jobs.filter(j => level.includes(j.level));
+        }
+        if (salary_min) {
+            jobs = jobs.filter(j => j.salary_max >= salary_min);
+        }
+        if (salary_max) {
+            jobs = jobs.filter(j => j.salary_min <= salary_max);
+        }
+        if (is_remote !== undefined && is_remote !== null) {
+            if (is_remote) jobs = jobs.filter(j => j.is_remote);
+        }
+        if (skills && skills.length > 0) {
+            jobs = jobs.filter(j => skills.some((s: string) => j.skills.includes(s)));
+        }
+
+        return {
+            items: jobs,
+            total: jobs.length
+        };
+    },
+    saveJob: async (jobId: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    unsaveJob: async (jobId: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    getSavedJobs: async () => {
+        await delay(400);
+        return ["1", "3", "5"];
     },
     getFeaturedCompanies: async () => {
         await delay(500);

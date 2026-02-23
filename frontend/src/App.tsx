@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
 import Profile from '@/pages/Profile';
+import Jobs from '@/pages/Jobs';
 import { AuroraBackground } from '@/components/shared/AuroraBackground';
 import { useUiStore } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
@@ -53,6 +54,7 @@ export default function App() {
                 <main className="flex-1 w-full relative z-10">
                     <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/jobs" element={<Jobs />} />
                         <Route path="/profile" element={<Profile />} />
                         {/* Các routes khác sẽ được thêm tại đây */}
                     </Routes>
