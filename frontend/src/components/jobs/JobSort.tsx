@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LayoutGrid, List, ChevronDown, SlidersHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface JobSortProps {
     view: "grid" | "list";

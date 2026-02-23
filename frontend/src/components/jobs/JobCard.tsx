@@ -1,4 +1,4 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MatchScoreRing } from "./MatchScoreRing";
 import { MapPin, Clock, DollarSign, Heart, Users, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUIStore } from "@/store/useStore";
+import { useUiStore } from "@/store/uiStore";
 
 interface JobCardProps {
     job: {
@@ -34,7 +34,7 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, view }: JobCardProps) {
-    const { toggleSaveJob, isSaved } = useUIStore();
+    const { toggleSaveJob, isSaved } = useUiStore();
     const navigate = useNavigate();
     const saved = isSaved(job.id);
 

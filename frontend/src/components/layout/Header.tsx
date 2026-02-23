@@ -1,19 +1,43 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useUiStore } from '../../store/uiStore';
-import { Search, Menu, Bell } from 'lucide-react';
+import { useUserStore } from '../../store/userStore';
+import { Search, Menu, Bell, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState, useEffect } from 'react';
+import { mockApi } from '../../services/mockApi';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '../ui/dropdown-menu';
+import { toast } from 'sonner';
 
 export const Header = () => {
     const toggleCommand = useUiStore((state) => state.toggleCommand);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
 
+    const { user, isAuthenticated, clearAuth, refreshToken } = useUserStore();
+
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            if (refreshToken) await mockApi.logout(refreshToken);
+            clearAuth();
+            toast.success("Hẹn gặp lại bạn!");
+        } catch (error) {
+            clearAuth();
+        }
+    };
 
     return (
         <header className={`fixed top-0 z-50 w-full transition-all duration-700 ${isScrolled ? 'py-4' : 'py-8'}`}>
@@ -61,9 +85,64 @@ export const Header = () => {
 
                         <div className="h-6 w-[1px] bg-border/40 mx-2" />
 
-                        <Button className="rounded-full px-8 h-12 font-black text-[15px] bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 magnetic-button">
-                            Join Now
-                        </Button>
+                        {isAuthenticated && user ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="relative h-12 w-12 rounded-full p-0">
+                                        <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-cyan-500/50 transition-colors">
+                                            <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                                            <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white">
+                                                {user.full_name.substring(0, 2).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-64 glass-effect border-white/10 mt-2" align="end" forceMount>
+                                    <DropdownMenuLabel className="font-normal">
+                                        <div className="flex flex-col space-y-2 py-2">
+                                            <p className="text-sm font-bold leading-none">{user.full_name}</p>
+                                            <p className="text-xs leading-none text-muted-foreground/70">
+                                                {user.email}
+                                            </p>
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold uppercase w-fit">
+                                                {user.role}
+                                            </div>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator className="bg-white/5" />
+                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                        <Link to="/panel" className="flex items-center w-full">
+                                            <LayoutDashboard className="mr-3 h-4 w-4" />
+                                            <span>Dashboard</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                        <Link to="/profile" className="flex items-center w-full">
+                                            <User className="mr-3 h-4 w-4" />
+                                            <span>Trang cá nhân</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                        <Settings className="mr-3 h-4 w-4" />
+                                        <span>Cài đặt</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator className="bg-white/5" />
+                                    <DropdownMenuItem
+                                        className="py-3 cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-400/10 focus:bg-red-400/10"
+                                        onClick={handleLogout}
+                                    >
+                                        <LogOut className="mr-3 h-4 w-4" />
+                                        <span>Đăng xuất</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <Link to="/auth">
+                                <Button className="rounded-full px-8 h-12 font-black text-[15px] bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 magnetic-button">
+                                    Tham gia ngay
+                                </Button>
+                            </Link>
+                        )}
 
                         <Button variant="ghost" size="icon" className="lg:hidden rounded-full w-12 h-12">
                             <Menu className="w-7 h-7" />

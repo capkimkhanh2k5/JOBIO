@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X, Search } from "lucide-react";
-import { motion } from "framer-motion";
 
 const JOB_TYPES = [
     { id: "full_time", label: "Full-time" },

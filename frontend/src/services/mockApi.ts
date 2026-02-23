@@ -359,5 +359,103 @@ export const mockApi = {
                 { task: "Viết giới thiệu bản thân (Bio)", completed: true }
             ]
         };
+    },
+    // Authentication Endpoints
+    login: async (data: any) => {
+        await delay(1000);
+        if (data.email === "error@example.com") {
+            throw new Error("Invalid credentials");
+        }
+        return {
+            access_token: "mock_access_token_" + Math.random().toString(36).substring(7),
+            refresh_token: "mock_refresh_token_" + Math.random().toString(36).substring(7),
+            user: {
+                id: "u1",
+                email: data.email,
+                full_name: "Mock User",
+                role: "candidate",
+                avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mock",
+                two_factor_enabled: data.email === "2fa@example.com"
+            }
+        };
+    },
+    register: async (data: any) => {
+        await delay(1200);
+        return {
+            access_token: "mock_access_token_" + Math.random().toString(36).substring(7),
+            refresh_token: "mock_refresh_token_" + Math.random().toString(36).substring(7),
+            user: {
+                id: "u2",
+                email: data.email,
+                full_name: data.full_name,
+                role: data.role || "candidate",
+                avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.full_name}`
+            }
+        };
+    },
+    logout: async (refreshToken: string) => {
+        await delay(500);
+        return { success: true };
+    },
+    forgotPassword: async (email: string) => {
+        await delay(800);
+        return { success: true, message: "Verification email sent" };
+    },
+    resetPassword: async (data: any) => {
+        await delay(1000);
+        return { success: true };
+    },
+    verifyEmail: async (token: string) => {
+        await delay(800);
+        return { success: true };
+    },
+    resendVerification: async (email: string) => {
+        await delay(600);
+        return { success: true };
+    },
+    checkEmail: async (email: string) => {
+        await delay(400);
+        const exists = email === "existing@example.com";
+        return { exists };
+    },
+    socialAuth: async (provider: string) => {
+        await delay(1500);
+        return {
+            access_token: "mock_social_token",
+            refresh_token: "mock_social_refresh",
+            user: {
+                id: "su1",
+                email: `social_${provider}@example.com`,
+                full_name: `Social ${provider} User`,
+                role: "candidate",
+                avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${provider}`
+            }
+        };
+    },
+    verify2fa: async (code: string) => {
+        await delay(800);
+        if (code === "123456") return { success: true };
+        throw new Error("Invalid 2FA code");
+    },
+    changePassword: async (data: any) => {
+        await delay(800);
+        return { success: true };
+    },
+    getMe: async () => {
+        await delay(500);
+        return {
+            id: "u1",
+            email: "mock@example.com",
+            full_name: "Mock User",
+            role: "candidate",
+            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mock"
+        };
+    },
+    refreshToken: async (token: string) => {
+        await delay(500);
+        return {
+            access_token: "new_mock_access_token",
+            refresh_token: "new_mock_refresh_token"
+        };
     }
 };

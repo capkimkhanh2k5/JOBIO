@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface FilterState {
   search: string;
@@ -22,27 +21,6 @@ interface FilterState {
   setIsRemote: (isRemote: boolean | null) => void;
   setSkills: (skills: string[]) => void;
   resetFilters: () => void;
-}
-
-interface UIState {
-  theme: 'light' | 'dark';
-  commandOpen: boolean;
-  savedJobs: string[];
-  toggleTheme: () => void;
-  setCommandOpen: (open: boolean) => void;
-  toggleSaveJob: (jobId: string) => void;
-  isSaved: (jobId: string) => boolean;
-}
-
-interface UserState {
-  isAuthenticated: boolean;
-  user: {
-    name: string;
-    email: string;
-    skills: string[];
-  } | null;
-  login: (email: string, password: string) => void;
-  logout: () => void;
 }
 
 export const useFilterStore = create<FilterState>((set) => ({
@@ -77,50 +55,3 @@ export const useFilterStore = create<FilterState>((set) => ({
     skills: []
   })
 }));
-
-export const useUIStore = create<UIState>()(
-  persist(
-    (set, get) => ({
-      theme: 'dark',
-      commandOpen: false,
-      savedJobs: [],
-      toggleTheme: () => set((state) => ({
-        theme: state.theme === 'dark' ? 'light' : 'dark'
-      })),
-      setCommandOpen: (commandOpen) => set({ commandOpen }),
-      toggleSaveJob: (jobId) => set((state) => ({
-        savedJobs: state.savedJobs.includes(jobId)
-          ? state.savedJobs.filter(id => id !== jobId)
-          : [...state.savedJobs, jobId]
-      })),
-      isSaved: (jobId) => get().savedJobs.includes(jobId)
-    }),
-    {
-      name: 'aurora-hire-ui'
-    }
-  )
-);
-
-export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      isAuthenticated: false,
-      user: null,
-      login: (email, password) => {
-        // Mock login
-        set({
-          isAuthenticated: true,
-          user: {
-            name: 'John Doe',
-            email,
-            skills: ['React', 'TypeScript', 'Node.js', 'TailwindCSS']
-          }
-        });
-      },
-      logout: () => set({ isAuthenticated: false, user: null })
-    }),
-    {
-      name: 'aurora-hire-user'
-    }
-  )
-);

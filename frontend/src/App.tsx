@@ -5,15 +5,17 @@ import Home from '@/pages/Home';
 import Profile from '@/pages/Profile';
 import Jobs from '@/pages/Jobs';
 import JobDetail from '@/pages/JobDetailPage';
+import Auth from '@/pages/Auth';
 import { AuroraBackground } from '@/components/shared/AuroraBackground';
-import { useUiStore } from '@/store/uiStore';
+import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
+import { ProtectedRoute, PublicRoute } from '@/components/layout/RouteGuards';
 
 export default function App() {
-    const theme = useUiStore((state) => state.theme);
-    const toggleCommand = useUiStore((state) => state.toggleCommand);
+    const theme = useUiStore((state: UiState) => state.theme);
+    const toggleCommand = useUiStore((state: UiState) => state.toggleCommand);
 
     useEffect(() => {
         // Lenis Smooth Scroll setup
@@ -57,7 +59,16 @@ export default function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/jobs" element={<Jobs />} />
                         <Route path="/jobs/:id" element={<JobDetail />} />
-                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/auth" element={
+                            <PublicRoute>
+                                <Auth />
+                            </PublicRoute>
+                        } />
+                        <Route path="/profile" element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        } />
                         {/* Các routes khác sẽ được thêm tại đây */}
                     </Routes>
                 </main>
