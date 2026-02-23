@@ -59,5 +59,112 @@ export const mockApi = {
             { id: "5", name: "Bán lẻ", icon_url: "ShoppingBag", company_count: 210 },
             { id: "6", name: "Dịch vụ khách hàng", icon_url: "Headphones", company_count: 150 },
         ];
+    },
+    // Profile related endpoints
+    getProfile: async (id: string) => {
+        await delay(600);
+        return {
+            id,
+            full_name: "Nguyễn Văn A",
+            email: "anv@example.com",
+            phone: "0901234567",
+            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anv",
+            current_position: "Senior Frontend Engineer",
+            current_company: "JOBIO Tech",
+            job_search_status: "active",
+            is_profile_public: true,
+            dob: "1995-10-20",
+            gender: "male",
+            bio: "Đam mê xây dựng sản phẩm chất lượng với trải nghiệm người dùng tuyệt vời. Có 5 năm kinh nghiệm trong lĩnh vực Frontend.",
+            address: {
+                province: "Hồ Chí Minh",
+                commune: "Phường Bến Nghé",
+                address_line: "123 Lê Lợi, Quận 1"
+            },
+            social_links: {
+                linkedin: "https://linkedin.com/in/anv",
+                facebook: "https://facebook.com/anv",
+                github: "https://github.com/anv",
+                portfolio: "https://anv.dev"
+            },
+            desired_salary: {
+                min: 2500,
+                max: 4000,
+                currency: "USD"
+            },
+            available_from: "2024-04-01",
+            years_of_experience: 5,
+            highest_education: "Bachelor"
+        };
+    },
+    updateProfile: async (id: string, data: any) => {
+        await delay(800);
+        return { success: true, data };
+    },
+    getEducation: async (id: string) => {
+        await delay(500);
+        return [
+            {
+                id: "edu1",
+                school_name: "Đại học Bách Khoa TP.HCM",
+                degree: "Bachelor",
+                field_of_study: "Computer Science",
+                start_date: "2013-09-01",
+                end_date: "2017-06-30",
+                is_current: false,
+                gpa: "3.6/4.0",
+                description: "Tốt nghiệp loại Giỏi"
+            }
+        ];
+    },
+    getExperience: async (id: string) => {
+        await delay(600);
+        return [
+            {
+                id: "exp1",
+                company_name: "Tech Solutions Inc.",
+                job_title: "Frontend Developer",
+                industry: "Information Technology",
+                start_date: "2018-01-01",
+                end_date: "2021-12-31",
+                is_current: false,
+                description: "Build scalable web apps using React and Redux.",
+                location: "Hồ Chí Minh"
+            }
+        ];
+    },
+    getSkills: async (id: string) => {
+        await delay(400);
+        return [
+            { id: "s1", name: "React", proficiency_level: "expert", years_of_experience: 5, endorsement_count: 12, is_verified: true },
+            { id: "s2", name: "TypeScript", proficiency_level: "advanced", years_of_experience: 4, endorsement_count: 8, is_verified: true },
+            { id: "s3", name: "TailwindCSS", proficiency_level: "advanced", years_of_experience: 3, endorsement_count: 5, is_verified: false }
+        ];
+    },
+    searchSkills: async (query: string) => {
+        await delay(300);
+        const allSkills = ["React", "Vue", "Angular", "Node.js", "Python", "Go", "Docker", "AWS", "Figma", "UI/UX"];
+        return allSkills.filter(s => s.toLowerCase().includes(query.toLowerCase()));
+    },
+    getLanguages: async () => {
+        await delay(300);
+        return [
+            { id: "l1", name: "Tiếng Việt", code: "vi" },
+            { id: "l2", name: "Tiếng Anh", code: "en" },
+            { id: "l3", name: "Tiếng Nhật", code: "ja" }
+        ];
+    },
+    getProfileCompleteness: async (id: string) => {
+        await delay(400);
+        return {
+            score: 85,
+            checklist: [
+                { task: "Cập nhật ảnh đại diện", completed: true },
+                { task: "Thêm học vấn", completed: true },
+                { task: "Thêm kinh nghiệm làm việc", completed: true },
+                { task: "Thêm ít nhất 5 kỹ năng", completed: false },
+                { task: "Viết giới thiệu bản thân (Bio)", completed: true }
+            ]
+        };
     }
 };

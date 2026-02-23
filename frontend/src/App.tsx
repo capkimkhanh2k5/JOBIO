@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
-import Home from './pages/Home';
-import { AuroraBackground } from './components/shared/AuroraBackground';
-import { useUiStore } from './store/uiStore';
-import { Header } from './components/layout/Header';
-import { Footer } from './components/layout/Footer';
+import Home from '@/pages/Home';
+import Profile from '@/pages/Profile';
+import { AuroraBackground } from '@/components/shared/AuroraBackground';
+import { useUiStore } from '@/store/uiStore';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function App() {
     const theme = useUiStore((state) => state.theme);
@@ -46,10 +48,12 @@ export default function App() {
         <BrowserRouter>
             <div className="min-h-screen flex flex-col relative font-sans">
                 <AuroraBackground />
+                <Toaster position="top-center" />
                 <Header />
                 <main className="flex-1 w-full relative z-10">
                     <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/profile" element={<Profile />} />
                         {/* Các routes khác sẽ được thêm tại đây */}
                     </Routes>
                 </main>
