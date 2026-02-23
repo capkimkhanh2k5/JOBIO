@@ -1,3 +1,112 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@theme {
+  --radius: 0.625rem;
+  --background: oklch(0.98 0.01 250);
+  /* Slightly more tinted for better contrast */
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.55 0.22 260);
+  /* More saturated primary */
+  /* Premium Blue-Violet */
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0.01 250);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.9 0.01 250);
+  --input: oklch(0.9 0.01 250);
+  --ring: oklch(0.708 0 0);
+
+  /* Bolder Aurora Colors */
+  --aurora-1: #00d2ff;
+  --aurora-2: #9d50bb;
+  --aurora-3: #6e48aa;
+}
+
+@layer base {
+  :root {
+    --background: oklch(0.98 0.01 250);
+    --foreground: oklch(0.145 0 0);
+  }
+
+  .dark {
+    --background: oklch(0.05 0.02 260);
+    /* Deep midnight blue-black */
+    --foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility glass-effect {
+  background-color: oklch(1 0 0 / 15%);
+  backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid oklch(1 0 0 / 20%);
+  box-shadow: 0 8px 32px 0 oklch(0 0 0 / 4%);
+  transition: all 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  @variant dark {
+    background-color: oklch(0.1 0 0 / 30%);
+    border: 1px solid oklch(1 0 0 / 10%);
+    box-shadow: 0 8px 32px 0 oklch(0 0 0 / 25%);
+  }
+}
+
+@utility aurora-orb {
+  filter: blur(120px);
+  will-change: transform, opacity;
+  animation: aurora-float 15s infinite alternate ease-in-out;
+}
+
+@keyframes aurora-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+
+  33% {
+    transform: translate(80px, -40px) scale(1.2);
+    opacity: 0.8;
+  }
+
+  66% {
+    transform: translate(-40px, 60px) scale(0.85);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+@utility magnetic-button {
+  transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.03);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
