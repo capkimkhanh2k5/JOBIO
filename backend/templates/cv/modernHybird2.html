@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Modern Hybrid CV Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0696ef",
+                        "slate-900": "#0F172A",
+                        "slate-700": "#334155",
+                        "slate-400": "#94A3B8",
+                        "slate-100": "#F1F5F9",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#0f1b23",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "9999px" },
+                    boxShadow: {
+                        'paper': '0 20px 50px -12px rgba(0, 0, 0, 0.15)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for print emulation and editor interactions */
+        .cv-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            display: flex;
+            background: white;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .editable-field:hover {
+            outline: 1px dashed #94A3B8;
+            cursor: text;
+        }
+        
+        .editable-field:focus {
+            outline: 2px solid #0696ef;
+            background-color: rgba(6, 150, 239, 0.05);
+        }
+
+        .dark .editable-field:focus {
+            background-color: rgba(6, 150, 239, 0.2);
+        }
+
+        /* Timeline Connector */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -17px; /* Adjust based on padding */
+            top: 6px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            border: 2px solid #fff;
+            z-index: 10;
+        }
+        
+        .timeline-container {
+            border-left: 2px solid #e2e8f0;
+        }
+
+        /* Drag Handle */
+        .group:hover .drag-handle {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-body text-slate-700">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6eff4] bg-white px-10 py-3 sticky top-0 z-50 shadow-sm">
+<div class="flex items-center gap-4 text-[#0d161c]">
+<div class="size-8 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl">description</span>
+</div>
+<h2 class="text-[#0d161c] text-xl font-display font-bold leading-tight tracking-[-0.015em]">CV Builder</h2>
+</div>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-primary text-slate-50 text-sm font-bold font-display uppercase tracking-wider hover:bg-blue-600 transition-colors">
+<span class="truncate">Export PDF</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded h-10 px-4 bg-slate-100 text-[#0d161c] text-sm font-bold font-display uppercase tracking-wider hover:bg-slate-200 transition-colors">
+<span class="truncate">Theme Settings</span>
+</button>
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded h-10 bg-slate-100 text-[#0d161c] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-3 hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</header>
+<!-- Main Editor Workspace -->
+<main class="flex-1 overflow-y-auto p-8 flex justify-center bg-slate-50/50">
+<!-- The CV Paper (A4 Representation) -->
+<div class="cv-page flex flex-row relative group/design-root">
+<!-- Sidebar (25% - Quick Info) -->
+<aside class="w-[30%] bg-slate-900 text-white p-8 flex flex-col gap-8 shrink-0">
+<!-- Profile Image -->
+<div class="flex justify-center mb-2">
+<div class="relative w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-primary shadow-lg group cursor-pointer">
+<img alt="Professional headshot of a smiling man in a collared shirt" class="w-full h-full object-cover group-hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4MYj5L6TVkp_34mAGha4hRO_RkNheMhFhf32FTU9gJipUDjNjCjrjTLpylGfu_nmR7agWupTJogNGm-2CkOhXQXFDoL0-qMqMlMlmR5gDBeI7_JI9sEZ5MxWXTA0QvjtVK23ENqcmfmD6jN5N2_fECFRQOPxgTJ_TXCABSFsirKb8BuMCvkY_YeHqEWMn0PNDUqCynG_zdM0dbtMMD1qFmbK4gXiNO0qFW26ClN0aVbPxVkh_xKzVouZRAn4hvBAnsevT5Q5fRdfp"/>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+<span class="material-symbols-outlined text-white">edit</span>
+</div>
+</div>
+</div>
+<!-- Identity Block -->
+<div class="text-center space-y-2">
+<h1 class="font-display font-bold text-3xl tracking-tight editable-field outline-none rounded p-1" contenteditable="true">Alex Sterling</h1>
+<h3 class="font-display font-medium text-lg text-slate-400 editable-field outline-none rounded p-1" contenteditable="true">Senior Product Designer</h3>
+</div>
+<!-- Contact Info -->
+<div class="space-y-4">
+<h4 class="font-display font-bold text-xs uppercase tracking-widest text-slate-400 border-b border-slate-700 pb-2">Contact</h4>
+<ul class="space-y-3 text-sm">
+<li class="flex items-center gap-3 group">
+<span class="material-symbols-outlined text-primary text-[18px]">mail</span>
+<span class="editable-field outline-none flex-1 p-1 rounded hover:bg-white/5" contenteditable="true">alex.sterling@example.com</span>
+</li>
+<li class="flex items-center gap-3 group">
+<span class="material-symbols-outlined text-primary text-[18px]">call</span>
+<span class="editable-field outline-none flex-1 p-1 rounded hover:bg-white/5" contenteditable="true">+1 (555) 019-2834</span>
+</li>
+<li class="flex items-center gap-3 group">
+<span class="material-symbols-outlined text-primary text-[18px]">location_on</span>
+<span class="editable-field outline-none flex-1 p-1 rounded hover:bg-white/5" contenteditable="true">San Francisco, CA</span>
+</li>
+<li class="flex items-center gap-3 group">
+<span class="material-symbols-outlined text-primary text-[18px]">language</span>
+<span class="editable-field outline-none flex-1 p-1 rounded hover:bg-white/5" contenteditable="true">alexsterling.design</span>
+</li>
+</ul>
+</div>
+<!-- Skills -->
+<div class="space-y-4">
+<h4 class="font-display font-bold text-xs uppercase tracking-widest text-slate-400 border-b border-slate-700 pb-2">Skills</h4>
+<div class="flex flex-wrap gap-2">
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">Figma</span>
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">React</span>
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">Design Systems</span>
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">Prototyping</span>
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">CSS/Tailwind</span>
+<span class="bg-white/10 text-white text-xs px-2 py-1 rounded-sm cursor-pointer hover:bg-primary/50 transition-colors">User Research</span>
+<button class="border border-dashed border-slate-600 text-slate-400 text-xs px-2 py-1 rounded-sm hover:text-white hover:border-white transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">add</span> Add
+                        </button>
+</div>
+</div>
+<!-- Languages -->
+<div class="space-y-4 mt-auto">
+<h4 class="font-display font-bold text-xs uppercase tracking-widest text-slate-400 border-b border-slate-700 pb-2">Languages</h4>
+<ul class="space-y-2 text-sm">
+<li class="flex justify-between items-center group">
+<span class="editable-field outline-none rounded p-0.5 hover:bg-white/5" contenteditable="true">English</span>
+<span class="text-slate-400 text-xs editable-field outline-none rounded p-0.5 hover:bg-white/5" contenteditable="true">Native</span>
+</li>
+<li class="flex justify-between items-center group">
+<span class="editable-field outline-none rounded p-0.5 hover:bg-white/5" contenteditable="true">French</span>
+<span class="text-slate-400 text-xs editable-field outline-none rounded p-0.5 hover:bg-white/5" contenteditable="true">C1</span>
+</li>
+</ul>
+</div>
+</aside>
+<!-- Main Content (75% - Narrative) -->
+<section class="flex-1 p-10 bg-white text-slate-700 flex flex-col gap-8">
+<!-- Summary Section -->
+<div class="group relative hover:bg-slate-50/50 -mx-4 px-4 py-2 rounded transition-colors">
+<!-- Drag Handle -->
+<div class="drag-handle absolute -left-6 top-2 opacity-0 text-slate-300 cursor-grab hover:text-slate-500 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<h2 class="font-display font-bold text-sm text-slate-900 uppercase tracking-[0.15em] border-b-2 border-slate-100 pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">person</span>
+                        Profile
+                    </h2>
+<p class="text-sm leading-relaxed editable-field outline-none p-2 rounded" contenteditable="true">
+                        Product designer with 6+ years of experience building accessible, pixel-perfect user interfaces for SaaS platforms. Specialized in bridging the gap between design and engineering with a strong focus on design systems and component libraries. Proven track record of leading small teams and delivering high-impact features.
+                    </p>
+</div>
+<!-- Experience Section -->
+<div class="group relative hover:bg-slate-50/50 -mx-4 px-4 py-2 rounded transition-colors">
+<div class="drag-handle absolute -left-6 top-2 opacity-0 text-slate-300 cursor-grab hover:text-slate-500 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex justify-between items-center border-b-2 border-slate-100 pb-2 mb-6">
+<h2 class="font-display font-bold text-sm text-slate-900 uppercase tracking-[0.15em] flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">work</span>
+                            Experience
+                        </h2>
+<button class="text-primary hover:bg-primary/10 p-1 rounded-full transition-colors" title="Add Role">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+</button>
+</div>
+<div class="timeline-container pl-6 ml-2 space-y-8">
+<!-- Role 1 -->
+<div class="relative timeline-item group/item">
+<div class="absolute -left-10 top-0 opacity-0 group-hover/item:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="text-slate-400 hover:text-red-500"><span class="material-symbols-outlined text-[16px]">delete</span></button>
+</div>
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-display font-bold text-base text-slate-900 editable-field outline-none rounded px-1" contenteditable="true">Senior Product Designer</h3>
+<span class="text-xs font-mono text-slate-400 editable-field outline-none rounded px-1" contenteditable="true">2021 — Present</span>
+</div>
+<div class="text-sm font-medium text-slate-600 mb-2 editable-field outline-none rounded px-1 w-max" contenteditable="true">Stripe, Remote</div>
+<div class="text-sm text-slate-600 leading-relaxed editable-field outline-none p-2 rounded" contenteditable="true">
+<ul class="list-disc pl-4 space-y-1">
+<li>Spearheaded the redesign of the checkout flow, resulting in a 15% increase in conversion rates across enterprise clients.</li>
+<li>Maintained and expanded the internal design system (Figleaf), reducing design-to-dev handoff time by 30%.</li>
+<li>Mentored 3 junior designers and established weekly design critiques to foster a culture of feedback.</li>
+</ul>
+</div>
+</div>
+<!-- Role 2 -->
+<div class="relative timeline-item group/item">
+<div class="absolute -left-10 top-0 opacity-0 group-hover/item:opacity-100 transition-opacity flex flex-col gap-1">
+<button class="text-slate-400 hover:text-red-500"><span class="material-symbols-outlined text-[16px]">delete</span></button>
+</div>
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-display font-bold text-base text-slate-900 editable-field outline-none rounded px-1" contenteditable="true">Product Designer</h3>
+<span class="text-xs font-mono text-slate-400 editable-field outline-none rounded px-1" contenteditable="true">2018 — 2021</span>
+</div>
+<div class="text-sm font-medium text-slate-600 mb-2 editable-field outline-none rounded px-1 w-max" contenteditable="true">Airbnb, San Francisco</div>
+<div class="text-sm text-slate-600 leading-relaxed editable-field outline-none p-2 rounded" contenteditable="true">
+<ul class="list-disc pl-4 space-y-1">
+<li>Collaborated with product managers to define requirements for the "Experiences" feature launch.</li>
+<li>Designed high-fidelity prototypes for mobile and web platforms using React and Storybook.</li>
+<li>Conducted user testing sessions with 50+ participants to validate navigation changes.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<!-- Projects Section -->
+<div class="group relative hover:bg-slate-50/50 -mx-4 px-4 py-2 rounded transition-colors">
+<div class="drag-handle absolute -left-6 top-2 opacity-0 text-slate-300 cursor-grab hover:text-slate-500 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex justify-between items-center border-b-2 border-slate-100 pb-2 mb-6">
+<h2 class="font-display font-bold text-sm text-slate-900 uppercase tracking-[0.15em] flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">rocket_launch</span>
+                            Projects
+                        </h2>
+<button class="text-primary hover:bg-primary/10 p-1 rounded-full transition-colors" title="Add Project">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+</button>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="p-4 border border-slate-100 rounded-lg bg-white shadow-sm group/project relative">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-display font-bold text-sm text-slate-900 editable-field outline-none rounded px-1 inline-block" contenteditable="true">Open Source UI Kit</h3>
+<span class="text-primary text-xs ml-2 cursor-pointer hover:underline flex-inline items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">link</span> github.com/ui-kit
+                                    </span>
+</div>
+<span class="text-xs font-mono text-slate-400 editable-field outline-none rounded px-1" contenteditable="true">2023</span>
+</div>
+<p class="text-sm text-slate-600 editable-field outline-none rounded p-1" contenteditable="true">
+                                A comprehensive React component library focusing on accessibility and customization. Used by 500+ developers.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Education Section -->
+<div class="group relative hover:bg-slate-50/50 -mx-4 px-4 py-2 rounded transition-colors mt-auto">
+<div class="drag-handle absolute -left-6 top-2 opacity-0 text-slate-300 cursor-grab hover:text-slate-500 transition-opacity">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<h2 class="font-display font-bold text-sm text-slate-900 uppercase tracking-[0.15em] border-b-2 border-slate-100 pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">school</span>
+                        Education
+                    </h2>
+<div class="mb-4">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="font-display font-bold text-base text-slate-900 editable-field outline-none rounded px-1" contenteditable="true">BFA Interaction Design</h3>
+<span class="text-xs font-mono text-slate-400 editable-field outline-none rounded px-1" contenteditable="true">2014 — 2018</span>
+</div>
+<div class="text-sm font-medium text-slate-600 editable-field outline-none rounded px-1 w-max" contenteditable="true">Rhode Island School of Design</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button for Mobile/Quick Access (Optional) -->
+<div class="fixed bottom-8 right-8 print:hidden">
+<button class="bg-primary text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-transform hover:scale-105 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">save</span>
+</button>
+</div>
+</body></html>
