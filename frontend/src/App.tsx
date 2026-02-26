@@ -7,6 +7,10 @@ import Jobs from '@/pages/Jobs';
 import JobDetail from '@/pages/JobDetailPage';
 import Auth from '@/pages/Auth';
 import CompanyDetail from '@/pages/CompanyDetailPage';
+import About from '@/pages/About';
+import Contact from '@/pages/Contact';
+import Pricing from '@/pages/Pricing';
+import FAQ from '@/pages/FAQ';
 import { AuroraBackground } from '@/components/shared/AuroraBackground';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
@@ -71,6 +75,10 @@ export default function App() {
                                 <Profile />
                             </ProtectedRoute>
                         } />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/pricing" element={<Pricing />} />
+                        <Route path="/faq" element={<FAQ />} />
                         {/* Các routes khác sẽ được thêm tại đây */}
                     </Routes>
                 </main>
