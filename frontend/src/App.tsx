@@ -25,11 +25,12 @@ import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
-    EmployerCompanyPage, EmployerSettingsPage,
+    EmployerSettingsPage,
     EmployerCVSearchPage,
     EmployerInterviewsPage, EmployerMessagesPage, EmployerAnalyticsPage,
     EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import CompanyProfile from '@/pages/employer/CompanyProfile';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -74,7 +75,7 @@ export default function App() {
                 <Route path="/employer" element={<EmployerLayout />}>
                     <Route index element={<Navigate to="/employer/dashboard" replace />} />
                     <Route path="dashboard" element={<EmployerDashboard />} />
-                    <Route path="company" element={<EmployerCompanyPage />} />
+                    <Route path="company" element={<CompanyProfile />} />
                     <Route path="settings" element={<EmployerSettingsPage />} />
                     <Route path="jobs" element={<ManageJobs />} />
                     <Route path="jobs/create" element={<PostJob />} />

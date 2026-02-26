@@ -19,9 +19,7 @@ function StubPage({ title, desc }: { title: string; desc: string }) {
     );
 }
 
-export function EmployerCompanyPage() {
-    return <StubPage title="Hồ sơ công ty" desc="Quản lý thông tin, hình ảnh và văn hóa công ty của bạn. Coming soon." />;
-}
+// Removed EmployerCompanyPage as it is implemented
 
 export function EmployerSettingsPage() {
     return <StubPage title="Cài đặt" desc="Cài đặt tài khoản, thông báo và bảo mật. Coming soon." />;

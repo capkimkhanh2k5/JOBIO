@@ -845,12 +845,106 @@ export const mockApi = {
             id: "ec-1",
             company_name: "JOBIO NextGen",
             logo_url: "https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO",
+            banner_url: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
             website_url: "https://jobio.dev",
             headquarters: "123 Lê Lợi, Quận 1, Hồ Chí Minh",
             company_size: "50-150",
             tax_code: "0123456789",
             description: "Nền tảng tuyển dụng thế hệ mới ứng dụng AI",
+            founded_year: 2020,
+            industry: "Công nghệ thông tin",
+            verification_status: 'pending',
         };
+    },
+
+    updateCompany: async (id: string, data: any) => {
+        await delay(600);
+        return { id, ...data, updated_at: new Date().toISOString() };
+    },
+
+    uploadCompanyLogo: async (id: string, file: File) => {
+        await delay(800);
+        return { url: URL.createObjectURL(file) };
+    },
+
+    uploadCompanyBanner: async (id: string, file: File) => {
+        await delay(800);
+        return { url: URL.createObjectURL(file) };
+    },
+
+    getCompanyBenefits: async (id: string) => {
+        await delay(400);
+        return [
+            { id: "b1", category: "Sức khỏe", name: "Bảo hiểm Premium", description: "Bảo hiểm sức khỏe toàn diện cho nhân viên và người thân." },
+            { id: "b2", category: "Tài chính", name: "Thưởng tháng 13 & 14", description: "Thưởng cố định và thưởng hiệu quả công việc." },
+            { id: "b3", category: "Phát triển", name: "Ngân sách đào tạo", description: "1000$ mỗi năm cho các khóa học và chứng chỉ." },
+            { id: "b4", category: "Giải trí", name: "Happy Hour", description: "Tiệc trà chiều và giao lưu mỗi thứ 6 hàng tuần." }
+        ];
+    },
+
+    addCompanyBenefit: async (id: string, data: any) => {
+        await delay(400);
+        return { id: "b_" + Math.random().toString(36).substring(2, 7), ...data };
+    },
+
+    deleteCompanyBenefit: async (id: string, benefitId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    reorderCompanyBenefits: async (id: string, data: { order: string[] }) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    uploadCompanyMedia: async (id: string, file: File, type: string) => {
+        await delay(800);
+        return { id: "m_" + Math.random().toString(36).substring(2, 7), url: URL.createObjectURL(file), media_type: type, title: file.name };
+    },
+
+    bulkUploadCompanyMedia: async (id: string, files: File[]) => {
+        await delay(1200);
+        return files.map((file, i) => ({
+            id: `m_bulk_${i}_` + Math.random().toString(36).substring(2, 7),
+            url: URL.createObjectURL(file),
+            media_type: file.type.startsWith('video') ? 'video' : 'image',
+            title: file.name
+        }));
+    },
+
+    deleteCompanyMedia: async (id: string, mediaId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    reorderCompanyMedia: async (id: string, data: { order: string[] }) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    requestCompanyVerification: async (id: string) => {
+        await delay(600);
+        return { success: true, verification_status: 'pending' };
+    },
+
+    getBenefitCategories: async () => {
+        await delay(300);
+        return [
+            { id: "bc1", name: "Sức khỏe" },
+            { id: "bc2", name: "Tài chính" },
+            { id: "bc3", name: "Phát triển" },
+            { id: "bc4", name: "Giải trí" },
+            { id: "bc5", name: "Trang thiết bị" },
+            { id: "bc6", name: "Khác" }
+        ];
+    },
+
+    getMediaTypes: async () => {
+        await delay(300);
+        return [
+            { id: "image", name: "Hình ảnh" },
+            { id: "video", name: "Video" }
+        ];
     },
 
     // ─── Manage Jobs endpoints ─────────────────────────────────────────────
