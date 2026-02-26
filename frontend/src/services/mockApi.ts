@@ -823,4 +823,98 @@ export const mockApi = {
             description: "Nền tảng tuyển dụng thế hệ mới ứng dụng AI",
         };
     },
+
+    // ─── Manage Jobs endpoints ─────────────────────────────────────────────
+
+    getEmployerJobs: async (params: {
+        status?: string;
+        ordering?: string;
+        search?: string;
+        page?: number;
+        page_size?: number;
+    }) => {
+        await delay(500);
+        const statuses = ['draft', 'pending', 'active', 'closed', 'expired'] as const;
+        type JobStatus = typeof statuses[number];
+        const titles = [
+            'Senior Frontend Engineer', 'UI/UX Designer', 'Product Manager',
+            'Backend Developer', 'DevOps Engineer', 'Data Scientist',
+            'Mobile Developer', 'QA Engineer', 'Marketing Lead',
+            'HR Manager', 'Business Analyst', 'Scrum Master',
+        ];
+
+        // Generate 30 mock employer jobs
+        let jobs = Array(30).fill(null).map((_, i) => {
+            const status: JobStatus = statuses[i % statuses.length];
+            const posted = new Date(Date.now() - i * 86400000 * 3);
+            const deadline = new Date(Date.now() + (30 - i) * 86400000);
+            return {
+                id: `ej-${i + 1}`,
+                title: titles[i % titles.length] + (i >= titles.length ? ` (${Math.floor(i / titles.length) + 1})` : ''),
+                status,
+                posted_at: posted.toISOString(),
+                deadline: deadline.toISOString(),
+                views_count: Math.floor(Math.random() * 800) + 20,
+                applications_count: Math.floor(Math.random() * 60) + 1,
+                job_type: ['full_time', 'contract', 'part_time'][i % 3],
+                level: ['junior', 'middle', 'senior', 'lead'][i % 4],
+                location: ['Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Remote'][i % 4],
+                is_featured: i % 7 === 0,
+            };
+        });
+
+        // Filter by status
+        const { status, ordering = '-posted_at', search, page = 1, page_size = 10 } = params;
+        if (status && status !== 'all') {
+            jobs = jobs.filter(j => j.status === status);
+        }
+        if (search) {
+            jobs = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()));
+        }
+
+        // Sort
+        if (ordering === '-posted_at' || ordering === 'posted_at') {
+            jobs.sort((a, b) => ordering.startsWith('-')
+                ? new Date(b.posted_at).getTime() - new Date(a.posted_at).getTime()
+                : new Date(a.posted_at).getTime() - new Date(b.posted_at).getTime()
+            );
+        } else if (ordering === 'deadline') {
+            jobs.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+        } else if (ordering === '-views_count') {
+            jobs.sort((a, b) => b.views_count - a.views_count);
+        } else if (ordering === '-applications_count') {
+            jobs.sort((a, b) => b.applications_count - a.applications_count);
+        }
+
+        const total = jobs.length;
+        const start = (page - 1) * page_size;
+        const items = jobs.slice(start, start + page_size);
+
+        return { items, total, page, page_size };
+    },
+
+    deleteJob: async (_id: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    patchJobStatus: async (_id: string, status: string) => {
+        await delay(400);
+        return { success: true, status };
+    },
+
+    duplicateJob: async (id: string) => {
+        await delay(600);
+        return {
+            id: 'ej-copy-' + Math.random().toString(36).substring(2, 7),
+            source_id: id,
+            status: 'draft',
+            created_at: new Date().toISOString(),
+        };
+    },
+
+    bulkJobAction: async (_ids: string[], _action: 'close' | 'delete' | 'extend') => {
+        await delay(700);
+        return { success: true, affected: _ids.length };
+    },
 };

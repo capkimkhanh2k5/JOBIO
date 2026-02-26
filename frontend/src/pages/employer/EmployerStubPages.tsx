@@ -27,8 +27,8 @@ export function EmployerSettingsPage() {
     return <StubPage title="Cài đặt" desc="Cài đặt tài khoản, thông báo và bảo mật. Coming soon." />;
 }
 
-export function EmployerJobsPage() {
-    return <StubPage title="Quản lý tin tuyển dụng" desc="Xem và quản lý tất cả tin tuyển dụng. Coming soon." />;
+export function EmployerJobCandidatesPage() {
+    return <StubPage title="Ứng viên cho tin tuyển dụng" desc="Xem và quản lý danh sách ứng viên đã ứng tuyển cho tin này. Coming soon." />;
 }
 
 export function EmployerCandidatesPage() {

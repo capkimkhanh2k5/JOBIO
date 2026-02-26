@@ -22,11 +22,13 @@ import { ProtectedRoute, PublicRoute } from '@/components/layout/RouteGuards';
 import { EmployerLayout } from '@/components/employer/EmployerLayout';
 import EmployerDashboard from '@/pages/employer/EmployerDashboard';
 import PostJob from '@/pages/employer/PostJob';
+import ManageJobs from '@/pages/employer/ManageJobs';
 import {
-    EmployerCompanyPage, EmployerSettingsPage, EmployerJobsPage,
+    EmployerCompanyPage, EmployerSettingsPage,
     EmployerCandidatesPage, EmployerCVSearchPage,
     EmployerInterviewsPage, EmployerMessagesPage, EmployerAnalyticsPage,
-    EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage
+    EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage,
+    EmployerJobCandidatesPage,
 } from '@/pages/employer/EmployerStubPages';
 
 export default function App() {
@@ -74,8 +76,10 @@ export default function App() {
                     <Route path="dashboard" element={<EmployerDashboard />} />
                     <Route path="company" element={<EmployerCompanyPage />} />
                     <Route path="settings" element={<EmployerSettingsPage />} />
-                    <Route path="jobs" element={<EmployerJobsPage />} />
+                    <Route path="jobs" element={<ManageJobs />} />
                     <Route path="jobs/create" element={<PostJob />} />
+                    <Route path="jobs/:id/edit" element={<PostJob />} />
+                    <Route path="jobs/:id/candidates" element={<EmployerJobCandidatesPage />} />
                     <Route path="candidates" element={<EmployerCandidatesPage />} />
                     <Route path="cv-search" element={<EmployerCVSearchPage />} />
                     <Route path="interviews" element={<EmployerInterviewsPage />} />
