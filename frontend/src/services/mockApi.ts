@@ -234,11 +234,127 @@ export const mockApi = {
             verification_status: "verified",
             follower_count: 12500,
             job_count: 12,
-            description: "JOBIO là nền tảng tuyển dụng thế hệ mới, ứng dụng AI để kết nối ứng viên và nhà tuyển dụng một cách thông minh và hiệu quả nhất.",
-            headquarters: "Hồ Chí Minh, Việt Nam"
+            description: "JOBIO là nền tảng tuyển dụng thế hệ mới, ứng dụng AI để kết nối ứng viên và nhà tuyển dụng một cách thông minh và hiệu quả nhất. Chúng tôi tập trung vào việc tạo ra trải nghiệm người dùng tuyệt vời và quy trình kết nối minh bạch. Với đội ngũ kỹ sư và chuyên gia HR dày dặn kinh nghiệm, JOBIO cam kết mang đến giá trị thực sự cho cả ứng viên và doanh nghiệp.",
+            headquarters: "123 Lê Lợi, Quận 1, Hồ Chí Minh, Việt Nam",
+            tax_code: "0123456789",
+            benefits: [
+                { id: "b1", category: "Chăm sóc sức khỏe", name: "Bảo hiểm PVI", description: "Gói bảo hiểm sức khỏe cao cấp cho nhân viên và người thân.", icon_url: "HeartPulse" },
+                { id: "b2", category: "Phát triển bản thân", name: "Trợ cấp học tập", description: "Ngân sách $500/năm cho các khóa học và chứng chỉ chuyên môn.", icon_url: "GraduationCap" },
+                { id: "b3", category: "Môi trường làm việc", name: "Làm việc từ xa", description: "Chính sách Remote 2 ngày/tuần linh hoạt.", icon_url: "MapPin" },
+                { id: "b4", category: "Giải trí", name: "Happy Hour", description: "Tiệc trà chiều và giao lưu mỗi thứ 6 hàng tuần.", icon_url: "Beer" }
+            ]
         };
     },
+    getCompanyJobs: async (id: string) => {
+        await delay(500);
+        return Array(6).fill(null).map((_, i) => ({
+            id: `cj-${i}`,
+            title: ["Senior React Developer", "UI/UX Designer", "Product Owner", "Backend Engineer", "DevOps Specialist", "Marketing Manager"][i % 6],
+            company_name: "JOBIO NextGen",
+            logo_url: "https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO",
+            job_type: i % 2 === 0 ? "full_time" : "contract",
+            level: i % 3 === 0 ? "senior" : "middle",
+            salary_min: 1500 + (i * 200),
+            salary_max: 3000 + (i * 300),
+            salary_currency: "USD",
+            is_salary_visible: true,
+            locations: "Hồ Chí Minh",
+            is_remote: i % 3 === 0,
+            created_at: new Date(Date.now() - i * 86400000).toISOString(),
+            is_featured: i === 0,
+            skills: ["React", "TypeScript", "Node.js", "Docker", "AWS"].slice(i % 3, (i % 3) + 3),
+            views_count: Math.floor(Math.random() * 500) + 50,
+            applications_count: Math.floor(Math.random() * 30) + 5,
+            match_score: 90 - i
+        }));
+    },
+    getCompanyReviews: async (id: string) => {
+        await delay(700);
+        return {
+            average_rating: 4.5,
+            rating_breakdown: [
+                { label: "Môi trường", rating: 4.8 },
+                { label: "Lương thưởng", rating: 4.2 },
+                { label: "Đào tạo", rating: 4.5 },
+                { label: "Cơ hội thăng tiến", rating: 4.3 },
+                { label: "Quản lý", rating: 4.7 }
+            ],
+            reviews: [
+                {
+                    id: "r1",
+                    rating: 5,
+                    title: "Môi trường làm việc tuyệt vời",
+                    content: "Công ty có văn hóa rất mở, đồng nghiệp hỗ trợ nhau nhiệt tình. Tech stack hiện đại.",
+                    pros: "Văn hóa tốt, lương cạnh tranh.",
+                    cons: "Đôi khi phải OT khi có release lớn.",
+                    employment_status: "Đang làm việc",
+                    is_anonymous: false,
+                    user_name: "Trần Anh Tuấn",
+                    user_avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuấn",
+                    position: "Senior Frontend",
+                    created_at: "2024-01-15",
+                    helpful_count: 12
+                },
+                {
+                    id: "r2",
+                    rating: 4,
+                    title: "Nơi tốt để phát triển",
+                    content: "Cơ hội học tập nhiều, được tiếp cận với nhiều công nghệ mới.",
+                    pros: "Chế độ review lương minh bạch.",
+                    cons: "Văn phòng hơi nhỏ.",
+                    employment_status: "Đã nghỉ việc",
+                    is_anonymous: true,
+                    created_at: "2023-11-20",
+                    helpful_count: 5
+                }
+            ]
+        };
+    },
+    getCompanyFollowers: async (id: string) => {
+        await delay(400);
+        return Array(10).fill(null).map((_, i) => ({
+            id: `f-${i}`,
+            full_name: `Follower ${i + 1}`,
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=F${i}`,
+            current_position: i % 2 === 0 ? "Software Engineer" : "UI/UX Designer"
+        }));
+    },
+    getCompanyStats: async (id: string) => {
+        await delay(300);
+        return {
+            job_count: 12,
+            follower_count: 12500,
+            review_count: 48,
+            avg_rating: 4.5,
+            application_count: 450
+        };
+    },
+    getCompanyMedia: async (companyId: string) => {
+        await delay(500);
+        return [
+            { id: "m1", media_type: "image", url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=800&q=80", title: "Văn phòng làm việc" },
+            { id: "m2", media_type: "image", url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80", title: "Team building 2023" },
+            { id: "m3", media_type: "image", url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80", title: "Góc thư giãn" },
+            { id: "m4", media_type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", thumbnail: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80", title: "Giới thiệu văn hóa công ty" }
+        ];
+    },
+    isFollowingCompany: async (id: string) => {
+        await delay(300);
+        return { is_following: Math.random() > 0.5 };
+    },
     followCompany: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    unfollowCompany: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    markReviewHelpful: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    reportReview: async (id: string) => {
         await delay(300);
         return { success: true };
     },

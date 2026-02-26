@@ -6,6 +6,7 @@ import Profile from '@/pages/Profile';
 import Jobs from '@/pages/Jobs';
 import JobDetail from '@/pages/JobDetailPage';
 import Auth from '@/pages/Auth';
+import CompanyDetail from '@/pages/CompanyDetailPage';
 import { AuroraBackground } from '@/components/shared/AuroraBackground';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
@@ -59,6 +60,7 @@ export default function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/jobs" element={<Jobs />} />
                         <Route path="/jobs/:id" element={<JobDetail />} />
+                        <Route path="/companies/:id" element={<CompanyDetail />} />
                         <Route path="/auth" element={
                             <PublicRoute>
                                 <Auth />
