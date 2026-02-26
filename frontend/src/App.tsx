@@ -21,9 +21,10 @@ import { ProtectedRoute, PublicRoute } from '@/components/layout/RouteGuards';
 // Employer area – own layout shell (no public Header/Footer)
 import { EmployerLayout } from '@/components/employer/EmployerLayout';
 import EmployerDashboard from '@/pages/employer/EmployerDashboard';
+import PostJob from '@/pages/employer/PostJob';
 import {
     EmployerCompanyPage, EmployerSettingsPage, EmployerJobsPage,
-    EmployerJobCreatePage, EmployerCandidatesPage, EmployerCVSearchPage,
+    EmployerCandidatesPage, EmployerCVSearchPage,
     EmployerInterviewsPage, EmployerMessagesPage, EmployerAnalyticsPage,
     EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage
 } from '@/pages/employer/EmployerStubPages';
@@ -74,7 +75,7 @@ export default function App() {
                     <Route path="company" element={<EmployerCompanyPage />} />
                     <Route path="settings" element={<EmployerSettingsPage />} />
                     <Route path="jobs" element={<EmployerJobsPage />} />
-                    <Route path="jobs/create" element={<EmployerJobCreatePage />} />
+                    <Route path="jobs/create" element={<PostJob />} />
                     <Route path="candidates" element={<EmployerCandidatesPage />} />
                     <Route path="cv-search" element={<EmployerCVSearchPage />} />
                     <Route path="interviews" element={<EmployerInterviewsPage />} />

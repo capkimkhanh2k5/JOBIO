@@ -31,10 +31,6 @@ export function EmployerJobsPage() {
     return <StubPage title="Quản lý tin tuyển dụng" desc="Xem và quản lý tất cả tin tuyển dụng. Coming soon." />;
 }
 
-export function EmployerJobCreatePage() {
-    return <StubPage title="Đăng tin tuyển dụng" desc="Tạo tin tuyển dụng mới với đầy đủ thông tin vị trí. Coming soon." />;
-}
-
 export function EmployerCandidatesPage() {
     return <StubPage title="Ứng viên" desc="Xem và quản lý danh sách ứng viên đã ứng tuyển. Coming soon." />;
 }

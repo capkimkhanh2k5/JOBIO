@@ -655,4 +655,172 @@ export const mockApi = {
             };
         });
     },
+
+    // ─── Post Job Wizard endpoints ────────────────────────────────────────
+
+    getJobCategories: async () => {
+        await delay(400);
+        return [
+            {
+                id: "cat-1", name: "Công nghệ thông tin", slug: "cong-nghe-thong-tin",
+                children: [
+                    { id: "cat-1-1", name: "Lập trình / Phát triển phần mềm", slug: "lap-trinh" },
+                    { id: "cat-1-2", name: "Quản lý dự án / Sản phẩm", slug: "quan-ly-du-an" },
+                    { id: "cat-1-3", name: "DevOps / Hạ tầng", slug: "devops" },
+                    { id: "cat-1-4", name: "QA / Testing", slug: "qa-testing" },
+                    { id: "cat-1-5", name: "Data / AI / Machine Learning", slug: "data-ai" },
+                    { id: "cat-1-6", name: "Bảo mật / An ninh mạng", slug: "bao-mat" },
+                ]
+            },
+            {
+                id: "cat-2", name: "Thiết kế", slug: "thiet-ke",
+                children: [
+                    { id: "cat-2-1", name: "UI/UX Design", slug: "ui-ux" },
+                    { id: "cat-2-2", name: "Đồ họa / Graphic Design", slug: "do-hoa" },
+                    { id: "cat-2-3", name: "Motion Design", slug: "motion-design" },
+                ]
+            },
+            {
+                id: "cat-3", name: "Marketing", slug: "marketing",
+                children: [
+                    { id: "cat-3-1", name: "Digital Marketing", slug: "digital-marketing" },
+                    { id: "cat-3-2", name: "Content & SEO", slug: "content-seo" },
+                    { id: "cat-3-3", name: "Performance Marketing", slug: "performance" },
+                ]
+            },
+            {
+                id: "cat-4", name: "Tài chính / Ngân hàng", slug: "tai-chinh",
+                children: [
+                    { id: "cat-4-1", name: "Kế toán", slug: "ke-toan" },
+                    { id: "cat-4-2", name: "Kiểm toán", slug: "kiem-toan" },
+                    { id: "cat-4-3", name: "Phân tích tài chính", slug: "phan-tich" },
+                ]
+            },
+            {
+                id: "cat-5", name: "Kinh doanh / Bán hàng", slug: "kinh-doanh",
+                children: [
+                    { id: "cat-5-1", name: "Sales B2B", slug: "sales-b2b" },
+                    { id: "cat-5-2", name: "Business Development", slug: "biz-dev" },
+                ]
+            },
+            {
+                id: "cat-6", name: "Nhân sự", slug: "nhan-su",
+                children: [
+                    { id: "cat-6-1", name: "Tuyển dụng", slug: "tuyen-dung" },
+                    { id: "cat-6-2", name: "Đào tạo & Phát triển", slug: "dao-tao" },
+                ]
+            },
+        ];
+    },
+
+    searchJobSkills: async (q: string) => {
+        await delay(300);
+        const all = [
+            { id: "sk-1", name: "React" }, { id: "sk-2", name: "TypeScript" },
+            { id: "sk-3", name: "Node.js" }, { id: "sk-4", name: "Python" },
+            { id: "sk-5", name: "Vue.js" }, { id: "sk-6", name: "Angular" },
+            { id: "sk-7", name: "Docker" }, { id: "sk-8", name: "Kubernetes" },
+            { id: "sk-9", name: "AWS" }, { id: "sk-10", name: "GCP" },
+            { id: "sk-11", name: "Figma" }, { id: "sk-12", name: "Adobe XD" },
+            { id: "sk-13", name: "TailwindCSS" }, { id: "sk-14", name: "GraphQL" },
+            { id: "sk-15", name: "PostgreSQL" }, { id: "sk-16", name: "MongoDB" },
+            { id: "sk-17", name: "Redis" }, { id: "sk-18", name: "Go" },
+            { id: "sk-19", name: "Rust" }, { id: "sk-20", name: "Java" },
+            { id: "sk-21", name: "Spring Boot" }, { id: "sk-22", name: "Laravel" },
+            { id: "sk-23", name: "Next.js" }, { id: "sk-24", name: "Framer Motion" },
+            { id: "sk-25", name: "GSAP" }, { id: "sk-26", name: "CI/CD" },
+            { id: "sk-27", name: "Terraform" }, { id: "sk-28", name: "Agile/Scrum" },
+            { id: "sk-29", name: "Machine Learning" }, { id: "sk-30", name: "TensorFlow" },
+        ];
+        if (!q) return all.slice(0, 8);
+        return all.filter(s => s.name.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
+    },
+
+    getProvincesDetailed: async () => {
+        await delay(300);
+        return [
+            { id: "p-1", name: "Hồ Chí Minh" },
+            { id: "p-2", name: "Hà Nội" },
+            { id: "p-3", name: "Đà Nẵng" },
+            { id: "p-4", name: "Cần Thơ" },
+            { id: "p-5", name: "Bình Dương" },
+            { id: "p-6", name: "Đồng Nai" },
+            { id: "p-7", name: "Hải Phòng" },
+            { id: "p-8", name: "Hải Dương" },
+            { id: "p-9", name: "Bắc Ninh" },
+            { id: "p-10", name: "Quảng Ninh" },
+            { id: "p-11", name: "Nghệ An" },
+            { id: "p-12", name: "Khánh Hòa" },
+            { id: "p-13", name: "Lâm Đồng" },
+            { id: "p-14", name: "Long An" },
+        ];
+    },
+
+    getCommunesByProvince: async (provinceId: string) => {
+        await delay(350);
+        const map: Record<string, { id: string; name: string }[]> = {
+            "p-1": [
+                { id: "c-1-1", name: "Quận 1" }, { id: "c-1-2", name: "Quận 3" },
+                { id: "c-1-3", name: "Quận 7" }, { id: "c-1-4", name: "Bình Thạnh" },
+                { id: "c-1-5", name: "Tân Bình" }, { id: "c-1-6", name: "Thủ Đức" },
+            ],
+            "p-2": [
+                { id: "c-2-1", name: "Hoàn Kiếm" }, { id: "c-2-2", name: "Đống Đa" },
+                { id: "c-2-3", name: "Cầu Giấy" }, { id: "c-2-4", name: "Hai Bà Trưng" },
+                { id: "c-2-5", name: "Nam Từ Liêm" },
+            ],
+            "p-3": [
+                { id: "c-3-1", name: "Hải Châu" }, { id: "c-3-2", name: "Sơn Trà" },
+                { id: "c-3-3", name: "Ngũ Hành Sơn" },
+            ],
+        };
+        return map[provinceId] ?? [
+            { id: `c-${provinceId}-1`, name: "Khu vực trung tâm" },
+            { id: `c-${provinceId}-2`, name: "Khu vực ngoại ô" },
+        ];
+    },
+
+    createJob: async (data: Record<string, unknown>) => {
+        await delay(800);
+        return {
+            id: "job_" + Math.random().toString(36).substring(2, 9),
+            ...data,
+            status: "draft",
+            created_at: new Date().toISOString(),
+        };
+    },
+
+    updateJob: async (id: string, data: Record<string, unknown>) => {
+        await delay(600);
+        return { id, ...data, updated_at: new Date().toISOString() };
+    },
+
+    addJobSkill: async (jobId: string, skill: { skill_id: string; skill_name: string; is_required: boolean; proficiency_level: string }) => {
+        await delay(300);
+        return { id: "js_" + Math.random().toString(36).substring(2, 7), job_id: jobId, ...skill };
+    },
+
+    removeJobSkill: async (_jobId: string, _skillId: string) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    addJobLocation: async (jobId: string, location: Record<string, unknown>) => {
+        await delay(400);
+        return { id: "jl_" + Math.random().toString(36).substring(2, 7), job_id: jobId, ...location };
+    },
+
+    getEmployerCompany: async () => {
+        await delay(400);
+        return {
+            id: "ec-1",
+            company_name: "JOBIO NextGen",
+            logo_url: "https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO",
+            website_url: "https://jobio.dev",
+            headquarters: "123 Lê Lợi, Quận 1, Hồ Chí Minh",
+            company_size: "50-150",
+            tax_code: "0123456789",
+            description: "Nền tảng tuyển dụng thế hệ mới ứng dụng AI",
+        };
+    },
 };
