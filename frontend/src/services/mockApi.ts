@@ -1162,4 +1162,52 @@ export const mockApi = {
             { id: "cert2", name: "Meta React Native Specialist", issuing_organization: "Meta", issue_date: "2022-06-10" }
         ];
     },
+
+    // ─── Candidate Dashboard endpoints ───────────────────────────────────
+    getCandidateStats: async (id: string) => {
+        await delay(300);
+        return {
+            applied_jobs_count: 12,
+            upcoming_interviews_count: 2,
+            profile_views_count: 45,
+            matching_jobs_count: 156
+        };
+    },
+
+    getCandidateMatchingJobs: async (id: string) => {
+        await delay(600);
+        return Array(6).fill(null).map((_, i) => ({
+            id: `cj-match-${i}`,
+            title: ["Senior React Developer", "Frontend Engineer", "UI/UX Designer", "Fullstack Developer", "Software Engineer"][i % 5],
+            company: "JOBIO NextGen " + (i + 1),
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=JOBIO${i}`,
+            salary: i % 2 === 0 ? "2,500 - 4,000 USD" : "Thỏa thuận",
+            location: "Hồ Chí Minh",
+            match_score: 98 - i * 3
+        }));
+    },
+
+    getCandidateApplications: async (id: string) => {
+        await delay(500);
+        return Array(5).fill(null).map((_, i) => ({
+            id: `cand-app-${i}`,
+            job_title: ["Frontend Developer", "Senior UI Developer", "React Engineer", "Software Engineer Frontend", "Web Developer"][i],
+            company: ["TechCorp", "VNG", "FPT", "Viettel", "Vinsmart"][i],
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Comp${i}`,
+            status: ["Reviewing", "Interview", "Submitted", "Offered", "Rejected"][i],
+            applied_at: new Date(Date.now() - i * 86400000 * 3).toISOString()
+        }));
+    },
+
+    getCandidateSavedJobs: async (id: string) => {
+        await delay(400);
+        return Array(4).fill(null).map((_, i) => ({
+            id: `saved-${i}`,
+            title: ["Senior Frontend", "React Developer", "UI Developer", "Principal Frontend"][i],
+            company: ["Apple", "Netflix", "Google", "Amazon"][i],
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Fav${i}`,
+            salary: "3,000 - 5,000 USD",
+            location: "Remote"
+        }));
+    }
 };

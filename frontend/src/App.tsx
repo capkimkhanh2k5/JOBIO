@@ -32,6 +32,10 @@ import {
 } from '@/pages/employer/EmployerStubPages';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 
+// Candidate area
+import { CandidateLayout } from '@/components/candidate/CandidateLayout';
+import CandidateDashboard from '@/pages/candidate/CandidateDashboard';
+
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
     const toggleCommand = useUiStore((state: UiState) => state.toggleCommand);
@@ -71,6 +75,12 @@ export default function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* ── Candidate area ── */}
+                <Route path="/candidate" element={<CandidateLayout />}>
+                    <Route index element={<Navigate to="/candidate/dashboard" replace />} />
+                    <Route path="dashboard" element={<CandidateDashboard />} />
+                </Route>
+
                 {/* ── Employer area: own shell, no public header/footer ── */}
                 <Route path="/employer" element={<EmployerLayout />}>
                     <Route index element={<Navigate to="/employer/dashboard" replace />} />
