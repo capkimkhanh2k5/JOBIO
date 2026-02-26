@@ -573,5 +573,86 @@ export const mockApi = {
             access_token: "new_mock_access_token",
             refresh_token: "new_mock_refresh_token"
         };
-    }
+    },
+
+    // ─── Employer / Dashboard endpoints ───────────────────────────────────
+
+    getEmployerStats: async () => {
+        await delay(500);
+        return {
+            active_jobs: 12,
+            new_applications: 48,
+            job_views: 3240,
+            upcoming_interviews: 5,
+            active_jobs_delta: +2,
+            new_applications_delta: +14,
+            job_views_delta: +8.3,
+            upcoming_interviews_delta: 0,
+        };
+    },
+
+    getNotificationsCount: async () => {
+        await delay(200);
+        return { unread_count: 7 };
+    },
+
+    getRecentNotifications: async () => {
+        await delay(400);
+        return [
+            { id: "n1", title: "Ứng viên mới", message: "Trần Minh Đức vừa ứng tuyển vị trí Senior Frontend", is_read: false, created_at: new Date(Date.now() - 5 * 60000).toISOString(), type: "application" },
+            { id: "n2", title: "Phỏng vấn sắp tới", message: "Nhớ phỏng vấn với Nguyễn Hồng Anh lúc 10:00 hôm nay", is_read: false, created_at: new Date(Date.now() - 30 * 60000).toISOString(), type: "interview" },
+            { id: "n3", title: "CV đã được xem", message: "3 ứng viên mới đã xem tin tuyển dụng của bạn", is_read: false, created_at: new Date(Date.now() - 2 * 3600000).toISOString(), type: "view" },
+            { id: "n4", title: "Tin tuyển dụng sắp hết hạn", message: "Tin 'UI/UX Designer' còn 2 ngày nữa hết hạn", is_read: false, created_at: new Date(Date.now() - 5 * 3600000).toISOString(), type: "warning" },
+            { id: "n5", title: "Đánh giá mới", message: "Công ty bạn vừa nhận được 1 đánh giá 5 sao mới", is_read: true, created_at: new Date(Date.now() - 86400000).toISOString(), type: "review" },
+        ];
+    },
+
+    getUnreadMessagesCount: async () => {
+        await delay(200);
+        return { unread_count: 3 };
+    },
+
+    getRecentApplications: async () => {
+        await delay(600);
+        const statuses = ["pending", "reviewing", "interview", "offer", "rejected"];
+        const positions = ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer", "DevOps Engineer", "Data Scientist", "Mobile Developer", "QA Engineer", "Marketing Lead", "HR Manager"];
+        const names = ["Trần Minh Đức", "Nguyễn Hồng Anh", "Lê Quang Hùng", "Phạm Thị Lan", "Võ Văn Nam", "Đỗ Thị Mai", "Bùi Thanh Tùng", "Hoàng Thị Thu", "Đinh Văn Bảo", "Chu Thị Hoa"];
+        return Array(10).fill(null).map((_, i) => ({
+            id: `app-${i}`,
+            candidate_name: names[i],
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${names[i]}`,
+            position: positions[i],
+            status: statuses[i % statuses.length],
+            ai_score: Math.floor(Math.random() * 30) + 70,
+            applied_at: new Date(Date.now() - i * 3600000 * 4).toISOString(),
+        }));
+    },
+
+    getUpcomingInterviews: async () => {
+        await delay(500);
+        const types = ["video", "phone", "onsite"];
+        const names = ["Trần Minh Đức", "Nguyễn Hồng Anh", "Lê Quang Hùng", "Phạm Thị Lan", "Võ Văn Nam"];
+        const jobs = ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer", "DevOps Engineer"];
+        return Array(5).fill(null).map((_, i) => ({
+            id: `int-${i}`,
+            candidate_name: names[i],
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${names[i]}`,
+            job_title: jobs[i],
+            scheduled_at: new Date(Date.now() + (i + 1) * 86400000 + i * 3600000).toISOString(),
+            type: types[i % types.length] as "video" | "phone" | "onsite",
+            meeting_link: i % 3 !== 2 ? "https://meet.google.com/abc-def-ghi" : undefined,
+        }));
+    },
+
+    getApplicationsChart: async (days: 7 | 30 | 90 = 30) => {
+        await delay(400);
+        return Array(days).fill(null).map((_, i) => {
+            const date = new Date(Date.now() - (days - 1 - i) * 86400000);
+            return {
+                date: date.toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
+                applications: Math.floor(Math.random() * 12) + 1,
+                views: Math.floor(Math.random() * 60) + 10,
+            };
+        });
+    },
 };

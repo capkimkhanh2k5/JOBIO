@@ -77,6 +77,27 @@
   }
 }
 
+@utility glass-card {
+  background-color: oklch(1 0 0 / 18%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 25%);
+  box-shadow:
+    0 4px 6px -1px oklch(0 0 0 / 0.06),
+    0 2px 4px -2px oklch(0 0 0 / 0.04),
+    0 20px 40px -12px oklch(0 0 0 / 0.12);
+  transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  @variant dark {
+    background-color: oklch(0.1 0.02 260 / 35%);
+    border: 1px solid oklch(1 0 0 / 10%);
+    box-shadow:
+      0 4px 6px -1px oklch(0 0 0 / 0.3),
+      0 2px 4px -2px oklch(0 0 0 / 0.25),
+      0 20px 50px -12px oklch(0 0 0 / 0.55);
+  }
+}
+
+
 @utility glass-card-tinted {
   background: linear-gradient(135deg, oklch(1 0 0 / 30%), oklch(0.95 0.02 260 / 20%));
   backdrop-filter: blur(30px) saturate(210%);
