@@ -1,6 +1,35 @@
 // Giả lập backend endpoint và delay mạng
 export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+let mockApplicationsCache: any[] | null = null;
+
+const getMockApplications = () => {
+    if (mockApplicationsCache) return mockApplicationsCache;
+    const statuses = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
+    const jobs = ["Senior Frontend", "Product Manager", "UI/UX Designer"];
+    const names = ["Trần Minh Đức", "Nguyễn Hồng Anh", "Lê Quang Hùng", "Phạm Thị Lan", "Võ Văn Nam"];
+
+    mockApplicationsCache = Array(40).fill(null).map((_, i) => ({
+        id: `app-${i}`,
+        job_id: `job-${i % 3}`,
+        candidate_id: `cand-${i}`,
+        candidate_name: names[i % names.length],
+        candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=App${i}`,
+        candidate_email: `applicant${i}@example.com`,
+        candidate_phone: `091122334${i % 10}`,
+        job_title: jobs[i % jobs.length],
+        status: statuses[i % statuses.length],
+        ai_score: 40 + Math.floor(Math.random() * 60),
+        applied_at: new Date(Date.now() - i * 86400000 * 2).toISOString(),
+        cv_url: "https://example.com/cv.pdf",
+        cover_letter: "I am very interested in this role...",
+        skills: ["React", "Vue", "Figma", "Node.js", "Python"].sort(() => 0.5 - Math.random()).slice(0, 3),
+        rating: Math.floor(Math.random() * 5) + 1,
+        experience_years: Math.floor(Math.random() * 10) + 1
+    }));
+    return mockApplicationsCache;
+};
+
 export const mockApi = {
     getProvinces: async () => {
         await delay(300);
@@ -913,8 +942,130 @@ export const mockApi = {
         };
     },
 
-    bulkJobAction: async (_ids: string[], _action: 'close' | 'delete' | 'extend') => {
+    // ─── Candidate Management (ATS) endpoints ────────────────────────────
+
+    getJobApplications: async (jobId: string, params?: { status?: string; search?: string }) => {
+        await delay(600);
+        // Generate mock applications for a job
+        const statuses = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
+        const names = ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Hoàng Văn E"];
+
+        let items = Array(15).fill(null).map((_, i) => ({
+            id: `app-job-${jobId}-${i}`,
+            job_id: jobId,
+            candidate_id: `cand-${i}`,
+            candidate_name: names[i % names.length] + ` ${i}`,
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Cand${i}`,
+            candidate_email: `cand${i}@example.com`,
+            candidate_phone: `090123456${i % 10}`,
+            job_title: "Senior Frontend Engineer",
+            status: statuses[i % statuses.length],
+            ai_score: 50 + Math.floor(Math.random() * 50),
+            applied_at: new Date(Date.now() - i * 86400000).toISOString(),
+            cv_url: "https://example.com/cv.pdf",
+            cover_letter: "Kính gửi nhà tuyển dụng, tôi có kinh nghiệm 5 năm với React...",
+            skills: ["React", "TypeScript", "Tailwind"].slice(0, 1 + (i % 3)),
+            rating: Math.floor(Math.random() * 5) + 1
+        }));
+
+        if (params?.status) {
+            items = items.filter(a => a.status === params.status);
+        }
+        if (params?.search) {
+            items = items.filter(a => a.candidate_name.toLowerCase().includes(params.search!.toLowerCase()));
+        }
+
+        return { items, total: items.length };
+    },
+
+    getAllApplications: async (params?: { ordering?: string; status?: string[]; job_id?: string; search?: string; ai_score_min?: number; ai_score_max?: number; date_from?: string; date_to?: string; skills?: string[] }) => {
         await delay(700);
-        return { success: true, affected: _ids.length };
+
+        let items = [...getMockApplications()];
+
+        if (params?.status && params.status.length > 0) {
+            items = items.filter(a => params.status!.includes(a.status));
+        }
+        if (params?.job_id) {
+            items = items.filter(a => a.job_id === params.job_id);
+        }
+        if (params?.search) {
+            items = items.filter(a => a.candidate_name.toLowerCase().includes(params.search!.toLowerCase()) || a.job_title.toLowerCase().includes(params.search!.toLowerCase()));
+        }
+        if (params?.ai_score_min !== undefined) {
+            items = items.filter(a => a.ai_score >= params.ai_score_min!);
+        }
+        if (params?.ai_score_max !== undefined) {
+            items = items.filter(a => a.ai_score <= params.ai_score_max!);
+        }
+        if (params?.skills && params.skills.length > 0) {
+            items = items.filter(a => params.skills!.some(s => a.skills.includes(s)));
+        }
+
+        if (params?.ordering === '-applied_at') {
+            items.sort((a, b) => new Date(b.applied_at).getTime() - new Date(a.applied_at).getTime());
+        } else if (params?.ordering === 'applied_at') {
+            items.sort((a, b) => new Date(a.applied_at).getTime() - new Date(b.applied_at).getTime());
+        }
+
+        return { items, total: items.length };
+    },
+
+    updateApplicationStatus: async (id: string, data: { status: string; notes?: string }) => {
+        await delay(400);
+        if (mockApplicationsCache) {
+            const index = mockApplicationsCache.findIndex(app => app.id === id);
+            if (index !== -1) {
+                mockApplicationsCache[index] = {
+                    ...mockApplicationsCache[index],
+                    status: data.status,
+                    notes: data.notes || mockApplicationsCache[index].notes
+                };
+            }
+        }
+        return { success: true, id, status: data.status, notes: data.notes };
+    },
+
+    getApplicationStatusHistory: async (id: string) => {
+        await delay(400);
+        return [
+            { id: "h1", status: "Submitted", changed_at: new Date(Date.now() - 86400000 * 5).toISOString(), changed_by: "System", notes: "Application received" },
+            { id: "h2", status: "Reviewing", changed_at: new Date(Date.now() - 86400000 * 3).toISOString(), changed_by: "HR Admin", notes: "Profile looks promising" },
+            { id: "h3", status: "Interview", changed_at: new Date(Date.now() - 86400000 * 1).toISOString(), changed_by: "Hiring Manager", notes: "Scheduled first round" }
+        ];
+    },
+
+    getApplicationTestResults: async (id: string) => {
+        await delay(500);
+        return [
+            { id: "tr1", test_name: "React Advanced Assessment", score: 85, max_score: 100, completed_at: new Date(Date.now() - 86400000 * 2).toISOString(), status: "passed" },
+            { id: "tr2", test_name: "Cognitive Ability Test", score: 72, max_score: 100, completed_at: new Date(Date.now() - 86400000 * 3).toISOString(), status: "passed" }
+        ];
+    },
+
+    getMatchingCandidates: async (jobId: string) => {
+        await delay(800);
+        const names = ["Đỗ Văn Thông", "Phan Thị Yến", "Nguyễn Tuấn Tài"];
+        return {
+            items: names.map((name, i) => ({
+                id: `match-${i}`,
+                candidate_id: `cand-match-${i}`,
+                candidate_name: name,
+                candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Match${i}`,
+                current_position: "Frontend Developer",
+                match_score: 95 - i * 5,
+                skills: ["React", "TypeScript", "Tailwind"].slice(0, i + 1),
+                experience_years: 4 + i
+            })),
+            total: names.length
+        };
+    },
+
+    getCandidateCertifications: async (id: string) => {
+        await delay(400);
+        return [
+            { id: "cert1", name: "AWS Certified Developer", issuing_organization: "Amazon Web Services", issue_date: "2023-01-15", credential_url: "https://aws.amazon.com/verify" },
+            { id: "cert2", name: "Meta React Native Specialist", issuing_organization: "Meta", issue_date: "2022-06-10" }
+        ];
     },
 };

@@ -23,12 +23,12 @@ import { EmployerLayout } from '@/components/employer/EmployerLayout';
 import EmployerDashboard from '@/pages/employer/EmployerDashboard';
 import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
+import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
     EmployerCompanyPage, EmployerSettingsPage,
-    EmployerCandidatesPage, EmployerCVSearchPage,
+    EmployerCVSearchPage,
     EmployerInterviewsPage, EmployerMessagesPage, EmployerAnalyticsPage,
     EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage,
-    EmployerJobCandidatesPage,
 } from '@/pages/employer/EmployerStubPages';
 
 export default function App() {
@@ -79,8 +79,8 @@ export default function App() {
                     <Route path="jobs" element={<ManageJobs />} />
                     <Route path="jobs/create" element={<PostJob />} />
                     <Route path="jobs/:id/edit" element={<PostJob />} />
-                    <Route path="jobs/:id/candidates" element={<EmployerJobCandidatesPage />} />
-                    <Route path="candidates" element={<EmployerCandidatesPage />} />
+                    <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
+                    <Route path="candidates" element={<ManageCandidates />} />
                     <Route path="cv-search" element={<EmployerCVSearchPage />} />
                     <Route path="interviews" element={<EmployerInterviewsPage />} />
                     <Route path="messages" element={<EmployerMessagesPage />} />
