@@ -11,17 +11,17 @@ export const SectionWrapper = ({ children, title, id }: SectionWrapperProps) => 
     return (
         <motion.div
             id={id}
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, ease: [0.1, 0.9, 0.2, 1] }}
-            className="glass-effect p-8 rounded-[24px] relative overflow-hidden group"
+            className="bg-white border border-slate-200 shadow-sm p-8 rounded-[24px] relative overflow-hidden group"
         >
-            {/* Subtle Aurora Detail inside section */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 blur-[80px] rounded-full group-hover:bg-primary/20 transition-colors" />
+            {/* Subtle gradient accent */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-100/60 blur-[80px] rounded-full group-hover:bg-violet-200/60 transition-colors pointer-events-none" />
 
             {title && (
-                <h2 className="text-2xl font-bold mb-8 relative z-10">{title}</h2>
+                <h2 className="text-2xl font-bold mb-8 relative z-10 text-slate-800">{title}</h2>
             )}
 
             <div className="relative z-10">
@@ -30,3 +30,4 @@ export const SectionWrapper = ({ children, title, id }: SectionWrapperProps) => 
         </motion.div>
     );
 };
+

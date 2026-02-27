@@ -65,11 +65,11 @@ export default function CandidateDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-[#0A0A0A] relative pb-12">
+        <div className="min-h-screen bg-slate-50 relative pb-12">
             {/* Background effects */}
             <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-500/10 blur-[100px] animate-pulse-slow" />
-                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[120px] mix-blend-screen" />
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
+                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/8 blur-[140px]" />
             </div>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
@@ -102,9 +102,9 @@ export default function CandidateDashboard() {
                                 { title: "Việc làm phù hợp", value: stats?.matching_jobs_count, icon: <Star className="w-5 h-5 text-yellow-500" />, loading: loadingStats },
                             ].map((stat, i) => (
                                 <motion.div key={i} variants={itemVariants}>
-                                    <Card className="p-4 glass-effect border-white/10 hover:-translate-y-1 transition-transform duration-300">
+                                    <Card className="p-4 bg-white border border-slate-200 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-2xl">
                                         <div className="flex flex-col gap-2">
-                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                                                 {stat.icon}
                                             </div>
                                             <div>
@@ -123,8 +123,8 @@ export default function CandidateDashboard() {
 
                         {/* Profile Completion */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-6 glass-effect border-cyan-500/20 shadow-lg shadow-cyan-500/5 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-400/10 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
+                            <Card className="p-6 bg-white border border-cyan-200 shadow-md shadow-cyan-100/50 relative overflow-hidden rounded-2xl">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-100/60 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
 
                                 <div className="flex flex-col md:flex-row gap-6 items-center relative z-10">
                                     <div className="relative w-28 h-28 flex-shrink-0">
@@ -133,7 +133,7 @@ export default function CandidateDashboard() {
                                         ) : (
                                             <>
                                                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                                    <circle className="text-white/5 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                                    <circle className="text-slate-200 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent"></circle>
                                                     <circle
                                                         className="text-cyan-500 stroke-current drop-shadow-md"
                                                         strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
@@ -164,9 +164,9 @@ export default function CandidateDashboard() {
                                                         {item.completed ? (
                                                             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                                         ) : (
-                                                            <div className="w-4 h-4 rounded-full border border-white/20" />
+                                                            <div className="w-4 h-4 rounded-full border border-slate-300" />
                                                         )}
-                                                        <span className={`text-sm ${item.completed ? 'text-muted-foreground line-through opacity-70' : 'text-foreground'}`}>
+                                                        <span className={`text-sm ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>
                                                             {item.task}
                                                         </span>
                                                     </div>
@@ -186,8 +186,8 @@ export default function CandidateDashboard() {
 
                         {/* Applications Summary */}
                         <motion.div variants={itemVariants}>
-                            <Card className="glass-effect border-white/10 overflow-hidden">
-                                <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
+                                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                                     <div className="flex items-center gap-2">
                                         <FileText className="w-5 h-5 text-violet-400" />
                                         <h3 className="font-bold">Tiến trình ứng tuyển</h3>
@@ -197,7 +197,7 @@ export default function CandidateDashboard() {
                                     </Link>
                                 </div>
                                 <div className="p-5 p-0">
-                                    <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-white/5 overflow-x-auto p-4 border-b border-white/5">
+                                    <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 overflow-x-auto p-4 border-b border-slate-100">
                                         {[
                                             { label: 'Đã gửi (12)', value: 12, col: 'bg-slate-500' },
                                             { label: 'Đang xem xét (4)', value: 4, col: 'bg-blue-500' },
@@ -209,21 +209,21 @@ export default function CandidateDashboard() {
                                                     <span className={`w-2 h-2 rounded-full ${s.col}`} />
                                                     <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{s.label}</span>
                                                 </div>
-                                                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                                     <div className={`h-full ${s.col}`} style={{ width: `${(s.value / 12) * 100}%` }} />
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="divide-y divide-white/5">
+                                    <div className="divide-y divide-slate-100">
                                         {loadingApps ? (
                                             [...Array(3)].map((_, i) => (
                                                 <div key={i} className="p-4 flex gap-4"><Skeleton className="w-12 h-12 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-1/3" /><Skeleton className="h-3 w-1/4" /></div></div>
                                             ))
                                         ) : (
                                             applications?.map((app: any) => (
-                                                <div key={app.id} className="p-4 flex items-center gap-4 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => navigate(`/candidate/applications/${app.id}`)}>
+                                                <div key={app.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/candidate/applications/${app.id}`)}>
                                                     <img src={app.logo_url} alt={app.company} className="w-12 h-12 rounded-xl border border-white/10" />
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-semibold text-foreground truncate">{app.job_title}</h4>
@@ -256,8 +256,8 @@ export default function CandidateDashboard() {
 
                         {/* AI Recommended Jobs */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-5 glass-effect border-cyan-500/20 shadow-lg shadow-cyan-500/5 relative overflow-hidden h-full">
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 blur-[40px] rounded-full pointer-events-none" />
+                            <Card className="p-5 bg-white border border-cyan-200 shadow-md shadow-cyan-100/50 relative overflow-hidden h-full rounded-2xl">
+                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-100/80 blur-[40px] rounded-full pointer-events-none" />
 
                                 <div className="flex items-center justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-2">
@@ -278,17 +278,17 @@ export default function CandidateDashboard() {
                                         ))
                                     ) : (
                                         matchingJobs?.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-cyan-500/30 hover:bg-white/[0.05] transition-all cursor-pointer group" onClick={() => navigate(`/jobs/${job.id}`)}>
+                                            <div key={job.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all cursor-pointer group" onClick={() => navigate(`/jobs/${job.id}`)}>
                                                 <div className="flex items-start gap-3">
-                                                    <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg shadow-sm border border-white/10" />
+                                                    <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg shadow-sm border border-slate-200" />
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-cyan-400 transition-colors">{job.title}</h4>
                                                         <p className="text-xs text-muted-foreground line-clamp-1">{job.company}</p>
                                                         <div className="mt-2 flex items-center justify-between">
-                                                            <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-500/10 text-cyan-400">
+                                                            <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-100 text-cyan-700">
                                                                 Match {job.match_score}%
                                                             </Badge>
-                                                            <span className="text-xs font-medium text-emerald-400">{job.salary}</span>
+                                                            <span className="text-xs font-medium text-emerald-600">{job.salary}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -296,7 +296,7 @@ export default function CandidateDashboard() {
                                         ))
                                     )}
                                 </div>
-                                <Button variant="ghost" className="w-full mt-3 text-sm text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10" onClick={() => navigate('/jobs?matching=true')}>
+                                <Button variant="ghost" className="w-full mt-3 text-sm text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50" onClick={() => navigate('/jobs?matching=true')}>
                                     Xem thêm {stats?.matching_jobs_count ?? ''} việc làm
                                 </Button>
                             </Card>
@@ -304,8 +304,8 @@ export default function CandidateDashboard() {
 
                         {/* Upcoming Interviews */}
                         <motion.div variants={itemVariants}>
-                            <Card className="glass-effect border-white/10 overflow-hidden">
-                                <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
+                                <div className="p-4 border-b border-slate-100 bg-slate-50">
                                     <h3 className="font-bold flex items-center gap-2">
                                         <CalendarClock className="w-4 h-4 text-amber-500" /> Phỏng vấn sắp tới
                                     </h3>
@@ -314,15 +314,15 @@ export default function CandidateDashboard() {
                                     {loadingInterviews ? (
                                         <div className="space-y-3"><Skeleton className="h-16 w-full" /></div>
                                     ) : interviews && interviews.length > 0 ? (
-                                        <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 shadow-inner">
+                                        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-inner">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <h4 className="font-bold text-amber-400 text-sm">Hôm nay, 14:00</h4>
+                                                    <h4 className="font-bold text-amber-600 text-sm">Hôm nay, 14:00</h4>
                                                     <p className="text-xs text-muted-foreground">{interviews[0].type === 'video' ? 'Online Interview' : 'Onsite Interview'}</p>
                                                 </div>
                                                 <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/20 border-amber-500/30">Sắp diễn ra</Badge>
                                             </div>
-                                            <div className="mt-3 bg-white/5 rounded-lg p-3">
+                                            <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
                                                 <p className="font-medium text-sm">{interviews[0].job_title}</p>
                                                 <p className="text-xs text-muted-foreground mt-0.5">Với TechCorp Inc.</p>
                                             </div>
@@ -334,7 +334,7 @@ export default function CandidateDashboard() {
                                         </div>
                                     ) : (
                                         <div className="text-center py-6">
-                                            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3">
+                                            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
                                                 <CalendarClock className="w-5 h-5 text-muted-foreground" />
                                             </div>
                                             <p className="text-sm text-muted-foreground">Không có lịch phỏng vấn nào sắp tới.</p>
@@ -346,8 +346,8 @@ export default function CandidateDashboard() {
 
                         {/* Saved Jobs Preview */}
                         <motion.div variants={itemVariants}>
-                            <Card className="glass-effect border-white/10 overflow-hidden">
-                                <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
+                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                                     <h3 className="font-bold flex items-center gap-2 text-sm">
                                         <Bookmark className="w-4 h-4 text-rose-400" /> Việc làm đã lưu
                                     </h3>
@@ -355,12 +355,12 @@ export default function CandidateDashboard() {
                                         Xem tất cả
                                     </Link>
                                 </div>
-                                <div className="divide-y divide-white/5">
+                                <div className="divide-y divide-slate-100">
                                     {loadingSaved ? (
                                         [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full" /></div>)
                                     ) : (
                                         savedJobs?.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
+                                            <div key={job.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
                                                 <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded border border-white/10" />
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-medium text-sm truncate">{job.title}</h4>

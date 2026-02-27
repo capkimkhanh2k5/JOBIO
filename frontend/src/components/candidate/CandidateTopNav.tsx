@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Bell, MessageSquare, LogOut, User, Settings, ChevronDown,
-    Loader2, ExternalLink, AlertTriangle, Star, Eye, FileText
+    Loader2, AlertTriangle, Star, Eye, FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -78,7 +78,7 @@ export function CandidateTopNav() {
     const initials = userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <header className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-white/3 backdrop-blur-xl sticky top-0 z-30">
+        <header className="h-16 flex items-center justify-between px-6 border-b border-slate-200 bg-white sticky top-0 z-30 shadow-sm">
             {/* Logo */}
             <Link
                 to="/"
@@ -94,7 +94,7 @@ export function CandidateTopNav() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative rounded-full w-10 h-10 hover:bg-white/8 transition-colors"
+                    className="relative rounded-full w-10 h-10 hover:bg-slate-100 transition-colors text-slate-600"
                     onClick={() => navigate('/candidate/messages')}
                 >
                     <MessageSquare className="w-5 h-5" />
@@ -108,7 +108,7 @@ export function CandidateTopNav() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="relative rounded-full w-10 h-10 hover:bg-white/8 transition-colors"
+                            className="relative rounded-full w-10 h-10 hover:bg-slate-100 transition-colors text-slate-600"
                         >
                             <Bell className="w-5 h-5" />
                             {(notifCount?.unread_count ?? 0) > 0 && (
@@ -124,11 +124,11 @@ export function CandidateTopNav() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                         align="end"
-                        className="w-96 glass-effect border-white/10 mt-2 p-0 overflow-hidden"
+                        className="w-96 bg-white border border-slate-200 shadow-xl mt-2 p-0 overflow-hidden"
                     >
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
                             <p className="font-semibold text-sm">Thông báo</p>
-                            <Badge variant="secondary" className="text-xs bg-cyan-500/20 text-cyan-300">
+                            <Badge variant="secondary" className="text-xs bg-cyan-100 text-cyan-700">
                                 {notifCount?.unread_count ?? 0} chưa đọc
                             </Badge>
                         </div>
@@ -145,9 +145,9 @@ export function CandidateTopNav() {
                                             initial={{ opacity: 0, x: -8 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: i * 0.05 }}
-                                            className={`flex gap-3 px-4 py-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${!n.is_read ? 'bg-cyan-500/5' : ''}`}
+                                            className={`flex gap-3 px-4 py-3 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-cyan-50' : ''}`}
                                         >
-                                            <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center shrink-0 mt-0.5">
+                                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
                                                 {notifIcon[n.type] ?? <Bell className="w-4 h-4" />}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -166,15 +166,15 @@ export function CandidateTopNav() {
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <div className="w-px h-6 bg-white/10" />
+                <div className="w-px h-6 bg-slate-200" />
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
-                            className="flex items-center gap-2.5 h-10 px-3 rounded-full hover:bg-white/8 transition-colors"
+                            className="flex items-center gap-2.5 h-10 px-3 rounded-full hover:bg-slate-100 transition-colors text-slate-700"
                         >
-                            <Avatar className="w-8 h-8 border border-white/10">
+                            <Avatar className="w-8 h-8 border border-slate-200">
                                 <AvatarImage src={user?.avatar_url} alt={userName} />
                                 <AvatarFallback className="bg-gradient-to-br from-violet-500 to-cyan-500 text-white text-xs font-bold">
                                     {initials}
@@ -184,10 +184,10 @@ export function CandidateTopNav() {
                             <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 glass-effect border-white/10 mt-2">
+                    <DropdownMenuContent align="end" className="w-56 bg-white border border-slate-200 shadow-lg mt-2">
                         <DropdownMenuLabel className="py-3">
                             <div className="flex items-center gap-3">
-                                <Avatar className="w-10 h-10 border border-white/10">
+                                <Avatar className="w-10 h-10 border border-slate-200">
                                     <AvatarImage src={user?.avatar_url} alt={userName} />
                                     <AvatarFallback className="bg-gradient-to-br from-violet-500 to-cyan-500 text-white text-xs font-bold">
                                         {initials}
@@ -199,9 +199,9 @@ export function CandidateTopNav() {
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-white/5" />
+                        <DropdownMenuSeparator className="bg-slate-100" />
                         <DropdownMenuItem asChild className="cursor-pointer">
-                            <Link to="/profile" className="flex items-center gap-3">
+                            <Link to="/candidate/profile" className="flex items-center gap-3">
                                 <User className="w-4 h-4 text-muted-foreground" />
                                 <span>Hồ sơ cá nhân</span>
                             </Link>
@@ -212,7 +212,7 @@ export function CandidateTopNav() {
                                 <span>Cài đặt</span>
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-white/5" />
+                        <DropdownMenuSeparator className="bg-slate-100" />
                         <DropdownMenuItem
                             className="text-red-400 hover:text-red-300 hover:bg-red-400/10 cursor-pointer"
                             onClick={handleLogout}

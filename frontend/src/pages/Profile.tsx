@@ -5,7 +5,7 @@ import { mockApi } from '@/services/mockApi';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, Circle, Trophy } from 'lucide-react';
+import { CheckCircle2, Circle, Trophy, User, GraduationCap, Briefcase, Zap, Award, Languages as LangIcon, FolderGit2, FileText } from 'lucide-react';
 
 // Components
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -19,6 +19,32 @@ import { ProjectsSection } from '@/components/profile/ProjectsSection';
 import { SectionWrapper } from '@/components/profile/SectionWrapper';
 import { toast } from 'sonner';
 
+const SECTION_NAV = [
+    { id: 'header', label: 'Tổng quan', icon: User },
+    { id: 'personal-info', label: 'Cá nhân', icon: FileText },
+    { id: 'experience', label: 'Kinh nghiệm', icon: Briefcase },
+    { id: 'education', label: 'Học vấn', icon: GraduationCap },
+    { id: 'skills', label: 'Kỹ năng', icon: Zap },
+    { id: 'certifications', label: 'Chứng chỉ', icon: Award },
+    { id: 'languages', label: 'Ngoại ngữ', icon: LangIcon },
+    { id: 'projects', label: 'Dự án', icon: FolderGit2 },
+];
+
+const ProfileSkeleton = () => (
+    <div className="container mx-auto px-4 py-12 max-w-6xl">
+        <Skeleton className="h-64 w-full rounded-[32px] mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-72 w-full rounded-[24px]" />)}
+            </div>
+            <div className="space-y-6">
+                <Skeleton className="h-96 w-full rounded-[24px]" />
+                <Skeleton className="h-48 w-full rounded-[24px]" />
+            </div>
+        </div>
+    </div>
+);
+
 const Profile = () => {
     const queryClient = useQueryClient();
     const userId = "mock-user-id";
@@ -26,15 +52,17 @@ const Profile = () => {
     const { data: profile, isLoading: profileLoading } = useQuery({
         queryKey: ['profile', userId],
         queryFn: () => mockApi.getProfile(userId),
+        staleTime: 60_000,
     });
 
     const { data: completeness, isLoading: completenessLoading } = useQuery({
         queryKey: ['profile-completeness', userId],
         queryFn: () => mockApi.getProfileCompleteness(userId),
+        staleTime: 30_000,
     });
 
     const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => mockApi.updateProfile(userId, { is_profile_public: isPublic }),
+        mutationFn: (isPublic: boolean) => mockApi.updateProfilePrivacy(userId, isPublic),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật cài đặt quyền riêng tư");
@@ -42,136 +70,182 @@ const Profile = () => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: (status: string) => mockApi.updateProfile(userId, { job_search_status: status }),
+        mutationFn: (status: string) => mockApi.updateJobSearchStatus(userId, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật trạng thái tìm việc");
         }
     });
 
-    if (profileLoading || completenessLoading) {
-        return (
-            <div className="container mx-auto px-4 py-12 max-w-6xl">
-                <Skeleton className="h-64 w-full rounded-[32px] mb-8" />
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-8">
-                        <Skeleton className="h-80 w-full rounded-[24px]" />
-                        <Skeleton className="h-80 w-full rounded-[24px]" />
-                    </div>
-                    <div className="space-y-8">
-                        <Skeleton className="h-96 w-full rounded-[24px]" />
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    if (profileLoading || completenessLoading) return <ProfileSkeleton />;
+
+    const score = completeness?.score ?? 0;
+    const completedCount = completeness?.checklist?.filter((c: any) => c.completed).length ?? 0;
+    const totalCount = completeness?.checklist?.length ?? 0;
+
+    // Score color based on value
+    const scoreColor = score >= 80 ? 'text-emerald-500' : score >= 50 ? 'text-amber-500' : 'text-destructive';
+    const progressColor = score >= 80
+        ? 'from-emerald-500 to-cyan-400'
+        : score >= 50 ? 'from-amber-500 to-primary' : 'from-destructive to-orange-500';
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="container mx-auto px-4 py-12 max-w-6xl relative z-10"
-        >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-8">
-                    <ProfileHeader
-                        profile={profile}
-                        onUpdateStatus={(s) => updateStatusMutation.mutate(s)}
-                        onTogglePrivacy={(p) => updatePrivacyMutation.mutate(p)}
-                    />
+        <div className="min-h-screen bg-slate-50 pb-12">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="container mx-auto px-4 py-10 max-w-6xl relative z-10"
+            >
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* ── Main Content ── */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <ProfileHeader
+                            profile={profile}
+                            onUpdateStatus={(s) => updateStatusMutation.mutate(s)}
+                            onTogglePrivacy={(p) => updatePrivacyMutation.mutate(p)}
+                        />
 
-                    <SectionWrapper title="Thông tin cá nhân" id="personal-info">
-                        <PersonalForm profile={profile} />
-                    </SectionWrapper>
+                        <SectionWrapper title="Thông tin cá nhân" id="personal-info">
+                            <PersonalForm profile={profile} />
+                        </SectionWrapper>
 
-                    <ExperienceSection userId={userId} />
+                        <ExperienceSection userId={userId} />
 
-                    <EducationSection userId={userId} />
+                        <EducationSection userId={userId} />
 
-                    <SkillsSection userId={userId} />
+                        <SkillsSection userId={userId} />
 
-                    <CertificationsSection userId={userId} />
+                        <CertificationsSection userId={userId} />
 
-                    <LanguagesSection userId={userId} />
+                        <LanguagesSection userId={userId} />
 
-                    <ProjectsSection userId={userId} />
-                </div>
+                        <ProjectsSection userId={userId} />
+                    </div>
 
-                {/* Sidebar */}
-                <div className="space-y-8">
-                    {/* Profile Completeness */}
-                    <Card className="glass-effect p-8 rounded-[32px] border-none sticky top-24">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2 bg-primary/10 rounded-xl">
-                                <Trophy className="w-6 h-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold">Hoàn thiện hồ sơ</h3>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-end">
-                                <div className="space-y-1">
-                                    <span className="text-4xl font-black text-primary">{completeness?.score}%</span>
-                                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Mức độ tin cậy</p>
+                    {/* ── Sidebar ── */}
+                    <div className="space-y-6">
+                        {/* Profile Completeness Card */}
+                        <Card className="glass-effect p-6 rounded-[28px] border-none sticky top-24">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="p-2 bg-primary/10 rounded-xl">
+                                    <Trophy className="w-5 h-5 text-primary" />
                                 </div>
-                                <div className="text-right">
-                                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 rounded-full">Pro Candidate</Badge>
+                                <div>
+                                    <h3 className="text-base font-bold">Độ hoàn thiện</h3>
+                                    <p className="text-xs text-muted-foreground">{completedCount}/{totalCount} mục hoàn thành</p>
                                 </div>
                             </div>
 
-                            <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-                                <motion.div
-                                    className="absolute inset-0 bg-gradient-to-r from-primary to-cyan-400"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${completeness?.score}%` }}
-                                    transition={{ duration: 1.5, ease: "easeOut" }}
-                                />
-                            </div>
+                            <div className="space-y-5">
+                                {/* Score display */}
+                                <div className="flex justify-between items-end">
+                                    <div className="space-y-0.5">
+                                        <span className={`text-5xl font-black ${scoreColor}`}>{score}%</span>
+                                        <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Hồ sơ của bạn</p>
+                                    </div>
+                                    <Badge
+                                        variant="outline"
+                                        className={`rounded-full text-xs font-semibold ${score >= 80
+                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                            : score >= 50 ? 'bg-primary/10 text-primary border-primary/20'
+                                                : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}`}
+                                    >
+                                        {score >= 80 ? '✨ Nổi bật' : score >= 50 ? '📈 Phát triển' : '🚀 Bắt đầu'}
+                                    </Badge>
+                                </div>
 
-                            <ul className="space-y-4">
-                                {completeness?.checklist.map((item: any, idx: number) => (
-                                    <li key={idx} className="flex items-start gap-4 text-sm group">
-                                        <div className={`mt-0.5 rounded-full p-0.5 transition-colors ${item.completed ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted text-muted-foreground'}`}>
-                                            {item.completed ? (
-                                                <CheckCircle2 className="w-4 h-4" />
-                                            ) : (
-                                                <Circle className="w-4 h-4" />
-                                            )}
-                                        </div>
-                                        <span className={`transition-all ${item.completed ? "text-muted-foreground/60 line-through" : "font-medium group-hover:text-primary"}`}>
-                                            {item.task}
-                                        </span>
-                                    </li>
+                                {/* Progress bar */}
+                                <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
+                                    <motion.div
+                                        className={`absolute inset-y-0 left-0 bg-gradient-to-r ${progressColor} rounded-full`}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${score}%` }}
+                                        transition={{ duration: 1.2, ease: [0.1, 0.9, 0.2, 1] }}
+                                    />
+                                </div>
+
+                                {/* Checklist */}
+                                <ul className="space-y-3">
+                                    {completeness?.checklist.map((item: any, idx: number) => (
+                                        <li key={idx} className="flex items-start gap-3 text-sm group">
+                                            <div className={`mt-0.5 shrink-0 transition-colors ${item.completed ? 'text-emerald-500' : 'text-muted-foreground/40'}`}>
+                                                {item.completed
+                                                    ? <CheckCircle2 className="w-4 h-4" />
+                                                    : <Circle className="w-4 h-4" />
+                                                }
+                                            </div>
+                                            <span className={`transition-all leading-snug ${item.completed
+                                                ? 'text-muted-foreground/50 line-through text-xs'
+                                                : 'font-medium text-sm group-hover:text-primary cursor-default'
+                                                }`}
+                                            >
+                                                {item.task}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {score >= 90 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="p-3 bg-gradient-to-r from-primary/10 to-emerald-500/10 rounded-xl border border-primary/10 text-center"
+                                    >
+                                        <p className="text-xs font-bold text-primary">🏆 Verified Excellence</p>
+                                        <p className="text-[10px] text-muted-foreground mt-0.5">Hồ sơ của bạn đã đạt chuẩn vàng!</p>
+                                    </motion.div>
+                                )}
+
+                                {score < 90 && (
+                                    <div className="pt-4 border-t border-border/50">
+                                        <p className="text-[11px] leading-relaxed text-muted-foreground">
+                                            Đạt <strong>{90 - score}% nữa</strong> để nhận huy hiệu <strong>Verified Excellence</strong>.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </Card>
+
+                        {/* Navigation Shortcuts */}
+                        <Card className="glass-effect p-5 rounded-[24px] border-none">
+                            <h4 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider text-xs">Điều hướng nhanh</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                                {SECTION_NAV.map(({ id, label, icon: Icon }) => (
+                                    <a
+                                        key={id}
+                                        href={`#${id}`}
+                                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background/40 hover:bg-primary/10 hover:text-primary text-[11px] font-semibold uppercase tracking-wider transition-all group"
+                                    >
+                                        <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                                        <span className="truncate">{label}</span>
+                                    </a>
                                 ))}
-                            </ul>
-
-                            <div className="pt-6 border-t border-border/50">
-                                <p className="text-xs leading-relaxed text-muted-foreground">
-                                    Hồ sơ đạt trên <strong>90%</strong> sẽ nhận được huy hiệu <strong>Verified Excellence</strong>.
-                                </p>
                             </div>
-                        </div>
-                    </Card>
+                        </Card>
 
-                    {/* Navigation Shortcut */}
-                    <Card className="glass-effect p-6 rounded-[24px] border-none">
-                        <h4 className="font-bold text-sm mb-4">Lối tắt</h4>
-                        <div className="grid grid-cols-2 gap-2">
-                            {['header', 'personal-info', 'experience', 'education', 'skills'].map((id) => (
-                                <a
-                                    key={id}
-                                    href={`#${id}`}
-                                    className="px-3 py-2 rounded-xl bg-background/40 hover:bg-primary/10 hover:text-primary text-[10px] font-bold uppercase tracking-widest transition-all text-center"
-                                >
-                                    {id.replace('-', ' ')}
-                                </a>
-                            ))}
-                        </div>
-                    </Card>
+                        {/* Quick tips */}
+                        <Card className="glass-effect p-5 rounded-[24px] border-none">
+                            <h4 className="font-bold text-sm mb-3">💡 Mẹo tăng cơ hội</h4>
+                            <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
+                                <li className="flex items-start gap-2">
+                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    Giữ trạng thái <strong className="text-foreground">Đang tìm việc</strong> để xuất hiện trong tìm kiếm của nhà tuyển dụng.
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    Thêm ít nhất <strong className="text-foreground">5 kỹ năng</strong> với mức độ chính xác để tăng điểm match.
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    Hồ sơ có <strong className="text-foreground">ảnh đại diện</strong> được xem nhiều hơn 14 lần so với hồ sơ không có ảnh.
+                                </li>
+                            </ul>
+                        </Card>
+                    </div>
                 </div>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
     );
 };
 

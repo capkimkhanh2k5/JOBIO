@@ -1036,6 +1036,11 @@ export const mockApi = {
         };
     },
 
+    bulkJobAction: async (ids: string[], action: 'close' | 'delete' | 'extend') => {
+        await delay(600);
+        return { success: true, affected: ids.length, action };
+    },
+
     // ─── Candidate Management (ATS) endpoints ────────────────────────────
 
     getJobApplications: async (jobId: string, params?: { status?: string; search?: string }) => {
@@ -1209,5 +1214,183 @@ export const mockApi = {
             salary: "3,000 - 5,000 USD",
             location: "Remote"
         }));
-    }
+    },
+
+    // ─── Profile CRUD endpoints ─────────────────────────────────────────────
+
+    uploadAvatar: async (id: string, _file: File) => {
+        await delay(900);
+        // In real app, upload to storage and return URL
+        return { avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${Date.now()}` };
+    },
+
+    updateJobSearchStatus: async (id: string, status: string) => {
+        await delay(400);
+        return { success: true, job_search_status: status };
+    },
+
+    updateProfilePrivacy: async (id: string, is_profile_public: boolean) => {
+        await delay(400);
+        return { success: true, is_profile_public };
+    },
+
+    // Education CRUD
+    addEducation: async (userId: string, data: any) => {
+        await delay(600);
+        return { id: 'edu_' + Math.random().toString(36).substr(2, 9), ...data };
+    },
+    updateEducation: async (userId: string, entryId: string, data: any) => {
+        await delay(600);
+        return { id: entryId, ...data };
+    },
+    deleteEducation: async (userId: string, entryId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+    reorderEducation: async (userId: string, order: string[]) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    // Experience CRUD
+    addExperience: async (userId: string, data: any) => {
+        await delay(600);
+        return { id: 'exp_' + Math.random().toString(36).substr(2, 9), ...data };
+    },
+    updateExperience: async (userId: string, entryId: string, data: any) => {
+        await delay(600);
+        return { id: entryId, ...data };
+    },
+    deleteExperience: async (userId: string, entryId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+    reorderExperience: async (userId: string, order: string[]) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    // Skills CRUD
+    addSkill: async (userId: string, data: any) => {
+        await delay(500);
+        return { id: 'sk_' + Math.random().toString(36).substr(2, 9), ...data, endorsement_count: 0, is_verified: false };
+    },
+    updateSkill: async (userId: string, skillId: string, data: any) => {
+        await delay(500);
+        return { id: skillId, ...data };
+    },
+    deleteSkill: async (userId: string, skillId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+    bulkAddSkills: async (userId: string, skills: any[]) => {
+        await delay(700);
+        return skills.map(s => ({ id: 'sk_' + Math.random().toString(36).substr(2, 9), ...s, endorsement_count: 0, is_verified: false }));
+    },
+
+    // Certifications CRUD
+    getCertifications: async (userId: string) => {
+        await delay(500);
+        return [
+            {
+                id: "cert1",
+                certification_name: "AWS Certified Solutions Architect – Associate",
+                issuing_organization: "Amazon Web Services",
+                issue_date: "2023-05-15",
+                expiry_date: "2026-05-15",
+                credential_id: "AWS-CSA-001",
+                credential_url: "https://aws.amazon.com/verification",
+                does_not_expire: false
+            },
+            {
+                id: "cert2",
+                certification_name: "Google Professional Cloud Developer",
+                issuing_organization: "Google Cloud",
+                issue_date: "2022-11-20",
+                expiry_date: null,
+                credential_id: "GCP-PCD-554",
+                credential_url: "https://cloud.google.com/certification",
+                does_not_expire: true
+            }
+        ];
+    },
+    addCertification: async (userId: string, data: any) => {
+        await delay(600);
+        return { id: 'cert_' + Math.random().toString(36).substr(2, 9), ...data };
+    },
+    updateCertification: async (userId: string, certId: string, data: any) => {
+        await delay(600);
+        return { id: certId, ...data };
+    },
+    deleteCertification: async (userId: string, certId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    // User Languages CRUD (user-side, not just the list)
+    getUserLanguages: async (userId: string) => {
+        await delay(400);
+        return [
+            { id: "ul1", language_id: "l1", name: "Tiếng Việt", proficiency_level: "native", is_native: true },
+            { id: "ul2", language_id: "l2", name: "Tiếng Anh", proficiency_level: "fluent", is_native: false },
+            { id: "ul3", language_id: "l3", name: "Tiếng Nhật", proficiency_level: "basic", is_native: false }
+        ];
+    },
+    addUserLanguage: async (userId: string, data: any) => {
+        await delay(500);
+        return { id: 'ul_' + Math.random().toString(36).substr(2, 9), ...data };
+    },
+    updateUserLanguage: async (userId: string, langId: string, data: any) => {
+        await delay(500);
+        return { id: langId, ...data };
+    },
+    deleteUserLanguage: async (userId: string, langId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    // Projects CRUD
+    getProjects: async (userId: string) => {
+        await delay(500);
+        return [
+            {
+                id: "p1",
+                project_name: "JOBIO Recruitment Platform",
+                description: "Nền tảng tuyển dụng hiện đại với Neo-glass UI và Aurora gradients, tích hợp AI để kết nối ứng viên và nhà tuyển dụng.",
+                project_url: "https://jobio.dev",
+                github_url: "https://github.com/anv/jobio",
+                start_date: "2023-06-01",
+                end_date: null,
+                is_ongoing: true,
+                technologies_used: ["React", "TypeScript", "TailwindCSS", "Framer Motion", "Zustand"]
+            },
+            {
+                id: "p2",
+                project_name: "E-commerce Mobile App",
+                description: "Ứng dụng thương mại điện tử React Native với tính năng AR try-on và thanh toán đa điểm.",
+                project_url: "https://myshop.dev",
+                github_url: "https://github.com/anv/myshop",
+                start_date: "2022-01-15",
+                end_date: "2022-12-31",
+                is_ongoing: false,
+                technologies_used: ["React Native", "Redux", "Node.js", "MongoDB"]
+            }
+        ];
+    },
+    addProject: async (userId: string, data: any) => {
+        await delay(600);
+        return { id: 'p_' + Math.random().toString(36).substr(2, 9), ...data };
+    },
+    updateProject: async (userId: string, projectId: string, data: any) => {
+        await delay(600);
+        return { id: projectId, ...data };
+    },
+    deleteProject: async (userId: string, projectId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+    reorderProjects: async (userId: string, order: string[]) => {
+        await delay(300);
+        return { success: true };
+    },
 };

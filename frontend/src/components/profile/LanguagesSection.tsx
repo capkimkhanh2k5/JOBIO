@@ -1,42 +1,240 @@
-import React from 'react';
-import { Plus, Trash2, Languages as LangIcon } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash2, Languages as LangIcon, Pencil, Star } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { SectionWrapper } from './SectionWrapper';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { mockApi } from '../../services/mockApi';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { toast } from 'sonner';
+
+const PROFICIENCY_LEVELS = [
+    { value: 'basic', label: 'Cơ bản' },
+    { value: 'intermediate', label: 'Trung cấp' },
+    { value: 'advanced', label: 'Nâng cao' },
+    { value: 'fluent', label: 'Lưu loát' },
+    { value: 'native', label: 'Ngôn ngữ mẹ đẻ' },
+];
+
+const LEVEL_COLORS: Record<string, string> = {
+    basic: 'bg-slate-500/10 text-slate-500',
+    intermediate: 'bg-blue-500/10 text-blue-500',
+    advanced: 'bg-violet-500/10 text-violet-500',
+    fluent: 'bg-cyan-500/10 text-cyan-600',
+    native: 'bg-emerald-500/10 text-emerald-600',
+};
+
+interface UserLanguage {
+    id: string;
+    language_id?: string;
+    name: string;
+    proficiency_level: string;
+    is_native: boolean;
+}
+
+interface Language {
+    id: string;
+    name: string;
+    code: string;
+}
+
+interface LangFormProps {
+    open: boolean;
+    onClose: () => void;
+    entry?: UserLanguage | null;
+    userId: string;
+    availableLanguages: Language[];
+}
+
+const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangFormProps) => {
+    const queryClient = useQueryClient();
+    const isEdit = !!entry;
+
+    const [selectedLangId, setSelectedLangId] = useState(entry?.language_id || '');
+    const [proficiency, setProficiency] = useState(entry?.proficiency_level || 'intermediate');
+    const [isNative, setIsNative] = useState(entry?.is_native || false);
+
+    const selectedLang = availableLanguages.find(l => l.id === selectedLangId);
+
+    const mutation = useMutation({
+        mutationFn: () => {
+            const data = {
+                language_id: selectedLangId,
+                name: selectedLang?.name || '',
+                proficiency_level: isNative ? 'native' : proficiency,
+                is_native: isNative,
+            };
+            return isEdit
+                ? mockApi.updateUserLanguage(userId, entry!.id, data)
+                : mockApi.addUserLanguage(userId, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
+            queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
+            toast.success(isEdit ? 'Đã cập nhật ngôn ngữ!' : 'Đã thêm ngôn ngữ!');
+            onClose();
+        },
+        onError: () => toast.error('Không thể lưu. Hãy thử lại.')
+    });
+
+    return (
+        <Dialog open={open} onOpenChange={o => !o && onClose()}>
+            <DialogContent className="bg-white max-w-sm rounded-[24px] border border-slate-200 shadow-xl">
+                <DialogHeader>
+                    <DialogTitle>{isEdit ? 'Chỉnh sửa ngôn ngữ' : 'Thêm ngôn ngữ'}</DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-5 mt-2">
+                    <div className="space-y-2">
+                        <Label>Ngôn ngữ</Label>
+                        <Select value={selectedLangId} onValueChange={setSelectedLangId}>
+                            <SelectTrigger className=""><SelectValue placeholder="Chọn ngôn ngữ" /></SelectTrigger>
+                            <SelectContent>
+                                {availableLanguages.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Mức độ</Label>
+                        <Select value={proficiency} onValueChange={setProficiency} disabled={isNative}>
+                            <SelectTrigger className=""><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {PROFICIENCY_LEVELS.filter(p => p.value !== 'native').map(p =>
+                                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <Switch id="is-native" checked={isNative}
+                            onCheckedChange={v => { setIsNative(v); if (v) setProficiency('native'); else setProficiency('fluent'); }} />
+                        <Label htmlFor="is-native" className="cursor-pointer">Đây là ngôn ngữ mẹ đẻ</Label>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full">Huỷ</Button>
+                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8"
+                            disabled={mutation.isPending || !selectedLangId}>
+                            {mutation.isPending ? 'Lưu...' : (isEdit ? 'Lưu thay đổi' : 'Thêm')}
+                        </Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 export const LanguagesSection = ({ userId }: { userId: string }) => {
-    const languages = [
-        { id: "l1", name: "Tiếng Việt", proficiency_level: "Native", is_native: true },
-        { id: "l2", name: "Tiếng Anh", proficiency_level: "Fluent", is_native: false }
-    ];
+    const queryClient = useQueryClient();
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editEntry, setEditEntry] = useState<UserLanguage | null>(null);
+
+    const { data: userLangs = [], isLoading: langsLoading } = useQuery({
+        queryKey: ['user-languages', userId],
+        queryFn: () => mockApi.getUserLanguages(userId),
+    });
+
+    const { data: availableLanguages = [] } = useQuery({
+        queryKey: ['languages'],
+        queryFn: () => mockApi.getLanguages(),
+        staleTime: Infinity,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (langId: string) => mockApi.deleteUserLanguage(userId, langId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
+            toast.success('Đã xoá ngôn ngữ.');
+        }
+    });
+
+    if (langsLoading) return (
+        <SectionWrapper title="Ngoại ngữ" id="languages">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2].map(i => <div key={i} className="h-20 bg-background/40 animate-pulse rounded-2xl" />)}
+            </div>
+        </SectionWrapper>
+    );
 
     return (
         <SectionWrapper title="Ngoại ngữ" id="languages">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {languages.map((lang) => (
-                    <div key={lang.id} className="glass-effect p-5 rounded-2xl flex justify-between items-center group">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                                <LangIcon className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold">{lang.name}</h4>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs text-muted-foreground">{lang.proficiency_level}</span>
-                                    {lang.is_native && <Badge className="text-[9px] h-3.5 px-1 bg-emerald-500/20 text-emerald-500 border-none">Bản ngữ</Badge>}
-                                </div>
-                            </div>
-                        </div>
-                        <button className="p-2 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all">
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    </div>
-                ))}
-                <div className="glass-effect border-dashed border-2 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-primary/5 transition-colors">
-                    <Plus className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-xs font-bold text-muted-foreground">Thêm ngoại ngữ</span>
+            <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <AnimatePresence>
+                        {(userLangs as UserLanguage[]).map((lang) => {
+                            const levelInfo = PROFICIENCY_LEVELS.find(p => p.value === lang.proficiency_level) || PROFICIENCY_LEVELS[1];
+                            const levelColor = LEVEL_COLORS[lang.proficiency_level] || LEVEL_COLORS.intermediate;
+
+                            return (
+                                <motion.div
+                                    key={lang.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center group"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                            <LangIcon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-bold text-sm">{lang.name}</h4>
+                                                {lang.is_native && (
+                                                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge variant="outline" className={`text-[10px] h-[18px] px-2 font-medium ${levelColor}`}>
+                                                    {levelInfo.label}
+                                                </Badge>
+                                                {lang.is_native && (
+                                                    <span className="text-[10px] text-emerald-500 font-semibold">Bản ngữ</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                            onClick={() => { setEditEntry(lang); setDialogOpen(true); }}>
+                                            <Pencil className="w-3.5 h-3.5" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => deleteMutation.mutate(lang.id)}>
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </Button>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
+
+                    {/* Add card */}
+                    <motion.button
+                        whileHover={{ scale: 1.01 }}
+                        onClick={() => { setEditEntry(null); setDialogOpen(true); }}
+                        className="border-dashed border-2 border-slate-300 bg-slate-50/50 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-violet-50 hover:border-violet-400 hover:text-violet-600 transition-all min-h-[80px]"
+                    >
+                        <Plus className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-xs font-bold text-muted-foreground">Thêm ngôn ngữ</span>
+                    </motion.button>
                 </div>
             </div>
+
+            <LangForm
+                open={dialogOpen}
+                onClose={() => { setDialogOpen(false); setEditEntry(null); }}
+                entry={editEntry}
+                userId={userId}
+                availableLanguages={availableLanguages as Language[]}
+            />
         </SectionWrapper>
     );
 };

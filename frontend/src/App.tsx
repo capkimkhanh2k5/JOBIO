@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
-import Profile from '@/pages/Profile';
+import CandidateProfile from '@/pages/Profile';
 import Jobs from '@/pages/Jobs';
 import JobDetail from '@/pages/JobDetailPage';
 import Auth from '@/pages/Auth';
@@ -16,7 +16,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { ProtectedRoute, PublicRoute } from '@/components/layout/RouteGuards';
+import { PublicRoute } from '@/components/layout/RouteGuards';
 
 // Employer area – own layout shell (no public Header/Footer)
 import { EmployerLayout } from '@/components/employer/EmployerLayout';
@@ -79,6 +79,7 @@ export default function App() {
                 <Route path="/candidate" element={<CandidateLayout />}>
                     <Route index element={<Navigate to="/candidate/dashboard" replace />} />
                     <Route path="dashboard" element={<CandidateDashboard />} />
+                    <Route path="profile" element={<CandidateProfile />} />
                 </Route>
 
                 {/* ── Employer area: own shell, no public header/footer ── */}
@@ -114,7 +115,7 @@ export default function App() {
                                 <Route path="/jobs/:id" element={<JobDetail />} />
                                 <Route path="/companies/:id" element={<CompanyDetail />} />
                                 <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-                                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                                {/* Profile is now under /candidate/profile */}
                                 <Route path="/about" element={<About />} />
                                 <Route path="/contact" element={<Contact />} />
                                 <Route path="/pricing" element={<Pricing />} />
