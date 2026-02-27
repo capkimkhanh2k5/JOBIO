@@ -3,6 +3,19 @@ export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 let mockApplicationsCache: any[] | null = null;
 
+let mockCandidateApplications: any[] = Array(15).fill(null).map((_, i) => ({
+    id: `cand-app-${i}`,
+    job_title: ["Frontend Developer", "Senior UI Developer", "React Engineer", "Software Engineer Frontend", "Web Developer"][i % 5],
+    company: ["TechCorp", "VNG", "FPT", "Viettel", "Vinsmart"][i % 5],
+    logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Comp${i}`,
+    status: ["Mới gửi", "Đang xét", "Shortlisted", "Phỏng vấn", "Đề nghị", "Đã tuyển", "Từ chối", "Rút đơn"][i % 8],
+    applied_at: new Date(Date.now() - i * 86400000 * 3).toISOString(),
+    ai_score: 50 + Math.floor(Math.random() * 50),
+    cv_name: `Frontend_CV_v${i + 1}.pdf`,
+    cv_url: `https://example.com/cv-${i}.pdf`,
+    cover_letter: "Kính gửi nhà tuyển dụng, tôi rất quan tâm đến vị trí này..."
+}));
+
 const getMockApplications = () => {
     if (mockApplicationsCache) return mockApplicationsCache;
     const statuses = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
@@ -1192,16 +1205,26 @@ export const mockApi = {
         }));
     },
 
-    getCandidateApplications: async (id: string) => {
+
+    getCandidateApplications: async (id: string, params?: { status?: string }) => {
         await delay(500);
-        return Array(5).fill(null).map((_, i) => ({
-            id: `cand-app-${i}`,
-            job_title: ["Frontend Developer", "Senior UI Developer", "React Engineer", "Software Engineer Frontend", "Web Developer"][i],
-            company: ["TechCorp", "VNG", "FPT", "Viettel", "Vinsmart"][i],
-            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Comp${i}`,
-            status: ["Reviewing", "Interview", "Submitted", "Offered", "Rejected"][i],
-            applied_at: new Date(Date.now() - i * 86400000 * 3).toISOString()
-        }));
+
+        let apps = mockCandidateApplications;
+
+        if (params?.status && params.status !== 'Tất cả') {
+            apps = apps.filter(a => a.status === params.status);
+        }
+
+        return apps;
+    },
+
+    withdrawApplication: async (appId: string) => {
+        await delay(400);
+        const appInfo = mockCandidateApplications.find(a => a.id === appId);
+        if (appInfo) {
+            appInfo.status = 'Rút đơn';
+        }
+        return { success: true, status: 'Rút đơn' };
     },
 
     getCandidateSavedJobs: async (id: string) => {

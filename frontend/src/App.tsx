@@ -36,6 +36,7 @@ import CompanyProfile from '@/pages/employer/CompanyProfile';
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
 import CandidateDashboard from '@/pages/candidate/CandidateDashboard';
 import CVManager from '@/pages/candidate/CVManager';
+import MyApplications from '@/pages/candidate/MyApplications';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -82,6 +83,7 @@ export default function App() {
                     <Route path="dashboard" element={<CandidateDashboard />} />
                     <Route path="profile" element={<CandidateProfile />} />
                     <Route path="cv" element={<CVManager />} />
+                    <Route path="applications" element={<MyApplications />} />
                 </Route>
 
                 {/* ── Employer area: own shell, no public header/footer ── */}
