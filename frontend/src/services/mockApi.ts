@@ -1393,4 +1393,128 @@ export const mockApi = {
         await delay(300);
         return { success: true };
     },
+
+    // ─── CV Builder / CV Manager endpoints (Task 3.3) ─────────────────────
+
+    getCandidateCVs: async (userId: string) => {
+        await delay(500);
+        return [
+            {
+                id: 'cv-1',
+                cv_name: 'Frontend Developer – TechStack Focus',
+                template_id: 'tpl-1',
+                template_name: 'Aurora Professional',
+                is_default: true,
+                is_public: true,
+                view_count: 142,
+                download_count: 18,
+                updated_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+                thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Aurora`,
+            },
+            {
+                id: 'cv-2',
+                cv_name: 'Fullstack Engineer – Portfolio 2025',
+                template_id: 'tpl-2',
+                template_name: 'Neo Minimal',
+                is_default: false,
+                is_public: false,
+                view_count: 56,
+                download_count: 7,
+                updated_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+                thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=NeoMin`,
+            },
+            {
+                id: 'cv-3',
+                cv_name: 'Creative UI/UX Resume',
+                template_id: 'tpl-4',
+                template_name: 'Glass Canvas',
+                is_default: false,
+                is_public: true,
+                view_count: 89,
+                download_count: 11,
+                updated_at: new Date(Date.now() - 14 * 86400000).toISOString(),
+                thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=GCanvas`,
+            },
+        ];
+    },
+
+    createCV: async (userId: string, data: any) => {
+        await delay(700);
+        return { id: 'cv-' + Date.now(), ...data, is_default: false, is_public: false, view_count: 0, download_count: 0, updated_at: new Date().toISOString() };
+    },
+
+    updateCV: async (userId: string, cvId: string, data: any) => {
+        await delay(600);
+        return { id: cvId, ...data, updated_at: new Date().toISOString() };
+    },
+
+    deleteCV: async (userId: string, cvId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    setDefaultCV: async (userId: string, cvId: string) => {
+        await delay(400);
+        return { success: true, default_cv_id: cvId };
+    },
+
+    downloadCV: async (userId: string, cvId: string) => {
+        await delay(1500);
+        return { success: true, download_url: `https://example.com/cvs/${cvId}.pdf`, expires_in: 300 };
+    },
+
+    previewCV: async (userId: string, cvId: string, cvData: any) => {
+        await delay(800);
+        return { preview_url: `https://example.com/preview/${cvId}?t=${Date.now()}`, success: true };
+    },
+
+    setCVPrivacy: async (userId: string, cvId: string, is_public: boolean) => {
+        await delay(400);
+        return { success: true, is_public };
+    },
+
+    aiGenerateCV: async (userId: string) => {
+        await delay(2500); // simulate AI processing time
+        return {
+            success: true,
+            cv_data: {
+                summary: 'Kỹ sư Frontend với 5+ năm kinh nghiệm xây dựng sản phẩm web hiệu năng cao, đam mê UI/UX và animation. Thành thạo React, TypeScript, TailwindCSS.',
+                skills: ['React', 'TypeScript', 'TailwindCSS', 'Framer Motion', 'Node.js'],
+                experience: [{ company: 'Tech Solutions Inc.', title: 'Frontend Developer', period: '2018 – 2021' }],
+                education: [{ school: 'Đại học Bách Khoa TP.HCM', degree: 'Kỹ sư CNTT', period: '2013 – 2017' }],
+            },
+        };
+    },
+
+    getCVTemplates: async () => {
+        await delay(600);
+        return [
+            { id: 'tpl-1', name: 'Aurora Professional', category: 'professional', price: 0, is_premium: false, is_popular: true, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=Aurora`, color_scheme: 'violet-cyan', tags: ['Modern', 'Clean', 'Professional'] },
+            { id: 'tpl-2', name: 'Neo Minimal', category: 'minimal', price: 0, is_premium: false, is_popular: false, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=NeoMin`, color_scheme: 'slate', tags: ['Minimal', 'Simple', 'Clean'] },
+            { id: 'tpl-3', name: 'Executive Elite', category: 'executive', price: 49000, is_premium: true, is_popular: true, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=ExecE`, color_scheme: 'dark', tags: ['Executive', 'Premium', 'Senior'] },
+            { id: 'tpl-4', name: 'Glass Canvas', category: 'creative', price: 29000, is_premium: true, is_popular: false, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=GCanvas`, color_scheme: 'glass', tags: ['Creative', 'Design', 'Artistic'] },
+            { id: 'tpl-5', name: 'Tech Blueprint', category: 'technical', price: 0, is_premium: false, is_popular: true, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=TechBP`, color_scheme: 'cyan', tags: ['Technical', 'Engineering', 'IT'] },
+            { id: 'tpl-6', name: 'Gradient Luxe', category: 'creative', price: 59000, is_premium: true, is_popular: false, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=GradLx`, color_scheme: 'gradient', tags: ['Luxury', 'Premium', 'Bold'] },
+            { id: 'tpl-7', name: 'Compact Grid', category: 'minimal', price: 0, is_premium: false, is_popular: false, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=CompGd`, color_scheme: 'neutral', tags: ['Compact', 'Grid', 'Dense'] },
+            { id: 'tpl-8', name: 'Vibrant Story', category: 'creative', price: 39000, is_premium: true, is_popular: true, thumbnail_url: `https://api.dicebear.com/7.x/shapes/svg?seed=VibSt`, color_scheme: 'vivid', tags: ['Vibrant', 'Expressive', 'Story'] },
+        ];
+    },
+
+    getCVTemplateCategories: async () => {
+        await delay(300);
+        return [
+            { id: 'all', name: 'Tất cả', count: 8 },
+            { id: 'professional', name: 'Chuyên nghiệp', count: 1 },
+            { id: 'minimal', name: 'Tối giản', count: 2 },
+            { id: 'creative', name: 'Sáng tạo', count: 3 },
+            { id: 'executive', name: 'Lãnh đạo', count: 1 },
+            { id: 'technical', name: 'Kỹ thuật', count: 1 },
+        ];
+    },
+
+    getPopularCVTemplates: async () => {
+        await delay(400);
+        return ['tpl-1', 'tpl-3', 'tpl-5', 'tpl-8'];
+    },
+
 };
