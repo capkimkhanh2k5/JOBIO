@@ -145,9 +145,105 @@ export const mockApi = {
         await delay(300);
         return { success: true };
     },
-    getSavedJobs: async () => {
+    getSavedJobsList: async () => {
         await delay(400);
-        return ["1", "3", "5"];
+        const statuses = ["Mới lưu", "Sắp hết hạn", "Đang hot"];
+        return Array(6).fill(null).map((_, i) => ({
+            id: `sj-${i}`,
+            job_id: `job-${i}`,
+            title: ["Frotnend Dev", "Backend Dev", "Designer", "Mobile Dev", "DevOps", "Data Science"][i],
+            company_name: ["Google", "Microsoft", "Amazon", "Meta", "VinFast", "FPT Software"][i],
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=${i}`,
+            locations: ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ", "Bình Dương", "Remote"][i],
+            job_type: i % 2 === 0 ? "full_time" : "contract",
+            salary_min: 1000 + (i * 200),
+            salary_max: 2000 + (i * 300),
+            salary_currency: "USD",
+            is_salary_visible: true,
+            status: statuses[i % statuses.length],
+            notes: i % 2 === 0 ? "Cần ôn lại React custom hooks trước khi apply" : "",
+            saved_at: new Date(Date.now() - i * 86400000).toISOString(),
+            deadline: new Date(Date.now() + (10 - i) * 86400000).toISOString(),
+        }));
+    },
+    removeSavedJob: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    updateSavedJobNote: async (id: string, note: string) => {
+        await delay(300);
+        return { success: true, note };
+    },
+    // Job Alerts
+    getJobAlerts: async () => {
+        await delay(500);
+        return [
+            {
+                id: "ja-1",
+                alert_name: "Frontend Developer in HCM",
+                keywords: "React, TypeScript",
+                category: "Technology",
+                locations: ["Hồ Chí Minh"],
+                skills: ["React", "TypeScript"],
+                job_type: ["full_time"],
+                level: ["senior", "middle"],
+                salary_min: 1500,
+                frequency: "daily",
+                email_notification: true,
+                use_ai_matching: true,
+                is_active: true,
+                last_sent_date: new Date(Date.now() - 86400000).toISOString(),
+            },
+            {
+                id: "ja-2",
+                alert_name: "Remote Backend Jobs",
+                keywords: "Node.js, AWS",
+                category: "Technology",
+                locations: ["Remote"],
+                skills: ["Node.js", "Docker", "AWS"],
+                job_type: ["full_time", "contract"],
+                level: ["senior"],
+                salary_min: 2500,
+                frequency: "weekly",
+                email_notification: true,
+                use_ai_matching: false,
+                is_active: false,
+                last_sent_date: new Date(Date.now() - 7 * 86400000).toISOString(),
+            }
+        ];
+    },
+    createJobAlert: async (data: any) => {
+        await delay(600);
+        return { success: true, id: `ja-${Math.random().toString(36).substring(7)}` };
+    },
+    updateJobAlert: async (id: string, data: any) => {
+        await delay(400);
+        return { success: true, id };
+    },
+    deleteJobAlert: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+    toggleJobAlert: async (id: string, is_active: boolean) => {
+        await delay(300);
+        return { success: true };
+    },
+    getMatchedJobsForAlert: async (id: string) => {
+        await delay(600);
+        return Array(4).fill(null).map((_, i) => ({
+            id: `mj-${i}`,
+            title: ["Senior React Engineer", "Fullstack Developer (React/Node)", "Frontend Lead", "UI Developer"][i],
+            company_name: ["TechCorp", "VNG", "InnovateVN", "StartUp Hub"][i],
+            logo_url: `https://api.dicebear.com/7.x/shapes/svg?seed=m${i}`,
+            locations: "Hồ Chí Minh",
+            salary_min: 1500 + i * 200,
+            salary_max: 3000 + i * 200,
+            salary_currency: "USD",
+            match_score: 95 - i * 5,
+            is_sent: i > 0,
+            is_viewed: i > 1,
+            created_at: new Date(Date.now() - i * 3600000).toISOString(),
+        }));
     },
     getFeaturedCompanies: async () => {
         await delay(500);
