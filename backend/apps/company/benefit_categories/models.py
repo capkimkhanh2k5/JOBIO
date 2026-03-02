@@ -14,6 +14,11 @@ class BenefitCategory(models.Model):
         db_index=True,
         verbose_name='Slug'
     )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Mô tả'
+    )
     icon_url = models.URLField(
         max_length=255,
         null=True,
@@ -31,6 +36,10 @@ class BenefitCategory(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Ngày tạo'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
     )
     
     class Meta:

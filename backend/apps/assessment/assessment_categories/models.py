@@ -27,6 +27,14 @@ class AssessmentCategory(models.Model):
         auto_now_add=True,
         verbose_name='Ngày tạo'
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
+    )
+    display_order = models.IntegerField(
+        default=0,
+        verbose_name='Thứ tự hiển thị'
+    )
     
     class Meta:
         db_table = 'assessment_categories'

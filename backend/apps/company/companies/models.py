@@ -65,6 +65,18 @@ class Company(models.Model):
         blank=True,
         verbose_name='Website'
     )
+    email = models.EmailField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name='Email liên hệ'
+    )
+    phone = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        verbose_name='Số điện thoại'
+    )
     logo_url = models.URLField(
         max_length=500,
         null=True,

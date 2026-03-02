@@ -26,11 +26,16 @@ class JobLocation(models.Model):
         auto_now_add=True,
         verbose_name='Ngày tạo'
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
+    )
     
     class Meta:
         db_table = 'job_locations'
         verbose_name = 'Địa điểm công việc'
         verbose_name_plural = 'Địa điểm công việc'
+        unique_together = ['job', 'address']
     
     def __str__(self):
         return f"{self.job.title} - {self.address}"

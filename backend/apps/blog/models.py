@@ -42,7 +42,8 @@ class Post(TimeStampedModel):
     author = models.ForeignKey(
         'core_users.CustomUser',
         on_delete=models.CASCADE,
-        related_name='posts'
+        related_name='posts',
+        db_index=True
     )
     company = models.ForeignKey(
         'company_companies.Company',
@@ -50,13 +51,15 @@ class Post(TimeStampedModel):
         null=True,
         blank=True,
         related_name='posts',
-        verbose_name='Công ty'
+        verbose_name='Công ty',
+        db_index=True
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='posts'
+        related_name='posts',
+        db_index=True
     )
     tags = models.ManyToManyField(
         Tag,
@@ -66,8 +69,8 @@ class Post(TimeStampedModel):
     summary = models.TextField(blank=True)
     content = models.TextField() # Rich text
     thumbnail = models.ImageField(upload_to='blog/thumbnails/', null=True, blank=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
-    published_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT, db_index=True)
+    published_at = models.DateTimeField(null=True, blank=True, db_index=True)
     view_count = models.PositiveIntegerField(default=0)
     
     # SEO

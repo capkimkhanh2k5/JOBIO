@@ -34,6 +34,10 @@ class ActivityLogType(models.Model):
         auto_now_add=True,
         verbose_name='Ngày tạo'
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
+    )
     
     class Meta:
         app_label = 'system_activity_log_types'
