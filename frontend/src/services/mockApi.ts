@@ -1641,11 +1641,13 @@ export const mockApi = {
     getInterviews: async (params?: any) => {
         await delay(600);
         const now = new Date();
-        return Array(8).fill(null).map((_, i) => ({
+        let items = Array(12).fill(null).map((_, i) => ({
             id: `int-${i}`,
             candidate_name: ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Hoàng Văn E"][i % 5],
             candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Int${i}`,
             job_title: ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer"][i % 4],
+            company_name: ["JOBIO NextGen", "TechCorp", "VNG Corporation", "InnovateVN", "Google"][i % 5],
+            company_logo: `https://api.dicebear.com/7.x/shapes/svg?seed=Comp${i}`,
             type: ["video", "phone", "onsite"][i % 3] as "video" | "phone" | "onsite",
             scheduled_at: new Date(now.getTime() + (i - 2) * 86400000 + i * 3600000).toISOString(),
             duration_minutes: 60,
@@ -1655,8 +1657,17 @@ export const mockApi = {
             interviewers: [{ id: "u1", name: "Nhà tuyển dụng 1", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=HR" }],
             notes: "Phỏng vấn vòng chuyên môn",
             candidate_id: `cand-${i}`,
-            job_id: `job-${i % 4}`
+            job_id: `job-${i % 4}`,
+            feedback: i % 6 === 3 ? "Kỹ năng chuyên môn tốt, phong thái tự tin. Sẽ phù hợp với văn hóa công ty." : undefined,
+            rating: i % 6 === 3 ? 4 : undefined,
         }));
+
+        if (params?.status) {
+            const statuses = params.status.split(',');
+            items = items.filter(item => statuses.includes(item.status));
+        }
+
+        return items;
     },
 
     createInterview: async (data: any) => {
