@@ -1636,4 +1636,83 @@ export const mockApi = {
         return ['tpl-1', 'tpl-3', 'tpl-5', 'tpl-8'];
     },
 
+    // ─── Employer / Interviews endpoints (Task 4.1) ─────────────────────
+
+    getInterviews: async (params?: any) => {
+        await delay(600);
+        const now = new Date();
+        return Array(8).fill(null).map((_, i) => ({
+            id: `int-${i}`,
+            candidate_name: ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Hoàng Văn E"][i % 5],
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Int${i}`,
+            job_title: ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer"][i % 4],
+            type: ["video", "phone", "onsite"][i % 3] as "video" | "phone" | "onsite",
+            scheduled_at: new Date(now.getTime() + (i - 2) * 86400000 + i * 3600000).toISOString(),
+            duration_minutes: 60,
+            status: ["scheduled", "confirmed", "in_progress", "completed", "cancelled", "no_show"][i % 6] as "scheduled" | "confirmed" | "in_progress" | "completed" | "cancelled" | "no_show",
+            location: (i % 3 === 2 ? "Văn phòng JOBIO" : undefined) as string | undefined,
+            meeting_link: (i % 3 !== 2 ? "https://meet.google.com/abc-def-ghi" : undefined) as string | undefined,
+            interviewers: [{ id: "u1", name: "Nhà tuyển dụng 1", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=HR" }],
+            notes: "Phỏng vấn vòng chuyên môn",
+            candidate_id: `cand-${i}`,
+            job_id: `job-${i % 4}`
+        }));
+    },
+
+    createInterview: async (data: any) => {
+        await delay(800);
+        return { id: 'int-new-' + Date.now(), ...data, status: 'scheduled' };
+    },
+
+    getInterviewById: async (id: string) => {
+        await delay(500);
+        return {
+            id,
+            candidate_name: "Nguyễn Văn Detail",
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Detail`,
+            job_title: "Senior Frontend Engineer",
+            type: "video" as "video" | "phone" | "onsite",
+            scheduled_at: new Date(Date.now() + 86400000).toISOString(),
+            duration_minutes: 60,
+            status: "scheduled" as "scheduled" | "confirmed" | "in_progress" | "completed" | "cancelled" | "no_show",
+            meeting_link: "https://meet.google.com/abc-def-ghi" as string | undefined,
+            location: "Văn phòng JOBIO" as string | undefined,
+            interviewers: [{ id: "u1", name: "Nhà tuyển dụng 1", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=HR" }],
+            notes: "Ứng viên có nhiều kinh nghiệm React",
+            candidate_id: `cand-detail`,
+            job_id: `job-1`,
+            feedback: null as string | null,
+            rating: 0 as number | undefined
+        };
+    },
+
+    updateInterview: async (id: string, data: any) => {
+        await delay(600);
+        return { success: true, id, ...data };
+    },
+
+    cancelInterview: async (id: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    getInterviewTypes: async () => {
+        await delay(300);
+        return [
+            { id: "video", name: "Phỏng vấn Online (Video)" },
+            { id: "phone", name: "Phỏng vấn Điện thoại" },
+            { id: "onsite", name: "Phỏng vấn Trực tiếp (Onsite)" },
+            { id: "test", name: "Làm bài Test" }
+        ];
+    },
+
+    // Mock candidates list for dropdown
+    getInterviewCandidates: async () => {
+        await delay(400);
+        return [
+            { id: "cand-1", name: "Nguyễn Văn A", job_title: "Senior Frontend Engineer", job_id: "job-1" },
+            { id: "cand-2", name: "Trần Thị B", job_title: "UI/UX Designer", job_id: "job-2" },
+            { id: "cand-3", name: "Lê Văn C", job_title: "Product Manager", job_id: "job-3" }
+        ];
+    }
 };

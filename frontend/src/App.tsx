@@ -27,9 +27,10 @@ import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
     EmployerSettingsPage,
     EmployerCVSearchPage,
-    EmployerInterviewsPage, EmployerMessagesPage, EmployerAnalyticsPage,
+    EmployerMessagesPage, EmployerAnalyticsPage,
     EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 
 // Candidate area
