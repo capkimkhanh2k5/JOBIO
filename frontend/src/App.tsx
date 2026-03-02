@@ -28,8 +28,9 @@ import {
     EmployerSettingsPage,
     EmployerCVSearchPage,
     EmployerMessagesPage, EmployerAnalyticsPage,
-    EmployerCampaignsPage, EmployerSubscriptionPage, EmployerSupportPage,
+    EmployerSubscriptionPage, EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 
@@ -108,7 +109,7 @@ export default function App() {
                     <Route path="interviews" element={<EmployerInterviewsPage />} />
                     <Route path="messages" element={<EmployerMessagesPage />} />
                     <Route path="analytics" element={<EmployerAnalyticsPage />} />
-                    <Route path="campaigns" element={<EmployerCampaignsPage />} />
+                    <Route path="campaigns" element={<EmployerCampaigns />} />
                     <Route path="subscription" element={<EmployerSubscriptionPage />} />
                     <Route path="support" element={<EmployerSupportPage />} />
                 </Route>

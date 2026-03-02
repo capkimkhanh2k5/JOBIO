@@ -1702,7 +1702,7 @@ export const mockApi = {
         return { success: true, id, ...data };
     },
 
-    cancelInterview: async (id: string) => {
+    cancelInterview: async (_id: string) => {
         await delay(400);
         return { success: true };
     },
@@ -1725,5 +1725,107 @@ export const mockApi = {
             { id: "cand-2", name: "Trần Thị B", job_title: "UI/UX Designer", job_id: "job-2" },
             { id: "cand-3", name: "Lê Văn C", job_title: "Product Manager", job_id: "job-3" }
         ];
+    },
+
+    // ─── Campaigns endpoints ──────────────────────────────────────────────
+
+    getCampaigns: async (_params?: any) => {
+        await delay(500);
+        return {
+            items: [
+                {
+                    id: "camp-1",
+                    campaign_name: "Spring Mass Hiring 2024",
+                    campaign_type: "mass_hiring",
+                    status: "active",
+                    budget: 5000,
+                    spent_amount: 1200,
+                    target_positions: 20,
+                    hired_count: 5,
+                    start_date: "2024-03-01",
+                    end_date: "2024-05-31",
+                    job_count: 3
+                },
+                {
+                    id: "camp-2",
+                    campaign_name: "University Tour 2024",
+                    campaign_type: "campus",
+                    status: "draft",
+                    budget: 2000,
+                    spent_amount: 0,
+                    target_positions: 10,
+                    hired_count: 0,
+                    start_date: "2024-06-01",
+                    end_date: "2024-07-30",
+                    job_count: 0
+                },
+                {
+                    id: "camp-3",
+                    campaign_name: "Referral Bonus Q1",
+                    campaign_type: "referral",
+                    status: "completed",
+                    budget: 1500,
+                    spent_amount: 1500,
+                    target_positions: 5,
+                    hired_count: 5,
+                    start_date: "2024-01-01",
+                    end_date: "2024-02-28",
+                    job_count: 2
+                }
+            ],
+            total: 3
+        };
+    },
+
+    getCampaignById: async (id: string) => {
+        await delay(400);
+        return {
+            id,
+            campaign_name: "Spring Mass Hiring 2024",
+            description: "Chiến dịch tuyển dụng số lượng lớn mùa xuân nhằm mở rộng team Engineering.",
+            campaign_type: "mass_hiring",
+            status: "active",
+            budget: 5000,
+            spent_amount: 1200,
+            target_positions: 20,
+            hired_count: 5,
+            start_date: "2024-03-01",
+            end_date: "2024-05-31",
+            target_audience: "Mid to Senior Software Engineers, React, Node.js",
+            notes: ""
+        };
+    },
+
+    createCampaign: async (data: any) => {
+        await delay(800);
+        return { success: true, id: "camp-" + Math.random().toString(36).substr(2, 9), ...data };
+    },
+
+    updateCampaign: async (id: string, data: any) => {
+        await delay(600);
+        return { success: true, id, ...data };
+    },
+
+    deleteCampaign: async (id: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    getCampaignJobs: async (campaignId: string) => {
+        await delay(400);
+        return [
+            { id: "cj-1", job_id: "job-1", campaign_id: campaignId, title: "Senior Frontend Engineer", status: "published", applications_count: 12 },
+            { id: "cj-2", job_id: "job-2", campaign_id: campaignId, title: "Backend Node.js", status: "published", applications_count: 8 }
+        ];
+    },
+
+    addCampaignJob: async (_campaignId: string, _jobId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    removeCampaignJob: async (_campaignId: string, _jobId: string) => {
+        await delay(400);
+        return { success: true };
     }
 };

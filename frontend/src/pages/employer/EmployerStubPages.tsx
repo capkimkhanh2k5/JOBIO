@@ -41,10 +41,6 @@ export function EmployerAnalyticsPage() {
     return <StubPage title="Báo cáo & Phân tích" desc="Báo cáo hiệu quả tuyển dụng chi tiết theo thời gian. Coming soon." />;
 }
 
-export function EmployerCampaignsPage() {
-    return <StubPage title="Campaigns" desc="Quản lý chiến dịch tuyển dụng quy mô lớn. Coming soon." />;
-}
-
 export function EmployerSubscriptionPage() {
     return <StubPage title="Gói dịch vụ" desc="Nâng cấp gói để mở rộng khả năng tiếp cận ứng viên. Coming soon." />;
 }
