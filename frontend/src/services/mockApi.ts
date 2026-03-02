@@ -1869,5 +1869,106 @@ export const mockApi = {
     removeCampaignJob: async (_campaignId: string, _jobId: string) => {
         await delay(400);
         return { success: true };
+    },
+
+    // ─── CV Search (Employer) endpoints ───────────────────────────────────
+    searchCandidates: async (params: any) => {
+        await delay(800);
+        const { q, skills, location, experience_min, experience_max, education, search_status, salary_min, salary_max } = params;
+
+        const names = ["Trần Minh Đức", "Nguyễn Hồng Anh", "Lê Quang Hùng", "Phạm Thị Lan", "Võ Văn Nam", "Đỗ Thị Mai", "Bùi Thanh Tùng", "Hoàng Thị Thu", "Đinh Văn Bảo", "Chu Thị Hoa", "Nguyễn Văn Tuấn", "Phạm Thu Hương"];
+        const titles = ["Senior Frontend", "UX/UI Designer", "Product Manager", "Backend Developer", "Fullstack Node.js", "DevOps Engineer", "Data Scientist", "Mobile App Dev"];
+        const companies = ["TechCorp", "InnovateVN", "VNG", "FPT", "Viettel", "Momo", "Tiki"];
+
+        let candidates = Array(35).fill(null).map((_, i) => {
+            const isPublic = i % 8 !== 0; // Một số ít không công khai
+            return {
+                id: `cand-search-${i}`,
+                name: isPublic ? names[i % names.length] : "Ứng viên Ẩn danh",
+                avatar_url: isPublic ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${names[i % names.length]}${i}` : undefined,
+                current_position: titles[i % titles.length],
+                current_company: companies[i % companies.length],
+                years_of_experience: (i % 8) + 1,
+                top_skills: ["React", "TypeScript", "Node.js", "Python", "Figma", "AWS", "Docker"].slice(i % 3, (i % 3) + 3),
+                education_summary: ["Cử nhân Khoa học Máy tính", "Thạc sĩ CNTT", "Kỹ sư phần mềm"][i % 3],
+                job_search_status: ["active", "passive", "closed"][i % 3],
+                profile_completeness: 60 + (i % 40),
+                is_profile_public: isPublic,
+                location: ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng"][i % 3],
+                salary_expectation: (i % 5 + 1) * 500
+            };
+        });
+
+        // Mock Filters applied
+        if (q) {
+            candidates = candidates.filter(c => c.name.toLowerCase().includes(q.toLowerCase()) || c.current_position.toLowerCase().includes(q.toLowerCase()));
+        }
+        if (location && location !== 'all') {
+            candidates = candidates.filter(c => c.location === location);
+        }
+        if (skills && skills.length > 0) {
+            candidates = candidates.filter(c => skills.some((s: string) => c.top_skills.includes(s)));
+        }
+        if (experience_min !== undefined) {
+            candidates = candidates.filter(c => c.years_of_experience >= experience_min);
+        }
+        if (search_status && search_status !== 'all') {
+            candidates = candidates.filter(c => c.job_search_status === search_status);
+        }
+
+        return {
+            items: candidates,
+            total: candidates.length,
+            page: params.page || 1,
+            limit: params.limit || 12
+        };
+    },
+
+    getCandidatePublicProfile: async (id: string) => {
+        await delay(600);
+        return {
+            id,
+            name: "Trần Minh Đức",
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=Duc`,
+            current_position: "Senior Frontend Engineer",
+            current_company: "TechCorp JSC",
+            location: "Thành phố Hồ Chí Minh",
+            job_search_status: "active",
+            bio: "Hơn 5 năm kinh nghiệm làm việc với React và hệ sinh thái Javascript. Đam mê xây dựng các giao diện phức tạp với hiệu năng cao và UX đột phá. Đã từng lead team 3 frontend engineers.",
+            years_of_experience: 5,
+            expected_salary_range: "$1500 - $2500",
+            email: "contact@tranduc.dev",
+            phone: "+84 912 345 678",
+            skills: [
+                { name: "React", level: "Expert", years: 5 },
+                { name: "TypeScript", level: "Advanced", years: 4 },
+                { name: "TailwindCSS", level: "Expert", years: 3 },
+                { name: "Figma", level: "Intermediate", years: 2 }
+            ],
+            experience: [
+                { id: "e1", title: "Senior Frontend", company: "TechCorp JSC", duration: "2021 - Hiện tại", desc: "Xây dựng core UI library cho toàn bộ công ty." },
+                { id: "e2", title: "Web Developer", company: "InnovateVN", duration: "2018 - 2021", desc: "Phát triển nền tảng thương mại điện tử phục vụ 1M+ user." }
+            ],
+            education: [
+                { id: "ed1", degree: "Cử nhân Khoa học Máy tính", school: "ĐH Khoa học Tự nhiên TP.HCM", duration: "2014 - 2018" }
+            ],
+            social_links: {
+                github: "https://github.com/tranduc",
+                linkedin: "https://linkedin.com/in/tranduc",
+                portfolio: "https://tranduc.dev"
+            }
+        };
+    },
+
+    getCandidateRecommendations: async (id: string) => {
+        await delay(500);
+        return Array(3).fill(null).map((_, i) => ({
+            id: `rec-${i}`,
+            name: ["Nguyễn Hoàng", "Lê Phương", "Đặng Văn"][i],
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=Rec${i}`,
+            match_score: 85 + i * 4,
+            current_position: "Frontend Developer",
+            top_skills: ["React", "TypeScript", "TailwindCSS"]
+        }));
     }
 };
