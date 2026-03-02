@@ -1,3 +1,185 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@theme {
+  --radius: 0.625rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Bolder Aurora Colors */
+  --aurora-1: #00d2ff;
+  --aurora-2: #9d50bb;
+  --aurora-3: #6e48aa;
+}
+
+@layer base {
+  :root {
+    --background: oklch(0.98 0.01 250);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.55 0.22 260);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0.01 250);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.9 0.01 250);
+    --input: oklch(0.9 0.01 250);
+    --ring: oklch(0.708 0 0);
+  }
+
+  .dark {
+    --background: oklch(0.05 0.02 260);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.08 0.02 260);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.08 0.02 260);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.65 0.22 260);
+    --primary-foreground: oklch(0 0 0);
+    --secondary: oklch(0.15 0.02 260);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.15 0.02 260);
+    --muted-foreground: oklch(0.65 0 0);
+    --accent: oklch(0.15 0.02 260);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 10%);
+    --ring: oklch(0.8 0 0);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility glass-effect {
+  background-color: oklch(1 0 0 / 20%);
+  backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid oklch(1 0 0 / 30%);
+  box-shadow:
+    0 10px 15px -3px oklch(0 0 0 / 0.1),
+    0 4px 6px -4px oklch(0 0 0 / 0.1),
+    0 25px 50px -12px oklch(0 0 0 / 0.15);
+  transition: all 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  @variant dark {
+    background-color: oklch(0.1 0.02 260 / 40%);
+    border: 1px solid oklch(1 0 0 / 15%);
+    box-shadow:
+      0 10px 15px -3px oklch(0 0 0 / 0.4),
+      0 4px 6px -4px oklch(0 0 0 / 0.4),
+      0 25px 50px -12px oklch(0 0 0 / 0.6);
+  }
+}
+
+@utility glass-card {
+  background-color: oklch(1 0 0 / 18%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 25%);
+  box-shadow:
+    0 4px 6px -1px oklch(0 0 0 / 0.06),
+    0 2px 4px -2px oklch(0 0 0 / 0.04),
+    0 20px 40px -12px oklch(0 0 0 / 0.12);
+  transition: all 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  @variant dark {
+    background-color: oklch(0.1 0.02 260 / 35%);
+    border: 1px solid oklch(1 0 0 / 10%);
+    box-shadow:
+      0 4px 6px -1px oklch(0 0 0 / 0.3),
+      0 2px 4px -2px oklch(0 0 0 / 0.25),
+      0 20px 50px -12px oklch(0 0 0 / 0.55);
+  }
+}
+
+
+@utility glass-card-tinted {
+  background: linear-gradient(135deg, oklch(1 0 0 / 30%), oklch(0.95 0.02 260 / 20%));
+  backdrop-filter: blur(30px) saturate(210%);
+  border: 1px solid oklch(1 0 0 / 40%);
+  box-shadow:
+    0 10px 15px -3px oklch(0 0 0 / 0.04),
+    0 4px 6px -4px oklch(0 0 0 / 0.02),
+    0 20px 40px -10px oklch(0 0 0 / 0.08);
+
+  @variant dark {
+    background: linear-gradient(135deg, oklch(0.15 0.03 260 / 30%), oklch(0.1 0.02 260 / 40%));
+    border: 1px solid oklch(1 0 0 / 20%);
+    box-shadow:
+      0 10px 15px -3px oklch(0 0 0 / 0.15),
+      0 4px 6px -4px oklch(0 0 0 / 0.1),
+      0 30px 60px -15px oklch(0 0 0 / 0.4);
+  }
+}
+
+@utility aurora-orb {
+  filter: blur(120px);
+  will-change: transform, opacity;
+  animation: aurora-float 15s infinite alternate ease-in-out;
+}
+
+@keyframes aurora-float {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+
+  33% {
+    transform: translate(80px, -40px) scale(1.2);
+    opacity: 0.8;
+  }
+
+  66% {
+    transform: translate(-40px, 60px) scale(0.85);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: translate(0, 0) scale(1.1);
+    opacity: 0.6;
+  }
+}
+
+@utility magnetic-button {
+  transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+
+  &:hover {
+    transform: scale(1.03);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
