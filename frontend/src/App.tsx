@@ -33,6 +33,7 @@ import {
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
+import EmployerReferrals from '@/pages/employer/Referrals';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -81,6 +82,7 @@ export default function App() {
 
     return (
         <BrowserRouter>
+            <Toaster position="top-center" />
             <Routes>
                 {/* ── Candidate area ── */}
                 <Route path="/candidate" element={<CandidateLayout />}>
@@ -110,6 +112,7 @@ export default function App() {
                     <Route path="messages" element={<EmployerMessagesPage />} />
                     <Route path="analytics" element={<EmployerAnalyticsPage />} />
                     <Route path="campaigns" element={<EmployerCampaigns />} />
+                    <Route path="referrals" element={<EmployerReferrals />} />
                     <Route path="subscription" element={<EmployerSubscriptionPage />} />
                     <Route path="support" element={<EmployerSupportPage />} />
                 </Route>
@@ -118,7 +121,6 @@ export default function App() {
                 <Route path="*" element={
                     <div className="min-h-screen flex flex-col relative font-sans">
                         <AuroraBackground />
-                        <Toaster position="top-center" />
                         <Header />
                         <main className="flex-1 w-full relative z-10">
                             <Routes>

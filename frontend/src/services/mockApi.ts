@@ -794,6 +794,48 @@ export const mockApi = {
         });
     },
 
+    // ─── Referrals endpoints ──────────────────────────────────────────────
+
+    getReferrals: async () => {
+        await delay(500);
+        const statuses = ["pending", "contacted", "applied", "interviewing", "hired", "rejected"];
+        const names = ["Phạm Lê Huy", "Đào Thị Tâm", "Lý Công Uẩn", "Bùi Xuân Huấn", "Ngô Phương Lan"];
+        const jobs = ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer", "DevOps Engineer"];
+
+        return Array(12).fill(null).map((_, i) => ({
+            id: `ref-${i}`,
+            job_id: `job-${i % jobs.length}`,
+            job_title: jobs[i % jobs.length],
+            referred_name: names[i % names.length] + ` ${i}`,
+            referred_email: `candidate${i}@example.com`,
+            status: statuses[i % statuses.length],
+            notes: i % 3 === 0 ? "Ưng ý với React/Next.js" : "",
+            created_at: new Date(Date.now() - i * 86400000 * 2).toISOString(),
+            bonus_amount: (i % 3 + 1) * 500,
+            bonus_currency: "USD",
+        }));
+    },
+
+    createReferral: async (data: { job_id: string, referred_name: string, referred_email: string, notes?: string }) => {
+        await delay(800);
+        return {
+            success: true,
+            id: `ref-new-${Date.now()}`,
+            ...data,
+            status: "pending",
+            created_at: new Date().toISOString()
+        };
+    },
+
+    getReferralPrograms: async () => {
+        await delay(400);
+        return [
+            { id: "prog-1", title: "Frontend Experts", bonus: 1000, currency: "USD", active_referrals: 5, successful_hires: 1 },
+            { id: "prog-2", title: "Senior Leadership", bonus: 2500, currency: "USD", active_referrals: 2, successful_hires: 0 },
+            { id: "prog-3", title: "Q3 Sales Drive", bonus: 800, currency: "USD", active_referrals: 12, successful_hires: 3 },
+        ];
+    },
+
     // ─── Post Job Wizard endpoints ────────────────────────────────────────
 
     getJobCategories: async () => {
