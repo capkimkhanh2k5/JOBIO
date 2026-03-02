@@ -745,6 +745,64 @@ export const mockApi = {
         ];
     },
 
+    getAllNotifications: async (tab: 'all' | 'unread' = 'all') => {
+        await delay(600);
+        const all = [
+            { id: "n1", title: "Ứng viên mới", message: "Trần Minh Đức vừa ứng tuyển vị trí Senior Frontend", is_read: false, created_at: new Date(Date.now() - 5 * 60000).toISOString(), type: "application" },
+            { id: "n2", title: "Phỏng vấn sắp tới", message: "Nhớ phỏng vấn với Nguyễn Hồng Anh lúc 10:00 hôm nay", is_read: false, created_at: new Date(Date.now() - 30 * 60000).toISOString(), type: "interview" },
+            { id: "n3", title: "CV đã được xem", message: "3 ứng viên mới đã xem tin tuyển dụng của bạn", is_read: false, created_at: new Date(Date.now() - 2 * 3600000).toISOString(), type: "view" },
+            { id: "n4", title: "Tin tuyển dụng sắp hết hạn", message: "Tin 'UI/UX Designer' còn 2 ngày nữa hết hạn", is_read: false, created_at: new Date(Date.now() - 5 * 3600000).toISOString(), type: "warning" },
+            { id: "n5", title: "Đánh giá mới", message: "Công ty bạn vừa nhận được 1 đánh giá 5 sao mới", is_read: true, created_at: new Date(Date.now() - 86400000).toISOString(), type: "review" },
+            { id: "n6", title: "Hệ thống bảo trì", message: "Hệ thống sẽ bảo trì vào 2:00 sáng mai", is_read: true, created_at: new Date(Date.now() - 2 * 86400000).toISOString(), type: "system" },
+            { id: "n7", title: "Tính năng mới", message: "Đã có tính năng tìm kiếm ứng viên bằng AI", is_read: true, created_at: new Date(Date.now() - 3 * 86400000).toISOString(), type: "system" },
+        ];
+        if (tab === 'unread') {
+            return all.filter(n => !n.is_read);
+        }
+        return all;
+    },
+
+    markNotificationRead: async (id: string) => {
+        await delay(200);
+        return { success: true };
+    },
+
+    markMultipleNotificationsRead: async (ids: string[]) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    markAllNotificationsRead: async () => {
+        await delay(400);
+        return { success: true };
+    },
+
+    deleteNotification: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    clearAllNotifications: async () => {
+        await delay(500);
+        return { success: true };
+    },
+
+    getNotificationSettings: async () => {
+        await delay(400);
+        return {
+            email_notifications: true,
+            push_notifications: true,
+            marketing_emails: false,
+            application_updates: true,
+            interview_reminders: true
+        };
+    },
+
+    updateNotificationSettings: async (settings: any) => {
+        await delay(500);
+        return { success: true, settings };
+    },
+
     getUnreadMessagesCount: async () => {
         await delay(200);
         return { unread_count: 3 };

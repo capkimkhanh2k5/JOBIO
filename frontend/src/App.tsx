@@ -43,6 +43,7 @@ import MyApplications from '@/pages/candidate/MyApplications';
 import SavedJobs from '@/pages/candidate/SavedJobs';
 import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
+import NotificationsPage from '@/pages/Notifications';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -94,6 +95,7 @@ export default function App() {
                     <Route path="saved" element={<SavedJobs />} />
                     <Route path="alerts" element={<JobAlerts />} />
                     <Route path="interviews" element={<CandidateInterviews />} />
+                    <Route path="notifications" element={<NotificationsPage />} />
                 </Route>
 
                 {/* ── Employer area: own shell, no public header/footer ── */}
@@ -115,6 +117,7 @@ export default function App() {
                     <Route path="referrals" element={<EmployerReferrals />} />
                     <Route path="subscription" element={<EmployerSubscriptionPage />} />
                     <Route path="support" element={<EmployerSupportPage />} />
+                    <Route path="notifications" element={<NotificationsPage />} />
                 </Route>
 
                 {/* ── Public site: aurora + header + footer ── */}
