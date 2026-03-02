@@ -21,6 +21,11 @@ from .services.auth import (
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
     AuthenticationError
 )
+from .services.passkey import (
+    generate_registration_options, verify_registration,
+    generate_authentication_options, verify_authentication,
+    list_user_passkeys, delete_user_passkey, update_passkey_name,
+)
 from .services.users import create_user, UserCreateInput, bulk_user_action, upload_user_avatar, update_user_role, update_user_status, delete_user, update_user, UserUpdateInput
 from .selectors.users import list_users, get_user_stats, export_users_csv
 from .serializers import (
@@ -29,7 +34,9 @@ from .serializers import (
     ForgotPasswordSerializer, ResetPasswordSerializer, VerifyEmailSerializer, 
     ResendVerificationSerializer, ChangePasswordSerializer, CheckEmailSerializer,
     SocialAuthSerializer, Verify2FASerializer,
-    UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer
+    UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
+    PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
+    PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
 )
 from django.http import HttpResponse
 
@@ -52,7 +59,8 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         public_actions = [
             'create', 'auth_login', 'auth_register', 'auth_forgot_password',
             'auth_reset_password', 'auth_verify_email', 'auth_resend_verification',
-            'auth_check_email', 'auth_social_login'
+            'auth_check_email', 'auth_social_login',
+            'passkey_auth_options', 'passkey_auth_verify',
         ]
         if self.action in public_actions:
             return [AllowAny()]
@@ -407,6 +415,132 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 user_id=request.user.id,
                 code=serializer.validated_data['code']
             ))
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(result, status=status.HTTP_200_OK)
+
+    # ============================================================
+    # Passkey (WebAuthn/FIDO2) Endpoints
+    # ============================================================
+
+    @action(detail=False, methods=['post'], url_path='auth/passkey/register/options')
+    def passkey_register_options(self, request):
+        """
+        POST /api/users/auth/passkey/register/options/
+        Tạo registration options cho Passkey (yêu cầu đăng nhập).
+        Client sử dụng kết quả để gọi navigator.credentials.create().
+        """
+        try:
+            options = generate_registration_options(user=request.user)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(options, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/passkey/register/verify')
+    def passkey_register_verify(self, request):
+        """
+        POST /api/users/auth/passkey/register/verify/
+        Xác minh registration response từ client và lưu passkey.
+        """
+        serializer = PasskeyRegisterVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = verify_registration(
+                user=request.user,
+                credential_id=serializer.validated_data['credential_id'],
+                client_data_json=serializer.validated_data['client_data_json'],
+                attestation_object=serializer.validated_data['attestation_object'],
+                device_name=serializer.validated_data.get('device_name', 'Passkey'),
+                transports=serializer.validated_data.get('transports', []),
+            )
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(result, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['post'], url_path='auth/passkey/authenticate/options')
+    def passkey_auth_options(self, request):
+        """
+        POST /api/users/auth/passkey/authenticate/options/
+        Tạo authentication options cho Passkey (public, không cần đăng nhập).
+        Client sử dụng kết quả để gọi navigator.credentials.get().
+        """
+        serializer = PasskeyAuthOptionsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            options = generate_authentication_options(
+                email=serializer.validated_data.get('email'),
+            )
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(options, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/passkey/authenticate/verify')
+    def passkey_auth_verify(self, request):
+        """
+        POST /api/users/auth/passkey/authenticate/verify/
+        Xác minh authentication response và trả về JWT tokens.
+        """
+        serializer = PasskeyAuthVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = verify_authentication(
+                session_id=serializer.validated_data['session_id'],
+                credential_id=serializer.validated_data['credential_id'],
+                client_data_json=serializer.validated_data['client_data_json'],
+                authenticator_data=serializer.validated_data['authenticator_data'],
+                signature=serializer.validated_data['signature'],
+                user_handle=serializer.validated_data.get('user_handle', ''),
+            )
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        output_serializer = LoginResponseSerializer(result)
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='auth/passkey/list')
+    def passkey_list(self, request):
+        """
+        GET /api/users/auth/passkey/list/
+        Lấy danh sách passkey đã đăng ký của user (yêu cầu đăng nhập).
+        """
+        passkeys = list_user_passkeys(user=request.user)
+        return Response(passkeys, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['delete'], url_path='auth/passkey/(?P<passkey_id>[0-9]+)/delete')
+    def passkey_delete(self, request, passkey_id=None):
+        """
+        DELETE /api/users/auth/passkey/:id/delete/
+        Xóa một passkey (yêu cầu đăng nhập).
+        """
+        try:
+            delete_user_passkey(user=request.user, passkey_id=int(passkey_id))
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"detail": "Passkey đã được xóa."}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['patch'], url_path='auth/passkey/(?P<passkey_id>[0-9]+)/rename')
+    def passkey_rename(self, request, passkey_id=None):
+        """
+        PATCH /api/users/auth/passkey/:id/rename/
+        Đổi tên passkey (yêu cầu đăng nhập).
+        """
+        serializer = PasskeyUpdateNameSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = update_passkey_name(
+                user=request.user,
+                passkey_id=int(passkey_id),
+                device_name=serializer.validated_data['device_name'],
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         

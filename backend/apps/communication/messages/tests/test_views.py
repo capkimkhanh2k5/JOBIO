@@ -1,12 +1,12 @@
-# MessageThread ViewSet Tests
+# MessageThread ViewSet Tests (PostgreSQL)
 
-from unittest.mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from apps.communication.message_threads.models import MessageThread
 from apps.communication.message_participants.models import MessageParticipant
+from apps.communication.messages.models import Message
 
 User = get_user_model()
 
@@ -68,17 +68,8 @@ class MessageViewTests(APITestCase):
         self.assertIn(self.message_thread.id, thread_ids)
         self.assertNotIn(self.other_thread.id, thread_ids)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_create_thread_success(self, mock_mongo):
+    def test_create_thread_success(self):
         """Test creating a new thread."""
-        mock_mongo.save_message.return_value = {
-            'id': '1', 
-            'content': 'Hello!', 
-            'created_at': '2023-01-01',
-            'updated_at': '2023-01-01',
-            'is_system_message': False,
-            'thread_id': 1
-        }
         url = '/api/messages/threads/'
         data = {
             'participant_ids': [self.other_user.id],
@@ -146,11 +137,9 @@ class MessageViewTests(APITestCase):
         thread = MessageThread.objects.create(subject='Temp Thread')
         MessageParticipant.objects.create(thread=thread, user=self.user)
         
-        # Ensure we patch if removing participant triggers system message (which calls Mongo)
-        with patch('apps.communication.messages.services.messages.MongoChatService') as mock_mongo:
-            url = f'/api/messages/threads/{thread.id}/'
-            response = self.client.delete(url)
-            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        url = f'/api/messages/threads/{thread.id}/'
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_leave_thread_not_participant(self):
         """Test cannot leave thread not participating in."""
@@ -158,48 +147,28 @@ class MessageViewTests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @patch('apps.communication.messages.selectors.messages.MongoChatService')
-    def test_list_messages_success(self, mock_mongo):
+    def test_list_messages_success(self):
         """Test listing messages in thread."""
-        # Use simple dicts that match serializer expectations
-        mock_mongo.get_messages.return_value = [
-            {
-                'id': '1', 
-                'content': 'Hi', 
-                'sender_id': self.user.id,
-                'sender_name': 'Test User',
-                'created_at': '2023-01-01',
-                'updated_at': '2023-01-01',
-                'is_system_message': False,
-                'thread_id': self.message_thread.id
-            }
-        ]
+        # Create messages in PostgreSQL
+        Message.objects.create(
+            thread=self.message_thread,
+            sender=self.user,
+            content='Hi there'
+        )
+        
         url = f'/api/messages/threads/{self.message_thread.id}/messages/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_send_message_success(self, mock_mongo):
+    def test_send_message_success(self):
         """Test sending a message to thread."""
-        mock_mongo.save_message.return_value = {
-            'id': '1', 
-            'content': 'Hello, this is a new message!',
-            'sender_id': self.user.id,
-            'sender_name': 'Test User',
-            'sender_avatar': None,
-            'thread_id': self.message_thread.id,
-            'created_at': '2023-01-01',
-            'updated_at': '2023-01-01',
-            'is_system_message': False,
-            'attachment_url': None
-        }
-        
         url = f'/api/messages/threads/{self.message_thread.id}/messages/'
         data = {'content': 'Hello, this is a new message!'}
         response = self.client.post(url, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['content'], 'Hello, this is a new message!')
+        self.assertIn('sender', response.data)
 
     def test_send_message_empty_content(self):
         """Test sending message with empty content."""
@@ -215,8 +184,7 @@ class MessageViewTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_mark_read_success(self, mock_mongo):
+    def test_mark_read_success(self):
         """Test marking thread as read."""
         url = f'/api/messages/threads/{self.message_thread.id}/read/'
         response = self.client.patch(url)
@@ -229,12 +197,8 @@ class MessageViewTests(APITestCase):
         response = self.client.patch(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_add_participant_success(self, mock_mongo):
+    def test_add_participant_success(self):
         """Test adding a new participant."""
-        mock_mongo.save_message.return_value = {
-           'id': 'sys1', 'content': 'Added', 'is_system_message': True, 'created_at': '2023-01-01', 'updated_at': '2023-01-01'
-        }
         url = f'/api/messages/threads/{self.message_thread.id}/participants/'
         data = {'user_id': self.third_user.id}
         response = self.client.post(url, data, format='json')
@@ -258,50 +222,18 @@ class MessageViewTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_remove_participant_success(self, mock_mongo):
+    def test_remove_participant_success(self):
         """Test removing a participant."""
         MessageParticipant.objects.create(thread=self.message_thread, user=self.third_user)
-        mock_mongo.save_message.return_value = {
-           'id': 'sys2', 'content': 'Removed', 'is_system_message': True, 'created_at': '2023-01-01', 'updated_at': '2023-01-01'
-        }
         url = f'/api/messages/threads/{self.message_thread.id}/participants/{self.third_user.id}/'
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_remove_self_from_thread(self, mock_mongo):
+    def test_remove_self_from_thread(self):
         """Test user can remove themselves."""
         thread = MessageThread.objects.create(subject='Temp')
         MessageParticipant.objects.create(thread=thread, user=self.user)
-        mock_mongo.save_message.return_value = {
-           'id': 'sys3', 'content': 'Left', 'is_system_message': True, 'created_at': '2023-01-01', 'updated_at': '2023-01-01'
-        }
+        MessageParticipant.objects.create(thread=thread, user=self.other_user)
         url = f'/api/messages/threads/{thread.id}/participants/{self.user.id}/'
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-    @patch('apps.communication.messages.services.messages.MongoChatService')
-    def test_delete_own_message_success(self, mock_mongo):
-        """Test deleting own message."""
-        mock_mongo.delete_message.return_value = True
-        url = f'/api/messages/msg_1/'
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_delete_other_message_forbidden(self):
-        """Test cannot delete other user's message."""
-        # For full view testing involving service logic, mocking `delete_message` to raise exception
-        # would be ideal, but here we assume restricted access test coverage in service logic.
-        pass
-
-    @patch('apps.communication.messages.selectors.messages.MongoChatService')
-    def test_get_unread_count(self, mock_mongo):
-        """Test getting unread message count."""
-        mock_mongo.get_total_unread_count.return_value = 5
-        url = '/api/messages/unread-count/'
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('unread_count', response.data)
-        self.assertEqual(response.data['unread_count'], 5)

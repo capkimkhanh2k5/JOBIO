@@ -117,3 +117,97 @@ class UserRoleSerializer(serializers.Serializer):
 
 class UserAvatarSerializer(serializers.Serializer):
     avatar = serializers.ImageField()
+
+
+# ============================================================
+# Passkey (WebAuthn) Serializers
+# ============================================================
+
+class PasskeyRegisterOptionsSerializer(serializers.Serializer):
+    """Input: yêu cầu tạo registration options (không cần input, chỉ cần auth)"""
+    pass
+
+
+class PasskeyRegisterVerifySerializer(serializers.Serializer):
+    """Input: dữ liệu từ navigator.credentials.create() response"""
+    credential_id = serializers.CharField(
+        help_text='Base64url-encoded credential ID'
+    )
+    client_data_json = serializers.CharField(
+        help_text='Base64url-encoded clientDataJSON'
+    )
+    attestation_object = serializers.CharField(
+        help_text='Base64url-encoded attestationObject'
+    )
+    device_name = serializers.CharField(
+        max_length=255,
+        default='Passkey',
+        required=False,
+        help_text='Tên thiết bị (ví dụ: MacBook Touch ID)'
+    )
+    transports = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        default=list,
+        help_text='Danh sách transport types (usb, ble, nfc, internal, hybrid)'
+    )
+
+
+class PasskeyAuthOptionsSerializer(serializers.Serializer):
+    """Input: yêu cầu tạo authentication options"""
+    email = serializers.EmailField(
+        required=False,
+        allow_blank=True,
+        help_text='Email của user (optional, nếu không cung cấp sẽ dùng discoverable credentials)'
+    )
+
+
+class PasskeyAuthVerifySerializer(serializers.Serializer):
+    """Input: dữ liệu từ navigator.credentials.get() response"""
+    session_id = serializers.CharField(
+        help_text='Session ID từ bước generate options'
+    )
+    credential_id = serializers.CharField(
+        help_text='Base64url-encoded credential ID'
+    )
+    client_data_json = serializers.CharField(
+        help_text='Base64url-encoded clientDataJSON'
+    )
+    authenticator_data = serializers.CharField(
+        help_text='Base64url-encoded authenticatorData'
+    )
+    signature = serializers.CharField(
+        help_text='Base64url-encoded signature'
+    )
+    user_handle = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        default='',
+        help_text='Base64url-encoded user handle (cho discoverable credentials)'
+    )
+
+
+class PasskeyListSerializer(serializers.Serializer):
+    """Output: thông tin passkey"""
+    id = serializers.IntegerField()
+    device_name = serializers.CharField()
+    credential_id = serializers.CharField()
+    transports = serializers.ListField(child=serializers.CharField())
+    is_active = serializers.BooleanField()
+    created_at = serializers.CharField()
+    last_used_at = serializers.CharField(allow_null=True)
+
+
+class PasskeyDeleteSerializer(serializers.Serializer):
+    """Input: xóa passkey"""
+    passkey_id = serializers.IntegerField(
+        help_text='ID của passkey cần xóa'
+    )
+
+
+class PasskeyUpdateNameSerializer(serializers.Serializer):
+    """Input: cập nhật tên passkey"""
+    device_name = serializers.CharField(
+        max_length=255,
+        help_text='Tên mới cho passkey'
+    )

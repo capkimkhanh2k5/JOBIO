@@ -31,6 +31,10 @@ class MessageParticipant(models.Model):
         default=True,
         verbose_name='Đang hoạt động'
     )
+    unread_count = models.IntegerField(
+        default=0,
+        verbose_name='Số tin nhắn chưa đọc'
+    )
     
     class Meta:
         db_table = 'message_participants'

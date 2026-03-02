@@ -1,7 +1,9 @@
+from typing import Optional
+
 from django.db.models import QuerySet, Count, Q
 from apps.communication.message_threads.models import MessageThread
 from apps.communication.message_participants.models import MessageParticipant
-from apps.communication.messages.services.mongo_service import MongoChatService
+from apps.communication.messages.services.message_service import MessageService
 
 
 def list_threads(user_id: int) -> QuerySet:
@@ -66,8 +68,8 @@ def list_messages(thread_id: int, user_id: int) -> Optional[QuerySet]:
     ).exists():
         return None
     
-    # MongoDB Logic
-    return MongoChatService.get_messages(thread_id=thread_id)
+    # PostgreSQL query
+    return MessageService.get_messages(thread_id=thread_id)
 
 
 # get_message_by_id removed (SQL)
@@ -77,7 +79,7 @@ def count_unread_messages(user_id: int) -> int:
     """
     Count total unread messages across all threads for a user.
     """
-    return MongoChatService.get_total_unread_count(user_id)
+    return MessageService.get_total_unread_count(user_id)
 
 
 def get_thread_between_users(user_ids: list[int]) -> Optional[MessageThread]:
