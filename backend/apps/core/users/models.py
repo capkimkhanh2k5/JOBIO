@@ -227,6 +227,10 @@ class UserPasskey(models.Model):
         blank=True,
         verbose_name='Lần sử dụng cuối'
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
+    )
 
     class Meta:
         db_table = 'user_passkeys'

@@ -76,6 +76,7 @@ class Interview(models.Model):
         max_length=20,
         choices=Result.choices,
         default=Result.PENDING,
+        db_index=True,
         verbose_name='Kết quả'
     )
     created_by = models.ForeignKey(

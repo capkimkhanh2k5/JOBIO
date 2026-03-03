@@ -48,6 +48,7 @@ class Company(models.Model):
         choices=CompanySize.choices,
         null=True,
         blank=True,
+        db_index=True,
         verbose_name='Quy mô công ty'
     )
     industry = models.ForeignKey(
