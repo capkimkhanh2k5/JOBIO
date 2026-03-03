@@ -74,7 +74,6 @@ export const authService = {
 
   // ─── 2FA ─────────────────────────────────────────────────────────────────
 
-  // TODO: Backend chưa có endpoint riêng cho 2FA status/enable/disable
   get2FAStatus() {
     return api.get<TwoFactorStatus>('/api/users/auth/2fa/status/');
   },

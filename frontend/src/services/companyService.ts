@@ -17,7 +17,6 @@ export const companyService = {
   // ─── CRUD ──────────────────────────────────────────────────────────────
 
   /** Get the employer's own company */
-  // TODO: Backend chưa có /me/ action cho CompanyViewSet — cần thêm @action(detail=False, methods=['get'], url_path='me')
   getMyCompany() {
     return api.get<CompanyDetail>('/api/companies/me/');
   },

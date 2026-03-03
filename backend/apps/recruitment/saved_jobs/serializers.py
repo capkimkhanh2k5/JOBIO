@@ -49,3 +49,13 @@ class SavedJobUpdateSerializer(serializers.Serializer):
     
     folder_name = serializers.CharField(max_length=100, required=False, allow_null=True, allow_blank=True)
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+
+class SavedJobCreateSerializer(serializers.Serializer):
+    """
+        Serializer cho tạo saved job mới
+    """
+    
+    job_id = serializers.IntegerField()
+    folder_name = serializers.CharField(max_length=100, required=False, allow_null=True, allow_blank=True)
+    notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)

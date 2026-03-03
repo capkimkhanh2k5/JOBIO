@@ -32,7 +32,6 @@ export const candidateService = {
   },
 
   /** Shortcut: get the current user's recruiter profile */
-  // TODO: Backend chưa có /me/ action trong RecruiterViewSet — cần thêm @action(detail=False, methods=['get'], url_path='me')
   getMyProfile() {
     return api.get<RecruiterDetail>('/api/recruiters/me/');
   },

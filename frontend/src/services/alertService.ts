@@ -41,7 +41,6 @@ export const alertService = {
   },
 
   /** Mark a match as viewed */
-  // TODO: Backend chưa có endpoint mark-viewed cho job alert matches
   markMatchViewed(alertId: number, matchId: number) {
     return api.post(`/api/job-alerts/${alertId}/matched-jobs/${matchId}/mark-viewed/`);
   },

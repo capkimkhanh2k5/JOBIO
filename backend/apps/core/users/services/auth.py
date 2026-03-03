@@ -453,4 +453,63 @@ def verify_2fa(data: Verify2FAInput) -> bool:
         raise AuthenticationError("2FA code is incorrect!")
     
     return True
+
+
+def get_2fa_status(user: CustomUser) -> dict:
+    """
+    Lấy trạng thái 2FA của user.
+    """
+    return {
+        "is_enabled": user.two_factor_enabled,
+        "has_secret": bool(user.two_factor_secret),
+    }
+
+
+def enable_2fa(user: CustomUser) -> dict:
+    """
+    Bật 2FA cho user — tạo secret mới và trả về QR URI.
+    """
+    import pyotp
+    
+    if user.two_factor_enabled:
+        raise AuthenticationError("2FA is already enabled!")
+    
+    # Tạo secret mới
+    secret = pyotp.random_base32()
+    user.two_factor_secret = secret
+    user.two_factor_enabled = True
+    user.save(update_fields=['two_factor_secret', 'two_factor_enabled'])
+    
+    # Tạo provisioning URI cho app authenticator
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(
+        name=user.email,
+        issuer_name='JobPortal'
+    )
+    
+    return {
+        "is_enabled": True,
+        "secret": secret,
+        "provisioning_uri": provisioning_uri,
+    }
+
+
+def disable_2fa(user: CustomUser, code: str) -> dict:
+    """
+    Tắt 2FA cho user — yêu cầu xác thực code trước khi tắt.
+    """
+    if not user.two_factor_enabled:
+        raise AuthenticationError("2FA is not enabled!")
+    
+    if not user.check_2fa_code(code):
+        raise AuthenticationError("2FA code is incorrect!")
+    
+    user.two_factor_enabled = False
+    user.two_factor_secret = None
+    user.save(update_fields=['two_factor_enabled', 'two_factor_secret'])
+    
+    return {
+        "is_enabled": False,
+        "has_secret": False,
+    }
         

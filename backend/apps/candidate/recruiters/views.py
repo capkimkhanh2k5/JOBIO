@@ -89,6 +89,17 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         delete_recruiter_service(recruiter)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, methods=['get'], url_path='me')
+    def me(self, request):
+        """
+        GET /api/recruiters/me/ - Lấy hồ sơ ứng viên của user hiện tại
+        """
+        try:
+            recruiter = Recruiter.objects.get(user=request.user)
+        except Recruiter.DoesNotExist:
+            return Response({"detail": "You don't have a recruiter profile"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(RecruiterSerializer(recruiter).data)
+
     @action(detail=True, methods=['patch'], url_path='job-search-status')
     def update_status(self, request, pk=None):
         """

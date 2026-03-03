@@ -47,7 +47,12 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         Lấy permissions cho viewset
         """
-        if self.action in ['list', 'retrieve', 'retrieve_by_slug', 'search_companies', 'featured_companies', 'company_suggestions', 'company_stats', 'company_jobs', 'company_reviews', 'company_followers']:
+        public_actions = [
+            'list', 'retrieve', 'retrieve_by_slug', 'search_companies',
+            'featured_companies', 'company_suggestions', 'company_stats',
+            'company_jobs', 'company_reviews', 'company_followers',
+        ]
+        if self.action in public_actions:
             return [AllowAny()]
         return [IsAuthenticated()]
     
@@ -133,6 +138,19 @@ class CompanyViewSet(viewsets.GenericViewSet):
         delete_company(company)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    @action(detail=False, methods=['get'], url_path='me')
+    def me(self, request):
+        """
+        GET /api/companies/me/ - Lấy công ty của user hiện tại
+        """
+        try:
+            company = Company.objects.get(user=request.user)
+        except Company.DoesNotExist:
+            return Response({"detail": "You don't have a company profile"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(company)
+        return Response(serializer.data)
+
     @action(detail=False, methods=['get'], url_path='slug/(?P<slug>[^/.]+)')
     def retrieve_by_slug(self, request, slug=None):
         """
