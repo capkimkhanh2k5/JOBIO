@@ -745,6 +745,64 @@ export const mockApi = {
         ];
     },
 
+    getAllNotifications: async (tab: 'all' | 'unread' = 'all') => {
+        await delay(600);
+        const all = [
+            { id: "n1", title: "Ứng viên mới", message: "Trần Minh Đức vừa ứng tuyển vị trí Senior Frontend", is_read: false, created_at: new Date(Date.now() - 5 * 60000).toISOString(), type: "application" },
+            { id: "n2", title: "Phỏng vấn sắp tới", message: "Nhớ phỏng vấn với Nguyễn Hồng Anh lúc 10:00 hôm nay", is_read: false, created_at: new Date(Date.now() - 30 * 60000).toISOString(), type: "interview" },
+            { id: "n3", title: "CV đã được xem", message: "3 ứng viên mới đã xem tin tuyển dụng của bạn", is_read: false, created_at: new Date(Date.now() - 2 * 3600000).toISOString(), type: "view" },
+            { id: "n4", title: "Tin tuyển dụng sắp hết hạn", message: "Tin 'UI/UX Designer' còn 2 ngày nữa hết hạn", is_read: false, created_at: new Date(Date.now() - 5 * 3600000).toISOString(), type: "warning" },
+            { id: "n5", title: "Đánh giá mới", message: "Công ty bạn vừa nhận được 1 đánh giá 5 sao mới", is_read: true, created_at: new Date(Date.now() - 86400000).toISOString(), type: "review" },
+            { id: "n6", title: "Hệ thống bảo trì", message: "Hệ thống sẽ bảo trì vào 2:00 sáng mai", is_read: true, created_at: new Date(Date.now() - 2 * 86400000).toISOString(), type: "system" },
+            { id: "n7", title: "Tính năng mới", message: "Đã có tính năng tìm kiếm ứng viên bằng AI", is_read: true, created_at: new Date(Date.now() - 3 * 86400000).toISOString(), type: "system" },
+        ];
+        if (tab === 'unread') {
+            return all.filter(n => !n.is_read);
+        }
+        return all;
+    },
+
+    markNotificationRead: async (id: string) => {
+        await delay(200);
+        return { success: true };
+    },
+
+    markMultipleNotificationsRead: async (ids: string[]) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    markAllNotificationsRead: async () => {
+        await delay(400);
+        return { success: true };
+    },
+
+    deleteNotification: async (id: string) => {
+        await delay(300);
+        return { success: true };
+    },
+
+    clearAllNotifications: async () => {
+        await delay(500);
+        return { success: true };
+    },
+
+    getNotificationSettings: async () => {
+        await delay(400);
+        return {
+            email_notifications: true,
+            push_notifications: true,
+            marketing_emails: false,
+            application_updates: true,
+            interview_reminders: true
+        };
+    },
+
+    updateNotificationSettings: async (settings: any) => {
+        await delay(500);
+        return { success: true, settings };
+    },
+
     getUnreadMessagesCount: async () => {
         await delay(200);
         return { unread_count: 3 };
@@ -792,6 +850,48 @@ export const mockApi = {
                 views: Math.floor(Math.random() * 60) + 10,
             };
         });
+    },
+
+    // ─── Referrals endpoints ──────────────────────────────────────────────
+
+    getReferrals: async () => {
+        await delay(500);
+        const statuses = ["pending", "contacted", "applied", "interviewing", "hired", "rejected"];
+        const names = ["Phạm Lê Huy", "Đào Thị Tâm", "Lý Công Uẩn", "Bùi Xuân Huấn", "Ngô Phương Lan"];
+        const jobs = ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer", "DevOps Engineer"];
+
+        return Array(12).fill(null).map((_, i) => ({
+            id: `ref-${i}`,
+            job_id: `job-${i % jobs.length}`,
+            job_title: jobs[i % jobs.length],
+            referred_name: names[i % names.length] + ` ${i}`,
+            referred_email: `candidate${i}@example.com`,
+            status: statuses[i % statuses.length],
+            notes: i % 3 === 0 ? "Ưng ý với React/Next.js" : "",
+            created_at: new Date(Date.now() - i * 86400000 * 2).toISOString(),
+            bonus_amount: (i % 3 + 1) * 500,
+            bonus_currency: "USD",
+        }));
+    },
+
+    createReferral: async (data: { job_id: string, referred_name: string, referred_email: string, notes?: string }) => {
+        await delay(800);
+        return {
+            success: true,
+            id: `ref-new-${Date.now()}`,
+            ...data,
+            status: "pending",
+            created_at: new Date().toISOString()
+        };
+    },
+
+    getReferralPrograms: async () => {
+        await delay(400);
+        return [
+            { id: "prog-1", title: "Frontend Experts", bonus: 1000, currency: "USD", active_referrals: 5, successful_hires: 1 },
+            { id: "prog-2", title: "Senior Leadership", bonus: 2500, currency: "USD", active_referrals: 2, successful_hires: 0 },
+            { id: "prog-3", title: "Q3 Sales Drive", bonus: 800, currency: "USD", active_referrals: 12, successful_hires: 3 },
+        ];
     },
 
     // ─── Post Job Wizard endpoints ────────────────────────────────────────
@@ -1636,4 +1736,297 @@ export const mockApi = {
         return ['tpl-1', 'tpl-3', 'tpl-5', 'tpl-8'];
     },
 
+    // ─── Employer / Interviews endpoints (Task 4.1) ─────────────────────
+
+    getInterviews: async (params?: any) => {
+        await delay(600);
+        const now = new Date();
+        let items = Array(12).fill(null).map((_, i) => ({
+            id: `int-${i}`,
+            candidate_name: ["Nguyễn Văn A", "Trần Thị B", "Lê Văn C", "Phạm Thị D", "Hoàng Văn E"][i % 5],
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Int${i}`,
+            job_title: ["Senior Frontend Engineer", "UI/UX Designer", "Product Manager", "Backend Developer"][i % 4],
+            company_name: ["JOBIO NextGen", "TechCorp", "VNG Corporation", "InnovateVN", "Google"][i % 5],
+            company_logo: `https://api.dicebear.com/7.x/shapes/svg?seed=Comp${i}`,
+            type: ["video", "phone", "onsite"][i % 3] as "video" | "phone" | "onsite",
+            scheduled_at: new Date(now.getTime() + (i - 2) * 86400000 + i * 3600000).toISOString(),
+            duration_minutes: 60,
+            status: ["scheduled", "confirmed", "in_progress", "completed", "cancelled", "no_show"][i % 6] as "scheduled" | "confirmed" | "in_progress" | "completed" | "cancelled" | "no_show",
+            location: (i % 3 === 2 ? "Văn phòng JOBIO" : undefined) as string | undefined,
+            meeting_link: (i % 3 !== 2 ? "https://meet.google.com/abc-def-ghi" : undefined) as string | undefined,
+            interviewers: [{ id: "u1", name: "Nhà tuyển dụng 1", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=HR" }],
+            notes: "Phỏng vấn vòng chuyên môn",
+            candidate_id: `cand-${i}`,
+            job_id: `job-${i % 4}`,
+            feedback: i % 6 === 3 ? "Kỹ năng chuyên môn tốt, phong thái tự tin. Sẽ phù hợp với văn hóa công ty." : undefined,
+            rating: i % 6 === 3 ? 4 : undefined,
+        }));
+
+        if (params?.status) {
+            const statuses = params.status.split(',');
+            items = items.filter(item => statuses.includes(item.status));
+        }
+
+        return items;
+    },
+
+    createInterview: async (data: any) => {
+        await delay(800);
+        return { id: 'int-new-' + Date.now(), ...data, status: 'scheduled' };
+    },
+
+    getInterviewById: async (id: string) => {
+        await delay(500);
+        return {
+            id,
+            candidate_name: "Nguyễn Văn Detail",
+            candidate_avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=Detail`,
+            job_title: "Senior Frontend Engineer",
+            type: "video" as "video" | "phone" | "onsite",
+            scheduled_at: new Date(Date.now() + 86400000).toISOString(),
+            duration_minutes: 60,
+            status: "scheduled" as "scheduled" | "confirmed" | "in_progress" | "completed" | "cancelled" | "no_show",
+            meeting_link: "https://meet.google.com/abc-def-ghi" as string | undefined,
+            location: "Văn phòng JOBIO" as string | undefined,
+            interviewers: [{ id: "u1", name: "Nhà tuyển dụng 1", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=HR" }],
+            notes: "Ứng viên có nhiều kinh nghiệm React",
+            candidate_id: `cand-detail`,
+            job_id: `job-1`,
+            feedback: null as string | null,
+            rating: 0 as number | undefined
+        };
+    },
+
+    updateInterview: async (id: string, data: any) => {
+        await delay(600);
+        return { success: true, id, ...data };
+    },
+
+    cancelInterview: async (_id: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    getInterviewTypes: async () => {
+        await delay(300);
+        return [
+            { id: "video", name: "Phỏng vấn Online (Video)" },
+            { id: "phone", name: "Phỏng vấn Điện thoại" },
+            { id: "onsite", name: "Phỏng vấn Trực tiếp (Onsite)" },
+            { id: "test", name: "Làm bài Test" }
+        ];
+    },
+
+    // Mock candidates list for dropdown
+    getInterviewCandidates: async () => {
+        await delay(400);
+        return [
+            { id: "cand-1", name: "Nguyễn Văn A", job_title: "Senior Frontend Engineer", job_id: "job-1" },
+            { id: "cand-2", name: "Trần Thị B", job_title: "UI/UX Designer", job_id: "job-2" },
+            { id: "cand-3", name: "Lê Văn C", job_title: "Product Manager", job_id: "job-3" }
+        ];
+    },
+
+    // ─── Campaigns endpoints ──────────────────────────────────────────────
+
+    getCampaigns: async (_params?: any) => {
+        await delay(500);
+        return {
+            items: [
+                {
+                    id: "camp-1",
+                    campaign_name: "Spring Mass Hiring 2024",
+                    campaign_type: "mass_hiring",
+                    status: "active",
+                    budget: 5000,
+                    spent_amount: 1200,
+                    target_positions: 20,
+                    hired_count: 5,
+                    start_date: "2024-03-01",
+                    end_date: "2024-05-31",
+                    job_count: 3
+                },
+                {
+                    id: "camp-2",
+                    campaign_name: "University Tour 2024",
+                    campaign_type: "campus",
+                    status: "draft",
+                    budget: 2000,
+                    spent_amount: 0,
+                    target_positions: 10,
+                    hired_count: 0,
+                    start_date: "2024-06-01",
+                    end_date: "2024-07-30",
+                    job_count: 0
+                },
+                {
+                    id: "camp-3",
+                    campaign_name: "Referral Bonus Q1",
+                    campaign_type: "referral",
+                    status: "completed",
+                    budget: 1500,
+                    spent_amount: 1500,
+                    target_positions: 5,
+                    hired_count: 5,
+                    start_date: "2024-01-01",
+                    end_date: "2024-02-28",
+                    job_count: 2
+                }
+            ],
+            total: 3
+        };
+    },
+
+    getCampaignById: async (id: string) => {
+        await delay(400);
+        return {
+            id,
+            campaign_name: "Spring Mass Hiring 2024",
+            description: "Chiến dịch tuyển dụng số lượng lớn mùa xuân nhằm mở rộng team Engineering.",
+            campaign_type: "mass_hiring",
+            status: "active",
+            budget: 5000,
+            spent_amount: 1200,
+            target_positions: 20,
+            hired_count: 5,
+            start_date: "2024-03-01",
+            end_date: "2024-05-31",
+            target_audience: "Mid to Senior Software Engineers, React, Node.js",
+            notes: ""
+        };
+    },
+
+    createCampaign: async (data: any) => {
+        await delay(800);
+        return { success: true, id: "camp-" + Math.random().toString(36).substr(2, 9), ...data };
+    },
+
+    updateCampaign: async (id: string, data: any) => {
+        await delay(600);
+        return { success: true, id, ...data };
+    },
+
+    deleteCampaign: async (id: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    getCampaignJobs: async (campaignId: string) => {
+        await delay(400);
+        return [
+            { id: "cj-1", job_id: "job-1", campaign_id: campaignId, title: "Senior Frontend Engineer", status: "published", applications_count: 12 },
+            { id: "cj-2", job_id: "job-2", campaign_id: campaignId, title: "Backend Node.js", status: "published", applications_count: 8 }
+        ];
+    },
+
+    addCampaignJob: async (_campaignId: string, _jobId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    removeCampaignJob: async (_campaignId: string, _jobId: string) => {
+        await delay(400);
+        return { success: true };
+    },
+
+    // ─── CV Search (Employer) endpoints ───────────────────────────────────
+    searchCandidates: async (params: any) => {
+        await delay(800);
+        const { q, skills, location, experience_min, experience_max, education, search_status, salary_min, salary_max } = params;
+
+        const names = ["Trần Minh Đức", "Nguyễn Hồng Anh", "Lê Quang Hùng", "Phạm Thị Lan", "Võ Văn Nam", "Đỗ Thị Mai", "Bùi Thanh Tùng", "Hoàng Thị Thu", "Đinh Văn Bảo", "Chu Thị Hoa", "Nguyễn Văn Tuấn", "Phạm Thu Hương"];
+        const titles = ["Senior Frontend", "UX/UI Designer", "Product Manager", "Backend Developer", "Fullstack Node.js", "DevOps Engineer", "Data Scientist", "Mobile App Dev"];
+        const companies = ["TechCorp", "InnovateVN", "VNG", "FPT", "Viettel", "Momo", "Tiki"];
+
+        let candidates = Array(35).fill(null).map((_, i) => {
+            const isPublic = i % 8 !== 0; // Một số ít không công khai
+            return {
+                id: `cand-search-${i}`,
+                name: isPublic ? names[i % names.length] : "Ứng viên Ẩn danh",
+                avatar_url: isPublic ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${names[i % names.length]}${i}` : undefined,
+                current_position: titles[i % titles.length],
+                current_company: companies[i % companies.length],
+                years_of_experience: (i % 8) + 1,
+                top_skills: ["React", "TypeScript", "Node.js", "Python", "Figma", "AWS", "Docker"].slice(i % 3, (i % 3) + 3),
+                education_summary: ["Cử nhân Khoa học Máy tính", "Thạc sĩ CNTT", "Kỹ sư phần mềm"][i % 3],
+                job_search_status: ["active", "passive", "closed"][i % 3],
+                profile_completeness: 60 + (i % 40),
+                is_profile_public: isPublic,
+                location: ["Hồ Chí Minh", "Hà Nội", "Đà Nẵng"][i % 3],
+                salary_expectation: (i % 5 + 1) * 500
+            };
+        });
+
+        // Mock Filters applied
+        if (q) {
+            candidates = candidates.filter(c => c.name.toLowerCase().includes(q.toLowerCase()) || c.current_position.toLowerCase().includes(q.toLowerCase()));
+        }
+        if (location && location !== 'all') {
+            candidates = candidates.filter(c => c.location === location);
+        }
+        if (skills && skills.length > 0) {
+            candidates = candidates.filter(c => skills.some((s: string) => c.top_skills.includes(s)));
+        }
+        if (experience_min !== undefined) {
+            candidates = candidates.filter(c => c.years_of_experience >= experience_min);
+        }
+        if (search_status && search_status !== 'all') {
+            candidates = candidates.filter(c => c.job_search_status === search_status);
+        }
+
+        return {
+            items: candidates,
+            total: candidates.length,
+            page: params.page || 1,
+            limit: params.limit || 12
+        };
+    },
+
+    getCandidatePublicProfile: async (id: string) => {
+        await delay(600);
+        return {
+            id,
+            name: "Trần Minh Đức",
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=Duc`,
+            current_position: "Senior Frontend Engineer",
+            current_company: "TechCorp JSC",
+            location: "Thành phố Hồ Chí Minh",
+            job_search_status: "active",
+            bio: "Hơn 5 năm kinh nghiệm làm việc với React và hệ sinh thái Javascript. Đam mê xây dựng các giao diện phức tạp với hiệu năng cao và UX đột phá. Đã từng lead team 3 frontend engineers.",
+            years_of_experience: 5,
+            expected_salary_range: "$1500 - $2500",
+            email: "contact@tranduc.dev",
+            phone: "+84 912 345 678",
+            skills: [
+                { name: "React", level: "Expert", years: 5 },
+                { name: "TypeScript", level: "Advanced", years: 4 },
+                { name: "TailwindCSS", level: "Expert", years: 3 },
+                { name: "Figma", level: "Intermediate", years: 2 }
+            ],
+            experience: [
+                { id: "e1", title: "Senior Frontend", company: "TechCorp JSC", duration: "2021 - Hiện tại", desc: "Xây dựng core UI library cho toàn bộ công ty." },
+                { id: "e2", title: "Web Developer", company: "InnovateVN", duration: "2018 - 2021", desc: "Phát triển nền tảng thương mại điện tử phục vụ 1M+ user." }
+            ],
+            education: [
+                { id: "ed1", degree: "Cử nhân Khoa học Máy tính", school: "ĐH Khoa học Tự nhiên TP.HCM", duration: "2014 - 2018" }
+            ],
+            social_links: {
+                github: "https://github.com/tranduc",
+                linkedin: "https://linkedin.com/in/tranduc",
+                portfolio: "https://tranduc.dev"
+            }
+        };
+    },
+
+    getCandidateRecommendations: async (id: string) => {
+        await delay(500);
+        return Array(3).fill(null).map((_, i) => ({
+            id: `rec-${i}`,
+            name: ["Nguyễn Hoàng", "Lê Phương", "Đặng Văn"][i],
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=Rec${i}`,
+            match_score: 85 + i * 4,
+            current_position: "Frontend Developer",
+            top_skills: ["React", "TypeScript", "TailwindCSS"]
+        }));
+    }
 };

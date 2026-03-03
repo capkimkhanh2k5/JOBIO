@@ -25,9 +25,7 @@ export function EmployerSettingsPage() {
     return <StubPage title="Cài đặt" desc="Cài đặt tài khoản, thông báo và bảo mật. Coming soon." />;
 }
 
-export function EmployerCVSearchPage() {
-    return <StubPage title="Tìm CV" desc="Tìm kiếm hồ sơ ứng viên phù hợp với yêu cầu của bạn. Coming soon." />;
-}
+
 
 export function EmployerInterviewsPage() {
     return <StubPage title="Phỏng vấn" desc="Lên lịch và quản lý buổi phỏng vấn với ứng viên. Coming soon." />;
@@ -39,10 +37,6 @@ export function EmployerMessagesPage() {
 
 export function EmployerAnalyticsPage() {
     return <StubPage title="Báo cáo & Phân tích" desc="Báo cáo hiệu quả tuyển dụng chi tiết theo thời gian. Coming soon." />;
-}
-
-export function EmployerCampaignsPage() {
-    return <StubPage title="Campaigns" desc="Quản lý chiến dịch tuyển dụng quy mô lớn. Coming soon." />;
 }
 
 export function EmployerSubscriptionPage() {

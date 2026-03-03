@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, PlusSquare, Briefcase, Users, Megaphone,
     CalendarClock, MessageSquare, BarChart3, Building2, CreditCard,
-    Settings, LifeBuoy
+    Settings, LifeBuoy, UserPlus, Search
 } from 'lucide-react';
 
 interface NavItem {
@@ -18,6 +18,8 @@ const navItems: NavItem[] = [
     { label: 'Đăng tin', path: '/employer/jobs/create', icon: <PlusSquare className="w-5 h-5" /> },
     { label: 'Quản lý tin', path: '/employer/jobs', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Ứng viên', path: '/employer/candidates', icon: <Users className="w-5 h-5" /> },
+    { label: 'Tìm CV', path: '/employer/cv-search', icon: <Search className="w-5 h-5" /> },
+    { label: 'Giới thiệu', path: '/employer/referrals', icon: <UserPlus className="w-5 h-5" /> },
     { label: 'Campaigns', path: '/employer/campaigns', icon: <Megaphone className="w-5 h-5" /> },
     { label: 'Phỏng vấn', path: '/employer/interviews', icon: <CalendarClock className="w-5 h-5" /> },
     { label: 'Tin nhắn', path: '/employer/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 3 },
@@ -29,8 +31,8 @@ const navItems: NavItem[] = [
 ];
 
 // Split into main and bottom sections
-const mainItems = navItems.slice(0, 10);
-const bottomItems = navItems.slice(10);
+const mainItems = navItems.slice(0, 12);
+const bottomItems = navItems.slice(12);
 
 const itemVariants = {
     hidden: { opacity: 0, x: -12 },

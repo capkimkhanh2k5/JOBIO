@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useUiStore } from '../../store/uiStore';
 import { useUserStore } from '../../store/userStore';
-import { Search, Menu, Bell, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
+import { Search, Menu, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState, useEffect } from 'react';
 import { mockApi } from '../../services/mockApi';
@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger
 } from '../ui/dropdown-menu';
 import { toast } from 'sonner';
+import { NotificationBell } from '../shared/notifications/NotificationBell';
 
 export const Header = () => {
     const toggleCommand = useUiStore((state) => state.toggleCommand);
@@ -74,14 +75,7 @@ export const Header = () => {
                         >
                             <Search className="w-6 h-6" />
                         </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="rounded-full w-12 h-12 relative magnetic-button"
-                        >
-                            <Bell className="w-6 h-6" />
-                            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />
-                        </Button>
+                        <NotificationBell />
 
                         <div className="h-6 w-[1px] bg-border/40 mx-2" />
 
