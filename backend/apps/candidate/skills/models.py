@@ -35,9 +35,17 @@ class Skill(models.Model):
         default=0,
         verbose_name='Số lần sử dụng'
     )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Đang hoạt động'
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Ngày tạo'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
     )
     
     class Meta:

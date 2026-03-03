@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.core.users.models import CustomUser
+from apps.communication.messages.models import Message
 
 
 class MessageSenderSerializer(serializers.ModelSerializer):
@@ -10,47 +11,17 @@ class MessageSenderSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_name', 'avatar_url']
 
 
-
-class MessageSerializer(serializers.Serializer):
-    """Serializer cho đọc dữ liệu tin nhắn (Legacy/Mongo Compatible)."""
-    id = serializers.CharField()
-    thread_id = serializers.IntegerField()
-    content = serializers.CharField()
-    attachment_url = serializers.CharField(allow_null=True)
-    is_system_message = serializers.BooleanField()
-    created_at = serializers.CharField()
-    updated_at = serializers.CharField()
+class MessageSerializer(serializers.ModelSerializer):
+    """Serializer cho dữ liệu tin nhắn (Django ORM)."""
     sender = MessageSenderSerializer(read_only=True)
-
-
-class MongoMessageSerializer(serializers.Serializer):
-    """
-    Serializer specifically for MongoDB Message Dictionaries.
-    Handles nested sender dict or flat fields if needed.
-    """
-    id = serializers.CharField()
-    thread_id = serializers.IntegerField()
-    content = serializers.CharField()
-    attachment_url = serializers.CharField(allow_null=True, required=False)
-    is_system_message = serializers.BooleanField(default=False)
-    created_at = serializers.CharField()
-    updated_at = serializers.CharField()
     
-    # Mongo stores sender info directly in the document usually to avoid JOINs
-    sender_id = serializers.IntegerField()
-    sender_name = serializers.CharField()
-    sender_avatar = serializers.CharField(allow_null=True, required=False)
-    
-    def to_representation(self, instance):
-        """Custom representation to match frontend expected format (nested sender)."""
-        ret = super().to_representation(instance)
-        # Construct sender object from flat fields
-        ret['sender'] = {
-            'id': instance.get('sender_id'),
-            'full_name': instance.get('sender_name'),
-            'avatar_url': instance.get('sender_avatar')
-        }
-        return ret
+    class Meta:
+        model = Message
+        fields = [
+            'id', 'thread_id', 'content', 'attachments',
+            'is_system_message', 'created_at', 'updated_at', 'sender'
+        ]
+        read_only_fields = fields
 
 
 class MessageCreateSerializer(serializers.Serializer):

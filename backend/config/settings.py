@@ -336,6 +336,11 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+# ===== WebAuthn / Passkey Configuration =====
+WEBAUTHN_RP_ID = os.getenv('WEBAUTHN_RP_ID', 'localhost')
+WEBAUTHN_RP_NAME = os.getenv('WEBAUTHN_RP_NAME', 'JobPortal')
+WEBAUTHN_ORIGIN = os.getenv('WEBAUTHN_ORIGIN', 'http://localhost:4000')
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4000",
 ]
@@ -356,10 +361,6 @@ VNP_TMN_CODE = os.getenv('VNP_TMN_CODE', '')
 VNP_HASH_SECRET = os.getenv('VNP_HASH_SECRET', '')
 VNP_URL = os.getenv('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html')
 VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:3000/billing/payment-return')
-
-# ===== MongoDB Configuration (Chat) =====
-MONGO_URI = os.getenv('MONGO_URI', 'mongodb://mongo:27017/')
-MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'jobportal_chat')
 
 # ===== AI Configuration =====
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

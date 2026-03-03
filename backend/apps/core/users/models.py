@@ -168,3 +168,71 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.email} ({self.get_role_display()})"
+
+
+class UserPasskey(models.Model):
+    """
+    Bảng lưu trữ Passkey (WebAuthn/FIDO2) credentials cho user.
+    Mỗi user có thể đăng ký nhiều passkey (ví dụ: Touch ID, YubiKey, Windows Hello).
+    """
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='passkeys',
+        verbose_name='Người dùng'
+    )
+    credential_id = models.BinaryField(
+        unique=True,
+        verbose_name='Credential ID',
+        help_text='WebAuthn credential ID (binary)'
+    )
+    public_key = models.BinaryField(
+        verbose_name='Public Key',
+        help_text='CBOR-encoded COSE public key'
+    )
+    sign_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Sign Count',
+        help_text='Signature counter for replay attack protection'
+    )
+    device_name = models.CharField(
+        max_length=255,
+        default='Passkey',
+        verbose_name='Tên thiết bị',
+        help_text='Tên do người dùng đặt (ví dụ: MacBook Touch ID)'
+    )
+    aaguid = models.CharField(
+        max_length=36,
+        blank=True,
+        default='',
+        verbose_name='AAGUID',
+        help_text='Authenticator Attestation GUID'
+    )
+    transports = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Transports',
+        help_text='Danh sách transport types (usb, ble, nfc, internal, hybrid)'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Đang hoạt động'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Ngày tạo'
+    )
+    last_used_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Lần sử dụng cuối'
+    )
+
+    class Meta:
+        db_table = 'user_passkeys'
+        verbose_name = 'Passkey'
+        verbose_name_plural = 'Passkeys'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.device_name}"

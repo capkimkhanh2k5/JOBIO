@@ -71,8 +71,14 @@ class MessageThreadSerializer(serializers.ModelSerializer):
         if not request:
             return 0
         
-        # Unread count temporarily disabled during Mongo migration
-        return 0
+        try:
+            participant = obj.participants.get(
+                user_id=request.user.id,
+                is_active=True
+            )
+            return participant.unread_count
+        except Exception:
+            return 0
 
 
 class MessageThreadDetailSerializer(serializers.ModelSerializer):

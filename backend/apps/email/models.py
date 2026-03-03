@@ -21,12 +21,13 @@ class EmailTemplate(TimeStampedModel):
         EmailTemplateCategory, 
         on_delete=models.SET_NULL, 
         null=True, 
-        related_name='templates'
+        related_name='templates',
+        db_index=True
     )
     subject = models.CharField(max_length=255)
     body = models.TextField(help_text="Jinja2 supported template")
     variables = models.JSONField(default=dict, blank=True, help_text="List of available variables")
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     
     class Meta:
         verbose_name = _('Email Template')
@@ -51,7 +52,7 @@ class SentEmail(TimeStampedModel):
         blank=True,
         related_name='sent_emails'
     )
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
     error_message = models.TextField(blank=True)
     
     class Meta:

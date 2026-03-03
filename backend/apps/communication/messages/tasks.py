@@ -1,5 +1,6 @@
 from celery import shared_task
-from apps.communication.messages.services.mongo_service import MongoChatService
+from apps.communication.messages.services.message_service import MessageService
+from apps.communication.message_participants.models import MessageParticipant
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,39 +9,33 @@ logger = logging.getLogger(__name__)
 def persist_chat_message_task(
     thread_id: int, 
     sender_id: int, 
-    sender_name: str, 
-    sender_avatar: str, 
-    content: str, 
-    message_id: str = None,
-    recipient_ids: list[int] = None
+    content: str,
 ):
     """
-    Task chạy background để lưu tin nhắn vào MongoDB.
+    Celery task to persist a chat message to PostgreSQL.
     
     Args:
         thread_id: ID of the thread
         sender_id: ID of the sender
-        sender_name: Name of the sender (cached)
-        sender_avatar: Avatar URL of the sender (cached)
         content: Message content
-        message_id: Optional message ID
-        recipient_ids: List of user IDs to increment unread counters for
     """
     try:
-        MongoChatService.save_message(
+        message = MessageService.save_message(
             thread_id=thread_id,
             sender_id=sender_id,
-            sender_name=sender_name,
-            sender_avatar=sender_avatar,
             content=content,
-            message_id=message_id
         )
         
-        # Increment unread counters if recipient_ids provided
-        if recipient_ids:
-            MongoChatService.increment_unread_counters(thread_id, recipient_ids)
+        # Increment unread counters for other participants
+        recipient_ids = list(MessageParticipant.objects.filter(
+            thread_id=thread_id,
+            is_active=True
+        ).exclude(user_id=sender_id).values_list('user_id', flat=True))
         
-        return f"Message {message_id} persisted for thread {thread_id}"
+        if recipient_ids:
+            MessageService.increment_unread_counters(thread_id, recipient_ids)
+        
+        return f"Message {message.id} persisted for thread {thread_id}"
     except Exception as e:
         logger.error(f"Error persisting message: {str(e)}")
         raise e

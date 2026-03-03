@@ -59,6 +59,10 @@ class FileUpload(models.Model):
         auto_now_add=True,
         verbose_name='Ngày tạo'
     )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
+    )
     
     class Meta:
         db_table = 'file_uploads'

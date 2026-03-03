@@ -1,5 +1,3 @@
-import weasyprint
-
 from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
@@ -69,6 +67,7 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
     html_string = render_to_string('cv/modern.html', {'data': cv.cv_data})
     
     # Generate PDF (In-Memory)
+    import weasyprint  # lazy import to avoid tinycss2 error at module load time
     pdf_file = weasyprint.HTML(string=html_string).write_pdf()
     
     # Upload to Cloudinary

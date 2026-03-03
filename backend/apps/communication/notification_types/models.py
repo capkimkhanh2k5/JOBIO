@@ -9,6 +9,11 @@ class NotificationType(models.Model):
         unique=True,
         verbose_name='Tên loại thông báo'
     )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name='Mô tả'
+    )
     template = models.TextField(
         null=True,
         blank=True,
@@ -21,6 +26,10 @@ class NotificationType(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Ngày tạo'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Ngày cập nhật'
     )
     
     class Meta:

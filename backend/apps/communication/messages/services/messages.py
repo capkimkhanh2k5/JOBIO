@@ -14,7 +14,8 @@ from asgiref.sync import async_to_sync
 
 from apps.communication.message_threads.models import MessageThread
 from apps.communication.message_participants.models import MessageParticipant
-from apps.communication.messages.services.mongo_service import MongoChatService
+from apps.communication.messages.models import Message
+from apps.communication.messages.services.message_service import MessageService
 from apps.core.users.models import CustomUser
 
 
@@ -148,16 +149,13 @@ def send_message(
     ).exists():
         raise ValueError("You are not a participant in this thread")
     
-    # Create message (MongoDB)
-    message_data = MongoChatService.save_message(
+    # Create message (PostgreSQL)
+    message = MessageService.save_message(
         thread_id=thread_id,
         sender_id=sender.id,
-        sender_name=sender.full_name,
-        sender_avatar=sender.avatar_url,
         content=data.content,
-        attachments=data.attachment_url
+        attachments=data.attachment_url,
     )
-    message = message_data # It's a dict
     
     # Update thread updated_at AND last_message metadata
     MessageThread.objects.filter(id=thread_id).update(
@@ -174,11 +172,11 @@ def send_message(
                 f'chat_{thread_id}',
                 {
                     'type': 'chat_message',
-                    'message_id': message['id'],
-                    'content': message['content'],
+                    'message_id': message.id,
+                    'content': message.content,
                     'sender_id': sender.id,
                     'sender_name': sender.full_name,
-                    'created_at': message['created_at'], # Already ISO format from MongoService
+                    'created_at': message.created_at.isoformat(),
                 }
             )
     except Exception:
@@ -192,10 +190,9 @@ def send_message(
             is_active=True
         ).exclude(user_id=sender.id).values_list('user_id', flat=True))
         
-        MongoChatService.increment_unread_counters(thread_id, recipient_ids)
-    except Exception as e:
+        MessageService.increment_unread_counters(thread_id, recipient_ids)
+    except Exception:
         # Don't fail the message send if counter update fails
-        # Log error here in real app
         pass
     
     return message
@@ -215,8 +212,7 @@ def delete_message(message_id: int, user_id: int) -> bool:
     Raises:
         ValueError: If message not found or user is not the sender
     """
-    # MongoDB Delete
-    return MongoChatService.delete_message(message_id, user_id)
+    return MessageService.delete_message(message_id, user_id)
 
 
 def mark_thread_as_read(thread_id: int, user_id: int) -> bool:
@@ -243,13 +239,8 @@ def mark_thread_as_read(thread_id: int, user_id: int) -> bool:
         raise ValueError("Thread not found or you are not a participant")
     
     participant.last_read_at = timezone.now()
-    participant.save(update_fields=['last_read_at'])
-    
-    # Reset Unread Counter in MongoDB
-    try:
-        MongoChatService.mark_read(user_id, thread_id)
-    except Exception:
-        pass
+    participant.unread_count = 0
+    participant.save(update_fields=['last_read_at', 'unread_count'])
     
     return True
 
@@ -307,16 +298,13 @@ def add_participant(
         user_id=user_id
     )
     
-    # Send system message
-    thread = MessageThread.objects.get(id=thread_id)
+    # Send system message (PostgreSQL)
     adder = CustomUser.objects.get(id=adder_id)
-    # Send system message (MongoDB)
-    MongoChatService.save_message(
+    MessageService.save_message(
         thread_id=thread_id,
         sender_id=adder_id,
-        sender_name=adder.full_name,
-        sender_avatar=adder.avatar_url,
-        content=f"{adder.full_name} added {user.full_name} to the conversation"
+        content=f"{adder.full_name} added {user.full_name} to the conversation",
+        is_system_message=True,
     )
     
     return participant
@@ -362,8 +350,7 @@ def remove_participant(
     participant.is_active = False
     participant.save(update_fields=['is_active'])
     
-    # Send system message
-    thread = MessageThread.objects.get(id=thread_id)
+    # Send system message (PostgreSQL)
     remover = CustomUser.objects.get(id=remover_id)
     removed_user = CustomUser.objects.get(id=user_id)
     
@@ -372,13 +359,11 @@ def remove_participant(
     else:
         content = f"{remover.full_name} removed {removed_user.full_name} from the conversation"
     
-    # Send system message (MongoDB)
-    MongoChatService.save_message(
+    MessageService.save_message(
         thread_id=thread_id,
         sender_id=remover_id,
-        sender_name=remover.full_name,
-        sender_avatar=remover.avatar_url,
-        content=content
+        content=content,
+        is_system_message=True,
     )
     
     return True

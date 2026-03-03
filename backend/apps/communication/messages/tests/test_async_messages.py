@@ -56,11 +56,15 @@ class ChatAsyncPersistenceTest(TransactionTestCase):
         self.assertEqual(response['content'], 'Hello Async World')
         self.assertIn('message_id', response)
         
-        # Verify Celery task was called
+        # Verify Celery task was called with simplified args (no sender_name/avatar)
         mock_task.assert_called_once()
         args, kwargs = mock_task.call_args
         self.assertEqual(kwargs['content'], 'Hello Async World')
         self.assertEqual(kwargs['thread_id'], str(self.thread.id))
         self.assertEqual(kwargs['sender_id'], self.user.id)
+        # Ensure old MongoDB-specific kwargs are NOT present
+        self.assertNotIn('sender_name', kwargs)
+        self.assertNotIn('sender_avatar', kwargs)
+        self.assertNotIn('message_id', kwargs)
 
 

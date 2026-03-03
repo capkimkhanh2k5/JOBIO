@@ -1,14 +1,13 @@
 import json
+import uuid
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.utils import timezone
 
-"""Lưu tin nhắn vào database."""
 from apps.communication.message_threads.models import MessageThread
 from apps.communication.message_participants.models import MessageParticipant
-from apps.communication.messages.services.mongo_service import MongoChatService
 from apps.communication.messages.tasks import persist_chat_message_task
-from bson import ObjectId
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -103,21 +102,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
             return
         
-        # Generate message ID immediately for fast UI feedback
-        message_id = str(ObjectId())
+        # Generate a temporary ID for fast UI feedback
+        temp_message_id = str(uuid.uuid4())
         created_at = timezone.now().isoformat()
         
-        # Update thread metadata in SQL (keep this fast)
+        # Update thread metadata
         await self.update_thread_metadata()
         
-        # Offload Storage to background worker
+        # Offload storage to background worker (PostgreSQL)
         persist_chat_message_task.delay(
             thread_id=self.thread_id,
             sender_id=self.user.id,
-            sender_name=self.user.full_name,
-            sender_avatar=getattr(self.user, 'avatar_url', None),
             content=content,
-            message_id=message_id
         )
         
         # Gửi tin nhắn đến tất cả users trong room ngay lập tức
@@ -125,7 +121,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message_id': message_id,
+                'message_id': temp_message_id,
                 'content': content,
                 'sender_id': self.user.id,
                 'sender_name': self.user.full_name,
@@ -226,4 +222,4 @@ class ChatConsumer(AsyncWebsocketConsumer):
         MessageParticipant.objects.filter(
             thread_id=self.thread_id,
             user_id=self.user.id
-        ).update(last_read_at=timezone.now())
+        ).update(last_read_at=timezone.now(), unread_count=0)
