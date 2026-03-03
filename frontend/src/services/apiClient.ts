@@ -1,6 +1,5 @@
 // ─── Real API services (backed by Axios → Django REST) ──────────────────────
-// Import individual service modules and re-export them for easy consumption.
-// The legacy `mockApi` is kept available during the migration transition.
+// Central barrel — import individual service modules and re-export for easy consumption.
 
 export { default as api } from './api';
 export { authService } from './authService';
@@ -14,10 +13,3 @@ export { alertService } from './alertService';
 export { taxonomyService } from './taxonomyService';
 export { employerService } from './employerService';
 export { dashboardService } from './dashboardService';
-
-// Legacy mock – pages not yet migrated can still use this
-import { mockApi } from './mockApi';
-export { mockApi };
-
-/** @deprecated Use individual service modules instead (authService, jobService, etc.) */
-export const apiClient = mockApi;

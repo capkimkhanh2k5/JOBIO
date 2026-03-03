@@ -5,7 +5,7 @@ import {
     Calendar, Clock, Video, Phone, MapPin,
     ExternalLink, Download, Star, MessageCircle, CalendarPlus
 } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -49,13 +49,13 @@ const TypeLabel = ({ type }: { type: string }) => {
 export default function CandidateInterviews() {
     const { data: upcomingInterviews, isLoading: upcomingLoading } = useQuery({
         queryKey: ['interviews', 'upcoming'],
-        queryFn: () => apiClient.getInterviews({ status: 'scheduled,confirmed' }),
+        queryFn: () => employerService.listInterviews({ status: 'scheduled,confirmed' }).then(r => r.data.results),
         staleTime: 60000,
     });
 
     const { data: pastInterviews, isLoading: pastLoading } = useQuery({
         queryKey: ['interviews', 'history'],
-        queryFn: () => apiClient.getInterviews({ status: 'completed,cancelled,no_show' }),
+        queryFn: () => employerService.listInterviews({ status: 'completed,cancelled,no_show' }).then(r => r.data.results),
         staleTime: 60000,
     });
 

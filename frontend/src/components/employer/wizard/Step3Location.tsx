@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Controller, type Control } from 'react-hook-form';
-import { mockApi } from '@/services/mockApi';
+import { companyService } from '@/services/companyService';
 import { LocationBuilder } from './LocationBuilder';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Building2, Globe, MapPin } from 'lucide-react';
@@ -21,7 +21,7 @@ interface Step3LocationProps {
 export function Step3Location({ control }: Step3LocationProps) {
     const { data: company, isLoading } = useQuery({
         queryKey: ['employer-company'],
-        queryFn: () => mockApi.getEmployerCompany(),
+        queryFn: () => companyService.getMyCompany().then(r => r.data),
         staleTime: 5 * 60_000,
     });
 

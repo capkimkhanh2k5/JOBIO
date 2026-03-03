@@ -53,3 +53,22 @@ class JobAlertViewSet(viewsets.ModelViewSet):
             
         serializer = JobAlertMatchSerializer(matches, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='matched-jobs/(?P<match_id>[0-9]+)/mark-viewed')
+    def mark_match_viewed(self, request, pk=None, match_id=None):
+        """POST /api/job-alerts/:id/matched-jobs/:matchId/mark-viewed/ - Đánh dấu đã xem"""
+        alert = self.get_object()
+        
+        try:
+            match = JobAlertMatch.objects.get(id=match_id, job_alert=alert)
+        except JobAlertMatch.DoesNotExist:
+            return Response(
+                {"detail": "Match not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        match.is_viewed = True
+        match.save(update_fields=['is_viewed'])
+        
+        serializer = JobAlertMatchSerializer(match)
+        return Response(serializer.data)

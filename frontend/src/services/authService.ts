@@ -15,15 +15,15 @@ import type {
 
 export const authService = {
   login(data: LoginRequest) {
-    return api.post<LoginResponse>('/api/users/login/', data);
+    return api.post<LoginResponse>('/api/users/auth/login/', data);
   },
 
   register(data: RegisterRequest) {
-    return api.post<LoginResponse>('/api/users/register/', data);
+    return api.post<LoginResponse>('/api/users/auth/register/', data);
   },
 
   logout() {
-    return api.post('/api/users/logout/');
+    return api.post('/api/users/auth/logout/');
   },
 
   refreshToken(refresh: string) {
@@ -33,17 +33,17 @@ export const authService = {
   // ─── Profile ─────────────────────────────────────────────────────────────
 
   getMe() {
-    return api.get<User>('/api/users/profile/');
+    return api.get<User>('/api/users/auth/me/');
   },
 
   updateProfile(data: Partial<User>) {
-    return api.patch<User>('/api/users/profile/', data);
+    return api.patch<User>('/api/users/me/', data);
   },
 
   uploadAvatar(file: File) {
     const formData = new FormData();
     formData.append('avatar', file);
-    return api.patch<User>('/api/users/profile/', formData, {
+    return api.post<User>('/api/users/me/avatar/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
@@ -51,48 +51,48 @@ export const authService = {
   // ─── Password ────────────────────────────────────────────────────────────
 
   changePassword(data: ChangePasswordRequest) {
-    return api.post('/api/users/change-password/', data);
+    return api.post('/api/users/auth/change-password/', data);
   },
 
   forgotPassword(data: ForgotPasswordRequest) {
-    return api.post('/api/users/forgot-password/', data);
+    return api.post('/api/users/auth/forgot-password/', data);
   },
 
   resetPassword(data: ResetPasswordRequest) {
-    return api.post('/api/users/reset-password/', data);
+    return api.post('/api/users/auth/reset-password/', data);
   },
 
   // ─── Email Verification ──────────────────────────────────────────────────
 
   verifyEmail(token: string) {
-    return api.post('/api/users/verify-email/', { token });
+    return api.post('/api/users/auth/verify-email/', { token });
   },
 
   resendVerification() {
-    return api.post('/api/users/resend-verification/');
+    return api.post('/api/users/auth/resend-verification/');
   },
 
   // ─── 2FA ─────────────────────────────────────────────────────────────────
 
   get2FAStatus() {
-    return api.get<TwoFactorStatus>('/api/users/2fa/status/');
+    return api.get<TwoFactorStatus>('/api/users/auth/2fa/status/');
   },
 
   enable2FA() {
-    return api.post<TwoFactorStatus>('/api/users/2fa/enable/');
+    return api.post<TwoFactorStatus>('/api/users/auth/2fa/enable/');
   },
 
   verify2FA(code: string) {
-    return api.post('/api/users/2fa/verify/', { code });
+    return api.post('/api/users/auth/verify-2fa/', { code });
   },
 
   disable2FA(code: string) {
-    return api.post('/api/users/2fa/disable/', { code });
+    return api.post('/api/users/auth/2fa/disable/', { code });
   },
 
   // ─── Social Auth ─────────────────────────────────────────────────────────
 
   socialAuth(data: SocialAuthRequest) {
-    return api.post<LoginResponse>('/api/users/social-auth/', data);
+    return api.post<LoginResponse>(`/api/users/auth/social/${data.provider}/`, data);
   },
 };

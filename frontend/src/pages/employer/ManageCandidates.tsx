@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCandidateStore } from '@/store/candidateStore';
-import { mockApi } from '@/services/mockApi';
+import { applicationService } from '@/services/applicationService';
 import { CandidateBoard } from '@/components/employer/candidates/CandidateBoard';
 import { CandidateTable } from '@/components/employer/candidates/CandidateTable';
 import { CandidatesFilterSidebar } from '@/components/employer/candidates/CandidatesFilterSidebar';
@@ -17,16 +17,15 @@ export default function ManageCandidates() {
     const loadCandidates = async () => {
         setIsLoading(true);
         try {
-            // Using generic getAllApplications but sending filters
-            const res = await mockApi.getAllApplications({
+            const res = await applicationService.list({
                 status: filters.statuses,
                 job_id: filters.jobId || undefined,
                 search: filters.searchQuery || undefined,
                 ai_score_min: filters.aiScoreRange[0],
                 ai_score_max: filters.aiScoreRange[1],
                 skills: filters.skills
-            });
-            setApplications(res.items);
+            } as any);
+            setApplications(res.data.results);
             clearBulkSelection();
         } catch (error) {
             toast.error("Không thể tải danh sách ứng viên");

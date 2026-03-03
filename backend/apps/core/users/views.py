@@ -15,7 +15,7 @@ from .models import CustomUser
 from .services.auth import (
     login_user, logout_user, register_user, forgot_password, reset_password, 
     verify_email, resend_verification, change_password, check_email,
-    social_login, verify_2fa,
+    social_login, verify_2fa, get_2fa_status, enable_2fa, disable_2fa,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
     ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
@@ -34,6 +34,7 @@ from .serializers import (
     ForgotPasswordSerializer, ResetPasswordSerializer, VerifyEmailSerializer, 
     ResendVerificationSerializer, ChangePasswordSerializer, CheckEmailSerializer,
     SocialAuthSerializer, Verify2FASerializer,
+    TwoFactorStatusSerializer, TwoFactorEnableSerializer, TwoFactorDisableSerializer,
     UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
     PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
     PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
@@ -415,6 +416,35 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 user_id=request.user.id,
                 code=serializer.validated_data['code']
             ))
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='auth/2fa/status')
+    def auth_2fa_status(self, request):
+        """GET /api/users/auth/2fa/status/ - Lấy trạng thái 2FA"""
+        result = get_2fa_status(request.user)
+        return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/2fa/enable')
+    def auth_2fa_enable(self, request):
+        """POST /api/users/auth/2fa/enable/ - Bật 2FA"""
+        try:
+            result = enable_2fa(request.user)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/2fa/disable')
+    def auth_2fa_disable(self, request):
+        """POST /api/users/auth/2fa/disable/ - Tắt 2FA"""
+        serializer = TwoFactorDisableSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = disable_2fa(request.user, serializer.validated_data['code'])
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         

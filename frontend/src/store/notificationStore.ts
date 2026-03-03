@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { mockApi } from '../services/mockApi';
+import { employerService } from '../services/employerService';
 
 export interface NotificationItem {
     id: string;
@@ -48,8 +48,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
 
         fetchUnreadCount: async () => {
             try {
-                const data = await mockApi.getNotificationsCount();
-                set({ unreadCount: data.unread_count });
+                const data = await employerService.listNotifications({ page_size: 1, is_read: false }).then(r => r.data);
+                set({ unreadCount: data.count });
             } catch (error) {
                 console.error("Failed to fetch unread count", error);
             }
@@ -58,7 +58,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
         fetchRecentNotifications: async () => {
             try {
                 set({ isLoading: true });
-                const data = await mockApi.getRecentNotifications();
+                const data = await employerService.listNotifications({ page_size: 10 }).then(r => r.data.results);
                 set({ notifications: data as NotificationItem[], isLoading: false });
             } catch (error) {
                 console.error("Failed to fetch recent notifications", error);
@@ -76,7 +76,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
                     unreadCount: Math.max(0, state.unreadCount - 1)
                 }));
 
-                await mockApi.markNotificationRead(id);
+                await employerService.markNotificationRead(Number(id));
             } catch (error) {
                 console.error("Failed to mark notification as read", error);
                 // Revert could be implemented here
@@ -89,7 +89,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
                     notifications: state.notifications.map((n) => ({ ...n, is_read: true })),
                     unreadCount: 0
                 }));
-                await mockApi.markAllNotificationsRead();
+                await employerService.markAllNotificationsRead();
             } catch (error) {
                 console.error("Failed to mark all as read", error);
             }

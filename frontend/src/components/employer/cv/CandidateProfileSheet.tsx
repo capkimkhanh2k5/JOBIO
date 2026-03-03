@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Briefcase, Mail, Phone, ExternalLink, MessageSquare, Send, Award, CheckCircle } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
 
 interface CandidateProfileSheetProps {
@@ -38,8 +38,8 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
         setLoading(true);
         try {
             const [profRes, recRes] = await Promise.all([
-                mockApi.getCandidatePublicProfile(id),
-                mockApi.getCandidateRecommendations(id)
+                candidateService.getById(Number(id)).then(r => r.data),
+                Promise.resolve([]),  // TODO: no recommendations endpoint
             ]);
             setProfile(profRes);
             setRecommendations(recRes);

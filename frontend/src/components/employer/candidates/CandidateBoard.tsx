@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCandidateStore } from '@/store/candidateStore';
-import { mockApi } from '@/services/mockApi';
+import { applicationService } from '@/services/applicationService';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -60,7 +60,7 @@ export function CandidateBoard({ applications, isLoading, onStatusChange }: {
         if (app && app.status !== newStatus) {
             try {
                 // Optimistic UI could be added here
-                await mockApi.updateApplicationStatus(draggedCandidateId, { status: newStatus });
+                await applicationService.updateStatus(Number(draggedCandidateId), newStatus);
                 toast.success(`Đã chuyển ứng viên sang trạng thái ${newStatus}`);
                 onStatusChange(); // re-fetch
             } catch (err) {

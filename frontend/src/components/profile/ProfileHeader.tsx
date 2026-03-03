@@ -7,7 +7,7 @@ import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 
 interface ProfileHeaderProps {
@@ -28,7 +28,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
 
     const avatarMutation = useMutation({
-        mutationFn: (file: File) => mockApi.uploadAvatar(profile?.id, file),
+        mutationFn: (file: File) => authService.uploadAvatar(file).then(r => r.data),
         onSuccess: (data) => {
             setLocalAvatarUrl(data.avatar_url);
             queryClient.invalidateQueries({ queryKey: ['profile'] });

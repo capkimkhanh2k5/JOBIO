@@ -14,7 +14,7 @@ import {
     Filter,
     Gift
 } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+// Referral APIs stubbed - no backend endpoint available yet
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,7 @@ export function ReferralList() {
 
     const { data: referrals, isLoading } = useQuery({
         queryKey: ['referrals'],
-        queryFn: apiClient.getReferrals,
+        queryFn: () => Promise.resolve([]),  // TODO: no referrals endpoint
     });
 
     const filteredReferrals = referrals?.filter((ref: any) => {

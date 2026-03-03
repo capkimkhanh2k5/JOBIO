@@ -6,7 +6,7 @@ import {
     FileText, CheckCircle2, XCircle, ArrowRight, ExternalLink, Activity, AlertCircle
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { applicationService } from '@/services/applicationService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,7 +50,6 @@ const statusColorMap: Record<string, string> = {
 };
 
 export default function MyApplications() {
-    const candidateId = "me";
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('Tất cả');
     const [searchQuery, setSearchQuery] = useState('');
@@ -59,15 +58,15 @@ export default function MyApplications() {
 
     // Fetch applications
     const { data: applications, isLoading } = useQuery({
-        queryKey: ['candidate', 'applications', candidateId],
-        queryFn: () => mockApi.getCandidateApplications(candidateId) // get all, filter client side for smooth UX
+        queryKey: ['candidate', 'applications'],
+        queryFn: () => applicationService.list().then(r => r.data.results),
     });
 
     // Withdraw mutation
     const withdrawMutation = useMutation({
-        mutationFn: (appId: string) => mockApi.withdrawApplication(appId),
+        mutationFn: (appId: string) => applicationService.withdraw(Number(appId)),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'applications', candidateId] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'applications'] });
             toast.success("Đã rút đơn ứng tuyển thành công.");
             setSelectedApp(null);
             setAppToWithdraw(null);

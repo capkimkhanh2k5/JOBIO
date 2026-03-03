@@ -11,7 +11,8 @@ import {
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useUserStore } from '@/store/userStore';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
+import { employerService } from '@/services/employerService';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
 
@@ -23,13 +24,13 @@ export function EmployerTopNav() {
     // Unread messages count
     const { data: msgCount } = useQuery({
         queryKey: ['employer', 'messages', 'unread'],
-        queryFn: mockApi.getUnreadMessagesCount,
+        queryFn: () => employerService.listThreads({ page_size: 1 }).then(r => r.data.count),
         staleTime: 30_000,
     });
 
     const handleLogout = async () => {
         try {
-            if (refreshToken) await mockApi.logout(refreshToken);
+            if (refreshToken) await authService.logout();
             clearAuth();
             toast.success('Đã đăng xuất. Hẹn gặp lại!');
             navigate('/auth');

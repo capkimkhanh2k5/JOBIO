@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Badge } from '@/components/ui/badge';
 import { X, Search, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,7 +40,7 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
 
     const { data: suggestions = [] } = useQuery({
         queryKey: ['job-skills-search', query],
-        queryFn: () => mockApi.searchJobSkills(query),
+        queryFn: () => taxonomyService.listSkills({ search: query }).then(r => r.data.results ?? r.data),
         staleTime: 30_000,
     });
 

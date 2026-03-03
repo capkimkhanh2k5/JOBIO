@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
@@ -17,6 +17,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
 import { PublicRoute } from '@/components/layout/RouteGuards';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
 // Employer area – own layout shell (no public Header/Footer)
 import { EmployerLayout } from '@/components/employer/EmployerLayout';
@@ -83,6 +85,8 @@ export default function App() {
 
     return (
         <BrowserRouter>
+            <ErrorBoundary>
+            <Suspense fallback={<SuspenseFallback />}>
             <Toaster position="top-center" />
             <Routes>
                 {/* ── Candidate area ── */}
@@ -143,6 +147,8 @@ export default function App() {
                     </div>
                 } />
             </Routes>
+            </Suspense>
+            </ErrorBoundary>
         </BrowserRouter>
     );
 }

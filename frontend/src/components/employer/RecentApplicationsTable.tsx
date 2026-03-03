@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockApi } from '@/services/mockApi';
+import { applicationService } from '@/services/applicationService';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { ChevronRight } from 'lucide-react';
@@ -30,7 +30,7 @@ function AiScoreBadge({ score }: { score: number }) {
 export function RecentApplicationsTable() {
     const { data, isLoading } = useQuery({
         queryKey: ['employer', 'applications', 'recent'],
-        queryFn: mockApi.getRecentApplications,
+        queryFn: () => applicationService.list({ ordering: '-applied_at', page_size: 10 }).then(r => r.data.results),
         staleTime: 60_000,
     });
 

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { mockApi } from '@/services/mockApi';
+import { jobService } from '@/services/jobService';
 import { WizardProgress } from '@/components/employer/wizard/WizardProgress';
 import { Step1BasicInfo } from '@/components/employer/wizard/Step1BasicInfo';
 import { Step2Description } from '@/components/employer/wizard/Step2Description';
@@ -127,9 +127,9 @@ export default function PostJob() {
     const autoSaveMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
             if (draftId) {
-                return mockApi.updateJob(draftId, { ...data, status: 'draft' });
+                return jobService.update(Number(draftId), { ...data, status: 'draft' } as any).then(r => r.data);
             }
-            const res = await mockApi.createJob({ ...data, status: 'draft' });
+            const res = await jobService.create({ ...data, status: 'draft' } as any).then(r => r.data);
             return res;
         },
         onSuccess: (res: any) => {
@@ -154,8 +154,8 @@ export default function PostJob() {
     // ── Submit mutations ───────────────────────────────────────────────────────
     const saveDraftMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
-            if (draftId) return mockApi.updateJob(draftId, { ...data, status: 'draft' });
-            return mockApi.createJob({ ...data, status: 'draft' });
+            if (draftId) return jobService.update(Number(draftId), { ...data, status: 'draft' } as any).then(r => r.data);
+            return jobService.create({ ...data, status: 'draft' } as any).then(r => r.data);
         },
         onSuccess: (res: any) => {
             if (!draftId && res?.id) setDraftId(res.id);
@@ -165,8 +165,8 @@ export default function PostJob() {
 
     const publishMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
-            if (draftId) return mockApi.updateJob(draftId, { ...data, status: 'pending' });
-            return mockApi.createJob({ ...data, status: 'pending' });
+            if (draftId) return jobService.update(Number(draftId), { ...data, status: 'pending' } as any).then(r => r.data);
+            return jobService.create({ ...data, status: 'pending' } as any).then(r => r.data);
         },
         onSuccess: () => {
             toast.success('Tin tuyển dụng đã được gửi duyệt!', {

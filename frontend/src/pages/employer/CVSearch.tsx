@@ -4,7 +4,7 @@ import { Download, UserPlus, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { useFilterStore } from '@/store/filterStore';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,7 +19,7 @@ export default function EmployerCVSearch() {
 
     const { data, isLoading, isFetching } = useQuery({
         queryKey: ['employer', 'cvSearch', filters, 1],
-        queryFn: () => mockApi.searchCandidates({ ...filters, page: 1, limit: 12 }),
+        queryFn: () => candidateService.list({ ...filters, page: 1, page_size: 12 }).then(r => r.data),
         placeholderData: (prev) => prev, // keepPreviousData approach
     });
 

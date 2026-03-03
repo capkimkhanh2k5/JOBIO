@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useCandidateStore } from '@/store/candidateStore';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
+import { applicationService } from '@/services/applicationService';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -34,15 +35,14 @@ export function CandidateDetailSheet() {
             if (!selectedCandidateId) return;
             setIsLoading(true);
             try {
-                // In a real app we would call GET applications/:id, but for now we'll mock it 
-                // by getting candidate profile using a generic ID
+                const candidateNumId = Number(selectedCandidateId);
                 const [prof, edu, exp, skls, hist, tests] = await Promise.all([
-                    mockApi.getProfile("mock-user"),
-                    mockApi.getEducation("mock-user"),
-                    mockApi.getExperience("mock-user"),
-                    mockApi.getSkills("mock-user"),
-                    mockApi.getApplicationStatusHistory(selectedCandidateId),
-                    mockApi.getApplicationTestResults(selectedCandidateId)
+                    candidateService.getById(candidateNumId).then(r => r.data),
+                    candidateService.listEducation(candidateNumId).then(r => r.data),
+                    candidateService.listExperience(candidateNumId).then(r => r.data),
+                    candidateService.listSkills(candidateNumId).then(r => r.data),
+                    applicationService.getStatusHistory(candidateNumId).then(r => r.data),
+                    Promise.resolve([]),  // TODO: no test-results endpoint
                 ]);
                 if (!isMtd) return;
                 setDetails(prof);
@@ -66,7 +66,7 @@ export function CandidateDetailSheet() {
         if (!selectedCandidateId) return;
         setUpdatingStatus(true);
         try {
-            await mockApi.updateApplicationStatus(selectedCandidateId, { status: newStatus });
+            await applicationService.updateStatus(Number(selectedCandidateId), newStatus);
             toast.success("Đã cập nhật trạng thái");
             // Add to history locally 
             setHistory([{

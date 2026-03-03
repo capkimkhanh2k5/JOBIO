@@ -6,7 +6,13 @@ import {
     ChevronRight, ExternalLink, MapPin, Building2, Timer, FileText, ArrowUpRight, Bookmark
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
+import { applicationService } from '@/services/applicationService';
+import { savedJobService } from '@/services/savedJobService';
+import { employerService } from '@/services/employerService';
+import { dashboardService } from '@/services/dashboardService';
+import { jobService } from '@/services/jobService';
+import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,37 +21,39 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CandidateDashboard() {
     const navigate = useNavigate();
-    const candidateId = "me";
+    const { user } = useUserStore();
+    const recruiterId = user?.id;
 
     // Data fetching
     const { data: profileCompleteness, isLoading: loadingCompleteness } = useQuery({
         queryKey: ['candidate', 'profile-completeness'],
-        queryFn: () => mockApi.getProfileCompleteness(candidateId)
+        queryFn: () => candidateService.getMyProfile().then(r => r.data),
+        enabled: !!recruiterId,
     });
 
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
-        queryFn: () => mockApi.getCandidateStats(candidateId)
+        queryFn: () => dashboardService.getAdminStats().then(r => r.data),
     });
 
     const { data: matchingJobs, isLoading: loadingMatching } = useQuery({
         queryKey: ['candidate', 'matching-jobs'],
-        queryFn: () => mockApi.getCandidateMatchingJobs(candidateId)
+        queryFn: () => jobService.featured({ page_size: 5 }).then(r => r.data.results),
     });
 
     const { data: applications, isLoading: loadingApps } = useQuery({
         queryKey: ['candidate', 'applications', 'recent'],
-        queryFn: () => mockApi.getCandidateApplications(candidateId)
+        queryFn: () => applicationService.list({ ordering: '-applied_at', page_size: 5 }).then(r => r.data.results),
     });
 
     const { data: savedJobs, isLoading: loadingSaved } = useQuery({
         queryKey: ['candidate', 'saved-jobs', 'preview'],
-        queryFn: () => mockApi.getCandidateSavedJobs(candidateId)
+        queryFn: () => savedJobService.list({ page_size: 5 }).then(r => r.data.results),
     });
 
     const { data: interviews, isLoading: loadingInterviews } = useQuery({
         queryKey: ['candidate', 'interviews', 'upcoming'],
-        queryFn: mockApi.getUpcomingInterviews
+        queryFn: () => employerService.listInterviews({ status: 'scheduled', page_size: 3 }).then(r => r.data.results),
     });
 
     const containerVariants: Variants = {

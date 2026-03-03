@@ -3,6 +3,7 @@ import type { SavedJob, SavedJobUpdateRequest } from '@/types/api';
 
 // ─── Saved Jobs ──────────────────────────────────────────────────────────────
 
+
 export const savedJobService = {
   list(params?: { folder_name?: string; page?: number; page_size?: number }) {
     return api.get<{ count: number; next: string | null; previous: string | null; results: SavedJob[] }>(

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, CheckCircle2, Save, Clock, ChevronDown, Wand2, Plus } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+// CV template APIs stubbed - no backend endpoint yet
 import { AutoSaveStatus, CVItem } from '@/pages/candidate/CVManager';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -169,19 +169,19 @@ export function CVBuilder({ cvName, selectedTemplateId, cvData, autoSaveStatus, 
 
     const { data: templates = [], isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates'],
-        queryFn: mockApi.getCVTemplates,
+        queryFn: () => Promise.resolve([]),  // TODO: no CV templates endpoint
         staleTime: 120_000,
     });
 
     const { data: categories = [] } = useQuery({
         queryKey: ['cv-template-categories'],
-        queryFn: mockApi.getCVTemplateCategories,
+        queryFn: () => Promise.resolve([]),  // TODO: no CV template categories endpoint
         staleTime: 120_000,
     });
 
     const { data: popularIds = [] } = useQuery({
         queryKey: ['cv-templates', 'popular'],
-        queryFn: mockApi.getPopularCVTemplates,
+        queryFn: () => Promise.resolve([]),  // TODO: no popular CV templates endpoint
         staleTime: 120_000,
     });
 

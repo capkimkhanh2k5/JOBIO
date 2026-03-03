@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Controller, type Control, type FieldErrors } from 'react-hook-form';
-import { mockApi } from '@/services/mockApi';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { cn } from '@/lib/utils';
@@ -97,7 +97,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
     // Flatten categories for select
     const { data: categories = [], isLoading: catLoading } = useQuery({
         queryKey: ['job-categories'],
-        queryFn: () => mockApi.getJobCategories(),
+        queryFn: () => taxonomyService.listJobCategories().then(r => r.data),
         staleTime: 5 * 60_000,
     });
 

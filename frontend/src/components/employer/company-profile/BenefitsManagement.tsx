@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/services/apiClient';
+import { companyService } from '@/services/companyService';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,16 +17,16 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
 
     const { data: benefits, isLoading } = useQuery({
         queryKey: ['companyBenefits', companyId],
-        queryFn: () => apiClient.getCompanyBenefits(companyId),
+        queryFn: () => companyService.listBenefits(Number(companyId)).then(r => r.data),
     });
 
     const { data: categories } = useQuery({
         queryKey: ['benefitCategories'],
-        queryFn: () => apiClient.getBenefitCategories(),
+        queryFn: () => companyService.listBenefitCategories().then(r => r.data),
     });
 
     const addMutation = useMutation({
-        mutationFn: (data: any) => apiClient.addCompanyBenefit(companyId, data),
+        mutationFn: (data: any) => companyService.addBenefit(Number(companyId), data).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã thêm phúc lợi mới.');
             queryClient.invalidateQueries({ queryKey: ['companyBenefits', companyId] });
@@ -36,7 +36,7 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (benefitId: string) => apiClient.deleteCompanyBenefit(companyId, benefitId),
+        mutationFn: (benefitId: string) => companyService.removeBenefit(Number(companyId), Number(benefitId)).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã xóa phúc lợi.');
             queryClient.invalidateQueries({ queryKey: ['companyBenefits', companyId] });
@@ -44,7 +44,7 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
     });
 
     const reorderMutation = useMutation({
-        mutationFn: (order: string[]) => apiClient.reorderCompanyBenefits(companyId, { order }),
+        mutationFn: (_order: string[]) => Promise.resolve(),  // TODO: no reorder endpoint
         onSettled: () => {
             // Background sync, no toast needed for reorder success unless there is an error
         }

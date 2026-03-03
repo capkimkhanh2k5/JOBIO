@@ -5,7 +5,7 @@ import { X, FileText, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { mockApi } from '@/services/mockApi';
+// CV creation stubbed - no backend endpoint yet
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +40,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
 
     const createMutation = useMutation({
         mutationFn: (data: FormValues) =>
-            mockApi.createCV('me', { cv_name: data.cv_name, template_id: selectedTemplate, template_name: STARTER_TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? '', cv_data: {} }),
+            Promise.resolve({ id: crypto.randomUUID(), cv_name: data.cv_name, template_id: selectedTemplate, template_name: STARTER_TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? '', cv_data: {} }),  // TODO: no CV endpoint
         onSuccess: (newCV) => onCreated(newCV),
     });
 

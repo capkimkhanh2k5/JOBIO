@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/services/apiClient';
+import { companyService } from '@/services/companyService';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Building2, Heart, Image as ImageIcon, Loader2, Info } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -14,12 +15,12 @@ export default function CompanyProfile() {
     // Usually it's tied to current user session, so we fetch their associated company.
     const { data: company, isLoading, isError } = useQuery({
         queryKey: ['employerCompany'],
-        queryFn: () => apiClient.getEmployerCompany(),
+        queryFn: () => companyService.getMyCompany().then(r => r.data),
     });
 
     const { data: industries } = useQuery({
         queryKey: ['industries'],
-        queryFn: () => apiClient.getIndustries(),
+        queryFn: () => taxonomyService.listIndustries().then(r => r.data),
     });
 
     if (isLoading) {

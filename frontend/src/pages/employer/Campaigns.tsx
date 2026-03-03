@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { CampaignList } from '@/components/employer/campaigns/CampaignList';
 import { CreateCampaignModal } from '@/components/employer/campaigns/CreateCampaignModal';
 import { CampaignDetailSheet } from '@/components/employer/campaigns/CampaignDetailSheet';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
 
 export default function EmployerCampaigns() {
     const queryClient = useQueryClient();
@@ -28,10 +28,10 @@ export default function EmployerCampaigns() {
     // Queries
     const { data: campaignsData, isLoading } = useQuery({
         queryKey: ['campaigns', activeTab, searchQuery],
-        queryFn: () => apiClient.getCampaigns({ status: activeTab !== 'all' ? activeTab : undefined, search: searchQuery }),
+        queryFn: () => employerService.listCampaigns({ status: activeTab !== 'all' ? activeTab : undefined, search: searchQuery }).then(r => r.data),
     });
 
-    const campaigns = campaignsData?.items || [];
+    const campaigns = campaignsData?.results || [];
 
     // Filter local if mock endpoint doesn't handle all filters yet
     const filteredCampaigns = (campaigns as any[]).filter(c => {
@@ -42,7 +42,7 @@ export default function EmployerCampaigns() {
 
     // Mutations
     const createMutation = useMutation({
-        mutationFn: apiClient.createCampaign,
+        mutationFn: (data: any) => employerService.createCampaign(data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['campaigns'] });
             toast.success('Đã tạo chiến dịch thành công');
@@ -50,7 +50,7 @@ export default function EmployerCampaigns() {
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: string, data: any }) => apiClient.updateCampaign(id, data),
+        mutationFn: ({ id, data }: { id: string, data: any }) => employerService.updateCampaign(Number(id), data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['campaigns'] });
             toast.success('Cập nhật chiến dịch thành công');
@@ -59,7 +59,7 @@ export default function EmployerCampaigns() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: apiClient.deleteCampaign,
+        mutationFn: (id: string) => employerService.deleteCampaign(Number(id)),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['campaigns'] });
             toast.success('Đã xóa chiến dịch');

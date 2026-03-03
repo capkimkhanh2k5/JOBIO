@@ -19,6 +19,10 @@ weasyprint>=60.0
 django-cloudinary-storage>=0.3.0
 cloudinary>=1.36.0
 
+# Task Queue
+celery>=5.3.0
+celery[redis]>=5.3.0
+
 # Real-time (WebSocket + SSE)
 channels>=4.0.0
 channels-redis>=4.2.0

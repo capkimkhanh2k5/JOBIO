@@ -3,7 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { CalendarIcon, Clock, Link as LinkIcon, MapPin, Loader2 } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
+import { applicationService } from '@/services/applicationService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,13 +49,13 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
 
     const { data: candidates, isLoading: isLoadingCandidates } = useQuery({
         queryKey: ['interviewCandidates'],
-        queryFn: () => apiClient.getInterviewCandidates(),
+        queryFn: () => applicationService.list({ page_size: 100 }).then(r => r.data.results),
         enabled: open
     });
 
     const { data: types, isLoading: isLoadingTypes } = useQuery({
         queryKey: ['interviewTypes'],
-        queryFn: () => apiClient.getInterviewTypes(),
+        queryFn: () => employerService.listInterviewTypes().then(r => r.data),
         enabled: open
     });
 
@@ -75,7 +76,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
     const watchType = form.watch('type');
 
     const mutation = useMutation({
-        mutationFn: (data: any) => apiClient.createInterview(data),
+        mutationFn: (data: any) => employerService.createInterview(data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employerInterviews'] });
             toast.success('Đã tạo lịch phỏng vấn thành công!');

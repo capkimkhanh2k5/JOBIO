@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { employerService } from '@/services/employerService';
 import { useNotificationStore, NotificationItem } from '@/store/notificationStore';
 import {
     Bell, CheckCheck, Trash2, Settings, Loader2,
@@ -42,14 +42,14 @@ export default function NotificationsPage() {
     // Data fetching for page
     const { data: notifications, isLoading, refetch } = useQuery({
         queryKey: ['notifications', 'page', tab],
-        queryFn: () => mockApi.getAllNotifications(tab as any),
+        queryFn: () => employerService.listNotifications({ is_read: tab === 'unread' ? false : undefined }).then(r => r.data.results),
         staleTime: 30000,
     });
 
     // Settings
     const { data: settings, isLoading: settingsLoading } = useQuery({
         queryKey: ['notificationSettings'],
-        queryFn: mockApi.getNotificationSettings
+        queryFn: () => employerService.getNotificationSettings().then(r => r.data)
     });
 
     const [localSettings, setLocalSettings] = useState<any>(null);
@@ -63,17 +63,17 @@ export default function NotificationsPage() {
     const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await markReadGlobal(id);
-        mockApi.markNotificationRead(id).then(() => refetch());
+        employerService.markNotificationRead(Number(id)).then(() => refetch());
     };
 
     const handleMarkAllAsRead = async () => {
         await markAllReadGlobal();
-        mockApi.markAllNotificationsRead().then(() => refetch());
+        employerService.markAllNotificationsRead().then(() => refetch());
     };
 
     const handleClearAll = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tất cả thông báo?")) {
-            await mockApi.clearAllNotifications();
+            await Promise.resolve();  // TODO: no clearAll endpoint
             refetch();
         }
     };
@@ -81,7 +81,7 @@ export default function NotificationsPage() {
     const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (window.confirm("Xóa thông báo này?")) {
-            await mockApi.deleteNotification(id);
+            await Promise.resolve();  // TODO: no delete single notification endpoint
             refetch();
         }
     }
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
     const handleSettingChange = (key: string, checked: boolean) => {
         const newSettings = { ...localSettings, [key]: checked };
         setLocalSettings(newSettings);
-        mockApi.updateNotificationSettings(newSettings);
+        employerService.updateNotificationSettings(newSettings);
     };
 
     return (

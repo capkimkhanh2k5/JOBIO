@@ -3,7 +3,7 @@ import { Reorder, motion, AnimatePresence } from 'framer-motion';
 import { Plus, GripVertical, Trash2, Calendar, MapPin, Briefcase, Pencil, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { SectionWrapper } from './SectionWrapper';
 import { formatDate } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -69,7 +69,7 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
 
     const mutation = useMutation({
         mutationFn: (data: typeof formData) =>
-            isEdit ? mockApi.updateExperience(userId, entry!.id, data) : mockApi.addExperience(userId, data),
+            isEdit ? candidateService.updateExperience(Number(userId), Number(entry!.id), data).then(r => r.data) : candidateService.addExperience(Number(userId), data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['experience', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -178,7 +178,7 @@ export const ExperienceSection = ({ userId }: { userId: string }) => {
 
     const { data: experiences = [], isLoading } = useQuery({
         queryKey: ['experience', userId],
-        queryFn: () => mockApi.getExperience(userId),
+        queryFn: () => candidateService.listExperience(Number(userId)).then(r => r.data),
     });
 
     const [items, setItems] = useState<ExperienceEntry[]>(experiences as ExperienceEntry[]);
@@ -188,7 +188,7 @@ export const ExperienceSection = ({ userId }: { userId: string }) => {
     }, [experiences]);
 
     const deleteMutation = useMutation({
-        mutationFn: (entryId: string) => mockApi.deleteExperience(userId, entryId),
+        mutationFn: (entryId: string) => candidateService.deleteExperience(Number(userId), Number(entryId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['experience', userId] });
             toast.success('Đã xoá mục kinh nghiệm.');
@@ -196,7 +196,7 @@ export const ExperienceSection = ({ userId }: { userId: string }) => {
     });
 
     const reorderMutation = useMutation({
-        mutationFn: (newOrder: ExperienceEntry[]) => mockApi.reorderExperience(userId, newOrder.map(e => e.id)),
+        mutationFn: (_newOrder: ExperienceEntry[]) => Promise.resolve(),
     });
 
     const handleReorder = (newOrder: ExperienceEntry[]) => {

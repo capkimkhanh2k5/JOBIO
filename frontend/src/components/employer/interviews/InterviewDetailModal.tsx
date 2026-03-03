@@ -6,7 +6,7 @@ import {
     CalendarIcon, Link as LinkIcon, MapPin, Video, Phone,
     User, Briefcase, FileText, CheckCircle, Loader2, Star
 } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -41,12 +41,12 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
 
     const { data: interview, isLoading } = useQuery({
         queryKey: ['interview', interviewId],
-        queryFn: () => apiClient.getInterviewById(interviewId as string),
+        queryFn: () => employerService.getInterview(Number(interviewId)).then(r => r.data),
         enabled: open && !!interviewId,
     });
 
     const statusMutation = useMutation({
-        mutationFn: (newStatus: string) => apiClient.updateInterview(interviewId as string, { status: newStatus }),
+        mutationFn: (newStatus: string) => employerService.updateInterview(Number(interviewId), { status: newStatus }).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employerInterviews'] });
             queryClient.invalidateQueries({ queryKey: ['interview', interviewId] });
@@ -58,7 +58,7 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
     });
 
     const submitFeedbackMutation = useMutation({
-        mutationFn: () => apiClient.updateInterview(interviewId as string, { feedback, rating }),
+        mutationFn: () => employerService.updateInterview(Number(interviewId), { feedback, notes: feedback }).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['interview', interviewId] });
             toast.success('Đã lưu đánh giá phỏng vấn');

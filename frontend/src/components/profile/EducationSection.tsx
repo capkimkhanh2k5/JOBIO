@@ -3,7 +3,7 @@ import { Reorder, motion, AnimatePresence } from 'framer-motion';
 import { Plus, GripVertical, Trash2, Calendar, GraduationCap, Pencil, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { SectionWrapper } from './SectionWrapper';
 import { formatDate } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -70,8 +70,8 @@ const EducationForm = ({ open, onClose, entry, userId }: EducationFormProps) => 
     const mutation = useMutation({
         mutationFn: (data: typeof formData) =>
             isEdit
-                ? mockApi.updateEducation(userId, entry!.id, data)
-                : mockApi.addEducation(userId, data),
+                ? candidateService.updateEducation(Number(userId), Number(entry!.id), data).then(r => r.data)
+                : candidateService.addEducation(Number(userId), data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['education', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -175,7 +175,7 @@ export const EducationSection = ({ userId }: { userId: string }) => {
 
     const { data: educations = [], isLoading } = useQuery({
         queryKey: ['education', userId],
-        queryFn: () => mockApi.getEducation(userId),
+        queryFn: () => candidateService.listEducation(Number(userId)).then(r => r.data),
     });
 
     const [items, setItems] = useState<EducationEntry[]>(educations as EducationEntry[]);
@@ -185,7 +185,7 @@ export const EducationSection = ({ userId }: { userId: string }) => {
     }, [educations]);
 
     const deleteMutation = useMutation({
-        mutationFn: (entryId: string) => mockApi.deleteEducation(userId, entryId),
+        mutationFn: (entryId: string) => candidateService.deleteEducation(Number(userId), Number(entryId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['education', userId] });
             toast.success('Đã xoá mục học vấn.');
@@ -193,7 +193,7 @@ export const EducationSection = ({ userId }: { userId: string }) => {
     });
 
     const reorderMutation = useMutation({
-        mutationFn: (newOrder: EducationEntry[]) => mockApi.reorderEducation(userId, newOrder.map(e => e.id)),
+        mutationFn: (_newOrder: EducationEntry[]) => Promise.resolve(),
     });
 
     const handleReorder = (newOrder: EducationEntry[]) => {

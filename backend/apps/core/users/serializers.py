@@ -104,6 +104,18 @@ class SocialAuthSerializer(serializers.Serializer):
 class Verify2FASerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
 
+class TwoFactorStatusSerializer(serializers.Serializer):
+    is_enabled = serializers.BooleanField()
+    has_secret = serializers.BooleanField(required=False)
+
+class TwoFactorEnableSerializer(serializers.Serializer):
+    is_enabled = serializers.BooleanField()
+    secret = serializers.CharField(required=False)
+    provisioning_uri = serializers.CharField(required=False)
+
+class TwoFactorDisableSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6, min_length=6)
+
 class UserUpdateSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=255, required=False)
     phone = serializers.CharField(max_length=20, required=False)

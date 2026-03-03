@@ -8,7 +8,7 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
 import { Linkedin, Github, Globe, Facebook, Banknote, CalendarDays, Link2 } from 'lucide-react';
 import { Separator } from '../ui/separator';
@@ -84,7 +84,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
     });
 
     const mutation = useMutation({
-        mutationFn: (data: PersonalFormValues) => mockApi.updateProfile(profile?.id ?? 'mock-user-id', data),
+        mutationFn: (data: PersonalFormValues) => candidateService.update(Number(profile?.id ?? 0), data as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });

@@ -43,19 +43,19 @@ export const applicationService = {
   // ─── Status management ────────────────────────────────────────────────
 
   updateStatus(id: number, status: string, notes?: string) {
-    return api.post(`/api/applications/${id}/update-status/`, { status, notes });
+    return api.patch(`/api/applications/${id}/status/`, { status, notes });
   },
 
   getStatusHistory(applicationId: number) {
     return api.get<ApplicationStatusHistoryItem[]>(
-      `/api/applications/${applicationId}/status-history/`,
+      `/api/applications/${applicationId}/history/`,
     );
   },
 
   // ─── Bulk actions ─────────────────────────────────────────────────────
 
   bulkUpdateStatus(ids: number[], status: string) {
-    return api.post('/api/applications/bulk-update-status/', { ids, status });
+    return api.post('/api/applications/bulk-action/', { ids, status });
   },
 
   // ─── Actions ──────────────────────────────────────────────────────────
@@ -65,6 +65,6 @@ export const applicationService = {
   },
 
   rate(id: number, rating: number) {
-    return api.post(`/api/applications/${id}/rate/`, { rating });
+    return api.patch(`/api/applications/${id}/rating/`, { rating });
   },
 };

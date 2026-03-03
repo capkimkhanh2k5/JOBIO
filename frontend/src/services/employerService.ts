@@ -22,7 +22,7 @@ export const employerService = {
   // ─── Dashboard Stats ──────────────────────────────────────────────────
 
   getStats() {
-    return api.get<CompanyStats>('/api/dashboard/company/');
+    return api.get<CompanyStats>('/api/dashboard/stats/company/');
   },
 
   // ─── My Company Jobs ─────────────────────────────────────────────────
@@ -109,11 +109,11 @@ export const employerService = {
   },
 
   markNotificationRead(id: number) {
-    return api.post(`/api/notifications/${id}/mark-read/`);
+    return api.patch(`/api/notifications/${id}/read/`);
   },
 
   markAllNotificationsRead() {
-    return api.post('/api/notifications/mark-all-read/');
+    return api.patch('/api/notifications/read-all/');
   },
 
   getNotificationSettings() {
