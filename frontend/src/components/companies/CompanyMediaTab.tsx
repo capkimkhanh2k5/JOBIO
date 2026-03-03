@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import { companyService } from '@/services/companyService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Play, Image, X } from 'lucide-react';
@@ -72,7 +72,7 @@ export function CompanyMediaTab({ companyId }: Props) {
 
     const { data: media, isLoading } = useQuery({
         queryKey: ['company-media', companyId],
-        queryFn: () => mockApi.getCompanyMedia(companyId) as Promise<MediaItem[]>,
+        queryFn: () => companyService.listMedia(Number(companyId)).then(r => r.data) as Promise<MediaItem[]>,
         staleTime: 1000 * 60 * 5,
     });
 

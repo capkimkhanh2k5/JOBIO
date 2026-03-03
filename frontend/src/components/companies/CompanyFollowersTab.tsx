@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import { companyService } from '@/services/companyService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, UserCircle } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface Props {
 export function CompanyFollowersTab({ companyId }: Props) {
     const { data: followers, isLoading } = useQuery({
         queryKey: ['company-followers', companyId],
-        queryFn: () => mockApi.getCompanyFollowers(companyId),
+        queryFn: () => companyService.listFollowers(Number(companyId)).then(r => r.data),
         staleTime: 1000 * 60 * 5,
     });
 

@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Search, MapPin, Briefcase, Building, Users, Laptop, Megaphone, PenTool, PieChart, Stethoscope, GraduationCap, Monitor, Landmark, Home as HomeIcon, Factory, ShoppingBag, Headphones, ArrowRight, Zap, DollarSign } from "lucide-react";
-import { apiClient } from "../services/apiClient";
+import { taxonomyService } from "../services/taxonomyService";
+import { jobService } from "../services/jobService";
+import { companyService } from "../services/companyService";
+import { dashboardService } from "../services/dashboardService";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
 import { Badge } from "../components/ui/badge";
@@ -50,7 +53,7 @@ export default function Home() {
 const HeroSection = () => {
     const { data: provinces } = useQuery({
         queryKey: ['provinces'],
-        queryFn: apiClient.getProvinces,
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
     });
 
     return (
@@ -94,7 +97,7 @@ const HeroSection = () => {
                             <MapPin className="w-6 h-6 text-muted-foreground mr-4 group-focus-within:text-primary transition-colors" />
                             <select className="w-full bg-transparent border-none outline-none appearance-none text-foreground text-xl font-medium cursor-pointer">
                                 <option value="">Global Locations</option>
-                                {provinces?.map((p: string) => <option key={p} value={p}>{p}</option>)}
+                                {provinces?.map((p: any) => <option key={p.id} value={p.province_name}>{p.province_name}</option>)}
                             </select>
                         </div>
                         <Button size="lg" className="lg:w-64 h-full py-6 rounded-[28px] bg-primary hover:bg-primary/90 text-white font-black text-xl shadow-xl shadow-primary/30 magnetic-button">
@@ -122,7 +125,7 @@ const HeroSection = () => {
 
 const StatsSection = () => {
     const { data: stats, isLoading } = useQuery({
-        queryKey: ['stats'], queryFn: apiClient.getStats
+        queryKey: ['stats'], queryFn: () => dashboardService.getAdminStats().then(r => r.data)
     });
 
     const [counters, setCounters] = useState({ jobs: 0, companies: 0, users: 0 });
@@ -180,7 +183,7 @@ const StatsSection = () => {
 
 const FeaturedJobsSection = () => {
     const { data: jobs, isLoading } = useQuery({
-        queryKey: ['featuredJobs'], queryFn: apiClient.getFeaturedJobs
+        queryKey: ['featuredJobs'], queryFn: () => jobService.featured().then(r => r.data.results)
     });
 
     return (
@@ -283,7 +286,7 @@ const JobCard = ({ job }: { job: any }) => {
 
 const FeaturedCompaniesSection = () => {
     const { data: companies, isLoading } = useQuery({
-        queryKey: ['featuredCompanies'], queryFn: apiClient.getFeaturedCompanies
+        queryKey: ['featuredCompanies'], queryFn: () => companyService.featured().then(r => r.data.results)
     });
 
     return (
@@ -318,7 +321,7 @@ const FeaturedCompaniesSection = () => {
                             <div className="relative z-10 space-y-3 transition-transform duration-300 group-hover:-translate-y-2">
                                 <div>
                                     <div className="font-black text-2xl mb-1 group-hover:text-primary transition-colors tracking-tighter">{company.company_name}</div>
-                                    <div className="text-xs font-black text-primary/80 bg-primary/10 px-4 py-1.5 rounded-full uppercase tracking-widest">{company.industry_name}</div>
+                                    <div className="text-xs font-black text-primary/80 bg-primary/10 px-4 py-1.5 rounded-full uppercase tracking-widest">{company.industry?.name}</div>
                                 </div>
                                 <div className="text-[15px] font-bold text-muted-foreground/70">
                                     <span className="text-primary text-xl">{company.job_count}</span> Open Roles
@@ -340,7 +343,7 @@ const FeaturedCompaniesSection = () => {
 
 const JobCategoriesSection = () => {
     const { data: categories, isLoading } = useQuery({
-        queryKey: ['categories'], queryFn: apiClient.getCategories
+        queryKey: ['categories'], queryFn: () => taxonomyService.listJobCategories().then(r => r.data)
     });
 
     const getIcon = (name: string) => {
@@ -359,7 +362,7 @@ const JobCategoriesSection = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10">
                 {isLoading
                     ? Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-56 rounded-[56px] glass-effect" />)
-                    : categories?.map((cat) => (
+                    : categories?.map((cat: any) => (
                         <motion.div
                             key={cat.id}
                             whileHover={{ y: -10, scale: 1.02 }}
@@ -382,7 +385,7 @@ const JobCategoriesSection = () => {
 
 const IndustriesSection = () => {
     const { data: industries, isLoading } = useQuery({
-        queryKey: ['industries'], queryFn: apiClient.getIndustries
+        queryKey: ['industries'], queryFn: () => taxonomyService.listIndustries().then(r => r.data)
     });
 
     const getIcon = (name: string) => {
@@ -404,7 +407,7 @@ const IndustriesSection = () => {
                     <div className="xl:w-2/3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
                         {isLoading
                             ? Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-32 rounded-3xl glass-effect" />)
-                            : industries?.map((ind, i) => (
+                            : industries?.map((ind: any, i) => (
                                 <motion.div
                                     key={ind.id}
                                     whileHover={{ x: 5, scale: 1.01, backgroundColor: "rgba(255,255,255,0.05)" }}

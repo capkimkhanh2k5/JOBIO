@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import { jobService } from '@/services/jobService';
+import { companyService } from '@/services/companyService';
+import api from '@/services/api';
 import { JobDetailHeader } from '@/components/jobs/JobDetailHeader';
 import { JobDetailContent } from '@/components/jobs/JobDetailContent';
 import { JobSkillsList } from '@/components/jobs/JobSkillsList';
@@ -22,42 +24,42 @@ export default function JobDetailPage() {
     // Fetch Job Basic Info
     const { data: job, isLoading: isLoadingJob, isError: isJobError } = useQuery({
         queryKey: ['job', id],
-        queryFn: () => mockApi.getJobById(id || ''),
+        queryFn: () => jobService.getById(Number(id)).then(r => r.data),
     });
 
     // Fetch Job Skills
     const { data: skills } = useQuery({
         queryKey: ['job-skills', id],
-        queryFn: () => mockApi.getJobSkills(id || ''),
+        queryFn: () => jobService.listSkills(Number(id)).then(r => r.data),
         enabled: !!job
     });
 
     // Fetch Job Locations
     const { data: locations } = useQuery({
         queryKey: ['job-locations', id],
-        queryFn: () => mockApi.getJobLocations(id || ''),
+        queryFn: () => jobService.listLocations(Number(id)).then(r => r.data),
         enabled: !!job
     });
 
     // Fetch Required Tests
     const { data: tests } = useQuery({
         queryKey: ['job-tests', id],
-        queryFn: () => mockApi.getRequiredTests(id || ''),
+        queryFn: () => api.get(`/api/jobs/${id}/required-tests/`).then(r => r.data),
         enabled: !!job
     });
 
     // Fetch Company Info
     const { data: company } = useQuery({
         queryKey: ['company', job?.company_id],
-        queryFn: () => mockApi.getCompanyById(job?.company_id || ''),
+        queryFn: () => companyService.getById(Number(job?.company_id)).then(r => r.data),
         enabled: !!job?.company_id
     });
 
     // Fetch Related Jobs
     const { data: relatedJobs } = useQuery({
-        queryKey: ['related-jobs', job?.industry_name],
-        queryFn: () => mockApi.getJobs({ category: job?.industry_name, limit: 5 }),
-        enabled: !!job?.industry_name
+        queryKey: ['related-jobs', id],
+        queryFn: () => jobService.similar(Number(id)).then(r => r.data),
+        enabled: !!job
     });
 
     if (isLoadingJob) return <JobDetailSkeleton />;
@@ -113,7 +115,7 @@ export default function JobDetailPage() {
                                 </Button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {relatedJobs?.items?.slice(0, 4).map((rJob: any) => (
+                                {relatedJobs?.slice(0, 4).map((rJob: any) => (
                                     <JobCard key={rJob.id} job={rJob} view="grid" />
                                 ))}
                             </div>

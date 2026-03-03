@@ -29,7 +29,9 @@ import {
 } from "@/components/ui/select";
 import { toast } from 'sonner';
 import { Loader2, FileText, Send, CheckCircle2 } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { cvService } from '@/services/cvService';
+import { applicationService } from '@/services/applicationService';
+import { useUserStore } from '@/store/userStore';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 
@@ -48,12 +50,13 @@ interface ApplyFormProps {
 export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const user = useUserStore((s) => s.user);
 
     // Fetch user CVs
     const { data: cvs, isLoading: isLoadingCvs } = useQuery({
-        queryKey: ['recruiter-cvs'],
-        queryFn: () => mockApi.getRecruiterCvs('user1'),
-        enabled: isOpen
+        queryKey: ['recruiter-cvs', user?.id],
+        queryFn: () => cvService.list(Number(user?.id)).then(r => r.data),
+        enabled: isOpen && !!user?.id
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -67,10 +70,10 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true);
         try {
-            await mockApi.applyForJob({
-                jobId,
-                cvId: values.cv_id,
-                coverLetter: values.cover_letter
+            await applicationService.create({
+                job_id: Number(jobId),
+                cv_id: Number(values.cv_id),
+                cover_letter: values.cover_letter,
             });
             setIsSuccess(true);
             toast.success("Nộp đơn ứng tuyển thành công!");
