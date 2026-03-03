@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import { companyService } from '@/services/companyService';
+import api from '@/services/api';
 import { useUserStore } from '@/store/userStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -71,19 +72,19 @@ export default function CompanyDetailPage() {
     // ── Queries ────────────────────────────────────────────────
     const { data: company, isLoading, isError } = useQuery({
         queryKey: ['company', id],
-        queryFn: () => mockApi.getCompanyById(id),
+        queryFn: () => companyService.getById(Number(id)).then(r => r.data),
         staleTime: 1000 * 60 * 5,
     });
 
     const { data: stats } = useQuery({
         queryKey: ['company-stats', id],
-        queryFn: () => mockApi.getCompanyStats(id),
+        queryFn: () => api.get(`/api/companies/${id}/stats/`).then(r => r.data),
         enabled: !!company,
     });
 
     const { data: followData } = useQuery({
         queryKey: ['company-following', id],
-        queryFn: () => mockApi.isFollowingCompany(id),
+        queryFn: () => companyService.isFollowing(Number(id)).then(r => r.data),
         enabled: !!user,
     });
 
@@ -95,7 +96,7 @@ export default function CompanyDetailPage() {
     const effectiveCount = followCount ?? company?.follower_count ?? 0;
 
     const followMutation = useMutation({
-        mutationFn: () => mockApi.followCompany(id),
+        mutationFn: () => companyService.follow(Number(id)),
         onSuccess: () => {
             setIsFollowing(true);
             setFollowCount(effectiveCount + 1);
@@ -104,7 +105,7 @@ export default function CompanyDetailPage() {
     });
 
     const unfollowMutation = useMutation({
-        mutationFn: () => mockApi.unfollowCompany(id),
+        mutationFn: () => companyService.unfollow(Number(id)),
         onSuccess: () => {
             setIsFollowing(false);
             setFollowCount(Math.max(0, effectiveCount - 1));
@@ -193,7 +194,7 @@ export default function CompanyDetailPage() {
                                     </h1>
                                     <VerificationBadge status={company.verification_status} />
                                 </div>
-                                <p className="text-muted-foreground mb-3">{company.industry_name}</p>
+                                <p className="text-muted-foreground mb-3">{(company as any).industry_name ?? company.industry?.name}</p>
                                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
                                     <span className="flex items-center gap-1.5">
                                         <Users size={14} className="text-cyan-400" />
@@ -203,9 +204,9 @@ export default function CompanyDetailPage() {
                                         <Building2 size={14} className="text-violet-400" />
                                         Thành lập {company.founded_year}
                                     </span>
-                                    {company.website_url && (
+                                    {(company.website ?? (company as any).website_url) && (
                                         <a
-                                            href={company.website_url}
+                                            href={company.website ?? (company as any).website_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-1.5 text-primary hover:underline"

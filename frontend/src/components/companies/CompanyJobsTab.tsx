@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import { jobService } from '@/services/jobService';
 import { JobCard } from '@/components/jobs/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase } from 'lucide-react';
@@ -12,7 +12,7 @@ interface Props {
 export function CompanyJobsTab({ companyId }: Props) {
     const { data: jobs, isLoading } = useQuery({
         queryKey: ['company-jobs', companyId],
-        queryFn: () => mockApi.getCompanyJobs(companyId),
+        queryFn: () => jobService.list({ company_id: Number(companyId) } as any).then(r => r.data.results),
         staleTime: 1000 * 60 * 2,
     });
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useFilterStore } from "@/store/useStore";
-import { mockApi } from "@/services/mockApi";
+import { jobService } from "@/services/jobService";
 import { JobFilters } from "@/components/jobs/JobFilters";
 import { JobSort } from "@/components/jobs/JobSort";
 import { JobCard } from "@/components/jobs/JobCard";
@@ -21,7 +21,22 @@ export default function JobsPage() {
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['jobs', filters],
-        queryFn: () => mockApi.getJobs(filters),
+        queryFn: async () => {
+            const params: Record<string, any> = {};
+            if (filters.search) params.search = filters.search;
+            if (filters.category && filters.category !== 'all') params.category_id = filters.category;
+            if (filters.province && filters.province !== 'all') params.province_id = filters.province;
+            if (filters.job_type?.length) params.job_type = filters.job_type.join(',');
+            if (filters.level?.length) params.level = filters.level.join(',');
+            if (filters.isRemote !== null) params.is_remote = filters.isRemote;
+            if (filters.salaryRange?.[0] > 0) params.salary_min = filters.salaryRange[0];
+            if (filters.salaryRange?.[1] < 10000) params.salary_max = filters.salaryRange[1];
+            if (filters.experienceRange?.[0] > 0) params.experience_min = filters.experienceRange[0];
+            if (filters.experienceRange?.[1] < 15) params.experience_max = filters.experienceRange[1];
+            if (filters.skills?.length) params.skills = filters.skills.join(',');
+            const { data: resp } = await jobService.list(params);
+            return { items: resp.results, total: resp.count };
+        },
         placeholderData: (previousData) => previousData,
     });
 

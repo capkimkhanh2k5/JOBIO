@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { mockApi } from '@/services/mockApi';
+import api from '@/services/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -35,7 +35,7 @@ function ReviewCard({ review }: { review: any }) {
     const [hasUpvoted, setHasUpvoted] = useState(false);
 
     const helpfulMutation = useMutation({
-        mutationFn: () => mockApi.markReviewHelpful(review.id),
+        mutationFn: () => api.post(`/api/reviews/${review.id}/helpful/`),
         onSuccess: () => {
             setHelpfulCount((c: number) => c + 1);
             setHasUpvoted(true);
@@ -43,7 +43,7 @@ function ReviewCard({ review }: { review: any }) {
     });
 
     const reportMutation = useMutation({
-        mutationFn: () => mockApi.reportReview(review.id),
+        mutationFn: () => api.post(`/api/reviews/${review.id}/report/`),
         onSuccess: () => toast.success('Đã gửi báo cáo. Cảm ơn bạn!'),
     });
 
@@ -148,7 +148,7 @@ function ReviewCard({ review }: { review: any }) {
 export function CompanyReviewsTab({ companyId, user }: Props) {
     const { data, isLoading } = useQuery({
         queryKey: ['company-reviews', companyId],
-        queryFn: () => mockApi.getCompanyReviews(companyId),
+        queryFn: () => api.get(`/api/companies/${companyId}/reviews/`).then(r => r.data),
         staleTime: 1000 * 60 * 3,
     });
 
