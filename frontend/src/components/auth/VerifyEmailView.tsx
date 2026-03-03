@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { Loader2, MailCheck, RefreshCw } from 'lucide-react';
 
@@ -22,11 +22,14 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
         if (!token) return;
         setIsSubmitting(true);
         try {
-            await mockApi.verifyEmail(token);
+            await authService.verifyEmail(token);
             toast.success("Xác minh Email thành công!");
             onVerified();
         } catch (error: any) {
-            toast.error(error.message || "Mã xác thực không đúng.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.message
+                || 'Mã xác thực không đúng.';
+            toast.error(msg);
         } finally {
             setIsSubmitting(false);
         }
@@ -35,7 +38,7 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
     const handleResend = async () => {
         setIsResending(true);
         try {
-            await mockApi.resendVerification(email);
+            await authService.resendVerification();
             toast.success("Đã gửi lại mã xác thực.");
         } catch (error: any) {
             toast.error("Không thể gửi lại mã lúc này.");

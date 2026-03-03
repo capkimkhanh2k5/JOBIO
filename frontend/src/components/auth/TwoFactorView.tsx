@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
 import { Loader2, ShieldAlert } from 'lucide-react';
@@ -23,17 +23,20 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
         if (code.length < 6) return;
         setIsSubmitting(true);
         try {
-            // In a real app, this would return the final tokens or authorize the previous session
-            await mockApi.verify2fa(code);
+            const { data } = await authService.verify2FA(code);
 
-            // Mocking the final auth response for 2FA
-            const response = await mockApi.login({ email, password: 'mock-auth-authorized' });
-            setAuth(response.user as any, response.access_token, response.refresh_token);
+            // Backend returns tokens + user after successful 2FA
+            if (data.access && data.user) {
+                setAuth(data.user, data.access, data.refresh);
+            }
 
             toast.success("Xác thực 2FA thành công!");
             onSuccess();
         } catch (error: any) {
-            toast.error(error.message || "Mã 2FA không đúng.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.message
+                || 'Mã 2FA không đúng.';
+            toast.error(msg);
         } finally {
             setIsSubmitting(false);
         }

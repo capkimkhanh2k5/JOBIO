@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SocialAuth } from './SocialAuth';
 import { PasswordStrength } from './PasswordStrength';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { Loader2, Briefcase, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -53,11 +53,21 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
     const onSubmit = async (values: RegisterFormValues) => {
         try {
-            await mockApi.register(values);
+            await authService.register({
+                email: values.email,
+                full_name: values.full_name,
+                password: values.password,
+                confirm_password: values.password_confirm,
+                role: values.role === 'candidate' ? 'recruiter' : 'company',
+            });
             onRegistered(values.email);
             toast.success("Đăng ký thành công! Vui lòng kiểm tra email.");
         } catch (error: any) {
-            toast.error(error.message || "Đăng ký thất bại. Vui lòng thử lại.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.email?.[0]
+                || error.response?.data?.message
+                || 'Đăng ký thất bại. Vui lòng thử lại.';
+            toast.error(msg);
         }
     };
 

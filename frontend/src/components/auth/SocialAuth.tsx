@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Chrome, Linkedin, Facebook } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
 
@@ -11,10 +11,15 @@ export const SocialAuth: React.FC = () => {
     const handleSocialLogin = async (provider: string) => {
         try {
             toast.loading(`Đang đăng nhập bằng ${provider}...`);
-            const response = await mockApi.socialAuth(provider);
-            setAuth(response.user as any, response.access_token, response.refresh_token);
+            // TODO: Integrate real OAuth popup to get access_token from provider
+            // For now, send provider name; backend will handle the flow
+            const { data } = await authService.socialAuth({
+                provider: provider.toLowerCase(),
+                access_token: '', // Will come from OAuth popup
+            });
+            setAuth(data.user, data.access, data.refresh);
             toast.dismiss();
-            toast.success(`Chào mừng ${response.user.full_name}!`);
+            toast.success(`Chào mừng ${data.user.full_name}!`);
         } catch (error) {
             toast.dismiss();
             toast.error("Lỗi đăng nhập social. Vui lòng thử lại.");
