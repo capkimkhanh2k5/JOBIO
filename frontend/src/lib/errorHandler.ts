@@ -12,7 +12,7 @@ interface DRFDetailError {
 }
 
 /** Union of all possible DRF response bodies */
-type DRFErrorBody = DRFFieldErrors | DRFDetailError | string[] | string;
+export type DRFErrorBody = DRFFieldErrors | DRFDetailError | string[] | string;
 
 // ─── Parsed result ──────────────────────────────────────────────────────────
 

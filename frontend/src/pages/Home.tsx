@@ -203,7 +203,7 @@ const FeaturedJobsSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                 {isLoading
                     ? Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-[320px] rounded-[32px] glass-effect" />)
-                    : jobs?.map((job) => <JobCard key={job.id} job={job} />)}
+                    : jobs?.map((job: any) => <JobCard key={job.id} job={job} />)}
             </div>
         </section>
     );
@@ -305,7 +305,7 @@ const FeaturedCompaniesSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-12">
                 {isLoading
                     ? Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-[48px]" />)
-                    : companies?.map(company => (
+                    : companies?.map((company: any) => (
                         <motion.div
                             key={company.id}
                             whileHover={{ y: -10 }}
@@ -407,7 +407,7 @@ const IndustriesSection = () => {
                     <div className="xl:w-2/3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
                         {isLoading
                             ? Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-32 rounded-3xl glass-effect" />)
-                            : industries?.map((ind: any, i) => (
+                            : industries?.map((ind: any) => (
                                 <motion.div
                                     key={ind.id}
                                     whileHover={{ x: 5, scale: 1.01, backgroundColor: "rgba(255,255,255,0.05)" }}
