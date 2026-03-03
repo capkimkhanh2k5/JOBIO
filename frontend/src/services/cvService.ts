@@ -1,0 +1,71 @@
+import api from './api';
+import type {
+  PaginatedResponse,
+  RecruiterCV,
+  CVCreateRequest,
+  CVUpdateRequest,
+  CVTemplate,
+  CVTemplateCategory,
+} from '@/types/api';
+
+// ─── CV / Resume Service ─────────────────────────────────────────────────────
+
+export const cvService = {
+  // ─── Recruiter CVs (nested under recruiter) ───────────────────────────
+
+  list(recruiterId: number) {
+    return api.get<RecruiterCV[]>(`/api/recruiters/${recruiterId}/cvs/`);
+  },
+
+  getById(recruiterId: number, cvId: number) {
+    return api.get<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/${cvId}/`);
+  },
+
+  create(recruiterId: number, data: CVCreateRequest) {
+    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/`, data);
+  },
+
+  update(recruiterId: number, cvId: number, data: CVUpdateRequest) {
+    return api.patch<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/${cvId}/`, data);
+  },
+
+  delete(recruiterId: number, cvId: number) {
+    return api.delete(`/api/recruiters/${recruiterId}/cvs/${cvId}/`);
+  },
+
+  /** Upload a PDF/DOCX CV file */
+  uploadFile(recruiterId: number, file: File, cvName?: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (cvName) formData.append('cv_name', cvName);
+    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/upload/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  /** Set as default CV */
+  setDefault(recruiterId: number, cvId: number) {
+    return api.post(`/api/recruiters/${recruiterId}/cvs/${cvId}/set-default/`);
+  },
+
+  /** Download / generate PDF */
+  downloadPdf(recruiterId: number, cvId: number) {
+    return api.get(`/api/recruiters/${recruiterId}/cvs/${cvId}/download/`, {
+      responseType: 'blob',
+    });
+  },
+
+  // ─── CV Templates ─────────────────────────────────────────────────────
+
+  listTemplates(params?: { category_id?: number; is_premium?: boolean; page?: number; page_size?: number }) {
+    return api.get<PaginatedResponse<CVTemplate>>('/api/cv-templates/', { params });
+  },
+
+  getTemplate(id: number) {
+    return api.get<CVTemplate>(`/api/cv-templates/${id}/`);
+  },
+
+  listTemplateCategories() {
+    return api.get<CVTemplateCategory[]>('/api/cv-templates/categories/');
+  },
+};
