@@ -6,7 +6,7 @@ import {
     CartesianGrid, Tooltip, Legend
 } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockApi } from '@/services/mockApi';
+import { dashboardService } from '@/services/dashboardService';
 
 type ChartPeriod = 7 | 30 | 90;
 
@@ -43,7 +43,7 @@ export function ApplicationsChart() {
 
     const { data, isLoading, isFetching } = useQuery({
         queryKey: ['employer', 'chart', period],
-        queryFn: () => mockApi.getApplicationsChart(period),
+        queryFn: () => dashboardService.getAnalyticsReports({ report_type: 'applications_chart' }).then(r => r.data),
         staleTime: 60_000,
         placeholderData: (prev) => prev,
     });

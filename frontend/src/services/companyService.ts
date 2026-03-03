@@ -16,6 +16,12 @@ import type {
 export const companyService = {
   // ─── CRUD ──────────────────────────────────────────────────────────────
 
+  /** Get the employer's own company */
+  // TODO: Backend chưa có /me/ action cho CompanyViewSet — cần thêm @action(detail=False, methods=['get'], url_path='me')
+  getMyCompany() {
+    return api.get<CompanyDetail>('/api/companies/me/');
+  },
+
   list(params?: { search?: string; industry_id?: number; company_size?: string; ordering?: string; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<CompanyListItem>>('/api/companies/', { params });
   },
@@ -25,7 +31,7 @@ export const companyService = {
   },
 
   getBySlug(slug: string) {
-    return api.get<CompanyDetail>(`/api/companies/${slug}/`);
+    return api.get<CompanyDetail>(`/api/companies/slug/${slug}/`);
   },
 
   create(data: CompanyCreateRequest) {
@@ -43,7 +49,7 @@ export const companyService = {
   // ─── Actions ─────────────────────────────────────────────────────────────
 
   requestVerification(id: number) {
-    return api.post(`/api/companies/${id}/request-verification/`);
+    return api.post(`/api/companies/${id}/verify/`);
   },
 
   featured(params?: { page_size?: number }) {
@@ -57,7 +63,7 @@ export const companyService = {
   },
 
   unfollow(companyId: number) {
-    return api.post(`/api/companies/${companyId}/unfollow/`);
+    return api.delete(`/api/companies/${companyId}/unfollow/`);
   },
 
   isFollowing(companyId: number) {

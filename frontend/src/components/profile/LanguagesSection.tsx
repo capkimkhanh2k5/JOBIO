@@ -5,7 +5,8 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { SectionWrapper } from './SectionWrapper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '../../services/mockApi';
+import { candidateService } from '@/services/candidateService';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
@@ -69,8 +70,8 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
                 is_native: isNative,
             };
             return isEdit
-                ? mockApi.updateUserLanguage(userId, entry!.id, data)
-                : mockApi.addUserLanguage(userId, data);
+                ? candidateService.updateLanguage(Number(userId), Number(entry!.id), data).then(r => r.data)
+                : candidateService.addLanguage(Number(userId), data).then(r => r.data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
@@ -137,17 +138,17 @@ export const LanguagesSection = ({ userId }: { userId: string }) => {
 
     const { data: userLangs = [], isLoading: langsLoading } = useQuery({
         queryKey: ['user-languages', userId],
-        queryFn: () => mockApi.getUserLanguages(userId),
+        queryFn: () => candidateService.listLanguages(Number(userId)).then(r => r.data),
     });
 
     const { data: availableLanguages = [] } = useQuery({
         queryKey: ['languages'],
-        queryFn: () => mockApi.getLanguages(),
+        queryFn: () => taxonomyService.listLanguages().then(r => r.data),
         staleTime: Infinity,
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (langId: string) => mockApi.deleteUserLanguage(userId, langId),
+        mutationFn: (langId: string) => candidateService.deleteLanguage(Number(userId), Number(langId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
             toast.success('Đã xoá ngôn ngữ.');

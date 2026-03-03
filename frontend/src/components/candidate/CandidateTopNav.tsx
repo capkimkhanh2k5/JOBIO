@@ -14,7 +14,8 @@ import {
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useUserStore } from '@/store/userStore';
-import { mockApi } from '@/services/mockApi';
+import { employerService } from '@/services/employerService';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 
 function relativeTime(iso: string): string {
@@ -43,14 +44,14 @@ export function CandidateTopNav() {
     // Notifications count
     const { data: notifCount } = useQuery({
         queryKey: ['candidate', 'notifications', 'count'],
-        queryFn: mockApi.getNotificationsCount,
+        queryFn: () => employerService.listNotifications({ page_size: 1, is_read: false }).then(r => r.data.count),
         staleTime: 30_000,
     });
 
     // Notifications list
     const { data: notifications, isLoading: notifLoading } = useQuery({
         queryKey: ['candidate', 'notifications', 'recent'],
-        queryFn: mockApi.getRecentNotifications,
+        queryFn: () => employerService.listNotifications({ page_size: 5 }).then(r => r.data.results),
         enabled: notifOpen,
         staleTime: 30_000,
     });
@@ -58,13 +59,13 @@ export function CandidateTopNav() {
     // Unread messages count
     const { data: msgCount } = useQuery({
         queryKey: ['candidate', 'messages', 'unread'],
-        queryFn: mockApi.getUnreadMessagesCount,
+        queryFn: () => employerService.listThreads({ page_size: 1 }).then(r => r.data.count),
         staleTime: 30_000,
     });
 
     const handleLogout = async () => {
         try {
-            if (refreshToken) await mockApi.logout(refreshToken);
+            if (refreshToken) await authService.logout();
             clearAuth();
             toast.success('Đã đăng xuất. Hẹn gặp lại!');
             navigate('/auth');

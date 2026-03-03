@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockApi } from '@/services/mockApi';
+import { employerService } from '@/services/employerService';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Video, Phone, MapPin, ExternalLink, ChevronRight, CalendarX } from 'lucide-react';
@@ -19,7 +19,7 @@ const TYPE_CONFIG = {
 export function UpcomingInterviewsCard() {
     const { data, isLoading } = useQuery({
         queryKey: ['employer', 'interviews', 'upcoming'],
-        queryFn: mockApi.getUpcomingInterviews,
+        queryFn: () => employerService.listInterviews({ status: 'scheduled' }).then(r => r.data.results),
         staleTime: 60_000,
     });
 

@@ -8,7 +8,7 @@ import { ApplicationsChart } from '@/components/employer/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/employer/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/employer/UpcomingInterviewsCard';
 import { useUserStore } from '@/store/userStore';
-import { mockApi } from '@/services/mockApi';
+import { employerService } from '@/services/employerService';
 
 // Greeting based on time of day
 function getGreeting(): string {
@@ -55,7 +55,7 @@ export default function EmployerDashboard() {
 
     const { data: stats, isLoading: statsLoading } = useQuery({
         queryKey: ['employer', 'stats'],
-        queryFn: mockApi.getEmployerStats,
+        queryFn: () => employerService.getStats().then(r => r.data),
         staleTime: 60_000,
     });
 

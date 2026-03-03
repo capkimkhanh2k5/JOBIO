@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { employerService } from '@/services/employerService';
+import { jobService } from '@/services/jobService';
+import api from '@/services/api';
 import {
     ManageJobsActionBar,
     type ViewMode,
@@ -37,19 +39,19 @@ export default function ManageJobs() {
     const { data, isLoading } = useQuery({
         queryKey: ['employer-jobs', statusFilter, sortOption, search, page, pageSize],
         queryFn: () =>
-            mockApi.getEmployerJobs({
+            employerService.listMyJobs({
                 status: statusFilter === 'all' ? undefined : statusFilter,
                 ordering: sortOption,
                 search: search || undefined,
                 page,
                 page_size: pageSize,
-            }),
+            }).then(r => r.data),
         placeholderData: prev => prev,
         staleTime: 30_000,
     });
 
-    const jobs = data?.items ?? [];
-    const total = data?.total ?? 0;
+    const jobs = data?.results ?? [];
+    const total = data?.count ?? 0;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     // Reset page when filter/search changes
@@ -73,7 +75,7 @@ export default function ManageJobs() {
         queryClient.invalidateQueries({ queryKey: ['employer-jobs'] });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => mockApi.deleteJob(id),
+        mutationFn: (id: string) => jobService.delete(Number(id)),
         onSuccess: (_, id) => {
             toast.success('Đã xóa tin tuyển dụng');
             setSelectedIds(prev => prev.filter(x => x !== id));
@@ -84,7 +86,7 @@ export default function ManageJobs() {
 
     const statusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: string }) =>
-            mockApi.patchJobStatus(id, status),
+            jobService.update(Number(id), { status } as any).then(r => r.data),
         onSuccess: (_, { status }) => {
             toast.success(status === 'closed' ? 'Đã đóng tin tuyển dụng' : 'Đã mở lại tin tuyển dụng');
             invalidate();
@@ -92,7 +94,7 @@ export default function ManageJobs() {
     });
 
     const duplicateMutation = useMutation({
-        mutationFn: (id: string) => mockApi.duplicateJob(id),
+        mutationFn: (id: string) => jobService.duplicate(Number(id)).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã tạo bản sao tin tuyển dụng (trạng thái Nháp)');
             invalidate();
@@ -101,7 +103,7 @@ export default function ManageJobs() {
 
     const bulkMutation = useMutation({
         mutationFn: ({ ids, action }: { ids: string[]; action: 'close' | 'delete' | 'extend' }) =>
-            mockApi.bulkJobAction(ids, action),
+            api.post('/api/jobs/bulk-action/', { ids: ids.map(Number), action }).then(r => r.data),
         onSuccess: (data, { action }) => {
             const msg = action === 'close'
                 ? `Đã đóng ${data.affected} tin tuyển dụng`

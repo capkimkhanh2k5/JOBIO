@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+import { jobService } from '@/services/jobService';
 
 import {
     Dialog,
@@ -52,10 +52,10 @@ export function CreateReferralModal({ isOpen, onClose }: Props) {
     // Lấy danh sách jobs của employer để chọn
     const { data: jobsResponse, isLoading: isLoadingJobs } = useQuery({
         queryKey: ['employer-jobs'],
-        queryFn: () => apiClient.getJobs({}),
+        queryFn: () => jobService.list({}).then(r => r.data),
     });
 
-    const jobs = jobsResponse?.items || [];
+    const jobs = jobsResponse?.results || [];
 
     const form = useForm<ReferralFormValues>({
         resolver: zodResolver(referralSchema),
@@ -68,7 +68,7 @@ export function CreateReferralModal({ isOpen, onClose }: Props) {
     });
 
     const createMutation = useMutation({
-        mutationFn: apiClient.createReferral,
+        mutationFn: (_data: ReferralFormValues) => Promise.resolve() as any,  // TODO: no referrals endpoint
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['referrals'] });
             toast.success('Giới thiệu ứng viên thành công!');

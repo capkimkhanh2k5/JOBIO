@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Plus, Trash2, MapPin, Star } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -36,13 +36,13 @@ function LocationRowItem({
 }) {
     const { data: provinces = [], isLoading: provinceLoading } = useQuery({
         queryKey: ['provinces-detailed'],
-        queryFn: () => mockApi.getProvincesDetailed(),
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
         staleTime: 60_000,
     });
 
     const { data: communes = [], isLoading: communeLoading } = useQuery({
         queryKey: ['communes', row.province_id],
-        queryFn: () => mockApi.getCommunesByProvince(row.province_id),
+        queryFn: () => taxonomyService.listCommunes({ province_id: Number(row.province_id) }).then(r => r.data.results ?? r.data),
         enabled: !!row.province_id,
         staleTime: 60_000,
     });

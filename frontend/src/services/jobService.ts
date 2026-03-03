@@ -24,7 +24,7 @@ export const jobService = {
   },
 
   getBySlug(slug: string) {
-    return api.get<JobDetail>(`/api/jobs/${slug}/`);
+    return api.get<JobDetail>(`/api/jobs/slug/${slug}/`);
   },
 
   create(data: JobCreateRequest) {

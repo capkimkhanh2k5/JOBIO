@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { Bell, Plus, Zap, Trash2, Mail, Bot, ChevronRight, MapPin, Clock, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { alertService } from '@/services/alertService';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,17 +39,17 @@ export default function JobAlerts() {
 
     const { data: alerts, isLoading } = useQuery({
         queryKey: ['jobAlerts'],
-        queryFn: () => mockApi.getJobAlerts(),
+        queryFn: () => alertService.list().then(r => r.data.results),
     });
 
     const { data: matchedJobs, isLoading: isLoadingMatched } = useQuery({
         queryKey: ['matchedJobs', viewingMatchedAlertId],
-        queryFn: () => mockApi.getMatchedJobsForAlert(viewingMatchedAlertId!),
+        queryFn: () => alertService.matches(Number(viewingMatchedAlertId!)).then(r => r.data.results),
         enabled: !!viewingMatchedAlertId
     });
 
     const toggleMutation = useMutation({
-        mutationFn: ({ id, is_active }: { id: string, is_active: boolean }) => mockApi.toggleJobAlert(id, is_active),
+        mutationFn: ({ id, is_active }: { id: string, is_active: boolean }) => alertService.toggle(Number(id)).then(r => r.data),
         onSuccess: (_, { id, is_active }) => {
             queryClient.setQueryData(['jobAlerts'], (old: any) =>
                 old?.map((a: any) => a.id === id ? { ...a, is_active } : a)
@@ -59,7 +59,7 @@ export default function JobAlerts() {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: string) => mockApi.deleteJobAlert(id),
+        mutationFn: (id: string) => alertService.delete(Number(id)),
         onSuccess: (_, id) => {
             queryClient.setQueryData(['jobAlerts'], (old: any) => old?.filter((a: any) => a.id !== id));
             toast.success("Đã xóa Job Alert");
@@ -67,7 +67,7 @@ export default function JobAlerts() {
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: any) => mockApi.createJobAlert(data),
+        mutationFn: (data: any) => alertService.create(data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['jobAlerts'] });
             toast.success("Đã tạo Job Alert mới");

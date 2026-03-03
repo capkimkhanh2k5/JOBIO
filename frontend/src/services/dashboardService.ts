@@ -19,11 +19,11 @@ export const dashboardService = {
   // ─── Stats endpoints ──────────────────────────────────────────────────
 
   getAdminStats() {
-    return api.get<AdminStats>('/api/dashboard/admin/');
+    return api.get<AdminStats>('/api/dashboard/stats/admin/');
   },
 
   getCompanyStats() {
-    return api.get<CompanyStats>('/api/dashboard/company/');
+    return api.get<CompanyStats>('/api/dashboard/stats/company/');
   },
 
   // ─── Analytics Reports ────────────────────────────────────────────────

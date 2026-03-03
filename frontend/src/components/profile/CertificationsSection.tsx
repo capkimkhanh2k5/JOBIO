@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { SectionWrapper } from './SectionWrapper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '../../services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -41,8 +41,8 @@ const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
     const mutation = useMutation({
         mutationFn: () =>
             isEdit
-                ? mockApi.updateCertification(userId, entry!.id, formData)
-                : mockApi.addCertification(userId, formData),
+                ? candidateService.updateCertification(Number(userId), Number(entry!.id), formData).then(r => r.data)
+                : candidateService.addCertification(Number(userId), formData).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['certifications', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -133,11 +133,11 @@ export const CertificationsSection = ({ userId }: { userId: string }) => {
 
     const { data: certifications = [], isLoading } = useQuery({
         queryKey: ['certifications', userId],
-        queryFn: () => mockApi.getCertifications(userId),
+        queryFn: () => candidateService.listCertifications(Number(userId)).then(r => r.data),
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (certId: string) => mockApi.deleteCertification(userId, certId),
+        mutationFn: (certId: string) => candidateService.deleteCertification(Number(userId), Number(certId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['certifications', userId] });
             toast.success('Đã xoá chứng chỉ.');

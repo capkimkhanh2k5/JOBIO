@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
 
 import { EmployerCalendar } from '@/components/employer/interviews/EmployerCalendar';
 import { EmployerInterviewList } from '@/components/employer/interviews/EmployerInterviewList';
@@ -19,7 +19,7 @@ export default function EmployerInterviewsPage() {
 
     const { data: interviews, isLoading } = useQuery({
         queryKey: ['employerInterviews'],
-        queryFn: () => apiClient.getInterviews()
+        queryFn: () => employerService.listInterviews().then(r => r.data.results)
     });
 
     const handleInterviewClick = (id: string) => {

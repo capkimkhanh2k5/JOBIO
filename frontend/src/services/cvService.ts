@@ -33,24 +33,24 @@ export const cvService = {
     return api.delete(`/api/recruiters/${recruiterId}/cvs/${cvId}/`);
   },
 
-  /** Upload a PDF/DOCX CV file */
+  /** Upload a PDF/DOCX CV file (backend: generate endpoint) */
   uploadFile(recruiterId: number, file: File, cvName?: string) {
     const formData = new FormData();
     formData.append('file', file);
     if (cvName) formData.append('cv_name', cvName);
-    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/upload/`, formData, {
+    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/generate/`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
   /** Set as default CV */
   setDefault(recruiterId: number, cvId: number) {
-    return api.post(`/api/recruiters/${recruiterId}/cvs/${cvId}/set-default/`);
+    return api.patch(`/api/recruiters/${recruiterId}/cvs/${cvId}/default/`);
   },
 
   /** Download / generate PDF */
   downloadPdf(recruiterId: number, cvId: number) {
-    return api.get(`/api/recruiters/${recruiterId}/cvs/${cvId}/download/`, {
+    return api.post(`/api/recruiters/${recruiterId}/cvs/${cvId}/download/`, {}, {
       responseType: 'blob',
     });
   },

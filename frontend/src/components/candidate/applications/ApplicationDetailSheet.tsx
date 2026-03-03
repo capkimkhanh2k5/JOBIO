@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Building2, Calendar, FileText, CheckCircle2, Search, Video, FileBadge } from 'lucide-react';
-import { mockApi } from '@/services/mockApi';
+import { applicationService } from '@/services/applicationService';
 
 interface ApplicationDetailSheetProps {
     applicationId: string;
@@ -28,7 +28,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
     // For now, fetch all and find, or mock a new endpoint.
     const { data: applications, isLoading: isLoadingApp } = useQuery({
         queryKey: ['candidate', 'applications', candidateId],
-        queryFn: () => mockApi.getCandidateApplications(candidateId),
+        queryFn: () => applicationService.list({}).then(r => r.data.results),
         enabled: open
     });
 
@@ -36,13 +36,13 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
 
     const { data: history, isLoading: isLoadingHistory } = useQuery({
         queryKey: ['application-history', applicationId],
-        queryFn: () => mockApi.getApplicationStatusHistory(applicationId),
+        queryFn: () => applicationService.getStatusHistory(Number(applicationId)).then(r => r.data),
         enabled: open
     });
 
     const { data: testResults, isLoading: isLoadingTests } = useQuery({
         queryKey: ['application-tests', applicationId],
-        queryFn: () => mockApi.getApplicationTestResults(applicationId),
+        queryFn: () => Promise.resolve([]),  // TODO: no test-results endpoint
         enabled: open
     });
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/services/apiClient';
+import { companyService } from '@/services/companyService';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,11 +13,15 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
 
     const { data: mediaItems, isLoading } = useQuery({
         queryKey: ['companyMedia', companyId],
-        queryFn: () => apiClient.getCompanyMedia(companyId),
+        queryFn: () => companyService.listMedia(Number(companyId)).then(r => r.data),
     });
 
     const bulkUploadMutation = useMutation({
-        mutationFn: (files: File[]) => apiClient.bulkUploadCompanyMedia(companyId, files),
+        mutationFn: (files: File[]) => Promise.all(files.map(file => {
+            const fd = new FormData();
+            fd.append('file', file);
+            return companyService.addMedia(Number(companyId), fd);
+        })).then(results => results.map(r => r.data)),
         onSuccess: () => {
             toast.success('Đã tải lên media thành công.');
             queryClient.invalidateQueries({ queryKey: ['companyMedia', companyId] });
@@ -30,7 +34,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (mediaId: string) => apiClient.deleteCompanyMedia(companyId, mediaId),
+        mutationFn: (mediaId: string) => companyService.removeMedia(Number(companyId), Number(mediaId)).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã xóa media.');
             queryClient.invalidateQueries({ queryKey: ['companyMedia', companyId] });

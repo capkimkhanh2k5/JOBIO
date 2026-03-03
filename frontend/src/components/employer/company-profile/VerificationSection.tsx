@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/services/apiClient';
+import { companyService } from '@/services/companyService';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -22,7 +22,7 @@ export function VerificationSection({ company }: { company: any }) {
     const StatusIcon = statusStyle.icon;
 
     const verifyMutation = useMutation({
-        mutationFn: () => apiClient.requestCompanyVerification(company.id),
+        mutationFn: () => companyService.requestVerification(Number(company.id)).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã gửi yêu cầu xác minh. Đội ngũ JOBIO sẽ liên hệ sớm nhất.');
             queryClient.invalidateQueries({ queryKey: ['employerCompany'] });

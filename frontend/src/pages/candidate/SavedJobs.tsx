@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bookmark, MapPin, DollarSign, Calendar, Edit3, Trash2, ArrowRight, Save, X, ExternalLink, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockApi } from '@/services/mockApi';
+import { savedJobService } from '@/services/savedJobService';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,11 +17,11 @@ export default function SavedJobs() {
 
     const { data: savedJobs, isLoading } = useQuery({
         queryKey: ['savedJobs'],
-        queryFn: () => mockApi.getSavedJobsList(),
+        queryFn: () => savedJobService.list().then(r => r.data.results),
     });
 
     const removeMutation = useMutation({
-        mutationFn: (id: string) => mockApi.removeSavedJob(id),
+        mutationFn: (id: string) => savedJobService.unsave(Number(id)),
         onSuccess: (_, id) => {
             toast.success("Đã bỏ lưu công việc");
             queryClient.setQueryData(['savedJobs'], (old: any) => old?.filter((j: any) => j.id !== id));
@@ -29,7 +29,7 @@ export default function SavedJobs() {
     });
 
     const updateNoteMutation = useMutation({
-        mutationFn: ({ id, note }: { id: string, note: string }) => mockApi.updateSavedJobNote(id, note),
+        mutationFn: ({ id, note }: { id: string, note: string }) => savedJobService.update(Number(id), { notes: note } as any).then(r => r.data),
         onSuccess: (_, { id, note }) => {
             toast.success("Đã cập nhật ghi chú");
             queryClient.setQueryData(['savedJobs'], (old: any) => old?.map((j: any) => j.id === id ? { ...j, notes: note } : j));

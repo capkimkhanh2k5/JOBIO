@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { delay } from '@/services/mockApi';
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /* ─── Types ─── */
 interface Plan {

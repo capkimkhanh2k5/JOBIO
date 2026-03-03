@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { apiClient } from '@/services/apiClient';
+import { employerService } from '@/services/employerService';
 import { AddJobToCampaignModal } from './AddJobToCampaignModal';
 
 interface CampaignDetailSheetProps {
@@ -22,13 +22,13 @@ export function CampaignDetailSheet({ isOpen, onClose, campaignId }: CampaignDet
 
     const { data: campaign, isLoading: isCampaignLoading } = useQuery({
         queryKey: ['campaign', campaignId],
-        queryFn: () => apiClient.getCampaignById(campaignId!),
+        queryFn: () => employerService.getCampaign(Number(campaignId!)).then(r => r.data),
         enabled: !!campaignId && isOpen,
     });
 
     const { data: jobs, isLoading: isJobsLoading } = useQuery({
         queryKey: ['campaign-jobs', campaignId],
-        queryFn: () => apiClient.getCampaignJobs(campaignId!),
+        queryFn: () => Promise.resolve([]),  // TODO: no dedicated campaign-jobs endpoint
         enabled: !!campaignId && isOpen,
     });
 

@@ -4,7 +4,8 @@ import { Plus, X, Award, TrendingUp, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
+import { taxonomyService } from '@/services/taxonomyService';
 import { SectionWrapper } from './SectionWrapper';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -49,7 +50,7 @@ const SkillEditDialog = ({ open, onClose, skill, userId, prefilledName = '' }: S
     const mutation = useMutation({
         mutationFn: () => {
             const data = { name, proficiency_level: level, years_of_experience: parseInt(yearsExp) || 1 };
-            return isEdit ? mockApi.updateSkill(userId, skill!.id, data) : mockApi.addSkill(userId, data);
+            return isEdit ? candidateService.updateSkill(Number(userId), Number(skill!.id), data).then(r => r.data) : candidateService.addSkill(Number(userId), data).then(r => r.data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['skills', userId] });
@@ -107,18 +108,18 @@ export const SkillsSection = ({ userId }: { userId: string }) => {
 
     const { data: skills = [], isLoading } = useQuery({
         queryKey: ['skills', userId],
-        queryFn: () => mockApi.getSkills(userId),
+        queryFn: () => candidateService.listSkills(Number(userId)).then(r => r.data),
     });
 
     const { data: searchResults = [] } = useQuery({
         queryKey: ['skills-search', searchValue],
-        queryFn: () => mockApi.searchSkills(searchValue),
+        queryFn: () => taxonomyService.listSkills({ search: searchValue }).then(r => r.data.results),
         enabled: searchValue.length > 1,
         staleTime: 10_000,
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (skillId: string) => mockApi.deleteSkill(userId, skillId),
+        mutationFn: (skillId: string) => candidateService.deleteSkill(Number(userId), Number(skillId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['skills', userId] });
             toast.success('Đã xoá kỹ năng.');

@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '@/services/mockApi';
+import { candidateService } from '@/services/candidateService';
+import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -47,22 +48,25 @@ const ProfileSkeleton = () => (
 
 const Profile = () => {
     const queryClient = useQueryClient();
-    const userId = "mock-user-id";
+    const { user } = useUserStore();
+    const userId = user?.id;
 
     const { data: profile, isLoading: profileLoading } = useQuery({
         queryKey: ['profile', userId],
-        queryFn: () => mockApi.getProfile(userId),
+        queryFn: () => candidateService.getMyProfile().then(r => r.data),
         staleTime: 60_000,
+        enabled: !!userId,
     });
 
     const { data: completeness, isLoading: completenessLoading } = useQuery({
         queryKey: ['profile-completeness', userId],
-        queryFn: () => mockApi.getProfileCompleteness(userId),
+        queryFn: () => candidateService.getMyProfile().then(r => r.data),
         staleTime: 30_000,
+        enabled: !!userId,
     });
 
     const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => mockApi.updateProfilePrivacy(userId, isPublic),
+        mutationFn: (isPublic: boolean) => candidateService.update(Number(userId), { is_public: isPublic } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật cài đặt quyền riêng tư");
@@ -70,7 +74,7 @@ const Profile = () => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: (status: string) => mockApi.updateJobSearchStatus(userId, status),
+        mutationFn: (status: string) => candidateService.update(Number(userId), { job_search_status: status } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật trạng thái tìm việc");
@@ -110,17 +114,17 @@ const Profile = () => {
                             <PersonalForm profile={profile} />
                         </SectionWrapper>
 
-                        <ExperienceSection userId={userId} />
+                        <ExperienceSection userId={Number(userId)} />
 
-                        <EducationSection userId={userId} />
+                        <EducationSection userId={Number(userId)} />
 
-                        <SkillsSection userId={userId} />
+                        <SkillsSection userId={Number(userId)} />
 
-                        <CertificationsSection userId={userId} />
+                        <CertificationsSection userId={Number(userId)} />
 
-                        <LanguagesSection userId={userId} />
+                        <LanguagesSection userId={Number(userId)} />
 
-                        <ProjectsSection userId={userId} />
+                        <ProjectsSection userId={Number(userId)} />
                     </div>
 
                     {/* ── Sidebar ── */}

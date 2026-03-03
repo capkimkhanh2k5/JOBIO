@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Gift, Plus } from 'lucide-react';
-import { apiClient } from '@/services/apiClient';
+// No backend endpoint for referral programs yet
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ReferralList } from '@/components/employer/referrals/ReferralList';
@@ -13,7 +13,7 @@ export default function EmployerReferrals() {
 
     const { data: programs, isLoading: isLoadingPrograms } = useQuery({
         queryKey: ['referral-programs'],
-        queryFn: apiClient.getReferralPrograms,
+        queryFn: () => Promise.resolve([]),
     });
 
     return (

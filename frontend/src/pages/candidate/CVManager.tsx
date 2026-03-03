@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { mockApi } from '@/services/mockApi';
+import { cvService } from '@/services/cvService';
+import api from '@/services/api';
+import { useUserStore } from '@/store/userStore';
 import { Button } from '@/components/ui/button';
 import { CVListSidebar } from '@/components/candidate/cv/CVListSidebar';
 import { CVBuilder } from '@/components/candidate/cv/CVBuilder';
@@ -26,9 +28,9 @@ export interface CVItem {
 
 export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
 
-const USER_ID = 'me';
-
 export default function CVManager() {
+    const { user } = useUserStore();
+    const recruiterId = user?.id;
     const queryClient = useQueryClient();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [showNewDialog, setShowNewDialog] = useState(false);
@@ -40,9 +42,10 @@ export default function CVManager() {
 
     // ── Fetch CV list ────────────────────────────────────────────────────────
     const { data: cvList = [], isLoading: loadingCVs } = useQuery({
-        queryKey: ['candidate', 'cvs'],
-        queryFn: () => mockApi.getCandidateCVs(USER_ID),
+        queryKey: ['candidate', 'cvs', recruiterId],
+        queryFn: () => cvService.list(Number(recruiterId)).then(r => r.data),
         staleTime: 30_000,
+        enabled: !!recruiterId,
     });
 
     // Select first CV by default when list loads
@@ -57,45 +60,45 @@ export default function CVManager() {
 
     // ── Mutations ─────────────────────────────────────────────────────────────
     const updateMutation = useMutation({
-        mutationFn: (data: any) => mockApi.updateCV(USER_ID, selectedCvId!, data),
+        mutationFn: (data: any) => cvService.update(Number(recruiterId), Number(selectedCvId), data).then(r => r.data),
         onSuccess: () => {
             setAutoSaveStatus('saved');
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
         },
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (cvId: string) => mockApi.deleteCV(USER_ID, cvId),
+        mutationFn: (cvId: string) => cvService.delete(Number(recruiterId), Number(cvId)),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
             setSelectedCvId(null);
             toast.success('CV đã được xóa.');
         },
     });
 
     const defaultMutation = useMutation({
-        mutationFn: (cvId: string) => mockApi.setDefaultCV(USER_ID, cvId),
+        mutationFn: (cvId: string) => cvService.setDefault(Number(recruiterId), Number(cvId)),
         onSuccess: (_, cvId) => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
             toast.success('Đã đặt làm CV mặc định.');
         },
     });
 
     const downloadMutation = useMutation({
-        mutationFn: (cvId: string) => mockApi.downloadCV(USER_ID, cvId),
+        mutationFn: (cvId: string) => cvService.downloadPdf(Number(recruiterId), Number(cvId)),
         onSuccess: () => toast.success('CV đang được tải xuống...'),
     });
 
     const privacyMutation = useMutation({
         mutationFn: ({ cvId, is_public }: { cvId: string; is_public: boolean }) =>
-            mockApi.setCVPrivacy(USER_ID, cvId, is_public),
+            cvService.update(Number(recruiterId), Number(cvId), { is_public } as any).then(r => r.data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
         },
     });
 
     const aiGenMutation = useMutation({
-        mutationFn: () => mockApi.aiGenerateCV(USER_ID),
+        mutationFn: () => api.post(`/api/recruiters/${recruiterId}/cvs/ai-generate/`).then(r => r.data),
         onSuccess: (data) => {
             setCvData(data.cv_data);
             toast.success('AI đã tạo nội dung CV cho bạn!');

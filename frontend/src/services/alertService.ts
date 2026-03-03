@@ -32,16 +32,17 @@ export const alertService = {
 
   /** Toggle active status */
   toggle(id: number) {
-    return api.post<JobAlert>(`/api/job-alerts/${id}/toggle/`);
+    return api.patch<JobAlert>(`/api/job-alerts/${id}/toggle/`);
   },
 
   /** Get matching jobs for this alert */
   matches(id: number, params?: { page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<JobAlertMatch>>(`/api/job-alerts/${id}/matches/`, { params });
+    return api.get<PaginatedResponse<JobAlertMatch>>(`/api/job-alerts/${id}/matched-jobs/`, { params });
   },
 
   /** Mark a match as viewed */
+  // TODO: Backend chưa có endpoint mark-viewed cho job alert matches
   markMatchViewed(alertId: number, matchId: number) {
-    return api.post(`/api/job-alerts/${alertId}/matches/${matchId}/mark-viewed/`);
+    return api.post(`/api/job-alerts/${alertId}/matched-jobs/${matchId}/mark-viewed/`);
   },
 };

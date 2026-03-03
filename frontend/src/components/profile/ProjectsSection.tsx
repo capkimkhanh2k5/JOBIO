@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { SectionWrapper } from './SectionWrapper';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockApi } from '../../services/mockApi';
+import { candidateService } from '@/services/candidateService';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -71,7 +71,7 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
                 ...formData,
                 technologies_used: formData.technologies_raw.split(',').map(t => t.trim()).filter(Boolean),
             };
-            return isEdit ? mockApi.updateProject(userId, entry!.id, data) : mockApi.addProject(userId, data);
+            return isEdit ? candidateService.updateProject(Number(userId), Number(entry!.id), data).then(r => r.data) : candidateService.addProject(Number(userId), data).then(r => r.data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['projects', userId] });
@@ -166,7 +166,7 @@ export const ProjectsSection = ({ userId }: { userId: string }) => {
 
     const { data: projects = [], isLoading } = useQuery({
         queryKey: ['projects', userId],
-        queryFn: () => mockApi.getProjects(userId),
+        queryFn: () => candidateService.listProjects(Number(userId)).then(r => r.data),
     });
 
     const [items, setItems] = useState<ProjectEntry[]>(projects as ProjectEntry[]);
@@ -176,7 +176,7 @@ export const ProjectsSection = ({ userId }: { userId: string }) => {
     }, [projects]);
 
     const deleteMutation = useMutation({
-        mutationFn: (projectId: string) => mockApi.deleteProject(userId, projectId),
+        mutationFn: (projectId: string) => candidateService.deleteProject(Number(userId), Number(projectId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['projects', userId] });
             toast.success('Đã xoá dự án.');
@@ -184,7 +184,7 @@ export const ProjectsSection = ({ userId }: { userId: string }) => {
     });
 
     const reorderMutation = useMutation({
-        mutationFn: (newOrder: ProjectEntry[]) => mockApi.reorderProjects(userId, newOrder.map(p => p.id)),
+        mutationFn: (_newOrder: ProjectEntry[]) => Promise.resolve(),
     });
 
     const handleReorder = (newOrder: ProjectEntry[]) => {
