@@ -111,7 +111,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         
         return Response({'status': 'success', 'job_count': updated_campaign.jobs.count()})
 
-    @action(detail=True, methods=['delete'], url_path='jobs/(?P<job_id>\d+)')
+    @action(detail=True, methods=['delete'], url_path=r'jobs/(?P<job_id>\d+)')
     @extend_schema(summary="Xóa việc làm khỏi chiến dịch")
     def remove_job(self, request, pk=None, job_id=None):
         campaign = self.get_object()
