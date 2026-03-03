@@ -4,7 +4,7 @@ import { useUserStore } from '../../store/userStore';
 import { Search, Menu, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useState, useEffect } from 'react';
-import { mockApi } from '../../services/mockApi';
+import { authService } from '../../services/authService';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
     DropdownMenu,
@@ -22,7 +22,7 @@ export const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
 
-    const { user, isAuthenticated, clearAuth, refreshToken } = useUserStore();
+    const { user, isAuthenticated, clearAuth } = useUserStore();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -32,7 +32,7 @@ export const Header = () => {
 
     const handleLogout = async () => {
         try {
-            if (refreshToken) await mockApi.logout(refreshToken);
+            await authService.logout();
             clearAuth();
             toast.success("Hẹn gặp lại bạn!");
         } catch (error) {

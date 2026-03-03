@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft, Mail } from 'lucide-react';
 
@@ -33,11 +33,14 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
     const onSubmit = async (values: ForgotFormValues) => {
         try {
-            await mockApi.forgotPassword(values.email);
+            await authService.forgotPassword({ email: values.email });
             toast.success("Đã gửi email khôi phục mật khẩu.");
             onEmailSent(values.email);
         } catch (error: any) {
-            toast.error(error.message || "Lỗi hệ thống. Vui lòng thử lại.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.message
+                || 'Lỗi hệ thống. Vui lòng thử lại.';
+            toast.error(msg);
         }
     };
 

@@ -2,9 +2,11 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 
+import type { UserRole } from '@/types/api';
+
 interface ProtectedRouteProps {
     children: React.ReactNode;
-    role?: 'candidate' | 'company';
+    role?: UserRole;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {

@@ -1,14 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import type { User } from '@/types/api';
 
-export interface User {
-    id: string;
-    email: string;
-    full_name: string;
-    role: 'candidate' | 'company';
-    avatar_url?: string;
-    two_factor_enabled?: boolean;
-}
+// Re-export User type for backward compatibility
+export type { User };
 
 export interface UserState {
     user: User | null;

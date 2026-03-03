@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { SocialAuth } from './SocialAuth';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { useUserStore, UserState } from '@/store/userStore';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -44,17 +44,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     const onSubmit = async (values: LoginFormValues) => {
         try {
-            const response = await mockApi.login(values);
+            const { data } = await authService.login({
+                email: values.email,
+                password: values.password,
+            });
 
-            if (response.user.two_factor_enabled) {
+            if (data.requires_2fa) {
                 onRequire2FA(values.email);
                 return;
             }
 
-            setAuth(response.user as any, response.access_token, response.refresh_token);
-            toast.success(`Chào mừng trở lại, ${response.user.full_name}!`);
+            setAuth(data.user, data.access, data.refresh);
+            toast.success(`Chào mừng trở lại, ${data.user.full_name}!`);
         } catch (error: any) {
-            toast.error(error.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.message
+                || 'Đăng nhập thất bại. Vui lòng thử lại.';
+            toast.error(msg);
         }
     };
 

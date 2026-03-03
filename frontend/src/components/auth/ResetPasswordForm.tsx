@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { PasswordStrength } from './PasswordStrength';
-import { mockApi } from '@/services/mockApi';
+import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { Loader2, ShieldCheck } from 'lucide-react';
 
@@ -41,11 +41,18 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
     const onSubmit = async (values: ResetFormValues) => {
         try {
-            await mockApi.resetPassword({ ...values, email });
+            await authService.resetPassword({
+                token: values.token,
+                new_password: values.new_password,
+                confirm_password: values.new_password_confirm,
+            });
             toast.success("Mật khẩu đã được thay đổi thành công!");
             onSuccess();
         } catch (error: any) {
-            toast.error(error.message || "Lỗi. Vui lòng thử lại.");
+            const msg = error.response?.data?.detail
+                || error.response?.data?.message
+                || 'Lỗi. Vui lòng thử lại.';
+            toast.error(msg);
         }
     };
 
