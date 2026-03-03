@@ -39,7 +39,8 @@ class ReferralProgram(TimeStampedModel):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.DRAFT
+        default=Status.DRAFT,
+        db_index=True
     )
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -91,7 +92,8 @@ class Referral(TimeStampedModel):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.PENDING
+        default=Status.PENDING,
+        db_index=True
     )
     referral_date = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Ngày thanh toán'))

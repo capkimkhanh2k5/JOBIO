@@ -63,11 +63,13 @@ class Job(models.Model):
     job_type = models.CharField(
         max_length=20,
         choices=JobType.choices,
+        db_index=True,
         verbose_name='Loại công việc'
     )
     level = models.CharField(
         max_length=20,
         choices=Level.choices,
+        db_index=True,
         verbose_name='Cấp bậc'
     )
     experience_years_min = models.IntegerField(
