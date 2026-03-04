@@ -67,15 +67,15 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
 function FaqItem({ item }: { item: typeof FAQS[0] }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className={cn('glass-card-tinted rounded-2xl border overflow-hidden transition-colors', open ? 'border-violet-400/30' : 'border-white/10')}>
+        <div className={cn('bg-white rounded-2xl border overflow-hidden transition-all shadow-sm', open ? 'border-indigo-200 ring-1 ring-indigo-50' : 'border-gray-200 hover:border-indigo-100')}>
             <button
                 onClick={() => setOpen(!open)}
                 className="w-full flex items-center justify-between p-5 text-left group"
                 aria-expanded={open}
             >
-                <span className="font-medium text-sm pr-4 group-hover:text-violet-400 transition-colors">{item.q}</span>
-                <div className={cn('w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors', open ? 'bg-violet-500/20' : 'bg-white/5')}>
-                    <ChevronDown className={cn('w-3.5 h-3.5 text-foreground/50 transition-transform duration-300', open && 'rotate-180 text-violet-400')} />
+                <span className="font-semibold text-sm pr-4 text-gray-900 group-hover:text-indigo-600 transition-colors">{item.q}</span>
+                <div className={cn('w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors', open ? 'bg-indigo-50' : 'bg-gray-50 group-hover:bg-indigo-50/50')}>
+                    <ChevronDown className={cn('w-4 h-4 text-gray-400 transition-transform duration-300', open && 'rotate-180 text-indigo-600')} />
                 </div>
             </button>
             <AnimatePresence>
@@ -86,7 +86,7 @@ function FaqItem({ item }: { item: typeof FAQS[0] }) {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     >
-                        <div className="px-5 pb-5 pt-2 text-sm text-foreground/60 leading-relaxed border-t border-white/5">
+                        <div className="px-5 pb-5 pt-2 text-sm text-gray-600 leading-relaxed border-t border-gray-100 bg-gray-50/30">
                             {item.a}
                         </div>
                     </motion.div>
@@ -114,36 +114,36 @@ export default function FAQ() {
     }, [searchTerm, activeTab]);
 
     return (
-        <div className="relative min-h-screen pb-20">
+        <div className="relative min-h-screen pb-20 bg-gray-50/30">
             {/* ── Hero ── */}
             <section className="relative pt-28 pb-12 px-4 text-center overflow-hidden">
                 <FadeIn>
-                    <Badge className="mb-4 glass-effect border-pink-400/30 text-pink-400 px-4 py-1.5">
+                    <Badge className="mb-4 bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100 px-4 py-1.5">
                         <HelpCircle className="w-3.5 h-3.5 mr-1.5 inline" />
                         Trung tâm hỗ trợ
                     </Badge>
                 </FadeIn>
                 <FadeIn delay={0.1}>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-white via-pink-100 to-violet-200">
+                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-gray-900">
                         Chúng tôi có thể giúp gì cho bạn?
                     </h1>
                 </FadeIn>
                 <FadeIn delay={0.2}>
                     <div className="max-w-xl mx-auto relative mt-8">
                         <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                            <Search className="w-5 h-5 text-foreground/40" />
+                            <Search className="w-5 h-5 text-gray-400" />
                         </div>
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Tìm kiếm câu hỏi (vd: thanh toán, hồ sơ...)"
-                            className="w-full glass-card-tinted rounded-2xl py-4 pl-12 pr-4 border border-white/10 outline-none focus:border-violet-400/50 transition-colors text-sm placeholder:text-foreground/40"
+                            className="w-full bg-white rounded-2xl py-4 pl-12 pr-4 border border-gray-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm placeholder:text-gray-400 shadow-sm"
                         />
                     </div>
                 </FadeIn>
 
-                <div className="absolute top-20 left-1/4 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-20 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-16 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
             </section>
 
@@ -153,18 +153,18 @@ export default function FAQ() {
 
                     {/* Sidebar / Tabs */}
                     <FadeIn delay={0.3} className="md:w-64 shrink-0">
-                        <div className="glass-card-tinted rounded-2xl p-4 border border-white/10 sticky top-24">
-                            <h3 className="font-semibold text-sm mb-4 px-3">Danh mục</h3>
-                            <nav className="flex flex-col gap-1">
+                        <div className="bg-white rounded-2xl p-4 border border-gray-200 sticky top-24 shadow-sm">
+                            <h3 className="font-bold text-gray-900 text-sm mb-4 px-3">Danh mục</h3>
+                            <nav className="flex flex-col gap-1.5">
                                 <button
                                     onClick={() => setActiveTab('all')}
                                     className={cn(
-                                        'px-4 py-2.5 rounded-xl text-left text-sm transition-all flex items-center justify-between',
-                                        activeTab === 'all' ? 'bg-violet-500/15 text-violet-400 font-medium' : 'text-foreground/60 hover:bg-white/5 hover:text-foreground/80'
+                                        'px-4 py-2.5 rounded-xl text-left text-sm transition-all flex items-center justify-between font-medium',
+                                        activeTab === 'all' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                     )}
                                 >
                                     Tất cả câu hỏi
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/5">{FAQS.length}</span>
+                                    <span className={cn("text-xs px-2.5 py-0.5 rounded-full font-semibold", activeTab === 'all' ? "bg-indigo-100 text-indigo-700" : "bg-gray-100 text-gray-500")}>{FAQS.length}</span>
                                 </button>
                                 {FAQ_CATEGORIES.map(cat => {
                                     const count = FAQS.filter(q => q.category === cat.id).length;
@@ -173,12 +173,12 @@ export default function FAQ() {
                                             key={cat.id}
                                             onClick={() => setActiveTab(cat.id)}
                                             className={cn(
-                                                'px-4 py-2.5 rounded-xl text-left text-sm transition-all flex items-center justify-between',
-                                                activeTab === cat.id ? 'bg-violet-500/15 text-violet-400 font-medium' : 'text-foreground/60 hover:bg-white/5 hover:text-foreground/80'
+                                                'px-4 py-2.5 rounded-xl text-left text-sm transition-all flex items-center justify-between font-medium',
+                                                activeTab === cat.id ? 'bg-indigo-50 text-indigo-700' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                             )}
                                         >
                                             {cat.label}
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5">{count}</span>
+                                            <span className={cn("text-xs px-2.5 py-0.5 rounded-full font-semibold", activeTab === cat.id ? "bg-indigo-100 text-indigo-700" : "bg-gray-100 text-gray-500")}>{count}</span>
                                         </button>
                                     );
                                 })}
@@ -187,18 +187,20 @@ export default function FAQ() {
                     </FadeIn>
 
                     {/* FAQ List */}
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-4">
                         {filteredFaqs.length === 0 ? (
                             <FadeIn>
-                                <div className="text-center py-12 glass-card-tinted rounded-3xl border border-white/10">
-                                    <Search className="w-10 h-10 text-foreground/20 mx-auto mb-4" />
-                                    <h3 className="font-semibold text-lg mb-2">Không tìm thấy kết quả</h3>
-                                    <p className="text-sm text-foreground/50">Vui lòng thử lại với từ khóa khác hoặc liên hệ bộ phận hỗ trợ.</p>
+                                <div className="text-center py-16 bg-white rounded-3xl border border-gray-200 shadow-sm">
+                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Search className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 text-lg mb-2">Không tìm thấy kết quả</h3>
+                                    <p className="text-sm text-gray-500">Vui lòng thử lại với từ khóa khác hoặc liên hệ bộ phận hỗ trợ.</p>
                                 </div>
                             </FadeIn>
                         ) : (
                             filteredFaqs.map((faq, idx) => (
-                                <FadeIn key={faq.id} delay={0.1 * Math.min(idx, 5)}>
+                                <FadeIn key={faq.id} delay={0.05 * Math.min(idx, 5)}>
                                     <FaqItem item={faq} />
                                 </FadeIn>
                             ))
@@ -211,17 +213,20 @@ export default function FAQ() {
             <section className="px-4 mt-20">
                 <div className="max-w-4xl mx-auto">
                     <FadeIn>
-                        <div className="glass-card-tinted rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-violet-500/10 to-pink-500/10 text-center flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="text-left">
-                                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                                    <MessageCircle className="w-5 h-5 text-violet-400" />
+                        <div className="bg-indigo-50 rounded-3xl p-8 md:p-10 border border-indigo-100 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 blur-3xl rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3" />
+                            <div className="relative z-10">
+                                <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center justify-center md:justify-start gap-2.5">
+                                    <div className="p-2 bg-indigo-100 rounded-lg">
+                                        <MessageCircle className="w-5 h-5 text-indigo-700" />
+                                    </div>
                                     Không tìm thấy câu trả lời?
                                 </h3>
-                                <p className="text-sm text-foreground/60 max-w-md">
+                                <p className="text-gray-600 max-w-md mx-auto md:mx-0 font-medium">
                                     Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giải đáp mọi thắc mắc của bạn 24/7.
                                 </p>
                             </div>
-                            <Button asChild className="bg-gradient-to-r from-violet-500 to-pink-500 text-white border-0 hover:from-violet-400 hover:to-pink-400 magnetic-button shrink-0">
+                            <Button asChild size="lg" className="bg-indigo-600 text-white border-0 hover:bg-indigo-700 shadow-sm relative z-10 font-semibold w-full md:w-auto">
                                 <Link to="/contact">
                                     Liên hệ hỗ trợ ngay
                                     <ArrowRight className="w-4 h-4 ml-2" />
