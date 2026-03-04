@@ -7,188 +7,248 @@ import { JobSort } from "@/components/jobs/JobSort";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Briefcase, MapPin, AlertCircle } from "lucide-react";
+import {
+    Search, Briefcase, AlertCircle, ChevronLeft, ChevronRight,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+const PAGE_SIZE = 12;
 
 export default function JobsPage() {
     const [view, setView] = useState<"grid" | "list">("grid");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [page, setPage] = useState(1);
+    const [sort, setSort] = useState("-created_at");
 
     const filters = useFilterStore();
     const { search, setSearch } = filters;
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ['jobs', filters],
+        queryKey: ["jobs", filters, page, sort],
         queryFn: async () => {
-            const params: Record<string, any> = {};
+            const params: Record<string, any> = {
+                page,
+                page_size: PAGE_SIZE,
+                ordering: sort,
+                status: "active",
+            };
             if (filters.search) params.search = filters.search;
-            if (filters.category && filters.category !== 'all') params.category_id = filters.category;
-            if (filters.province && filters.province !== 'all') params.province_id = filters.province;
-            if (filters.job_type?.length) params.job_type = filters.job_type.join(',');
-            if (filters.level?.length) params.level = filters.level.join(',');
+            if (filters.category && filters.category !== "all") params.category_id = filters.category;
+            if (filters.province && filters.province !== "all") params.province_id = filters.province;
+            if (filters.job_type?.length) params.job_type = filters.job_type.join(",");
+            if (filters.level?.length) params.level = filters.level.join(",");
             if (filters.isRemote !== null) params.is_remote = filters.isRemote;
             if (filters.salaryRange?.[0] > 0) params.salary_min = filters.salaryRange[0];
             if (filters.salaryRange?.[1] < 10000) params.salary_max = filters.salaryRange[1];
             if (filters.experienceRange?.[0] > 0) params.experience_min = filters.experienceRange[0];
             if (filters.experienceRange?.[1] < 15) params.experience_max = filters.experienceRange[1];
-            if (filters.skills?.length) params.skills = filters.skills.join(',');
+            if (filters.skills?.length) params.skills = filters.skills.join(",");
             const { data: resp } = await jobService.list(params);
-            return { items: resp.results, total: resp.count };
+            return { items: resp.results, total: resp.count, pageCount: Math.ceil(resp.count / PAGE_SIZE) };
         },
-        placeholderData: (previousData) => previousData,
+        placeholderData: prev => prev,
     });
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
+    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") setPage(1);
     };
 
+    const handleSortChange = (s: string) => { setSort(s); setPage(1); };
+
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Search Header */}
-            <section className="mb-12 relative overflow-hidden rounded-3xl bg-background/60 backdrop-blur-2xl border border-white/20 p-8 sm:p-12 shadow-xl shadow-primary/5">
-                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-primary/20 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-violet-500/20 rounded-full blur-[100px] pointer-events-none" />
+        <div className="min-h-screen bg-gray-50">
+            {/* ── Top-level header removed, search is moved into main content ── */}
 
-                <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent"
-                    >
-                        Tìm kiếm công việc mơ ước
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-muted-foreground text-lg"
-                    >
-                        Hàng ngàn cơ hội nghề nghiệp tại các công ty hàng đầu đang chờ đón bạn.
-                    </motion.p>
+            {/* ── Body ── */}
+            <div className="container mx-auto px-4 pt-24 pb-8 space-y-6">
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="flex flex-col sm:flex-row gap-2 bg-background/50 p-2 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl shadow-primary/5"
-                    >
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input
-                                value={search}
-                                onChange={handleSearchChange}
-                                placeholder="Tiêu đề công việc, công ty..."
-                                className="pl-10 h-12 border-none bg-transparent focus-visible:ring-0 text-lg"
-                            />
-                        </div>
-                        <div className="w-[1px] bg-white/10 mx-2 hidden sm:block" />
-                        <div className="flex-1 relative hidden sm:block">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input
-                                placeholder="Địa điểm..."
-                                className="pl-10 h-12 border-none bg-transparent focus-visible:ring-0 text-lg"
-                            />
-                        </div>
-                        <Button size="lg" className="h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
-                            Tìm kiếm
-                        </Button>
-                    </motion.div>
-                </div>
-            </section>
+                {/* ── Search Hero (Full container width) ── */}
+                <div className="relative overflow-hidden rounded-2xl py-12 px-6 border border-primary/10 shadow-sm" style={{
+                    background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+                }}>
+                    {/* Blobs */}
+                    <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+                        style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+                    <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+                        style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+                    {/* Dot grid */}
+                    <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
+                        backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                        backgroundSize: '24px 24px'
+                    }} />
 
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* Sidebar Filters - Desktop */}
-                <aside className="hidden lg:block w-80 flex-shrink-0">
-                    <div className="sticky top-24 space-y-6">
-                        <div className="glass-card-tinted border-white/20 rounded-2xl p-6 shadow-xl">
-                            <JobFilters />
-                        </div>
-                        {/* Job Alert Promo */}
-                        <div className="bg-gradient-to-br from-primary/20 to-violet-500/20 border border-primary/20 rounded-2xl p-6 space-y-4">
-                            <h4 className="font-bold flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4 text-primary" />
-                                Nhận thông báo việc làm
-                            </h4>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                                Chúng tôi sẽ gửi các việc làm phù hợp nhất với tiêu chí của bạn vào email hàng ngày.
-                            </p>
-                            <Button size="sm" className="w-full bg-primary text-primary-foreground">Thiết lập ngay</Button>
-                        </div>
-                    </div>
-                </aside>
+                    <div className="relative z-10 max-w-2xl mx-auto text-center">
+                        <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-2 tracking-tight drop-shadow-sm">
+                            Tìm Việc Làm{' '}
+                            <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+                                Phù Hợp
+                            </span>
+                        </h1>
+                        <p className="text-gray-600 text-sm mb-6 font-medium">
+                            Hàng nghìn cơ hội nghề nghiệp từ các công ty hàng đầu đang chờ bạn.
+                        </p>
 
-                {/* Main Content */}
-                <main className="flex-1">
-                    <JobSort
-                        view={view}
-                        setView={setView}
-                        totalResults={data?.total || 0}
-                        onMobileFilterToggle={() => setIsFilterOpen(true)}
-                    />
-
-                    {/* Results Area */}
-                    <div className="mt-6">
-                        {isLoading ? (
-                            <div className={cn(
-                                "grid gap-6",
-                                view === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-                            )}>
-                                {Array(6).fill(0).map((_, i) => (
-                                    <CardSkeleton key={i} view={view} />
-                                ))}
+                        {/* Search card */}
+                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-xl mx-auto ring-1 ring-black/5">
+                            <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-xl px-3 gap-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+                                <Search className="h-4 w-4 text-gray-400 shrink-0" />
+                                <Input
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    onKeyDown={handleSearch}
+                                    placeholder="Tiêu đề, kỹ năng, công ty..."
+                                    className="border-0 bg-transparent h-11 px-0 focus-visible:ring-0 text-sm placeholder:text-gray-400"
+                                />
                             </div>
-                        ) : isError ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-muted">
-                                <AlertCircle className="h-12 w-12 text-destructive mb-4" />
-                                <h3 className="text-xl font-bold">Đã có lỗi xảy ra</h3>
-                                <p className="text-muted-foreground">Vui lòng thử lại sau giây lát.</p>
-                                <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>Tải lại trang</Button>
-                            </div>
-                        ) : data?.items.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed border-muted text-center max-w-md mx-auto">
-                                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
-                                    <Briefcase className="h-10 w-10 text-muted-foreground" />
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">Không tìm thấy việc làm</h3>
-                                <p className="text-muted-foreground mb-6">Hãy thử thay đổi từ khóa tìm kiếm hoặc bỏ bớt các bộ lọc để có nhiều kết quả hơn.</p>
-                                <Button onClick={() => filters.resetFilters()}>Xóa tất cả bộ lọc</Button>
-                            </div>
-                        ) : (
-                            <motion.div
-                                layout
-                                className={cn(
-                                    "grid gap-6",
-                                    view === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
-                                )}
+                            <Button
+                                onClick={() => setPage(1)}
+                                className="px-8 h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-md shadow-violet-400/30 transition-all shrink-0"
                             >
-                                <AnimatePresence mode="popLayout">
-                                    {data?.items.map((job: any) => (
-                                        <JobCard key={job.id} job={job} view={view} />
-                                    ))}
-                                </AnimatePresence>
-                            </motion.div>
-                        )}
-
-                        {/* Pagination / Load More (Stub) */}
-                        {!isLoading && data && data.items.length > 0 && (
-                            <div className="mt-12 flex justify-center">
-                                <Button variant="outline" className="px-12 py-6 rounded-xl border-white/10 hover:bg-white/5 transition-colors">
-                                    Tải thêm việc làm
-                                </Button>
-                            </div>
-                        )}
+                                Tìm kiếm
+                            </Button>
+                        </div>
                     </div>
-                </main>
+                </div>
+
+                {/* ── Main Layout ── */}
+                <div className="flex gap-6">
+                    {/* Sidebar filters — desktop */}
+                    <aside className="hidden lg:block w-72 flex-shrink-0">
+                        <div className="sticky top-24">
+                            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                                <JobFilters />
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Main */}
+                    <main className="flex-1 min-w-0 flex flex-col gap-6">
+
+                        {/* ── Search Hero relocated above ── */}
+
+                        {/* List Header (Sort & Views) */}
+                        <JobSort
+                            view={view}
+                            setView={setView}
+                            totalResults={data?.total ?? 0}
+                            onMobileFilterToggle={() => setIsFilterOpen(true)}
+                            sort={sort}
+                            setSort={handleSortChange}
+                        />
+
+                        <div className="mt-5">
+                            {isLoading ? (
+                                <div className={cn(
+                                    "grid gap-4",
+                                    view === "grid" ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2" : "grid-cols-1"
+                                )}>
+                                    {Array(6).fill(0).map((_, i) => (
+                                        <CardSkeleton key={i} view={view} />
+                                    ))}
+                                </div>
+                            ) : isError ? (
+                                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-gray-200 text-center">
+                                    <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                                        <AlertCircle className="h-6 w-6 text-red-400" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1">Đã có lỗi xảy ra</h3>
+                                    <p className="text-sm text-gray-500 mb-5">Vui lòng thử lại sau giây lát.</p>
+                                    <Button variant="outline" onClick={() => window.location.reload()}>Tải lại trang</Button>
+                                </div>
+                            ) : data?.items.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-200 text-center">
+                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
+                                        <Briefcase className="h-7 w-7 text-gray-300" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-1">Không tìm thấy việc làm</h3>
+                                    <p className="text-sm text-gray-500 max-w-xs mb-5">
+                                        Thử thay đổi từ khóa hoặc bỏ bớt bộ lọc để tìm thêm kết quả.
+                                    </p>
+                                    <Button onClick={() => filters.resetFilters()} variant="outline">
+                                        Xóa tất cả bộ lọc
+                                    </Button>
+                                </div>
+                            ) : (
+                                <motion.div
+                                    layout
+                                    className={cn(
+                                        "grid gap-4",
+                                        view === "grid" ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2" : "grid-cols-1"
+                                    )}
+                                >
+                                    <AnimatePresence mode="popLayout">
+                                        {data?.items.map((job: any) => (
+                                            <JobCard key={job.id} job={job} view={view} />
+                                        ))}
+                                    </AnimatePresence>
+                                </motion.div>
+                            )}
+
+                            {/* Pagination */}
+                            {!isLoading && data && data.pageCount > 1 && (
+                                <div className="mt-8 flex items-center justify-between">
+                                    <p className="text-sm text-gray-500">
+                                        Trang <span className="font-semibold text-gray-800">{page}</span> / {data.pageCount}
+                                        {" "}· {data.total} kết quả
+                                    </p>
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            variant="outline" size="icon"
+                                            className="h-8 w-8 border-gray-200"
+                                            disabled={page <= 1}
+                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                        >
+                                            <ChevronLeft className="h-4 w-4" />
+                                        </Button>
+                                        {Array.from({ length: Math.min(data.pageCount, 5) }, (_, i) => {
+                                            const pageNum = getPageNumber(page, data.pageCount, i);
+                                            return (
+                                                <Button
+                                                    key={pageNum}
+                                                    variant={page === pageNum ? "default" : "outline"}
+                                                    size="icon"
+                                                    className={cn(
+                                                        "h-8 w-8 text-xs",
+                                                        page === pageNum ? "bg-primary text-white border-primary" : "border-gray-200 text-gray-600"
+                                                    )}
+                                                    onClick={() => setPage(pageNum)}
+                                                >
+                                                    {pageNum}
+                                                </Button>
+                                            );
+                                        })}
+                                        <Button
+                                            variant="outline" size="icon"
+                                            className="h-8 w-8 border-gray-200"
+                                            disabled={page >= data.pageCount}
+                                            onClick={() => setPage(p => Math.min(data.pageCount, p + 1))}
+                                        >
+                                            <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
             </div>
 
-            {/* Mobile Filter Drawer */}
+            {/* Mobile filter drawer */}
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <SheetContent side="left" className="w-[300px] sm:w-[400px] p-6 overflow-y-auto bg-background/95 backdrop-blur-xl border-r-white/10">
-                    <JobFilters />
-                    <div className="mt-8 pt-4 border-t border-white/10">
-                        <Button className="w-full" onClick={() => setIsFilterOpen(false)}>Hiển thị kết quả</Button>
+                <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 overflow-y-auto bg-white">
+                    <SheetHeader className="px-5 py-4 border-b border-gray-100">
+                        <SheetTitle className="text-base font-bold">Bộ lọc</SheetTitle>
+                    </SheetHeader>
+                    <div className="p-5">
+                        <JobFilters />
+                    </div>
+                    <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+                        <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" onClick={() => setIsFilterOpen(false)}>
+                            Xem kết quả ({data?.total ?? 0})
+                        </Button>
                     </div>
                 </SheetContent>
             </Sheet>
@@ -196,42 +256,51 @@ export default function JobsPage() {
     );
 }
 
+/** Smart page window: always show 5 pages centered around current */
+function getPageNumber(current: number, total: number, index: number): number {
+    const half = 2;
+    let start = Math.max(1, current - half);
+    const end = Math.min(total, start + 4);
+    start = Math.max(1, end - 4);
+    return start + index;
+}
+
 function CardSkeleton({ view }: { view: "grid" | "list" }) {
     if (view === "list") {
         return (
-            <div className="flex items-center p-4 gap-6 bg-background/40 rounded-xl border border-white/10">
-                <Skeleton className="w-16 h-16 rounded-xl" />
+            <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4">
+                <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
                 <div className="flex-1 space-y-2">
-                    <Skeleton className="h-6 w-1/3" />
                     <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-3 w-1/3" />
+                    <div className="flex gap-2">
+                        <Skeleton className="h-4 w-16 rounded-full" />
+                        <Skeleton className="h-4 w-16 rounded-full" />
+                    </div>
                 </div>
-                <Skeleton className="h-12 w-32 rounded-lg" />
+                <Skeleton className="h-8 w-20 rounded-lg" />
             </div>
         );
     }
     return (
-        <div className="p-6 bg-background/40 rounded-xl border border-white/10 space-y-4">
-            <div className="flex justify-between items-start">
-                <div className="flex gap-4">
-                    <Skeleton className="w-14 h-14 rounded-xl" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-5 w-32" />
-                        <Skeleton className="h-4 w-24" />
-                    </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+            <div className="flex items-center gap-3">
+                <Skeleton className="w-11 h-11 rounded-lg" />
+                <div className="space-y-1 flex-1">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-16" />
                 </div>
-                <Skeleton className="w-10 h-10 rounded-full" />
             </div>
-            <div className="flex gap-2">
-                <Skeleton className="h-5 w-16" />
-                <Skeleton className="h-5 w-16" />
+            <Skeleton className="h-4 w-3/4" />
+            <div className="flex gap-1.5">
+                <Skeleton className="h-4 w-16 rounded-full" />
+                <Skeleton className="h-4 w-16 rounded-full" />
             </div>
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
+            <div className="space-y-1.5">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-1/2" />
             </div>
-            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-9 w-full rounded-lg" />
         </div>
     );
 }
-
-const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
