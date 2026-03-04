@@ -11,7 +11,7 @@ import { SocialAuth } from './SocialAuth';
 import { PasswordStrength } from './PasswordStrength';
 import { authService } from '@/services/authService';
 import { toast } from 'sonner';
-import { Loader2, Briefcase, User } from 'lucide-react';
+import { Loader2, Briefcase, User, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const registerSchema = z.object({
@@ -39,6 +39,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     onSwitchToLogin,
     onRegistered
 }) => {
+    const [isCheckingEmail, setIsCheckingEmail] = React.useState(false);
+    const [emailStatus, setEmailStatus] = React.useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -77,6 +80,32 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         if (firstErrorKey) {
             const error = (errors as any)[firstErrorKey];
             toast.error(error.message || "Vui lòng kiểm tra lại thông tin đăng ký.");
+        }
+    };
+
+    const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+        field.onBlur(); // keep hook-form's native onblur behavior
+        const val = e.target.value;
+        if (!val || form.formState.errors.email) {
+            setEmailStatus('idle');
+            return;
+        }
+
+        setIsCheckingEmail(true);
+        setEmailStatus('checking');
+        try {
+            const { data } = await authService.checkEmail(val);
+            if (data.is_available) {
+                setEmailStatus('available');
+                form.clearErrors('email');
+            } else {
+                setEmailStatus('taken');
+                form.setError('email', { type: 'manual', message: 'Email đã được đăng ký' });
+            }
+        } catch (error) {
+            setEmailStatus('idle');
+        } finally {
+            setIsCheckingEmail(false);
         }
     };
 
@@ -149,11 +178,47 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="name@example.com"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
-                                        {...field}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            placeholder="name@example.com"
+                                            className={cn(
+                                                "bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10",
+                                                emailStatus === 'taken' && "border-red-500 focus:border-red-500 focus:ring-red-500/10",
+                                                emailStatus === 'available' && "border-green-500 focus:border-green-500 focus:ring-green-500/10"
+                                            )}
+                                            {...field}
+                                            onBlur={async (e) => {
+                                                field.onBlur();
+                                                const val = e.target.value;
+                                                if (!val || form.getFieldState('email').invalid) {
+                                                    setEmailStatus('idle');
+                                                    return;
+                                                }
+
+                                                setIsCheckingEmail(true);
+                                                setEmailStatus('checking');
+                                                try {
+                                                    const { data } = await authService.checkEmail(val);
+                                                    if (data.is_available) {
+                                                        setEmailStatus('available');
+                                                        form.clearErrors('email');
+                                                    } else {
+                                                        setEmailStatus('taken');
+                                                        form.setError('email', { type: 'manual', message: 'Email này đã được sử dụng' });
+                                                    }
+                                                } catch (error) {
+                                                    setEmailStatus('idle');
+                                                } finally {
+                                                    setIsCheckingEmail(false);
+                                                }
+                                            }}
+                                        />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                                            {isCheckingEmail && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
+                                            {!isCheckingEmail && emailStatus === 'available' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                                            {!isCheckingEmail && emailStatus === 'taken' && <XCircle className="w-4 h-4 text-red-500" />}
+                                        </div>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

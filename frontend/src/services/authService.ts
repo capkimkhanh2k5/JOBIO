@@ -65,11 +65,15 @@ export const authService = {
   // ─── Email Verification ──────────────────────────────────────────────────
 
   verifyEmail(token: string) {
-    return api.post('/api/users/auth/verify-email/', { token });
+    return api.post('/api/users/auth/verify-email/', { email_verification_token: token });
   },
 
-  resendVerification() {
-    return api.post('/api/users/auth/resend-verification/');
+  resendVerification(email: string) {
+    return api.post('/api/users/auth/resend-verification/', { email });
+  },
+
+  checkEmail(email: string) {
+    return api.post<{ is_available: boolean }>('/api/users/auth/check-email/', { email });
   },
 
   // ─── 2FA ─────────────────────────────────────────────────────────────────
