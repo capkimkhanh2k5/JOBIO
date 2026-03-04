@@ -25,7 +25,7 @@ function MediaLightbox({ item, onClose }: { item: MediaItem; onClose: () => void
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
                 onClick={onClose}
             >
                 <motion.div
@@ -80,7 +80,7 @@ export function CompanyMediaTab({ companyId }: Props) {
         return (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {Array(6).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="aspect-video rounded-xl bg-white/5" />
+                    <Skeleton key={i} className="aspect-video rounded-xl bg-gray-100" />
                 ))}
             </div>
         );
@@ -89,10 +89,10 @@ export function CompanyMediaTab({ companyId }: Props) {
     if (!media || media.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground mb-4">
+                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
                     <Image size={28} />
                 </div>
-                <p className="font-medium text-muted-foreground">Chưa có media nào</p>
+                <p className="font-medium text-gray-500">Chưa có media nào</p>
             </div>
         );
     }
@@ -104,7 +104,7 @@ export function CompanyMediaTab({ companyId }: Props) {
         <>
             {videos.length > 0 && (
                 <div className="mb-6">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-1.5">
                         <Play size={12} /> Video ({videos.length})
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -114,7 +114,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: i * 0.08 }}
-                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-white/10 hover:border-white/30 transition-colors"
+                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
                                 onClick={() => setLightboxItem(item)}
                             >
                                 <img
@@ -123,8 +123,8 @@ export function CompanyMediaTab({ companyId }: Props) {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                                    <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Play size={22} className="text-white fill-white ml-1" />
+                                    <div className="h-14 w-14 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Play size={22} className="text-gray-900 fill-gray-900 ml-1" />
                                     </div>
                                 </div>
                                 <Badge className="absolute bottom-3 left-3 bg-black/50 text-white border-0 text-xs">
@@ -153,7 +153,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: i * 0.06 }}
-                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-white/10 hover:border-white/30 transition-colors"
+                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
                                 onClick={() => setLightboxItem(item)}
                             >
                                 <img

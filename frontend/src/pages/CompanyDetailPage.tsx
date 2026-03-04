@@ -47,15 +47,15 @@ function VerificationBadge({ status }: { status: string }) {
 function CompanyPageSkeleton() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-pulse">
-            <Skeleton className="h-64 w-full rounded-3xl bg-white/5" />
+            <Skeleton className="h-64 w-full rounded-3xl bg-gray-100" />
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-8 space-y-6">
-                    <Skeleton className="h-48 w-full rounded-2xl bg-white/5" />
-                    <Skeleton className="h-10 w-full rounded-2xl bg-white/5" />
-                    <Skeleton className="h-80 w-full rounded-2xl bg-white/5" />
+                    <Skeleton className="h-48 w-full rounded-2xl bg-gray-100" />
+                    <Skeleton className="h-10 w-full rounded-2xl bg-gray-100" />
+                    <Skeleton className="h-80 w-full rounded-2xl bg-gray-100" />
                 </div>
                 <div className="lg:col-span-4">
-                    <Skeleton className="h-[400px] w-full rounded-2xl bg-white/5" />
+                    <Skeleton className="h-[400px] w-full rounded-2xl bg-gray-100" />
                 </div>
             </div>
         </div>
@@ -143,7 +143,7 @@ export default function CompanyDetailPage() {
             <div className="max-w-7xl mx-auto px-4 pt-6">
                 <Button
                     variant="ghost"
-                    className="hover:bg-white/5 text-muted-foreground hover:text-foreground group mb-4"
+                    className="hover:bg-gray-100 text-gray-500 hover:text-gray-900 group mb-4"
                     onClick={() => navigate(-1)}
                 >
                     <ChevronLeft size={18} className="mr-1 transition-transform group-hover:-translate-x-1" />
@@ -157,7 +157,7 @@ export default function CompanyDetailPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="relative rounded-3xl overflow-hidden border border-white/10"
+                    className="relative rounded-3xl overflow-hidden border border-gray-100 shadow-sm bg-white"
                 >
                     {/* Banner */}
                     <div className="relative h-56 md:h-72 w-full">
@@ -168,17 +168,17 @@ export default function CompanyDetailPage() {
                                 className="w-full h-full object-cover"
                             />
                         ) : (
-                            <div className="w-full h-full aurora-bg opacity-60" />
+                            <div className="w-full h-full bg-gradient-to-br from-indigo-50/50 to-white opacity-60" />
                         )}
                         {/* Gradient overlay at bottom */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                     </div>
 
                     {/* Company info card overlaid on banner bottom */}
-                    <div className="relative -mt-1 bg-black/40 backdrop-blur-xl border-t border-white/10 px-6 md:px-10 py-6">
+                    <div className="relative -mt-1 bg-white border-t border-gray-100 px-6 md:px-10 py-6">
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
                             {/* Logo */}
-                            <div className="relative -mt-16 md:-mt-20 shrink-0 h-20 w-20 md:h-24 md:w-24 rounded-2xl glass border border-white/20 p-2 shadow-2xl bg-black/40">
+                            <div className="relative -mt-16 md:-mt-20 shrink-0 h-20 w-20 md:h-24 md:w-24 rounded-2xl bg-white border border-gray-100 p-2 shadow-lg">
                                 <img
                                     src={company.logo_url}
                                     alt={company.company_name}
@@ -189,7 +189,7 @@ export default function CompanyDetailPage() {
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                                    <h1 className="text-2xl md:text-3xl font-extrabold text-white">
+                                    <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">
                                         {company.company_name}
                                     </h1>
                                     <VerificationBadge status={company.verification_status} />
@@ -234,8 +234,8 @@ export default function CompanyDetailPage() {
                                             disabled={followMutation.isPending || unfollowMutation.isPending}
                                             className={
                                                 effectiveFollowing
-                                                    ? 'bg-white/10 border border-white/20 text-white hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-400 rounded-xl px-6 h-11 font-semibold transition-all duration-200'
-                                                    : 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white rounded-xl px-6 h-11 font-semibold hover:opacity-90 transition-all duration-200 shadow-lg glow-cyan'
+                                                    ? 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600 rounded-xl px-6 h-11 font-semibold transition-all duration-200 shadow-sm'
+                                                    : 'bg-primary text-white rounded-xl px-6 h-11 font-semibold hover:bg-primary/90 transition-all duration-200 shadow-md'
                                             }
                                         >
                                             {effectiveFollowing ? 'Đang theo dõi' : 'Theo dõi'}
@@ -263,31 +263,31 @@ export default function CompanyDetailPage() {
                         className="lg:col-span-8 flex flex-col gap-6"
                     >
                         {/* ── About Section ──────────────────── */}
-                        <div className="glass-card-tinted rounded-2xl p-6 border border-white/10">
-                            <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                <MessageSquare size={18} className="text-cyan-400" />
+                        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <MessageSquare size={18} className="text-primary" />
                                 Giới thiệu
                             </h2>
                             <p className="text-muted-foreground leading-relaxed mb-5">
                                 {company.description}
                             </p>
-                            <Separator className="bg-white/10 mb-5" />
+                            <Separator className="bg-gray-100 mb-5" />
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                 {company.headquarters && (
-                                    <div className="flex items-start gap-2 text-muted-foreground">
-                                        <MapPin size={15} className="text-violet-400 mt-0.5 shrink-0" />
+                                    <div className="flex items-start gap-2 text-gray-500">
+                                        <MapPin size={15} className="text-violet-500 mt-0.5 shrink-0" />
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold tracking-widest mb-0.5 text-muted-foreground/60">Địa chỉ</p>
-                                            <p className="text-foreground">{company.headquarters}</p>
+                                            <p className="text-[10px] uppercase font-bold tracking-widest mb-0.5 text-gray-400">Địa chỉ</p>
+                                            <p className="text-gray-900">{company.headquarters}</p>
                                         </div>
                                     </div>
                                 )}
                                 {company.tax_code && (
-                                    <div className="flex items-start gap-2 text-muted-foreground">
-                                        <Hash size={15} className="text-lime-400 mt-0.5 shrink-0" />
+                                    <div className="flex items-start gap-2 text-gray-500">
+                                        <Hash size={15} className="text-emerald-500 mt-0.5 shrink-0" />
                                         <div>
-                                            <p className="text-[10px] uppercase font-bold tracking-widest mb-0.5 text-muted-foreground/60">Mã số thuế</p>
-                                            <p className="text-foreground">{company.tax_code}</p>
+                                            <p className="text-[10px] uppercase font-bold tracking-widest mb-0.5 text-gray-400">Mã số thuế</p>
+                                            <p className="text-gray-900">{company.tax_code}</p>
                                         </div>
                                     </div>
                                 )}
@@ -296,7 +296,7 @@ export default function CompanyDetailPage() {
 
                         {/* ── Tabs ───────────────────────────── */}
                         <Tabs defaultValue="jobs" className="w-full">
-                            <TabsList className="glass border border-white/10 rounded-2xl p-1 h-auto flex flex-wrap gap-1 mb-6 w-full">
+                            <TabsList className="bg-white border border-gray-100 shadow-sm rounded-2xl p-1 h-auto flex flex-wrap gap-1 mb-6 w-full">
                                 {[
                                     { value: 'jobs', label: 'Việc làm', icon: Briefcase },
                                     { value: 'benefits', label: 'Phúc lợi', icon: Star },
@@ -307,7 +307,7 @@ export default function CompanyDetailPage() {
                                     <TabsTrigger
                                         key={value}
                                         value={value}
-                                        className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 rounded-xl text-sm font-medium py-2.5 data-[state=active]:bg-white/10 data-[state=active]:text-foreground text-muted-foreground transition-all"
+                                        className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 rounded-xl text-sm font-medium py-2.5 data-[state=active]:bg-primary/5 data-[state=active]:text-primary text-gray-500 transition-all"
                                     >
                                         <Icon size={14} />
                                         <span className="hidden sm:inline">{label}</span>
@@ -349,16 +349,16 @@ export default function CompanyDetailPage() {
                             <CompanyStatsSidebar stats={stats} />
 
                             {/* Quick Links */}
-                            <div className="glass-card-tinted rounded-2xl p-5 border border-white/10 mt-4">
-                                <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                                    <BarChart3 size={16} className="text-cyan-400" />
+                            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mt-4">
+                                <h3 className="font-semibold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                                    <BarChart3 size={16} className="text-primary" />
                                     Chia sẻ hồ sơ
                                 </h3>
                                 <div className="flex gap-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="flex-1 rounded-xl border-white/10 hover:bg-white/5 text-xs"
+                                        className="flex-1 rounded-xl border-gray-200 hover:bg-gray-50 text-gray-600 text-xs shadow-sm"
                                         onClick={() => {
                                             navigator.clipboard.writeText(window.location.href);
                                         }}
