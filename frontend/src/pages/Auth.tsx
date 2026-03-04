@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GlassCard } from '../components/shared/GlassCard';
 import { LoginForm } from '../components/auth/LoginForm';
 import { RegisterForm } from '../components/auth/RegisterForm';
 import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
 import { ResetPasswordForm } from '../components/auth/ResetPasswordForm';
 import { VerifyEmailView } from '../components/auth/VerifyEmailView';
 import { TwoFactorView } from '../components/auth/TwoFactorView';
+import { Link } from 'react-router-dom';
 
 type AuthView = 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-email' | '2fa';
+
+const viewTitles: Record<AuthView, { title: string; desc: string }> = {
+    'login': { title: 'Chào mừng trở lại', desc: 'Tìm kiếm cơ hội nghề nghiệp tốt nhất cùng JOBIO' },
+    'register': { title: 'Tạo tài khoản mới', desc: 'Bắt đầu hành trình tìm việc mơ ước của bạn' },
+    'forgot-password': { title: 'Khôi phục mật khẩu', desc: 'Nhập email của bạn để nhận hướng dẫn' },
+    'reset-password': { title: 'Đặt lại mật khẩu', desc: 'Chọn mật khẩu mới an toàn hơn' },
+    'verify-email': { title: 'Xác minh Email', desc: 'Chúng tôi đã gửi mã xác nhận đến email của bạn' },
+    '2fa': { title: 'Xác minh 2FA', desc: 'Nhập mã xác thực từ ứng dụng của bạn' },
+};
 
 const Auth: React.FC = () => {
     const [view, setView] = useState<AuthView>('login');
@@ -33,20 +42,11 @@ const Auth: React.FC = () => {
                     onEmailSent={(email: string) => { setEmail(email); setView('reset-password'); }}
                 />;
             case 'reset-password':
-                return <ResetPasswordForm
-                    email={email}
-                    onSuccess={() => setView('login')}
-                />;
+                return <ResetPasswordForm email={email} onSuccess={() => setView('login')} />;
             case 'verify-email':
-                return <VerifyEmailView
-                    email={email}
-                    onVerified={() => setView('login')}
-                />;
+                return <VerifyEmailView email={email} onVerified={() => setView('login')} />;
             case '2fa':
-                return <TwoFactorView
-                    email={email}
-                    onSuccess={() => { /* Store handled inside */ }}
-                />;
+                return <TwoFactorView email={email} onSuccess={() => { }} />;
             default:
                 return <LoginForm
                     onSwitchToRegister={() => setView('register')}
@@ -56,69 +56,78 @@ const Auth: React.FC = () => {
         }
     };
 
+    const { title, desc } = viewTitles[view];
+
     return (
-        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 py-12 md:py-20">
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 py-12 md:py-20 bg-gray-50">
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="w-full max-w-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="w-full max-w-md"
             >
-                <GlassCard className="p-8 md:p-10 relative overflow-hidden">
-                    {/* Decorative elements */}
-                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-32 h-32 bg-violet-500/20 rounded-full blur-3xl" />
+                {/* Brand mark */}
+                <div className="text-center mb-6">
+                    <Link to="/" className="inline-block text-2xl font-black bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">
+                        JOBIO
+                    </Link>
+                </div>
 
-                    <div className="mb-8 text-center relative z-10">
-                        <motion.h1
-                            initial={{ y: -10, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            key={`title-${view}`}
-                            className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent mb-2"
-                        >
-                            {view === 'login' && 'Chào mừng trở lại'}
-                            {view === 'register' && 'Tạo tài khoản mới'}
-                            {view === 'forgot-password' && 'Khôi phục mật khẩu'}
-                            {view === 'reset-password' && 'Đặt lại mật khẩu'}
-                            {view === 'verify-email' && 'Xác minh Email'}
-                            {view === '2fa' && 'Xác minh 2FA'}
-                        </motion.h1>
-                        <motion.p
-                            initial={{ y: 5, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            key={`desc-${view}`}
-                            className="text-slate-700 font-medium"
-                        >
-                            {view === 'login' && 'Tìm kiếm cơ hội nghề nghiệp tốt nhất cùng JOBIO'}
-                            {view === 'register' && 'Bắt đầu hành trình tìm việc mơ ước của bạn'}
-                            {view === 'forgot-password' && 'Nhập email của bạn để nhận hướng dẫn'}
-                            {view === 'reset-password' && 'Chọn mật khẩu mới an toàn hơn'}
-                            {view === 'verify-email' && `Chúng tôi đã gửi mã đến ${email}`}
-                            {view === '2fa' && 'Nhập mã xác thực từ ứng dụng của bạn'}
-                        </motion.p>
+                {/* Card */}
+                <div className="bg-white border border-gray-200 shadow-lg rounded-2xl overflow-hidden">
+                    {/* Card header accent */}
+                    <div className="h-1 w-full bg-gradient-to-r from-violet-500 via-primary to-cyan-500" />
+
+                    <div className="p-7 md:p-9">
+                        {/* Title */}
+                        <div className="mb-7 text-center">
+                            <AnimatePresence mode="wait">
+                                <motion.h1
+                                    key={`title-${view}`}
+                                    initial={{ y: -8, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: 8, opacity: 0 }}
+                                    transition={{ duration: 0.25 }}
+                                    className="text-2xl md:text-3xl font-bold text-gray-900 mb-1"
+                                >
+                                    {title}
+                                </motion.h1>
+                            </AnimatePresence>
+                            <AnimatePresence mode="wait">
+                                <motion.p
+                                    key={`desc-${view}`}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="text-sm text-gray-500"
+                                >
+                                    {view === 'verify-email' ? `Chúng tôi đã gửi mã đến ${email}` : desc}
+                                </motion.p>
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Form area */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={view}
+                                initial={{ opacity: 0, x: 16 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -16 }}
+                                transition={{ duration: 0.25, ease: "easeInOut" }}
+                            >
+                                {renderView()}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
-
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={view}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="relative z-10"
-                        >
-                            {renderView()}
-                        </motion.div>
-                    </AnimatePresence>
-                </GlassCard>
+                </div>
 
                 {/* Footer text */}
-                <div className="mt-8 text-center text-sm text-muted-foreground/60 px-4">
+                <div className="mt-6 text-center text-xs text-gray-400 px-4">
                     Bằng cách tiếp tục, bạn đồng ý với{' '}
-                    <a href="#" className="hover:text-cyan-400 transition-colors underline underline-offset-4">Điều khoản dịch vụ</a>
+                    <a href="#" className="hover:text-primary transition-colors underline underline-offset-2">Điều khoản dịch vụ</a>
                     {' '}và{' '}
-                    <a href="#" className="hover:text-cyan-400 transition-colors underline underline-offset-4">Chính sách bảo mật</a>
-                    {' '}của chúng tôi.
+                    <a href="#" className="hover:text-primary transition-colors underline underline-offset-2">Chính sách bảo mật</a>.
                 </div>
             </motion.div>
         </div>

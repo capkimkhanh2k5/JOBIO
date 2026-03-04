@@ -85,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="name@example.com"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
                                         {...field}
                                     />
                                 </FormControl>
@@ -102,7 +102,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <FormLabel>Mật khẩu</FormLabel>
                                     <Button
                                         variant="link"
-                                        className="p-0 h-auto text-xs text-cyan-600 hover:text-cyan-700 font-bold"
+                                        className="p-0 h-auto text-xs text-primary hover:text-primary/80 font-semibold"
                                         onClick={onForgotPassword}
                                         type="button"
                                     >
@@ -113,7 +113,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
                                         {...field}
                                     />
                                 </FormControl>
@@ -131,7 +131,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     id="rememberMe"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="border-white/40 data-[state=checked]:bg-cyan-600 data-[state=checked]:border-cyan-600"
+                                    className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                 />
                                 <Label htmlFor="rememberMe" className="text-sm font-normal text-muted-foreground cursor-pointer">
                                     Ghi nhớ đăng nhập
@@ -142,7 +142,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:opacity-90 transition-opacity font-semibold"
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -152,11 +152,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </Form>
 
             <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-white/10" />
-                <span className="text-xs uppercase text-muted-foreground whitespace-nowrap">
+                <div className="h-[1px] flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-400 whitespace-nowrap">
                     Hoặc đăng nhập với
                 </span>
-                <div className="h-[1px] flex-1 bg-white/10" />
+                <div className="h-[1px] flex-1 bg-gray-200" />
             </div>
 
             <SocialAuth />
@@ -165,7 +165,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 Chưa có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-cyan-600 hover:text-cyan-700 font-bold"
+                    className="p-0 h-auto text-primary hover:text-primary/80 font-semibold"
                     onClick={onSwitchToRegister}
                 >
                     Đăng ký ngay
