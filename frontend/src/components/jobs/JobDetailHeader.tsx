@@ -1,208 +1,258 @@
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
-    Building2,
+    ChevronLeft,
+    Bookmark,
+    Users,
+    Zap,
     MapPin,
     Calendar,
-    Users,
-    Share2,
-    Bookmark,
-    CheckCircle2,
     Clock,
     DollarSign,
-    Briefcase,
-    Zap
+    CheckCircle2,
+    Facebook,
+    Linkedin,
+    Link as LinkIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { savedJobService } from '@/services/savedJobService';
+import { cn } from '@/lib/utils';
+import { useUserStore } from '@/store/userStore';
 
 interface JobDetailHeaderProps {
     job: {
-        id: string;
+        id: number;
         title: string;
-        company_name: string;
-        logo_url: string;
-        banner_url?: string;
+        company: {
+            id: number;
+            company_name: string;
+            logo_url: string | null;
+            verification_status?: string;
+        };
+        banner_url?: string | null;
         job_type: string;
         level: string;
-        salary_min: number;
-        salary_max: number;
+        salary_min: number | null;
+        salary_max: number | null;
         salary_currency: string;
-        is_salary_visible: boolean;
+        salary_negotiable: boolean;
         is_remote: boolean;
-        deadline: string;
-        views_count: number;
-        applications_count: number;
-        is_featured: boolean;
+        application_deadline: string | null;
+        view_count: number;
+        application_count: number;
+        featured: boolean;
+        published_at: string | null;
     };
-    locations: { province: string }[];
+    locations: { address: { province_name?: string } }[];
     onApply: () => void;
 }
 
 export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProps) => {
-    const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        toast.success("Đã sao chép liên kết vào bộ nhớ tạm");
+    const { isAuthenticated } = useUserStore();
+    const [isSaved, setIsSaved] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            savedJobService.isSaved(job.id).then(res => setIsSaved(res.data.is_saved));
+        }
+    }, [job.id, isAuthenticated]);
+
+    const handleShare = (platform: 'link' | 'facebook' | 'linkedin') => {
+        const url = window.location.href;
+        if (platform === 'link') {
+            navigator.clipboard.writeText(url);
+            toast.success("Đã sao chép liên kết");
+        } else if (platform === 'facebook') {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        } else if (platform === 'linkedin') {
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+        }
     };
 
-    const handleSave = () => {
-        toast.success("Đã lưu tin tuyển dụng thành công");
+    const toggleSave = async () => {
+        if (!isAuthenticated) {
+            toast.error("Vui lòng đăng nhập để lưu việc làm");
+            return;
+        }
+        setIsSaving(true);
+        try {
+            if (isSaved) {
+                await savedJobService.unsaveByJob(job.id);
+                setIsSaved(false);
+                toast.success("Đã bỏ lưu việc làm");
+            } else {
+                await savedJobService.save(job.id);
+                setIsSaved(true);
+                toast.success("Đã lưu việc làm");
+            }
+        } catch (error) {
+            toast.error("Thao tác thất bại");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const formatSalary = (min: number, max: number, currency: string) => {
-        if (!job.is_salary_visible) return "Thỏa thuận";
-        return `${min.toLocaleString()} - ${max.toLocaleString()} ${currency}`;
+    const formatSalary = () => {
+        if (job.salary_negotiable) return "Thỏa thuận";
+        if (!job.salary_min && !job.salary_max) return "Lương thỏa thuận";
+        return `${job.salary_min?.toLocaleString()} - ${job.salary_max?.toLocaleString()} ${job.salary_currency}`;
     };
 
     // Calculate days remaining
-    const deadlineDate = new Date(job.deadline);
-    const today = new Date();
-    const diffTime = Math.abs(deadlineDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = job.application_deadline ? Math.ceil((new Date(job.application_deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    const isUrgent = diffDays > 0 && diffDays <= 3;
 
     return (
-        <section className="relative w-full mb-12">
-            {/* Banner Section */}
-            <div className="relative h-48 md:h-72 w-full rounded-[32px] overflow-hidden z-20">
-                {job.banner_url ? (
-                    <img
-                        src={job.banner_url}
-                        alt="Company Banner"
-                        className="w-full h-full object-cover"
-                    />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-aurora-cyan/20 via-aurora-violet/20 to-aurora-lime/20 animate-aurora-shift" />
-                )}
-                {/* Fade Overlay - Reverses into the card below */}
-                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-background via-background/40 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent opacity-40" />
+        <section className="w-full space-y-6">
+            {/* Banner & Logo Area */}
+            <div className="relative group">
+                <div className="h-48 md:h-64 w-full rounded-2xl overflow-hidden border border-gray-200">
+                    {job.banner_url ? (
+                        <img src={job.banner_url} alt="Banner" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-indigo-50 via-white to-violet-50" />
+                    )}
+                </div>
+
+                {/* Logo Floating */}
+                <div className="absolute -bottom-10 left-8 p-1.5 bg-white rounded-2xl shadow-xl border border-gray-100 hidden md:block">
+                    <div className="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50">
+                        {job.company.logo_url ? (
+                            <img src={job.company.logo_url} alt={job.company.company_name} className="w-full h-full object-contain" />
+                        ) : (
+                            <Building2 className="w-10 h-10 text-gray-300" />
+                        )}
+                    </div>
+                </div>
             </div>
 
-            {/* Main Info Section - Positioned below the banner shadow/fade */}
-            <div className="relative -mt-32 pb-8">
-                <div className="glass-card-tinted p-8 md:p-10 pt-36 md:pt-40 rounded-[40px] border-white/20 shadow-sm relative z-0">
-                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-                        <div className="flex items-start md:items-end gap-6">
-                            {/* Logo */}
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="relative h-24 w-24 md:h-32 md:w-32 rounded-2xl glass-card-tinted p-3 overflow-hidden shadow-xl border border-white/30"
-                            >
-                                <img src={job.logo_url} alt={job.company_name} className="w-full h-full object-contain" />
-                                {job.is_featured && (
-                                    <div className="absolute -top-1 -right-1 bg-yellow-400 p-1 rounded-bl-lg">
-                                        <Zap size={14} className="text-yellow-900 fill-yellow-900" />
-                                    </div>
+            {/* Main Content Card */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 md:p-10 shadow-sm shadow-indigo-500/5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    <div className="flex-1 space-y-4">
+                        {/* Title & Company */}
+                        <div>
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100 font-semibold">
+                                    {job.job_type === 'full_time' ? 'Toàn thời gian' : job.job_type}
+                                </Badge>
+                                <Badge variant="secondary" className="bg-violet-50 text-violet-700 border-violet-100 font-semibold">
+                                    {job.level}
+                                </Badge>
+                                {job.is_remote && (
+                                    <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100 font-semibold">
+                                        Remote
+                                    </Badge>
                                 )}
-                            </motion.div>
-
-                            {/* Title & Company */}
-                            <div className="flex-1">
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.1 }}
-                                >
-                                    <h1 className="text-2xl md:text-3xl font-bold mb-2 text-foreground group">
-                                        {job.title}
-                                    </h1>
-                                    <div className="flex items-center gap-2 text-muted-foreground font-medium mb-4">
-                                        <Building2 size={18} />
-                                        <span className="hover:text-primary transition-colors cursor-pointer flex items-center gap-1">
-                                            {job.company_name}
-                                            <CheckCircle2 size={14} className="text-blue-500 fill-blue-500/20" />
-                                        </span>
-                                    </div>
-                                </motion.div>
-
-                                {/* Badges */}
-                                <motion.div
-                                    initial={{ y: 10, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="flex flex-wrap gap-2"
-                                >
-                                    <Badge variant="secondary" className="bg-aurora-cyan/10 text-aurora-cyan border-aurora-cyan/20 px-3 py-1 rounded-full">
-                                        <Briefcase size={14} className="mr-1.5" />
-                                        {job.job_type === 'full_time' ? 'Toàn thời gian' : 'Hợp đồng'}
+                                {job.featured && (
+                                    <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">
+                                        <Zap className="w-3 h-3 mr-1 fill-current" />
+                                        Nổi bật
                                     </Badge>
-                                    <Badge variant="secondary" className="bg-aurora-violet/10 text-aurora-violet border-aurora-violet/20 px-3 py-1 rounded-full">
-                                        <Users size={14} className="mr-1.5" />
-                                        {job.level.charAt(0).toUpperCase() + job.level.slice(1)}
-                                    </Badge>
-                                    {job.is_remote && (
-                                        <Badge variant="secondary" className="bg-aurora-lime/10 text-aurora-lime border-aurora-lime/20 px-3 py-1 rounded-full">
-                                            Remote
-                                        </Badge>
+                                )}
+                            </div>
+                            <h1 className="text-2xl md:text-3xl font-black text-gray-900 leading-tight mb-2">
+                                {job.title}
+                            </h1>
+                            <div className="flex items-center gap-2 text-gray-600 font-medium">
+                                <span className="hover:text-indigo-600 cursor-pointer flex items-center gap-1.5 transition-colors">
+                                    {job.company.company_name}
+                                    {job.company.verification_status === 'verified' && (
+                                        <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-50/50" />
                                     )}
-                                </motion.div>
+                                </span>
                             </div>
                         </div>
 
-                        {/* Actions */}
-                        <motion.div
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="flex flex-col w-full md:w-auto gap-3"
-                        >
-                            <Button
-                                size="lg"
-                                className="bg-primary hover:bg-primary/90 text-white rounded-xl h-12 px-8 font-bold text-lg shadow-lg glow-cyan transition-all active:scale-95 group"
-                                onClick={onApply}
-                            >
-                                Ứng tuyển ngay
-                                <Zap size={18} className="ml-2 group-hover:animate-pulse" />
-                            </Button>
-                            <div className="flex gap-2">
-                                <Button variant="outline" className="flex-1 glass border-white/20 hover:bg-white/10 dark:hover:bg-white/5 rounded-xl h-11" onClick={handleSave}>
-                                    <Bookmark size={18} className="mr-2" />
-                                    Lưu tin
-                                </Button>
-                                <Button variant="outline" size="icon" className="w-11 h-11 h glass border-white/20 hover:bg-white/10" onClick={handleShare}>
-                                    <Share2 size={18} />
-                                </Button>
+                        {/* Quick Info Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 py-6 border-y border-gray-50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                    <DollarSign className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mức lương</p>
+                                    <p className="text-sm font-bold text-gray-900">{formatSalary()}</p>
+                                </div>
                             </div>
-                        </motion.div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center text-violet-600">
+                                    <MapPin className="w-5 h-5" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Địa điểm</p>
+                                    <p className="text-sm font-bold text-gray-900 truncate">
+                                        {locations.map(l => l.address.province_name).filter(Boolean).join(", ") || "Toàn quốc"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                                    <Clock className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hạn nộp</p>
+                                    <p className={cn(
+                                        "text-sm font-bold",
+                                        isUrgent ? "text-red-600" : "text-gray-900"
+                                    )}>
+                                        {diffDays > 0 ? `Còn ${diffDays} ngày` : "Hết hạn"}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <Calendar className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ngày đăng</p>
+                                    <p className="text-sm font-bold text-gray-900">
+                                        {job.published_at ? new Date(job.published_at).toLocaleDateString('vi-VN') : 'Mới'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-8 border-t border-white/10">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-aurora-cyan/10 flex items-center justify-center text-aurora-cyan">
-                                <DollarSign size={20} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Mức lương</p>
-                                <p className="font-bold">{formatSalary(job.salary_min, job.salary_max, job.salary_currency)}</p>
+                    {/* Action Column */}
+                    <div className="flex flex-col gap-3 min-w-[280px]">
+                        <Button
+                            onClick={onApply}
+                            className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]"
+                        >
+                            Ứng tuyển ngay
+                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                onClick={toggleSave}
+                                disabled={isSaving}
+                                variant="outline"
+                                className={cn(
+                                    "flex-1 h-12 rounded-xl font-bold transition-all",
+                                    isSaved ? "bg-indigo-50 text-indigo-600 border-indigo-200" : "hover:bg-gray-50 border-gray-200"
+                                )}
+                            >
+                                <Bookmark className={cn("w-5 h-5 mr-2", isSaved && "fill-current")} />
+                                {isSaved ? "Đã lưu" : "Lưu tin"}
+                            </Button>
+
+                            <div className="flex gap-1">
+                                <Button onClick={() => handleShare('facebook')} variant="outline" size="icon" className="w-12 h-12 rounded-xl text-blue-600 border-gray-200 hover:bg-blue-50">
+                                    <Facebook className="w-5 h-5" />
+                                </Button>
+                                <Button onClick={() => handleShare('linkedin')} variant="outline" size="icon" className="w-12 h-12 rounded-xl text-blue-700 border-gray-200 hover:bg-blue-50">
+                                    <Linkedin className="w-5 h-5" />
+                                </Button>
+                                <Button onClick={() => handleShare('link')} variant="outline" size="icon" className="w-12 h-12 rounded-xl border-gray-200 hover:bg-gray-100">
+                                    <LinkIcon className="w-5 h-5" />
+                                </Button>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-aurora-violet/10 flex items-center justify-center text-aurora-violet">
-                                <MapPin size={20} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Địa điểm</p>
-                                <p className="font-bold truncate max-w-[150px]">{locations.map(l => l.province).join(", ")}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-aurora-lime/10 flex items-center justify-center text-aurora-lime">
-                                <Calendar size={20} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Ngày đăng</p>
-                                <p className="font-bold">Hôm nay</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-red-400/10 flex items-center justify-center text-red-400">
-                                <Clock size={20} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Hạn nộp</p>
-                                <p className="font-bold">Còn {diffDays} ngày</p>
-                            </div>
+                        <div className="flex items-center justify-center gap-4 text-xs text-gray-400 font-medium pt-2">
+                            <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {job.application_count} lượt ứng tuyển</span>
+                            <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> {job.view_count} lượt xem</span>
                         </div>
                     </div>
                 </div>
