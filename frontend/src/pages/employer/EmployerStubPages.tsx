@@ -27,9 +27,9 @@ export function EmployerSettingsPage() {
 
 
 
-export function EmployerInterviewsPage() {
-    return <StubPage title="Phỏng vấn" desc="Lên lịch và quản lý buổi phỏng vấn với ứng viên. Coming soon." />;
-}
+// export function EmployerInterviewsPage() {
+//     return <StubPage title="Phỏng vấn" desc="Lên lịch và quản lý buổi phỏng vấn với ứng viên. Coming soon." />;
+// }
 
 export function EmployerMessagesPage() {
     return <StubPage title="Tin nhắn" desc="Giao tiếp trực tiếp với ứng viên qua tin nhắn. Coming soon." />;

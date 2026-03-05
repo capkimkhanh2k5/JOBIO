@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // Axios Instance
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:9000';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -111,7 +111,10 @@ api.interceptors.response.use(
 
     try {
       const { refreshToken } = getPersistedTokens();
-      if (!refreshToken) throw new Error('No refresh token');
+      if (!refreshToken) {
+        isRefreshing = false;
+        return Promise.reject(error);
+      }
 
       const { data } = await axios.post<{ access: string; refresh?: string }>(
         `${API_BASE_URL}/api/token/refresh/`,
@@ -131,7 +134,10 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       clearPersistedAuth();
-      window.location.href = '/auth';
+      // Only redirect if we're not already on the auth page
+      if (!window.location.pathname.startsWith('/auth')) {
+        window.location.href = '/auth';
+      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

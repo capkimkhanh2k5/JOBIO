@@ -83,7 +83,7 @@ export const Footer = () => (
             </div>
 
             <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
-                <span>© 2026 JOBIO. Bảo lưu mọi quyền.</span>
+                <span>© 2026 JOBIO. Bản quyền thuộc về JOBIO. Phát triển bởi CapKimKhanh & DangNgocHuy.</span>
                 <div className="flex gap-5">
                     <Link to="#" className="hover:text-gray-400 transition-colors">Điều Khoản</Link>
                     <Link to="#" className="hover:text-gray-400 transition-colors">Bảo Mật</Link>

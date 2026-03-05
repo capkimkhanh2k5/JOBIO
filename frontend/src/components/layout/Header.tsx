@@ -75,7 +75,7 @@ export const Header = () => {
                         >
                             <Search className="w-6 h-6" />
                         </Button>
-                        <NotificationBell />
+                        {isAuthenticated && user && <NotificationBell />}
 
                         <div className="h-6 w-[1px] bg-border/40 mx-2" />
 
@@ -84,7 +84,7 @@ export const Header = () => {
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-12 w-12 rounded-full p-0">
                                         <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-cyan-500/50 transition-colors">
-                                            <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                                            <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
                                             <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white">
                                                 {user.full_name.substring(0, 2).toUpperCase()}
                                             </AvatarFallback>

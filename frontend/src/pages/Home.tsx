@@ -5,7 +5,7 @@ import {
     ArrowRight, DollarSign, Clock, Wifi, ChevronRight,
     Monitor, Landmark, Factory, ShoppingBag, Headphones,
     Laptop, Megaphone, PenTool, PieChart, Stethoscope, GraduationCap,
-    Home as HomeIcon, Mail
+    Home as HomeIcon
 } from "lucide-react";
 import { taxonomyService } from "../services/taxonomyService";
 import { jobService } from "../services/jobService";
@@ -52,7 +52,6 @@ export default function Home() {
             <div className="reveal-section"><JobCategoriesSection /></div>
             <div className="reveal-section"><FeaturedCompaniesSection /></div>
             <div className="reveal-section"><IndustriesSection /></div>
-            <HomeFooter />
         </div>
     );
 }
@@ -65,7 +64,7 @@ const HeroSection = () => {
 
     const { data: provinces } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results),
     });
 
     const handleSearch = () => {
@@ -417,7 +416,7 @@ const JobCategoriesSection = () => {
     const navigate = useNavigate();
     const { data: categories, isLoading } = useQuery({
         queryKey: ['categories'],
-        queryFn: () => taxonomyService.listJobCategories().then(r => r.data)
+        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results)
     });
 
     const getCategoryIcon = (name: string) => {
@@ -529,7 +528,7 @@ const FeaturedCompaniesSection = () => {
 const IndustriesSection = () => {
     const { data: industries, isLoading } = useQuery({
         queryKey: ['industries'],
-        queryFn: () => taxonomyService.listIndustries().then(r => r.data)
+        queryFn: () => taxonomyService.listIndustries().then(r => r.data.results)
     });
 
     const getIcon = (name: string) => {
@@ -581,107 +580,4 @@ const IndustriesSection = () => {
     );
 };
 
-/* ────────────────────────── HOME FOOTER ────────────────────────── */
-const HomeFooter = () => {
-    const [email, setEmail] = useState('');
 
-    const footerLinks = [
-        {
-            title: 'Ứng Viên',
-            links: [
-                { label: 'Tìm Việc Làm', href: '/jobs' },
-                { label: 'Danh Sách Công Ty', href: '/companies' },
-                { label: 'Việc Làm Theo Ngành', href: '/jobs' },
-                { label: 'Bài Viết Tư Vấn', href: '#' },
-            ]
-        },
-        {
-            title: 'Nhà Tuyển Dụng',
-            links: [
-                { label: 'Đăng Tin Tuyển Dụng', href: '/employer/register' },
-                { label: 'Tìm Kiếm CV', href: '/employer/cv-search' },
-                { label: 'Gói Dịch Vụ', href: '/pricing' },
-                { label: 'Giải Pháp HR', href: '#' },
-            ]
-        },
-        {
-            title: 'JOBIO',
-            links: [
-                { label: 'Về Chúng Tôi', href: '/about' },
-                { label: 'Liên Hệ', href: '/contact' },
-                { label: 'FAQ', href: '/faq' },
-                { label: 'Blog', href: '#' },
-            ]
-        },
-    ];
-
-    return (
-        <footer className="bg-gray-900 text-white mt-0">
-            <div className="container mx-auto px-4 pt-16 pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-12">
-                    {/* Brand */}
-                    <div className="lg:col-span-2 space-y-5">
-                        <div className="text-3xl font-black tracking-tight">
-                            <span className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">JOBIO</span>
-                        </div>
-                        <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-                            Nền tảng tuyển dụng hàng đầu Việt Nam — kết nối ứng viên tài năng với doanh nghiệp hàng đầu mỗi ngày.
-                        </p>
-                        {/* Social */}
-                        <div className="flex gap-3">
-                            {['Facebook', 'Twitter', 'LinkedIn', 'Instagram'].map(s => (
-                                <a key={s} href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-primary/20 hover:text-primary border border-white/10 flex items-center justify-center text-gray-400 text-xs font-bold transition-all" title={s}>
-                                    {s[0]}
-                                </a>
-                            ))}
-                        </div>
-                        {/* Newsletter */}
-                        <div>
-                            <div className="text-sm font-semibold text-gray-300 mb-2">Nhận thông báo việc làm mới</div>
-                            <div className="flex gap-2">
-                                <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-lg px-3 gap-2">
-                                    <Mail className="w-4 h-4 text-gray-500 shrink-0" />
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        placeholder="Email của bạn"
-                                        className="bg-transparent border-none outline-none text-sm text-white placeholder:text-gray-500 py-2.5 w-full"
-                                    />
-                                </div>
-                                <Button className="rounded-lg bg-gradient-to-r from-primary to-primary/80 text-white text-sm font-semibold px-4 shadow-md shadow-primary/30 hover:opacity-90 transition-opacity">
-                                    Đăng Ký
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Links */}
-                    {footerLinks.map(section => (
-                        <div key={section.title}>
-                            <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">{section.title}</h4>
-                            <ul className="space-y-3">
-                                {section.links.map(link => (
-                                    <li key={link.label}>
-                                        <Link to={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
-                                            {link.label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-                    <span>© 2026 JOBIO. Bảo lưu mọi quyền.</span>
-                    <div className="flex gap-6">
-                        <Link to="#" className="hover:text-gray-400 transition-colors">Điều Khoản</Link>
-                        <Link to="#" className="hover:text-gray-400 transition-colors">Bảo Mật</Link>
-                        <Link to="#" className="hover:text-gray-400 transition-colors">Cookie</Link>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    );
-};

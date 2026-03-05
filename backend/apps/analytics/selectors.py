@@ -4,6 +4,7 @@ from datetime import timedelta
 from apps.core.users.models import CustomUser
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
+from apps.recruitment.interviews.models import Interview
 from apps.billing.models import Transaction, CompanySubscription
 
 class DashboardSelector:
@@ -84,4 +85,32 @@ class DashboardSelector:
             'subscription': {
                 'plan': plan_name
             }
+        }
+
+    @staticmethod
+    def get_candidate_overview(recruiter) -> dict:
+        """
+        Get stats for a specific candidate (recruiter profile).
+        """
+        now = timezone.now()
+
+        applied_jobs_count = Application.objects.filter(
+            recruiter=recruiter
+        ).exclude(status=Application.Status.WITHDRAWN).count()
+
+        upcoming_interviews_count = Interview.objects.filter(
+            application__recruiter=recruiter,
+            status=Interview.Status.SCHEDULED,
+            scheduled_at__gte=now
+        ).count()
+
+        profile_views_count = getattr(recruiter, 'profile_views_count', 0) or 0
+
+        saved_jobs_count = recruiter.saved_jobs.count() if hasattr(recruiter, 'saved_jobs') else 0
+
+        return {
+            'applied_jobs_count': applied_jobs_count,
+            'upcoming_interviews_count': upcoming_interviews_count,
+            'profile_views_count': profile_views_count,
+            'matching_jobs_count': saved_jobs_count,
         }

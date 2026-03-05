@@ -12,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import api from '@/services/api';
 
 /* ─── Schema ─── */
 const contactSchema = z.object({
@@ -38,11 +37,8 @@ function FadeIn({ children, delay: d = 0, className }: { children: React.ReactNo
 }
 
 /* ─── Mock submit ─── */
-const sendContact = async (data: ContactForm) => {
-    await delay(1500);
-    if (data.email === 'error@error.com') throw new Error('Gửi thất bại, vui lòng thử lại.');
-    return { success: true };
-};
+const sendContact = (data: ContactForm) =>
+    api.post('/api/contact/', data).then(r => r.data);
 
 /* ─── Contact info ─── */
 const INFO_CARDS = [
