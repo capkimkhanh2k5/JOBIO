@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { employerService } from '@/services/employerService';
-import { useNotificationStore, NotificationItem } from '@/store/notificationStore';
+import { notificationService } from '@/services/notificationService';
+import { useNotificationStore } from '@/store/notificationStore';
 import {
     Bell, CheckCheck, Trash2, Settings, Loader2,
     FileText, Calendar, Eye, AlertTriangle, Star
@@ -42,14 +42,14 @@ export default function NotificationsPage() {
     // Data fetching for page
     const { data: notifications, isLoading, refetch } = useQuery({
         queryKey: ['notifications', 'page', tab],
-        queryFn: () => employerService.listNotifications({ is_read: tab === 'unread' ? false : undefined }).then(r => r.data.results),
+        queryFn: () => notificationService.listNotifications({ is_read: tab === 'unread' ? false : undefined }).then(r => r.data.results),
         staleTime: 30000,
     });
 
     // Settings
     const { data: settings, isLoading: settingsLoading } = useQuery({
         queryKey: ['notificationSettings'],
-        queryFn: () => employerService.getNotificationSettings().then(r => r.data)
+        queryFn: () => notificationService.getNotificationSettings().then(r => r.data)
     });
 
     const [localSettings, setLocalSettings] = useState<any>(null);
@@ -63,12 +63,12 @@ export default function NotificationsPage() {
     const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await markReadGlobal(id);
-        employerService.markNotificationRead(Number(id)).then(() => refetch());
+        notificationService.markNotificationRead(Number(id)).then(() => refetch());
     };
 
     const handleMarkAllAsRead = async () => {
         await markAllReadGlobal();
-        employerService.markAllNotificationsRead().then(() => refetch());
+        notificationService.markAllNotificationsRead().then(() => refetch());
     };
 
     const handleClearAll = async () => {
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
         }
     };
 
-    const handleDelete = async (id: string, e: React.MouseEvent) => {
+    const handleDelete = async (_id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (window.confirm("Xóa thông báo này?")) {
             await Promise.resolve();  // TODO: no delete single notification endpoint
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
     const handleSettingChange = (key: string, checked: boolean) => {
         const newSettings = { ...localSettings, [key]: checked };
         setLocalSettings(newSettings);
-        employerService.updateNotificationSettings(newSettings);
+        notificationService.updateNotificationSettings(newSettings);
     };
 
     return (
