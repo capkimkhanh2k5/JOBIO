@@ -46,6 +46,27 @@ class DashboardViewSet(viewsets.ViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @action(detail=False, methods=['get'], url_path='candidate')
+    def candidate_stats(self, request):
+        """
+        GET /api/dashboard/stats/candidate/
+        Get stats for the current candidate (recruiter profile).
+        """
+        recruiter = getattr(request.user, 'recruiter_profile', None)
+        if not recruiter:
+            return Response(
+                {'error': 'User does not have a candidate profile'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            data = DashboardSelector.get_candidate_overview(recruiter)
+            return Response(data)
+        except Exception as e:
+            return Response(
+                {'error': f'Error fetching candidate stats: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = GeneratedReportSerializer
     permission_classes = [IsAuthenticated]

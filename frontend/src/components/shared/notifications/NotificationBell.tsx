@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNotificationStore } from '@/store/notificationStore';
+import { useUserStore } from '@/store/userStore';
 import {
     Popover,
     PopoverContent,
@@ -12,6 +13,7 @@ import { toast } from 'sonner';
 
 export const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const isAuthenticated = useUserStore((state) => state.isAuthenticated);
 
     const {
         unreadCount,
@@ -22,6 +24,9 @@ export const NotificationBell = () => {
     } = useNotificationStore();
 
     useEffect(() => {
+        // Only fetch notifications when authenticated
+        if (!isAuthenticated) return;
+
         // Init fetch
         fetchUnreadCount();
         fetchRecentNotifications();
@@ -44,7 +49,7 @@ export const NotificationBell = () => {
             stopSimulation();
             window.removeEventListener('new-notification', handleNewNotification);
         };
-    }, []);
+    }, [isAuthenticated]);
 
     // Also handle regular polling or refresh when popover is opened
     const handleOpenChange = (open: boolean) => {

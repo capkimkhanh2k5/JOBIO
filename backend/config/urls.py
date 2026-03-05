@@ -130,6 +130,7 @@ urlpatterns = [
     path('api/system-settings/', include('apps.system.system_settings.urls')),
     path('api/activity-logs/', include('apps.system.activity_logs.urls')),
     path('api/file-uploads/', include('apps.system.file_uploads.urls')),
+    path('api/contact/', include('apps.system.contact.urls')),
     
     # Advanced Features
     path('api/search-history/', include('apps.system.job_search_history.urls')),

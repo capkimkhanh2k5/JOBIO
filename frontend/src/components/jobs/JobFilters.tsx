@@ -57,13 +57,13 @@ export function JobFilters() {
 
     const { data: categories } = useQuery({
         queryKey: ["job-categories"],
-        queryFn: () => taxonomyService.listJobCategories().then(r => r.data),
+        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results),
         staleTime: 5 * 60_000,
     });
 
     const { data: provinces } = useQuery({
         queryKey: ["provinces"],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results),
         staleTime: 5 * 60_000,
     });
 

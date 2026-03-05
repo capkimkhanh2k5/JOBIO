@@ -95,11 +95,11 @@ class CheckEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class SocialAuthSerializer(serializers.Serializer):
-    provider = serializers.ChoiceField(choices=['google', 'facebook', 'linkedin'])
     access_token = serializers.CharField()
-    email = serializers.EmailField()
-    full_name = serializers.CharField()
-    role = serializers.CharField(default='recruiter')
+    provider = serializers.ChoiceField(choices=['google', 'facebook', 'linkedin'], required=False)
+    email = serializers.EmailField(required=False)
+    full_name = serializers.CharField(required=False)
+    role = serializers.CharField(default='recruiter', required=False)
 
 class Verify2FASerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)

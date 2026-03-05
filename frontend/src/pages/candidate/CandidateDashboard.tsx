@@ -10,7 +10,6 @@ import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { savedJobService } from '@/services/savedJobService';
 import { employerService } from '@/services/employerService';
-import { dashboardService } from '@/services/dashboardService';
 import { jobService } from '@/services/jobService';
 import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
@@ -33,7 +32,8 @@ export default function CandidateDashboard() {
 
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
-        queryFn: () => dashboardService.getAdminStats().then(r => r.data),
+        queryFn: () => candidateService.getMyStats().then(r => r.data),
+        enabled: !!recruiterId,
     });
 
     const { data: matchingJobs, isLoading: loadingMatching } = useQuery({

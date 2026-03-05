@@ -6,6 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .permissions import IsAdmin
+from .exceptions import SocialAuthError
 from apps.core.throttles import (
     LoginRateThrottle, RegisterRateThrottle, PasswordResetRateThrottle,
     EmailVerificationRateThrottle, SocialAuthRateThrottle
@@ -392,14 +393,11 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         serializer.is_valid(raise_exception=True)
         
         try:
-            result = social_login(data=SocialLoginInput(
+            result = social_login(
                 provider=provider,
-                access_token=serializer.validated_data['access_token'],
-                email=serializer.validated_data['email'],
-                full_name=serializer.validated_data['full_name'],
-                role=serializer.validated_data.get('role', 'recruiter')
-            ))
-        except AuthenticationError as e:
+                access_token=serializer.validated_data['access_token']
+            )
+        except (AuthenticationError, SocialAuthError) as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         output_serializer = LoginResponseSerializer(result)
