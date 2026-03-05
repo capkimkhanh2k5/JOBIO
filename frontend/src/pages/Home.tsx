@@ -52,7 +52,6 @@ export default function Home() {
             <div className="reveal-section"><JobCategoriesSection /></div>
             <div className="reveal-section"><FeaturedCompaniesSection /></div>
             <div className="reveal-section"><IndustriesSection /></div>
-            <HomeFooter />
         </div>
     );
 }

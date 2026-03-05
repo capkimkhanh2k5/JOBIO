@@ -10,14 +10,6 @@ class Commune(models.Model):
         TOWNSHIP = 'township', 'Thị trấn'
         SPECIAL_ZONE = 'special_zone', 'Đơn vị hành chính đặc biệt'
     
-    commune_code = models.CharField(
-        max_length=20,
-        unique=True,
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name='Mã xã/phường'
-    )
     province = models.ForeignKey(
         'geography_provinces.Province',
         on_delete=models.CASCADE,
