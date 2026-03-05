@@ -343,6 +343,7 @@ WEBAUTHN_ORIGIN = os.getenv('WEBAUTHN_ORIGIN', 'http://localhost:4000')
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4000",
+    "http://localhost:5173",  # Vite dev server
 ]
 
 CORS_ALLOW_CREDENTIALS = True

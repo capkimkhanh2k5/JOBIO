@@ -116,6 +116,14 @@ export const employerService = {
     return api.patch('/api/notifications/read-all/');
   },
 
+  deleteNotification(id: number) {
+    return api.delete(`/api/notifications/${id}/`);
+  },
+
+  clearAllNotifications() {
+    return api.delete('/api/notifications/clear-all/');
+  },
+
   getNotificationSettings() {
     return api.get<NotificationSettings>('/api/notifications/settings/');
   },
