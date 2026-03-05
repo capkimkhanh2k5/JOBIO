@@ -37,7 +37,7 @@ const itemVariants = {
 export function CandidateSidebar() {
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 min-h-screen border-r border-slate-200 bg-white shadow-sm"
+            className="hidden md:flex flex-col w-64 shrink-0 h-full border-r border-slate-200 bg-white shadow-sm"
             aria-label="Candidate Navigation"
         >
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">

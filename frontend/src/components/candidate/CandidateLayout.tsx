@@ -9,12 +9,12 @@ import { ScrollProgress } from '@/components/shared/ScrollProgress';
  */
 export function CandidateLayout() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="h-screen flex flex-col overflow-hidden">
             <ScrollProgress />
             <CandidateTopNav />
             <div className="flex flex-1 min-h-0">
                 <CandidateSidebar />
-                <main className="flex-1 min-w-0 overflow-y-auto">
+                <main className="flex-1 min-w-0 overflow-y-auto flex flex-col relative">
                     <Outlet />
                 </main>
             </div>

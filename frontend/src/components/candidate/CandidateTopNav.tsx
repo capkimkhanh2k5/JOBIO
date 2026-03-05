@@ -1,5 +1,4 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import {
     MessageSquare, LogOut, User, Settings, ChevronDown
 } from 'lucide-react';
@@ -10,21 +9,17 @@ import {
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useUserStore } from '@/store/userStore';
-import { employerService } from '@/services/employerService';
 import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
+import { useMessageStore } from '@/store/messageStore';
 
 export function CandidateTopNav() {
     const { user, clearAuth, refreshToken } = useUserStore();
     const navigate = useNavigate();
 
-    // Unread messages count
-    const { data: msgCount } = useQuery({
-        queryKey: ['candidate', 'messages', 'unread'],
-        queryFn: () => employerService.listThreads({ page_size: 1 }).then(r => r.data.count),
-        staleTime: 30_000,
-    });
+    // Unread messages count – from global messageStore (updated by MessagesPage)
+    const msgCount = useMessageStore((state) => state.unreadCount);
 
     const handleLogout = async () => {
         try {
@@ -42,7 +37,7 @@ export function CandidateTopNav() {
     const initials = userName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <header className="h-16 flex items-center justify-between px-6 border-b border-slate-200 bg-white sticky top-0 z-30 shadow-sm">
+        <header className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-slate-200 bg-white z-30 shadow-sm">
             {/* Logo */}
             <Link
                 to="/"
