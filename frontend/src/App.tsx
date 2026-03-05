@@ -27,9 +27,10 @@ import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
     EmployerSettingsPage,
-    EmployerMessagesPage, EmployerAnalyticsPage,
+    EmployerAnalyticsPage,
     EmployerSubscriptionPage, EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import MessagesPage from '@/pages/Messages';
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
@@ -45,6 +46,7 @@ import SavedJobs from '@/pages/candidate/SavedJobs';
 import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
+import MyReviews from '@/pages/candidate/MyReviews';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -97,7 +99,9 @@ export default function App() {
                             <Route path="applications" element={<MyApplications />} />
                             <Route path="saved" element={<SavedJobs />} />
                             <Route path="alerts" element={<JobAlerts />} />
+                            <Route path="reviews" element={<MyReviews />} />
                             <Route path="interviews" element={<CandidateInterviews />} />
+                            <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
                         </Route>
 
@@ -114,7 +118,7 @@ export default function App() {
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<EmployerCVSearch />} />
                             <Route path="interviews" element={<EmployerInterviewsPage />} />
-                            <Route path="messages" element={<EmployerMessagesPage />} />
+                            <Route path="messages" element={<MessagesPage />} />
                             <Route path="analytics" element={<EmployerAnalyticsPage />} />
                             <Route path="campaigns" element={<EmployerCampaigns />} />
                             <Route path="referrals" element={<EmployerReferrals />} />

@@ -44,7 +44,7 @@ export function EmployerTopNav() {
     const initials = companyName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <header className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-white/3 backdrop-blur-xl sticky top-0 z-30">
+        <header className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5 bg-white/3 backdrop-blur-xl z-30">
             {/* Logo */}
             <Link
                 to="/"
@@ -66,7 +66,7 @@ export function EmployerTopNav() {
                     aria-label="Tin nhắn"
                 >
                     <MessageSquare className="w-5 h-5" />
-                    {(msgCount?.unread_count ?? 0) > 0 && (
+                    {(msgCount ?? 0) > 0 && (
                         <span className="absolute top-2 right-2 w-2 h-2 bg-cyan-400 rounded-full border border-background" />
                     )}
                 </Button>
@@ -85,7 +85,7 @@ export function EmployerTopNav() {
                             aria-label="Tài khoản"
                         >
                             <Avatar className="w-8 h-8 border border-white/10">
-                                <AvatarImage src={user?.avatar_url} alt={companyName} />
+                                <AvatarImage src={user?.avatar_url || ''} alt={companyName} />
                                 <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white text-xs font-bold">
                                     {initials}
                                 </AvatarFallback>
@@ -98,7 +98,7 @@ export function EmployerTopNav() {
                         <DropdownMenuLabel className="py-3">
                             <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10 border border-white/10">
-                                    <AvatarImage src={user?.avatar_url} alt={companyName} />
+                                    <AvatarImage src={user?.avatar_url || ''} alt={companyName} />
                                     <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white text-xs font-bold">
                                         {initials}
                                     </AvatarFallback>
