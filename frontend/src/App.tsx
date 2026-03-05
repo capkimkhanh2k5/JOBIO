@@ -46,6 +46,7 @@ import SavedJobs from '@/pages/candidate/SavedJobs';
 import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
+import MyReviews from '@/pages/candidate/MyReviews';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -98,6 +99,7 @@ export default function App() {
                             <Route path="applications" element={<MyApplications />} />
                             <Route path="saved" element={<SavedJobs />} />
                             <Route path="alerts" element={<JobAlerts />} />
+                            <Route path="reviews" element={<MyReviews />} />
                             <Route path="interviews" element={<CandidateInterviews />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
