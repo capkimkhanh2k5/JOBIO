@@ -13,12 +13,6 @@ class Province(models.Model):
         CENTRAL = 'central', 'Miền Trung'
         SOUTH = 'south', 'Miền Nam'
     
-    province_code = models.CharField(
-        max_length=20,
-        unique=True,
-        db_index=True,
-        verbose_name='Mã tỉnh'
-    )
     province_name = models.CharField(
         max_length=100,
         verbose_name='Tên tỉnh/thành phố'
