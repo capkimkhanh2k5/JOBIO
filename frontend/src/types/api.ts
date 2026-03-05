@@ -69,7 +69,7 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
   token: string;
   new_password: string;
-  confirm_password: string;
+  new_password_confirm: string;
 }
 
 export interface TwoFactorStatus {

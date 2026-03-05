@@ -75,12 +75,12 @@ const TIMELINE = [
 ];
 
 const VALUES = [
-    { icon: Heart, title: 'Tận tâm', desc: 'Mỗi tính năng được thiết kế vì con người – ứng viên và nhà tuyển dụng.', color: 'from-rose-500/20 to-pink-500/10' },
-    { icon: Zap, title: 'Đổi mới', desc: 'Ứng dụng AI và công nghệ mới nhất để nâng cao trải nghiệm liên tục.', color: 'from-amber-500/20 to-yellow-500/10' },
-    { icon: Shield, title: 'Tin cậy', desc: 'Dữ liệu an toàn, thông tin minh bạch, quy trình đáng tin cậy.', color: 'from-emerald-500/20 to-green-500/10' },
-    { icon: TrendingUp, title: 'Tăng trưởng', desc: 'Đồng hành cùng sự nghiệp của từng cá nhân và chiến lược tuyển dụng của doanh nghiệp.', color: 'from-cyan-500/20 to-blue-500/10' },
-    { icon: Globe, title: 'Toàn cầu', desc: 'Kết nối tài năng Việt Nam với cơ hội quốc tế trên toàn thế giới.', color: 'from-violet-500/20 to-purple-500/10' },
-    { icon: Sparkles, title: 'Xuất sắc', desc: 'Không dừng ở "đủ tốt" — cam kết mang đến trải nghiệm xuất sắc nhất.', color: 'from-sky-500/20 to-indigo-500/10' },
+    { icon: Heart, title: 'Tận tâm', desc: 'Mỗi tính năng được thiết kế vì con người – ứng viên và nhà tuyển dụng.', color: 'hover:border-rose-200 hover:shadow-rose-100', iconColor: 'text-rose-500', bgColor: 'bg-rose-50' },
+    { icon: Zap, title: 'Đổi mới', desc: 'Ứng dụng AI và công nghệ mới nhất để nâng cao trải nghiệm liên tục.', color: 'hover:border-amber-200 hover:shadow-amber-100', iconColor: 'text-amber-500', bgColor: 'bg-amber-50' },
+    { icon: Shield, title: 'Tin cậy', desc: 'Dữ liệu an toàn, thông tin minh bạch, quy trình đáng tin cậy.', color: 'hover:border-emerald-200 hover:shadow-emerald-100', iconColor: 'text-emerald-500', bgColor: 'bg-emerald-50' },
+    { icon: TrendingUp, title: 'Tăng trưởng', desc: 'Đồng hành cùng sự nghiệp của từng cá nhân và chiến lược tuyển dụng của doanh nghiệp.', color: 'hover:border-blue-200 hover:shadow-blue-100', iconColor: 'text-blue-500', bgColor: 'bg-blue-50' },
+    { icon: Globe, title: 'Toàn cầu', desc: 'Kết nối tài năng Việt Nam với cơ hội quốc tế trên toàn thế giới.', color: 'hover:border-violet-200 hover:shadow-violet-100', iconColor: 'text-violet-500', bgColor: 'bg-violet-50' },
+    { icon: Sparkles, title: 'Xuất sắc', desc: 'Không dừng ở "đủ tốt" — cam kết mang đến trải nghiệm xuất sắc nhất.', color: 'hover:border-indigo-200 hover:shadow-indigo-100', iconColor: 'text-indigo-500', bgColor: 'bg-indigo-50' },
 ];
 
 const STATS = [
@@ -98,21 +98,21 @@ export default function About() {
             <section className="relative pt-28 pb-20 px-4 overflow-hidden">
                 <div className="max-w-5xl mx-auto text-center">
                     <FadeIn>
-                        <Badge className="mb-4 glass-effect border-cyan-400/30 text-cyan-400 px-4 py-1.5 text-sm">
+                        <Badge className="mb-4 bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100 px-4 py-1.5 text-sm">
                             <Star className="w-3.5 h-3.5 mr-1.5 inline" />
                             Về chúng tôi
                         </Badge>
                     </FadeIn>
                     <FadeIn delay={0.1}>
-                        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-br from-white via-cyan-100 to-violet-200 bg-clip-text text-transparent dark:from-white dark:via-cyan-100 dark:to-violet-200">
+                        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6 text-gray-900">
                             Kết nối tài năng với{' '}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-500">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
                                 cơ hội đích thực
                             </span>
                         </h1>
                     </FadeIn>
                     <FadeIn delay={0.2}>
-                        <p className="text-lg text-foreground/60 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
                             JOBIO là nền tảng tuyển dụng thế hệ mới — nơi AI và thiết kế premium cộng hưởng
                             để tạo ra trải nghiệm kết nối tài năng và cơ hội chưa từng có tại Việt Nam.
                         </p>
@@ -120,7 +120,7 @@ export default function About() {
                 </div>
 
                 {/* Decorative orbs */}
-                <div className="absolute top-20 left-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-20 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-16 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
             </section>
 
@@ -130,11 +130,11 @@ export default function About() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {STATS.map((stat, i) => (
                             <FadeIn key={stat.label} delay={i * 0.08}>
-                                <div className="glass-card-tinted rounded-2xl p-6 text-center border border-white/10">
-                                    <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-violet-500 bg-clip-text text-transparent mb-1">
+                                <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 shadow-sm">
+                                    <div className="text-3xl font-bold text-gray-900 mb-1">
                                         {stat.value}
                                     </div>
-                                    <div className="text-sm text-foreground/60">{stat.label}</div>
+                                    <div className="text-sm text-gray-500">{stat.label}</div>
                                 </div>
                             </FadeIn>
                         ))}
@@ -147,16 +147,17 @@ export default function About() {
                 <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
                     <FadeIn>
                         <div className={cn(
-                            "glass-card-tinted rounded-2xl p-8 border border-white/10 h-full",
-                            "bg-gradient-to-br from-cyan-500/10 to-blue-500/5"
+                            "bg-white rounded-2xl p-8 border border-gray-200 shadow-sm h-full",
+                            "hover:shadow-md transition-shadow relative overflow-hidden"
                         )}>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 rounded-xl bg-cyan-500/20">
-                                    <Target className="w-5 h-5 text-cyan-400" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-blue-500" />
+                            <div className="flex items-center gap-3 mb-4 mt-2">
+                                <div className="p-2.5 rounded-xl bg-indigo-50">
+                                    <Target className="w-5 h-5 text-indigo-600" />
                                 </div>
-                                <h2 className="text-xl font-bold">Sứ mệnh</h2>
+                                <h2 className="text-xl font-bold text-gray-900">Sứ mệnh</h2>
                             </div>
-                            <p className="text-foreground/70 leading-relaxed text-base">
+                            <p className="text-gray-600 leading-relaxed text-base">
                                 Dân chủ hóa cơ hội nghề nghiệp — xóa bỏ rào cản thông tin và tạo ra sân chơi bình đẳng
                                 cho mọi tài năng Việt Nam, dù ở thành thị hay vùng sâu vùng xa.
                             </p>
@@ -164,16 +165,17 @@ export default function About() {
                     </FadeIn>
                     <FadeIn delay={0.1}>
                         <div className={cn(
-                            "glass-card-tinted rounded-2xl p-8 border border-white/10 h-full",
-                            "bg-gradient-to-br from-violet-500/10 to-purple-500/5"
+                            "bg-white rounded-2xl p-8 border border-gray-200 shadow-sm h-full",
+                            "hover:shadow-md transition-shadow relative overflow-hidden"
                         )}>
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="p-2.5 rounded-xl bg-violet-500/20">
-                                    <Eye className="w-5 h-5 text-violet-400" />
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-purple-500" />
+                            <div className="flex items-center gap-3 mb-4 mt-2">
+                                <div className="p-2.5 rounded-xl bg-violet-50">
+                                    <Eye className="w-5 h-5 text-violet-600" />
                                 </div>
-                                <h2 className="text-xl font-bold">Tầm nhìn</h2>
+                                <h2 className="text-xl font-bold text-gray-900">Tầm nhìn</h2>
                             </div>
-                            <p className="text-foreground/70 leading-relaxed text-base">
+                            <p className="text-gray-600 leading-relaxed text-base">
                                 Trở thành nền tảng tuyển dụng AI hàng đầu Đông Nam Á vào 2027, nơi mỗi
                                 hành trình sự nghiệp được cá nhân hóa và mỗi vị trí tuyển dụng được lấp đầy
                                 bởi ứng viên phù hợp nhất.
@@ -188,32 +190,32 @@ export default function About() {
                 <div className="max-w-3xl mx-auto">
                     <FadeIn>
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-3">Hành trình phát triển</h2>
-                            <p className="text-foreground/60">Từ ý tưởng táo bạo đến nền tảng tuyển dụng hàng đầu Việt Nam.</p>
+                            <h2 className="text-3xl font-bold text-gray-900 mb-3">Hành trình phát triển</h2>
+                            <p className="text-gray-600">Từ ý tưởng táo bạo đến nền tảng tuyển dụng hàng đầu Việt Nam.</p>
                         </div>
                     </FadeIn>
 
                     <div className="relative">
                         {/* Timeline line */}
-                        <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-cyan-500/40 via-violet-500/40 to-transparent" />
+                        <div className="absolute left-6 top-0 bottom-0 w-px bg-gray-200" />
 
                         <div className="space-y-8">
                             {TIMELINE.map((item, i) => (
                                 <FadeIn key={item.year} delay={i * 0.08}>
                                     <div className="flex gap-6">
                                         <div className="relative shrink-0">
-                                            <div className="w-12 h-12 rounded-full glass-card-tinted border border-cyan-400/30 flex items-center justify-center z-10 relative">
-                                                <Calendar className="w-4 h-4 text-cyan-400" />
+                                            <div className="w-12 h-12 rounded-full bg-white border-2 border-indigo-100 flex items-center justify-center z-10 relative shadow-sm">
+                                                <Calendar className="w-4 h-4 text-indigo-600" />
                                             </div>
                                         </div>
-                                        <div className="glass-card-tinted rounded-2xl p-5 flex-1 border border-white/10">
+                                        <div className="bg-white rounded-2xl p-5 flex-1 border border-gray-200 shadow-sm">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <Badge variant="outline" className="text-xs border-cyan-400/40 text-cyan-400">
+                                                <Badge variant="outline" className="text-xs border-indigo-200 text-indigo-700 bg-indigo-50">
                                                     {item.year}
                                                 </Badge>
-                                                <h3 className="font-semibold">{item.title}</h3>
+                                                <h3 className="font-semibold text-gray-900">{item.title}</h3>
                                             </div>
-                                            <p className="text-sm text-foreground/60">{item.desc}</p>
+                                            <p className="text-sm text-gray-600">{item.desc}</p>
                                         </div>
                                     </div>
                                 </FadeIn>
@@ -228,8 +230,8 @@ export default function About() {
                 <div className="max-w-5xl mx-auto">
                     <FadeIn>
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-3">Đội ngũ lãnh đạo</h2>
-                            <p className="text-foreground/60">Những con người đằng sau JOBIO — đam mê, tầm nhìn và năng lượng không ngừng.</p>
+                            <h2 className="text-3xl font-bold text-gray-900 mb-3">Đội ngũ lãnh đạo</h2>
+                            <p className="text-gray-600">Những con người đằng sau JOBIO — đam mê, tầm nhìn và năng lượng không ngừng.</p>
                         </div>
                     </FadeIn>
 
@@ -239,21 +241,21 @@ export default function About() {
                                 <motion.div
                                     whileHover={{ y: -4, scale: 1.02 }}
                                     transition={{ duration: 0.2 }}
-                                    className="glass-card-tinted rounded-2xl p-6 border border-white/10 text-center group cursor-default"
+                                    className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm text-center group cursor-default"
                                 >
                                     <div className="relative inline-block mb-4">
                                         <img
                                             src={member.avatar}
                                             alt={member.name}
-                                            className="w-20 h-20 rounded-full border-2 border-cyan-400/30 bg-white/5"
+                                            className="w-20 h-20 rounded-full border-2 border-indigo-100 bg-gray-50 flex-shrink-0"
                                         />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center">
+                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center border-2 border-white">
                                             <Users className="w-3 h-3 text-white" />
                                         </div>
                                     </div>
-                                    <h3 className="font-semibold text-sm mb-1">{member.name}</h3>
-                                    <p className="text-xs text-foreground/60 mb-2">{member.role}</p>
-                                    <Badge className="text-[10px] px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-400/20">
+                                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{member.name}</h3>
+                                    <p className="text-xs text-gray-500 mb-2">{member.role}</p>
+                                    <Badge className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200 font-medium">
                                         {member.tag}
                                     </Badge>
                                 </motion.div>
@@ -268,8 +270,8 @@ export default function About() {
                 <div className="max-w-5xl mx-auto">
                     <FadeIn>
                         <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-3">Giá trị cốt lõi</h2>
-                            <p className="text-foreground/60">Những nguyên tắc không thay đổi định hướng mọi quyết định tại JOBIO.</p>
+                            <h2 className="text-3xl font-bold text-gray-900 mb-3">Giá trị cốt lõi</h2>
+                            <p className="text-gray-600">Những nguyên tắc không thay đổi định hướng mọi quyết định tại JOBIO.</p>
                         </div>
                     </FadeIn>
 
@@ -282,15 +284,16 @@ export default function About() {
                                         whileHover={{ y: -4 }}
                                         transition={{ duration: 0.2 }}
                                         className={cn(
-                                            "rounded-2xl p-6 border border-white/10 h-full",
-                                            "bg-gradient-to-br",
+                                            "bg-white rounded-2xl p-6 border border-gray-200 shadow-sm h-full transition-all",
                                             val.color,
-                                            "glass-card-tinted"
+                                            "hover:shadow-md"
                                         )}
                                     >
-                                        <Icon className="w-8 h-8 mb-4 text-foreground/80" />
-                                        <h3 className="font-bold text-lg mb-2">{val.title}</h3>
-                                        <p className="text-sm text-foreground/60 leading-relaxed">{val.desc}</p>
+                                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-4", val.bgColor)}>
+                                            <Icon className={cn("w-6 h-6", val.iconColor)} />
+                                        </div>
+                                        <h3 className="font-bold text-gray-900 text-lg mb-2">{val.title}</h3>
+                                        <p className="text-sm text-gray-600 leading-relaxed">{val.desc}</p>
                                     </motion.div>
                                 </FadeIn>
                             );
@@ -301,24 +304,24 @@ export default function About() {
 
             {/* ── CTA ── */}
             <section className="py-20 px-4">
-                <div className="max-w-2xl mx-auto">
+                <div className="max-w-3xl mx-auto">
                     <FadeIn>
-                        <div className="glass-card-tinted rounded-3xl p-10 border border-white/10 text-center bg-gradient-to-br from-cyan-500/10 to-violet-500/10 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-violet-500/5 blur-xl" />
+                        <div className="bg-indigo-50/50 rounded-3xl p-10 border border-indigo-100 text-center relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 pointer-events-none" />
                             <div className="relative z-10">
-                                <Building2 className="w-10 h-10 mx-auto mb-4 text-cyan-400" />
-                                <h2 className="text-2xl font-bold mb-3">Sẵn sàng bắt đầu?</h2>
-                                <p className="text-foreground/60 mb-6 text-sm">
-                                    Tham gia cùng hơn 500.000 ứng viên và 15.000 nhà tuyển dụng đang sử dụng JOBIO mỗi ngày.
+                                <Building2 className="w-12 h-12 mx-auto mb-5 text-indigo-600" />
+                                <h2 className="text-3xl font-bold text-gray-900 mb-3">Sẵn sàng bắt đầu?</h2>
+                                <p className="text-gray-600 mb-8 max-w-lg mx-auto">
+                                    Tham gia cùng hơn 500.000 ứng viên và 15.000 nhà tuyển dụng đang sử dụng JOBIO mỗi ngày để mở ra cơ hội mới.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                                    <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-violet-600 text-white border-0 hover:from-cyan-400 hover:to-violet-500">
+                                    <Button asChild size="lg" className="bg-indigo-600 text-white hover:bg-indigo-700">
                                         <Link to="/auth">
                                             Đăng ký ngay
                                             <ArrowRight className="w-4 h-4 ml-2" />
                                         </Link>
                                     </Button>
-                                    <Button asChild variant="outline" size="lg" className="glass-effect border-white/20">
+                                    <Button asChild variant="outline" size="lg" className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
                                         <Link to="/jobs">Khám phá việc làm</Link>
                                     </Button>
                                 </div>

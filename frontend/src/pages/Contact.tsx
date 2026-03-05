@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
     Mail, Phone, MapPin, Clock, Send, Facebook, Linkedin,
-    Twitter, Youtube, CheckCircle2, Loader2
+    Twitter, Youtube, CheckCircle2, Loader2, Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,27 +48,27 @@ const sendContact = async (data: ContactForm) => {
 const INFO_CARDS = [
     {
         icon: Mail, title: 'Email', lines: ['support@jobio.vn', 'hr@jobio.vn'],
-        color: 'from-cyan-500/20 to-blue-500/10', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/15',
+        iconColor: 'text-indigo-600', bgColor: 'bg-indigo-50',
     },
     {
         icon: Phone, title: 'Điện thoại', lines: ['(028) 3822 1234', '1800 599 984 (miễn phí)'],
-        color: 'from-violet-500/20 to-purple-500/10', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/15',
+        iconColor: 'text-violet-600', bgColor: 'bg-violet-50',
     },
     {
         icon: MapPin, title: 'Địa chỉ', lines: ['Tầng 12, Tòa nhà Saigon Centre', '65 Lê Lợi, Quận 1, TP.HCM'],
-        color: 'from-emerald-500/20 to-green-500/10', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/15',
+        iconColor: 'text-emerald-600', bgColor: 'bg-emerald-50',
     },
     {
         icon: Clock, title: 'Giờ làm việc', lines: ['Thứ 2 – Thứ 6: 8:00 – 18:00', 'Thứ 7: 8:00 – 12:00'],
-        color: 'from-amber-500/20 to-orange-500/10', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/15',
+        iconColor: 'text-amber-600', bgColor: 'bg-amber-50',
     },
 ];
 
 const SOCIALS = [
-    { icon: Facebook, label: 'Facebook', href: '#', color: 'hover:text-blue-400' },
-    { icon: Linkedin, label: 'LinkedIn', href: '#', color: 'hover:text-sky-400' },
-    { icon: Twitter, label: 'Twitter / X', href: '#', color: 'hover:text-sky-300' },
-    { icon: Youtube, label: 'YouTube', href: '#', color: 'hover:text-red-400' },
+    { icon: Facebook, label: 'Facebook', href: '#', color: 'hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 text-gray-500' },
+    { icon: Linkedin, label: 'LinkedIn', href: '#', color: 'hover:text-sky-600 hover:bg-sky-50 hover:border-sky-200 text-gray-500' },
+    { icon: Twitter, label: 'Twitter / X', href: '#', color: 'hover:text-gray-900 hover:bg-gray-100 hover:border-gray-300 text-gray-500' },
+    { icon: Youtube, label: 'YouTube', href: '#', color: 'hover:text-red-600 hover:bg-red-50 hover:border-red-200 text-gray-500' },
 ];
 
 const SUBJECTS = [
@@ -100,26 +100,26 @@ export default function Contact() {
             {/* ── Hero ── */}
             <section className="relative pt-28 pb-12 px-4 text-center overflow-hidden">
                 <FadeIn>
-                    <Badge className="mb-4 glass-effect border-violet-400/30 text-violet-400 px-4 py-1.5">
+                    <Badge className="mb-4 bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100 px-4 py-1.5">
                         <Mail className="w-3.5 h-3.5 mr-1.5 inline" />
                         Liên hệ
                     </Badge>
                 </FadeIn>
                 <FadeIn delay={0.1}>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 bg-gradient-to-br from-white via-violet-100 to-cyan-200 bg-clip-text text-transparent">
+                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-gray-900">
                         Chúng tôi luôn sẵn sàng{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
                             lắng nghe
                         </span>
                     </h1>
                 </FadeIn>
                 <FadeIn delay={0.15}>
-                    <p className="text-foreground/60 max-w-xl mx-auto">
+                    <p className="text-gray-600 max-w-xl mx-auto">
                         Có câu hỏi hoặc cần hỗ trợ? Đội ngũ JOBIO sẽ phản hồi trong vòng 1 ngày làm việc.
                     </p>
                 </FadeIn>
-                <div className="absolute top-20 left-1/3 w-56 h-56 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-16 right-1/3 w-44 h-44 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-20 left-1/3 w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-16 right-1/3 w-44 h-44 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
             </section>
 
             {/* ── Info Cards ── */}
@@ -130,15 +130,14 @@ export default function Contact() {
                         return (
                             <FadeIn key={card.title} delay={i * 0.07}>
                                 <div className={cn(
-                                    'glass-card-tinted rounded-2xl p-5 border border-white/10 h-full',
-                                    'bg-gradient-to-br', card.color
+                                    'bg-white rounded-2xl p-6 border border-gray-200 shadow-sm h-full hover:shadow-md transition-shadow'
                                 )}>
-                                    <div className={cn('p-2.5 rounded-xl w-fit mb-3', card.bgColor)}>
-                                        <Icon className={cn('w-5 h-5', card.iconColor)} />
+                                    <div className={cn('p-2.5 rounded-xl w-fit mb-4', card.bgColor)}>
+                                        <Icon className={cn('w-6 h-6', card.iconColor)} />
                                     </div>
-                                    <h3 className="font-semibold mb-2 text-sm">{card.title}</h3>
+                                    <h3 className="font-bold text-gray-900 mb-2">{card.title}</h3>
                                     {card.lines.map((line) => (
-                                        <p key={line} className="text-xs text-foreground/60 leading-relaxed">{line}</p>
+                                        <p key={line} className="text-sm text-gray-500 leading-relaxed">{line}</p>
                                     ))}
                                 </div>
                             </FadeIn>
@@ -152,100 +151,101 @@ export default function Contact() {
                 <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-8">
                     {/* Contact Form */}
                     <FadeIn>
-                        <div className="glass-card-tinted rounded-3xl p-8 border border-white/10">
-                            <h2 className="text-2xl font-bold mb-6">Gửi tin nhắn</h2>
+                        <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Gửi tin nhắn</h2>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 {/* Name + Email */}
                                 <div className="grid sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-xs font-medium text-foreground/70 mb-1.5 block">
-                                            Họ và tên <span className="text-rose-400">*</span>
+                                        <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                                            Họ và tên <span className="text-rose-500">*</span>
                                         </label>
                                         <input
                                             {...register('name')}
                                             placeholder="Nguyễn Văn A"
                                             className={cn(
-                                                'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border transition-colors outline-none',
-                                                'placeholder:text-foreground/30 focus:border-cyan-400/60',
-                                                errors.name ? 'border-rose-500/60' : 'border-white/10'
+                                                'w-full px-4 py-2.5 rounded-xl text-sm bg-white border transition-all outline-none',
+                                                'placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+                                                errors.name ? 'border-rose-500 ring-rose-500/20' : 'border-gray-300'
                                             )}
                                         />
-                                        {errors.name && <p className="text-xs text-rose-400 mt-1">{errors.name.message}</p>}
+                                        {errors.name && <p className="text-xs text-rose-500 mt-1">{errors.name.message}</p>}
                                     </div>
                                     <div>
-                                        <label className="text-xs font-medium text-foreground/70 mb-1.5 block">
-                                            Email <span className="text-rose-400">*</span>
+                                        <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                                            Email <span className="text-rose-500">*</span>
                                         </label>
                                         <input
                                             {...register('email')}
                                             placeholder="you@example.com"
                                             className={cn(
-                                                'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border transition-colors outline-none',
-                                                'placeholder:text-foreground/30 focus:border-cyan-400/60',
-                                                errors.email ? 'border-rose-500/60' : 'border-white/10'
+                                                'w-full px-4 py-2.5 rounded-xl text-sm bg-white border transition-all outline-none',
+                                                'placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+                                                errors.email ? 'border-rose-500 ring-rose-500/20' : 'border-gray-300'
                                             )}
                                         />
-                                        {errors.email && <p className="text-xs text-rose-400 mt-1">{errors.email.message}</p>}
+                                        {errors.email && <p className="text-xs text-rose-500 mt-1">{errors.email.message}</p>}
                                     </div>
                                 </div>
 
                                 {/* Phone */}
                                 <div>
-                                    <label className="text-xs font-medium text-foreground/70 mb-1.5 block">Số điện thoại</label>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Số điện thoại</label>
                                     <input
                                         {...register('phone')}
                                         placeholder="0901 234 567"
                                         className={cn(
-                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border transition-colors outline-none',
-                                            'placeholder:text-foreground/30 focus:border-cyan-400/60',
-                                            errors.phone ? 'border-rose-500/60' : 'border-white/10'
+                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white border transition-all outline-none',
+                                            'placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+                                            errors.phone ? 'border-rose-500 ring-rose-500/20' : 'border-gray-300'
                                         )}
                                     />
-                                    {errors.phone && <p className="text-xs text-rose-400 mt-1">{errors.phone.message}</p>}
+                                    <p className="text-[11px] text-gray-500 mt-1.5 mb-1 text-right">(Tùy chọn)</p>
+                                    {errors.phone && <p className="text-xs text-rose-500 mt-1">{errors.phone.message}</p>}
                                 </div>
 
                                 {/* Subject */}
                                 <div>
-                                    <label className="text-xs font-medium text-foreground/70 mb-1.5 block">
-                                        Tiêu đề <span className="text-rose-400">*</span>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                                        Tiêu đề <span className="text-rose-500">*</span>
                                     </label>
                                     <select
                                         {...register('subject')}
                                         className={cn(
-                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border transition-colors outline-none',
-                                            'focus:border-cyan-400/60 appearance-none dark:bg-[#0d0d1a]',
-                                            errors.subject ? 'border-rose-500/60' : 'border-white/10'
+                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white border transition-all outline-none cursor-pointer text-gray-700',
+                                            'focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+                                            errors.subject ? 'border-rose-500 ring-rose-500/20' : 'border-gray-300'
                                         )}
                                     >
                                         <option value="">Chọn chủ đề...</option>
                                         {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
-                                    {errors.subject && <p className="text-xs text-rose-400 mt-1">{errors.subject.message}</p>}
+                                    {errors.subject && <p className="text-xs text-rose-500 mt-1">{errors.subject.message}</p>}
                                 </div>
 
                                 {/* Message */}
                                 <div>
-                                    <label className="text-xs font-medium text-foreground/70 mb-1.5 block">
-                                        Nội dung <span className="text-rose-400">*</span>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1.5 block">
+                                        Nội dung <span className="text-rose-500">*</span>
                                     </label>
                                     <textarea
                                         {...register('message')}
                                         rows={5}
                                         placeholder="Mô tả vấn đề hoặc câu hỏi của bạn..."
                                         className={cn(
-                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white/5 border transition-colors outline-none resize-none',
-                                            'placeholder:text-foreground/30 focus:border-cyan-400/60',
-                                            errors.message ? 'border-rose-500/60' : 'border-white/10'
+                                            'w-full px-4 py-2.5 rounded-xl text-sm bg-white border transition-all outline-none resize-none',
+                                            'placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500',
+                                            errors.message ? 'border-rose-500 ring-rose-500/20' : 'border-gray-300'
                                         )}
                                     />
-                                    {errors.message && <p className="text-xs text-rose-400 mt-1">{errors.message.message}</p>}
+                                    {errors.message && <p className="text-xs text-rose-500 mt-1">{errors.message.message}</p>}
                                 </div>
 
                                 <Button
                                     type="submit"
                                     size="lg"
                                     disabled={mutation.isPending}
-                                    className="w-full bg-gradient-to-r from-violet-500 to-cyan-600 text-white border-0 hover:from-violet-400 hover:to-cyan-500 magnetic-button"
+                                    className="w-full bg-indigo-600 text-white hover:bg-indigo-700 border-0 shadow-sm font-semibold transition-all"
                                 >
                                     {mutation.isPending ? (
                                         <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Đang gửi...</>
@@ -256,16 +256,16 @@ export default function Contact() {
                             </form>
 
                             {/* Social links */}
-                            <div className="mt-6 pt-6 border-t border-white/10">
-                                <p className="text-xs text-foreground/50 mb-3">Hoặc tìm chúng tôi trên mạng xã hội</p>
-                                <div className="flex gap-3">
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                <p className="text-xs font-medium text-gray-500 mb-4 text-center">Hoặc liên hệ qua mạng xã hội</p>
+                                <div className="flex gap-3 justify-center">
                                     {SOCIALS.map(s => {
                                         const Icon = s.icon;
                                         return (
                                             <motion.a key={s.label} href={s.href} aria-label={s.label}
-                                                whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.92 }}
-                                                className={cn('p-2.5 rounded-xl glass-effect border border-white/10 text-foreground/50 transition-colors', s.color)}>
-                                                <Icon className="w-4 h-4" />
+                                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                                                className={cn('p-2.5 rounded-xl bg-gray-50 border border-gray-200 transition-colors', s.color)}>
+                                                <Icon className="w-5 h-5" />
                                             </motion.a>
                                         );
                                     })}
@@ -275,26 +275,29 @@ export default function Contact() {
                     </FadeIn>
 
                     {/* Map + Hours */}
-                    <div className="space-y-5">
+                    <div className="space-y-6">
                         <FadeIn delay={0.1}>
-                            <div className="glass-card-tinted rounded-3xl border border-white/10 overflow-hidden">
-                                <div className="h-72 bg-gradient-to-br from-cyan-500/10 to-violet-500/10 relative">
+                            <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+                                <div className="h-72 bg-gray-100 relative">
                                     <iframe
                                         title="JOBIO Office Location"
                                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4349!2d106.69924!3d10.77626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f3a9d8d1bb5%3A0x5c3c6be89e08c7a!2sSaigon%20Centre!5e0!3m2!1svi!2svn!4v1620000000000!5m2!1svi!2svn"
-                                        className="w-full h-full grayscale opacity-70 hover:opacity-90 transition-opacity"
+                                        className="w-full h-full transition-opacity"
                                         allowFullScreen
                                         loading="lazy"
                                         referrerPolicy="no-referrer-when-downgrade"
                                     />
                                 </div>
-                                <div className="p-5">
+                                <div className="p-6">
                                     <div className="flex items-start gap-3">
-                                        <MapPin className="w-5 h-5 text-violet-400 shrink-0 mt-0.5" />
+                                        <div className="p-2 bg-indigo-50 rounded-lg shrink-0">
+                                            <MapPin className="w-5 h-5 text-indigo-600" />
+                                        </div>
                                         <div>
-                                            <p className="font-semibold text-sm">JOBIO Headquarters</p>
-                                            <p className="text-xs text-foreground/60 mt-0.5">
-                                                Tầng 12, Tòa nhà Saigon Centre, 65 Lê Lợi, Quận 1, TP. Hồ Chí Minh
+                                            <p className="font-bold text-gray-900">JOBIO Headquarters</p>
+                                            <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                                                Tầng 12, Tòa nhà Saigon Centre<br />
+                                                65 Lê Lợi, Quận 1, TP. Hồ Chí Minh
                                             </p>
                                         </div>
                                     </div>
@@ -304,31 +307,38 @@ export default function Contact() {
 
                         {/* Business hours */}
                         <FadeIn delay={0.15}>
-                            <div className="glass-card-tinted rounded-2xl p-6 border border-white/10">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <Clock className="w-4 h-4 text-amber-400" />
-                                    <h3 className="font-semibold text-sm">Giờ làm việc</h3>
+                            <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <div className="p-2 bg-amber-50 rounded-lg">
+                                        <Clock className="w-5 h-5 text-amber-600" />
+                                    </div>
+                                    <h3 className="font-bold text-gray-900">Giờ làm việc</h3>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="space-y-3">
                                     {[
                                         { day: 'Thứ 2 – Thứ 6', hours: '08:00 – 18:00', open: true },
                                         { day: 'Thứ 7', hours: '08:00 – 12:00', open: true },
                                         { day: 'Chủ nhật', hours: 'Đóng cửa', open: false },
                                     ].map(item => (
-                                        <div key={item.day} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                                            <span className="text-sm text-foreground/70">{item.day}</span>
-                                            <span className={cn('text-xs font-medium px-2.5 py-0.5 rounded-full',
-                                                item.open ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'
+                                        <div key={item.day} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 last:pb-0">
+                                            <span className="text-sm font-medium text-gray-700">{item.day}</span>
+                                            <span className={cn('text-xs font-semibold px-2.5 py-1 rounded-full text-center min-w-[100px]',
+                                                item.open ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'
                                             )}>
                                                 {item.hours}
                                             </span>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-400/20">
-                                    <p className="text-xs text-amber-400/90">
-                                        📞 Hotline hỗ trợ 24/7: <strong>1800 599 984</strong> (miễn phí cước, dành cho sự cố khẩn cấp)
-                                    </p>
+                                <div className="mt-6 p-4 rounded-xl bg-indigo-50 border border-indigo-100 flex items-start gap-3">
+                                    <Headphones className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900 mb-1">Hotline hỗ trợ 24/7</p>
+                                        <p className="text-sm text-gray-600">
+                                            <strong className="text-indigo-600 text-lg mr-1">1800 599 984</strong><br />
+                                            (Miễn phí cước, dành cho sự cố khẩn cấp)
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </FadeIn>

@@ -28,12 +28,13 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from 'sonner';
-import { Loader2, FileText, Send, CheckCircle2 } from 'lucide-react';
+import { Loader2, FileText, Send, CheckCircle2, UserPlus, LogIn, Sparkles } from 'lucide-react';
 import { cvService } from '@/services/cvService';
 import { applicationService } from '@/services/applicationService';
 import { useUserStore } from '@/store/userStore';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
     cv_id: z.string().min(1, "Vui lòng chọn CV của bạn"),
@@ -41,7 +42,7 @@ const formSchema = z.object({
 });
 
 interface ApplyFormProps {
-    jobId: string;
+    jobId: number;
     jobTitle: string;
     isOpen: boolean;
     onClose: () => void;
@@ -50,13 +51,13 @@ interface ApplyFormProps {
 export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const user = useUserStore((s) => s.user);
+    const { user, isAuthenticated } = useUserStore();
 
     // Fetch user CVs
     const { data: cvs, isLoading: isLoadingCvs } = useQuery({
-        queryKey: ['recruiter-cvs', user?.id],
-        queryFn: () => cvService.list(Number(user?.id)).then(r => r.data),
-        enabled: isOpen && !!user?.id
+        queryKey: ['candidate-cvs', user?.id],
+        queryFn: () => cvService.list().then(r => r.data), // No need to pass ID anymore if list() handles it via token
+        enabled: isOpen && isAuthenticated && !!user
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -71,7 +72,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
         setIsSubmitting(true);
         try {
             await applicationService.create({
-                job_id: Number(jobId),
+                job_id: jobId,
                 cv_id: Number(values.cv_id),
                 cover_letter: values.cover_letter,
             });
@@ -91,115 +92,174 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[550px] glass border-white/20 p-0 overflow-hidden rounded-2xl">
-                {isSuccess ? (
-                    <div className="py-16 flex flex-col items-center justify-center text-center px-6">
+            <DialogContent className="sm:max-w-[550px] bg-white border border-gray-100 p-0 overflow-hidden rounded-[24px] shadow-2xl">
+                <AnimatePresence mode="wait">
+                    {!isAuthenticated ? (
                         <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="h-20 w-20 rounded-full bg-aurora-lime/20 flex items-center justify-center text-aurora-lime mb-6 shadow-glow"
+                            key="guest-state"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="p-10 flex flex-col items-center text-center"
                         >
-                            <CheckCircle2 size={40} />
+                            <div className="w-20 h-20 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-6">
+                                <UserPlus size={40} />
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 mb-2">Đăng nhập để ứng tuyển</h3>
+                            <p className="text-gray-500 mb-8 max-w-[320px]">
+                                Bạn cần có tài khoản ứng viên để nộp hồ sơ trực tiếp cho công việc này.
+                            </p>
+                            <div className="flex flex-col w-full gap-3">
+                                <Button
+                                    className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-lg shadow-indigo-100"
+                                    asChild
+                                >
+                                    <a href={`/login?redirect=/jobs/detail/${jobId}`}>
+                                        <LogIn className="w-4 h-4 mr-2" />
+                                        Đăng nhập ngay
+                                    </a>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="w-full h-12 rounded-xl border-gray-200 text-gray-600 font-bold"
+                                    asChild
+                                >
+                                    <a href="/register">Chưa có tài khoản? Đăng ký</a>
+                                </Button>
+                            </div>
                         </motion.div>
-                        <h3 className="text-2xl font-bold mb-2">Ứng tuyển thành công!</h3>
-                        <p className="text-muted-foreground mb-8">
-                            Hồ sơ của bạn đã được gửi tới <strong>{jobTitle}</strong>. Nhà tuyển dụng sẽ phản hồi sớm nhất có thể.
-                        </p>
-                        <Button className="w-full bg-primary" onClick={onClose}>Đóng</Button>
-                    </div>
-                ) : (
-                    <>
-                        <DialogHeader className="p-6 pb-0">
-                            <DialogTitle className="text-2xl font-bold">Ứng tuyển công việc</DialogTitle>
-                            <DialogDescription>
-                                Bạn đang ứng tuyển cho vị trí <span className="text-primary font-bold">{jobTitle}</span>
-                            </DialogDescription>
-                        </DialogHeader>
+                    ) : isSuccess ? (
+                        <motion.div
+                            key="success-state"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="p-10 flex flex-col items-center text-center"
+                        >
+                            <div className="h-20 w-20 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-6 shadow-lg shadow-emerald-100">
+                                <CheckCircle2 size={40} />
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 mb-2">Đã gửi hồ sơ!</h3>
+                            <p className="text-gray-500 mb-8">
+                                Tuyệt vời! Bạn vừa ứng tuyển vào vị trí <br /><strong className="text-indigo-600">{jobTitle}</strong>.
+                            </p>
+                            <div className="w-full p-4 rounded-xl bg-gray-50 border border-gray-100 mb-8 flex items-center gap-3 text-left">
+                                <div className="p-2 rounded-lg bg-white shadow-sm">
+                                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                                </div>
+                                <p className="text-xs text-gray-500">Mẹo: Bạn có thể theo dõi trạng thái ứng tuyển trong mục <strong>Hồ sơ của tôi</strong>.</p>
+                            </div>
+                            <Button className="w-full h-12 rounded-xl bg-gray-900 hover:bg-gray-800" onClick={onClose}>Đóng</Button>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="form-state"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
+                            <DialogHeader className="p-8 pb-0">
+                                <DialogTitle className="text-2xl font-black text-gray-900">Ứng tuyển ngay</DialogTitle>
+                                <DialogDescription className="text-gray-500 mt-1">
+                                    Vị trí: <span className="font-bold text-indigo-600">{jobTitle}</span>
+                                </DialogDescription>
+                            </DialogHeader>
 
-                        <Form {...form}>
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
-                                <FormField
-                                    control={form.control}
-                                    name="cv_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-foreground font-bold flex items-center gap-2">
-                                                <FileText size={16} />
-                                                Chọn hồ sơ (CV)
-                                            </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="glass border-white/20 h-12">
-                                                        <SelectValue placeholder={isLoadingCvs ? "Đang tải danh sách CV..." : "Chọn CV trong hồ sơ của bạn"} />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent className="glass border-white/20">
-                                                    {cvs?.map((cv) => (
-                                                        <SelectItem key={cv.id} value={cv.id} className="focus:bg-primary/10">
-                                                            {cv.name} (Tải lên {cv.uploaded_at})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="cover_letter"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="text-foreground font-bold">Thư giới thiệu (Tùy chọn)</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Hãy tóm tắt ngắn gọn lý do bạn phù hợp với vị trí này..."
-                                                    className="glass border-white/20 min-h-[150px] resize-none focus-visible:ring-primary"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <div className="flex justify-end mt-1">
-                                                <span className="text-[10px] text-muted-foreground">{(field.value?.length || 0)}/1000 ký tự</span>
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <DialogFooter className="pt-4 mt-4 border-t border-white/10">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        onClick={onClose}
-                                        disabled={isSubmitting}
-                                        className="h-11 rounded-xl"
-                                    >
-                                        Hủy
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        className="bg-primary h-11 rounded-xl min-w-[120px] font-bold"
-                                        disabled={isSubmitting}
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Đang gửi...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Send className="mr-2 h-4 w-4" />
-                                                Gửi hồ sơ
-                                            </>
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-8">
+                                    <FormField
+                                        control={form.control}
+                                        name="cv_id"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-gray-900 font-bold flex items-center gap-2 mb-2">
+                                                    <FileText size={16} className="text-indigo-500" />
+                                                    Chọn CV của bạn
+                                                </FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="bg-gray-50 border-gray-200 h-12 rounded-xl focus:ring-indigo-500">
+                                                            <SelectValue placeholder={isLoadingCvs ? "Đang tải hồ sơ..." : "Chọn CV tải lên"} />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent className="bg-white border-gray-100 rounded-xl shadow-xl">
+                                                        {cvs?.map((cv: any) => (
+                                                            <SelectItem key={cv.id} value={cv.id.toString()} className="focus:bg-indigo-50 focus:text-indigo-600 rounded-lg m-1">
+                                                                <div className="flex flex-col items-start">
+                                                                    <span className="font-bold">{cv.cv_name || cv.name}</span>
+                                                                    <span className="text-[10px] text-gray-400">Cập nhật: {new Date(cv.updated_at).toLocaleDateString('vi-VN')}</span>
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                        {cvs?.length === 0 && (
+                                                            <div className="p-4 text-center">
+                                                                <p className="text-sm text-gray-500 mb-2">Bạn chưa có CV nào</p>
+                                                                <Button variant="link" className="text-indigo-600 p-0 h-auto font-bold" asChild>
+                                                                    <a href="/profile/cv">Tải CV ngay</a>
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage className="text-red-500" />
+                                            </FormItem>
                                         )}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </Form>
-                    </>
-                )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="cover_letter"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <FormLabel className="text-gray-900 font-bold">Thư giới thiệu (tùy chọn)</FormLabel>
+                                                    <span className="text-[10px] font-bold text-gray-400">{(field.value?.length || 0)}/1000</span>
+                                                </div>
+                                                <FormControl>
+                                                    <Textarea
+                                                        placeholder="Nêu bật những điểm mạnh của bản thân phù hợp với công việc..."
+                                                        className="bg-gray-50 border-gray-200 rounded-xl min-h-[140px] resize-none focus-visible:ring-indigo-600"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage className="text-red-500" />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <DialogFooter className="pt-4 border-t border-gray-50">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            onClick={onClose}
+                                            disabled={isSubmitting}
+                                            className="h-12 rounded-xl text-gray-500 font-bold px-6"
+                                        >
+                                            Để sau
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            className="bg-indigo-600 hover:bg-indigo-700 h-12 rounded-xl min-w-[160px] font-black shadow-lg shadow-indigo-100 flex-1 md:flex-none"
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Đang nộp...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="mr-2 h-4 w-4" />
+                                                    Nộp hồ sơ ngay
+                                                </>
+                                            )}
+                                        </Button>
+                                    </DialogFooter>
+                                </form>
+                            </Form>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </DialogContent>
         </Dialog>
     );
 };
+

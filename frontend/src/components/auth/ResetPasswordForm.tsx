@@ -27,7 +27,7 @@ interface ResetPasswordFormProps {
 }
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
-    email,
+    email: _email,
     onSuccess
 }) => {
     const form = useForm<ResetFormValues>({
@@ -44,7 +44,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             await authService.resetPassword({
                 token: values.token,
                 new_password: values.new_password,
-                confirm_password: values.new_password_confirm,
+                new_password_confirm: values.new_password_confirm,
             });
             toast.success("Mật khẩu đã được thay đổi thành công!");
             onSuccess();
@@ -75,7 +75,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="Nhập mã 6 số"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50 h-12 text-center text-xl tracking-widest"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-xl tracking-widest"
                                         {...field}
                                     />
                                 </FormControl>
@@ -94,7 +94,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50 h-12"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
                                         {...field}
                                     />
                                 </FormControl>
@@ -114,7 +114,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50 h-12"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
                                         {...field}
                                     />
                                 </FormControl>
@@ -125,7 +125,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:opacity-90 transition-opacity font-semibold h-12"
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12 transition-colors"
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

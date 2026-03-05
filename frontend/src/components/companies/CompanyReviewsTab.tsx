@@ -16,8 +16,8 @@ interface Props {
 function RatingBar({ label, rating }: { label: string; rating: number }) {
     return (
         <div className="flex items-center gap-3 text-sm">
-            <span className="text-muted-foreground w-36 shrink-0 text-xs">{label}</span>
-            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <span className="text-gray-500 w-36 shrink-0 text-xs font-medium">{label}</span>
+            <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                 <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(rating / 5) * 100}%` }}
@@ -51,93 +51,97 @@ function ReviewCard({ review }: { review: any }) {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card-tinted rounded-2xl p-5 border border-white/10 space-y-3"
+            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4 hover:shadow transition-shadow"
         >
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                     {review.is_anonymous ? (
-                        <div className="h-9 w-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                            <UserCircle size={20} className="text-muted-foreground" />
+                        <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                            <UserCircle size={22} className="text-gray-400" />
                         </div>
                     ) : (
                         <img
                             src={review.user_avatar}
                             alt={review.user_name}
-                            className="h-9 w-9 rounded-full object-cover border border-white/20 shrink-0"
+                            className="h-10 w-10 rounded-full object-cover border border-gray-200 shrink-0 shadow-sm"
                         />
                     )}
                     <div>
-                        <p className="font-semibold text-sm">
+                        <p className="font-semibold text-gray-900 text-sm">
                             {review.is_anonymous ? 'Ẩn danh' : review.user_name}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500 font-medium">
                             {review.is_anonymous ? '' : review.position + ' · '}
                             {review.employment_status}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-1 shrink-0">
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <div className="flex gap-0.5">
                         {Array(5).fill(0).map((_, i) => (
                             <Star
                                 key={i}
-                                size={13}
-                                className={i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-white/20'}
+                                size={14}
+                                className={i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}
                             />
                         ))}
                     </div>
-                    <span className="text-xs text-muted-foreground">{review.created_at}</span>
+                    <span className="text-xs text-gray-400 font-medium">{review.created_at}</span>
                 </div>
             </div>
 
             {/* Content */}
             <div>
-                <p className="font-bold text-sm mb-1.5">{review.title}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{review.content}</p>
+                <p className="font-bold text-gray-900 text-sm mb-1.5">{review.title}</p>
+                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{review.content}</p>
             </div>
 
             {/* Pros / Cons */}
             {(review.pros || review.cons) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                     {review.pros && (
-                        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2.5">
-                            <p className="text-xs font-bold text-emerald-400 mb-1">👍 Ưu điểm</p>
-                            <p className="text-xs text-muted-foreground">{review.pros}</p>
+                        <div className="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+                            <p className="text-xs font-bold text-emerald-600 mb-1.5 flex items-center gap-1.5">
+                                <span className="text-base">👍</span> Ưu điểm
+                            </p>
+                            <p className="text-sm text-emerald-800 leading-relaxed">{review.pros}</p>
                         </div>
                     )}
                     {review.cons && (
-                        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-3.5 py-2.5">
-                            <p className="text-xs font-bold text-red-400 mb-1">👎 Nhược điểm</p>
-                            <p className="text-xs text-muted-foreground">{review.cons}</p>
+                        <div className="rounded-xl bg-red-50 border border-red-100 p-4">
+                            <p className="text-xs font-bold text-red-600 mb-1.5 flex items-center gap-1.5">
+                                <span className="text-base">👎</span> Nhược điểm
+                            </p>
+                            <p className="text-sm text-red-800 leading-relaxed">{review.cons}</p>
                         </div>
                     )}
                 </div>
             )}
 
             {/* Actions */}
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
                 <Button
                     variant="ghost"
                     size="sm"
-                    className={`h-7 px-3 rounded-lg text-xs gap-1.5 transition-all ${hasUpvoted
-                        ? 'text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+                    className={`h-8 px-3 rounded-lg text-xs font-medium gap-1.5 transition-colors ${hasUpvoted
+                        ? 'text-primary bg-primary/5 hover:bg-primary/10'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'}`}
                     disabled={hasUpvoted || helpfulMutation.isPending}
                     onClick={() => helpfulMutation.mutate()}
                 >
-                    <ThumbsUp size={12} className={hasUpvoted ? 'fill-cyan-400' : ''} />
+                    <ThumbsUp size={14} className={hasUpvoted ? 'fill-primary' : ''} />
                     Hữu ích ({helpfulCount})
                 </Button>
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-3 rounded-lg text-xs text-muted-foreground hover:text-red-400 hover:bg-red-500/10 gap-1.5 transition-all"
+                    className="h-8 px-3 rounded-lg text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 gap-1.5 transition-colors"
                     disabled={reportMutation.isPending}
                     onClick={() => reportMutation.mutate()}
                 >
-                    <Flag size={12} />
+                    <Flag size={14} />
                     Báo cáo
                 </Button>
             </div>
@@ -155,9 +159,9 @@ export function CompanyReviewsTab({ companyId, user }: Props) {
     if (isLoading) {
         return (
             <div className="space-y-4">
-                <Skeleton className="h-32 w-full rounded-2xl bg-white/5" />
+                <Skeleton className="h-32 w-full rounded-2xl bg-gray-100" />
                 {Array(2).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-48 w-full rounded-2xl bg-white/5" />
+                    <Skeleton key={i} className="h-48 w-full rounded-2xl bg-gray-50" />
                 ))}
             </div>
         );
@@ -168,24 +172,24 @@ export function CompanyReviewsTab({ companyId, user }: Props) {
     return (
         <div className="space-y-6">
             {/* Rating summary */}
-            <div className="glass-card-tinted rounded-2xl p-6 border border-white/10">
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                 <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
                     {/* Big number */}
                     <div className="text-center shrink-0">
                         <div className="text-6xl font-black text-amber-400">{data.average_rating.toFixed(1)}</div>
-                        <div className="flex justify-center gap-0.5 my-2">
+                        <div className="flex justify-center gap-1 my-2">
                             {Array(5).fill(0).map((_, i) => (
                                 <Star
                                     key={i}
-                                    size={16}
-                                    className={i < Math.round(data.average_rating) ? 'text-amber-400 fill-amber-400' : 'text-white/20'}
+                                    size={18}
+                                    className={i < Math.round(data.average_rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}
                                 />
                             ))}
                         </div>
-                        <p className="text-xs text-muted-foreground">{data.reviews.length} đánh giá</p>
+                        <p className="text-xs text-gray-500 font-medium">{data.reviews.length} đánh giá</p>
                     </div>
 
-                    <Separator orientation="vertical" className="h-28 bg-white/10 hidden sm:block" />
+                    <Separator orientation="vertical" className="h-28 bg-gray-100 hidden sm:block" />
 
                     {/* Breakdown */}
                     <div className="flex-1 w-full space-y-2.5">
@@ -198,15 +202,15 @@ export function CompanyReviewsTab({ companyId, user }: Props) {
 
             {/* Write review CTA (if logged in) */}
             {user && (
-                <Button className="w-full h-11 rounded-xl bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border border-white/10 hover:from-cyan-500/30 hover:to-violet-500/30 text-foreground font-semibold gap-2 transition-all">
-                    <PenLine size={16} />
+                <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold flex items-center justify-center gap-2 shadow-sm transition-all text-sm">
+                    <PenLine size={18} />
                     Viết đánh giá
                 </Button>
             )}
 
             {/* Reviews list */}
             <div className="space-y-4">
-                <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">
+                <h3 className="font-bold text-sm uppercase tracking-widest text-gray-500">
                     Tất cả đánh giá ({data.reviews.length})
                 </h3>
                 {data.reviews.map((review: any) => (

@@ -20,7 +20,7 @@ export function CompanyJobsTab({ companyId }: Props) {
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Array(4).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-44 w-full rounded-2xl bg-white/5" />
+                    <Skeleton key={i} className="h-44 w-full rounded-2xl bg-gray-100" />
                 ))}
             </div>
         );
@@ -29,10 +29,10 @@ export function CompanyJobsTab({ companyId }: Props) {
     if (!jobs || jobs.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-16 w-16 rounded-full bg-white/5 flex items-center justify-center text-muted-foreground mb-4">
+                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
                     <Briefcase size={28} />
                 </div>
-                <p className="font-medium text-muted-foreground">Chưa có tin tuyển dụng nào</p>
+                <p className="font-medium text-gray-500">Chưa có tin tuyển dụng nào</p>
             </div>
         );
     }

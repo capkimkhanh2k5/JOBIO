@@ -1,57 +1,93 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Github } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Facebook, Twitter, Instagram, Linkedin, Github } from 'lucide-react';
+
+const footerNav = [
+    {
+        title: 'Ứng Viên',
+        links: [
+            { label: 'Tìm Việc Làm', to: '/jobs' },
+            { label: 'Danh Sách Công Ty', to: '/companies' },
+            { label: 'Việc Làm Theo Ngành', to: '/jobs' },
+            { label: 'Bài Viết Nghề Nghiệp', to: '#' },
+        ],
+    },
+    {
+        title: 'Nhà Tuyển Dụng',
+        links: [
+            { label: 'Đăng Tin Tuyển Dụng', to: '/employer/register' },
+            { label: 'Gói Dịch Vụ', to: '/pricing' },
+            { label: 'Giải Pháp HR', to: '#' },
+        ],
+    },
+    {
+        title: 'Về JOBIO',
+        links: [
+            { label: 'Về Chúng Tôi', to: '/about' },
+            { label: 'Liên Hệ', to: '/contact' },
+            { label: 'FAQ', to: '/faq' },
+            { label: 'Blog', to: '#' },
+        ],
+    },
+];
+
+const socials = [
+    { Icon: Facebook, href: '#', label: 'Facebook' },
+    { Icon: Twitter, href: '#', label: 'Twitter' },
+    { Icon: Linkedin, href: '#', label: 'LinkedIn' },
+    { Icon: Instagram, href: '#', label: 'Instagram' },
+    { Icon: Github, href: '#', label: 'GitHub' },
+];
 
 export const Footer = () => (
-    <footer className="relative mt-44 border-t border-border/30 glass-effect overflow-hidden bg-background/50">
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-
-        <div className="container mx-auto px-4 py-32 relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-20">
-                <div className="lg:col-span-2 space-y-12">
-                    <div className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter">
-                        JOBIO
+    <footer className="bg-gray-900 text-white mt-0">
+        <div className="container mx-auto px-4 pt-14 pb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-10">
+                {/* Brand column */}
+                <div className="lg:col-span-2 space-y-5">
+                    <div className="text-2xl font-black tracking-tight">
+                        <span className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">JOBIO</span>
                     </div>
-                    <p className="text-xl text-muted-foreground font-medium max-w-sm leading-relaxed">
-                        The ultimate ecosystem for world-class talent and disruptive organizations. Built for the future of work.
+                    <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+                        Nền tảng tuyển dụng hàng đầu Việt Nam — kết nối ứng viên tài năng với doanh nghiệp hàng đầu mỗi ngày.
                     </p>
-                    <div className="flex gap-6">
-                        {[Facebook, Twitter, Linkedin, Instagram, Github].map((Icon, i) => (
-                            <Button key={i} variant="ghost" size="icon" className="rounded-2xl w-14 h-14 glass-effect hover:bg-primary hover:text-white transition-all magnetic-button shadow-sm">
-                                <Icon className="w-7 h-7" />
-                            </Button>
+                    {/* Social buttons */}
+                    <div className="flex gap-2">
+                        {socials.map(({ Icon, href, label }) => (
+                            <a
+                                key={label}
+                                href={href}
+                                aria-label={label}
+                                className="w-9 h-9 rounded-lg bg-white/5 hover:bg-gradient-to-br hover:from-primary/80 hover:to-cyan-500/80 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all"
+                            >
+                                <Icon className="w-4 h-4" />
+                            </a>
                         ))}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-16 lg:col-span-3">
-                    {[
-                        { title: 'Ecosystem', links: ['Browse Jobs', 'Companies', 'Salaries', 'Career Advice'] },
-                        { title: 'Partners', links: ['Post a Role', 'HR Solutions', 'Corporate Branding', 'Sales'] },
-                        { title: 'Governance', links: ['Support Desk', 'Safety First', 'Terms of Use', 'Privacy Policy'] },
-                    ].map((section) => (
-                        <div key={section.title} className="space-y-10">
-                            <h4 className="text-[12px] font-black uppercase tracking-[0.4em] text-foreground/30">{section.title}</h4>
-                            <ul className="space-y-6">
-                                {section.links.map((link) => (
-                                    <li key={link}>
-                                        <Link to="#" className="text-[16px] font-bold text-muted-foreground/80 hover:text-primary transition-colors">{link}</Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
+                {/* Link columns */}
+                {footerNav.map(section => (
+                    <div key={section.title}>
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">{section.title}</h4>
+                        <ul className="space-y-2.5">
+                            {section.links.map(link => (
+                                <li key={link.label}>
+                                    <Link to={link.to} className="text-sm text-gray-400 hover:text-white transition-colors">
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
 
-            <div className="mt-40 pt-16 border-t border-border/20 flex flex-col md:flex-row justify-between items-center gap-12">
-                <div className="text-[14px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">
-                    © 2024 JOBIO GLOBAL INC. ALL RIGHTS RESERVED.
-                </div>
-                <div className="flex gap-10 text-[12px] font-black uppercase tracking-widest text-muted-foreground/30">
-                    <Link to="/terms" className="hover:text-primary transition-colors">Terms</Link>
-                    <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
-                    <Link to="/cookies" className="hover:text-primary transition-colors">Digital Cookies</Link>
+            <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
+                <span>© 2026 JOBIO. Bảo lưu mọi quyền.</span>
+                <div className="flex gap-5">
+                    <Link to="#" className="hover:text-gray-400 transition-colors">Điều Khoản</Link>
+                    <Link to="#" className="hover:text-gray-400 transition-colors">Bảo Mật</Link>
+                    <Link to="#" className="hover:text-gray-400 transition-colors">Cookie</Link>
                 </div>
             </div>
         </div>

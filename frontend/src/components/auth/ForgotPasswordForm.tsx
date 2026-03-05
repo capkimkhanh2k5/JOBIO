@@ -47,8 +47,8 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     return (
         <div className="space-y-6">
             <div className="flex justify-center mb-8">
-                <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-600 shadow-lg shadow-cyan-500/10 border border-cyan-500/20">
-                    <Mail className="w-10 h-10" />
+                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-sm border border-primary/20">
+                    <Mail className="w-8 h-8" />
                 </div>
             </div>
 
@@ -63,7 +63,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="name@example.com"
-                                        className="bg-white/5 border-white/10 focus:border-cyan-500/50 h-12"
+                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-11"
                                         {...field}
                                     />
                                 </FormControl>
@@ -74,7 +74,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:opacity-90 transition-opacity font-semibold h-12"
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-11 transition-colors"
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -85,7 +85,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
             <Button
                 variant="ghost"
-                className="w-full text-muted-foreground hover:text-white"
+                className="w-full text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 onClick={onBackToLogin}
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />

@@ -11,7 +11,6 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import Pricing from '@/pages/Pricing';
 import FAQ from '@/pages/FAQ';
-import { AuroraBackground } from '@/components/shared/AuroraBackground';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -86,68 +85,67 @@ export default function App() {
     return (
         <BrowserRouter>
             <ErrorBoundary>
-            <Suspense fallback={<SuspenseFallback />}>
-            <Toaster position="top-center" />
-            <Routes>
-                {/* ── Candidate area ── */}
-                <Route path="/candidate" element={<CandidateLayout />}>
-                    <Route index element={<Navigate to="/candidate/dashboard" replace />} />
-                    <Route path="dashboard" element={<CandidateDashboard />} />
-                    <Route path="profile" element={<CandidateProfile />} />
-                    <Route path="cv" element={<CVManager />} />
-                    <Route path="applications" element={<MyApplications />} />
-                    <Route path="saved" element={<SavedJobs />} />
-                    <Route path="alerts" element={<JobAlerts />} />
-                    <Route path="interviews" element={<CandidateInterviews />} />
-                    <Route path="notifications" element={<NotificationsPage />} />
-                </Route>
+                <Suspense fallback={<SuspenseFallback />}>
+                    <Toaster position="top-center" />
+                    <Routes>
+                        {/* ── Candidate area ── */}
+                        <Route path="/candidate" element={<CandidateLayout />}>
+                            <Route index element={<Navigate to="/candidate/dashboard" replace />} />
+                            <Route path="dashboard" element={<CandidateDashboard />} />
+                            <Route path="profile" element={<CandidateProfile />} />
+                            <Route path="cv" element={<CVManager />} />
+                            <Route path="applications" element={<MyApplications />} />
+                            <Route path="saved" element={<SavedJobs />} />
+                            <Route path="alerts" element={<JobAlerts />} />
+                            <Route path="interviews" element={<CandidateInterviews />} />
+                            <Route path="notifications" element={<NotificationsPage />} />
+                        </Route>
 
-                {/* ── Employer area: own shell, no public header/footer ── */}
-                <Route path="/employer" element={<EmployerLayout />}>
-                    <Route index element={<Navigate to="/employer/dashboard" replace />} />
-                    <Route path="dashboard" element={<EmployerDashboard />} />
-                    <Route path="company" element={<CompanyProfile />} />
-                    <Route path="settings" element={<EmployerSettingsPage />} />
-                    <Route path="jobs" element={<ManageJobs />} />
-                    <Route path="jobs/create" element={<PostJob />} />
-                    <Route path="jobs/:id/edit" element={<PostJob />} />
-                    <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
-                    <Route path="candidates" element={<ManageCandidates />} />
-                    <Route path="cv-search" element={<EmployerCVSearch />} />
-                    <Route path="interviews" element={<EmployerInterviewsPage />} />
-                    <Route path="messages" element={<EmployerMessagesPage />} />
-                    <Route path="analytics" element={<EmployerAnalyticsPage />} />
-                    <Route path="campaigns" element={<EmployerCampaigns />} />
-                    <Route path="referrals" element={<EmployerReferrals />} />
-                    <Route path="subscription" element={<EmployerSubscriptionPage />} />
-                    <Route path="support" element={<EmployerSupportPage />} />
-                    <Route path="notifications" element={<NotificationsPage />} />
-                </Route>
+                        {/* ── Employer area: own shell, no public header/footer ── */}
+                        <Route path="/employer" element={<EmployerLayout />}>
+                            <Route index element={<Navigate to="/employer/dashboard" replace />} />
+                            <Route path="dashboard" element={<EmployerDashboard />} />
+                            <Route path="company" element={<CompanyProfile />} />
+                            <Route path="settings" element={<EmployerSettingsPage />} />
+                            <Route path="jobs" element={<ManageJobs />} />
+                            <Route path="jobs/create" element={<PostJob />} />
+                            <Route path="jobs/:id/edit" element={<PostJob />} />
+                            <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
+                            <Route path="candidates" element={<ManageCandidates />} />
+                            <Route path="cv-search" element={<EmployerCVSearch />} />
+                            <Route path="interviews" element={<EmployerInterviewsPage />} />
+                            <Route path="messages" element={<EmployerMessagesPage />} />
+                            <Route path="analytics" element={<EmployerAnalyticsPage />} />
+                            <Route path="campaigns" element={<EmployerCampaigns />} />
+                            <Route path="referrals" element={<EmployerReferrals />} />
+                            <Route path="subscription" element={<EmployerSubscriptionPage />} />
+                            <Route path="support" element={<EmployerSupportPage />} />
+                            <Route path="notifications" element={<NotificationsPage />} />
+                        </Route>
 
-                {/* ── Public site: aurora + header + footer ── */}
-                <Route path="*" element={
-                    <div className="min-h-screen flex flex-col relative font-sans">
-                        <AuroraBackground />
-                        <Header />
-                        <main className="flex-1 w-full relative z-10">
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/jobs" element={<Jobs />} />
-                                <Route path="/jobs/:id" element={<JobDetail />} />
-                                <Route path="/companies/:id" element={<CompanyDetail />} />
-                                <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-                                {/* Profile is now under /candidate/profile */}
-                                <Route path="/about" element={<About />} />
-                                <Route path="/contact" element={<Contact />} />
-                                <Route path="/pricing" element={<Pricing />} />
-                                <Route path="/faq" element={<FAQ />} />
-                            </Routes>
-                        </main>
-                        <Footer />
-                    </div>
-                } />
-            </Routes>
-            </Suspense>
+                        {/* ── Public site: aurora + header + footer ── */}
+                        <Route path="*" element={
+                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                                <Header />
+                                <main className="flex-1 w-full relative z-10">
+                                    <Routes>
+                                        <Route path="/" element={<Home />} />
+                                        <Route path="/jobs" element={<Jobs />} />
+                                        <Route path="/jobs/:id" element={<JobDetail />} />
+                                        <Route path="/companies/:id" element={<CompanyDetail />} />
+                                        <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+                                        {/* Profile is now under /candidate/profile */}
+                                        <Route path="/about" element={<About />} />
+                                        <Route path="/contact" element={<Contact />} />
+                                        <Route path="/pricing" element={<Pricing />} />
+                                        <Route path="/faq" element={<FAQ />} />
+                                    </Routes>
+                                </main>
+                                <Footer />
+                            </div>
+                        } />
+                    </Routes>
+                </Suspense>
             </ErrorBoundary>
         </BrowserRouter>
     );

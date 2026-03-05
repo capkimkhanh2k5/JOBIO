@@ -124,18 +124,18 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
 function FeatureRow({ feature, plans }: { feature: { key: keyof Plan; label: string }; plans: Plan[] }) {
     const isBoolean = (v: unknown) => v === true || v === false;
     return (
-        <tr className="border-b border-white/5 hover:bg-white/2 transition-colors">
-            <td className="py-3 px-4 text-sm text-foreground/70">{feature.label}</td>
+        <tr className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+            <td className="py-4 px-6 text-sm font-medium text-gray-700">{feature.label}</td>
             {plans.map(plan => {
                 const val = plan[feature.key];
                 return (
-                    <td key={plan.id} className="py-3 px-4 text-center text-sm">
+                    <td key={plan.id} className="py-4 px-6 text-center text-sm">
                         {isBoolean(val) ? (
-                            val ? <Check className="w-4 h-4 text-emerald-400 mx-auto" /> : <X className="w-4 h-4 text-foreground/25 mx-auto" />
+                            val ? <Check className="w-4 h-4 text-emerald-500 mx-auto font-bold" /> : <X className="w-4 h-4 text-gray-300 mx-auto" />
                         ) : val === null ? (
-                            <span className="text-xs font-medium text-cyan-400">Không giới hạn</span>
+                            <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Không giới hạn</span>
                         ) : (
-                            <span className="text-foreground/80">{String(val)}</span>
+                            <span className="text-gray-900 font-semibold">{String(val)}</span>
                         )}
                     </td>
                 );
@@ -147,14 +147,14 @@ function FeatureRow({ feature, plans }: { feature: { key: keyof Plan; label: str
 function FaqAccordion({ item }: { item: FaqItem }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className={cn('glass-card-tinted rounded-2xl border overflow-hidden transition-colors', open ? 'border-cyan-400/30' : 'border-white/10')}>
+        <div className={cn('bg-white rounded-2xl border overflow-hidden transition-all shadow-sm', open ? 'border-indigo-200 ring-1 ring-indigo-50' : 'border-gray-200')}>
             <button
                 onClick={() => setOpen(p => !p)}
                 className="w-full flex items-center justify-between p-5 text-left group"
                 aria-expanded={open}
             >
-                <span className="font-medium text-sm pr-4">{item.q}</span>
-                <ChevronDown className={cn('w-4 h-4 shrink-0 text-foreground/50 transition-transform', open && 'rotate-180')} />
+                <span className="font-semibold text-sm pr-4 text-gray-900 group-hover:text-indigo-700 transition-colors">{item.q}</span>
+                <ChevronDown className={cn('w-4 h-4 shrink-0 text-gray-400 transition-transform group-hover:text-gray-600', open && 'rotate-180 text-indigo-600')} />
             </button>
             <AnimatePresence>
                 {open && (
@@ -162,7 +162,7 @@ function FaqAccordion({ item }: { item: FaqItem }) {
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     >
-                        <div className="px-5 pb-5 text-sm text-foreground/60 leading-relaxed border-t border-white/5 pt-3">
+                        <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-4 bg-gray-50/50">
                             {item.a}
                         </div>
                     </motion.div>
@@ -198,41 +198,39 @@ export default function Pricing() {
     };
 
     return (
-        <div className="relative min-h-screen">
+        <div className="relative min-h-screen bg-gray-50/30">
             {/* ── Hero ── */}
             <section className="relative pt-28 pb-14 px-4 text-center overflow-hidden">
                 <FadeIn>
-                    <Badge className="mb-4 glass-effect border-lime-400/30 text-lime-400 px-4 py-1.5">
+                    <Badge className="mb-4 bg-indigo-50 border-indigo-100 text-indigo-700 hover:bg-indigo-100 px-4 py-1.5">
                         <Zap className="w-3.5 h-3.5 mr-1.5 inline" />
                         Bảng giá
                     </Badge>
                 </FadeIn>
                 <FadeIn delay={0.08}>
-                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
-                        <span className="bg-gradient-to-br from-white via-lime-100 to-cyan-200 bg-clip-text text-transparent">
-                            Gói dịch vụ{' '}
-                        </span>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-cyan-400">
+                    <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-gray-900">
+                        Gói dịch vụ{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">
                             phù hợp với bạn
                         </span>
                     </h1>
                 </FadeIn>
                 <FadeIn delay={0.14}>
-                    <p className="text-foreground/60 max-w-xl mx-auto mb-8">
+                    <p className="text-gray-600 max-w-xl mx-auto mb-8">
                         Từ cá nhân tìm việc đến doanh nghiệp tuyển dụng hàng loạt — JOBIO có gói dịch vụ đáp ứng mọi nhu cầu.
                     </p>
                 </FadeIn>
 
                 {/* Employer / Candidate Toggle */}
                 <FadeIn delay={0.18}>
-                    <div className="inline-flex items-center glass-card-tinted rounded-2xl p-1.5 border border-white/10 mb-6">
+                    <div className="inline-flex items-center bg-gray-100/80 rounded-2xl p-1 border border-gray-200 mb-6">
                         {(['employer', 'candidate'] as const).map(t => (
                             <button key={t} onClick={() => setPlanType(t)}
                                 className={cn(
-                                    'px-6 py-2 rounded-xl text-sm font-medium transition-all',
+                                    'px-6 py-2.5 rounded-xl text-sm font-semibold transition-all',
                                     planType === t
-                                        ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white shadow-lg'
-                                        : 'text-foreground/60 hover:text-foreground'
+                                        ? 'bg-white text-gray-900 shadow-sm border border-gray-200/50'
+                                        : 'text-gray-500 hover:text-gray-900'
                                 )}>
                                 {t === 'employer' ? <><Building2 className="w-4 h-4 mr-1.5 inline" />Nhà tuyển dụng</> : <><Users className="w-4 h-4 mr-1.5 inline" />Ứng viên</>}
                             </button>
@@ -242,24 +240,24 @@ export default function Pricing() {
 
                 {/* Monthly / Yearly billing */}
                 <FadeIn delay={0.22}>
-                    <div className="inline-flex items-center gap-3 text-sm">
-                        <span className={cn('transition-colors', billing === 'monthly' ? 'text-foreground' : 'text-foreground/50')}>Tháng</span>
+                    <div className="inline-flex items-center gap-3 text-sm font-medium">
+                        <span className={cn('transition-colors', billing === 'monthly' ? 'text-gray-900' : 'text-gray-500')}>Tháng</span>
                         <button
                             onClick={() => setBilling(b => b === 'monthly' ? 'yearly' : 'monthly')}
-                            className={cn('relative w-12 h-6 rounded-full transition-colors', billing === 'yearly' ? 'bg-gradient-to-r from-cyan-500 to-violet-600' : 'bg-white/10')}
+                            className={cn('relative w-12 h-6 rounded-full transition-colors border-2', billing === 'yearly' ? 'bg-indigo-600 border-indigo-600' : 'bg-gray-200 border-gray-200 hover:bg-gray-300 hover:border-gray-300')}
                             aria-label="Toggle billing period"
                         >
-                            <span className={cn('absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform', billing === 'yearly' && 'translate-x-6')} />
+                            <span className={cn('absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform', billing === 'yearly' && 'translate-x-6')} />
                         </button>
-                        <span className={cn('transition-colors', billing === 'yearly' ? 'text-foreground' : 'text-foreground/50')}>
+                        <span className={cn('transition-colors flex items-center', billing === 'yearly' ? 'text-gray-900' : 'text-gray-500')}>
                             Năm
-                            <Badge className="ml-2 text-[10px] px-1.5 py-0 bg-lime-500/15 text-lime-400 border-lime-400/20">-25%</Badge>
+                            <Badge className="ml-2 text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200">-25%</Badge>
                         </span>
                     </div>
                 </FadeIn>
 
-                <div className="absolute top-24 left-1/4 w-52 h-52 bg-lime-500/8 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-16 right-1/3 w-48 h-48 bg-cyan-500/8 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-24 left-1/4 w-52 h-52 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-16 right-1/3 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
             </section>
 
             {/* ── Plan Cards ── */}
@@ -283,47 +281,46 @@ export default function Pricing() {
                                             whileHover={{ y: -6 }}
                                             transition={{ duration: 0.2 }}
                                             className={cn(
-                                                'relative glass-card-tinted rounded-3xl p-6 border h-full flex flex-col',
-                                                'bg-gradient-to-br', plan.color,
-                                                plan.popular ? 'border-cyan-400/40' : 'border-white/10'
+                                                'relative bg-white rounded-3xl p-7 border h-full flex flex-col hover:shadow-lg shadow-sm transition-all',
+                                                plan.popular ? 'border-indigo-600 ring-2 ring-indigo-600/20' : 'border-gray-200'
                                             )}
                                         >
                                             {plan.popular && (
-                                                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                                    <Badge className="bg-gradient-to-r from-cyan-500 to-violet-600 text-white border-0 px-3 shadow-lg text-xs">
-                                                        <Star className="w-3 h-3 mr-1" />Phổ biến nhất
+                                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                                                    <Badge className="bg-indigo-600 text-white border-0 px-3 py-1 shadow-md text-xs hover:bg-indigo-700 font-medium tracking-wide">
+                                                        <Star className="w-3.5 h-3.5 mr-1.5 fill-current" />Phổ biến nhất
                                                     </Badge>
                                                 </div>
                                             )}
 
-                                            <div className="mb-4">
-                                                <div className="p-2.5 rounded-xl bg-white/10 w-fit mb-3">
-                                                    <Icon className="w-5 h-5 text-foreground/80" />
+                                            <div className="mb-6">
+                                                <div className={cn('p-3 rounded-xl w-fit mb-4', plan.popular ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-50 text-gray-500')}>
+                                                    <Icon className="w-6 h-6" />
                                                 </div>
-                                                <h3 className="font-bold text-lg mb-1">{plan.name}</h3>
-                                                <p className="text-xs text-foreground/60 leading-relaxed">{plan.description}</p>
+                                                <h3 className="font-bold text-xl text-gray-900 mb-2">{plan.name}</h3>
+                                                <p className="text-sm text-gray-500 leading-relaxed min-h-[40px]">{plan.description}</p>
                                             </div>
 
-                                            <div className="mb-5">
+                                            <div className="mb-6 pb-6 border-b border-gray-100">
                                                 {isEnterprise ? (
-                                                    <div className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Liên hệ</div>
+                                                    <div className="text-3xl font-bold text-gray-900">Liên hệ</div>
                                                 ) : (
                                                     <>
-                                                        <div className="text-3xl font-bold">
-                                                            {price === 0 ? 'Miễn phí' : (
-                                                                <>{formatPrice(billing === 'yearly' ? Math.round(price / 12) : price)}
-                                                                    <span className="text-sm font-normal text-foreground/50">/tháng</span></>
-                                                            )}
+                                                        <div className="flex items-baseline gap-1 text-gray-900">
+                                                            <span className="text-4xl font-extrabold tracking-tight">
+                                                                {price === 0 ? 'Miễn phí' : formatPrice(billing === 'yearly' ? Math.round(price / 12) : price)}
+                                                            </span>
+                                                            {price > 0 && <span className="text-sm font-medium text-gray-500">/tháng</span>}
                                                         </div>
                                                         {billing === 'yearly' && price > 0 && (
-                                                            <div className="text-xs text-lime-400 mt-1">Tổng: {formatPrice(price)}/năm</div>
+                                                            <div className="text-sm text-emerald-600 font-medium mt-2">Tổng: {formatPrice(price)}/năm</div>
                                                         )}
                                                     </>
                                                 )}
                                             </div>
 
                                             {/* Features */}
-                                            <ul className="space-y-2 mb-6 flex-1">
+                                            <ul className="space-y-3.5 mb-8 flex-1">
                                                 {[
                                                     { icon: Briefcase, label: plan.max_jobs === null ? 'Tin đăng không giới hạn' : `${plan.max_jobs} tin đăng/tháng`, ok: true },
                                                     { icon: Eye, label: plan.max_cv_views === null ? 'Xem CV không giới hạn' : `${plan.max_cv_views} lượt xem CV`, ok: (plan.max_cv_views ?? 0) > 0 || plan.max_cv_views === null },
@@ -333,25 +330,23 @@ export default function Pricing() {
                                                 ].map(feat => {
                                                     const FIcon = feat.icon;
                                                     return (
-                                                        <li key={feat.label} className={cn('flex items-center gap-2 text-xs', feat.ok ? 'text-foreground/80' : 'text-foreground/30')}>
-                                                            <div className={cn('w-4 h-4 rounded-full flex items-center justify-center shrink-0', feat.ok ? 'bg-emerald-500/20' : 'bg-white/5')}>
-                                                                {feat.ok ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <X className="w-2.5 h-2.5 text-foreground/30" />}
+                                                        <li key={feat.label} className={cn('flex items-start gap-3 text-sm', feat.ok ? 'text-gray-700 font-medium' : 'text-gray-400')}>
+                                                            <div className={cn('w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5', feat.ok ? 'bg-indigo-50' : 'bg-gray-50')}>
+                                                                {feat.ok ? <Check className="w-3 h-3 text-indigo-600 font-bold" /> : <X className="w-3 h-3 text-gray-300" />}
                                                             </div>
-                                                            {feat.label}
+                                                            <span className="leading-snug">{feat.label}</span>
                                                         </li>
                                                     );
                                                 })}
                                             </ul>
 
-                                            <Button asChild size="sm"
-                                                className={cn('w-full magnetic-button',
-                                                    plan.popular ? 'bg-gradient-to-r from-cyan-500 to-violet-600 text-white border-0 hover:from-cyan-400 hover:to-violet-500'
-                                                        : plan.id === 'free' || plan.id === 'candidate-free' ? 'glass-effect border-white/20 text-foreground hover:bg-white/10'
-                                                            : 'glass-effect border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/10'
+                                            <Button asChild size="lg"
+                                                className={cn('w-full font-semibold transition-all mt-auto',
+                                                    plan.popular ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm border-0'
+                                                        : 'bg-white border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                                                 )}>
-                                                <Link to={isEnterprise ? '/contact' : '/auth'}>
+                                                <Link to={isEnterprise ? '/contact' : '/auth'} className="flex items-center justify-center w-full">
                                                     {plan.cta}
-                                                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                                                 </Link>
                                             </Button>
                                         </motion.div>
@@ -365,20 +360,20 @@ export default function Pricing() {
 
             {/* ── Comparison Table (Employer only) ── */}
             {!isLoading && planType === 'employer' && plans && plans.length > 0 && (
-                <section className="py-14 px-4">
+                <section className="py-14 px-4 bg-white/50 border-t border-gray-100">
                     <div className="max-w-5xl mx-auto">
                         <FadeIn>
-                            <h2 className="text-2xl font-bold mb-8 text-center">So sánh chi tiết</h2>
-                            <div className="glass-card-tinted rounded-3xl border border-white/10 overflow-hidden">
+                            <h2 className="text-3xl font-bold mb-8 text-center text-gray-900">So sánh chi tiết tính năng</h2>
+                            <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm">
                                 <div className="overflow-x-auto">
-                                    <table className="w-full">
+                                    <table className="w-full text-left">
                                         <thead>
-                                            <tr className="border-b border-white/10 bg-white/3">
-                                                <th className="py-4 px-4 text-left text-sm font-medium text-foreground/60 w-1/3">Tính năng</th>
+                                            <tr className="border-b border-gray-200 bg-gray-50/80">
+                                                <th className="py-5 px-6 font-semibold text-gray-900 w-1/3">Tính năng</th>
                                                 {plans.map(p => (
-                                                    <th key={p.id} className="py-4 px-4 text-center text-sm font-semibold">
+                                                    <th key={p.id} className="py-5 px-6 text-center text-sm font-bold text-gray-900">
                                                         {p.popular ? (
-                                                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-500">{p.name} ⭐</span>
+                                                            <span className="text-indigo-600 flex items-center justify-center gap-1.5">{p.name} <Star className="w-3.5 h-3.5 fill-current" /></span>
                                                         ) : p.name}
                                                     </th>
                                                 ))}
@@ -396,15 +391,17 @@ export default function Pricing() {
             )}
 
             {/* ── Billing FAQ ── */}
-            <section className="py-14 px-4">
-                <div className="max-w-2xl mx-auto">
+            <section className="py-16 px-4 bg-gray-50/50 border-t border-gray-100 text-center md:text-left">
+                <div className="max-w-3xl mx-auto flex flex-col items-center md:items-stretch">
                     <FadeIn>
-                        <div className="flex items-center gap-2 mb-8">
-                            <HelpCircle className="w-5 h-5 text-cyan-400" />
-                            <h2 className="text-2xl font-bold">Câu hỏi thường gặp về thanh toán</h2>
+                        <div className="flex items-center justify-center md:justify-start gap-3 mb-8">
+                            <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
+                                <HelpCircle className="w-6 h-6" />
+                            </div>
+                            <h2 className="text-3xl font-bold text-gray-900">Câu hỏi thường gặp</h2>
                         </div>
                     </FadeIn>
-                    <div className="space-y-3">
+                    <div className="space-y-4 w-full">
                         {BILLING_FAQS.map((item, i) => (
                             <FadeIn key={i} delay={i * 0.05}>
                                 <FaqAccordion item={item} />
@@ -412,12 +409,12 @@ export default function Pricing() {
                         ))}
                     </div>
 
-                    <FadeIn delay={0.3}>
-                        <div className="mt-10 text-center glass-card-tinted rounded-3xl p-8 border border-white/10 bg-gradient-to-br from-lime-500/10 to-cyan-500/10">
-                            <p className="font-semibold mb-2">Vẫn còn thắc mắc?</p>
-                            <p className="text-sm text-foreground/60 mb-4">Đội ngũ JOBIO sẵn sàng tư vấn miễn phí cho bạn.</p>
-                            <Button asChild variant="outline" className="glass-effect border-cyan-400/30 text-cyan-400">
-                                <Link to="/contact">Liên hệ ngay <ArrowRight className="w-4 h-4 ml-2" /></Link>
+                    <FadeIn delay={0.3} className="w-full">
+                        <div className="mt-12 text-center bg-indigo-50 rounded-3xl p-10 border border-indigo-100">
+                            <h3 className="text-xl font-bold text-gray-900 mb-3">Bạn cần tư vấn thêm?</h3>
+                            <p className="text-gray-600 mb-6 font-medium">Đội ngũ chuyên gia của JOBIO luôn sẵn sàng hỗ trợ bạn 24/7 để tạo ra trải nghiệm tuyển dụng tốt nhất.</p>
+                            <Button asChild className="bg-white border text-indigo-600 border-gray-200 hover:bg-gray-50 font-semibold shadow-sm" size="lg">
+                                <Link to="/contact">Liên hệ chúng tôi <ArrowRight className="w-4 h-4 ml-2" /></Link>
                             </Button>
                         </div>
                     </FadeIn>

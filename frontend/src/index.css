@@ -183,3 +183,21 @@
     transform: scale(0.97);
   }
 }
+
+/* ── Hero blob float ── */
+@utility hero-blob {
+  will-change: transform;
+  animation: hero-blob-float 18s ease-in-out infinite alternate;
+}
+
+@utility hero-blob-alt {
+  will-change: transform;
+  animation: hero-blob-float 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes hero-blob-float {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(30px, -20px) scale(1.06); }
+  66%  { transform: translate(-20px, 15px) scale(0.95); }
+  100% { transform: translate(15px, -10px) scale(1.03); }
+}

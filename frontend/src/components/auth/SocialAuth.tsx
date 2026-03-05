@@ -30,24 +30,24 @@ export const SocialAuth: React.FC = () => {
         <div className="grid grid-cols-3 gap-4">
             <Button
                 variant="outline"
-                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-cyan-500/50 transition-all duration-300"
+                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
                 onClick={() => handleSocialLogin('Google')}
             >
-                <Chrome className="w-5 h-5" />
+                <Chrome className="w-5 h-5 text-red-500" />
             </Button>
             <Button
                 variant="outline"
-                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/50 transition-all duration-300"
+                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
                 onClick={() => handleSocialLogin('LinkedIn')}
             >
-                <Linkedin className="w-5 h-5 fill-current" />
+                <Linkedin className="w-5 h-5 text-blue-600 fill-current" />
             </Button>
             <Button
                 variant="outline"
-                className="bg-white/5 border-white/10 hover:bg-white/10 hover:border-indigo-500/50 transition-all duration-300"
+                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
                 onClick={() => handleSocialLogin('Facebook')}
             >
-                <Facebook className="w-5 h-5 fill-current" />
+                <Facebook className="w-5 h-5 text-blue-500 fill-current" />
             </Button>
         </div>
     );

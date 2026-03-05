@@ -55,7 +55,7 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
                     <Input
                         placeholder="000000"
                         maxLength={6}
-                        className="bg-white/5 border-white/10 focus:border-amber-500/50 h-12 text-center text-2xl tracking-[0.5em] max-w-[200px] font-mono"
+                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-2xl tracking-[0.5em] max-w-[200px] font-mono"
                         value={code}
                         onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
                     />
@@ -67,7 +67,7 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
 
                 <Button
                     onClick={handleVerify2FA}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-90 transition-opacity font-semibold h-12"
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold h-12 transition-colors"
                     disabled={isSubmitting || code.length < 6}
                 >
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
