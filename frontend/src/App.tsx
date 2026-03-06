@@ -50,6 +50,7 @@ import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
 import MyTests from '@/pages/candidate/AssessmentTests/MyTests';
+import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
 import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
 import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
 import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
@@ -111,6 +112,7 @@ export default function App() {
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="assessments" element={<MyTests />} />
+                            <Route path="matching" element={<MatchingJobsPage />} />
                         </Route>
 
                         {/* ── Employer area: own shell, no public header/footer ── */}
@@ -144,6 +146,7 @@ export default function App() {
                                     <Routes>
                                         <Route path="/" element={<Home />} />
                                         <Route path="/jobs" element={<Jobs />} />
+                                        <Route path="/jobs/matching" element={<ProtectedRoute><MatchingJobsPage /></ProtectedRoute>} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
                                         <Route path="/assessment-tests" element={<TestCatalogue />} />

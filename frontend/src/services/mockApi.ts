@@ -1,4 +1,5 @@
 import type { Review, CompanyBrief, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest } from '@/types/api';
+import type { JobMatch, MatchScoreBreakdown, MatchInsight } from '@/types/matching';
 import { delay } from '@/lib/utils'; // if not exists, we'll write a simple delay
 
 // Delay utility if it doesn't exist
@@ -418,5 +419,141 @@ export const mockRecommendationService = {
         await simulateLatency(500);
         mockRecommendations = mockRecommendations.filter(r => r.id !== id);
         return { success: true };
+    }
+};
+
+// ─── AI Job Matching (Candidate View) ──────────────────────────────────────
+
+const mockJobMatches: JobMatch[] = [
+    {
+        id: "match-1",
+        job_id: 1,
+        title: "Senior Frontend Engineer",
+        company_name: "Tech Corp",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=TC",
+        overall_score: 94,
+        match_status: "excellent",
+        location: "Hồ Chí Minh (Remote)",
+        salary: "$2,500 - $4,000",
+        job_type: "Full-time",
+        level: "Senior",
+        tags: ["React", "TypeScript", "Tailwind"],
+        posted_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+        breakdown: {
+            skill_match_score: 98,
+            experience_match_score: 90,
+            education_match_score: 85,
+            location_match_score: 100,
+            salary_match_score: 95
+        },
+        insights: [
+            { type: 'strength', message: 'Kỹ năng React & TypeScript của bạn vượt mong đợi' },
+            { type: 'strength', message: 'Kinh nghiệm làm việc tại Tech Corp là một điểm cộng lớn' },
+            { type: 'info', message: 'Vị trí này ưu tiên ứng viên có kinh nghiệm Remote' }
+        ],
+        ai_insights: {
+            summary: "Bạn là một ứng viên cực kỳ tiềm năng cho vị trí này nhờ sự kết hợp hoàn hảo giữa kỹ năng technical vững chắc và kinh nghiệm làm việc tại môi trường tương tự.",
+            key_highlights: [
+                "Thành thạo React & TypeScript 100% khớp yêu cầu",
+                "Hơn 5 năm kinh nghiệm làm việc tại các công ty Tech hàng đầu",
+                "Sống tại HCM phù hợp với chính sách hybrid của công ty"
+            ],
+            recommendation: "Hãy nhấn ứng tuyển ngay! Profile của bạn đang đứng Top 3% trong số các ứng viên tiềm năng."
+        }
+    },
+    {
+        id: "match-2",
+        job_id: 2,
+        title: "Product Designer (UI/UX)",
+        company_name: "Creative Labs",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=CL",
+        overall_score: 87,
+        match_status: "excellent",
+        location: "Hà Nội",
+        salary: "Cạnh tranh",
+        job_type: "Full-time",
+        level: "Middle",
+        tags: ["Figma", "UI Design", "UX Research"],
+        posted_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        breakdown: {
+            skill_match_score: 85,
+            experience_match_score: 88,
+            education_match_score: 90,
+            location_match_score: 75,
+            salary_match_score: 92
+        },
+        insights: [
+            { type: 'strength', message: 'Portfolio của bạn rất phù hợp với phong cách thiết kế của công ty' },
+            { type: 'info', message: 'Cần cải thiện kỹ năng UX Research để đạt điểm tối đa' }
+        ]
+    },
+    {
+        id: "match-3",
+        job_id: 3,
+        title: "Fullstack Developer (Node/React)",
+        company_name: "Startup Engine",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=SE",
+        overall_score: 72,
+        match_status: "good",
+        location: "Đà Nẵng",
+        salary: "$1,500 - $2,500",
+        job_type: "Contract",
+        level: "Middle",
+        tags: ["Node.js", "React", "MongoDB"],
+        posted_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+        breakdown: {
+            skill_match_score: 70,
+            experience_match_score: 72,
+            education_match_score: 80,
+            location_match_score: 60,
+            salary_match_score: 85
+        },
+        insights: [
+            { type: 'weakness', message: 'Thiếu kinh nghiệm làm việc với MongoDB' },
+            { type: 'info', message: 'Đà Nẵng có thể yêu cầu di chuyển nếu không làm remote' }
+        ]
+    }
+];
+
+export const mockMatchingService = {
+    async getMatchingJobs(recruiterId: number): Promise<{ results: JobMatch[], count: number }> {
+        await simulateLatency(1000); // AI matching takes a bit longer
+        return {
+            results: mockJobMatches,
+            count: mockJobMatches.length
+        };
+    },
+
+    async getJobMatchScore(jobId: number, recruiterId: number): Promise<JobMatch> {
+        await simulateLatency(600);
+        const match = mockJobMatches.find(m => m.job_id === jobId);
+        if (match) return match;
+
+        // Fallback for demo if job not in predefined matches
+        return {
+            id: `match-${jobId}`,
+            job_id: jobId,
+            title: "Software Engineer",
+            company_name: "JOBIO",
+            company_logo: null,
+            overall_score: 75,
+            match_status: "good",
+            location: "Remote",
+            salary: "Cạnh tranh",
+            job_type: "Full-time",
+            level: "Junior",
+            tags: ["React", "JavaScript"],
+            posted_at: new Date().toISOString(),
+            breakdown: {
+                skill_match_score: 80,
+                experience_match_score: 70,
+                education_match_score: 75,
+                location_match_score: 90,
+                salary_match_score: 65
+            },
+            insights: [
+                { type: 'info', message: 'Bạn có nền tảng tốt cho vị trí này' }
+            ]
+        };
     }
 };

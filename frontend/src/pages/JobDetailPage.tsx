@@ -14,7 +14,14 @@ import { ApplyForm } from '@/components/jobs/ApplyForm';
 import { JobCard } from '@/components/jobs/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ChevronLeft, ArrowRight, Sparkles, BrainCircuit } from 'lucide-react';
+import { useUserStore } from '@/store/userStore';
+import { matchingService } from '@/services/matchingService';
+import { MatchScoreRing } from '@/components/jobs/MatchScoreRing';
+import { MatchScoreBreakdown } from '@/components/jobs/MatchScoreBreakdown';
+import { MatchInsights } from '@/components/jobs/MatchInsights';
+import { cn } from '@/lib/utils';
 
 export default function JobDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -50,9 +57,9 @@ export default function JobDetailPage() {
 
     // Fetch Company Info
     const { data: company } = useQuery({
-        queryKey: ['company', job?.company_id],
-        queryFn: () => companyService.getById(Number(job?.company_id)).then(r => r.data),
-        enabled: !!job?.company_id
+        queryKey: ['company', job?.company?.id],
+        queryFn: () => companyService.getById(Number(job?.company?.id)).then(r => r.data),
+        enabled: !!job?.company?.id
     });
 
     // Fetch Related Jobs
@@ -60,6 +67,15 @@ export default function JobDetailPage() {
         queryKey: ['related-jobs', id],
         queryFn: () => jobService.similar(Number(id)).then(r => r.data),
         enabled: !!job
+    });
+
+    const { isAuthenticated, user } = useUserStore();
+
+    // Fetch AI Match Score
+    const { data: matchData } = useQuery({
+        queryKey: ['job-match-score', id, user?.id],
+        queryFn: () => matchingService.getJobMatchScore(Number(id), user?.id || 999),
+        enabled: !!job && isAuthenticated
     });
 
     if (isLoadingJob) return <JobDetailSkeleton />;
@@ -99,6 +115,52 @@ export default function JobDetailPage() {
                         />
 
                         {skills && <JobSkillsList skills={skills} />}
+
+                        {/* AI Matching Section */}
+                        {isAuthenticated && matchData && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="space-y-6"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                        <BrainCircuit size={24} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold italic tracking-tight">
+                                        JOBIO <span className="text-primary underline decoration-primary/30 underline-offset-4">AI Matching</span>
+                                    </h3>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-8">
+                                    <Card className="p-8 border-white/10 bg-white/5 backdrop-blur-xl rounded-3xl relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                            <Sparkles size={120} className="text-primary" />
+                                        </div>
+                                        <div className="relative z-10 flex flex-col md:flex-row gap-10 items-center">
+                                            <div className="flex-shrink-0 text-center space-y-4">
+                                                <MatchScoreRing score={matchData.overall_score} size="lg" />
+                                                <div className="space-y-1">
+                                                    <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Score</p>
+                                                    <p className={cn(
+                                                        "text-xl font-black italic",
+                                                        matchData.overall_score >= 80 ? "text-emerald-400" : "text-primary"
+                                                    )}>
+                                                        {matchData.match_status.toUpperCase()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex-grow">
+                                                <MatchScoreBreakdown breakdown={matchData.breakdown} />
+                                            </div>
+                                        </div>
+                                    </Card>
+
+                                    {matchData.ai_insights && <MatchInsights insights={matchData.ai_insights} />}
+                                </div>
+                            </motion.div>
+                        )}
 
                         {tests && tests.length > 0 && <RequiredTestsSection tests={tests} />}
 

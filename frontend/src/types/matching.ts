@@ -37,3 +37,26 @@ export interface AIInsightsResponse {
     key_highlights: string[];
     recommendation: string;
 }
+export interface JobMatch {
+    id: string;
+    job_id: number;
+    title: string;
+    company_name: string;
+    company_logo: string | null;
+    overall_score: number;
+    breakdown: MatchScoreBreakdown;
+    insights: MatchInsight[];
+    ai_insights?: AIInsightsResponse;
+    match_status: 'excellent' | 'good' | 'average' | 'poor';
+    location: string;
+    salary: string;
+    job_type: string;
+    level: string;
+    tags: string[];
+    posted_at: string;
+}
+
+export interface CandidateMatchingJobsResponse {
+    results: JobMatch[];
+    count: number;
+}
