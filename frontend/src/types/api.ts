@@ -1011,18 +1011,30 @@ export interface AssessmentTest {
   duration_minutes: number;
   total_questions: number;
   passing_score: number;
+  max_retakes: number;
+  retake_wait_days: number;
   is_active: boolean;
   is_public: boolean;
   created_at: string;
 }
 
+export interface AssessmentQuestion {
+  id: number;
+  test_id: number;
+  question_type: 'multiple_choice' | 'text_input' | 'code_editor';
+  points: number;
+  question_data: Record<string, unknown>; // JSON structure based on type
+}
+
 export interface TestResult {
   id: number;
-  assessment_test: { id: number; title: string; test_type: string };
+  assessment_test: { id: number; title: string; test_type: string; passing_score: number; difficulty_level: string };
   score: number;
   percentage_score: number;
   passed: boolean;
   time_taken_minutes: number;
+  certificate_url: string | null;
+  detailed_results: Record<string, unknown> | null;
   started_at: string;
   completed_at: string;
 }

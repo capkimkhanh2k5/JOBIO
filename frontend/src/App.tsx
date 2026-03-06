@@ -15,7 +15,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { PublicRoute } from '@/components/layout/RouteGuards';
+import { PublicRoute, ProtectedRoute } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
@@ -48,6 +48,10 @@ import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
+import MyTests from '@/pages/candidate/AssessmentTests/MyTests';
+import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
+import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
+import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -105,6 +109,7 @@ export default function App() {
                             <Route path="connections" element={<ConnectionsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
+                            <Route path="assessments" element={<MyTests />} />
                         </Route>
 
                         {/* ── Employer area: own shell, no public header/footer ── */}
@@ -139,6 +144,9 @@ export default function App() {
                                         <Route path="/jobs" element={<Jobs />} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
+                                        <Route path="/assessment-tests" element={<TestCatalogue />} />
+                                        <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
+                                        <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
                                         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />
