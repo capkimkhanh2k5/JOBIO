@@ -941,15 +941,25 @@ export interface CompanySubscription {
 }
 
 export interface Transaction {
-  id: number;
-  company: number;
-  payment_method: { id: number; name: string };
-  amount: number;
+  id: string; // Transaction code
+  amount: number | string;
   currency: string;
-  type: 'subscription' | 'add_on';
+  method: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
-  reference_code: string;
-  description: string | null;
+  date: string;
+  description: string;
+  vnpay_transaction_no?: string;
+  subscription_id?: number;
+  subscription_name?: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'bank_transfer' | 'e_wallet';
+  provider: string; // e.g., 'Visa', 'Mastercard', 'MoMo', 'VNPay'
+  last4?: string;
+  expiry?: string;
+  is_default: boolean;
   created_at: string;
 }
 
@@ -1129,8 +1139,6 @@ export interface FileUpload {
 
 export type PlanType = 'free' | 'basic' | 'professional' | 'enterprise';
 export type SubscriptionStatus = 'active' | 'expired' | 'cancelled' | 'pending';
-export type TransactionStatus = 'pending' | 'success' | 'failed';
-export type PaymentMethod = 'vnpay' | 'bank_transfer' | 'credit_card';
 
 export interface BillingPlan {
   id: number;
@@ -1168,16 +1176,29 @@ export interface BillingSubscription {
 }
 
 export interface BillingTransaction {
-  id: number;
+  id: string; // Transaction code
   subscription: number;
   amount: number;
   currency: string;
-  payment_method: PaymentMethod;
-  status: TransactionStatus;
+  payment_method: string;
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
   vnpay_txn_ref?: string;
   payment_url?: string;
+  description?: string;
+  subscription_name?: string;
+  date: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface SavedPaymentMethod {
+  id: string;
+  type: 'card' | 'bank_transfer' | 'e_wallet';
+  provider: string;
+  last4?: string;
+  expiry?: string;
+  is_default: boolean;
+  created_at: string;
 }
 
 export interface SubscriptionCreateRequest {

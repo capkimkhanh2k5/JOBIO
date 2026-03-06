@@ -26,7 +26,7 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
     const progressPercent = Math.min(100, (daysPassed / totalDays) * 100);
 
     return (
-        <Card className="bg-white border border-slate-100 shadow-xl overflow-hidden relative transition-all duration-500 hover:shadow-2xl hover:border-cyan-100">
+        <Card className="bg-card border border-border overflow-hidden relative transition-all duration-500 hover:shadow-2xl hover:border-indigo-500/20 glass-card">
 
 
 
@@ -44,9 +44,9 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                             <ShieldCheck className="w-6 h-6" />
                         </div>
                         <div>
-                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gói hiện tại</h4>
+                            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Gói hiện tại</h4>
                             <div className="flex items-center gap-2">
-                                <span className="text-xl font-black text-slate-900">{subscription.plan.name}</span>
+                                <span className="text-xl font-black text-foreground">{subscription.plan.name}</span>
                                 {subscription.status === 'active' ? (
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                 ) : (
@@ -73,12 +73,12 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                     <div className="space-y-4">
                         <div className="flex justify-between items-end mb-1">
                             <div className="flex flex-col">
-                                <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
+                                <span className="text-xs font-bold text-muted-foreground flex items-center gap-1">
                                     <Calendar className="w-3 h-3" /> THỜI HẠN CÒN LẠI
                                 </span>
-                                <span className="text-2xl font-black text-slate-900">{daysRemaining} ngày</span>
+                                <span className="text-2xl font-black text-foreground">{daysRemaining} ngày</span>
                             </div>
-                            <span className="text-xs font-bold text-slate-400">{formatDate(subscription.end_date)}</span>
+                            <span className="text-xs font-bold text-muted-foreground/60">{formatDate(subscription.end_date)}</span>
                         </div>
 
                         <div className="relative pt-1">
@@ -130,12 +130,12 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
 
 const StatItem = ({ label, current, max, active }: { label: string; current?: number; max?: number; active?: boolean }) => (
     <div className="flex flex-col">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{label}</span>
+        <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-wider">{label}</span>
         <div className="flex items-center gap-1">
             {max !== undefined ? (
                 <>
-                    <span className="text-lg font-bold text-slate-900">{current}</span>
-                    <span className="text-sm text-slate-300">/ {max}</span>
+                    <span className="text-lg font-bold text-foreground">{current}</span>
+                    <span className="text-sm text-muted-foreground/30">/ {max}</span>
                 </>
             ) : (
                 <span className={cn("text-xs font-bold", active ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground/30")}>

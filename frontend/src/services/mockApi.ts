@@ -1,4 +1,4 @@
-import type { Review, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest, BillingPlan, BillingSubscription, BillingTransaction, SubscriptionCreateRequest, PaymentMethod } from '@/types/api';
+import type { Review, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest, BillingPlan, BillingSubscription, BillingTransaction, SubscriptionCreateRequest, SavedPaymentMethod } from '@/types/api';
 import type { JobMatch } from '@/types/matching';
 import { delay } from '@/lib/utils';
 
@@ -645,7 +645,7 @@ let mockSubscriptions: BillingSubscription[] = [
     {
         id: 1,
         company: 1,
-        plan: mockBillingPlans[0],
+        plan: mockBillingPlans[2], // Professional
         status: 'active',
         start_date: new Date(Date.now() - 86400000 * 10).toISOString(),
         end_date: new Date(Date.now() + 86400000 * 20).toISOString(),
@@ -656,7 +656,83 @@ let mockSubscriptions: BillingSubscription[] = [
     }
 ];
 
-let mockTransactions: BillingTransaction[] = [];
+let mockTransactions: BillingTransaction[] = [
+    {
+        id: "TRX-123456",
+        subscription: 1,
+        amount: 2490000,
+        currency: "VND",
+        payment_method: "vnpay",
+        status: "completed",
+        vnpay_txn_ref: "VNP12345678",
+        description: "Thanh toán gói Chuyên nghiệp - Tháng 03/2026",
+        date: new Date(Date.now() - 86400000 * 10).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+        id: "TRX-234567",
+        subscription: 1,
+        amount: 990000,
+        currency: "VND",
+        payment_method: "credit_card",
+        status: "completed",
+        description: "Nâng cấp gói Cơ bản lên Chuyên nghiệp",
+        date: new Date(Date.now() - 86400000 * 45).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 45).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 45).toISOString(),
+    },
+    {
+        id: "TRX-345678",
+        subscription: 1,
+        amount: 2490000,
+        currency: "VND",
+        payment_method: "vnpay",
+        status: "failed",
+        vnpay_txn_ref: "VNP87654321",
+        description: "Gia hạn gói Chuyên nghiệp - Thất bại",
+        date: new Date(Date.now() - 86400000 * 5).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    }
+];
+
+// Generate more mock transactions
+for (let i = 4; i <= 30; i++) {
+    mockTransactions.push({
+        id: `TRX-${100000 + i}`,
+        subscription: 1,
+        amount: Math.random() > 0.5 ? 990000 : 2490000,
+        currency: "VND",
+        payment_method: Math.random() > 0.5 ? "vnpay" : "credit_card",
+        status: Math.random() > 0.1 ? "completed" : "failed",
+        description: `Thanh toán gói dịch vụ #${i}`,
+        date: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+    });
+}
+
+let mockPaymentMethods: SavedPaymentMethod[] = [
+    {
+        id: "pm-1",
+        type: "card",
+        provider: "Visa",
+        last4: "4242",
+        expiry: "12/28",
+        is_default: true,
+        created_at: new Date(Date.now() - 86400000 * 100).toISOString(),
+    },
+    {
+        id: "pm-2",
+        type: "card",
+        provider: "Mastercard",
+        last4: "8888",
+        expiry: "06/27",
+        is_default: false,
+        created_at: new Date(Date.now() - 86400000 * 50).toISOString(),
+    }
+];
 
 export const mockBillingService = {
     async getPlans() {
@@ -683,9 +759,9 @@ export const mockBillingService = {
 
         const newSub: BillingSubscription = {
             id: Date.now(),
-            company: 1, // Current user's company
+            company: 1,
             plan: plan,
-            status: data.payment_method === 'vnpay' ? 'pending' : 'active',
+            status: 'pending',
             start_date: new Date().toISOString(),
             end_date: new Date(Date.now() + 86400000 * plan.duration_days).toISOString(),
             auto_renew: true,
@@ -694,13 +770,7 @@ export const mockBillingService = {
             updated_at: new Date().toISOString(),
         };
 
-        if (data.payment_method === 'vnpay') {
-            mockSubscriptions = [newSub, ...mockSubscriptions];
-        } else {
-            // Replace existing active sub if any
-            mockSubscriptions = [newSub];
-        }
-
+        mockSubscriptions = [newSub, ...mockSubscriptions];
         return newSub;
     },
 
@@ -714,49 +784,64 @@ export const mockBillingService = {
         throw new Error("Subscription not found");
     },
 
-    async createTransaction(subscriptionId: number, method: PaymentMethod) {
-        await simulateLatency(700);
-        const sub = mockSubscriptions.find(s => s.id === subscriptionId);
-        if (!sub) throw new Error("Subscription not found");
-
-        const newTxn: BillingTransaction = {
-            id: Date.now(),
-            subscription: subscriptionId,
-            amount: sub.plan.price,
-            currency: "VND",
-            payment_method: method,
-            status: "pending",
-            vnpay_txn_ref: method === 'vnpay' ? `VNP${Date.now()}` : undefined,
-            payment_url: method === 'vnpay' ? `https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?orderId=${Date.now()}` : undefined,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        };
-
-        mockTransactions = [newTxn, ...mockTransactions];
-        return newTxn;
-    },
-
-    async getTransaction(id: number) {
-        await simulateLatency(400);
-        return mockTransactions.find(t => t.id === id);
-    },
-
-    async completeTransaction(txnId: number, status: 'success' | 'failed') {
-        await simulateLatency(500);
-        const index = mockTransactions.findIndex(t => t.id === txnId);
-        if (index > -1) {
-            mockTransactions[index].status = status as any;
-            mockTransactions[index].updated_at = new Date().toISOString();
-
-            if (status === 'success') {
-                const subIndex = mockSubscriptions.findIndex(s => s.id === mockTransactions[index].subscription);
-                if (subIndex > -1) {
-                    mockSubscriptions[subIndex].status = 'active';
-                }
-            }
-            return mockTransactions[index];
+    async getTransactions(params?: { status?: string; page?: number }) {
+        await simulateLatency(600);
+        let filtered = [...mockTransactions];
+        if (params?.status) {
+            filtered = filtered.filter(t => t.status === params.status);
         }
-        throw new Error("Transaction not found");
+        // Basic pagination if needed
+        const page = params?.page || 1;
+        const pageSize = 10;
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+
+        return {
+            results: filtered.slice(start, end),
+            count: filtered.length
+        };
+    },
+
+    async getTransactionDetail(id: string) {
+        await simulateLatency(400);
+        const tx = mockTransactions.find(t => t.id === id);
+        if (!tx) throw new Error("Transaction not found");
+        return tx;
+    },
+
+    async getPaymentMethods() {
+        await simulateLatency(500);
+        return mockPaymentMethods;
+    },
+
+    async addPaymentMethod(data: any) {
+        await simulateLatency(800);
+        const newPm: SavedPaymentMethod = {
+            id: `pm-${Date.now()}`,
+            type: "card",
+            provider: data.provider || "Visa",
+            last4: data.card_number ? data.card_number.slice(-4) : "1234",
+            expiry: data.expiry || "12/30",
+            is_default: mockPaymentMethods.length === 0,
+            created_at: new Date().toISOString(),
+        };
+        mockPaymentMethods.push(newPm);
+        return newPm;
+    },
+
+    async deletePaymentMethod(id: string) {
+        await simulateLatency(500);
+        mockPaymentMethods = mockPaymentMethods.filter(pm => pm.id !== id);
+        return { success: true };
+    },
+
+    async setDefaultPaymentMethod(id: string) {
+        await simulateLatency(400);
+        mockPaymentMethods = mockPaymentMethods.map(pm => ({
+            ...pm,
+            is_default: pm.id === id
+        }));
+        return { success: true };
     }
 };
 

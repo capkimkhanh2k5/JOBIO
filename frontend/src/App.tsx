@@ -33,6 +33,7 @@ import {
 import PlansPage from '@/pages/employer/Billing/Plans';
 import CheckoutPage from '@/pages/employer/Billing/Checkout';
 import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
+import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
 
 import MessagesPage from '@/pages/Messages';
 import EmployerCVSearch from '@/pages/employer/CVSearch';
@@ -138,6 +139,7 @@ export default function App() {
                             <Route path="campaigns" element={<EmployerCampaigns />} />
                             <Route path="referrals" element={<EmployerReferrals />} />
                             <Route path="subscription" element={<PlansPage />} />
+                            <Route path="billing" element={<BillingDashboard />} />
                             <Route path="checkout" element={<CheckoutPage />} />
                             <Route path="payment-result" element={<PaymentResultPage />} />
                             <Route path="support" element={<EmployerSupportPage />} />
