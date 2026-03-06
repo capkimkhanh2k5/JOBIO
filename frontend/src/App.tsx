@@ -28,8 +28,12 @@ import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
     EmployerSettingsPage,
     EmployerAnalyticsPage,
-    EmployerSubscriptionPage, EmployerSupportPage,
+    EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import PlansPage from '@/pages/employer/Billing/Plans';
+import CheckoutPage from '@/pages/employer/Billing/Checkout';
+import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
+
 import MessagesPage from '@/pages/Messages';
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
@@ -133,8 +137,11 @@ export default function App() {
                             <Route path="analytics" element={<EmployerAnalyticsPage />} />
                             <Route path="campaigns" element={<EmployerCampaigns />} />
                             <Route path="referrals" element={<EmployerReferrals />} />
-                            <Route path="subscription" element={<EmployerSubscriptionPage />} />
+                            <Route path="subscription" element={<PlansPage />} />
+                            <Route path="checkout" element={<CheckoutPage />} />
+                            <Route path="payment-result" element={<PaymentResultPage />} />
                             <Route path="support" element={<EmployerSupportPage />} />
+
                             <Route path="notifications" element={<NotificationsPage />} />
                         </Route>
 

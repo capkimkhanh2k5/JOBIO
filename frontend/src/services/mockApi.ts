@@ -1,9 +1,11 @@
-import type { Review, CompanyBrief, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest } from '@/types/api';
-import type { JobMatch, MatchScoreBreakdown, MatchInsight } from '@/types/matching';
-import { delay } from '@/lib/utils'; // if not exists, we'll write a simple delay
+import type { Review, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest, BillingPlan, BillingSubscription, BillingTransaction, SubscriptionCreateRequest, PaymentMethod } from '@/types/api';
+import type { JobMatch } from '@/types/matching';
+import { delay } from '@/lib/utils';
+
 
 // Delay utility if it doesn't exist
-const simulateLatency = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
+const simulateLatency = (ms = 500) => delay(ms);
+
 
 // Mock Data
 let mockReviews: Review[] = [
@@ -557,3 +559,204 @@ export const mockMatchingService = {
         };
     }
 };
+
+// ─── Billing & Subscriptions ──────────────────────────────────────────────
+
+const mockBillingPlans: BillingPlan[] = [
+    {
+        id: 1,
+        name: "Miễn phí",
+        slug: "free",
+        plan_type: "free",
+        price: 0,
+        duration_days: 0,
+        description: "Dành cho cá nhân hoặc startup mới bắt đầu.",
+        features: {
+            max_jobs: 3,
+            max_featured_jobs: 0,
+            max_cv_views: 10,
+            can_export_cv: false,
+            has_ai_matching: false,
+            has_priority_support: false
+        },
+        is_active: true,
+        display_order: 1
+    },
+    {
+        id: 2,
+        name: "Cơ bản",
+        slug: "basic",
+        plan_type: "basic",
+        price: 990000,
+        duration_days: 30,
+        description: "Phù hợp cho doanh nghiệp nhỏ tuyển dụng thường xuyên.",
+        features: {
+            max_jobs: 10,
+            max_featured_jobs: 2,
+            max_cv_views: 100,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: false
+        },
+        is_active: true,
+        display_order: 2
+    },
+    {
+        id: 3,
+        name: "Chuyên nghiệp",
+        slug: "professional",
+        plan_type: "professional",
+        price: 2490000,
+        duration_days: 30,
+        description: "Gói phổ biến nhất cho các đội ngũ tăng trưởng nhanh.",
+        features: {
+            max_jobs: 30,
+            max_featured_jobs: 10,
+            max_cv_views: 500,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: true
+        },
+        is_active: true,
+        display_order: 3
+    },
+    {
+        id: 4,
+        name: "Doanh nghiệp",
+        slug: "enterprise",
+        plan_type: "enterprise",
+        price: 5990000,
+        duration_days: 90,
+        description: "Giải pháp toàn diện cho tập đoàn lớn.",
+        features: {
+            max_jobs: 100,
+            max_featured_jobs: 30,
+            max_cv_views: 2000,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: true
+        },
+        is_active: true,
+        display_order: 4
+    }
+];
+
+let mockSubscriptions: BillingSubscription[] = [
+    {
+        id: 1,
+        company: 1,
+        plan: mockBillingPlans[0],
+        status: 'active',
+        start_date: new Date(Date.now() - 86400000 * 10).toISOString(),
+        end_date: new Date(Date.now() + 86400000 * 20).toISOString(),
+        auto_renew: true,
+        cancel_at_period_end: false,
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    }
+];
+
+let mockTransactions: BillingTransaction[] = [];
+
+export const mockBillingService = {
+    async getPlans() {
+        await simulateLatency(500);
+        return mockBillingPlans;
+    },
+
+    async getPlanDetail(id: number) {
+        await simulateLatency(300);
+        const plan = mockBillingPlans.find(p => p.id === id);
+        if (!plan) throw new Error("Plan not found");
+        return plan;
+    },
+
+    async getMySubscriptions(companyId: number = 1) {
+        await simulateLatency(600);
+        return mockSubscriptions.filter(s => s.company === companyId);
+    },
+
+    async createSubscription(data: SubscriptionCreateRequest) {
+        await simulateLatency(800);
+        const plan = mockBillingPlans.find(p => p.id === data.plan_id);
+        if (!plan) throw new Error("Plan not found");
+
+        const newSub: BillingSubscription = {
+            id: Date.now(),
+            company: 1, // Current user's company
+            plan: plan,
+            status: data.payment_method === 'vnpay' ? 'pending' : 'active',
+            start_date: new Date().toISOString(),
+            end_date: new Date(Date.now() + 86400000 * plan.duration_days).toISOString(),
+            auto_renew: true,
+            cancel_at_period_end: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+
+        if (data.payment_method === 'vnpay') {
+            mockSubscriptions = [newSub, ...mockSubscriptions];
+        } else {
+            // Replace existing active sub if any
+            mockSubscriptions = [newSub];
+        }
+
+        return newSub;
+    },
+
+    async updateSubscription(id: number, data: Partial<BillingSubscription>) {
+        await simulateLatency(500);
+        const index = mockSubscriptions.findIndex(s => s.id === id);
+        if (index > -1) {
+            mockSubscriptions[index] = { ...mockSubscriptions[index], ...data };
+            return mockSubscriptions[index];
+        }
+        throw new Error("Subscription not found");
+    },
+
+    async createTransaction(subscriptionId: number, method: PaymentMethod) {
+        await simulateLatency(700);
+        const sub = mockSubscriptions.find(s => s.id === subscriptionId);
+        if (!sub) throw new Error("Subscription not found");
+
+        const newTxn: BillingTransaction = {
+            id: Date.now(),
+            subscription: subscriptionId,
+            amount: sub.plan.price,
+            currency: "VND",
+            payment_method: method,
+            status: "pending",
+            vnpay_txn_ref: method === 'vnpay' ? `VNP${Date.now()}` : undefined,
+            payment_url: method === 'vnpay' ? `https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?orderId=${Date.now()}` : undefined,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+
+        mockTransactions = [newTxn, ...mockTransactions];
+        return newTxn;
+    },
+
+    async getTransaction(id: number) {
+        await simulateLatency(400);
+        return mockTransactions.find(t => t.id === id);
+    },
+
+    async completeTransaction(txnId: number, status: 'success' | 'failed') {
+        await simulateLatency(500);
+        const index = mockTransactions.findIndex(t => t.id === txnId);
+        if (index > -1) {
+            mockTransactions[index].status = status as any;
+            mockTransactions[index].updated_at = new Date().toISOString();
+
+            if (status === 'success') {
+                const subIndex = mockSubscriptions.findIndex(s => s.id === mockTransactions[index].subscription);
+                if (subIndex > -1) {
+                    mockSubscriptions[subIndex].status = 'active';
+                }
+            }
+            return mockTransactions[index];
+        }
+        throw new Error("Transaction not found");
+    }
+};
+

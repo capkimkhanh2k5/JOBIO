@@ -5,6 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+
 export function formatDate(dateString: string) {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -15,9 +18,16 @@ export function formatDate(dateString: string) {
 }
 
 export function formatSalary(amount: number, currency: string = 'USD') {
+  if (currency === 'VND') {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(amount);
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currency,
     maximumFractionDigits: 0
   }).format(amount);
 }
+

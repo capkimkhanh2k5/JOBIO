@@ -1122,3 +1122,67 @@ export interface FileUpload {
   entity_id: number | null;
   is_public: boolean;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Billing & Subscription
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export type PlanType = 'free' | 'basic' | 'professional' | 'enterprise';
+export type SubscriptionStatus = 'active' | 'expired' | 'cancelled' | 'pending';
+export type TransactionStatus = 'pending' | 'success' | 'failed';
+export type PaymentMethod = 'vnpay' | 'bank_transfer' | 'credit_card';
+
+export interface BillingPlan {
+  id: number;
+  name: string;
+  slug: string;
+  plan_type: PlanType;
+  price: number;
+  duration_days: number;
+  description: string | null;
+  features: PlanFeatures;
+  is_active: boolean;
+  display_order: number;
+}
+
+export interface PlanFeatures {
+  max_jobs: number;
+  max_featured_jobs: number;
+  max_cv_views: number;
+  can_export_cv: boolean;
+  has_ai_matching: boolean;
+  has_priority_support: boolean;
+}
+
+export interface BillingSubscription {
+  id: number;
+  company: number;
+  plan: BillingPlan;
+  status: SubscriptionStatus;
+  start_date: string;
+  end_date: string;
+  auto_renew: boolean;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillingTransaction {
+  id: number;
+  subscription: number;
+  amount: number;
+  currency: string;
+  payment_method: PaymentMethod;
+  status: TransactionStatus;
+  vnpay_txn_ref?: string;
+  payment_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SubscriptionCreateRequest {
+  plan_id: number;
+  payment_method: PaymentMethod;
+}
+
+
