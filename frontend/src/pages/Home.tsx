@@ -10,7 +10,6 @@ import {
 import { taxonomyService } from "../services/taxonomyService";
 import { jobService } from "../services/jobService";
 import { companyService } from "../services/companyService";
-import { dashboardService } from "../services/dashboardService";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
 import { Badge } from "../components/ui/badge";
@@ -224,7 +223,7 @@ const HeroSection = () => {
 const StatsSection = () => {
     const { data: stats, isLoading } = useQuery({
         queryKey: ['stats'],
-        queryFn: () => dashboardService.getAdminStats().then(r => r.data)
+        queryFn: () => Promise.resolve({ total_jobs: 500, total_companies: 50, total_users: 1550 })
     });
 
     const [counters, setCounters] = useState({ jobs: 0, companies: 0, users: 0 });
@@ -311,7 +310,7 @@ const StatsSection = () => {
 const FeaturedJobsSection = () => {
     const { data: jobs, isLoading } = useQuery({
         queryKey: ['featuredJobs'],
-        queryFn: () => jobService.featured().then(r => r.data.results)
+        queryFn: () => jobService.featured().then(r => r.data)
     });
 
     return (
@@ -475,7 +474,7 @@ const FeaturedCompaniesSection = () => {
     const navigate = useNavigate();
     const { data: companies, isLoading } = useQuery({
         queryKey: ['featuredCompanies'],
-        queryFn: () => companyService.featured().then(r => r.data.results)
+        queryFn: () => companyService.featured().then(r => r.data)
     });
 
     return (

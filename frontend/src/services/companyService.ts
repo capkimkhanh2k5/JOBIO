@@ -52,7 +52,7 @@ export const companyService = {
   },
 
   featured(params?: { page_size?: number }) {
-    return api.get<PaginatedResponse<CompanyListItem>>('/api/companies/featured/', { params });
+    return api.get<CompanyListItem[]>('/api/companies/featured/', { params });
   },
 
   // ─── Follow / Unfollow ────────────────────────────────────────────────

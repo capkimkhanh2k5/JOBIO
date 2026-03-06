@@ -4,6 +4,7 @@ import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
 import CandidateProfile from '@/pages/Profile';
 import Jobs from '@/pages/Jobs';
+import Companies from '@/pages/Companies';
 import JobDetail from '@/pages/JobDetailPage';
 import Auth from '@/pages/Auth';
 import CompanyDetail from '@/pages/CompanyDetailPage';
@@ -136,6 +137,7 @@ export default function App() {
                                         <Route path="/" element={<Home />} />
                                         <Route path="/jobs" element={<Jobs />} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
+                                        <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
                                         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
                                         {/* Profile is now under /candidate/profile */}

@@ -103,6 +103,11 @@ class JobViewSet(viewsets.GenericViewSet):
             Danh sách tin tuyển dụng (public, có filter)
         """
         queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = JobListSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+            
         serializer = JobListSerializer(queryset, many=True)
         return Response(serializer.data)
     
