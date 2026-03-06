@@ -40,31 +40,6 @@ export const SocialAuth: React.FC = () => {
     });
 
     return (
-<<<<<<< HEAD
-        <div className="grid grid-cols-3 gap-4">
-            <Button
-                variant="outline"
-                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
-                onClick={() => handleSocialLogin('Google')}
-            >
-                <Chrome className="w-5 h-5 text-red-500" />
-            </Button>
-            <Button
-                variant="outline"
-                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
-                onClick={() => handleSocialLogin('LinkedIn')}
-            >
-                <Linkedin className="w-5 h-5 text-blue-600 fill-current" />
-            </Button>
-            <Button
-                variant="outline"
-                className="bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm"
-                onClick={() => handleSocialLogin('Facebook')}
-            >
-                <Facebook className="w-5 h-5 text-blue-500 fill-current" />
-            </Button>
-        </div>
-=======
         <Button
             type="button"
             variant="outline"
@@ -74,6 +49,5 @@ export const SocialAuth: React.FC = () => {
             <GoogleIcon />
             <span className="text-sm font-medium text-gray-700">Đăng nhập bằng Google</span>
         </Button>
->>>>>>> main
     );
 };

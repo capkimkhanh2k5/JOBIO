@@ -101,8 +101,6 @@ export const employerService = {
   },
 
 
-<<<<<<< HEAD
-=======
   listNotifications(params?: { is_read?: boolean; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<Notification>>('/api/notifications/', { params });
   },
@@ -130,7 +128,6 @@ export const employerService = {
   updateNotificationSettings(data: Partial<NotificationSettings>) {
     return api.patch<NotificationSettings>('/api/notifications/settings/', data);
   },
->>>>>>> main
 
   // ─── Messages ─────────────────────────────────────────────────────────
 

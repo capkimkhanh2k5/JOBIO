@@ -170,3 +170,134 @@ export const mockReviewService = {
         return { success: true };
     }
 };
+
+// ─── Candidate Connections ────────────────────────────────────────────────
+import { Connection, ConnectionSuggestion, RecruiterBrief } from '@/types/api';
+
+const mockRecruiters: RecruiterBrief[] = [
+    { id: 101, full_name: "Nguyễn Văn A", avatar_url: "https://i.pravatar.cc/150?u=101", current_position: "Frontend Developer", current_company: "Tech Corp" },
+    { id: 102, full_name: "Trần Thị B", avatar_url: "https://i.pravatar.cc/150?u=102", current_position: "UX/UI Designer", current_company: "Design Studio" },
+    { id: 103, full_name: "Lê Hoàng C", avatar_url: "https://i.pravatar.cc/150?u=103", current_position: "Backend Developer", current_company: "Dev JSC" },
+    { id: 104, full_name: "Phạm Minh D", avatar_url: "https://i.pravatar.cc/150?u=104", current_position: "Product Manager", current_company: "Startup Co." },
+    { id: 105, full_name: "Hoàng Ngọc E", avatar_url: "https://i.pravatar.cc/150?u=105", current_position: "Fullstack Developer", current_company: "Agile Inc." },
+];
+
+let mockConnections: Connection[] = [
+    {
+        id: 1,
+        requester: mockRecruiters[0],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'accepted',
+        message: null,
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    },
+    {
+        id: 2,
+        requester: mockRecruiters[1],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'accepted',
+        message: null,
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+        id: 3,
+        requester: mockRecruiters[2],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'pending',
+        message: "Hi, I'd like to connect and discuss potential collaborations.",
+        created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+        updated_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    }
+];
+
+export const mockConnectionService = {
+    async getConnections(recruiterId: number, status?: string) {
+        await simulateLatency(600);
+        let filtered = mockConnections;
+        if (status) {
+            filtered = filtered.filter(c => c.status === status);
+        }
+        return {
+            count: filtered.length,
+            next: null,
+            previous: null,
+            results: filtered
+        };
+    },
+
+    async getPendingRequests() {
+        await simulateLatency(500);
+        const filtered = mockConnections.filter(c => c.status === 'pending');
+        return {
+            count: filtered.length,
+            next: null,
+            previous: null,
+            results: filtered
+        };
+    },
+
+    async getConnectionSuggestions(limit: number = 10): Promise<ConnectionSuggestion[]> {
+        await simulateLatency(800);
+        const allPendingOrAcceptedIds = mockConnections.map(c =>
+            c.requester.id === 999 ? c.recipient.id : c.requester.id
+        );
+        const suggestions = mockRecruiters
+            .filter(r => !allPendingOrAcceptedIds.includes(r.id))
+            .map(r => ({
+                recruiter: r,
+                mutual_connections_count: Math.floor(Math.random() * 15),
+                common_skills: ['React', 'TypeScript', 'Tailwind CSS'].sort(() => 0.5 - Math.random()).slice(0, 2),
+                score: Math.floor(Math.random() * 100),
+            }))
+            .slice(0, limit);
+        return suggestions;
+    },
+
+    async sendConnectionRequest(recruiterId: number, message?: string) {
+        await simulateLatency(700);
+        const target = mockRecruiters.find(r => r.id === recruiterId);
+        if (!target) throw new Error("Recruiter not found");
+
+        const newConnection: Connection = {
+            id: Date.now(),
+            requester: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+            recipient: target,
+            status: 'pending',
+            message: message || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        mockConnections = [newConnection, ...mockConnections];
+        return newConnection;
+    },
+
+    async acceptConnectionRequest(connectionId: number) {
+        await simulateLatency(500);
+        const index = mockConnections.findIndex(c => c.id === connectionId);
+        if (index > -1) {
+            mockConnections[index].status = 'accepted';
+            mockConnections[index].updated_at = new Date().toISOString();
+            return mockConnections[index];
+        }
+        throw new Error("Connection not found");
+    },
+
+    async rejectConnectionRequest(connectionId: number) {
+        await simulateLatency(500);
+        const index = mockConnections.findIndex(c => c.id === connectionId);
+        if (index > -1) {
+            mockConnections[index].status = 'rejected';
+            mockConnections[index].updated_at = new Date().toISOString();
+            return mockConnections[index];
+        }
+        throw new Error("Connection not found");
+    },
+
+    async removeConnection(connectionId: number) {
+        await simulateLatency(500);
+        mockConnections = mockConnections.filter(c => c.id !== connectionId);
+        return { success: true };
+    }
+};

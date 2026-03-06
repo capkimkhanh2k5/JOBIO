@@ -795,6 +795,37 @@ export interface NotificationSettings {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Connections & Networking
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export type ConnectionStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn';
+
+export interface RecruiterBrief {
+  id: number;
+  full_name: string;
+  avatar_url: string | null;
+  current_position: string | null;
+  current_company: string | null;
+}
+
+export interface Connection {
+  id: number;
+  requester: RecruiterBrief;
+  recipient: RecruiterBrief;
+  status: ConnectionStatus;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConnectionSuggestion {
+  recruiter: RecruiterBrief;
+  mutual_connections_count: number;
+  common_skills: string[];
+  score: number;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Messages
 // ═══════════════════════════════════════════════════════════════════════════════
 
