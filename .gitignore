@@ -1,15 +1,60 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# ========================
+# Django
+# ========================
+db.sqlite3
+**/*.sqlite3
+*.log
+local_settings.py
+media/
+
+# ========================
+# Environment & Secrets
+# ========================
+.env
+**/.env
+*.env.local
+*.env.*.local
+
+# ========================
+# IDE & OS
+# ========================
 .agent
 .vscode
 .github
 .postman
-
-.env
-**/.env
+.idea/
 .DS_Store
+**/.DS_Store
+*.swp
+*.swo
+*~
+Thumbs.db
 
+# ========================
+# Docs (generated)
+# ========================
 docs/*
 
-db.sqlite3
-**/*.sqlite3
-
-.gitignore
+# ========================
+# Node (root level)
+# ========================
+node_modules/
+package-lock.json

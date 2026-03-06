@@ -33,7 +33,7 @@ export default function JobsPage() {
                 page,
                 page_size: PAGE_SIZE,
                 ordering: sort,
-                status: "active",
+                status: "published",
             };
             if (filters.search) params.search = filters.search;
             if (filters.category && filters.category !== "all") params.category_id = filters.category;
@@ -47,7 +47,9 @@ export default function JobsPage() {
             if (filters.experienceRange?.[1] < 15) params.experience_max = filters.experienceRange[1];
             if (filters.skills?.length) params.skills = filters.skills.join(",");
             const { data: resp } = await jobService.list(params);
-            return { items: resp.results, total: resp.count, pageCount: Math.ceil(resp.count / PAGE_SIZE) };
+            const items = Array.isArray(resp) ? resp : (resp?.results || []);
+            const total = Array.isArray(resp) ? resp.length : (resp?.count || 0);
+            return { items, total, pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
         },
         placeholderData: prev => prev,
     });
@@ -57,6 +59,11 @@ export default function JobsPage() {
     };
 
     const handleSortChange = (s: string) => { setSort(s); setPage(1); };
+
+    const handlePageChange = (newPage: number) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -158,7 +165,7 @@ export default function JobsPage() {
                                     <p className="text-sm text-gray-500 mb-5">Vui lòng thử lại sau giây lát.</p>
                                     <Button variant="outline" onClick={() => window.location.reload()}>Tải lại trang</Button>
                                 </div>
-                            ) : data?.items.length === 0 ? (
+                            ) : !data || data.items.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-200 text-center">
                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
                                         <Briefcase className="h-7 w-7 text-gray-300" />
@@ -180,7 +187,7 @@ export default function JobsPage() {
                                     )}
                                 >
                                     <AnimatePresence mode="popLayout">
-                                        {data?.items.map((job: any) => (
+                                        {data?.items?.map((job: any) => (
                                             <JobCard key={job.id} job={job} view={view} />
                                         ))}
                                     </AnimatePresence>
@@ -199,7 +206,7 @@ export default function JobsPage() {
                                             variant="outline" size="icon"
                                             className="h-8 w-8 border-gray-200"
                                             disabled={page <= 1}
-                                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                                            onClick={() => handlePageChange(Math.max(1, page - 1))}
                                         >
                                             <ChevronLeft className="h-4 w-4" />
                                         </Button>
@@ -214,7 +221,7 @@ export default function JobsPage() {
                                                         "h-8 w-8 text-xs",
                                                         page === pageNum ? "bg-primary text-white border-primary" : "border-gray-200 text-gray-600"
                                                     )}
-                                                    onClick={() => setPage(pageNum)}
+                                                    onClick={() => handlePageChange(pageNum)}
                                                 >
                                                     {pageNum}
                                                 </Button>
@@ -224,7 +231,7 @@ export default function JobsPage() {
                                             variant="outline" size="icon"
                                             className="h-8 w-8 border-gray-200"
                                             disabled={page >= data.pageCount}
-                                            onClick={() => setPage(p => Math.min(data.pageCount, p + 1))}
+                                            onClick={() => handlePageChange(Math.min(data.pageCount, page + 1))}
                                         >
                                             <ChevronRight className="h-4 w-4" />
                                         </Button>
@@ -251,8 +258,8 @@ export default function JobsPage() {
                         </Button>
                     </div>
                 </SheetContent>
-            </Sheet>
-        </div>
+            </Sheet >
+        </div >
     );
 }
 

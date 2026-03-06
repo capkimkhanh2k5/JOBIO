@@ -9,20 +9,30 @@ class JobListSerializer(serializers.ModelSerializer):
     
     company_id = serializers.IntegerField(source='company.id', read_only=True)
     company_name = serializers.CharField(source='company.company_name', read_only=True)
+    logo_url = serializers.CharField(source='company.logo_url', read_only=True, allow_null=True)
     category_id = serializers.IntegerField(source='category.id', read_only=True, allow_null=True)
     category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
+    views_count = serializers.IntegerField(source='view_count', read_only=True)
+    applications_count = serializers.IntegerField(source='application_count', read_only=True)
+    locations = serializers.SerializerMethodField()
     
     class Meta:
         model = Job
         fields = [
             'id', 'title', 'slug', 
-            'company_id', 'company_name',
+            'company_id', 'company_name', 'logo_url',
             'category_id', 'category_name',
             'job_type', 'level',
             'salary_min', 'salary_max', 'salary_currency', 'is_salary_negotiable',
-            'is_remote', 'status', 'published_at', 'application_deadline'
+            'is_remote', 'status', 'published_at', 'application_deadline',
+            'views_count', 'applications_count', 'locations'
         ]
         read_only_fields = ['id', 'slug', 'published_at']
+
+    def get_locations(self, obj):
+        if obj.address and hasattr(obj.address, 'province') and obj.address.province:
+            return obj.address.province.province_name
+        return "Toàn quốc"
 
 
 class JobDetailSerializer(serializers.ModelSerializer):

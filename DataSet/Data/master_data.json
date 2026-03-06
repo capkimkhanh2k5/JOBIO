@@ -403,13 +403,13 @@
     {
       "category": "Programming Languages",
       "name": "C++",
-      "slug": "c",
+      "slug": "cpp",
       "description": "Công nghệ/Kỹ năng/Mô hình: C++"
     },
     {
       "category": "Programming Languages",
       "name": "C#",
-      "slug": "c",
+      "slug": "csharp",
       "description": "Công nghệ/Kỹ năng/Mô hình: C#"
     },
     {
@@ -2134,6 +2134,33 @@
       },
       "job_post_limit": 250,
       "cv_view_limit": 5000
+    }
+  ],
+  "payment_methods": [
+    {
+      "method_name": "Chuyển khoản Ngân hàng",
+      "description": "Chuyển khoản trực tiếp qua tài khoản ngân hàng nội địa",
+      "display_order": 1
+    },
+    {
+      "method_name": "Thẻ tín dụng / Ghi nợ (Visa/MasterCard)",
+      "description": "Thanh toán bằng thẻ tín dụng hoặc thẻ ghi nợ quốc tế",
+      "display_order": 2
+    },
+    {
+      "method_name": "Ví MoMo",
+      "description": "Thanh toán qua ví điện tử MoMo",
+      "display_order": 3
+    },
+    {
+      "method_name": "ZaloPay",
+      "description": "Thanh toán qua ví điện tử ZaloPay",
+      "display_order": 4
+    },
+    {
+      "method_name": "VNPay",
+      "description": "Thanh toán qua cổng VNPay (QR Code, Internet Banking)",
+      "display_order": 5
     }
   ]
 }

@@ -7,7 +7,7 @@ class ProvinceListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Province
-        fields = ['id', 'province_code', 'province_name', 'province_type', 'region']
+        fields = ['id', 'province_name', 'province_type', 'region']
 
 
 class ProvinceDetailSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class ProvinceDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
         fields = [
-            'id', 'province_code', 'province_name', 
+            'id', 'province_name', 
             'province_type', 'province_type_display',
             'region', 'region_display', 
             'is_active', 'created_at'

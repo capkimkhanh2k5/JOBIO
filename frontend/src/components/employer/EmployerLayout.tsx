@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { EmployerTopNav } from './EmployerTopNav';
 import { EmployerSidebar } from './EmployerSidebar';
 import { ScrollProgress } from '@/components/shared/ScrollProgress';
+import { MiniFooter } from '@/components/layout/MiniFooter';
 
 /**
  * EmployerLayout – wraps all /employer/* routes.
@@ -20,8 +21,11 @@ export function EmployerLayout() {
             {/* Content area: sidebar + page outlet */}
             <div className="flex flex-1 min-h-0">
                 <EmployerSidebar />
-                <main className="flex-1 min-w-0 overflow-y-auto">
-                    <Outlet />
+                <main className="flex-1 min-w-0 flex flex-col overflow-y-auto">
+                    <div className="flex-1 flex flex-col">
+                        <Outlet />
+                    </div>
+                    <MiniFooter />
                 </main>
             </div>
         </div>

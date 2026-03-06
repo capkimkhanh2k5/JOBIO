@@ -6,6 +6,8 @@ from ..models import Company
 
 class CompanyFilter(django_filters.FilterSet):
     """Filter cho danh sách công ty"""
+    search = django_filters.CharFilter(method='filter_search')
+
     class Meta:
         model = Company
         fields = {
@@ -14,6 +16,14 @@ class CompanyFilter(django_filters.FilterSet):
             'industry': ['exact'],
             'verification_status': ['exact'],
         }
+
+    def filter_search(self, queryset, name, value):
+        from django.db.models import Q
+        return queryset.filter(
+            Q(company_name__icontains=value) | 
+            Q(industry__name__icontains=value) |
+            Q(slug__icontains=value)
+        )
 
 
 def list_companies(*, filters: dict = None) -> QuerySet[Company]:

@@ -106,8 +106,10 @@ export function JobCard({ job, view }: JobCardProps) {
         return job.skills.map((s: any) => (typeof s === "string" ? s : s.name));
     };
 
-    const getTimeAgo = (date: string) => {
+    const getTimeAgo = (date?: string) => {
+        if (!date) return "vừa xong";
         const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+        if (isNaN(diff)) return "";
         if (diff < 60) return "vừa xong";
         if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
         if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;

@@ -55,7 +55,7 @@ export const jobService = {
 
   /** Featured jobs for homepage */
   featured(params?: { page_size?: number }) {
-    return api.get<PaginatedResponse<JobListItem>>('/api/jobs/featured/', { params });
+    return api.get<JobListItem[]>('/api/jobs/featured/', { params });
   },
 
   /** Similar/related jobs */
