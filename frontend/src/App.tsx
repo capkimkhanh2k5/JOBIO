@@ -36,6 +36,7 @@ import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 import EmployerReferrals from '@/pages/employer/Referrals';
+import JobMatching from '@/pages/employer/JobMatching';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -121,6 +122,7 @@ export default function App() {
                             <Route path="jobs" element={<ManageJobs />} />
                             <Route path="jobs/create" element={<PostJob />} />
                             <Route path="jobs/:id/edit" element={<PostJob />} />
+                            <Route path="jobs/:id/matching" element={<JobMatching />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<EmployerCVSearch />} />

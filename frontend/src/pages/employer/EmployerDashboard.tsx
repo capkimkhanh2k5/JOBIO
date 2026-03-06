@@ -7,6 +7,7 @@ import { KpiCard } from '@/components/employer/KpiCard';
 import { ApplicationsChart } from '@/components/employer/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/employer/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/employer/UpcomingInterviewsCard';
+import { TopMatchesWidget } from '@/components/dashboard/TopMatchesWidget';
 import { useUserStore } from '@/store/userStore';
 import { employerService } from '@/services/employerService';
 
@@ -140,6 +141,10 @@ export default function EmployerDashboard() {
             <motion.div {...fadeUp(0.24)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <div className="xl:col-span-2">
                     <UpcomingInterviewsCard />
+                </div>
+
+                <div className="xl:col-span-1">
+                    <TopMatchesWidget />
                 </div>
 
                 {/* Quick Links */}
