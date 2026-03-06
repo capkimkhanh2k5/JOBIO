@@ -1,0 +1,2139 @@
+{
+  "industries": [
+    {
+      "name": "Gia công phần mềm (Outsourcing)",
+      "slug": "gia-cong-phan-mem-outsourcing",
+      "description": "Cung cấp dịch vụ lập trình, phát triển phần mềm theo yêu cầu",
+      "icon": "mdi-desktop-classic"
+    },
+    {
+      "name": "Phát triển Sản phẩm (Product)",
+      "slug": "phat-trien-san-pham-product",
+      "description": "Công ty giải pháp, SaaS, phát triển platform nội bộ",
+      "icon": "mdi-rocket-launch"
+    },
+    {
+      "name": "Trí tuệ Nhân tạo (AI / Machine Learning)",
+      "slug": "tri-tue-nhan-tao",
+      "description": "Nghiên cứu thị giác máy tính, NLP, Generative AI",
+      "icon": "mdi-robot-outline"
+    },
+    {
+      "name": "Thương mại điện tử & Dịch vụ trực tuyến",
+      "slug": "thuong-mai-ien-tu",
+      "description": "Nền tảng mua sắm online, ứng dụng đặt xe, giao đồ ăn",
+      "icon": "mdi-cart-check"
+    },
+    {
+      "name": "Fintech / Công nghệ tài chính",
+      "slug": "fintech",
+      "description": "Ví điện tử, cổng thanh toán, neo-bank, đầu tư số",
+      "icon": "mdi-finance"
+    },
+    {
+      "name": "EdTech / Công nghệ giáo dục",
+      "slug": "edtech",
+      "description": "Nền tảng học trực tuyến, hệ thống quản lý trường học",
+      "icon": "mdi-school-outline"
+    },
+    {
+      "name": "HealthTech / Công nghệ Y tế",
+      "slug": "healthtech",
+      "description": "Ứng dụng tư vấn bệnh từ xa, quản lý phòng khám, thiết bị y tế IoT",
+      "icon": "mdi-hospital-box-outline"
+    },
+    {
+      "name": "Blockchain / Web3",
+      "slug": "blockchain-web3",
+      "description": "Phát triển Smart Contract, DApp, Cryptocurrency, NFT",
+      "icon": "mdi-web"
+    },
+    {
+      "name": "Trò chơi / Game Development",
+      "slug": "tro-choi-game-development",
+      "description": "Sản xuất Game Mobile, Game PC/Console, Game Engine",
+      "icon": "mdi-gamepad-variant-outline"
+    },
+    {
+      "name": "Hệ thống Nhúng / IoT",
+      "slug": "he-thong-nhung-iot",
+      "description": "Lập trình nhúng (Embedded), vi điều khiển, phần cứng thông minh",
+      "icon": "mdi-memory"
+    },
+    {
+      "name": "An toàn thông tin / Cyber Security",
+      "slug": "an-toan-thong-tin",
+      "description": "Bảo mật hệ thống, Pentest, chống mã độc, mật mã",
+      "icon": "mdi-security"
+    },
+    {
+      "name": "Data Center / Cloud Services",
+      "slug": "data-center-cloud-services",
+      "description": "Cung cấp hạ tầng lưu trữ, VPS, Cloud Computing",
+      "icon": "mdi-cloud-outline"
+    },
+    {
+      "name": "ERP / CRM Solutions",
+      "slug": "erp-crm-solutions",
+      "description": "Phần mềm quản trị doanh nghiệp toàn diện",
+      "icon": "mdi-clipboard-text-outline"
+    }
+  ],
+  "media_types": [
+    {
+      "name": "Hình không gian làm việc Open-space",
+      "slug": "hinh-khong-gian-lam-viec-open-space",
+      "description": "Văn phòng chuẩn IT hiện đại"
+    },
+    {
+      "name": "Hình khu vực giải trí (Pantry/Breakroom)",
+      "slug": "hinh-khu-vuc-giai-tri",
+      "description": "Máy pha cà phê, bàn bi-lắc, PS5"
+    },
+    {
+      "name": "Tech Talk / Hội thảo nội bộ",
+      "slug": "tech-talk-hoi-thao-noi-bo",
+      "description": "Chia sẻ công nghệ mới nhất giữa các engineer"
+    },
+    {
+      "name": "Sự kiện Hackathon",
+      "slug": "su-kien-hackathon",
+      "description": "Hình ảnh/Video cuộc thi lập trình nhanh trong nội bộ"
+    }
+  ],
+  "benefit_categories": [
+    {
+      "name": "Trang thiết bị mạnh mẽ",
+      "icon": "mdi-laptop-mac",
+      "description": "Cung cấp Macbook Pro, màn hình rời 4K"
+    },
+    {
+      "name": "Làm việc từ xa (Remote/Hybrid)",
+      "icon": "mdi-home-city",
+      "description": "Linh hoạt làm việc tại nhà hoặc 100% remote"
+    },
+    {
+      "name": "Chứng chỉ công nghệ",
+      "icon": "mdi-certificate",
+      "description": "Tài trợ 100% thi AWS, Azure, Google Cloud"
+    },
+    {
+      "name": "Bảo hiểm sức khoẻ toàn diện",
+      "icon": "mdi-hospital-box-outline",
+      "description": "Bảo hiểm PVI/Bảo Việt cho nhân viên và người thân"
+    }
+  ],
+  "job_categories": [
+    {
+      "name": "Phát triển Phần mềm (Software Development)",
+      "slug": "software-development",
+      "parent": null,
+      "icon": "mdi-code-braces",
+      "description": "Tất cả các vị trí lập trình cốt lõi"
+    },
+    {
+      "name": "Kiểm thử (Software Testing & QA)",
+      "slug": "software-testing",
+      "parent": null,
+      "icon": "mdi-bug-check",
+      "description": "Đảm bảo chất lượng phần mềm"
+    },
+    {
+      "name": "Dữ liệu & Phân tích (Data & Analytics)",
+      "slug": "data-analytics",
+      "parent": null,
+      "icon": "mdi-database",
+      "description": "Làm việc với cấu trúc và luồng dữ liệu"
+    },
+    {
+      "name": "Hạ tầng & Vận hành (Cloud, Infra, DevOps)",
+      "slug": "cloud-devops-infra",
+      "parent": null,
+      "icon": "mdi-cloud-sync",
+      "description": "Quản lý cơ sở hạ tầng, triển khai mã nguồn"
+    },
+    {
+      "name": "Quản lý & Tổ chức Khối kỹ thuật",
+      "slug": "tech-leadership",
+      "parent": null,
+      "icon": "mdi-account-tie",
+      "description": "Quản lý dự án, quản trị nhân sự kỹ thuật"
+    },
+    {
+      "name": "Thiết kế & Trải nghiệm (UI/UX Design)",
+      "slug": "ui-ux-design",
+      "parent": null,
+      "icon": "mdi-palette-swatch",
+      "description": "Thiết kế trải nghiệm người dùng trên các thiết bị"
+    },
+    {
+      "name": "Lập trình Backend",
+      "slug": "lap-trinh-backend",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-server",
+      "description": "Hệ thống máy chủ, Data logic, APIs"
+    },
+    {
+      "name": "Lập trình Frontend",
+      "slug": "lap-trinh-frontend",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-monitor-dashboard",
+      "description": "Giao diện trải nghiệm người dùng Client-side"
+    },
+    {
+      "name": "Lập trình Mobile (iOS/Android)",
+      "slug": "lap-trinh-mobile",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-cellphone",
+      "description": "Ứng dụng di động Native hoặc Cross-platform"
+    },
+    {
+      "name": "Lập trình Fullstack",
+      "slug": "lap-trinh-fullstack",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-layers-outline",
+      "description": "Phát triển cả Front/Back-end"
+    },
+    {
+      "name": "Cấu trúc phần mềm (Software Architect)",
+      "slug": "software-architect",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-office-building-cog",
+      "description": "Thiết kế hệ thống tổng thể quy mô lớn"
+    },
+    {
+      "name": "Lập trình Game (Game Developer)",
+      "slug": "game-developer",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-gamepad",
+      "description": "Unity, Unreal Engine"
+    },
+    {
+      "name": "Lập trình Nhúng (Embedded/IoT)",
+      "slug": "embedded-iot",
+      "parent": "Phát triển Phần mềm (Software Development)",
+      "icon": "mdi-memory",
+      "description": "Phát triển Firmware, C/C++"
+    },
+    {
+      "name": "Manual Tester (QC)",
+      "slug": "manual-tester",
+      "parent": "Kiểm thử (Software Testing & QA)",
+      "icon": "mdi-check-circle-outline",
+      "description": "Kiểm thử thủ công chức năng"
+    },
+    {
+      "name": "Automation Tester",
+      "slug": "automation-tester",
+      "parent": "Kiểm thử (Software Testing & QA)",
+      "icon": "mdi-robot",
+      "description": "Viết script tự động kiểm thử"
+    },
+    {
+      "name": "QA (Đảm bảo quy trình)",
+      "slug": "qa-engineer",
+      "parent": "Kiểm thử (Software Testing & QA)",
+      "icon": "mdi-clipboard-check-outline",
+      "description": "Kiểm soát quy trình mã nguồn và tiêu chuẩn"
+    },
+    {
+      "name": "Data Engineer",
+      "slug": "data-engineer",
+      "parent": "Dữ liệu & Phân tích (Data & Analytics)",
+      "icon": "mdi-pipe",
+      "description": "Xây dụng Data Pipeline, ETL, Data Warehouse"
+    },
+    {
+      "name": "Data Analyst (DA)",
+      "slug": "data-analyst",
+      "parent": "Dữ liệu & Phân tích (Data & Analytics)",
+      "icon": "mdi-chart-bar",
+      "description": "Phân tích, trực quan hóa dữ liệu kinh doanh"
+    },
+    {
+      "name": "Data Scientist",
+      "slug": "data-scientist",
+      "parent": "Dữ liệu & Phân tích (Data & Analytics)",
+      "icon": "mdi-brain",
+      "description": "Mô hình hoá thuật toán học máy, dự đoán"
+    },
+    {
+      "name": "AI/ML Engineer",
+      "slug": "ai-ml-engineer",
+      "parent": "Dữ liệu & Phân tích (Data & Analytics)",
+      "icon": "mdi-robot-outline",
+      "description": "Đào tạo mạng nơ ron, Generative AI"
+    },
+    {
+      "name": "DevOps Engineer",
+      "slug": "devops-engineer",
+      "parent": "Hạ tầng & Vận hành (Cloud, Infra, DevOps)",
+      "icon": "mdi-cloud-sync",
+      "description": "Triển khai hệ thống tự động CI/CD"
+    },
+    {
+      "name": "Cloud Architect",
+      "slug": "cloud-architect",
+      "parent": "Hạ tầng & Vận hành (Cloud, Infra, DevOps)",
+      "icon": "mdi-weather-cloudy",
+      "description": "Kiến trúc hệ thống điện toán đám mây"
+    },
+    {
+      "name": "System Admin",
+      "slug": "system-admin",
+      "parent": "Hạ tầng & Vận hành (Cloud, Infra, DevOps)",
+      "icon": "mdi-desktop-classic",
+      "description": "Quản lý Linux/Windows servers local"
+    },
+    {
+      "name": "Security Engineer (Kỹ sư Bảo mật)",
+      "slug": "security-engineer",
+      "parent": "Hạ tầng & Vận hành (Cloud, Infra, DevOps)",
+      "icon": "mdi-security",
+      "description": "Pentest hệ thống mạng, mã độc"
+    },
+    {
+      "name": "Project Manager (PM)",
+      "slug": "project-manager",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-briefcase",
+      "description": "Giám đốc / Quản lý dự án"
+    },
+    {
+      "name": "Product Manager / Owner",
+      "slug": "product-manager-owner",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-cube-outline",
+      "description": "Sở hữu và quyết định Roadmap sản phẩm"
+    },
+    {
+      "name": "Business Analyst (BA)",
+      "slug": "business-analyst",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-file-document-edit-outline",
+      "description": "Phân tích yêu cầu khách hàng với Dev"
+    },
+    {
+      "name": "Scrum Master",
+      "slug": "scrum-master",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-account-switch",
+      "description": "Quản trị quy trình Agile/Scrum"
+    },
+    {
+      "name": "C-Level (CTO, CIO)",
+      "slug": "tech-c-level",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-chess-king",
+      "description": "Ban Giám đốc chịu trách nhiệm mảng Công nghệ"
+    },
+    {
+      "name": "Biên Phiên Dịch IT (Comtor)",
+      "slug": "it-comtor",
+      "parent": "Quản lý & Tổ chức Khối kỹ thuật",
+      "icon": "mdi-translate",
+      "description": "Kỹ sư cầu nối ngoại ngữ (BrSE / Comtor)"
+    }
+  ],
+  "skill_categories": [
+    {
+      "name": "Programming Languages",
+      "slug": "programming-languages",
+      "description": "Ngôn ngữ lập trình cốt lõi"
+    },
+    {
+      "name": "Backend Frameworks",
+      "slug": "backend-frameworks",
+      "description": "Khung ứng dụng máy chủ"
+    },
+    {
+      "name": "Frontend Frameworks/Libraries",
+      "slug": "frontend-frameworks-models",
+      "description": "Công nghệ máy khách (Client)"
+    },
+    {
+      "name": "Mobile & Desktop Dev",
+      "slug": "mobile-desktop",
+      "description": "Phát triển iOS/Android/Windows"
+    },
+    {
+      "name": "Databases & ORMs",
+      "slug": "databases-orms",
+      "description": "Hệ quản trị CSDL, phân tích"
+    },
+    {
+      "name": "Cloud Computing",
+      "slug": "cloud-computing",
+      "description": "Công nghệ đám mây thương mại"
+    },
+    {
+      "name": "DevOps, CI/CD & Containers",
+      "slug": "devops-containers",
+      "description": "Tự động quá trình deploy và scaling"
+    },
+    {
+      "name": "Data Science, ML & AI",
+      "slug": "data-ai-tools",
+      "description": "Công cụ thị giác máy, xử lý ngôn ngữ"
+    },
+    {
+      "name": "Testing & QA Tools",
+      "slug": "testing-tools",
+      "description": "Phần mềm đảm bảo chất lượng"
+    },
+    {
+      "name": "Architecture, Methodology & Soft Skills",
+      "slug": "arch-agile-softskills",
+      "description": "Cách hệ thống làm việc với nhau, con người làm việc với nhau"
+    }
+  ],
+  "skills": [
+    {
+      "category": "Programming Languages",
+      "name": "Python",
+      "slug": "python",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Python"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Java",
+      "slug": "java",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Java"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "C++",
+      "slug": "c",
+      "description": "Công nghệ/Kỹ năng/Mô hình: C++"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "C#",
+      "slug": "c",
+      "description": "Công nghệ/Kỹ năng/Mô hình: C#"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "C",
+      "slug": "c",
+      "description": "Công nghệ/Kỹ năng/Mô hình: C"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "JavaScript",
+      "slug": "javascript",
+      "description": "Công nghệ/Kỹ năng/Mô hình: JavaScript"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "TypeScript",
+      "slug": "typescript",
+      "description": "Công nghệ/Kỹ năng/Mô hình: TypeScript"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Go (Golang)",
+      "slug": "go-golang",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Go (Golang)"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Rust",
+      "slug": "rust",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Rust"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Ruby",
+      "slug": "ruby",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ruby"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "PHP",
+      "slug": "php",
+      "description": "Công nghệ/Kỹ năng/Mô hình: PHP"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Swift",
+      "slug": "swift",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Swift"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Kotlin",
+      "slug": "kotlin",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Kotlin"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Dart",
+      "slug": "dart",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Dart"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Scala",
+      "slug": "scala",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Scala"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Elixir",
+      "slug": "elixir",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Elixir"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Clojure",
+      "slug": "clojure",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Clojure"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Haskell",
+      "slug": "haskell",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Haskell"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Lua",
+      "slug": "lua",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Lua"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Perl",
+      "slug": "perl",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Perl"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "R",
+      "slug": "r",
+      "description": "Công nghệ/Kỹ năng/Mô hình: R"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "MATLAB",
+      "slug": "matlab",
+      "description": "Công nghệ/Kỹ năng/Mô hình: MATLAB"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Objective-C",
+      "slug": "objective-c",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Objective-C"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "Shell Scripting (Bash)",
+      "slug": "shell-scripting-bash",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Shell Scripting (Bash)"
+    },
+    {
+      "category": "Programming Languages",
+      "name": "PowerShell",
+      "slug": "powershell",
+      "description": "Công nghệ/Kỹ năng/Mô hình: PowerShell"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Django",
+      "slug": "django",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Django"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "FastAPI",
+      "slug": "fastapi",
+      "description": "Công nghệ/Kỹ năng/Mô hình: FastAPI"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Flask",
+      "slug": "flask",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Flask"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Tornado",
+      "slug": "tornado",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tornado"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Celery",
+      "slug": "celery",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Celery"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Spring Boot",
+      "slug": "spring-boot",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Spring Boot"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Spring MVC",
+      "slug": "spring-mvc",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Spring MVC"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Hibernate",
+      "slug": "hibernate",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Hibernate"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Grails",
+      "slug": "grails",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Grails"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Node.js",
+      "slug": "nodejs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Node.js"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Express.js",
+      "slug": "expressjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Express.js"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "NestJS",
+      "slug": "nestjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: NestJS"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Koa",
+      "slug": "koa",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Koa"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Meteor",
+      "slug": "meteor",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Meteor"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "ASP.NET Core",
+      "slug": "aspnet-core",
+      "description": "Công nghệ/Kỹ năng/Mô hình: ASP.NET Core"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Entity Framework",
+      "slug": "entity-framework",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Entity Framework"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "WCF",
+      "slug": "wcf",
+      "description": "Công nghệ/Kỹ năng/Mô hình: WCF"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Laravel",
+      "slug": "laravel",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Laravel"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Symfony",
+      "slug": "symfony",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Symfony"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "CodeIgniter",
+      "slug": "codeigniter",
+      "description": "Công nghệ/Kỹ năng/Mô hình: CodeIgniter"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Yii",
+      "slug": "yii",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Yii"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Ruby on Rails",
+      "slug": "ruby-on-rails",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ruby on Rails"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Sinatra",
+      "slug": "sinatra",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Sinatra"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Echo (Go)",
+      "slug": "echo-go",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Echo (Go)"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Fiber (Go)",
+      "slug": "fiber-go",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Fiber (Go)"
+    },
+    {
+      "category": "Backend Frameworks",
+      "name": "Gin (Go)",
+      "slug": "gin-go",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Gin (Go)"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "React.js",
+      "slug": "reactjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: React.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Next.js",
+      "slug": "nextjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Next.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Vue.js",
+      "slug": "vuejs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Vue.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Nuxt.js",
+      "slug": "nuxtjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Nuxt.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Angular",
+      "slug": "angular",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Angular"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "AngularJS",
+      "slug": "angularjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: AngularJS"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Svelte",
+      "slug": "svelte",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Svelte"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Ember.js",
+      "slug": "emberjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ember.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Alpine.js",
+      "slug": "alpinejs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Alpine.js"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Gatsby",
+      "slug": "gatsby",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Gatsby"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "HTMX",
+      "slug": "htmx",
+      "description": "Công nghệ/Kỹ năng/Mô hình: HTMX"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "HTML5",
+      "slug": "html5",
+      "description": "Công nghệ/Kỹ năng/Mô hình: HTML5"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "CSS3",
+      "slug": "css3",
+      "description": "Công nghệ/Kỹ năng/Mô hình: CSS3"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "SASS / SCSS",
+      "slug": "sass-scss",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SASS / SCSS"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "LESS",
+      "slug": "less",
+      "description": "Công nghệ/Kỹ năng/Mô hình: LESS"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Tailwind CSS",
+      "slug": "tailwind-css",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tailwind CSS"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Bootstrap",
+      "slug": "bootstrap",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Bootstrap"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Material-UI (MUI)",
+      "slug": "material-ui-mui",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Material-UI (MUI)"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Chakra UI",
+      "slug": "chakra-ui",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Chakra UI"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Ant Design",
+      "slug": "ant-design",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ant Design"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Redux",
+      "slug": "redux",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Redux"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "MobX",
+      "slug": "mobx",
+      "description": "Công nghệ/Kỹ năng/Mô hình: MobX"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Zustand",
+      "slug": "zustand",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Zustand"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Vuex",
+      "slug": "vuex",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Vuex"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Pinia",
+      "slug": "pinia",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Pinia"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "RxJS",
+      "slug": "rxjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: RxJS"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Webpack",
+      "slug": "webpack",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Webpack"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Vite",
+      "slug": "vite",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Vite"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Babel",
+      "slug": "babel",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Babel"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Parcel",
+      "slug": "parcel",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Parcel"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "Gulp",
+      "slug": "gulp",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Gulp"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "WebSockets",
+      "slug": "websockets",
+      "description": "Công nghệ/Kỹ năng/Mô hình: WebSockets"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "WebRTC",
+      "slug": "webrtc",
+      "description": "Công nghệ/Kỹ năng/Mô hình: WebRTC"
+    },
+    {
+      "category": "Frontend Frameworks/Libraries",
+      "name": "GraphQL (Client)",
+      "slug": "graphql-client",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GraphQL (Client)"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Flutter",
+      "slug": "flutter",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Flutter"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "React Native",
+      "slug": "react-native",
+      "description": "Công nghệ/Kỹ năng/Mô hình: React Native"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Expo",
+      "slug": "expo",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Expo"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Ionic",
+      "slug": "ionic",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ionic"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Cordova",
+      "slug": "cordova",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Cordova"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Xamarin (MAUI)",
+      "slug": "xamarin-maui",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Xamarin (MAUI)"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "iOS Native",
+      "slug": "ios-native",
+      "description": "Công nghệ/Kỹ năng/Mô hình: iOS Native"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "UIKit",
+      "slug": "uikit",
+      "description": "Công nghệ/Kỹ năng/Mô hình: UIKit"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "SwiftUI",
+      "slug": "swiftui",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SwiftUI"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Combine",
+      "slug": "combine",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Combine"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Android Native",
+      "slug": "android-native",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Android Native"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Jetpack Compose",
+      "slug": "jetpack-compose",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Jetpack Compose"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Android SDK",
+      "slug": "android-sdk",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Android SDK"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Electron.js",
+      "slug": "electronjs",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Electron.js"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Tauri",
+      "slug": "tauri",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tauri"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "WPF",
+      "slug": "wpf",
+      "description": "Công nghệ/Kỹ năng/Mô hình: WPF"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "WinForms",
+      "slug": "winforms",
+      "description": "Công nghệ/Kỹ năng/Mô hình: WinForms"
+    },
+    {
+      "category": "Mobile & Desktop Dev",
+      "name": "Qt / QML",
+      "slug": "qt-qml",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Qt / QML"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "MySQL",
+      "slug": "mysql",
+      "description": "Công nghệ/Kỹ năng/Mô hình: MySQL"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "PostgreSQL",
+      "slug": "postgresql",
+      "description": "Công nghệ/Kỹ năng/Mô hình: PostgreSQL"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "SQL Server",
+      "slug": "sql-server",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SQL Server"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Oracle DB",
+      "slug": "oracle-db",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Oracle DB"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "MariaDB",
+      "slug": "mariadb",
+      "description": "Công nghệ/Kỹ năng/Mô hình: MariaDB"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "SQLite",
+      "slug": "sqlite",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SQLite"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "MongoDB",
+      "slug": "mongodb",
+      "description": "Công nghệ/Kỹ năng/Mô hình: MongoDB"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Cassandra",
+      "slug": "cassandra",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Cassandra"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "CouchDB",
+      "slug": "couchdb",
+      "description": "Công nghệ/Kỹ năng/Mô hình: CouchDB"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "DynamoDB",
+      "slug": "dynamodb",
+      "description": "Công nghệ/Kỹ năng/Mô hình: DynamoDB"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Firebase / Firestore",
+      "slug": "firebase-firestore",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Firebase / Firestore"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Redis",
+      "slug": "redis",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Redis"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Memcached",
+      "slug": "memcached",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Memcached"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Neo4j",
+      "slug": "neo4j",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Neo4j"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Elasticsearch",
+      "slug": "elasticsearch",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Elasticsearch"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Solr",
+      "slug": "solr",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Solr"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Prisma",
+      "slug": "prisma",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Prisma"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "TypeORM",
+      "slug": "typeorm",
+      "description": "Công nghệ/Kỹ năng/Mô hình: TypeORM"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Sequelize",
+      "slug": "sequelize",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Sequelize"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "SQLAlchemy",
+      "slug": "sqlalchemy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SQLAlchemy"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Django ORM",
+      "slug": "django-orm",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Django ORM"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Snowflake",
+      "slug": "snowflake",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Snowflake"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "BigQuery",
+      "slug": "bigquery",
+      "description": "Công nghệ/Kỹ năng/Mô hình: BigQuery"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Amazon Redshift",
+      "slug": "amazon-redshift",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Amazon Redshift"
+    },
+    {
+      "category": "Databases & ORMs",
+      "name": "Apache Hive",
+      "slug": "apache-hive",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Apache Hive"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Amazon Web Services (AWS)",
+      "slug": "amazon-web-services-aws",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Amazon Web Services (AWS)"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "AWS EC2",
+      "slug": "aws-ec2",
+      "description": "Công nghệ/Kỹ năng/Mô hình: AWS EC2"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "AWS S3",
+      "slug": "aws-s3",
+      "description": "Công nghệ/Kỹ năng/Mô hình: AWS S3"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "AWS Lambda",
+      "slug": "aws-lambda",
+      "description": "Công nghệ/Kỹ năng/Mô hình: AWS Lambda"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "AWS RDS",
+      "slug": "aws-rds",
+      "description": "Công nghệ/Kỹ năng/Mô hình: AWS RDS"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Microsoft Azure",
+      "slug": "microsoft-azure",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Microsoft Azure"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Azure App Services",
+      "slug": "azure-app-services",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Azure App Services"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Azure Active Directory",
+      "slug": "azure-active-directory",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Azure Active Directory"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Google Cloud Platform (GCP)",
+      "slug": "google-cloud-platform-gcp",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Google Cloud Platform (GCP)"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Google Compute Engine",
+      "slug": "google-compute-engine",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Google Compute Engine"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Google Cloud Storage",
+      "slug": "google-cloud-storage",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Google Cloud Storage"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "DigitalOcean",
+      "slug": "digitalocean",
+      "description": "Công nghệ/Kỹ năng/Mô hình: DigitalOcean"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Linode",
+      "slug": "linode",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Linode"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Heroku",
+      "slug": "heroku",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Heroku"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Vercel",
+      "slug": "vercel",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Vercel"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Netlify",
+      "slug": "netlify",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Netlify"
+    },
+    {
+      "category": "Cloud Computing",
+      "name": "Cloudflare",
+      "slug": "cloudflare",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Cloudflare"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Docker",
+      "slug": "docker",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Docker"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Docker Compose",
+      "slug": "docker-compose",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Docker Compose"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Kubernetes (K8s)",
+      "slug": "kubernetes-k8s",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Kubernetes (K8s)"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Helm",
+      "slug": "helm",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Helm"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "OpenShift",
+      "slug": "openshift",
+      "description": "Công nghệ/Kỹ năng/Mô hình: OpenShift"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Jenkins",
+      "slug": "jenkins",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Jenkins"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "GitLab CI/CD",
+      "slug": "gitlab-cicd",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GitLab CI/CD"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "GitHub Actions",
+      "slug": "github-actions",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GitHub Actions"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "CircleCI",
+      "slug": "circleci",
+      "description": "Công nghệ/Kỹ năng/Mô hình: CircleCI"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Bitbucket Pipelines",
+      "slug": "bitbucket-pipelines",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Bitbucket Pipelines"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Terraform",
+      "slug": "terraform",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Terraform"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Ansible",
+      "slug": "ansible",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ansible"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Chef",
+      "slug": "chef",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Chef"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Puppet",
+      "slug": "puppet",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Puppet"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Linux / Unix Administration",
+      "slug": "linux-unix-administration",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Linux / Unix Administration"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Ubuntu",
+      "slug": "ubuntu",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Ubuntu"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "CentOS",
+      "slug": "centos",
+      "description": "Công nghệ/Kỹ năng/Mô hình: CentOS"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Alpine",
+      "slug": "alpine",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Alpine"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Nginx",
+      "slug": "nginx",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Nginx"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Apache HTTP Server",
+      "slug": "apache-http-server",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Apache HTTP Server"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "HAProxy",
+      "slug": "haproxy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: HAProxy"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Envoy",
+      "slug": "envoy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Envoy"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Prometheus",
+      "slug": "prometheus",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Prometheus"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Grafana",
+      "slug": "grafana",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Grafana"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "ELK Stack (Elasticsearch, Logstash, Kibana)",
+      "slug": "elk-stack-elasticsearch-logstash-kibana",
+      "description": "Công nghệ/Kỹ năng/Mô hình: ELK Stack (Elasticsearch, Logstash, Kibana)"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Datadog",
+      "slug": "datadog",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Datadog"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Splunk",
+      "slug": "splunk",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Splunk"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "New Relic",
+      "slug": "new-relic",
+      "description": "Công nghệ/Kỹ năng/Mô hình: New Relic"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "RabbitMQ",
+      "slug": "rabbitmq",
+      "description": "Công nghệ/Kỹ năng/Mô hình: RabbitMQ"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "Apache Kafka",
+      "slug": "apache-kafka",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Apache Kafka"
+    },
+    {
+      "category": "DevOps, CI/CD & Containers",
+      "name": "ActiveMQ",
+      "slug": "activemq",
+      "description": "Công nghệ/Kỹ năng/Mô hình: ActiveMQ"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Pandas",
+      "slug": "pandas",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Pandas"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "NumPy",
+      "slug": "numpy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: NumPy"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Matplotlib",
+      "slug": "matplotlib",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Matplotlib"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Seaborn",
+      "slug": "seaborn",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Seaborn"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "SciPy",
+      "slug": "scipy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SciPy"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Scikit-learn",
+      "slug": "scikit-learn",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Scikit-learn"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "XGBoost",
+      "slug": "xgboost",
+      "description": "Công nghệ/Kỹ năng/Mô hình: XGBoost"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "LightGBM",
+      "slug": "lightgbm",
+      "description": "Công nghệ/Kỹ năng/Mô hình: LightGBM"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "TensorFlow",
+      "slug": "tensorflow",
+      "description": "Công nghệ/Kỹ năng/Mô hình: TensorFlow"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Keras",
+      "slug": "keras",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Keras"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "PyTorch",
+      "slug": "pytorch",
+      "description": "Công nghệ/Kỹ năng/Mô hình: PyTorch"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "JAX",
+      "slug": "jax",
+      "description": "Công nghệ/Kỹ năng/Mô hình: JAX"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Natural Language Processing (NLP)",
+      "slug": "natural-language-processing-nlp",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Natural Language Processing (NLP)"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "NLTK",
+      "slug": "nltk",
+      "description": "Công nghệ/Kỹ năng/Mô hình: NLTK"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Spacy",
+      "slug": "spacy",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Spacy"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Hugging Face Transformers",
+      "slug": "hugging-face-transformers",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Hugging Face Transformers"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Computer Vision",
+      "slug": "computer-vision",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Computer Vision"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "OpenCV",
+      "slug": "opencv",
+      "description": "Công nghệ/Kỹ năng/Mô hình: OpenCV"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "YOLO",
+      "slug": "yolo",
+      "description": "Công nghệ/Kỹ năng/Mô hình: YOLO"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Apache Spark",
+      "slug": "apache-spark",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Apache Spark"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Hadoop",
+      "slug": "hadoop",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Hadoop"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Flink",
+      "slug": "flink",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Flink"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Apache Airflow",
+      "slug": "apache-airflow",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Apache Airflow"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Large Language Models (LLMs)",
+      "slug": "large-language-models-llms",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Large Language Models (LLMs)"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "Generative AI",
+      "slug": "generative-ai",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Generative AI"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "LangChain",
+      "slug": "langchain",
+      "description": "Công nghệ/Kỹ năng/Mô hình: LangChain"
+    },
+    {
+      "category": "Data Science, ML & AI",
+      "name": "OpenAI APIs",
+      "slug": "openai-apis",
+      "description": "Công nghệ/Kỹ năng/Mô hình: OpenAI APIs"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Selenium WebDriver",
+      "slug": "selenium-webdriver",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Selenium WebDriver"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Cypress",
+      "slug": "cypress",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Cypress"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Appium",
+      "slug": "appium",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Appium"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Playwright",
+      "slug": "playwright",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Playwright"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Puppeteer",
+      "slug": "puppeteer",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Puppeteer"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "JUnit",
+      "slug": "junit",
+      "description": "Công nghệ/Kỹ năng/Mô hình: JUnit"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "TestNG",
+      "slug": "testng",
+      "description": "Công nghệ/Kỹ năng/Mô hình: TestNG"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Mockito",
+      "slug": "mockito",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Mockito"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "PyTest",
+      "slug": "pytest",
+      "description": "Công nghệ/Kỹ năng/Mô hình: PyTest"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "unittest",
+      "slug": "unittest",
+      "description": "Công nghệ/Kỹ năng/Mô hình: unittest"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Jest",
+      "slug": "jest",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Jest"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Mocha",
+      "slug": "mocha",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Mocha"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Chai",
+      "slug": "chai",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Chai"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Jasmine",
+      "slug": "jasmine",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Jasmine"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Karma",
+      "slug": "karma",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Karma"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Enzyme",
+      "slug": "enzyme",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Enzyme"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "React Testing Library",
+      "slug": "react-testing-library",
+      "description": "Công nghệ/Kỹ năng/Mô hình: React Testing Library"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "JMeter",
+      "slug": "jmeter",
+      "description": "Công nghệ/Kỹ năng/Mô hình: JMeter"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Gatling",
+      "slug": "gatling",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Gatling"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "K6",
+      "slug": "k6",
+      "description": "Công nghệ/Kỹ năng/Mô hình: K6"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Locust",
+      "slug": "locust",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Locust"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Postman",
+      "slug": "postman",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Postman"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "SoapUI",
+      "slug": "soapui",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SoapUI"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Swagger / OpenAPI",
+      "slug": "swagger-openapi",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Swagger / OpenAPI"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "SonarQube",
+      "slug": "sonarqube",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SonarQube"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "ESLint",
+      "slug": "eslint",
+      "description": "Công nghệ/Kỹ năng/Mô hình: ESLint"
+    },
+    {
+      "category": "Testing & QA Tools",
+      "name": "Prettier",
+      "slug": "prettier",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Prettier"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Microservices Architecture",
+      "slug": "microservices-architecture",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Microservices Architecture"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Serverless Architecture",
+      "slug": "serverless-architecture",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Serverless Architecture"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Monolithic Architecture",
+      "slug": "monolithic-architecture",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Monolithic Architecture"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Event-Driven Architecture",
+      "slug": "event-driven-architecture",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Event-Driven Architecture"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "RESTful API Design",
+      "slug": "restful-api-design",
+      "description": "Công nghệ/Kỹ năng/Mô hình: RESTful API Design"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "GraphQL",
+      "slug": "graphql",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GraphQL"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "gRPC",
+      "slug": "grpc",
+      "description": "Công nghệ/Kỹ năng/Mô hình: gRPC"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "SOAP",
+      "slug": "soap",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SOAP"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Agile",
+      "slug": "agile",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Agile"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Scrum",
+      "slug": "scrum",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Scrum"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Kanban",
+      "slug": "kanban",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Kanban"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Lean Software Development",
+      "slug": "lean-software-development",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Lean Software Development"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Extreme Programming (XP)",
+      "slug": "extreme-programming-xp",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Extreme Programming (XP)"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Jira",
+      "slug": "jira",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Jira"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Confluence",
+      "slug": "confluence",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Confluence"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Trello",
+      "slug": "trello",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Trello"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Asana",
+      "slug": "asana",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Asana"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Basecamp",
+      "slug": "basecamp",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Basecamp"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Git",
+      "slug": "git",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Git"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "GitHub",
+      "slug": "github",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GitHub"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "GitLab",
+      "slug": "gitlab",
+      "description": "Công nghệ/Kỹ năng/Mô hình: GitLab"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Bitbucket",
+      "slug": "bitbucket",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Bitbucket"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Git Flow",
+      "slug": "git-flow",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Git Flow"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Object-Oriented Programming (OOP)",
+      "slug": "object-oriented-programming-oop",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Object-Oriented Programming (OOP)"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Functional Programming",
+      "slug": "functional-programming",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Functional Programming"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "SOLID Principles",
+      "slug": "solid-principles",
+      "description": "Công nghệ/Kỹ năng/Mô hình: SOLID Principles"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Design Patterns",
+      "slug": "design-patterns",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Design Patterns"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Clean Code",
+      "slug": "clean-code",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Clean Code"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Clean Architecture",
+      "slug": "clean-architecture",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Clean Architecture"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Domain-Driven Design (DDD)",
+      "slug": "domain-driven-design-ddd",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Domain-Driven Design (DDD)"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Tiếng Anh Giao Tiếp IT",
+      "slug": "tieng-anh-giao-tiep-it",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tiếng Anh Giao Tiếp IT"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Tiếng Nhật IT (BrSE)",
+      "slug": "tieng-nhat-it-brse",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tiếng Nhật IT (BrSE)"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Giao tiếp",
+      "slug": "giao-tiep",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Giao tiếp"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Quản lý thời gian",
+      "slug": "quan-ly-thoi-gian",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Quản lý thời gian"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Giải quyết vấn đề (Problem Solving)",
+      "slug": "giai-quyet-van-e-problem-solving",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Giải quyết vấn đề (Problem Solving)"
+    },
+    {
+      "category": "Architecture, Methodology & Soft Skills",
+      "name": "Tư duy phản biện (Critical Thinking)",
+      "slug": "tu-duy-phan-bien-critical-thinking",
+      "description": "Công nghệ/Kỹ năng/Mô hình: Tư duy phản biện (Critical Thinking)"
+    }
+  ],
+  "languages": [
+    {
+      "name": "Tiếng Việt",
+      "code": "vi"
+    },
+    {
+      "name": "Tiếng Anh",
+      "code": "en"
+    },
+    {
+      "name": "Tiếng Nhật",
+      "code": "ja"
+    },
+    {
+      "name": "Tiếng Trung",
+      "code": "zh"
+    },
+    {
+      "name": "Tiếng Hàn",
+      "code": "ko"
+    },
+    {
+      "name": "Châu Âu (Pháp/Đức/Ý...)",
+      "code": "eu"
+    }
+  ],
+  "subscription_plans": [
+    {
+      "name": "Plus 3 Tháng",
+      "slug": "plus-3-thang",
+      "price": "1500000",
+      "billing_cycle": "3_months",
+      "features": {
+        "search_cv": true,
+        "top_job": false,
+        "priority_support": false
+      },
+      "job_post_limit": 5,
+      "cv_view_limit": 100
+    },
+    {
+      "name": "Plus 6 Tháng",
+      "slug": "plus-6-thang",
+      "price": "2800000",
+      "billing_cycle": "6_months",
+      "features": {
+        "search_cv": true,
+        "top_job": false,
+        "priority_support": false
+      },
+      "job_post_limit": 12,
+      "cv_view_limit": 250
+    },
+    {
+      "name": "Plus 1 Năm",
+      "slug": "plus-1-nam",
+      "price": "5000000",
+      "billing_cycle": "1_year",
+      "features": {
+        "search_cv": true,
+        "top_job": false,
+        "priority_support": false
+      },
+      "job_post_limit": 30,
+      "cv_view_limit": 600
+    },
+    {
+      "name": "Pro 3 Tháng",
+      "slug": "pro-3-thang",
+      "price": "3000000",
+      "billing_cycle": "3_months",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": false,
+        "mass_email": true
+      },
+      "job_post_limit": 15,
+      "cv_view_limit": 300
+    },
+    {
+      "name": "Pro 6 Tháng",
+      "slug": "pro-6-thang",
+      "price": "5500000",
+      "billing_cycle": "6_months",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": false,
+        "mass_email": true
+      },
+      "job_post_limit": 35,
+      "cv_view_limit": 700
+    },
+    {
+      "name": "Pro 1 Năm",
+      "slug": "pro-1-nam",
+      "price": "10000000",
+      "billing_cycle": "1_year",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": false,
+        "mass_email": true
+      },
+      "job_post_limit": 80,
+      "cv_view_limit": 1600
+    },
+    {
+      "name": "Max 3 Tháng",
+      "slug": "max-3-thang",
+      "price": "6000000",
+      "billing_cycle": "3_months",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": true,
+        "employer_branding": true
+      },
+      "job_post_limit": 50,
+      "cv_view_limit": 1000
+    },
+    {
+      "name": "Max 6 Tháng",
+      "slug": "max-6-thang",
+      "price": "11000000",
+      "billing_cycle": "6_months",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": true,
+        "employer_branding": true
+      },
+      "job_post_limit": 110,
+      "cv_view_limit": 2200
+    },
+    {
+      "name": "Max 1 Năm",
+      "slug": "max-1-nam",
+      "price": "20000000",
+      "billing_cycle": "1_year",
+      "features": {
+        "search_cv": true,
+        "top_job": true,
+        "priority_support": true,
+        "employer_branding": true
+      },
+      "job_post_limit": 250,
+      "cv_view_limit": 5000
+    }
+  ]
+}

@@ -43,14 +43,30 @@ export default function ManageCandidates() {
         return () => clearTimeout(timer);
     }, [filters]); // Refetch on filter change
 
+    const BULK_ACTION_STATUS: Record<string, string> = {
+        'reject': 'rejected',
+        'shortlist': 'shortlisted',
+    };
+
     const handleBulkAction = async (action: string) => {
         if (selectedCandidatesForBulk.length === 0) return;
+        const statusValue = BULK_ACTION_STATUS[action];
+        if (!statusValue) return;
         setIsLoading(true);
-        // Simulate bulk action delay
-        await new Promise(r => setTimeout(r, 600));
-        toast.success(`Đã thực hiện "${action}" cho ${selectedCandidatesForBulk.length} ứng viên`);
-        clearBulkSelection();
-        setIsLoading(false);
+        try {
+            await applicationService.bulkUpdateStatus(
+                selectedCandidatesForBulk.map(Number),
+                statusValue
+            );
+            toast.success(`Đã cập nhật ${selectedCandidatesForBulk.length} ứng viên`);
+            clearBulkSelection();
+            await loadCandidates();
+        } catch (error) {
+            toast.error('Thao tác thất bại, vui lòng thử lại');
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -102,10 +118,10 @@ export default function ManageCandidates() {
                             </span>
                         </div>
                         <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="bg-background border-border/50 hover:bg-emerald-500 hover:text-white" onClick={() => handleBulkAction('Gửi email')}>
-                                <Mail className="w-4 h-4 mr-2" /> Gửi email
+                            <Button size="sm" variant="outline" className="bg-background border-border/50 hover:bg-emerald-500 hover:text-white" onClick={() => handleBulkAction('shortlist')}>
+                                <Mail className="w-4 h-4 mr-2" /> Vào shortlist
                             </Button>
-                            <Button size="sm" variant="outline" className="bg-background border-border/50 hover:bg-red-500 hover:text-white hover:border-red-500" onClick={() => handleBulkAction('Từ chối hàng loạt')}>
+                            <Button size="sm" variant="outline" className="bg-background border-border/50 hover:bg-red-500 hover:text-white hover:border-red-500" onClick={() => handleBulkAction('reject')}>
                                 <UserX className="w-4 h-4 mr-2" /> Từ chối
                             </Button>
                         </div>

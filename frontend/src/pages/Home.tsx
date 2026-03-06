@@ -5,7 +5,11 @@ import {
     ArrowRight, DollarSign, Clock, Wifi, ChevronRight,
     Monitor, Landmark, Factory, ShoppingBag, Headphones,
     Laptop, Megaphone, PenTool, PieChart, Stethoscope, GraduationCap,
+<<<<<<< HEAD
     Home as HomeIcon, Mail
+=======
+    Home as HomeIcon
+>>>>>>> main
 } from "lucide-react";
 import { taxonomyService } from "../services/taxonomyService";
 import { jobService } from "../services/jobService";
@@ -65,7 +69,7 @@ const HeroSection = () => {
 
     const { data: provinces } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results),
     });
 
     const handleSearch = () => {
@@ -417,7 +421,11 @@ const JobCategoriesSection = () => {
     const navigate = useNavigate();
     const { data: categories, isLoading } = useQuery({
         queryKey: ['categories'],
+<<<<<<< HEAD
         queryFn: () => taxonomyService.listJobCategories().then(r => r.data)
+=======
+        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results)
+>>>>>>> main
     });
 
     const getCategoryIcon = (name: string) => {
@@ -529,7 +537,11 @@ const FeaturedCompaniesSection = () => {
 const IndustriesSection = () => {
     const { data: industries, isLoading } = useQuery({
         queryKey: ['industries'],
+<<<<<<< HEAD
         queryFn: () => taxonomyService.listIndustries().then(r => r.data)
+=======
+        queryFn: () => taxonomyService.listIndustries().then(r => r.data.results)
+>>>>>>> main
     });
 
     const getIcon = (name: string) => {
@@ -581,6 +593,7 @@ const IndustriesSection = () => {
     );
 };
 
+<<<<<<< HEAD
 /* ────────────────────────── HOME FOOTER ────────────────────────── */
 const HomeFooter = () => {
     const [email, setEmail] = useState('');
@@ -685,3 +698,6 @@ const HomeFooter = () => {
         </footer>
     );
 };
+=======
+
+>>>>>>> main

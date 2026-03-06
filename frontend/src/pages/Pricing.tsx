@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import { billingService, type SubscriptionPlanAPI } from '@/services/billingService';
 
 /* ─── Types ─── */
 interface Plan {
@@ -39,67 +38,71 @@ interface FaqItem {
     a: string;
 }
 
-/* ─── Mock API ─── */
-const mockBillingPlans = async (planType: 'employer' | 'candidate'): Promise<Plan[]> => {
-    await delay(600);
-    if (planType === 'employer') {
-        return [
-            {
-                id: 'free', name: 'Free', price_monthly: 0, price_yearly: 0, duration_days: 30,
-                max_jobs: 3, max_featured_jobs: 0, max_cv_views: 10,
-                can_export_cv: false, has_ai_matching: false, has_priority_support: false,
-                color: 'from-slate-500/20 to-slate-400/10', icon: Users,
-                description: 'Dành cho doanh nghiệp mới bắt đầu tuyển dụng.', cta: 'Dùng miễn phí',
-            },
-            {
-                id: 'basic', name: 'Basic', price_monthly: 499000, price_yearly: 4490000, duration_days: 30,
-                max_jobs: 10, max_featured_jobs: 2, max_cv_views: 100,
-                can_export_cv: true, has_ai_matching: false, has_priority_support: false,
-                color: 'from-blue-500/20 to-cyan-500/10', icon: Briefcase,
-                description: 'Đủ tính năng cho team HR nhỏ và SMEs.', cta: 'Chọn Basic',
-            },
-            {
-                id: 'professional', name: 'Professional', price_monthly: 1490000, price_yearly: 13490000, duration_days: 30,
-                max_jobs: 50, max_featured_jobs: 10, max_cv_views: 1000,
-                can_export_cv: true, has_ai_matching: true, has_priority_support: false,
-                popular: true,
-                color: 'from-cyan-500/30 to-violet-500/20', icon: Rocket,
-                description: 'Tính năng AI giúp tuyển dụng nhanh và chính xác hơn.', cta: 'Chọn Professional',
-            },
-            {
-                id: 'enterprise', name: 'Enterprise', price_monthly: 0, price_yearly: 0, duration_days: 365,
-                max_jobs: null, max_featured_jobs: null, max_cv_views: null,
-                can_export_cv: true, has_ai_matching: true, has_priority_support: true,
-                color: 'from-violet-500/20 to-purple-500/15', icon: Crown,
-                description: 'Không giới hạn – tùy chỉnh theo nhu cầu doanh nghiệp lớn.', cta: 'Liên hệ tư vấn',
-            },
-        ];
-    }
-    return [
-        {
-            id: 'candidate-free', name: 'Free', price_monthly: 0, price_yearly: 0, duration_days: 30,
-            max_jobs: null, max_featured_jobs: null, max_cv_views: null,
-            can_export_cv: false, has_ai_matching: false, has_priority_support: false,
-            color: 'from-slate-500/20 to-slate-400/10', icon: Users,
-            description: 'Tìm việc cơ bản, ứng tuyển không giới hạn.', cta: 'Dùng miễn phí',
-        },
-        {
-            id: 'candidate-pro', name: 'Pro', price_monthly: 99000, price_yearly: 890000, duration_days: 30,
-            max_jobs: null, max_featured_jobs: null, max_cv_views: null,
-            can_export_cv: true, has_ai_matching: true, has_priority_support: false,
-            popular: true,
-            color: 'from-cyan-500/30 to-violet-500/20', icon: Star,
-            description: 'AI gợi ý việc phù hợp + hồ sơ nổi bật.', cta: 'Nâng cấp Pro',
-        },
-        {
-            id: 'candidate-premium', name: 'Premium', price_monthly: 249000, price_yearly: 2240000, duration_days: 30,
-            max_jobs: null, max_featured_jobs: null, max_cv_views: null,
-            can_export_cv: true, has_ai_matching: true, has_priority_support: true,
-            color: 'from-violet-500/20 to-purple-500/15', icon: Crown,
-            description: 'Ưu tiên hiển thị + tư vấn nghề nghiệp 1-1.', cta: 'Chọn Premium',
-        },
-    ];
+/* ─── Presentation config keyed by plan slug ─── */
+const PLAN_PRESENTATION: Record<string, Partial<Plan>> = {
+    free: {
+        color: 'from-slate-500/20 to-slate-400/10', icon: Users,
+        description: 'Dành cho doanh nghiệp mới bắt đầu tuyển dụng.', cta: 'Dùng miễn phí',
+    },
+    basic: {
+        color: 'from-blue-500/20 to-cyan-500/10', icon: Briefcase,
+        description: 'Đủ tính năng cho team HR nhỏ và SMEs.', cta: 'Chọn Basic',
+    },
+    professional: {
+        color: 'from-cyan-500/30 to-violet-500/20', icon: Rocket,
+        description: 'Tính năng AI giúp tuyển dụng nhanh và chính xác hơn.', cta: 'Chọn Professional',
+        popular: true,
+    },
+    enterprise: {
+        color: 'from-violet-500/20 to-purple-500/15', icon: Crown,
+        description: 'Không giới hạn – tùy chỉnh theo nhu cầu doanh nghiệp lớn.', cta: 'Liên hệ tư vấn',
+    },
+    'candidate-free': {
+        color: 'from-slate-500/20 to-slate-400/10', icon: Users,
+        description: 'Tìm việc cơ bản, ứng tuyển không giới hạn.', cta: 'Dùng miễn phí',
+    },
+    'candidate-pro': {
+        color: 'from-cyan-500/30 to-violet-500/20', icon: Star,
+        description: 'AI gợi ý việc phù hợp + hồ sơ nổi bật.', cta: 'Nâng cấp Pro',
+        popular: true,
+    },
+    'candidate-premium': {
+        color: 'from-violet-500/20 to-purple-500/15', icon: Crown,
+        description: 'Ưu tiên hiển thị + tư vấn nghề nghiệp 1-1.', cta: 'Chọn Premium',
+    },
 };
+
+const DEFAULT_PRESENTATION: Partial<Plan> = {
+    color: 'from-slate-500/20 to-slate-400/10',
+    icon: Zap,
+    description: '',
+    cta: 'Đăng ký',
+};
+
+/** Map a raw API plan to the UI Plan shape */
+function mapApiPlan(raw: SubscriptionPlanAPI): Plan {
+    const f = raw.features as Record<string, unknown>;
+    const pres = PLAN_PRESENTATION[raw.slug] ?? DEFAULT_PRESENTATION;
+    const price = parseFloat(raw.price) || 0;
+    return {
+        id: raw.slug,
+        name: raw.name,
+        price_monthly: (f.price_monthly as number) ?? price,
+        price_yearly: (f.price_yearly as number) ?? price * 10,
+        duration_days: raw.duration_days,
+        max_jobs: (f.max_jobs as number | null) ?? null,
+        max_featured_jobs: (f.max_featured_jobs as number | null) ?? null,
+        max_cv_views: (f.max_cv_views as number | null) ?? null,
+        can_export_cv: Boolean(f.can_export_cv),
+        has_ai_matching: Boolean(f.has_ai_matching),
+        has_priority_support: Boolean(f.has_priority_support),
+        popular: pres.popular,
+        color: pres.color ?? DEFAULT_PRESENTATION.color!,
+        icon: pres.icon ?? DEFAULT_PRESENTATION.icon!,
+        description: pres.description ?? '',
+        cta: pres.cta ?? DEFAULT_PRESENTATION.cta!,
+    };
+}
 
 const BILLING_FAQS: FaqItem[] = [
     { q: 'Tôi có thể hủy gói bất cứ lúc nào không?', a: 'Có. Bạn có thể hủy gói đăng ký bất cứ lúc nào. Sau khi hủy, tài khoản sẽ tiếp tục hoạt động đến hết chu kỳ thanh toán hiện tại.' },
@@ -179,7 +182,19 @@ export default function Pricing() {
 
     const { data: plans, isLoading } = useQuery({
         queryKey: ['billing-plans', planType],
-        queryFn: () => mockBillingPlans(planType),
+        queryFn: async () => {
+            const res = await billingService.listPlans();
+            const allPlans: SubscriptionPlanAPI[] = Array.isArray(res.data)
+                ? res.data
+                : (res.data as any).results ?? [];
+            // Filter by slug prefix to separate employer/candidate plans
+            const filtered = allPlans.filter(p =>
+                planType === 'candidate'
+                    ? p.slug.startsWith('candidate')
+                    : !p.slug.startsWith('candidate')
+            );
+            return filtered.map(mapApiPlan);
+        },
         staleTime: 1000 * 60 * 5,
     });
 

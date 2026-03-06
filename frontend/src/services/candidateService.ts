@@ -36,6 +36,16 @@ export const candidateService = {
     return api.get<RecruiterDetail>('/api/recruiters/me/');
   },
 
+  /** Dashboard stats for the current candidate */
+  getMyStats() {
+    return api.get<{
+      applied_jobs_count: number;
+      upcoming_interviews_count: number;
+      profile_views_count: number;
+      matching_jobs_count: number;
+    }>('/api/dashboard/stats/candidate/');
+  },
+
   update(id: number, data: RecruiterUpdateRequest) {
     return api.patch<RecruiterDetail>(`/api/recruiters/${id}/`, data);
   },

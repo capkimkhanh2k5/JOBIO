@@ -15,7 +15,7 @@ export const taxonomyService = {
   // ─── Geography ────────────────────────────────────────────────────────
 
   listProvinces(params?: { region?: string; search?: string }) {
-    return api.get<Province[]>('/api/provinces/', { params });
+    return api.get<PaginatedResponse<Province>>('/api/provinces/', { params });
   },
 
   getProvince(id: number) {
@@ -33,7 +33,7 @@ export const taxonomyService = {
   // ─── Industries ───────────────────────────────────────────────────────
 
   listIndustries(params?: { parent_id?: number; is_active?: boolean }) {
-    return api.get<Industry[]>('/api/industries/', { params });
+    return api.get<PaginatedResponse<Industry>>('/api/industries/', { params });
   },
 
   getIndustry(id: number) {
@@ -43,7 +43,7 @@ export const taxonomyService = {
   // ─── Job Categories ───────────────────────────────────────────────────
 
   listJobCategories(params?: { parent_id?: number; is_active?: boolean }) {
-    return api.get<JobCategory[]>('/api/job-categories/', { params });
+    return api.get<PaginatedResponse<JobCategory>>('/api/job-categories/', { params });
   },
 
   getJobCategory(id: number) {
