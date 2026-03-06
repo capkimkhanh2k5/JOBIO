@@ -2,7 +2,8 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, CheckSquare, MessageSquare, CalendarClock, Users, Settings, Star
+    Bell, CheckSquare, MessageSquare, CalendarClock, Users, Settings, Star,
+    BrainCircuit
 } from 'lucide-react';
 
 interface NavItem {
@@ -21,14 +22,15 @@ const navItems: NavItem[] = [
     { label: 'Job Alerts', path: '/candidate/alerts', icon: <Bell className="w-5 h-5" /> },
     { label: 'Đánh giá của tôi', path: '/candidate/reviews', icon: <Star className="w-5 h-5" /> },
     { label: 'Bài test', path: '/candidate/assessments', icon: <CheckSquare className="w-5 h-5" /> },
+    { label: 'AI Matching', path: '/candidate/matching', icon: <BrainCircuit className="w-5 h-5" /> },
     { label: 'Tin nhắn', path: '/candidate/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 2 },
     { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
     { label: 'Kết nối', path: '/candidate/connections', icon: <Users className="w-5 h-5" /> },
     { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
 ];
 
-const mainItems = navItems.slice(0, 8);
-const bottomItems = navItems.slice(8);
+const mainItems = navItems.slice(0, 9);
+const bottomItems = navItems.slice(9);
 
 const itemVariants = {
     hidden: { opacity: 0, x: -12 },

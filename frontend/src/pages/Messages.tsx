@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { messageService, type MockThread } from '@/services/messageService';
 import { useMessageStore } from '@/store/messageStore';
@@ -41,6 +42,10 @@ export default function MessagesPage() {
     // Mobile: 'list' | 'conversation'
     const [mobileView, setMobileView] = useState<'list' | 'conversation'>('list');
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const targetUserIdParam = searchParams.get('userId');
+    const targetUserId = targetUserIdParam ? parseInt(targetUserIdParam, 10) : null;
+
     const qc = useQueryClient();
     const { setUnreadCount } = useMessageStore();
 
@@ -54,6 +59,38 @@ export default function MessagesPage() {
         },
         staleTime: 30_000,
     });
+
+    // Fetch threads to check if we already have a conversation with the target user
+    const { data: threadsData } = useQuery({
+        queryKey: ['message-threads', ''],
+        queryFn: () => messageService.listThreads(),
+        staleTime: 15_000,
+        enabled: !!targetUserId,
+    });
+
+    useEffect(() => {
+        if (targetUserId && threadsData?.results) {
+            // Check if thread exists with exactly this user (and us)
+            const existingThread = threadsData.results.find(t =>
+                t.participants.length === 2 && t.participants.some(p => p.id === targetUserId)
+            );
+
+            if (existingThread) {
+                // If exists, select it
+                if (selectedThread?.id !== existingThread.id) {
+                    handleSelectThread(existingThread);
+                }
+            } else {
+                // If not exists, open NewThreadDialog with this user pre-selected
+                if (!showNewThread) {
+                    setShowNewThread(true);
+                }
+            }
+
+            // Clean up the URL parameter so it doesn't trigger again on re-renders
+            setSearchParams({});
+        }
+    }, [targetUserId, threadsData, selectedThread, showNewThread, setSearchParams]);
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => messageService.deleteThread(id),
@@ -178,6 +215,7 @@ export default function MessagesPage() {
                 open={showNewThread}
                 onOpenChange={setShowNewThread}
                 onCreated={handleNewCreated}
+                defaultSelectedUser={targetUserId || undefined}
             />
         </div>
     );

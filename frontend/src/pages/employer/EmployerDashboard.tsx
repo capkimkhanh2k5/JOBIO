@@ -7,8 +7,12 @@ import { KpiCard } from '@/components/employer/KpiCard';
 import { ApplicationsChart } from '@/components/employer/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/employer/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/employer/UpcomingInterviewsCard';
+import { TopMatchesWidget } from '@/components/dashboard/TopMatchesWidget';
 import { useUserStore } from '@/store/userStore';
 import { employerService } from '@/services/employerService';
+import { mockBillingService } from '@/services/mockApi';
+import { SubscriptionStatus } from '@/components/employer/billing/SubscriptionStatus';
+
 
 // Greeting based on time of day
 function getGreeting(): string {
@@ -96,7 +100,13 @@ export default function EmployerDashboard() {
         { icon: <User2 className="w-6 h-6" />, label: 'Xem ứng viên', to: '/employer/candidates', gradient: 'from-emerald-500 to-cyan-500' },
     ];
 
+    const { data: mySubscriptions } = useQuery({
+        queryKey: ['billing', 'my-subscriptions'],
+        queryFn: () => mockBillingService.getMySubscriptions(1),
+    });
+
     return (
+
         <div className="p-6 lg:p-8 space-y-8 max-w-screen-2xl mx-auto">
             {/* ── Welcome Card ───────────────────────────── */}
             <motion.div {...fadeUp(0)}>
@@ -141,6 +151,14 @@ export default function EmployerDashboard() {
                 <div className="xl:col-span-2">
                     <UpcomingInterviewsCard />
                 </div>
+
+                <div className="xl:col-span-1 space-y-6">
+                    {mySubscriptions?.[0] && (
+                        <SubscriptionStatus subscription={mySubscriptions[0]} />
+                    )}
+                    <TopMatchesWidget />
+                </div>
+
 
                 {/* Quick Links */}
                 <div className="glass-card rounded-2xl p-5 flex flex-col gap-4">

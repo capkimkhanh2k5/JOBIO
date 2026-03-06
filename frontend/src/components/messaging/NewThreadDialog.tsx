@@ -18,16 +18,17 @@ interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onCreated: (threadId: number) => void;
+    defaultSelectedUser?: number;
 }
 
 function getInitials(name: string) {
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-export function NewThreadDialog({ open, onOpenChange, onCreated }: Props) {
+export function NewThreadDialog({ open, onOpenChange, onCreated, defaultSelectedUser }: Props) {
     const [subject, setSubject] = useState('');
     const [content, setContent] = useState('');
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedIds, setSelectedIds] = useState<number[]>(defaultSelectedUser ? [defaultSelectedUser] : []);
     const qc = useQueryClient();
 
     const { data: recipients, isLoading: loadingRecipients } = useQuery({
@@ -56,7 +57,7 @@ export function NewThreadDialog({ open, onOpenChange, onCreated }: Props) {
     const handleClose = () => {
         setSubject('');
         setContent('');
-        setSelectedIds([]);
+        setSelectedIds(defaultSelectedUser ? [defaultSelectedUser] : []);
         onOpenChange(false);
     };
 

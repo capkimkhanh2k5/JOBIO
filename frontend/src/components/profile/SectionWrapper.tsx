@@ -5,9 +5,10 @@ interface SectionWrapperProps {
     children: React.ReactNode;
     title?: string;
     id?: string;
+    action?: React.ReactNode;
 }
 
-export const SectionWrapper = ({ children, title, id }: SectionWrapperProps) => {
+export const SectionWrapper = ({ children, title, id, action }: SectionWrapperProps) => {
     return (
         <motion.div
             id={id}
@@ -21,7 +22,10 @@ export const SectionWrapper = ({ children, title, id }: SectionWrapperProps) => 
             <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-100/60 blur-[80px] rounded-full group-hover:bg-violet-200/60 transition-colors pointer-events-none" />
 
             {title && (
-                <h2 className="text-2xl font-bold mb-8 relative z-10 text-slate-800">{title}</h2>
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                    <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+                    {action && <div>{action}</div>}
+                </div>
             )}
 
             <div className="relative z-10">

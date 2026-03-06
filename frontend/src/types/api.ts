@@ -623,6 +623,34 @@ export interface RecruiterProjectRequest {
   display_order?: number;
 }
 
+// ─── Recommendations ───────────────────────────────────────────────────────────
+
+export interface Recommendation {
+  id: number;
+  recommender: {
+    id: number;
+    full_name: string;
+    avatar_url: string | null;
+    current_position?: string | null;
+    current_company?: string | null;
+  };
+  relationship: string;
+  content: string;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RecommendationCreateRequest {
+  relationship: string;
+  content: string;
+}
+
+export interface RecommendationUpdateRequest {
+  relationship?: string;
+  content?: string;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CV / Resume
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -795,6 +823,37 @@ export interface NotificationSettings {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Connections & Networking
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export type ConnectionStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn';
+
+export interface RecruiterBrief {
+  id: number;
+  full_name: string;
+  avatar_url: string | null;
+  current_position: string | null;
+  current_company: string | null;
+}
+
+export interface Connection {
+  id: number;
+  requester: RecruiterBrief;
+  recipient: RecruiterBrief;
+  status: ConnectionStatus;
+  message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConnectionSuggestion {
+  recruiter: RecruiterBrief;
+  mutual_connections_count: number;
+  common_skills: string[];
+  score: number;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Messages
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -882,15 +941,25 @@ export interface CompanySubscription {
 }
 
 export interface Transaction {
-  id: number;
-  company: number;
-  payment_method: { id: number; name: string };
-  amount: number;
+  id: string; // Transaction code
+  amount: number | string;
   currency: string;
-  type: 'subscription' | 'add_on';
+  method: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
-  reference_code: string;
-  description: string | null;
+  date: string;
+  description: string;
+  vnpay_transaction_no?: string;
+  subscription_id?: number;
+  subscription_name?: string;
+}
+
+export interface PaymentMethod {
+  id: string;
+  type: 'card' | 'bank_transfer' | 'e_wallet';
+  provider: string; // e.g., 'Visa', 'Mastercard', 'MoMo', 'VNPay'
+  last4?: string;
+  expiry?: string;
+  is_default: boolean;
   created_at: string;
 }
 
@@ -952,18 +1021,30 @@ export interface AssessmentTest {
   duration_minutes: number;
   total_questions: number;
   passing_score: number;
+  max_retakes: number;
+  retake_wait_days: number;
   is_active: boolean;
   is_public: boolean;
   created_at: string;
 }
 
+export interface AssessmentQuestion {
+  id: number;
+  test_id: number;
+  question_type: 'multiple_choice' | 'text_input' | 'code_editor';
+  points: number;
+  question_data: Record<string, unknown>; // JSON structure based on type
+}
+
 export interface TestResult {
   id: number;
-  assessment_test: { id: number; title: string; test_type: string };
+  assessment_test: { id: number; title: string; test_type: string; passing_score: number; difficulty_level: string };
   score: number;
   percentage_score: number;
   passed: boolean;
   time_taken_minutes: number;
+  certificate_url: string | null;
+  detailed_results: Record<string, unknown> | null;
   started_at: string;
   completed_at: string;
 }
@@ -1051,3 +1132,78 @@ export interface FileUpload {
   entity_id: number | null;
   is_public: boolean;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Billing & Subscription
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export type PlanType = 'free' | 'basic' | 'professional' | 'enterprise';
+export type SubscriptionStatus = 'active' | 'expired' | 'cancelled' | 'pending';
+
+export interface BillingPlan {
+  id: number;
+  name: string;
+  slug: string;
+  plan_type: PlanType;
+  price: number;
+  duration_days: number;
+  description: string | null;
+  features: PlanFeatures;
+  is_active: boolean;
+  display_order: number;
+}
+
+export interface PlanFeatures {
+  max_jobs: number;
+  max_featured_jobs: number;
+  max_cv_views: number;
+  can_export_cv: boolean;
+  has_ai_matching: boolean;
+  has_priority_support: boolean;
+}
+
+export interface BillingSubscription {
+  id: number;
+  company: number;
+  plan: BillingPlan;
+  status: SubscriptionStatus;
+  start_date: string;
+  end_date: string;
+  auto_renew: boolean;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BillingTransaction {
+  id: string; // Transaction code
+  subscription: number;
+  amount: number;
+  currency: string;
+  payment_method: string;
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  vnpay_txn_ref?: string;
+  payment_url?: string;
+  description?: string;
+  subscription_name?: string;
+  date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedPaymentMethod {
+  id: string;
+  type: 'card' | 'bank_transfer' | 'e_wallet';
+  provider: string;
+  last4?: string;
+  expiry?: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+export interface SubscriptionCreateRequest {
+  plan_id: number;
+  payment_method: PaymentMethod;
+}
+
+
