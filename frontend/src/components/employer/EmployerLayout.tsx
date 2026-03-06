@@ -11,7 +11,7 @@ import { MiniFooter } from '@/components/layout/MiniFooter';
  */
 export function EmployerLayout() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="h-screen flex flex-col overflow-hidden">
             {/* Scroll progress bar */}
             <ScrollProgress />
 

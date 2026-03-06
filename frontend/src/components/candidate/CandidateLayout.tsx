@@ -10,7 +10,7 @@ import { MiniFooter } from '@/components/layout/MiniFooter';
  */
 export function CandidateLayout() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="h-screen flex flex-col overflow-hidden">
             <ScrollProgress />
             <CandidateTopNav />
             <div className="flex flex-1 min-h-0">

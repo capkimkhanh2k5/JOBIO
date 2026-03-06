@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, CheckSquare, MessageSquare, CalendarClock, Users, Settings
+    Bell, CheckSquare, MessageSquare, CalendarClock, Users, Settings, Star
 } from 'lucide-react';
 
 interface NavItem {
@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
     { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
     { label: 'Job Alerts', path: '/candidate/alerts', icon: <Bell className="w-5 h-5" /> },
+    { label: 'Đánh giá của tôi', path: '/candidate/reviews', icon: <Star className="w-5 h-5" /> },
     { label: 'Bài test', path: '/candidate/assessments', icon: <CheckSquare className="w-5 h-5" /> },
     { label: 'Tin nhắn', path: '/candidate/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 2 },
     { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
@@ -26,8 +27,8 @@ const navItems: NavItem[] = [
     { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
 ];
 
-const mainItems = navItems.slice(0, 7);
-const bottomItems = navItems.slice(7);
+const mainItems = navItems.slice(0, 8);
+const bottomItems = navItems.slice(8);
 
 const itemVariants = {
     hidden: { opacity: 0, x: -12 },
@@ -37,7 +38,7 @@ const itemVariants = {
 export function CandidateSidebar() {
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 min-h-screen border-r border-slate-200 bg-white shadow-sm"
+            className="hidden md:flex flex-col w-64 shrink-0 h-full border-r border-slate-200 bg-white shadow-sm"
             aria-label="Candidate Navigation"
         >
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">

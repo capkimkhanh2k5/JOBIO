@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { employerService } from '../services/employerService';
+import { notificationService } from '../services/notificationService';
 
 export interface NotificationItem {
     id: string;
@@ -48,7 +48,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
 
         fetchUnreadCount: async () => {
             try {
-                const data = await employerService.listNotifications({ page_size: 1, is_read: false }).then(r => r.data);
+                const data = await notificationService.listNotifications({ page_size: 1, is_read: false }).then(r => r.data);
                 set({ unreadCount: data.count });
             } catch (error) {
                 console.error("Failed to fetch unread count", error);
@@ -58,8 +58,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
         fetchRecentNotifications: async () => {
             try {
                 set({ isLoading: true });
-                const data = await employerService.listNotifications({ page_size: 10 }).then(r => r.data.results);
-                set({ notifications: data as NotificationItem[], isLoading: false });
+                const data = await notificationService.listNotifications({ page_size: 10 }).then(r => r.data.results);
+                set({ notifications: data as unknown as NotificationItem[], isLoading: false });
             } catch (error) {
                 console.error("Failed to fetch recent notifications", error);
                 set({ isLoading: false });
@@ -76,7 +76,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
                     unreadCount: Math.max(0, state.unreadCount - 1)
                 }));
 
-                await employerService.markNotificationRead(Number(id));
+                await notificationService.markNotificationRead(Number(id));
             } catch (error) {
                 console.error("Failed to mark notification as read", error);
                 // Revert could be implemented here
@@ -89,7 +89,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
                     notifications: state.notifications.map((n) => ({ ...n, is_read: true })),
                     unreadCount: 0
                 }));
-                await employerService.markAllNotificationsRead();
+                await notificationService.markAllNotificationsRead();
             } catch (error) {
                 console.error("Failed to mark all as read", error);
             }

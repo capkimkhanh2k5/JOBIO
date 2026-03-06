@@ -42,7 +42,7 @@ const itemVariants = {
 export function EmployerSidebar() {
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 min-h-screen border-r border-white/5 bg-white/2 backdrop-blur-lg"
+            className="hidden md:flex flex-col w-64 shrink-0 h-full border-r border-white/5 bg-white/2 backdrop-blur-lg"
             aria-label="Employer Navigation"
         >
             {/* Top padding (matches topnav height) */}

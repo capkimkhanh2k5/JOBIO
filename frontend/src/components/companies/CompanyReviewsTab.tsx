@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import api from '@/services/api';
+import { mockReviewService } from '@/services/apiClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Star, ThumbsUp, Flag, UserCircle, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
+import { WriteReviewModal } from './WriteReviewModal';
 
 interface Props {
-    companyId: string;
+    companyId: string | number;
     user: { id: string; full_name: string } | null;
 }
 
@@ -150,9 +152,15 @@ function ReviewCard({ review }: { review: any }) {
 }
 
 export function CompanyReviewsTab({ companyId, user }: Props) {
+    const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+    const parsedCompanyId = Number(companyId);
+
     const { data, isLoading } = useQuery({
-        queryKey: ['company-reviews', companyId],
-        queryFn: () => api.get(`/api/companies/${companyId}/reviews/`).then(r => r.data),
+        queryKey: ['company-reviews', parsedCompanyId],
+        queryFn: () => mockReviewService.getCompanyReviews(parsedCompanyId).catch(() =>
+            // fallback to original api if mock fails
+            api.get(`/api/companies/${parsedCompanyId}/reviews/`).then(r => r.data)
+        ),
         staleTime: 1000 * 60 * 3,
     });
 
@@ -202,11 +210,21 @@ export function CompanyReviewsTab({ companyId, user }: Props) {
 
             {/* Write review CTA (if logged in) */}
             {user && (
-                <Button className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold flex items-center justify-center gap-2 shadow-sm transition-all text-sm">
+                <Button
+                    onClick={() => setIsWriteModalOpen(true)}
+                    className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold flex items-center justify-center gap-2 shadow-sm transition-all text-sm"
+                >
                     <PenLine size={18} />
                     Viết đánh giá
                 </Button>
             )}
+
+            {/* Write Review Modal */}
+            <WriteReviewModal
+                companyId={parsedCompanyId}
+                isOpen={isWriteModalOpen}
+                onClose={() => setIsWriteModalOpen(false)}
+            />
 
             {/* Reviews list */}
             <div className="space-y-4">
