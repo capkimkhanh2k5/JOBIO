@@ -581,3 +581,7 @@ const IndustriesSection = () => {
     );
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 770d0db2370ad5ba42246855d6a3201b9c4caf98
