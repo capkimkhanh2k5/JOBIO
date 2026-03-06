@@ -623,6 +623,34 @@ export interface RecruiterProjectRequest {
   display_order?: number;
 }
 
+// ─── Recommendations ───────────────────────────────────────────────────────────
+
+export interface Recommendation {
+  id: number;
+  recommender: {
+    id: number;
+    full_name: string;
+    avatar_url: string | null;
+    current_position?: string | null;
+    current_company?: string | null;
+  };
+  relationship: string;
+  content: string;
+  is_visible: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RecommendationCreateRequest {
+  relationship: string;
+  content: string;
+}
+
+export interface RecommendationUpdateRequest {
+  relationship?: string;
+  content?: string;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // CV / Resume
 // ═══════════════════════════════════════════════════════════════════════════════

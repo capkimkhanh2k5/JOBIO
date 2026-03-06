@@ -1,4 +1,4 @@
-import type { Review, CompanyBrief, PaginatedResponse } from '@/types/api';
+import type { Review, CompanyBrief, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest } from '@/types/api';
 import { delay } from '@/lib/utils'; // if not exists, we'll write a simple delay
 
 // Delay utility if it doesn't exist
@@ -298,6 +298,125 @@ export const mockConnectionService = {
     async removeConnection(connectionId: number) {
         await simulateLatency(500);
         mockConnections = mockConnections.filter(c => c.id !== connectionId);
+        return { success: true };
+    }
+};
+
+// ─── Recommendations ──────────────────────────────────────────────────────────
+
+let mockRecommendations: Recommendation[] = [
+    {
+        id: 1,
+        recommender: {
+            id: 101,
+            full_name: "Nguyễn Văn A",
+            avatar_url: "https://i.pravatar.cc/150?u=101",
+            current_position: "Frontend Developer",
+            current_company: "Tech Corp"
+        },
+        relationship: "Quản lý trực tiếp",
+        content: "Một lập trình viên xuất sắc, luôn hoàn thành công việc đúng tiến độ và có tinh thần trách nhiệm cao. Rất mạnh về React và TypeScript.",
+        is_visible: true,
+        created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+    },
+    {
+        id: 2,
+        recommender: {
+            id: 102,
+            full_name: "Trần Thị B",
+            avatar_url: "https://i.pravatar.cc/150?u=102",
+            current_position: "UX/UI Designer",
+            current_company: "Design Studio"
+        },
+        relationship: "Đồng nghiệp cùng nhóm",
+        content: "Làm việc chung rất ăn ý, luôn đóng góp nhiều ý tưởng hay cho UI/UX của dự án. Khả năng giao tiếp và teamwork tuyệt vời.",
+        is_visible: true,
+        created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+    },
+    {
+        id: 3,
+        recommender: {
+            id: 103,
+            full_name: "Lê Hoàng C",
+            avatar_url: "https://i.pravatar.cc/150?u=103",
+            current_position: "Backend Developer",
+            current_company: "Dev JSC"
+        },
+        relationship: "Đồng nghiệp khác bộ phận",
+        content: "Kỹ năng giải quyết vấn đề tốt, hỗ trợ backend tích hợp API rất nhiệt tình và chính xác.",
+        is_visible: false,
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    }
+];
+
+export const mockRecommendationService = {
+    async getRecommendations(recruiterId: number) {
+        await simulateLatency(600);
+        // Returns both visible and hidden if it's the current user looking (assume 999 is current user for demo)
+        if (recruiterId === 999) {
+            return {
+                count: mockRecommendations.length,
+                results: mockRecommendations
+            };
+        }
+        // If viewing others, only return visible
+        const visible = mockRecommendations.filter(r => r.is_visible);
+        return {
+            count: visible.length,
+            results: visible
+        };
+    },
+
+    async writeRecommendation(recruiterId: number, data: RecommendationCreateRequest) {
+        await simulateLatency(700);
+        const newRecommendation: Recommendation = {
+            id: Date.now(),
+            recommender: {
+                id: 999,
+                full_name: "Current User",
+                avatar_url: null,
+                current_position: "Software Engineer",
+                current_company: "JOBIO"
+            },
+            relationship: data.relationship,
+            content: data.content,
+            is_visible: false, // Default requires approval/visibility toggle from receiver
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        // For mock purposes we just add it to the generic pool
+        mockRecommendations = [newRecommendation, ...mockRecommendations];
+        return newRecommendation;
+    },
+
+    async updateRecommendation(id: number, data: RecommendationUpdateRequest) {
+        await simulateLatency(500);
+        const index = mockRecommendations.findIndex(r => r.id === id);
+        if (index > -1) {
+            mockRecommendations[index] = { ...mockRecommendations[index], ...data };
+            mockRecommendations[index].updated_at = new Date().toISOString();
+            return mockRecommendations[index];
+        }
+        throw new Error("Recommendation not found");
+    },
+
+    async toggleVisibility(id: number, isVisible: boolean) {
+        await simulateLatency(400);
+        const index = mockRecommendations.findIndex(r => r.id === id);
+        if (index > -1) {
+            mockRecommendations[index].is_visible = isVisible;
+            mockRecommendations[index].updated_at = new Date().toISOString();
+            return mockRecommendations[index];
+        }
+        throw new Error("Recommendation not found");
+    },
+
+    async deleteRecommendation(id: number) {
+        await simulateLatency(500);
+        mockRecommendations = mockRecommendations.filter(r => r.id !== id);
         return { success: true };
     }
 };

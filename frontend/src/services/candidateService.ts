@@ -158,3 +158,8 @@ export const candidateService = {
     return api.delete(`/api/recruiters/${recruiterId}/projects/${projId}/`);
   },
 };
+
+// ─── Recommendations (Mocked) ────────────────────────────────────────────────
+import { mockRecommendationService } from './mockApi';
+
+export const recommendationService = mockRecommendationService;
