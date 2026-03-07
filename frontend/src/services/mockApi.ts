@@ -1,8 +1,11 @@
-import type { Review, CompanyBrief, PaginatedResponse } from '@/types/api';
-import { delay } from '@/lib/utils'; // if not exists, we'll write a simple delay
+import type { Review, PaginatedResponse, Recommendation, RecommendationCreateRequest, RecommendationUpdateRequest, BillingPlan, BillingSubscription, BillingTransaction, SubscriptionCreateRequest, SavedPaymentMethod } from '@/types/api';
+import type { JobMatch } from '@/types/matching';
+import { delay } from '@/lib/utils';
+
 
 // Delay utility if it doesn't exist
-const simulateLatency = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
+const simulateLatency = (ms = 500) => delay(ms);
+
 
 // Mock Data
 let mockReviews: Review[] = [
@@ -170,3 +173,675 @@ export const mockReviewService = {
         return { success: true };
     }
 };
+
+// ─── Candidate Connections ────────────────────────────────────────────────
+import { Connection, ConnectionSuggestion, RecruiterBrief } from '@/types/api';
+
+const mockRecruiters: RecruiterBrief[] = [
+    { id: 101, full_name: "Nguyễn Văn A", avatar_url: "https://i.pravatar.cc/150?u=101", current_position: "Frontend Developer", current_company: "Tech Corp" },
+    { id: 102, full_name: "Trần Thị B", avatar_url: "https://i.pravatar.cc/150?u=102", current_position: "UX/UI Designer", current_company: "Design Studio" },
+    { id: 103, full_name: "Lê Hoàng C", avatar_url: "https://i.pravatar.cc/150?u=103", current_position: "Backend Developer", current_company: "Dev JSC" },
+    { id: 104, full_name: "Phạm Minh D", avatar_url: "https://i.pravatar.cc/150?u=104", current_position: "Product Manager", current_company: "Startup Co." },
+    { id: 105, full_name: "Hoàng Ngọc E", avatar_url: "https://i.pravatar.cc/150?u=105", current_position: "Fullstack Developer", current_company: "Agile Inc." },
+];
+
+let mockConnections: Connection[] = [
+    {
+        id: 1,
+        requester: mockRecruiters[0],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'accepted',
+        message: null,
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    },
+    {
+        id: 2,
+        requester: mockRecruiters[1],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'accepted',
+        message: null,
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+        id: 3,
+        requester: mockRecruiters[2],
+        recipient: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+        status: 'pending',
+        message: "Hi, I'd like to connect and discuss potential collaborations.",
+        created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+        updated_at: new Date(Date.now() - 3600000 * 2).toISOString(),
+    }
+];
+
+export const mockConnectionService = {
+    async getConnections(recruiterId: number, status?: string) {
+        await simulateLatency(600);
+        let filtered = mockConnections;
+        if (status) {
+            filtered = filtered.filter(c => c.status === status);
+        }
+        return {
+            count: filtered.length,
+            next: null,
+            previous: null,
+            results: filtered
+        };
+    },
+
+    async getPendingRequests() {
+        await simulateLatency(500);
+        const filtered = mockConnections.filter(c => c.status === 'pending');
+        return {
+            count: filtered.length,
+            next: null,
+            previous: null,
+            results: filtered
+        };
+    },
+
+    async getConnectionSuggestions(limit: number = 10): Promise<ConnectionSuggestion[]> {
+        await simulateLatency(800);
+        const allPendingOrAcceptedIds = mockConnections.map(c =>
+            c.requester.id === 999 ? c.recipient.id : c.requester.id
+        );
+        const suggestions = mockRecruiters
+            .filter(r => !allPendingOrAcceptedIds.includes(r.id))
+            .map(r => ({
+                recruiter: r,
+                mutual_connections_count: Math.floor(Math.random() * 15),
+                common_skills: ['React', 'TypeScript', 'Tailwind CSS'].sort(() => 0.5 - Math.random()).slice(0, 2),
+                score: Math.floor(Math.random() * 100),
+            }))
+            .slice(0, limit);
+        return suggestions;
+    },
+
+    async sendConnectionRequest(recruiterId: number, message?: string) {
+        await simulateLatency(700);
+        const target = mockRecruiters.find(r => r.id === recruiterId);
+        if (!target) throw new Error("Recruiter not found");
+
+        const newConnection: Connection = {
+            id: Date.now(),
+            requester: { id: 999, full_name: "Current User", avatar_url: null, current_position: "Software Engineer", current_company: "JOBIO" },
+            recipient: target,
+            status: 'pending',
+            message: message || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        mockConnections = [newConnection, ...mockConnections];
+        return newConnection;
+    },
+
+    async acceptConnectionRequest(connectionId: number) {
+        await simulateLatency(500);
+        const index = mockConnections.findIndex(c => c.id === connectionId);
+        if (index > -1) {
+            mockConnections[index].status = 'accepted';
+            mockConnections[index].updated_at = new Date().toISOString();
+            return mockConnections[index];
+        }
+        throw new Error("Connection not found");
+    },
+
+    async rejectConnectionRequest(connectionId: number) {
+        await simulateLatency(500);
+        const index = mockConnections.findIndex(c => c.id === connectionId);
+        if (index > -1) {
+            mockConnections[index].status = 'rejected';
+            mockConnections[index].updated_at = new Date().toISOString();
+            return mockConnections[index];
+        }
+        throw new Error("Connection not found");
+    },
+
+    async removeConnection(connectionId: number) {
+        await simulateLatency(500);
+        mockConnections = mockConnections.filter(c => c.id !== connectionId);
+        return { success: true };
+    }
+};
+
+// ─── Recommendations ──────────────────────────────────────────────────────────
+
+let mockRecommendations: Recommendation[] = [
+    {
+        id: 1,
+        recommender: {
+            id: 101,
+            full_name: "Nguyễn Văn A",
+            avatar_url: "https://i.pravatar.cc/150?u=101",
+            current_position: "Frontend Developer",
+            current_company: "Tech Corp"
+        },
+        relationship: "Quản lý trực tiếp",
+        content: "Một lập trình viên xuất sắc, luôn hoàn thành công việc đúng tiến độ và có tinh thần trách nhiệm cao. Rất mạnh về React và TypeScript.",
+        is_visible: true,
+        created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 30).toISOString(),
+    },
+    {
+        id: 2,
+        recommender: {
+            id: 102,
+            full_name: "Trần Thị B",
+            avatar_url: "https://i.pravatar.cc/150?u=102",
+            current_position: "UX/UI Designer",
+            current_company: "Design Studio"
+        },
+        relationship: "Đồng nghiệp cùng nhóm",
+        content: "Làm việc chung rất ăn ý, luôn đóng góp nhiều ý tưởng hay cho UI/UX của dự án. Khả năng giao tiếp và teamwork tuyệt vời.",
+        is_visible: true,
+        created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 15).toISOString(),
+    },
+    {
+        id: 3,
+        recommender: {
+            id: 103,
+            full_name: "Lê Hoàng C",
+            avatar_url: "https://i.pravatar.cc/150?u=103",
+            current_position: "Backend Developer",
+            current_company: "Dev JSC"
+        },
+        relationship: "Đồng nghiệp khác bộ phận",
+        content: "Kỹ năng giải quyết vấn đề tốt, hỗ trợ backend tích hợp API rất nhiệt tình và chính xác.",
+        is_visible: false,
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    }
+];
+
+export const mockRecommendationService = {
+    async getRecommendations(recruiterId: number) {
+        await simulateLatency(600);
+        // Returns both visible and hidden if it's the current user looking (assume 999 is current user for demo)
+        if (recruiterId === 999) {
+            return {
+                count: mockRecommendations.length,
+                results: mockRecommendations
+            };
+        }
+        // If viewing others, only return visible
+        const visible = mockRecommendations.filter(r => r.is_visible);
+        return {
+            count: visible.length,
+            results: visible
+        };
+    },
+
+    async writeRecommendation(recruiterId: number, data: RecommendationCreateRequest) {
+        await simulateLatency(700);
+        const newRecommendation: Recommendation = {
+            id: Date.now(),
+            recommender: {
+                id: 999,
+                full_name: "Current User",
+                avatar_url: null,
+                current_position: "Software Engineer",
+                current_company: "JOBIO"
+            },
+            relationship: data.relationship,
+            content: data.content,
+            is_visible: false, // Default requires approval/visibility toggle from receiver
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        // For mock purposes we just add it to the generic pool
+        mockRecommendations = [newRecommendation, ...mockRecommendations];
+        return newRecommendation;
+    },
+
+    async updateRecommendation(id: number, data: RecommendationUpdateRequest) {
+        await simulateLatency(500);
+        const index = mockRecommendations.findIndex(r => r.id === id);
+        if (index > -1) {
+            mockRecommendations[index] = { ...mockRecommendations[index], ...data };
+            mockRecommendations[index].updated_at = new Date().toISOString();
+            return mockRecommendations[index];
+        }
+        throw new Error("Recommendation not found");
+    },
+
+    async toggleVisibility(id: number, isVisible: boolean) {
+        await simulateLatency(400);
+        const index = mockRecommendations.findIndex(r => r.id === id);
+        if (index > -1) {
+            mockRecommendations[index].is_visible = isVisible;
+            mockRecommendations[index].updated_at = new Date().toISOString();
+            return mockRecommendations[index];
+        }
+        throw new Error("Recommendation not found");
+    },
+
+    async deleteRecommendation(id: number) {
+        await simulateLatency(500);
+        mockRecommendations = mockRecommendations.filter(r => r.id !== id);
+        return { success: true };
+    }
+};
+
+// ─── AI Job Matching (Candidate View) ──────────────────────────────────────
+
+const mockJobMatches: JobMatch[] = [
+    {
+        id: "match-1",
+        job_id: 1,
+        title: "Senior Frontend Engineer",
+        company_name: "Tech Corp",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=TC",
+        overall_score: 94,
+        match_status: "excellent",
+        location: "Hồ Chí Minh (Remote)",
+        salary: "$2,500 - $4,000",
+        job_type: "Full-time",
+        level: "Senior",
+        tags: ["React", "TypeScript", "Tailwind"],
+        posted_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+        breakdown: {
+            skill_match_score: 98,
+            experience_match_score: 90,
+            education_match_score: 85,
+            location_match_score: 100,
+            salary_match_score: 95
+        },
+        insights: [
+            { type: 'strength', message: 'Kỹ năng React & TypeScript của bạn vượt mong đợi' },
+            { type: 'strength', message: 'Kinh nghiệm làm việc tại Tech Corp là một điểm cộng lớn' },
+            { type: 'info', message: 'Vị trí này ưu tiên ứng viên có kinh nghiệm Remote' }
+        ],
+        ai_insights: {
+            summary: "Bạn là một ứng viên cực kỳ tiềm năng cho vị trí này nhờ sự kết hợp hoàn hảo giữa kỹ năng technical vững chắc và kinh nghiệm làm việc tại môi trường tương tự.",
+            key_highlights: [
+                "Thành thạo React & TypeScript 100% khớp yêu cầu",
+                "Hơn 5 năm kinh nghiệm làm việc tại các công ty Tech hàng đầu",
+                "Sống tại HCM phù hợp với chính sách hybrid của công ty"
+            ],
+            recommendation: "Hãy nhấn ứng tuyển ngay! Profile của bạn đang đứng Top 3% trong số các ứng viên tiềm năng."
+        }
+    },
+    {
+        id: "match-2",
+        job_id: 2,
+        title: "Product Designer (UI/UX)",
+        company_name: "Creative Labs",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=CL",
+        overall_score: 87,
+        match_status: "excellent",
+        location: "Hà Nội",
+        salary: "Cạnh tranh",
+        job_type: "Full-time",
+        level: "Middle",
+        tags: ["Figma", "UI Design", "UX Research"],
+        posted_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        breakdown: {
+            skill_match_score: 85,
+            experience_match_score: 88,
+            education_match_score: 90,
+            location_match_score: 75,
+            salary_match_score: 92
+        },
+        insights: [
+            { type: 'strength', message: 'Portfolio của bạn rất phù hợp với phong cách thiết kế của công ty' },
+            { type: 'info', message: 'Cần cải thiện kỹ năng UX Research để đạt điểm tối đa' }
+        ]
+    },
+    {
+        id: "match-3",
+        job_id: 3,
+        title: "Fullstack Developer (Node/React)",
+        company_name: "Startup Engine",
+        company_logo: "https://api.dicebear.com/7.x/initials/svg?seed=SE",
+        overall_score: 72,
+        match_status: "good",
+        location: "Đà Nẵng",
+        salary: "$1,500 - $2,500",
+        job_type: "Contract",
+        level: "Middle",
+        tags: ["Node.js", "React", "MongoDB"],
+        posted_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+        breakdown: {
+            skill_match_score: 70,
+            experience_match_score: 72,
+            education_match_score: 80,
+            location_match_score: 60,
+            salary_match_score: 85
+        },
+        insights: [
+            { type: 'weakness', message: 'Thiếu kinh nghiệm làm việc với MongoDB' },
+            { type: 'info', message: 'Đà Nẵng có thể yêu cầu di chuyển nếu không làm remote' }
+        ]
+    }
+];
+
+export const mockMatchingService = {
+    async getMatchingJobs(recruiterId: number): Promise<{ results: JobMatch[], count: number }> {
+        await simulateLatency(1000); // AI matching takes a bit longer
+        return {
+            results: mockJobMatches,
+            count: mockJobMatches.length
+        };
+    },
+
+    async getJobMatchScore(jobId: number, recruiterId: number): Promise<JobMatch> {
+        await simulateLatency(600);
+        const match = mockJobMatches.find(m => m.job_id === jobId);
+        if (match) return match;
+
+        // Fallback for demo if job not in predefined matches
+        return {
+            id: `match-${jobId}`,
+            job_id: jobId,
+            title: "Software Engineer",
+            company_name: "JOBIO",
+            company_logo: null,
+            overall_score: 75,
+            match_status: "good",
+            location: "Remote",
+            salary: "Cạnh tranh",
+            job_type: "Full-time",
+            level: "Junior",
+            tags: ["React", "JavaScript"],
+            posted_at: new Date().toISOString(),
+            breakdown: {
+                skill_match_score: 80,
+                experience_match_score: 70,
+                education_match_score: 75,
+                location_match_score: 90,
+                salary_match_score: 65
+            },
+            insights: [
+                { type: 'info', message: 'Bạn có nền tảng tốt cho vị trí này' }
+            ]
+        };
+    }
+};
+
+// ─── Billing & Subscriptions ──────────────────────────────────────────────
+
+const mockBillingPlans: BillingPlan[] = [
+    {
+        id: 1,
+        name: "Miễn phí",
+        slug: "free",
+        plan_type: "free",
+        price: 0,
+        duration_days: 0,
+        description: "Dành cho cá nhân hoặc startup mới bắt đầu.",
+        features: {
+            max_jobs: 3,
+            max_featured_jobs: 0,
+            max_cv_views: 10,
+            can_export_cv: false,
+            has_ai_matching: false,
+            has_priority_support: false
+        },
+        is_active: true,
+        display_order: 1
+    },
+    {
+        id: 2,
+        name: "Cơ bản",
+        slug: "basic",
+        plan_type: "basic",
+        price: 990000,
+        duration_days: 30,
+        description: "Phù hợp cho doanh nghiệp nhỏ tuyển dụng thường xuyên.",
+        features: {
+            max_jobs: 10,
+            max_featured_jobs: 2,
+            max_cv_views: 100,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: false
+        },
+        is_active: true,
+        display_order: 2
+    },
+    {
+        id: 3,
+        name: "Chuyên nghiệp",
+        slug: "professional",
+        plan_type: "professional",
+        price: 2490000,
+        duration_days: 30,
+        description: "Gói phổ biến nhất cho các đội ngũ tăng trưởng nhanh.",
+        features: {
+            max_jobs: 30,
+            max_featured_jobs: 10,
+            max_cv_views: 500,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: true
+        },
+        is_active: true,
+        display_order: 3
+    },
+    {
+        id: 4,
+        name: "Doanh nghiệp",
+        slug: "enterprise",
+        plan_type: "enterprise",
+        price: 5990000,
+        duration_days: 90,
+        description: "Giải pháp toàn diện cho tập đoàn lớn.",
+        features: {
+            max_jobs: 100,
+            max_featured_jobs: 30,
+            max_cv_views: 2000,
+            can_export_cv: true,
+            has_ai_matching: true,
+            has_priority_support: true
+        },
+        is_active: true,
+        display_order: 4
+    }
+];
+
+let mockSubscriptions: BillingSubscription[] = [
+    {
+        id: 1,
+        company: 1,
+        plan: mockBillingPlans[2], // Professional
+        status: 'active',
+        start_date: new Date(Date.now() - 86400000 * 10).toISOString(),
+        end_date: new Date(Date.now() + 86400000 * 20).toISOString(),
+        auto_renew: true,
+        cancel_at_period_end: false,
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    }
+];
+
+let mockTransactions: BillingTransaction[] = [
+    {
+        id: "TRX-123456",
+        subscription: 1,
+        amount: 2490000,
+        currency: "VND",
+        payment_method: "vnpay",
+        status: "completed",
+        vnpay_txn_ref: "VNP12345678",
+        description: "Thanh toán gói Chuyên nghiệp - Tháng 03/2026",
+        date: new Date(Date.now() - 86400000 * 10).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+        id: "TRX-234567",
+        subscription: 1,
+        amount: 990000,
+        currency: "VND",
+        payment_method: "credit_card",
+        status: "completed",
+        description: "Nâng cấp gói Cơ bản lên Chuyên nghiệp",
+        date: new Date(Date.now() - 86400000 * 45).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 45).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 45).toISOString(),
+    },
+    {
+        id: "TRX-345678",
+        subscription: 1,
+        amount: 2490000,
+        currency: "VND",
+        payment_method: "vnpay",
+        status: "failed",
+        vnpay_txn_ref: "VNP87654321",
+        description: "Gia hạn gói Chuyên nghiệp - Thất bại",
+        date: new Date(Date.now() - 86400000 * 5).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    }
+];
+
+// Generate more mock transactions
+for (let i = 4; i <= 30; i++) {
+    mockTransactions.push({
+        id: `TRX-${100000 + i}`,
+        subscription: 1,
+        amount: Math.random() > 0.5 ? 990000 : 2490000,
+        currency: "VND",
+        payment_method: Math.random() > 0.5 ? "vnpay" : "credit_card",
+        status: Math.random() > 0.1 ? "completed" : "failed",
+        description: `Thanh toán gói dịch vụ #${i}`,
+        date: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+        created_at: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+        updated_at: new Date(Date.now() - 86400000 * (i * 5)).toISOString(),
+    });
+}
+
+let mockPaymentMethods: SavedPaymentMethod[] = [
+    {
+        id: "pm-1",
+        type: "card",
+        provider: "Visa",
+        last4: "4242",
+        expiry: "12/28",
+        is_default: true,
+        created_at: new Date(Date.now() - 86400000 * 100).toISOString(),
+    },
+    {
+        id: "pm-2",
+        type: "card",
+        provider: "Mastercard",
+        last4: "8888",
+        expiry: "06/27",
+        is_default: false,
+        created_at: new Date(Date.now() - 86400000 * 50).toISOString(),
+    }
+];
+
+export const mockBillingService = {
+    async getPlans() {
+        await simulateLatency(500);
+        return mockBillingPlans;
+    },
+
+    async getPlanDetail(id: number) {
+        await simulateLatency(300);
+        const plan = mockBillingPlans.find(p => p.id === id);
+        if (!plan) throw new Error("Plan not found");
+        return plan;
+    },
+
+    async getMySubscriptions(companyId: number = 1) {
+        await simulateLatency(600);
+        return mockSubscriptions.filter(s => s.company === companyId);
+    },
+
+    async createSubscription(data: SubscriptionCreateRequest) {
+        await simulateLatency(800);
+        const plan = mockBillingPlans.find(p => p.id === data.plan_id);
+        if (!plan) throw new Error("Plan not found");
+
+        const newSub: BillingSubscription = {
+            id: Date.now(),
+            company: 1,
+            plan: plan,
+            status: 'pending',
+            start_date: new Date().toISOString(),
+            end_date: new Date(Date.now() + 86400000 * plan.duration_days).toISOString(),
+            auto_renew: true,
+            cancel_at_period_end: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+
+        mockSubscriptions = [newSub, ...mockSubscriptions];
+        return newSub;
+    },
+
+    async updateSubscription(id: number, data: Partial<BillingSubscription>) {
+        await simulateLatency(500);
+        const index = mockSubscriptions.findIndex(s => s.id === id);
+        if (index > -1) {
+            mockSubscriptions[index] = { ...mockSubscriptions[index], ...data };
+            return mockSubscriptions[index];
+        }
+        throw new Error("Subscription not found");
+    },
+
+    async getTransactions(params?: { status?: string; page?: number }) {
+        await simulateLatency(600);
+        let filtered = [...mockTransactions];
+        if (params?.status) {
+            filtered = filtered.filter(t => t.status === params.status);
+        }
+        // Basic pagination if needed
+        const page = params?.page || 1;
+        const pageSize = 10;
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize;
+
+        return {
+            results: filtered.slice(start, end),
+            count: filtered.length
+        };
+    },
+
+    async getTransactionDetail(id: string) {
+        await simulateLatency(400);
+        const tx = mockTransactions.find(t => t.id === id);
+        if (!tx) throw new Error("Transaction not found");
+        return tx;
+    },
+
+    async getPaymentMethods() {
+        await simulateLatency(500);
+        return mockPaymentMethods;
+    },
+
+    async addPaymentMethod(data: any) {
+        await simulateLatency(800);
+        const newPm: SavedPaymentMethod = {
+            id: `pm-${Date.now()}`,
+            type: "card",
+            provider: data.provider || "Visa",
+            last4: data.card_number ? data.card_number.slice(-4) : "1234",
+            expiry: data.expiry || "12/30",
+            is_default: mockPaymentMethods.length === 0,
+            created_at: new Date().toISOString(),
+        };
+        mockPaymentMethods.push(newPm);
+        return newPm;
+    },
+
+    async deletePaymentMethod(id: string) {
+        await simulateLatency(500);
+        mockPaymentMethods = mockPaymentMethods.filter(pm => pm.id !== id);
+        return { success: true };
+    },
+
+    async setDefaultPaymentMethod(id: string) {
+        await simulateLatency(400);
+        mockPaymentMethods = mockPaymentMethods.map(pm => ({
+            ...pm,
+            is_default: pm.id === id
+        }));
+        return { success: true };
+    }
+};
+

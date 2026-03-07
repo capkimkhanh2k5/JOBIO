@@ -14,4 +14,6 @@ export { taxonomyService } from './taxonomyService';
 export { employerService } from './employerService';
 export { dashboardService } from './dashboardService';
 export { notificationService } from './notificationService';
-export { mockReviewService } from './mockApi';
+export { assessmentService } from './assessmentService';
+export { matchingService } from './matchingService';
+export { mockReviewService, mockConnectionService } from './mockApi';

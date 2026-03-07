@@ -16,7 +16,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { PublicRoute } from '@/components/layout/RouteGuards';
+import { PublicRoute, ProtectedRoute } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
@@ -27,24 +27,22 @@ import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
-<<<<<<< HEAD
     EmployerSettingsPage,
     EmployerAnalyticsPage,
-    EmployerSubscriptionPage, EmployerSupportPage,
+    EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import PlansPage from '@/pages/employer/Billing/Plans';
+import CheckoutPage from '@/pages/employer/Billing/Checkout';
+import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
+import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
+
 import MessagesPage from '@/pages/Messages';
-=======
-    EmployerMessagesPage, EmployerAnalyticsPage,
-    EmployerSubscriptionPage, EmployerSupportPage,
-} from '@/pages/employer/EmployerStubPages';
-import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
-import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
->>>>>>> 92573aa5 (feat: up page dashboard)
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 import EmployerReferrals from '@/pages/employer/Referrals';
+import JobMatching from '@/pages/employer/JobMatching';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -56,6 +54,12 @@ import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
+import ConnectionsPage from '@/pages/candidate/Connections';
+import MyTests from '@/pages/candidate/AssessmentTests/MyTests';
+import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
+import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
+import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
+import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -110,6 +114,7 @@ export default function App() {
                             <Route path="alerts" element={<JobAlerts />} />
                             <Route path="reviews" element={<MyReviews />} />
                             <Route path="interviews" element={<CandidateInterviews />} />
+                            <Route path="connections" element={<ConnectionsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="settings" element={<CandidateSettingsPage />} />
@@ -124,6 +129,7 @@ export default function App() {
                             <Route path="jobs" element={<ManageJobs />} />
                             <Route path="jobs/create" element={<PostJob />} />
                             <Route path="jobs/:id/edit" element={<PostJob />} />
+                            <Route path="jobs/:id/matching" element={<JobMatching />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<EmployerCVSearch />} />
@@ -132,8 +138,12 @@ export default function App() {
                             <Route path="analytics" element={<EmployerAnalyticsPage />} />
                             <Route path="campaigns" element={<EmployerCampaigns />} />
                             <Route path="referrals" element={<EmployerReferrals />} />
-                            <Route path="subscription" element={<EmployerSubscriptionPage />} />
+                            <Route path="subscription" element={<PlansPage />} />
+                            <Route path="billing" element={<BillingDashboard />} />
+                            <Route path="checkout" element={<CheckoutPage />} />
+                            <Route path="payment-result" element={<PaymentResultPage />} />
                             <Route path="support" element={<EmployerSupportPage />} />
+
                             <Route path="notifications" element={<NotificationsPage />} />
                         </Route>
 
@@ -145,9 +155,13 @@ export default function App() {
                                     <Routes>
                                         <Route path="/" element={<Home />} />
                                         <Route path="/jobs" element={<Jobs />} />
+                                        <Route path="/jobs/matching" element={<ProtectedRoute><MatchingJobsPage /></ProtectedRoute>} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
+                                        <Route path="/assessment-tests" element={<TestCatalogue />} />
+                                        <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
+                                        <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
                                         <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />

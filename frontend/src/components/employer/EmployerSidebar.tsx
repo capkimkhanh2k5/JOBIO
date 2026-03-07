@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, PlusSquare, Briefcase, Users, Megaphone,
     CalendarClock, MessageSquare, BarChart3, Building2, CreditCard,
-    Settings, LifeBuoy, UserPlus, Search
+    Settings, LifeBuoy, UserPlus, Search, History
 } from 'lucide-react';
 
 interface NavItem {
@@ -26,13 +26,14 @@ const navItems: NavItem[] = [
     { label: 'Báo cáo', path: '/employer/analytics', icon: <BarChart3 className="w-5 h-5" /> },
     { label: 'Hồ sơ công ty', path: '/employer/company', icon: <Building2 className="w-5 h-5" /> },
     { label: 'Gói dịch vụ', path: '/employer/subscription', icon: <CreditCard className="w-5 h-5" /> },
+    { label: 'Lịch sử giao dịch', path: '/employer/billing', icon: <History className="w-5 h-5" /> },
     { label: 'Cài đặt', path: '/employer/settings', icon: <Settings className="w-5 h-5" /> },
     { label: 'Hỗ trợ', path: '/employer/support', icon: <LifeBuoy className="w-5 h-5" /> },
 ];
 
 // Split into main and bottom sections
-const mainItems = navItems.slice(0, 12);
-const bottomItems = navItems.slice(12);
+const mainItems = navItems.slice(0, 13);
+const bottomItems = navItems.slice(13);
 
 const itemVariants = {
     hidden: { opacity: 0, x: -12 },
