@@ -52,16 +52,35 @@ export default function CompaniesPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* ── Hero Section ── */}
-            <div className="bg-white border-b border-gray-200 py-16 px-4">
-                <div className="container mx-auto max-w-4xl text-center">
-                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">
-                        Khám phá <span className="text-primary">Môi trường làm việc</span> hàng đầu
+            {/* ── Search Hero (Full width, extends to header) ── */}
+            <div className="relative overflow-hidden pt-28 pb-16 px-4 border-b border-primary/10 shadow-sm" style={{
+                background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+            }}>
+                {/* Blobs */}
+                <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+                <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+                {/* Dot grid */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
+                    backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                    backgroundSize: '24px 24px'
+                }} />
+
+                <div className="relative z-10 max-w-4xl mx-auto text-center">
+                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight drop-shadow-sm">
+                        Khám phá{' '}
+                        <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+                            Môi trường làm việc
+                        </span>
+                        {' '}hàng đầu
                     </h1>
-                    <p className="text-gray-500 mb-8 max-w-2xl mx-auto">
+                    <p className="text-gray-600 text-base md:text-lg mb-8 font-medium max-w-2xl mx-auto">
                         Tìm hiểu văn hóa công ty, chế độ phúc lợi và các cơ hội việc làm hấp dẫn từ các nhà tuyển dụng hàng đầu.
                     </p>
-                    <div className="bg-white shadow-xl shadow-primary/5 border border-gray-100 p-2 flex gap-2 w-full max-w-2xl mx-auto rounded-2xl ring-1 ring-black/5">
+
+                    {/* Search card */}
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-2xl mx-auto ring-1 ring-black/5">
                         <div className="flex items-center flex-1 bg-gray-50 border border-transparent rounded-xl px-4 gap-2 focus-within:border-primary/50 focus-within:bg-white transition-colors">
                             <Search className="h-5 w-5 text-gray-400" />
                             <Input

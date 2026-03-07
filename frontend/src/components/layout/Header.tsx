@@ -53,7 +53,7 @@ export const Header = () => {
                             {[
                                 { name: 'Browse Jobs', path: '/jobs' },
                                 { name: 'Companies', path: '/companies' },
-                                { name: 'Post a Job', path: '/employer/register' }
+                                { name: 'Post a Job', path: '/auth?mode=register' }
                             ].map((item) => (
                                 <Link
                                     key={item.name}

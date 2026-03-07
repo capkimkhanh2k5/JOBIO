@@ -200,9 +200,22 @@ export default function PostJob() {
 
     // ─ Render ─────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen py-8 px-4">
+        <div className="min-h-screen py-8 px-4 relative overflow-hidden" style={{
+            background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+        }}>
+            {/* Blobs */}
+            <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+            <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+            {/* Dot grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
+                backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                backgroundSize: '24px 24px'
+            }} />
+
             {/* Width constraint */}
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-3xl mx-auto space-y-6 relative z-10">
 
                 {/* Header */}
                 <div className="flex items-center justify-between">

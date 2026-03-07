@@ -11,9 +11,9 @@ import { Video, Phone, MapPin, ExternalLink, ChevronRight, CalendarX } from 'luc
 import { Link } from 'react-router-dom';
 
 const TYPE_CONFIG = {
-    video: { label: 'Video call', icon: <Video className="w-3.5 h-3.5" />, className: 'bg-violet-500/15 text-violet-300 border-violet-500/20' },
-    phone: { label: 'Điện thoại', icon: <Phone className="w-3.5 h-3.5" />, className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
-    onsite: { label: 'Trực tiếp', icon: <MapPin className="w-3.5 h-3.5" />, className: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
+    video: { label: 'Video call', icon: <Video className="w-3.5 h-3.5" />, className: 'bg-violet-50 text-violet-700 border-violet-200' },
+    phone: { label: 'Điện thoại', icon: <Phone className="w-3.5 h-3.5" />, className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    onsite: { label: 'Trực tiếp', icon: <MapPin className="w-3.5 h-3.5" />, className: 'bg-amber-50 text-amber-700 border-amber-200' },
 };
 
 export function UpcomingInterviewsCard() {
@@ -24,20 +24,20 @@ export function UpcomingInterviewsCard() {
     });
 
     return (
-        <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-                <h3 className="font-bold text-lg">Phỏng vấn sắp tới</h3>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+                <h3 className="font-bold text-lg text-slate-900">Phỏng vấn sắp tới</h3>
                 <Link
                     to="/employer/interviews"
-                    className="flex items-center gap-1 text-sm text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
                 >
                     Xem tất cả <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 
             {/* Items */}
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-slate-100 flex-1 overflow-y-auto min-h-[300px]">
                 {isLoading
                     ? Array(4).fill(null).map((_, i) => (
                         <div key={i} className="flex items-center gap-4 px-6 py-4">
@@ -51,13 +51,13 @@ export function UpcomingInterviewsCard() {
                     ))
                     : !data?.length
                         ? (
-                            <div className="flex flex-col items-center py-12 gap-3 text-muted-foreground">
-                                <CalendarX className="w-10 h-10 opacity-30" />
-                                <p className="text-sm">Chưa có phỏng vấn nào sắp tới</p>
+                            <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-slate-400">
+                                <CalendarX className="w-10 h-10 opacity-50" />
+                                <p className="text-sm font-medium">Chưa có phỏng vấn nào sắp tới</p>
                             </div>
                         )
                         : data.map((interview, i) => {
-                            const typeConf = TYPE_CONFIG[interview.type] ?? TYPE_CONFIG.video;
+                            const typeConf = TYPE_CONFIG[interview.type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.video;
                             const scheduledDate = new Date(interview.scheduled_at);
                             return (
                                 <motion.div
@@ -65,27 +65,27 @@ export function UpcomingInterviewsCard() {
                                     initial={{ opacity: 0, x: -8 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.06, duration: 0.3 }}
-                                    className="flex items-center gap-4 px-6 py-4 hover:bg-white/3 transition-colors"
+                                    className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group"
                                 >
                                     {/* Avatar */}
-                                    <Avatar className="w-10 h-10 border border-white/10 shrink-0">
-                                        <AvatarImage src={interview.candidate_avatar} />
-                                        <AvatarFallback className="text-xs font-bold bg-gradient-to-br from-cyan-500/30 to-violet-500/30">
-                                            {interview.candidate_name.split(' ').pop()?.charAt(0)}
+                                    <Avatar className="w-10 h-10 border border-slate-200 shrink-0 shadow-sm">
+                                        <AvatarImage src={interview.candidate_avatar || undefined} />
+                                        <AvatarFallback className="text-xs font-bold bg-blue-50 text-blue-700">
+                                            {(interview.candidate_name || 'U').split(' ').pop()?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
 
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <p className="font-semibold text-sm truncate">{interview.candidate_name}</p>
-                                            <Badge className={`text-[10px] font-semibold border flex items-center gap-1 ${typeConf.className}`}>
+                                            <p className="font-semibold text-slate-900 text-sm truncate">{interview.candidate_name || 'Ứng viên'}</p>
+                                            <Badge className={`text-[10px] shadow-none font-bold border flex items-center gap-1 ${typeConf.className}`}>
                                                 {typeConf.icon}
                                                 {typeConf.label}
                                             </Badge>
                                         </div>
-                                        <p className="text-xs text-muted-foreground mt-0.5 truncate">{interview.job_title}</p>
-                                        <p className="text-xs text-cyan-400/80 mt-1 font-medium">
+                                        <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">{interview.job_title}</p>
+                                        <p className="text-xs text-blue-600 mt-1 font-semibold">
                                             {format(scheduledDate, "EEEE, dd/MM · HH:mm", { locale: vi })}
                                         </p>
                                     </div>
@@ -95,12 +95,12 @@ export function UpcomingInterviewsCard() {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="border-white/10 hover:border-cyan-500/40 hover:bg-cyan-500/10 hover:text-cyan-300 transition-all text-xs gap-1 shrink-0"
+                                            className="border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all text-xs gap-1 shrink-0 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                                             asChild
                                         >
                                             <a href={interview.meeting_link} target="_blank" rel="noopener noreferrer">
                                                 <ExternalLink className="w-3 h-3" />
-                                                Join
+                                                Tham gia
                                             </a>
                                         </Button>
                                     )}

@@ -6,7 +6,7 @@ import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
 import { ResetPasswordForm } from '../components/auth/ResetPasswordForm';
 import { VerifyEmailView } from '../components/auth/VerifyEmailView';
 import { TwoFactorView } from '../components/auth/TwoFactorView';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 type AuthView = 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-email' | '2fa';
 
@@ -20,7 +20,9 @@ const viewTitles: Record<AuthView, { title: string; desc: string }> = {
 };
 
 const Auth: React.FC = () => {
-    const [view, setView] = useState<AuthView>('login');
+    const [searchParams] = useSearchParams();
+    const initialMode = (searchParams.get('mode') as AuthView) || 'login';
+    const [view, setView] = useState<AuthView>(initialMode);
     const [email, setEmail] = useState('');
 
     const renderView = () => {
@@ -59,7 +61,20 @@ const Auth: React.FC = () => {
     const { title, desc } = viewTitles[view];
 
     return (
-        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 py-12 md:py-20 bg-gray-50">
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 py-12 md:py-20 relative overflow-hidden" style={{
+            background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+        }}>
+            {/* Blobs */}
+            <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+            <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+                style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+            {/* Dot grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
+                backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                backgroundSize: '24px 24px'
+            }} />
+
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

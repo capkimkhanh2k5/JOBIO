@@ -374,6 +374,10 @@ export interface ApplicationListItem {
   rating: number | null;
   applied_at: string;
   created_at: string;
+  candidate_name?: string;
+  candidate_avatar?: string | null;
+  position?: string;
+  ai_score?: number;
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
@@ -749,6 +753,11 @@ export interface InterviewListItem {
   status: InterviewStatus;
   result: InterviewResult;
   created_at: string;
+  type?: string;
+  candidate_name?: string;
+  candidate_avatar?: string | null;
+  job_title?: string;
+  meeting_link?: string | null;
 }
 
 export interface InterviewDetail extends InterviewListItem {
