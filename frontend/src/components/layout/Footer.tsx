@@ -14,7 +14,7 @@ const footerNav = [
     {
         title: 'Nhà Tuyển Dụng',
         links: [
-            { label: 'Đăng Tin Tuyển Dụng', to: '/employer/register' },
+            { label: 'Đăng Tin Tuyển Dụng', to: '/auth?mode=register' },
             { label: 'Gói Dịch Vụ', to: '/pricing' },
             { label: 'Giải Pháp HR', to: '#' },
         ],

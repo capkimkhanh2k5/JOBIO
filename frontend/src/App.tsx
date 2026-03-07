@@ -117,8 +117,7 @@ export default function App() {
                             <Route path="connections" element={<ConnectionsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
-                            <Route path="assessments" element={<MyTests />} />
-                            <Route path="matching" element={<MatchingJobsPage />} />
+                            <Route path="settings" element={<CandidateSettingsPage />} />
                         </Route>
 
                         {/* ── Employer area: own shell, no public header/footer ── */}

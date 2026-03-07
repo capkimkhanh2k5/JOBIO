@@ -66,62 +66,59 @@ export default function JobsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* ── Top-level header removed, search is moved into main content ── */}
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            {/* ── Search Hero (Full width, extends to header) ── */}
+            <div className="relative overflow-hidden pt-28 pb-16 px-4 border-b border-primary/10 shadow-sm" style={{
+                background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+            }}>
+                {/* Blobs */}
+                <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+                <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+                {/* Dot grid */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
+                    backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                    backgroundSize: '24px 24px'
+                }} />
 
-            {/* ── Body ── */}
-            <div className="container mx-auto px-4 pt-24 pb-8 space-y-6">
+                <div className="relative z-10 max-w-2xl mx-auto text-center">
+                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight drop-shadow-sm">
+                        Tìm Việc Làm{' '}
+                        <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+                            Phù Hợp
+                        </span>
+                    </h1>
+                    <p className="text-gray-600 text-base md:text-lg mb-8 font-medium">
+                        Hàng nghìn cơ hội nghề nghiệp từ các công ty hàng đầu đang chờ bạn.
+                    </p>
 
-                {/* ── Search Hero (Full container width) ── */}
-                <div className="relative overflow-hidden rounded-2xl py-12 px-6 border border-primary/10 shadow-sm" style={{
-                    background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
-                }}>
-                    {/* Blobs */}
-                    <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
-                        style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
-                    <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-                        style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
-                    {/* Dot grid */}
-                    <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
-                        backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
-                        backgroundSize: '24px 24px'
-                    }} />
-
-                    <div className="relative z-10 max-w-2xl mx-auto text-center">
-                        <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-2 tracking-tight drop-shadow-sm">
-                            Tìm Việc Làm{' '}
-                            <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
-                                Phù Hợp
-                            </span>
-                        </h1>
-                        <p className="text-gray-600 text-sm mb-6 font-medium">
-                            Hàng nghìn cơ hội nghề nghiệp từ các công ty hàng đầu đang chờ bạn.
-                        </p>
-
-                        {/* Search card */}
-                        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-xl mx-auto ring-1 ring-black/5">
-                            <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-xl px-3 gap-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
-                                <Search className="h-4 w-4 text-gray-400 shrink-0" />
-                                <Input
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    onKeyDown={handleSearch}
-                                    placeholder="Tiêu đề, kỹ năng, công ty..."
-                                    className="border-0 bg-transparent h-11 px-0 focus-visible:ring-0 text-sm placeholder:text-gray-400"
-                                />
-                            </div>
-                            <Button
-                                onClick={() => setPage(1)}
-                                className="px-8 h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-md shadow-violet-400/30 transition-all shrink-0"
-                            >
-                                Tìm kiếm
-                            </Button>
+                    {/* Search card */}
+                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-xl mx-auto ring-1 ring-black/5">
+                        <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-xl px-3 gap-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+                            <Search className="h-4 w-4 text-gray-400 shrink-0" />
+                            <Input
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                onKeyDown={handleSearch}
+                                placeholder="Tiêu đề, kỹ năng, công ty..."
+                                className="border-0 bg-transparent h-11 px-0 focus-visible:ring-0 text-sm placeholder:text-gray-400"
+                            />
                         </div>
+                        <Button
+                            onClick={() => setPage(1)}
+                            className="px-8 h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-md shadow-violet-400/30 transition-all shrink-0"
+                        >
+                            Tìm kiếm
+                        </Button>
                     </div>
                 </div>
+            </div>
 
+            {/* ── Body ── */}
+            <div className="container mx-auto px-4 py-8 flex-1">
                 {/* ── Main Layout ── */}
-                <div className="flex gap-6">
+                <div className="flex gap-6 lg:gap-8 items-start">
                     {/* Sidebar filters — desktop */}
                     <aside className="hidden lg:block w-72 flex-shrink-0">
                         <div className="sticky top-24">

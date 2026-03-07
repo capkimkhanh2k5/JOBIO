@@ -49,7 +49,7 @@ export function EmployerSidebar() {
             {/* Top padding (matches topnav height) */}
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
                 <div className="px-3 mb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 px-3">Menu</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3">Menu</p>
                 </div>
                 {mainItems.map((item, i) => (
                     <motion.div
@@ -63,10 +63,10 @@ export function EmployerSidebar() {
                             to={item.path}
                             end={item.path === '/employer/dashboard'}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative
+                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group relative
                                 ${isActive
-                                    ? 'bg-gradient-to-r from-cyan-500/15 to-violet-500/15 text-foreground border border-white/10 shadow-sm'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'
+                                    ? 'bg-blue-50/80 text-blue-700 shadow-sm border border-blue-100/50'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                                 }`
                             }
                             aria-label={item.label}
@@ -77,15 +77,15 @@ export function EmployerSidebar() {
                                     {isActive && (
                                         <motion.span
                                             layoutId="sidebar-active"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-gradient-to-b from-cyan-400 to-violet-500 rounded-full -ml-3"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-md -ml-3"
                                         />
                                     )}
-                                    <span className={`transition-colors duration-200 ${isActive ? 'text-cyan-400' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                                    <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-600'}`}>
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
                                     {item.badge && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-500/20 text-violet-300 rounded-full flex items-center justify-center px-1.5">
+                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-blue-100 text-blue-700 rounded-full flex items-center justify-center px-1.5 border border-blue-200">
                                             {item.badge}
                                         </span>
                                     )}
@@ -96,7 +96,7 @@ export function EmployerSidebar() {
                 ))}
 
                 {/* Divider */}
-                <div className="my-3 mx-6 border-t border-white/5" />
+                <div className="my-3 mx-6 border-t border-slate-100" />
 
                 {/* Bottom items */}
                 {bottomItems.map((item, i) => (
@@ -110,16 +110,16 @@ export function EmployerSidebar() {
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
+                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group
                                 ${isActive
-                                    ? 'bg-white/8 text-foreground'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                                    ? 'bg-slate-100 text-slate-900 border border-slate-200/60'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                                 }`
                             }
                         >
                             {({ isActive }) => (
                                 <>
-                                    <span className={`transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                                    <span className={`transition-colors ${isActive ? 'text-slate-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
                                         {item.icon}
                                     </span>
                                     <span>{item.label}</span>
@@ -131,12 +131,12 @@ export function EmployerSidebar() {
             </div>
 
             {/* Subscription promo */}
-            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 via-violet-500/10 to-transparent border border-white/8">
-                <p className="text-xs font-bold text-foreground mb-1">🚀 Nâng cấp Pro</p>
-                <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">Tiếp cận nhiều CV hơn, tăng hiển thị tin tuyển dụng.</p>
+            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border border-blue-100/50">
+                <p className="text-xs font-bold text-slate-900 mb-1">🚀 Nâng cấp Pro</p>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-3">Tiếp cận nhiều CV hơn, tăng hiển thị tin tuyển dụng.</p>
                 <NavLink
                     to="/employer/subscription"
-                    className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 transition-opacity"
+                    className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow transition-all"
                 >
                     Xem gói dịch vụ
                 </NavLink>

@@ -193,7 +193,7 @@ const HeroSection = () => {
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
-                        <Link to="/employer/register">
+                        <Link to="/auth?mode=register">
                             <Button className="rounded-xl px-6 h-11 font-semibold bg-gradient-to-r from-violet-600 to-primary text-white shadow-md shadow-violet-500/30 hover:opacity-90 transition-opacity">
                                 Đăng Tin Miễn Phí
                             </Button>

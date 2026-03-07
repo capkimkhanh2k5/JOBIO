@@ -48,11 +48,11 @@ export function EmployerTopNav() {
             {/* Logo */}
             <Link
                 to="/"
-                className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter hover:opacity-80 transition-opacity"
+                className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tighter hover:opacity-80 transition-opacity"
                 aria-label="JOBIO – Về trang chủ"
             >
                 JOBIO
-                <span className="ml-2 text-xs font-semibold text-violet-400/80 uppercase tracking-widest align-middle">Employer</span>
+                <span className="ml-2 text-xs font-bold text-indigo-600 uppercase tracking-widest align-middle">Employer</span>
             </Link>
 
             {/* Right actions */}
@@ -61,7 +61,7 @@ export function EmployerTopNav() {
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="relative rounded-full w-10 h-10 hover:bg-white/8 transition-colors"
+                    className="relative rounded-full w-10 h-10 hover:bg-slate-100 text-slate-600 transition-colors"
                     onClick={() => navigate('/employer/messages')}
                     aria-label="Tin nhắn"
                 >
@@ -74,14 +74,14 @@ export function EmployerTopNav() {
                 {/* Notifications */}
                 <NotificationBell />
 
-                <div className="w-px h-6 bg-white/10" />
+                <div className="w-px h-6 bg-slate-200" />
 
                 {/* User Profile Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="ghost"
-                            className="flex items-center gap-2.5 h-10 px-3 rounded-full hover:bg-white/8 transition-colors"
+                            className="flex items-center gap-2.5 h-10 px-3 rounded-full hover:bg-slate-100 transition-colors"
                             aria-label="Tài khoản"
                         >
                             <Avatar className="w-8 h-8 border border-white/10">
@@ -90,11 +90,11 @@ export function EmployerTopNav() {
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
-                            <span className="hidden sm:block text-sm font-semibold max-w-[120px] truncate">{companyName}</span>
-                            <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                            <span className="hidden sm:block text-sm font-semibold text-slate-700 max-w-[120px] truncate">{companyName}</span>
+                            <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 glass-effect border-white/10 mt-2">
+                    <DropdownMenuContent align="end" className="w-60 bg-white border border-slate-200 shadow-lg mt-2 rounded-xl">
                         <DropdownMenuLabel className="py-3">
                             <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10 border border-white/10">
@@ -104,33 +104,33 @@ export function EmployerTopNav() {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="text-sm font-bold">{companyName}</p>
-                                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                                    <p className="text-sm font-bold text-slate-900">{companyName}</p>
+                                    <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-white/5" />
-                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-white/5">
+                        <DropdownMenuSeparator className="bg-slate-100" />
+                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
                             <Link to="/employer/company" className="flex items-center gap-3">
-                                <Building2 className="w-4 h-4 text-muted-foreground" />
-                                <span>Hồ sơ công ty</span>
+                                <Building2 className="w-4 h-4 text-slate-500" />
+                                <span className="text-slate-700 font-medium">Hồ sơ công ty</span>
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-white/5">
+                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
                             <Link to="/employer/settings" className="flex items-center gap-3">
-                                <Settings className="w-4 h-4 text-muted-foreground" />
-                                <span>Cài đặt</span>
+                                <Settings className="w-4 h-4 text-slate-500" />
+                                <span className="text-slate-700 font-medium">Cài đặt</span>
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-white/5">
+                        <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
                             <Link to="/" target="_blank" className="flex items-center gap-3">
-                                <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                                <span>Xem trang công ty</span>
+                                <ExternalLink className="w-4 h-4 text-slate-500" />
+                                <span className="text-slate-700 font-medium">Xem trang công ty</span>
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-white/5" />
+                        <DropdownMenuSeparator className="bg-slate-100" />
                         <DropdownMenuItem
-                            className="py-2.5 cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-400/10 focus:bg-red-400/10"
+                            className="py-2.5 cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 focus:bg-red-50 font-medium"
                             onClick={handleLogout}
                         >
                             <LogOut className="w-4 h-4 mr-3" />
