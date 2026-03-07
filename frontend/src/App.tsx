@@ -27,6 +27,7 @@ import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
+<<<<<<< HEAD
     EmployerSettingsPage,
     EmployerAnalyticsPage,
     EmployerSupportPage,
@@ -37,6 +38,13 @@ import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
 import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
 
 import MessagesPage from '@/pages/Messages';
+=======
+    EmployerMessagesPage, EmployerAnalyticsPage,
+    EmployerSubscriptionPage, EmployerSupportPage,
+} from '@/pages/employer/EmployerStubPages';
+import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
+import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
+>>>>>>> 92573aa5 (feat: up page dashboard)
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
