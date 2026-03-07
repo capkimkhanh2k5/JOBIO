@@ -51,7 +51,7 @@ export default function Home() {
             <div className="reveal-section"><JobCategoriesSection /></div>
             <div className="reveal-section"><FeaturedCompaniesSection /></div>
             <div className="reveal-section"><IndustriesSection /></div>
-            <HomeFooter />
+
         </div>
     );
 }
@@ -580,7 +580,3 @@ const IndustriesSection = () => {
     );
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 770d0db2370ad5ba42246855d6a3201b9c4caf98

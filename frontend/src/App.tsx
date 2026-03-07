@@ -27,24 +27,16 @@ import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
-<<<<<<< HEAD
-    EmployerSettingsPage,
     EmployerAnalyticsPage,
     EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
+import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
+import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
 import PlansPage from '@/pages/employer/Billing/Plans';
 import CheckoutPage from '@/pages/employer/Billing/Checkout';
 import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
 import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
-
 import MessagesPage from '@/pages/Messages';
-=======
-    EmployerMessagesPage, EmployerAnalyticsPage,
-    EmployerSubscriptionPage, EmployerSupportPage,
-} from '@/pages/employer/EmployerStubPages';
-import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
-import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
->>>>>>> 92573aa5 (feat: up page dashboard)
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
@@ -63,7 +55,6 @@ import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
-import MyTests from '@/pages/candidate/AssessmentTests/MyTests';
 import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
 import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
 import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
