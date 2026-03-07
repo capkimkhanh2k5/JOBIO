@@ -21,9 +21,7 @@ function StubPage({ title, desc }: { title: string; desc: string }) {
 
 // Removed EmployerCompanyPage as it is implemented
 
-export function EmployerSettingsPage() {
-    return <StubPage title="Cài đặt" desc="Cài đặt tài khoản, thông báo và bảo mật. Coming soon." />;
-}
+
 
 
 

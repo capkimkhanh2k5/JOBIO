@@ -14,7 +14,7 @@ export interface PaginatedResponse<T> {
 // Auth / User
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type UserRole = 'recruiter' | 'company' | 'admin';
+export type UserRole = 'recruiter' | 'company' | 'admin' | 'candidate';
 export type UserStatus = 'active' | 'inactive' | 'banned';
 
 export interface User {

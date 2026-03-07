@@ -27,11 +27,19 @@ import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
 import {
+<<<<<<< HEAD
     EmployerSettingsPage,
     EmployerAnalyticsPage,
     EmployerSubscriptionPage, EmployerSupportPage,
 } from '@/pages/employer/EmployerStubPages';
 import MessagesPage from '@/pages/Messages';
+=======
+    EmployerMessagesPage, EmployerAnalyticsPage,
+    EmployerSubscriptionPage, EmployerSupportPage,
+} from '@/pages/employer/EmployerStubPages';
+import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
+import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
+>>>>>>> 92573aa5 (feat: up page dashboard)
 import EmployerCVSearch from '@/pages/employer/CVSearch';
 import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
@@ -104,6 +112,7 @@ export default function App() {
                             <Route path="interviews" element={<CandidateInterviews />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
+                            <Route path="settings" element={<CandidateSettingsPage />} />
                         </Route>
 
                         {/* ── Employer area: own shell, no public header/footer ── */}
