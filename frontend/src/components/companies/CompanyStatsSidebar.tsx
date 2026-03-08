@@ -61,6 +61,23 @@ export function CompanyStatsSidebar({ stats }: Props) {
         );
     }
 
+    const getSafeNumber = (val: any): number => {
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') return Number(val) || 0;
+        if (typeof val === 'object' && val !== null) {
+            const values = Object.values(val);
+            const num = values.find(v => typeof v === 'number' || typeof v === 'string');
+            return Number(num) || 0;
+        }
+        return 0;
+    };
+
+    const avgRating = getSafeNumber(stats.avg_rating);
+    const jobCount = getSafeNumber(stats.job_count);
+    const followerCount = getSafeNumber(stats.follower_count);
+    const reviewCount = getSafeNumber(stats.review_count);
+    const applicationCount = getSafeNumber(stats.application_count);
+
     return (
         <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -79,35 +96,35 @@ export function CompanyStatsSidebar({ stats }: Props) {
                 <StatItem
                     icon={Briefcase}
                     label="Đang tuyển dụng"
-                    value={stats.job_count}
+                    value={jobCount}
                     color="bg-indigo-500/10"
                     delay={0.05}
                 />
                 <StatItem
                     icon={Users}
                     label="Người theo dõi"
-                    value={stats.follower_count}
+                    value={followerCount}
                     color="bg-violet-500/10"
                     delay={0.1}
                 />
                 <StatItem
                     icon={MessageSquareText}
                     label="Đánh giá"
-                    value={stats.review_count}
+                    value={reviewCount}
                     color="bg-emerald-500/10"
                     delay={0.15}
                 />
                 <StatItem
                     icon={Star}
                     label="Điểm trung bình"
-                    value={`${stats.avg_rating.toFixed(1)} / 5`}
+                    value={`${avgRating.toFixed(1)} / 5`}
                     color="bg-amber-500/10"
                     delay={0.2}
                 />
                 <StatItem
                     icon={Send}
                     label="Lượt ứng tuyển"
-                    value={stats.application_count}
+                    value={applicationCount}
                     color="bg-rose-500/10"
                     delay={0.25}
                 />
@@ -116,18 +133,18 @@ export function CompanyStatsSidebar({ stats }: Props) {
             {/* Mini rating display */}
             <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-100 flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                    <span className="text-3xl font-black text-amber-400">{stats.avg_rating.toFixed(1)}</span>
+                    <span className="text-3xl font-black text-amber-400">{avgRating.toFixed(1)}</span>
                     <div>
                         <div className="flex gap-0.5 mb-0.5">
                             {Array(5).fill(0).map((_, i) => (
                                 <Star
                                     key={i}
                                     size={14}
-                                    className={i < Math.round(stats.avg_rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}
+                                    className={i < Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}
                                 />
                             ))}
                         </div>
-                        <p className="text-xs text-gray-500 font-medium">{stats.review_count} đánh giá</p>
+                        <p className="text-xs text-gray-500 font-medium">{reviewCount} đánh giá</p>
                     </div>
                 </div>
             </div>

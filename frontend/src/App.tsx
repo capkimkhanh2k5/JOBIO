@@ -12,6 +12,11 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import Pricing from '@/pages/Pricing';
 import FAQ from '@/pages/FAQ';
+import Blog from '@/pages/Blog';
+import HRSolutions from '@/pages/HRSolutions';
+import Terms from '@/pages/Terms';
+import Privacy from '@/pages/Privacy';
+import Cookie from '@/pages/Cookie';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -167,6 +172,11 @@ export default function App() {
                                         <Route path="/contact" element={<Contact />} />
                                         <Route path="/pricing" element={<Pricing />} />
                                         <Route path="/faq" element={<FAQ />} />
+                                        <Route path="/blog" element={<Blog />} />
+                                        <Route path="/hr-solutions" element={<HRSolutions />} />
+                                        <Route path="/terms" element={<Terms />} />
+                                        <Route path="/privacy" element={<Privacy />} />
+                                        <Route path="/cookie" element={<Cookie />} />
                                     </Routes>
                                 </main>
                                 <Footer />

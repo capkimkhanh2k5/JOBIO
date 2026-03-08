@@ -444,9 +444,9 @@ const JobCategoriesSection = () => {
                     <p className="text-gray-500 mt-1">Khám phá cơ hội việc làm theo từng lĩnh vực</p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {isLoading
-                        ? Array(6).fill(0).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)
+                        ? Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)
                         : categories?.map((cat: any, i: number) => (
                             <motion.div
                                 key={cat.id}
@@ -492,9 +492,9 @@ const FeaturedCompaniesSection = () => {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
                 {isLoading
-                    ? Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)
+                    ? Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)
                     : companies?.map((company: any) => (
                         <motion.div
                             key={company.id}
