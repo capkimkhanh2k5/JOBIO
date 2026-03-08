@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-    ChevronLeft,
     Bookmark,
     Users,
     Zap,
@@ -12,6 +11,7 @@ import {
     Facebook,
     Linkedin,
     Link as LinkIcon,
+    Building2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -119,8 +119,8 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                 {/* Logo Floating */}
                 <div className="absolute -bottom-10 left-8 p-1.5 bg-white rounded-2xl shadow-xl border border-gray-100 hidden md:block">
                     <div className="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50">
-                        {job.company.logo_url ? (
-                            <img src={job.company.logo_url} alt={job.company.company_name} className="w-full h-full object-contain" />
+                        {job.company?.logo_url ? (
+                            <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain" />
                         ) : (
                             <Building2 className="w-10 h-10 text-gray-300" />
                         )}
@@ -158,8 +158,8 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                             </h1>
                             <div className="flex items-center gap-2 text-gray-600 font-medium">
                                 <span className="hover:text-indigo-600 cursor-pointer flex items-center gap-1.5 transition-colors">
-                                    {job.company.company_name}
-                                    {job.company.verification_status === 'verified' && (
+                                    {job.company?.company_name}
+                                    {job.company?.verification_status === 'verified' && (
                                         <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-50/50" />
                                     )}
                                 </span>

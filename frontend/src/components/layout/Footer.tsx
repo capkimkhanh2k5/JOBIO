@@ -8,7 +8,7 @@ const footerNav = [
             { label: 'Tìm Việc Làm', to: '/jobs' },
             { label: 'Danh Sách Công Ty', to: '/companies' },
             { label: 'Việc Làm Theo Ngành', to: '/jobs' },
-            { label: 'Bài Viết Nghề Nghiệp', to: '#' },
+            { label: 'Bài Viết Nghề Nghiệp', to: '/blog' },
         ],
     },
     {
@@ -16,7 +16,7 @@ const footerNav = [
         links: [
             { label: 'Đăng Tin Tuyển Dụng', to: '/auth?mode=register' },
             { label: 'Gói Dịch Vụ', to: '/pricing' },
-            { label: 'Giải Pháp HR', to: '#' },
+            { label: 'Giải Pháp HR', to: '/hr-solutions' },
         ],
     },
     {
@@ -25,7 +25,7 @@ const footerNav = [
             { label: 'Về Chúng Tôi', to: '/about' },
             { label: 'Liên Hệ', to: '/contact' },
             { label: 'FAQ', to: '/faq' },
-            { label: 'Blog', to: '#' },
+            { label: 'Blog', to: '/blog' },
         ],
     },
 ];
@@ -85,9 +85,9 @@ export const Footer = () => (
             <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
                 <span>© 2026 JOBIO. Bản quyền thuộc về JOBIO. Phát triển bởi CapKimKhanh & DangNgocHuy.</span>
                 <div className="flex gap-5">
-                    <Link to="#" className="hover:text-gray-400 transition-colors">Điều Khoản</Link>
-                    <Link to="#" className="hover:text-gray-400 transition-colors">Bảo Mật</Link>
-                    <Link to="#" className="hover:text-gray-400 transition-colors">Cookie</Link>
+                    <Link to="/terms" className="hover:text-gray-400 transition-colors">Điều Khoản</Link>
+                    <Link to="/privacy" className="hover:text-gray-400 transition-colors">Bảo Mật</Link>
+                    <Link to="/cookie" className="hover:text-gray-400 transition-colors">Cookie</Link>
                 </div>
             </div>
         </div>
