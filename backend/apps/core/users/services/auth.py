@@ -189,7 +189,7 @@ class RegisterInput(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    role: str = 'recruiter'  # Mặc định là recruiter
+    role: str = 'candidate'  # Mặc định là ứng viên
 
 def register_user(data: RegisterInput) -> dict:
     """
@@ -406,7 +406,7 @@ class SocialLoginInput(BaseModel):
     access_token: str  # Token nhận từ frontend
     email: EmailStr  # Giả định frontend gửi kèm email
     full_name: str
-    role: str = 'recruiter'
+    role: str = 'candidate'
 
 class Verify2FAInput(BaseModel):
     user_id: int

@@ -34,8 +34,8 @@ class RegisterSerializer(serializers.Serializer):
     
     full_name = serializers.CharField(max_length=255)
     role = serializers.ChoiceField(
-        choices=['recruiter', 'company'],
-        default='recruiter'
+        choices=['candidate', 'company'],
+        default='candidate'
     )
 
     def validate(self, data):
@@ -99,7 +99,7 @@ class SocialAuthSerializer(serializers.Serializer):
     provider = serializers.ChoiceField(choices=['google', 'facebook', 'linkedin'], required=False)
     email = serializers.EmailField(required=False)
     full_name = serializers.CharField(required=False)
-    role = serializers.CharField(default='recruiter', required=False)
+    role = serializers.CharField(default='candidate', required=False)
 
 class Verify2FASerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)

@@ -35,7 +35,7 @@ class CustomUser(AbstractUser):
     """Bảng Users - Quản lý tất cả người dùng"""
     
     class Role(models.TextChoices):
-        RECRUITER = 'recruiter', _('Ứng viên')
+        CANDIDATE = 'candidate', _('Ứng viên')
         COMPANY = 'company', _('Công ty')
         ADMIN = 'admin', _('Quản trị viên')
     
@@ -70,7 +70,7 @@ class CustomUser(AbstractUser):
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
-        default=Role.RECRUITER,
+        default=Role.CANDIDATE,
         db_index=True,
         verbose_name='Vai trò'
     )

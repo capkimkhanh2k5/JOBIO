@@ -14,7 +14,7 @@ export interface PaginatedResponse<T> {
 // Auth / User
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type UserRole = 'recruiter' | 'company' | 'admin' | 'candidate';
+export type UserRole = 'candidate' | 'company' | 'admin';
 export type UserStatus = 'active' | 'inactive' | 'banned';
 
 export interface User {
@@ -53,7 +53,7 @@ export interface RegisterRequest {
   phone?: string;
   password: string;
   confirm_password: string;
-  role: 'recruiter' | 'company';
+  role: 'candidate' | 'company';
 }
 
 export interface ChangePasswordRequest {

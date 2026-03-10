@@ -15,7 +15,7 @@ class UserCreateInput(BaseModel):
     email: EmailStr
     password: str
     full_name: str = ''
-    role: str = 'recruiter'
+    role: str = 'candidate'
 
 
 def create_user(data: UserCreateInput) -> CustomUser:

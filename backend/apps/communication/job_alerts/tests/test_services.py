@@ -30,7 +30,7 @@ class JobMatchingServiceTests(TestCase):
             email='candidate@example.com',
             password='testpass123',
             full_name='Candidate User',
-            role='recruiter'
+            role='candidate'
         )
         cls.recruiter = Recruiter.objects.create(user=cls.user)
         
