@@ -97,7 +97,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
     // Flatten categories for select
     const { data: categories = [], isLoading: catLoading } = useQuery({
         queryKey: ['job-categories'],
-        queryFn: () => taxonomyService.listJobCategories().then(r => r.data),
+        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results ?? []),
         staleTime: 5 * 60_000,
     });
 

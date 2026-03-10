@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { messageService, type MockThread } from '@/services/messageService';
+import { messageService } from '@/services/messageService';
+import type { MessageThread } from '@/types/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, MessageSquareDashed, Briefcase } from 'lucide-react';
+import { Search, Plus, MessageSquareDashed } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 
 interface Props {
     selectedId: number | null;
-    onSelectThread: (thread: MockThread) => void;
+    onSelectThread: (thread: MessageThread) => void;
     onNewThread: () => void;
 }
 
@@ -112,10 +113,7 @@ export function ThreadList({ selectedId, onSelectThread, onNewThread }: Props) {
                     <AnimatePresence initial={false}>
                         {threads.map((thread, idx) => {
                             const isSelected = thread.id === selectedId;
-                            const otherParticipants = thread.participants.filter(p => p.id !== 1);
-                            const displayName = otherParticipants.length > 0
-                                ? otherParticipants.map(p => p.full_name).join(', ')
-                                : 'Bạn';
+                            const displayName = thread.subject || `Cuộc trò chuyện #${thread.id}`;
 
                             return (
                                 <motion.button
@@ -162,29 +160,16 @@ export function ThreadList({ selectedId, onSelectThread, onNewThread }: Props) {
                                                 {displayName}
                                             </p>
                                             <span className="text-[10px] text-muted-foreground shrink-0">
-                                                {formatTime(thread.last_message_at)}
+                                                {formatTime(thread.last_message?.created_at ?? null)}
                                             </span>
                                         </div>
-
-                                        {thread.subject && (
-                                            <p className="text-xs font-medium text-violet-600 dark:text-violet-400 truncate">
-                                                {thread.subject}
-                                            </p>
-                                        )}
 
                                         <p className={cn(
                                             'text-xs truncate',
                                             thread.unread_count > 0 ? 'text-foreground/80' : 'text-muted-foreground'
                                         )}>
-                                            {thread.last_message_content ?? 'Chưa có tin nhắn'}
+                                            {thread.last_message?.content ?? 'Chưa có tin nhắn'}
                                         </p>
-
-                                        {thread.job_title && (
-                                            <span className="inline-flex items-center gap-1 text-[10px] text-cyan-600 dark:text-cyan-400 mt-0.5">
-                                                <Briefcase className="w-2.5 h-2.5" />
-                                                {thread.job_title}
-                                            </span>
-                                        )}
                                     </div>
                                 </motion.button>
                             );

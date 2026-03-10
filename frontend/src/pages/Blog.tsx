@@ -1,43 +1,20 @@
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Newspaper, Lightbulb, ArrowRight, UserCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-/* Mock Data cho Blog */
-const BLOG_POSTS = [
-    {
-        id: 1,
-        title: "Bí quyết viết CV chuẩn ATS giúp bạn vượt qua vòng loại hồ sơ",
-        excerpt: "Hệ thống ATS đang ngày càng phổ biến. Hãy tìm hiểu cách tối ưu hóa CV của bạn để không bị loại từ vòng gửi xe.",
-        category: "Kỹ năng tìm việc",
-        author: "Nguyễn Văn A",
-        date: "12 Thg 3, 2026",
-        readTime: "5 phút đọc",
-        imageUrl: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80"
-    },
-    {
-        id: 2,
-        title: "Xu hướng thị trường việc làm IT năm 2026: Trí tuệ nhân tạo lên ngôi",
-        excerpt: "Phân tích số liệu từ hơn 10.000 tin tuyển dụng trên nền tảng JOBIO về nhu cầu tuyển dụng các kỹ sư AI và Machine Learning.",
-        category: "Xu hướng thị trường",
-        author: "Trần Thị B",
-        date: "10 Thg 3, 2026",
-        readTime: "8 phút đọc",
-        imageUrl: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80"
-    },
-    {
-        id: 3,
-        title: "5 câu hỏi phỏng vấn hóc búa nhất và cách trả lời ghi điểm",
-        excerpt: "Các chuyên gia nhân sự từ các tập đoàn công nghệ lớn chia sẻ cách họ đánh giá ứng viên qua những câu hỏi tình huống khó.",
-        category: "Góc phòng vấn",
-        author: "Lê Văn C",
-        date: "05 Thg 3, 2026",
-        readTime: "6 phút đọc",
-        imageUrl: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80"
-    }
-];
+import { Skeleton } from '@/components/ui/skeleton';
+import { dashboardService } from '@/services/dashboardService';
 
 export default function Blog() {
+    const { data, isLoading } = useQuery({
+        queryKey: ['blog-posts', 'published'],
+        queryFn: () => dashboardService.listPosts({ status: 'published', page_size: 9 }),
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const posts = data?.data?.results ?? [];
+
     return (
         <div className="relative min-h-screen pb-24 bg-gray-50/30">
             {/* Hero Section */}
@@ -81,7 +58,11 @@ export default function Blog() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {BLOG_POSTS.map((post, idx) => (
+                    {isLoading
+                        ? Array(3).fill(0).map((_, i) => (
+                            <Skeleton key={i} className="h-96 w-full rounded-3xl bg-gray-100" />
+                        ))
+                        : posts.map((post, idx) => (
                         <motion.article
                             key={post.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -91,23 +72,31 @@ export default function Blog() {
                             className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 group flex flex-col h-full"
                         >
                             <div className="aspect-[16/10] overflow-hidden relative">
-                                <img
-                                    src={post.imageUrl}
-                                    alt={post.title}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                                <div className="absolute top-4 left-4">
-                                    <Badge className="bg-white/90 text-indigo-700 backdrop-blur-md border-0 uppercase font-bold tracking-wider text-[10px]">
-                                        {post.category}
-                                    </Badge>
-                                </div>
+                                {post.thumbnail ? (
+                                    <img
+                                        src={post.thumbnail}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-indigo-50 flex items-center justify-center">
+                                        <BookOpen className="w-12 h-12 text-indigo-200" />
+                                    </div>
+                                )}
+                                {post.category && (
+                                    <div className="absolute top-4 left-4">
+                                        <Badge className="bg-white/90 text-indigo-700 backdrop-blur-md border-0 uppercase font-bold tracking-wider text-[10px]">
+                                            {post.category.name}
+                                        </Badge>
+                                    </div>
+                                )}
                             </div>
                             <div className="p-6 md:p-8 flex flex-col flex-grow">
                                 <h3 className="text-xl font-bold text-gray-900 leading-snug mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2">
                                     {post.title}
                                 </h3>
                                 <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
-                                    {post.excerpt}
+                                    {post.summary ?? ''}
                                 </p>
 
                                 <div className="mt-auto pt-6 border-t border-gray-100 flex items-center justify-between">
@@ -116,13 +105,12 @@ export default function Blog() {
                                             <UserCircle className="w-5 h-5" />
                                         </div>
                                         <div className="text-xs">
-                                            <p className="font-semibold text-gray-900">{post.author}</p>
-                                            <p className="text-gray-400">{post.date}</p>
+                                            <p className="font-semibold text-gray-900">{post.author_name}</p>
+                                            <p className="text-gray-400">
+                                                {post.published_at ? new Date(post.published_at).toLocaleDateString('vi-VN') : ''}
+                                            </p>
                                         </div>
                                     </div>
-                                    <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md">
-                                        {post.readTime}
-                                    </span>
                                 </div>
                             </div>
                         </motion.article>

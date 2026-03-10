@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockReviewService } from '@/services/mockApi';
+import api from '@/services/api';
 import { toast } from 'sonner';
 import { Star } from 'lucide-react';
 
@@ -121,10 +121,10 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: FormValues) => mockReviewService.createReview(companyId, data),
+        mutationFn: (data: FormValues) => api.post(`/api/companies/${companyId}/reviews/`, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['company-reviews', companyId] });
-            toast.success('Đã gửi đánh giá thành công. Đánh giá của bạn sẽ được hiển thị ngay lập tức (Mock).');
+            toast.success('Đã gửi đánh giá thành công. Đánh giá của bạn sẽ được hiển thị sau khi được duyệt.');
             form.reset();
             onClose();
         },

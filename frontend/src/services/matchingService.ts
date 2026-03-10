@@ -1,16 +1,13 @@
-import { mockMatchingService } from './mockApi';
-import { JobMatch } from '@/types/matching';
+import api from './api';
+import type { CandidateMatchingJobsResponse } from '@/types/matching';
+import type { MatchingScore } from '@/types/api';
 
 export const matchingService = {
-    getMatchingJobs: async (recruiterId: number) => {
-        // In a real app, this would be:
-        // return api.get(`/api/recruiters/${recruiterId}/matching-jobs/`);
-        return mockMatchingService.getMatchingJobs(recruiterId);
+    getMatchingJobs(recruiterId: number) {
+        return api.get<CandidateMatchingJobsResponse>(`/api/recruiters/${recruiterId}/matching-jobs/`);
     },
 
-    getJobMatchScore: async (jobId: number, recruiterId: number) => {
-        // In a real app, this would be:
-        // return api.get(`/api/jobs/${jobId}/match-score/`);
-        return mockMatchingService.getJobMatchScore(jobId, recruiterId);
-    }
+    getJobMatchScore(jobId: number, recruiterId: number) {
+        return api.get<MatchingScore>(`/api/ai-matching/${jobId}/${recruiterId}/`);
+    },
 };

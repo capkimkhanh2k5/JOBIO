@@ -155,6 +155,9 @@ export default function App() {
                             <Route path="jobs" element={<ManageJobs />} />
                             <Route path="jobs/create" element={<PostJob />} />
                             <Route path="jobs/:id/edit" element={<PostJob />} />
+                            {/* Legacy route redirects */}
+                            <Route path="post-job" element={<Navigate to="/employer/jobs/create" replace />} />
+                            <Route path="manage-jobs" element={<Navigate to="/employer/jobs" replace />} />
                             <Route path="jobs/:id/matching" element={<JobMatching />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />

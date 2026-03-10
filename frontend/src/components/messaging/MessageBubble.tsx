@@ -1,12 +1,18 @@
-import { type MockMessage, type MockParticipant } from '@/services/messageService';
+import type { Message } from '@/types/api';
 import { format, isToday, isYesterday } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Paperclip, FileText, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
+interface Attachment {
+    url?: string;
+    name?: string;
+    size?: number;
+}
+
 interface Props {
-    message: MockMessage;
+    message: Message;
     isOwnMessage: boolean;
     onDelete?: (id: number) => void;
 }
@@ -38,28 +44,29 @@ function AvatarFallback({ name, size = 'sm' }: { name: string; size?: 'sm' | 'md
     );
 }
 
-function AttachmentPreview({ message }: { message: MockMessage }) {
-    if (!message.attachment_url) return null;
-    const isPdf = message.attachment_name?.toLowerCase().endsWith('.pdf');
-    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(message.attachment_name ?? '');
-    const sizeKb = message.attachment_size ? Math.round(message.attachment_size / 1024) : null;
+function SingleAttachment({ att }: { att: Attachment }) {
+    if (!att.url) return null;
+    const name = att.name ?? 'file';
+    const isPdf = name.toLowerCase().endsWith('.pdf');
+    const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(name);
+    const sizeKb = att.size ? Math.round(att.size / 1024) : null;
 
     if (isImage) {
         return (
             <a
-                href={message.attachment_url}
+                href={att.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 block max-w-[200px] rounded-xl overflow-hidden border border-white/20 hover:opacity-90 transition-opacity"
             >
-                <img src={message.attachment_url} alt={message.attachment_name ?? 'Ảnh đính kèm'} className="w-full object-cover" />
+                <img src={att.url} alt={name} className="w-full object-cover" />
             </a>
         );
     }
 
     return (
         <a
-            href={message.attachment_url}
+            href={att.url}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 flex items-center gap-2.5 bg-white/10 hover:bg-white/20 transition-colors rounded-xl px-3 py-2.5 max-w-[260px]"
@@ -70,10 +77,21 @@ function AttachmentPreview({ message }: { message: MockMessage }) {
                 <Paperclip className="w-5 h-5 shrink-0 text-slate-300" />
             )}
             <div className="min-w-0">
-                <p className="text-xs font-medium truncate">{message.attachment_name}</p>
+                <p className="text-xs font-medium truncate">{name}</p>
                 {sizeKb && <p className="text-[10px] opacity-70">{sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`}</p>}
             </div>
         </a>
+    );
+}
+
+function AttachmentPreview({ message }: { message: Message }) {
+    if (!message.attachments || message.attachments.length === 0) return null;
+    return (
+        <>
+            {message.attachments.map((raw, i) => (
+                <SingleAttachment key={i} att={raw as unknown as Attachment} />
+            ))}
+        </>
     );
 }
 
@@ -142,4 +160,3 @@ export function MessageBubble({ message, isOwnMessage, onDelete }: Props) {
 }
 
 export { AvatarFallback, getInitials };
-export type { MockParticipant };

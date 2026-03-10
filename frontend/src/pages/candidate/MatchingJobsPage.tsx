@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sparkles, BrainCircuit, Filter, RefreshCw, Info } from "lucide-react";
 import { matchingService } from "@/services/matchingService";
+import { useUserStore } from "@/store/userStore";
 import { MatchingJobCard } from "@/components/jobs/MatchingJobCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function MatchingJobsPage() {
-    const recruiterId = 999; // Mock candidate ID
+    const { user } = useUserStore();
+    const recruiterId = user?.id ?? 0;
 
     const { data, isLoading, refetch, isFetching } = useQuery({
         queryKey: ["matching-jobs", recruiterId],

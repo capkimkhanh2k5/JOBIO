@@ -144,7 +144,7 @@ export function NewThreadDialog({ open, onOpenChange, onCreated, defaultSelected
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-foreground truncate">{r.full_name}</p>
-                                                <p className="text-[10px] text-muted-foreground">{r.role === 'company' ? 'Nhà tuyển dụng' : 'Ứng viên'}</p>
+                                                <p className="text-[10px] text-muted-foreground truncate">{r.email}</p>
                                             </div>
                                             {isSelected && <Check className="w-4 h-4 text-violet-500 shrink-0" />}
                                         </button>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { messageService, type MockThread, type MockParticipant } from '@/services/messageService';
+import { messageService } from '@/services/messageService';
+import type { MessageThreadDetail, MessageParticipant, MessageParticipantUser } from '@/types/api';
+import { useUserStore } from '@/store/userStore';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -17,13 +18,11 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const MOCK_MY_ID = 1;
-
 function getInitials(name: string) {
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function ParticipantAvatar({ p, size = 'md' }: { p: MockParticipant; size?: 'sm' | 'md' | 'lg' }) {
+function ParticipantAvatar({ p, size = 'md' }: { p: MessageParticipantUser; size?: 'sm' | 'md' | 'lg' }) {
     const cls = size === 'lg' ? 'w-12 h-12 text-sm' : size === 'md' ? 'w-10 h-10 text-xs' : 'w-8 h-8 text-[10px]';
     return (
         <div className={`${cls} rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold shrink-0`}>
@@ -33,7 +32,7 @@ function ParticipantAvatar({ p, size = 'md' }: { p: MockParticipant; size?: 'sm'
 }
 
 interface Props {
-    thread: MockThread;
+    thread: MessageThreadDetail;
     onClose: () => void;
     onDeleteThread: (id: number) => void;
 }
@@ -41,6 +40,7 @@ interface Props {
 export function ParticipantPanel({ thread, onClose, onDeleteThread }: Props) {
     const [showActions, setShowActions] = useState(false);
     const qc = useQueryClient();
+    const myId = useUserStore((s) => s.user?.id);
 
     const { data: recipients } = useQuery({
         queryKey: ['message-available-recipients'],
@@ -67,7 +67,7 @@ export function ParticipantPanel({ thread, onClose, onDeleteThread }: Props) {
     });
 
     const canAddParticipants = recipients?.filter(
-        r => !thread.participants.find(p => p.id === r.id)
+        r => !thread.participants.find(p => p.user.id === r.id)
     ) ?? [];
 
     return (
@@ -99,12 +99,12 @@ export function ParticipantPanel({ thread, onClose, onDeleteThread }: Props) {
                 )}
 
                 {/* Job link */}
-                {thread.job_title && (
+                {thread.job && (
                     <div>
                         <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground mb-2">Vị trí liên quan</p>
                         <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-2.5 border border-border">
                             <Briefcase className="w-4 h-4 text-cyan-500 shrink-0" />
-                            <span className="text-sm font-medium text-foreground flex-1 truncate">{thread.job_title}</span>
+                            <span className="text-sm font-medium text-foreground flex-1 truncate">Job #{thread.job}</span>
                             <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
                         </div>
                     </div>
@@ -159,20 +159,17 @@ export function ParticipantPanel({ thread, onClose, onDeleteThread }: Props) {
                     <div className="space-y-2">
                         {thread.participants.map(p => (
                             <div key={p.id} className="flex items-center gap-3 group">
-                                <ParticipantAvatar p={p} size="md" />
+                                <ParticipantAvatar p={p.user} size="md" />
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold text-foreground truncate">{p.full_name}</p>
-                                    <Badge variant="outline" className="text-[10px] h-4 px-1.5 mt-0.5">
-                                        {p.role === 'company' ? 'NTD' : 'Ứng viên'}
-                                    </Badge>
+                                    <p className="text-sm font-semibold text-foreground truncate">{p.user.full_name}</p>
                                 </div>
-                                {p.id !== MOCK_MY_ID && (
+                                {p.user.id !== myId && (
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                                        onClick={() => removeMutation.mutate(p.id)}
-                                        aria-label={`Xóa ${p.full_name} khỏi cuộc trò chuyện`}
+                                        onClick={() => removeMutation.mutate(p.user.id)}
+                                        aria-label={`Xóa ${p.user.full_name} khỏi cuộc trò chuyện`}
                                     >
                                         <UserMinus className="w-3 h-3" />
                                     </Button>

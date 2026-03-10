@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { useCandidateStore } from '@/store/candidateStore';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -6,17 +7,28 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search, X, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { employerService } from '@/services/employerService';
+import { taxonomyService } from '@/services/taxonomyService';
 
 const STATUSES = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
-const JOBS = [
-    { id: 'all', title: 'Tất cả tin tuyển dụng' },
-    { id: 'job-0', title: 'Senior Frontend Engineer' },
-    { id: 'job-1', title: 'Product Manager' },
-    { id: 'job-2', title: 'UI/UX Designer' }
-];
 
 export function CandidatesFilterSidebar() {
     const { filters, setFilters, clearFilters } = useCandidateStore();
+
+    const { data: jobsRaw } = useQuery({
+        queryKey: ['employer-my-jobs'],
+        queryFn: () => employerService.listMyJobs().then(r => r.data),
+    });
+    const jobs = [
+        { id: 'all', title: 'Tất cả tin tuyển dụng' },
+        ...((jobsRaw as any)?.results ?? []).map((j: any) => ({ id: String(j.id), title: j.title })),
+    ];
+
+    const { data: popularSkillsRaw } = useQuery({
+        queryKey: ['popular-skills'],
+        queryFn: () => taxonomyService.listSkills({ page_size: 10 }).then(r => r.data),
+    });
+    const popularSkills: string[] = ((popularSkillsRaw as any)?.results ?? []).map((s: any) => s.name).slice(0, 5);
 
     const toggleStatus = (status: string) => {
         const current = filters.statuses || [];
@@ -72,7 +84,7 @@ export function CandidatesFilterSidebar() {
                             <SelectValue placeholder="Chọn tin tuyển dụng" />
                         </SelectTrigger>
                         <SelectContent className="bg-card">
-                            {JOBS.map(job => (
+                            {jobs.map(job => (
                                 <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>
                             ))}
                         </SelectContent>
@@ -126,7 +138,7 @@ export function CandidatesFilterSidebar() {
                 <div className="space-y-3">
                     <label className="text-sm font-medium">Kỹ năng được yêu cầu nhiều</label>
                     <div className="flex flex-wrap gap-2">
-                        {['React', 'TypeScript', 'Figma', 'Node.js', 'Python'].map(skill => {
+                        {popularSkills.map(skill => {
                             const active = filters.skills.includes(skill);
                             return (
                                 <button

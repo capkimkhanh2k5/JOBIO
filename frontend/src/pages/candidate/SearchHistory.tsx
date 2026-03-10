@@ -1,12 +1,13 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Search, Clock, Trash2, RotateCcw, Zap, TrendingUp,
-    ArrowRight, X
+    ArrowRight, X, Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { dashboardService } from '@/services/dashboardService';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -14,15 +15,13 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
-/* ── Mock Data ── */
-const MOCK_HISTORY = [
-    { id: 1, query: 'React Developer', filters: { location: 'Hà Nội', type: 'full_time' }, resultsCount: 45, date: '10/03/2026 09:00' },
-    { id: 2, query: 'Data Analyst', filters: { location: 'TP.HCM', salary_min: 15000000 }, resultsCount: 23, date: '09/03/2026 16:30' },
-    { id: 3, query: 'UI/UX Designer', filters: { remote: true }, resultsCount: 18, date: '09/03/2026 14:00' },
-    { id: 4, query: 'Backend Engineer Python', filters: { level: 'senior', location: 'Đà Nẵng' }, resultsCount: 8, date: '08/03/2026 11:15' },
-    { id: 5, query: 'Marketing Manager', filters: { type: 'full_time' }, resultsCount: 31, date: '07/03/2026 09:45' },
-    { id: 6, query: 'DevOps Engineer', filters: { salary_min: 25000000 }, resultsCount: 12, date: '06/03/2026 15:20' },
-];
+interface SearchHistoryItem {
+    id: number;
+    search_query: string;
+    filters: Record<string, unknown>;
+    results_count: number;
+    searched_at: string;
+}
 
 const POPULAR_SKILLS = [
     { name: 'React', count: 450 },
@@ -43,14 +42,29 @@ const SUGGESTED_SEARCHES = [
 ];
 
 export default function SearchHistory() {
-    const [history, setHistory] = useState(MOCK_HISTORY);
+    const queryClient = useQueryClient();
+    const { data: historyRaw, isLoading } = useQuery({
+        queryKey: ['search-history'],
+        queryFn: () => dashboardService.listSearchHistory().then(r => r.data),
+    });
+    const history: SearchHistoryItem[] = Array.isArray(historyRaw) ? historyRaw : historyRaw?.results ?? [];
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: number) => dashboardService.deleteSearchHistoryItem(id),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['search-history'] }),
+    });
+
+    const clearMutation = useMutation({
+        mutationFn: () => dashboardService.clearSearchHistory(),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['search-history'] }),
+    });
 
     const handleDelete = (id: number) => {
-        setHistory(prev => prev.filter(h => h.id !== id));
+        deleteMutation.mutate(id);
     };
 
     const handleClearAll = () => {
-        setHistory([]);
+        clearMutation.mutate();
     };
 
     const formatFilters = (filters: Record<string, unknown>) => {
@@ -88,7 +102,11 @@ export default function SearchHistory() {
                         <Search className="w-4 h-4 text-slate-400" />
                         Tìm kiếm gần đây
                     </h2>
-                    {history.length === 0 ? (
+                    {isLoading ? (
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 flex items-center justify-center">
+                            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                        </div>
+                    ) : history.length === 0 ? (
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
                             <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                             <p className="text-lg font-bold text-slate-900">Chưa có lịch sử tìm kiếm</p>
@@ -108,19 +126,19 @@ export default function SearchHistory() {
                                             <Search className="w-5 h-5 text-blue-600" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-900">{item.query}</p>
+                                            <p className="text-sm font-bold text-slate-900">{item.search_query}</p>
                                             <div className="flex flex-wrap gap-1.5 mt-1.5">
-                                                {formatFilters(item.filters).map((f, i) => (
+                                                {item.filters && formatFilters(item.filters).map((f, i) => (
                                                     <Badge key={i} className="bg-slate-50 text-slate-500 border-slate-200 text-[10px] font-medium">{f}</Badge>
                                                 ))}
                                             </div>
                                             <p className="text-xs text-slate-400 mt-2">
-                                                {item.resultsCount} kết quả • {item.date}
+                                                {item.results_count} kết quả • {new Date(item.searched_at).toLocaleString('vi-VN')}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
-                                        <Link to={`/jobs?search=${encodeURIComponent(item.query)}`}>
+                                        <Link to={`/jobs?search=${encodeURIComponent(item.search_query)}`}>
                                             <Button size="sm" variant="ghost" className="rounded-lg text-xs font-semibold text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <RotateCcw className="w-3.5 h-3.5 mr-1" /> Tìm lại
                                             </Button>

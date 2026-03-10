@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 // Assuming we had a connection picker, we might use a Command or Select. 
 // For simplicity, we'll assume the user selects from a list or we pass a specific connection in.
 // If it's a general request modal from the profile, they might need to select who to ask.
-import { mockConnectionService } from '@/services/mockApi';
+import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -48,7 +48,7 @@ export const RequestRecommendationModal = ({ open, onOpenChange, candidateId }: 
     // Fetch connections to populate the dropdown
     const { data: connectionsData, isLoading } = useQuery({
         queryKey: ['connections', candidateId, 'accepted'],
-        queryFn: () => mockConnectionService.getConnections(candidateId, 'accepted'),
+        queryFn: () => api.get('/api/connections/').then(r => r.data),
         enabled: open,
     });
 

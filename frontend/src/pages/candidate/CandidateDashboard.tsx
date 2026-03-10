@@ -145,7 +145,7 @@ export default function CandidateDashboard() {
                                                     <circle
                                                         className="text-cyan-500 stroke-current drop-shadow-md"
                                                         strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
-                                                        strokeDasharray={`${profileCompleteness!.score * 2.51} 251`}
+                                                        strokeDasharray={`${(profileCompleteness?.score ?? 0) * 2.51} 251`}
                                                     ></circle>
                                                 </svg>
                                                 <div className="absolute inset-0 flex items-center justify-center flex-col">
