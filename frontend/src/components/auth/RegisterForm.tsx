@@ -14,9 +14,15 @@ import { toast } from 'sonner';
 import { Loader2, Briefcase, User, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+const GMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+
 const registerSchema = z.object({
     full_name: z.string().min(2, { message: "Họ tên quá ngắn" }),
-    email: z.string().email({ message: "Email không hợp lệ" }),
+    email: z.string()
+        .email({ message: "Email không hợp lệ" })
+        .refine((val) => GMAIL_REGEX.test(val), {
+            message: "Chỉ chấp nhận email có đuôi @gmail.com",
+        }),
     password: z.string().min(8, { message: "Mật khẩu phải từ 8 ký tự" }),
     password_confirm: z.string(),
     role: z.enum(['candidate', 'company']),
@@ -55,6 +61,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     });
 
     const onSubmit = async (values: RegisterFormValues) => {
+        // Block submit if email is already taken
+        if (emailStatus === 'taken') {
+            toast.error('Email này đã được sử dụng. Vui lòng chọn email khác.');
+            return;
+        }
+
+        // Verify @gmail.com before sending request
+        if (!GMAIL_REGEX.test(values.email)) {
+            toast.error('Chỉ chấp nhận email có đuôi @gmail.com');
+            return;
+        }
+
         try {
             await authService.register({
                 email: values.email,
@@ -163,9 +181,28 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                             {...field}
                                             onBlur={async (e) => {
                                                 field.onBlur();
-                                                const val = e.target.value;
-                                                if (!val || form.getFieldState('email').invalid) {
+                                                const val = e.target.value.trim();
+
+                                                // Clear previous manual errors first
+                                                form.clearErrors('email');
+
+                                                // Skip if empty
+                                                if (!val) {
                                                     setEmailStatus('idle');
+                                                    return;
+                                                }
+
+                                                // Validate email format with regex instead of relying on form state
+                                                const basicEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                                if (!basicEmailRegex.test(val)) {
+                                                    setEmailStatus('idle');
+                                                    return;
+                                                }
+
+                                                // Check @gmail.com domain
+                                                if (!GMAIL_REGEX.test(val)) {
+                                                    setEmailStatus('idle');
+                                                    form.setError('email', { type: 'manual', message: 'Chỉ chấp nhận email có đuôi @gmail.com' });
                                                     return;
                                                 }
 
