@@ -83,7 +83,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             user_input = UserCreateInput(
                 email=serializer.validated_data['email'],
                 password=serializer.validated_data['password'],
-                role=serializer.validated_data.get('role', CustomUser.Role.RECRUITER)
+                role=serializer.validated_data.get('role', CustomUser.Role.CANDIDATE)
             )
             user = create_user(data=user_input)
         except Exception as e:
@@ -281,7 +281,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 email=serializer.validated_data['email'],
                 password=serializer.validated_data['password'],
                 full_name=serializer.validated_data['full_name'],
-                role=serializer.validated_data.get('role', 'recruiter')
+                role=serializer.validated_data.get('role', 'candidate')
             ))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

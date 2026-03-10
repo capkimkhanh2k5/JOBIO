@@ -61,7 +61,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 full_name: values.full_name,
                 password: values.password,
                 confirm_password: values.password_confirm,
-                role: values.role === 'candidate' ? 'recruiter' : 'company',
+                role: values.role === 'candidate' ? 'candidate' : 'company',
             });
             onRegistered(values.email);
             toast.success("Đăng ký thành công! Vui lòng kiểm tra email.");
@@ -84,7 +84,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     };
 
     const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        field.onBlur(); // keep hook-form's native onblur behavior
+        const { onBlur } = form.register('email');
+        onBlur(e); // keep hook-form's native onblur behavior
         const val = e.target.value;
         if (!val || form.formState.errors.email) {
             setEmailStatus('idle');

@@ -18,7 +18,7 @@ class AutoGenerateCVTest(TestCase):
             email='test_gen@example.com',
             password='password123',
             full_name='Test Generator',
-            role='recruiter'
+            role='candidate'
         )
         self.recruiter = Recruiter.objects.create(user=self.user, current_position='Backend Dev')
 

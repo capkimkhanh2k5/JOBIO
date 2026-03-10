@@ -64,6 +64,16 @@ import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
 import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
 import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
 import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
+import SearchHistory from '@/pages/candidate/SearchHistory';
+
+// Admin area
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import UserManagement from '@/pages/admin/UserManagement';
+import SystemSettings from '@/pages/admin/SystemSettings';
+import Moderation from '@/pages/admin/Moderation';
+import BlogManagement from '@/pages/admin/BlogManagement';
+import EmailTemplates from '@/pages/admin/EmailTemplates';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -122,6 +132,18 @@ export default function App() {
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="settings" element={<CandidateSettingsPage />} />
+                            <Route path="search-history" element={<SearchHistory />} />
+                        </Route>
+
+                        {/* ── Admin area ── */}
+                        <Route path="/admin" element={<AdminLayout />}>
+                            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                            <Route path="dashboard" element={<AdminDashboard />} />
+                            <Route path="users" element={<UserManagement />} />
+                            <Route path="moderation" element={<Moderation />} />
+                            <Route path="blog" element={<BlogManagement />} />
+                            <Route path="email-templates" element={<EmailTemplates />} />
+                            <Route path="settings" element={<SystemSettings />} />
                         </Route>
 
                         {/* ── Employer area: own shell, no public header/footer ── */}

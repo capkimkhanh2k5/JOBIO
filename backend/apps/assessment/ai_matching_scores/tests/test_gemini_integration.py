@@ -15,7 +15,7 @@ class GeminiIntegrationTests(TestCase):
         self.user = CustomUser.objects.create_user(
             email='test@example.com',
             password='password123',
-            role='recruiter',
+            role='candidate',
             full_name='Test Recruiter'
         )
         self.recruiter = Recruiter.objects.create(

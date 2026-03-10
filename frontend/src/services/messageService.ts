@@ -5,7 +5,7 @@ export interface MockParticipant {
     id: number;
     full_name: string;
     avatar_url: string | null;
-    role: 'recruiter' | 'company' | 'admin';
+    role: 'candidate' | 'company' | 'admin';
 }
 
 export interface MockThread {
@@ -42,14 +42,14 @@ const MOCK_ME: MockParticipant = {
     id: 1,
     full_name: 'Nguyễn Văn An',
     avatar_url: null,
-    role: 'recruiter',
+    role: 'candidate',
 };
 
 const MOCK_PARTICIPANTS: MockParticipant[] = [
     MOCK_ME,
     { id: 2, full_name: 'Trần Thị Hoa', avatar_url: null, role: 'company' },
     { id: 3, full_name: 'Lê Minh Tuấn', avatar_url: null, role: 'company' },
-    { id: 4, full_name: 'Phạm Thu Hà', avatar_url: null, role: 'recruiter' },
+    { id: 4, full_name: 'Phạm Thu Hà', avatar_url: null, role: 'candidate' },
     { id: 5, full_name: 'Hoàng Đức Mạnh', avatar_url: null, role: 'company' },
 ];
 
