@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { mockBillingService } from '@/services/mockApi';
+import { billingService } from '@/services/billingService';
 import { CheckoutSteps } from '@/components/employer/billing/CheckoutSteps';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,27 +16,25 @@ import type { PaymentMethod } from '@/types/api';
 const CheckoutPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const planId = Number(searchParams.get('planId'));
+    const planSlug = searchParams.get('planSlug') ?? '';
 
     const [step, setStep] = useState(1);
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('vnpay');
 
     const { data: plan, isLoading } = useQuery({
-        queryKey: ['billing', 'plan', planId],
-        queryFn: () => mockBillingService.getPlanDetail(planId),
-        enabled: !!planId,
+        queryKey: ['billing', 'plan', planSlug],
+        queryFn: () => billingService.getPlan(planSlug).then(r => r.data),
+        enabled: !!planSlug,
     });
 
     const createSubscriptionMutation = useMutation({
-        mutationFn: (method: PaymentMethod) =>
-            mockBillingService.createSubscription({ plan_id: planId, payment_method: method }),
-        onSuccess: async (sub) => {
-            if (paymentMethod === 'vnpay') {
-                const txn = await mockBillingService.createTransaction(sub.id, 'vnpay');
+        mutationFn: (_method: PaymentMethod) =>
+            billingService.subscribe({ plan_id: plan!.id, payment_method: paymentMethod }).then(r => r.data),
+        onSuccess: (data) => {
+            if (data.payment_url) {
                 toast.info("Đang chuyển hướng đến cổng thanh toán VNPay...");
-                // Simulate redirect delay
                 setTimeout(() => {
-                    if (txn.payment_url) window.location.href = `/employer/payment-result?txnId=${txn.id}&status=success`;
+                    window.location.href = data.payment_url;
                 }, 1500);
             } else {
                 toast.success("Đăng ký gói thành công!");

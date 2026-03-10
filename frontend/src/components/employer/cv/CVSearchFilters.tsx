@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Search, MapPin, Briefcase, DollarSign, Command, X, SlidersHorizontal, ChevronDown, ChevronUp, CheckCircle
@@ -12,15 +13,7 @@ import { Command as CommandPrimitive, CommandEmpty, CommandGroup, CommandInput, 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import { useFilterStore, CVSearchFilters as Filters } from '@/store/filterStore';
-
-const SKILLS_SUGGESTIONS = [
-    "React", "Vue", "Angular", "Node.js", "Python", "Java", "C#", "Go",
-    "AWS", "Docker", "Kubernetes", "Figma", "UI/UX", "SEO"
-];
-
-const LOCATIONS = [
-    "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ", "Bình Dương", "Remote"
-];
+import { taxonomyService } from '@/services/taxonomyService';
 
 
 
@@ -30,6 +23,18 @@ export const CVSearchFiltersPanel = () => {
     const resetCVSearchFilters = useFilterStore((state: any) => state.resetCVSearchFilters);
     const [skillsOpen, setSkillsOpen] = useState(false);
     const [skillsSearch, setSkillsSearch] = useState('');
+
+    const { data: skillsRaw } = useQuery({
+        queryKey: ['skills-suggestions'],
+        queryFn: () => taxonomyService.listSkills({ page_size: 20 }).then(r => r.data),
+    });
+    const SKILLS_SUGGESTIONS: string[] = ((skillsRaw as any)?.results ?? []).map((s: any) => s.name);
+
+    const { data: provincesRaw } = useQuery({
+        queryKey: ['provinces-locations'],
+        queryFn: () => taxonomyService.listProvinces({ page_size: 10 }).then(r => r.data),
+    });
+    const LOCATIONS: string[] = ((provincesRaw as any)?.results ?? []).map((p: any) => p.name);
 
     // Custom expand/collapse for sections
     const [sections, setSections] = useState({

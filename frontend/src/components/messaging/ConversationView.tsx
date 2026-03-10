@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { messageService, type MockThread } from '@/services/messageService';
+import { messageService } from '@/services/messageService';
+import type { MessageThreadDetail } from '@/types/api';
+import { useUserStore } from '@/store/userStore';
 import { useMessageStore } from '@/store/messageStore';
 import { MessageBubble } from './MessageBubble';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,10 +17,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
-const MOCK_MY_ID = 1; // matches MOCK_ME.id in service
-
 interface Props {
-    thread: MockThread;
+    thread: MessageThreadDetail;
     onShowParticipants?: () => void;
 }
 
@@ -44,6 +44,7 @@ export function ConversationView({ thread, onShowParticipants }: Props) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const qc = useQueryClient();
     const { decrementUnread } = useMessageStore();
+    const myId = useUserStore((s) => s.user?.id);
 
     // Fetch messages
     const { data, isLoading } = useQuery({
@@ -140,7 +141,7 @@ export function ConversationView({ thread, onShowParticipants }: Props) {
         setAttachingFile(file);
     };
 
-    const otherParticipants = thread.participants.filter(p => p.id !== MOCK_MY_ID);
+    const otherParticipants = thread.participants.filter(p => p.user.id !== myId);
 
     return (
         <div className="flex flex-col h-full overflow-hidden">
@@ -148,21 +149,21 @@ export function ConversationView({ thread, onShowParticipants }: Props) {
             <div className="px-5 py-4 border-b border-border flex items-center justify-between gap-3 shrink-0 bg-card/50 backdrop-blur-sm">
                 <div className="min-w-0">
                     <h2 className="font-semibold text-foreground truncate text-base leading-tight">
-                        {thread.subject || otherParticipants.map(p => p.full_name).join(', ')}
+                        {thread.subject || otherParticipants.map(p => p.user.full_name).join(', ')}
                     </h2>
                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         <span className="text-xs text-muted-foreground">
                             với{' '}
                             <span className="font-medium text-foreground">
-                                {otherParticipants.map(p => p.full_name).join(', ')}
+                                {otherParticipants.map(p => p.user.full_name).join(', ')}
                             </span>
                         </span>
-                        {thread.job_title && (
+                        {thread.job && (
                             <>
                                 <span className="text-muted-foreground/40">·</span>
                                 <Badge variant="secondary" className="flex items-center gap-1 text-[10px] h-5">
                                     <Briefcase className="w-2.5 h-2.5" />
-                                    {thread.job_title}
+                                    Job #{thread.job}
                                 </Badge>
                             </>
                         )}
@@ -198,8 +199,8 @@ export function ConversationView({ thread, onShowParticipants }: Props) {
                         <MessageBubble
                             key={msg.id}
                             message={msg}
-                            isOwnMessage={msg.sender.id === MOCK_MY_ID}
-                            onDelete={msg.sender.id === MOCK_MY_ID ? (id) => deleteMutation.mutate(id) : undefined}
+                            isOwnMessage={msg.sender.id === myId}
+                            onDelete={msg.sender.id === myId ? (id) => deleteMutation.mutate(id) : undefined}
                         />
                     ))
                 )}

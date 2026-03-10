@@ -866,14 +866,42 @@ export interface ConnectionSuggestion {
 // Messages
 // ═══════════════════════════════════════════════════════════════════════════════
 
+export interface MessageParticipantUser {
+  id: number;
+  full_name: string;
+  email: string;
+  avatar_url: string | null;
+}
+
+export interface MessageParticipant {
+  id: number;
+  user: MessageParticipantUser;
+  joined_at: string;
+  last_read_at: string | null;
+  is_active: boolean;
+}
+
+/** List-level thread (no participants array, has participant_count) */
 export interface MessageThread {
   id: number;
   subject: string;
   job: number | null;
   application: number | null;
-  last_message: string | null;
+  last_message: { content: string; created_at: string } | null;
   participant_count: number;
   unread_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Detail-level thread (has participants array, no participant_count) */
+export interface MessageThreadDetail {
+  id: number;
+  subject: string;
+  job: number | null;
+  application: number | null;
+  participants: MessageParticipant[];
+  last_message: { content: string; created_at: string } | null;
   created_at: string;
   updated_at: string;
 }
@@ -977,13 +1005,18 @@ export interface PaymentMethod {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export interface AdminStats {
-  total_users: number;
-  total_jobs: number;
-  total_applications: number;
-  total_companies: number;
-  new_users?: number;
-  new_jobs?: number;
-  active_jobs?: number;
+  users: {
+    total: number;
+    new_30d: number;
+  };
+  jobs: {
+    total: number;
+    active: number;
+  };
+  revenue: {
+    total: number;
+    revenue_30d: number;
+  };
 }
 
 export interface CompanyStats {
@@ -1213,6 +1246,11 @@ export interface SavedPaymentMethod {
 export interface SubscriptionCreateRequest {
   plan_id: number;
   payment_method: PaymentMethod;
+}
+
+export interface SubscribeResponse {
+  payment_url: string;
+  transaction_ref: string;
 }
 
 

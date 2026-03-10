@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { mockBillingService } from '@/services/mockApi';
+import { useQuery } from '@tanstack/react-query';
+import { billingService } from '@/services/billingService';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle2, XCircle, Clock, ArrowRight, Home, ReceiptText } from 'lucide-react';
@@ -12,25 +12,15 @@ import { formatSalary, cn } from '@/lib/utils';
 
 const PaymentResultPage: React.FC = () => {
     const [searchParams] = useSearchParams();
-    const txnId = Number(searchParams.get('txnId'));
+    const txnId = searchParams.get('txnId') ?? '';
 
     const status = searchParams.get('status') as 'success' | 'failed';
 
     const { data: txn, isLoading } = useQuery({
         queryKey: ['billing', 'transaction', txnId],
-        queryFn: () => mockBillingService.getTransaction(txnId),
+        queryFn: () => billingService.getTransaction(txnId).then(r => r.data),
         enabled: !!txnId,
     });
-
-    const completeMutation = useMutation({
-        mutationFn: () => mockBillingService.completeTransaction(txnId, status),
-    });
-
-    useEffect(() => {
-        if (txnId && status) {
-            completeMutation.mutate();
-        }
-    }, [txnId, status]);
 
     if (isLoading) {
         return (

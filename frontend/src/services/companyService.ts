@@ -51,6 +51,16 @@ export const companyService = {
     return api.post(`/api/companies/${id}/verify/`);
   },
 
+  /** Admin: list companies pending verification */
+  listPending(params?: { page?: number; page_size?: number }) {
+    return api.get<PaginatedResponse<CompanyDetail>>('/api/companies/', { params: { verification_status: 'pending', ...params } });
+  },
+
+  /** Admin: approve or reject a company */
+  adminVerify(id: number, status: 'verified' | 'rejected') {
+    return api.patch(`/api/companies/${id}/verification/`, { status });
+  },
+
   featured(params?: { page_size?: number }) {
     return api.get<CompanyListItem[]>('/api/companies/featured/', { params });
   },

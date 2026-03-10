@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    LayoutDashboard, Users, Building2, Star, FileText,
-    Mail, Settings, Activity, Shield
+    LayoutDashboard, Users, FileText,
+    Mail, Settings, Shield
 } from 'lucide-react';
 
 interface NavItem {

@@ -4,11 +4,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function AccountSettings() {
     const { user } = useUserStore();
 
-    if (!user) return null;
+    if (!user) return (
+        <div className="p-6 space-y-6">
+            <Skeleton className="h-20 w-full rounded-xl" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+            </div>
+        </div>
+    );
 
     return (
         <div className="p-6">

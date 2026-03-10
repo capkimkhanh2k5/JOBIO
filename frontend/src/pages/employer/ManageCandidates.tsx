@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCandidateStore } from '@/store/candidateStore';
 import { applicationService } from '@/services/applicationService';
 import { CandidateBoard } from '@/components/employer/candidates/CandidateBoard';
@@ -11,62 +11,46 @@ import { toast } from 'sonner';
 
 export default function ManageCandidates() {
     const { viewMode, setViewMode, filters, selectedCandidatesForBulk, clearBulkSelection } = useCandidateStore();
-    const [applications, setApplications] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const loadCandidates = async () => {
-        setIsLoading(true);
-        try {
-            const res = await applicationService.list({
-                status: filters.statuses,
-                job_id: filters.jobId || undefined,
-                search: filters.searchQuery || undefined,
-                ai_score_min: filters.aiScoreRange[0],
-                ai_score_max: filters.aiScoreRange[1],
-                skills: filters.skills
-            } as any);
-            setApplications(res.data.results);
-            clearBulkSelection();
-        } catch (error) {
-            toast.error("Không thể tải danh sách ứng viên");
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        // Debounce fetching if needed, for mock we just call
-        const timer = setTimeout(() => {
-            loadCandidates();
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [filters]); // Refetch on filter change
+    const { data: applicationsRes, isLoading, refetch } = useQuery({
+        queryKey: ['employer-candidates', filters],
+        queryFn: () => applicationService.list({
+            status: filters.statuses,
+            job_id: filters.jobId || undefined,
+            search: filters.searchQuery || undefined,
+            ai_score_min: filters.aiScoreRange[0],
+            ai_score_max: filters.aiScoreRange[1],
+            skills: filters.skills
+        } as any).then(r => r.data),
+    });
+    const applications = applicationsRes?.results ?? [];
 
     const BULK_ACTION_STATUS: Record<string, string> = {
         'reject': 'rejected',
         'shortlist': 'shortlisted',
     };
 
-    const handleBulkAction = async (action: string) => {
+    const bulkMutation = useMutation({
+        mutationFn: ({ ids, status }: { ids: number[]; status: string }) =>
+            applicationService.bulkUpdateStatus(ids, status),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['employer-candidates'] });
+            clearBulkSelection();
+        },
+    });
+
+    const handleBulkAction = (action: string) => {
         if (selectedCandidatesForBulk.length === 0) return;
         const statusValue = BULK_ACTION_STATUS[action];
         if (!statusValue) return;
-        setIsLoading(true);
-        try {
-            await applicationService.bulkUpdateStatus(
-                selectedCandidatesForBulk.map(Number),
-                statusValue
-            );
-            toast.success(`Đã cập nhật ${selectedCandidatesForBulk.length} ứng viên`);
-            clearBulkSelection();
-            await loadCandidates();
-        } catch (error) {
-            toast.error('Thao tác thất bại, vui lòng thử lại');
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        bulkMutation.mutate(
+            { ids: selectedCandidatesForBulk.map(Number), status: statusValue },
+            {
+                onSuccess: () => toast.success(`Đã cập nhật ${selectedCandidatesForBulk.length} ứng viên`),
+                onError: () => toast.error('Thao tác thất bại, vui lòng thử lại'),
+            }
+        );
     };
 
     return (
@@ -102,7 +86,7 @@ export default function ManageCandidates() {
                             </Button>
                         </div>
 
-                        <Button variant="outline" size="icon" onClick={loadCandidates} className="h-10 w-10 shrink-0">
+                        <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 shrink-0">
                             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                         </Button>
                     </div>
@@ -138,7 +122,7 @@ export default function ManageCandidates() {
                         <CandidateBoard
                             applications={applications}
                             isLoading={isLoading}
-                            onStatusChange={loadCandidates}
+                            onStatusChange={() => refetch()}
                         />
                     ) : (
                         <CandidateTable

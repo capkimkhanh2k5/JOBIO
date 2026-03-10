@@ -159,7 +159,31 @@ export const candidateService = {
   },
 };
 
-// ─── Recommendations (Mocked) ────────────────────────────────────────────────
-import { mockRecommendationService } from './mockApi';
+// ─── Recommendations (Real API) ──────────────────────────────────────────────
+import type {
+  Recommendation,
+  RecommendationCreateRequest,
+  RecommendationUpdateRequest,
+} from '@/types/api';
 
-export const recommendationService = mockRecommendationService;
+export const recommendationService = {
+  getRecommendations(recruiterId: number) {
+    return api.get<Recommendation[]>(`/api/recruiters/${recruiterId}/recommendations/`);
+  },
+
+  writeRecommendation(recruiterId: number, data: RecommendationCreateRequest) {
+    return api.post<Recommendation>(`/api/recruiters/${recruiterId}/recommend/`, data);
+  },
+
+  updateRecommendation(id: number, data: RecommendationUpdateRequest) {
+    return api.put<Recommendation>(`/api/recommendations/${id}/`, data);
+  },
+
+  toggleVisibility(id: number, isVisible: boolean) {
+    return api.patch<Recommendation>(`/api/recommendations/${id}/visibility/`, { is_visible: isVisible });
+  },
+
+  deleteRecommendation(id: number) {
+    return api.delete(`/api/recommendations/${id}/`);
+  },
+};

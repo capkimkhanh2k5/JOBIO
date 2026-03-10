@@ -1,75 +1,74 @@
-import { mockBillingService } from './mockApi';
+import api from './api';
 import type {
+    BillingPlan,
+    BillingSubscription,
+    BillingTransaction,
     SavedPaymentMethod,
-    SubscriptionCreateRequest
+    SubscriptionCreateRequest,
+    SubscribeResponse,
+    PaginatedResponse,
 } from '@/types/api';
+
+// Type alias consumed by Pricing.tsx
+export type SubscriptionPlanAPI = BillingPlan;
 
 export const billingService = {
     /** GET /api/billing/subscription-plans/ — public, no auth required */
-    async listPlans() {
-        const res = await mockBillingService.getPlans();
-        return { data: res };
+    listPlans() {
+        return api.get<BillingPlan[]>('/api/billing/subscription-plans/');
     },
 
-    async getPlan(slug: string) {
-        // In mockApi getPlanDetail uses ID, but we can search by slug
-        const plans = await mockBillingService.getPlans();
-        const plan = plans.find(p => p.slug === slug);
-        if (!plan) throw new Error("Plan not found");
-        return { data: plan };
+    getPlan(slug: string) {
+        return api.get<BillingPlan>(`/api/billing/subscription-plans/${slug}/`);
     },
 
     /** GET /api/billing/company-subscriptions/current/ — employer only */
-    async getCurrentSubscription() {
-        const res = await mockBillingService.getMySubscriptions(1); // Default to company 1
-        return { data: res };
+    getCurrentSubscription() {
+        return api.get<BillingSubscription>('/api/billing/company-subscriptions/current/');
     },
 
     /** POST /api/billing/company-subscriptions/subscribe/ */
-    async subscribe(data: SubscriptionCreateRequest) {
-        const res = await mockBillingService.createSubscription(data);
-        return { data: res };
+    subscribe(data: SubscriptionCreateRequest) {
+        return api.post<SubscribeResponse>('/api/billing/company-subscriptions/subscribe/', data);
+    },
+
+    /** PATCH /api/billing/company-subscriptions/:id/cancel/ */
+    cancelSubscription(id: number) {
+        return api.patch<BillingSubscription>(`/api/billing/company-subscriptions/${id}/cancel/`);
     },
 
     /** GET /api/billing/transactions/ */
-    async listTransactions(params?: { status?: string; start_date?: string; end_date?: string; method?: string; page?: number }) {
-        const res = await mockBillingService.getTransactions(params);
-        return { data: res };
+    listTransactions(params?: { status?: string; start_date?: string; end_date?: string; method?: string; page?: number }) {
+        return api.get<PaginatedResponse<BillingTransaction>>('/api/billing/transactions/', { params });
     },
 
     /** GET /api/billing/transactions/:id/ */
-    async getTransaction(id: string) {
-        const res = await mockBillingService.getTransactionDetail(id);
-        return { data: res };
+    getTransaction(id: string) {
+        return api.get<BillingTransaction>(`/api/billing/transactions/${id}/`);
     },
 
     /** GET /api/billing/payment-methods/ */
-    async listPaymentMethods() {
-        const res = await mockBillingService.getPaymentMethods();
-        return { data: res };
+    listPaymentMethods() {
+        return api.get<SavedPaymentMethod[]>('/api/billing/payment-methods/');
     },
 
     /** POST /api/billing/payment-methods/ */
-    async addPaymentMethod(data: Partial<SavedPaymentMethod>) {
-        const res = await mockBillingService.addPaymentMethod(data);
-        return { data: res };
+    addPaymentMethod(data: Partial<SavedPaymentMethod>) {
+        return api.post<SavedPaymentMethod>('/api/billing/payment-methods/', data);
     },
 
     /** PATCH /api/billing/payment-methods/:id/ */
-    async updatePaymentMethod(id: string, data: Partial<SavedPaymentMethod>) {
-        // Not implemented in mockApi but easy to simulate
-        return { data: { ...data, id } };
+    updatePaymentMethod(id: string, data: Partial<SavedPaymentMethod>) {
+        return api.patch<SavedPaymentMethod>(`/api/billing/payment-methods/${id}/`, data);
     },
 
     /** DELETE /api/billing/payment-methods/:id/ */
-    async deletePaymentMethod(id: string) {
-        const res = await mockBillingService.deletePaymentMethod(id);
-        return { data: res };
+    deletePaymentMethod(id: string) {
+        return api.delete(`/api/billing/payment-methods/${id}/`);
     },
 
-    /** PATCH /api/billing/payment-methods/:id/set-default/ */
-    async setDefaultPaymentMethod(id: string) {
-        const res = await mockBillingService.setDefaultPaymentMethod(id);
-        return { data: res };
-    }
+    /** POST /api/billing/payment-methods/:id/set-default/ */
+    setDefaultPaymentMethod(id: string) {
+        return api.post(`/api/billing/payment-methods/${id}/set-default/`);
+    },
 };

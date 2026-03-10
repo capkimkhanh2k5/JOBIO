@@ -223,8 +223,20 @@ const HeroSection = () => {
 /* ─────────────────────────── STATS ─────────────────────────── */
 const StatsSection = () => {
     const { data: stats, isLoading } = useQuery({
-        queryKey: ['stats'],
-        queryFn: () => Promise.resolve({ total_jobs: 500, total_companies: 50, total_users: 1550 })
+        queryKey: ['home-stats'],
+        queryFn: async () => {
+            const [jobs, companies] = await Promise.all([
+                jobService.list({ page_size: 1 }),
+                companyService.list({ page_size: 1 }),
+            ]);
+            return {
+                total_jobs: jobs.data.count,
+                total_companies: companies.data.count,
+                // No public user-count endpoint; approximate from jobs + companies
+                total_users: jobs.data.count + companies.data.count,
+            };
+        },
+        staleTime: 300_000,
     });
 
     const [counters, setCounters] = useState({ jobs: 0, companies: 0, users: 0 });

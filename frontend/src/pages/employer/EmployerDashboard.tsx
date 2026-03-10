@@ -10,7 +10,7 @@ import { UpcomingInterviewsCard } from '@/components/employer/UpcomingInterviews
 import { TopMatchesWidget } from '@/components/dashboard/TopMatchesWidget';
 import { useUserStore } from '@/store/userStore';
 import { employerService } from '@/services/employerService';
-import { mockBillingService } from '@/services/mockApi';
+import { billingService } from '@/services/billingService';
 import { SubscriptionStatus } from '@/components/employer/billing/SubscriptionStatus';
 
 
@@ -100,9 +100,9 @@ export default function EmployerDashboard() {
         { icon: <User2 className="w-6 h-6" />, label: 'Xem ứng viên', to: '/employer/candidates', gradient: 'from-emerald-500 to-cyan-500' },
     ];
 
-    const { data: mySubscriptions } = useQuery({
-        queryKey: ['billing', 'my-subscriptions'],
-        queryFn: () => mockBillingService.getMySubscriptions(1),
+    const { data: currentSubscription } = useQuery({
+        queryKey: ['billing', 'current-subscription'],
+        queryFn: () => billingService.getCurrentSubscription().then(r => r.data),
     });
 
     return (
@@ -152,8 +152,8 @@ export default function EmployerDashboard() {
                 </div>
 
                 <div className="xl:col-span-1 space-y-6">
-                    {mySubscriptions?.[0] && (
-                        <SubscriptionStatus subscription={mySubscriptions[0]} />
+                    {currentSubscription && (
+                        <SubscriptionStatus subscription={currentSubscription} />
                     )}
                     <TopMatchesWidget />
                 </div>

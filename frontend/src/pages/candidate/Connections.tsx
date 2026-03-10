@@ -7,34 +7,36 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { mockConnectionService } from '@/services/apiClient';
+import api from '@/services/api';
+import { useUserStore } from '@/store/userStore';
 
 import { ConnectionCard } from '@/components/candidate/connections/ConnectionCard';
 import { PendingRequestCard } from '@/components/candidate/connections/PendingRequestCard';
 import { SuggestionCard } from '@/components/candidate/connections/SuggestionCard';
 
-// Using mock user ID for current user
-const CURRENT_USER_ID = 999;
-
 export default function Connections() {
     const [activeTab, setActiveTab] = useState('connections');
+    const { user } = useUserStore();
 
     // Fetch My Connections (Accepted)
     const { data: connectionsData, isLoading: isConnectionsLoading } = useQuery({
         queryKey: ['connections', 'accepted'],
-        queryFn: () => mockConnectionService.getConnections(CURRENT_USER_ID, 'accepted'),
+        queryFn: () => api.get('/api/connections/').then(r => r.data),
     });
 
     // Fetch Pending Requests
     const { data: pendingData, isLoading: isPendingLoading } = useQuery({
         queryKey: ['pendingConnections'],
-        queryFn: () => mockConnectionService.getPendingRequests(),
+        queryFn: () => api.get('/api/connections/pending/').then(r => ({
+            results: r.data.pending_requests,
+            count: r.data.total,
+        })),
     });
 
     // Fetch Suggestions
     const { data: suggestionsData, isLoading: isSuggestionsLoading } = useQuery({
         queryKey: ['connectionSuggestions'],
-        queryFn: () => mockConnectionService.getConnectionSuggestions(12),
+        queryFn: () => api.get('/api/connections/suggestions/', { params: { limit: 12 } }).then(r => r.data.suggestions),
     });
 
     const connectionsCount = connectionsData?.count || 0;
@@ -75,7 +77,7 @@ export default function Connections() {
                                     <div className="space-y-4">
                                         {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)}
                                     </div>
-                                ) : connectionsData?.results.length === 0 ? (
+                                ) : connectionsData?.results?.length === 0 ? (
                                     <EmptyState
                                         icon={<Users className="w-12 h-12 text-slate-300" />}
                                         title="Chưa có kết nối nào"
@@ -88,7 +90,7 @@ export default function Connections() {
                                             <ConnectionCard
                                                 key={connection.id}
                                                 connection={connection}
-                                                currentUserId={CURRENT_USER_ID}
+                                                currentUserId={user?.id ?? 0}
                                             />
                                         ))}
                                     </div>
@@ -109,7 +111,7 @@ export default function Connections() {
                                     <div className="space-y-4">
                                         {[1, 2].map((i) => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
                                     </div>
-                                ) : pendingData?.results.length === 0 ? (
+                                ) : pendingData?.results?.length === 0 ? (
                                     <EmptyState
                                         icon={<UserPlus className="w-12 h-12 text-slate-300" />}
                                         title="Không có lời mời nào"

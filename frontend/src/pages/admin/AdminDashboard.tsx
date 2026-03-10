@@ -1,14 +1,16 @@
 import { motion } from 'framer-motion';
 import {
     Users, Briefcase, Building2, FileCheck, TrendingUp,
-    TrendingDown, ArrowRight, ShieldCheck, Star, AlertTriangle
+    TrendingDown, ArrowRight, ShieldCheck, Star, AlertTriangle, Loader2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardService } from '@/services/dashboardService';
 import {
-    LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+    LineChart, Line, PieChart, Pie, Cell,
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 const fadeUp = (delay: number) => ({
@@ -17,14 +19,12 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
-/* ── Mock Data ── */
-const kpiData = [
-    { label: 'Tổng Users', value: '12,847', delta: '+124', deltaType: 'up', icon: Users, gradient: 'from-cyan-500 to-sky-600', period: 'tuần này' },
-    { label: 'Tổng Việc Làm', value: '3,291', delta: '+38', deltaType: 'up', icon: Briefcase, gradient: 'from-violet-500 to-purple-600', period: 'tuần này' },
-    { label: 'Tổng Công Ty', value: '689', delta: '+12', deltaType: 'up', icon: Building2, gradient: 'from-emerald-500 to-green-600', period: 'tuần này' },
-    { label: 'Đơn Ứng Tuyển', value: '8,412', delta: '+287', deltaType: 'up', icon: FileCheck, gradient: 'from-pink-500 to-rose-600', period: 'tuần này' },
-];
-
+/*
+ * Chart placeholder data – The backend currently has NO time-series analytics endpoint
+ * (user growth, industry distribution). Only aggregate counts are available via
+ * GET /api/dashboard/stats/admin/. These visual placeholders should be replaced once
+ * the backend implements dedicated chart endpoints (e.g. /api/analytics/user-growth/).
+ */
 const userGrowthData = [
     { month: 'T1', users: 8200, jobs: 2100 }, { month: 'T2', users: 9100, jobs: 2400 },
     { month: 'T3', users: 9800, jobs: 2600 }, { month: 'T4', users: 10500, jobs: 2800 },
@@ -41,18 +41,18 @@ const industryData = [
     { name: 'Khác', value: 8, color: '#94a3b8' },
 ];
 
-const pendingVerifications = [
-    { id: 1, name: 'TechVN Solutions', industry: 'Công nghệ thông tin', date: '08/03/2026' },
-    { id: 2, name: 'GreenFood Corp', industry: 'Thực phẩm', date: '07/03/2026' },
-    { id: 3, name: 'EduStar Academy', industry: 'Giáo dục', date: '06/03/2026' },
-];
-
-const pendingReviews = [
-    { id: 1, company: 'FPT Software', rating: 4, title: 'Môi trường tốt nhưng...', date: '09/03/2026' },
-    { id: 2, company: 'Viettel', rating: 2, title: 'Cần cải thiện nhiều', date: '08/03/2026' },
-];
-
 export default function AdminDashboard() {
+    const { data: adminStats, isLoading: loadingStats } = useQuery({
+        queryKey: ['admin-stats'],
+        queryFn: () => dashboardService.getAdminStats().then(r => r.data),
+    });
+
+    const kpiData = adminStats ? [
+        { label: 'Tổng Users', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-cyan-500 to-sky-600', period: '30 ngày' },
+        { label: 'Tổng Việc Làm', value: adminStats.jobs?.total?.toLocaleString() ?? '0', delta: `${adminStats.jobs?.active ?? 0} active`, deltaType: 'up' as const, icon: Briefcase, gradient: 'from-violet-500 to-purple-600', period: 'đang hoạt động' },
+        { label: 'Doanh thu', value: `${(Number(adminStats.revenue?.total ?? 0) / 1_000_000).toFixed(1)}M`, delta: `+${(Number(adminStats.revenue?.revenue_30d ?? 0) / 1_000_000).toFixed(1)}M`, deltaType: 'up' as const, icon: Building2, gradient: 'from-emerald-500 to-green-600', period: '30 ngày' },
+        { label: 'Đơn Ứng Tuyển', value: '-', delta: '', deltaType: 'up' as const, icon: FileCheck, gradient: 'from-pink-500 to-rose-600', period: '' },
+    ] : [];
     return (
         <div className="p-6 lg:p-8 space-y-8 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
             {/* Welcome */}
@@ -64,35 +64,39 @@ export default function AdminDashboard() {
                     </div>
                     <Badge className="bg-amber-50 text-amber-700 border border-amber-200 font-semibold px-3 py-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
-                        {pendingVerifications.length + pendingReviews.length} cần duyệt
+                        Dashboard
                     </Badge>
                 </div>
             </motion.div>
 
             {/* KPI Cards */}
             <motion.div {...fadeUp(0.08)}>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {kpiData.map((kpi) => {
-                        const Icon = kpi.icon;
-                        return (
-                            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3">
-                                <div className="flex items-center justify-between">
-                                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-sm`}>
-                                        <Icon className="w-5 h-5" />
+                {loadingStats ? (
+                    <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                ) : (
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {kpiData.map((kpi) => {
+                            const Icon = kpi.icon;
+                            return (
+                                <div key={kpi.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-sm`}>
+                                            <Icon className="w-5 h-5" />
+                                        </div>
+                                        <div className={`flex items-center gap-1 text-xs font-bold ${kpi.deltaType === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
+                                            {kpi.deltaType === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                                            {kpi.delta}
+                                        </div>
                                     </div>
-                                    <div className={`flex items-center gap-1 text-xs font-bold ${kpi.deltaType === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
-                                        {kpi.deltaType === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                                        {kpi.delta}
+                                    <div>
+                                        <p className="text-2xl font-black text-slate-900">{kpi.value}</p>
+                                        <p className="text-xs font-medium text-slate-500 mt-0.5">{kpi.label} <span className="text-slate-400">• {kpi.period}</span></p>
                                     </div>
                                 </div>
-                                <div>
-                                    <p className="text-2xl font-black text-slate-900">{kpi.value}</p>
-                                    <p className="text-xs font-medium text-slate-500 mt-0.5">{kpi.label} <span className="text-slate-400">• {kpi.period}</span></p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </motion.div>
 
             {/* Charts Row */}
@@ -162,24 +166,7 @@ export default function AdminDashboard() {
                             </Button>
                         </Link>
                     </div>
-                    <div className="space-y-3">
-                        {pendingVerifications.map((company) => (
-                            <div key={company.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                                        {company.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-slate-900">{company.name}</p>
-                                        <p className="text-xs text-slate-500">{company.industry} • {company.date}</p>
-                                    </div>
-                                </div>
-                                <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                                    Chờ duyệt
-                                </Badge>
-                            </div>
-                        ))}
-                    </div>
+                    <p className="text-sm text-slate-400 text-center py-4">Xem danh sách cần duyệt trong trang Moderation</p>
                 </div>
 
                 {/* Pending Reviews */}
@@ -195,22 +182,7 @@ export default function AdminDashboard() {
                             </Button>
                         </Link>
                     </div>
-                    <div className="space-y-3">
-                        {pendingReviews.map((review) => (
-                            <div key={review.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100">
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-900">{review.title}</p>
-                                    <p className="text-xs text-slate-500">{review.company} • {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)} • {review.date}</p>
-                                </div>
-                                <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                                    Chờ duyệt
-                                </Badge>
-                            </div>
-                        ))}
-                        {pendingReviews.length === 0 && (
-                            <p className="text-sm text-slate-400 text-center py-4">Không có đánh giá nào chờ duyệt</p>
-                        )}
-                    </div>
+                    <p className="text-sm text-slate-400 text-center py-4">Xem danh sách đánh giá cần duyệt trong trang Moderation</p>
                 </div>
             </motion.div>
         </div>

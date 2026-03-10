@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { mockBillingService } from '@/services/mockApi';
+import { billingService } from '@/services/billingService';
 import { PlanCard } from '@/components/employer/billing/PlanCard';
 import { ComparisonTable } from '@/components/employer/billing/ComparisonTable';
 import { SubscriptionStatus } from '@/components/employer/billing/SubscriptionStatus';
@@ -14,22 +14,22 @@ const PlansPage: React.FC = () => {
 
     const { data: plans, isLoading: plansLoading } = useQuery({
         queryKey: ['billing', 'plans'],
-        queryFn: () => mockBillingService.getPlans(),
+        queryFn: () => billingService.listPlans().then(r => r.data),
     });
 
-    const { data: mySubscriptions, isLoading: subLoading } = useQuery({
-        queryKey: ['billing', 'my-subscriptions'],
-        queryFn: () => mockBillingService.getMySubscriptions(1), // Mock company 1
+    const { data: currentSubscription, isLoading: subLoading } = useQuery({
+        queryKey: ['billing', 'current-subscription'],
+        queryFn: () => billingService.getCurrentSubscription().then(r => r.data),
     });
 
-    const currentPlan = mySubscriptions?.[0]?.plan;
+    const currentPlan = currentSubscription?.plan;
 
     const handleSelectPlan = (plan: BillingPlan) => {
         if (plan.price === 0) {
             // Free plan logic if needed, or already have it
             return;
         }
-        navigate(`/employer/checkout?planId=${plan.id}`);
+        navigate(`/employer/checkout?planSlug=${plan.slug}`);
     };
 
     if (plansLoading || subLoading) {
@@ -60,13 +60,13 @@ const PlansPage: React.FC = () => {
 
 
             {/* Current Subscription Section */}
-            {mySubscriptions?.[0] && (
+            {currentSubscription && (
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                    <SubscriptionStatus subscription={mySubscriptions[0]} />
+                    <SubscriptionStatus subscription={currentSubscription} />
                 </motion.div>
             )}
 

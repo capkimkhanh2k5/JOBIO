@@ -83,33 +83,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         }
     };
 
-    const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const { onBlur } = form.register('email');
-        onBlur(e); // keep hook-form's native onblur behavior
-        const val = e.target.value;
-        if (!val || form.formState.errors.email) {
-            setEmailStatus('idle');
-            return;
-        }
-
-        setIsCheckingEmail(true);
-        setEmailStatus('checking');
-        try {
-            const { data } = await authService.checkEmail(val);
-            if (data.is_available) {
-                setEmailStatus('available');
-                form.clearErrors('email');
-            } else {
-                setEmailStatus('taken');
-                form.setError('email', { type: 'manual', message: 'Email đã được đăng ký' });
-            }
-        } catch (error) {
-            setEmailStatus('idle');
-        } finally {
-            setIsCheckingEmail(false);
-        }
-    };
-
     return (
         <div className="space-y-6">
             <Form {...form}>

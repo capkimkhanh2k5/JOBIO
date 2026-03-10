@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { X, FileText, CheckCircle2 } from 'lucide-react';
+import { X, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-// CV creation stubbed - no backend endpoint yet
+import { cvService } from '@/services/cvService';
+import { useUserStore } from '@/store/userStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,14 +21,23 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-const STARTER_TEMPLATES = [
-    { id: 'tpl-1', name: 'Aurora Professional', color: 'from-violet-400 to-cyan-400' },
-    { id: 'tpl-2', name: 'Neo Minimal', color: 'from-slate-400 to-slate-600' },
-    { id: 'tpl-5', name: 'Tech Blueprint', color: 'from-cyan-500 to-sky-400' },
-];
+const FALLBACK_COLORS = ['from-violet-400 to-cyan-400', 'from-slate-400 to-slate-600', 'from-cyan-500 to-sky-400'];
 
 export function NewCVDialog({ onClose, onCreated }: Props) {
-    const [selectedTemplate, setSelectedTemplate] = useState('tpl-1');
+    const user = useUserStore(s => s.user);
+    const recruiterId = user?.id;
+
+    const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
+        queryKey: ['cv-templates-picker'],
+        queryFn: () => cvService.listTemplates({ page_size: 6 }).then(r => r.data),
+    });
+    const templates = (templatesRaw?.results ?? []).map((t, i) => ({
+        id: String(t.id),
+        name: t.name,
+        color: FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+    }));
+
+    const [selectedTemplate, setSelectedTemplate] = useState<string>('');
 
     const {
         register,
@@ -40,7 +50,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
 
     const createMutation = useMutation({
         mutationFn: (data: FormValues) =>
-            Promise.resolve({ id: crypto.randomUUID(), cv_name: data.cv_name, template_id: selectedTemplate, template_name: STARTER_TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? '', cv_data: {} }),  // TODO: no CV endpoint
+            cvService.create(recruiterId!, { cv_name: data.cv_name, template_id: Number(selectedTemplate) || undefined } as any).then(r => r.data),
         onSuccess: (newCV) => onCreated(newCV),
     });
 
@@ -102,8 +112,11 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                         {/* Template picker */}
                         <div>
                             <Label className="text-sm font-semibold text-slate-700 mb-3 block">Chọn template khởi đầu</Label>
+                            {loadingTemplates ? (
+                                <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
+                            ) : (
                             <div className="grid grid-cols-3 gap-3">
-                                {STARTER_TEMPLATES.map((t) => (
+                                {templates.map((t) => (
                                     <button
                                         key={t.id}
                                         type="button"
@@ -127,6 +140,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                                     </button>
                                 ))}
                             </div>
+                            )}
                             <p className="text-[11px] text-muted-foreground mt-2">
                                 Bạn có thể đổi template bất cứ lúc nào trong CV Builder.
                             </p>
@@ -145,7 +159,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                             <Button
                                 type="submit"
                                 className="flex-1 bg-gradient-to-r from-violet-500 to-cyan-500 text-white border-0 shadow-md hover:opacity-90"
-                                disabled={createMutation.isPending}
+                                disabled={createMutation.isPending || !recruiterId || !selectedTemplate}
                             >
                                 {createMutation.isPending ? 'Đang tạo...' : 'Tạo CV'}
                             </Button>

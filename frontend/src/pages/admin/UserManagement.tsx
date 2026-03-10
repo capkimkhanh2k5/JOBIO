@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-    Users, Search, Filter, MoreHorizontal, Ban, CheckCircle2,
-    Trash2, Download, Mail, Eye, ChevronLeft, ChevronRight, UserCog
+    Search, Ban, CheckCircle2,
+    Download, Eye, ChevronLeft, ChevronRight, UserCog, Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardService } from '@/services/dashboardService';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -13,26 +15,26 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
-/* ── Mock Data ── */
-const MOCK_USERS = [
-    { id: 1, name: 'Nguyễn Văn An', email: 'an.nguyen@email.com', role: 'recruiter', status: 'active', verified: true, registered: '01/01/2026', lastLogin: '10/03/2026', avatar: null },
-    { id: 2, name: 'Trần Thị Bình', email: 'binh.tran@company.vn', role: 'company', status: 'active', verified: true, registered: '15/01/2026', lastLogin: '09/03/2026', avatar: null },
-    { id: 3, name: 'Lê Minh Cường', email: 'cuong.le@gmail.com', role: 'recruiter', status: 'inactive', verified: false, registered: '20/02/2026', lastLogin: '28/02/2026', avatar: null },
-    { id: 4, name: 'Phạm Đức Dũng', email: 'dung.pham@techvn.com', role: 'company', status: 'active', verified: true, registered: '10/02/2026', lastLogin: '10/03/2026', avatar: null },
-    { id: 5, name: 'Hoàng Thị Em', email: 'em.hoang@yahoo.com', role: 'recruiter', status: 'banned', verified: true, registered: '05/12/2025', lastLogin: '25/02/2026', avatar: null },
-    { id: 6, name: 'Vũ Quang Phúc', email: 'phuc.vu@startup.io', role: 'company', status: 'active', verified: false, registered: '28/02/2026', lastLogin: '08/03/2026', avatar: null },
-    { id: 7, name: 'Đặng Thị Giang', email: 'giang.dang@edu.vn', role: 'admin', status: 'active', verified: true, registered: '01/06/2025', lastLogin: '10/03/2026', avatar: null },
-    { id: 8, name: 'Bùi Hải Nam', email: 'nam.bui@gmail.com', role: 'recruiter', status: 'active', verified: true, registered: '12/01/2026', lastLogin: '07/03/2026', avatar: null },
-];
+interface User {
+    id: number;
+    email: string;
+    full_name: string;
+    role: string;
+    status: string;
+    email_verified: boolean;
+    last_login: string | null;
+    phone: string | null;
+    avatar_url: string | null;
+}
 
 const roleColors: Record<string, string> = {
-    recruiter: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    candidate: 'bg-cyan-50 text-cyan-700 border-cyan-200',
     company: 'bg-violet-50 text-violet-700 border-violet-200',
     admin: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
 const roleLabels: Record<string, string> = {
-    recruiter: 'Ứng viên',
+    candidate: 'Ứng viên',
     company: 'Nhà tuyển dụng',
     admin: 'Admin',
 };
@@ -54,31 +56,45 @@ export default function UserManagement() {
     const [roleFilter, setRoleFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+    const [page, setPage] = useState(1);
 
-    const filteredUsers = MOCK_USERS.filter(u => {
-        const matchSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchRole = roleFilter === 'all' || u.role === roleFilter;
-        const matchStatus = statusFilter === 'all' || u.status === statusFilter;
-        return matchSearch && matchRole && matchStatus;
+    const { data: usersData, isLoading: loadingUsers } = useQuery({
+        queryKey: ['admin-users', searchQuery, roleFilter, statusFilter, page],
+        queryFn: () => dashboardService.listUsers({
+            search: searchQuery || undefined,
+            role: roleFilter === 'all' ? undefined : roleFilter,
+            status: statusFilter === 'all' ? undefined : statusFilter,
+            page,
+            page_size: 10,
+        }).then(r => r.data),
     });
+
+    const { data: userStats } = useQuery({
+        queryKey: ['admin-user-stats'],
+        queryFn: () => dashboardService.getUserStats().then(r => r.data),
+    });
+
+    const users: User[] = usersData?.results ?? (Array.isArray(usersData) ? usersData : []);
+    const totalCount = usersData?.count ?? users.length;
+    const totalPages = Math.ceil(totalCount / 10) || 1;
 
     const toggleSelect = (id: number) => {
         setSelectedUsers(prev => prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]);
     };
 
     const toggleSelectAll = () => {
-        if (selectedUsers.length === filteredUsers.length) {
+        if (selectedUsers.length === users.length) {
             setSelectedUsers([]);
         } else {
-            setSelectedUsers(filteredUsers.map(u => u.id));
+            setSelectedUsers(users.map(u => u.id));
         }
     };
 
     const stats = [
-        { label: 'Tổng Users', value: MOCK_USERS.length, color: 'text-slate-900' },
-        { label: 'Ứng viên', value: MOCK_USERS.filter(u => u.role === 'recruiter').length, color: 'text-cyan-600' },
-        { label: 'Nhà tuyển dụng', value: MOCK_USERS.filter(u => u.role === 'company').length, color: 'text-violet-600' },
-        { label: 'Bị khóa', value: MOCK_USERS.filter(u => u.status === 'banned').length, color: 'text-red-600' },
+        { label: 'Tổng Users', value: userStats?.total_users ?? totalCount, color: 'text-slate-900' },
+        { label: 'Ứng viên', value: userStats?.by_role?.candidate ?? '-', color: 'text-cyan-600' },
+        { label: 'Nhà tuyển dụng', value: userStats?.by_role?.company ?? '-', color: 'text-violet-600' },
+        { label: 'Bị khóa', value: userStats?.by_status?.banned ?? '-', color: 'text-red-600' },
     ];
 
     return (
@@ -129,7 +145,7 @@ export default function UserManagement() {
                             className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
                         >
                             <option value="all">Tất cả Role</option>
-                            <option value="recruiter">Ứng viên</option>
+                            <option value="candidate">Ứng viên</option>
                             <option value="company">Nhà tuyển dụng</option>
                             <option value="admin">Admin</option>
                         </select>
@@ -174,7 +190,7 @@ export default function UserManagement() {
                                     <th className="text-left py-3 px-4 font-semibold text-slate-500 w-10">
                                         <input
                                             type="checkbox"
-                                            checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                                            checked={selectedUsers.length === users.length && users.length > 0}
                                             onChange={toggleSelectAll}
                                             className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                                         />
@@ -189,7 +205,9 @@ export default function UserManagement() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredUsers.map((user) => (
+                                {loadingUsers ? (
+                                    <tr><td colSpan={8} className="py-12 text-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500 mx-auto" /></td></tr>
+                                ) : users.map((user) => (
                                     <tr key={user.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                         <td className="py-3 px-4">
                                             <input
@@ -202,33 +220,33 @@ export default function UserManagement() {
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0">
-                                                    {user.name.split(' ').pop()?.charAt(0)}
+                                                    {user.full_name?.split(' ').pop()?.charAt(0) ?? '?'}
                                                 </div>
                                                 <div>
-                                                    <p className="font-semibold text-slate-900 text-sm">{user.name}</p>
+                                                    <p className="font-semibold text-slate-900 text-sm">{user.full_name}</p>
                                                     <p className="text-xs text-slate-500">{user.email}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <Badge className={`${roleColors[user.role]} border text-[10px] font-bold`}>
-                                                {roleLabels[user.role]}
+                                            <Badge className={`${roleColors[user.role] ?? ''} border text-[10px] font-bold`}>
+                                                {roleLabels[user.role] ?? user.role}
                                             </Badge>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <Badge className={`${statusColors[user.status]} border text-[10px] font-bold`}>
-                                                {statusLabels[user.status]}
+                                            <Badge className={`${statusColors[user.status] ?? ''} border text-[10px] font-bold`}>
+                                                {statusLabels[user.status] ?? user.status}
                                             </Badge>
                                         </td>
                                         <td className="py-3 px-4">
-                                            {user.verified ? (
+                                            {user.email_verified ? (
                                                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                             ) : (
                                                 <span className="text-xs text-slate-400">Chưa</span>
                                             )}
                                         </td>
-                                        <td className="py-3 px-4 text-slate-600 text-xs font-medium">{user.registered}</td>
-                                        <td className="py-3 px-4 text-slate-600 text-xs font-medium">{user.lastLogin}</td>
+                                        <td className="py-3 px-4 text-slate-600 text-xs font-medium">-</td>
+                                        <td className="py-3 px-4 text-slate-600 text-xs font-medium">{user.last_login ? new Date(user.last_login).toLocaleDateString('vi-VN') : '-'}</td>
                                         <td className="py-3 px-4 text-right">
                                             <div className="flex items-center justify-end gap-1">
                                                 <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer" title="Xem">
@@ -248,19 +266,14 @@ export default function UserManagement() {
                     {/* Pagination */}
                     <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
                         <p className="text-xs text-slate-500 font-medium">
-                            Hiển thị {filteredUsers.length} / {MOCK_USERS.length} users
+                            Hiển thị {users.length} / {totalCount} users
                         </p>
                         <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg" disabled>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" className="w-8 h-8 p-0 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold">
-                                1
-                            </Button>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg text-slate-500 text-xs font-semibold">
-                                2
-                            </Button>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg">
+                            <span className="px-2 text-xs font-bold text-slate-700">{page} / {totalPages}</span>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>

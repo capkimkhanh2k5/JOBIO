@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { messageService, type MockThread } from '@/services/messageService';
+import { messageService } from '@/services/messageService';
+import type { MessageThread, MessageThreadDetail } from '@/types/api';
 import { useMessageStore } from '@/store/messageStore';
 import { ThreadList } from '@/components/messaging/ThreadList';
 import { ConversationView } from '@/components/messaging/ConversationView';
@@ -36,7 +37,7 @@ function NoThreadSelected() {
 // ─── Main MessagesPage ────────────────────────────────────────────────────────
 export default function MessagesPage() {
     const { setSelectedThread } = useMessageStore();
-    const [selectedThread, setSelectedThreadData] = useState<MockThread | null>(null);
+    const [selectedThread, setSelectedThreadData] = useState<MessageThreadDetail | null>(null);
     const [showParticipantPanel, setShowParticipantPanel] = useState(false);
     const [showNewThread, setShowNewThread] = useState(false);
     // Mobile: 'list' | 'conversation'
@@ -70,27 +71,14 @@ export default function MessagesPage() {
 
     useEffect(() => {
         if (targetUserId && threadsData?.results) {
-            // Check if thread exists with exactly this user (and us)
-            const existingThread = threadsData.results.find(t =>
-                t.participants.length === 2 && t.participants.some(p => p.id === targetUserId)
-            );
-
-            if (existingThread) {
-                // If exists, select it
-                if (selectedThread?.id !== existingThread.id) {
-                    handleSelectThread(existingThread);
-                }
-            } else {
-                // If not exists, open NewThreadDialog with this user pre-selected
-                if (!showNewThread) {
-                    setShowNewThread(true);
-                }
+            // Check if thread exists with exactly this user — list level doesn't have participants,
+            // so we check by fetching thread detail. For now, just open new thread dialog.
+            if (!showNewThread) {
+                setShowNewThread(true);
             }
-
-            // Clean up the URL parameter so it doesn't trigger again on re-renders
             setSearchParams({});
         }
-    }, [targetUserId, threadsData, selectedThread, showNewThread, setSearchParams]);
+    }, [targetUserId, threadsData, showNewThread, setSearchParams]);
 
     const deleteMutation = useMutation({
         mutationFn: (id: number) => messageService.deleteThread(id),
@@ -104,12 +92,17 @@ export default function MessagesPage() {
         onError: () => toast.error('Không thể xóa cuộc trò chuyện'),
     });
 
-    const handleSelectThread = (thread: MockThread) => {
-        setSelectedThreadData(thread);
-        setSelectedThread(thread.id);
-        setMobileView('conversation');
-        // Close participant panel on new thread select
-        setShowParticipantPanel(false);
+    const handleSelectThread = async (thread: MessageThread) => {
+        // Fetch full thread detail (with participants) for conversation view
+        try {
+            const detail = await messageService.getThread(thread.id);
+            setSelectedThreadData(detail);
+            setSelectedThread(detail.id);
+            setMobileView('conversation');
+            setShowParticipantPanel(false);
+        } catch {
+            toast.error('Không thể tải chi tiết cuộc trò chuyện');
+        }
     };
 
     const handleNewCreated = (threadId: number) => {

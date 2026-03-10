@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockConnectionService } from '@/services/apiClient';
+import api from '@/services/api';
 import { toast } from 'sonner';
 
 interface SendConnectionDialogProps {
@@ -18,7 +18,7 @@ export function SendConnectionDialog({ isOpen, onClose, recruiterId, recruiterNa
     const queryClient = useQueryClient();
 
     const connectMutation = useMutation({
-        mutationFn: () => mockConnectionService.sendConnectionRequest(recruiterId, message),
+        mutationFn: () => api.post(`/api/recruiters/${recruiterId}/connect/`, { message }),
         onSuccess: () => {
             toast.success(`Đã gửi lời mời kết nối đến ${recruiterName}`);
             queryClient.invalidateQueries({ queryKey: ['connectionSuggestions'] });

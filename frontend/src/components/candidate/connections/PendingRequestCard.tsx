@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockConnectionService } from '@/services/apiClient';
+import api from '@/services/api';
 import { toast } from 'sonner';
 import { Check, X, Building2, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -17,7 +17,7 @@ export function PendingRequestCard({ request }: PendingRequestCardProps) {
     const requester = request.requester;
 
     const acceptMutation = useMutation({
-        mutationFn: () => mockConnectionService.acceptConnectionRequest(request.id),
+        mutationFn: () => api.patch(`/api/connections/${request.id}/accept/`),
         onSuccess: () => {
             toast.success(`Đã chấp nhận kết nối với ${requester.full_name}`);
             queryClient.invalidateQueries({ queryKey: ['pendingConnections'] });
@@ -27,7 +27,7 @@ export function PendingRequestCard({ request }: PendingRequestCardProps) {
     });
 
     const rejectMutation = useMutation({
-        mutationFn: () => mockConnectionService.rejectConnectionRequest(request.id),
+        mutationFn: () => api.patch(`/api/connections/${request.id}/reject/`),
         onSuccess: () => {
             toast.success(`Đã từ chối kết nối với ${requester.full_name}`);
             queryClient.invalidateQueries({ queryKey: ['pendingConnections'] });

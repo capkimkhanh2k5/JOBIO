@@ -67,7 +67,7 @@ function JobGridCard({
 }) {
     const navigate = useNavigate();
     const cfg = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.draft;
-    const isDeadlineSoon = new Date(job.deadline).getTime() - Date.now() < 3 * 86400000;
+    const isDeadlineSoon = job.deadline ? new Date(job.deadline).getTime() - Date.now() < 3 * 86400000 : false;
     const [hovered, setHovered] = useState(false);
 
     return (
@@ -124,7 +124,7 @@ function JobGridCard({
                 </div>
                 <div className={`flex items-center gap-1.5 ${isDeadlineSoon && job.status === 'active' ? 'text-amber-400' : ''}`}>
                     <CalendarDays className="w-3 h-3 shrink-0" />
-                    <span>Hết hạn: {format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi })}</span>
+                    <span>Hết hạn: {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}</span>
                     {isDeadlineSoon && job.status === 'active' && ' ⚠️'}
                 </div>
             </div>

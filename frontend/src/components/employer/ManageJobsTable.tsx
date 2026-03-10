@@ -126,7 +126,7 @@ export function ManageJobsTable({
                             jobs.map((job, i) => {
                                 const cfg = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.draft;
                                 const isSelected = selectedIds.includes(job.id);
-                                const isDeadlineSoon = new Date(job.deadline).getTime() - Date.now() < 3 * 86400000;
+                                const isDeadlineSoon = job.deadline ? new Date(job.deadline).getTime() - Date.now() < 3 * 86400000 : false;
                                 return (
                                     <motion.tr
                                         key={job.id}
@@ -179,13 +179,13 @@ export function ManageJobsTable({
 
                                         {/* Posted date */}
                                         <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
-                                            {format(new Date(job.posted_at), 'dd/MM/yyyy', { locale: vi })}
+                                            {job.posted_at ? format(new Date(job.posted_at), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                         </td>
 
                                         {/* Deadline */}
                                         <td className="py-3 px-4 whitespace-nowrap">
                                             <span className={isDeadlineSoon && job.status === 'active' ? 'text-amber-400 font-medium' : 'text-muted-foreground'}>
-                                                {format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi })}
+                                                {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                                 {isDeadlineSoon && job.status === 'active' && ' ⚠️'}
                                             </span>
                                         </td>

@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { mockReviewService } from '@/services/mockApi';
+import api from '@/services/api';
+import { useUserStore } from '@/store/userStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import {
@@ -112,17 +113,20 @@ function ThumbsUp({ size, className }: { size: number, className?: string }) {
 export function MyReviews() {
     const queryClient = useQueryClient();
     const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
-
-    // Hardcode candidate ID for demo, later take from AuthContext or useUserStore
-    const candidateId = 101;
+    const { user } = useUserStore();
+    const candidateId = user?.id;
 
     const { data, isLoading } = useQuery({
         queryKey: ['my-reviews', candidateId],
-        queryFn: () => mockReviewService.getCandidateReviews(candidateId),
+        queryFn: () => api.get(`/api/recruiters/${candidateId}/reviews/`).then(r => ({
+            results: r.data.reviews,
+            count: r.data.total,
+        })),
+        enabled: !!candidateId,
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (reviewId: number) => mockReviewService.deleteReview(reviewId),
+        mutationFn: (reviewId: number) => api.delete(`/api/reviews/${reviewId}/`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['my-reviews', candidateId] });
             toast.success('Đã xóa đánh giá thành công.');

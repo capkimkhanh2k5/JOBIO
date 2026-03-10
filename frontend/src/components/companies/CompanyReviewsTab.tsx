@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import api from '@/services/api';
-import { mockReviewService } from '@/services/apiClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -157,10 +156,8 @@ export function CompanyReviewsTab({ companyId, user }: Props) {
 
     const { data, isLoading } = useQuery({
         queryKey: ['company-reviews', parsedCompanyId],
-        queryFn: () => mockReviewService.getCompanyReviews(parsedCompanyId).catch(() =>
-            // fallback to original api if mock fails
-            api.get(`/api/companies/${parsedCompanyId}/reviews/`).then(r => r.data)
-        ),
+        queryFn: () =>
+            api.get(`/api/companies/${parsedCompanyId}/reviews/`).then(r => r.data),
         staleTime: 1000 * 60 * 3,
     });
 

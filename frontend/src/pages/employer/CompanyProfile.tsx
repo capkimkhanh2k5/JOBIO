@@ -13,9 +13,10 @@ import { VerificationSection } from '@/components/employer/company-profile/Verif
 export default function CompanyProfile() {
     // Current route in our setup doesn't pass company id from params for employer dashboard. 
     // Usually it's tied to current user session, so we fetch their associated company.
-    const { data: company, isLoading, isError } = useQuery({
+    const { data: company, isLoading, error } = useQuery({
         queryKey: ['employerCompany'],
         queryFn: () => companyService.getMyCompany().then(r => r.data),
+        retry: (failureCount, err: any) => err?.response?.status === 404 ? false : failureCount < 2,
     });
 
     const { data: industries } = useQuery({
@@ -32,7 +33,27 @@ export default function CompanyProfile() {
         );
     }
 
-    if (isError || !company) {
+    const is404 = (error as any)?.response?.status === 404;
+
+    if (is404 || !company) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="p-4 rounded-full bg-cyan-500/10 text-cyan-500 mb-2">
+                    <Building2 className="w-8 h-8" />
+                </div>
+                <h2 className="text-xl font-semibold">Bạn chưa có hồ sơ công ty</h2>
+                <p className="text-muted-foreground">Tạo hồ sơ công ty để bắt đầu đăng tin tuyển dụng và thu hút ứng viên.</p>
+                <a
+                    href="mailto:support@jobnow.vn"
+                    className="mt-2 px-6 py-2.5 rounded-xl bg-cyan-600 text-white font-semibold hover:bg-cyan-700 transition-colors"
+                >
+                    Liên hệ để tạo công ty
+                </a>
+            </div>
+        );
+    }
+
+    if (error) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
                 <div className="p-4 rounded-full bg-red-500/10 text-red-500 mb-2">

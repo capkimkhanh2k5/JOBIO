@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageSquare, UserMinus, Building2, Briefcase } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockConnectionService } from '@/services/apiClient';
+import api from '@/services/api';
 import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
@@ -25,7 +25,7 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
     const connectedUser = isRequester ? connection.recipient : connection.requester;
 
     const removeMutation = useMutation({
-        mutationFn: () => mockConnectionService.removeConnection(connection.id),
+        mutationFn: () => api.delete(`/api/connections/${connection.id}/`),
         onSuccess: () => {
             toast.success(`Đã hủy kết nối với ${connectedUser.full_name}`);
             queryClient.invalidateQueries({ queryKey: ['connections'] });
