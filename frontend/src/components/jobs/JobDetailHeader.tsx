@@ -173,7 +173,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                     <DollarSign className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Mức lương</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mức lương</p>
                                     <p className="text-sm font-bold text-gray-900">{formatSalary()}</p>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                     <MapPin className="w-5 h-5" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Địa điểm</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Địa điểm</p>
                                     <p className="text-sm font-bold text-gray-900 truncate">
                                         {locations.map(l => l.address.province_name).filter(Boolean).join(", ") || "Toàn quốc"}
                                     </p>
@@ -193,7 +193,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                     <Clock className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Hạn nộp</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Hạn nộp</p>
                                     <p className={cn(
                                         "text-sm font-bold",
                                         isUrgent ? "text-red-600" : "text-gray-900"
@@ -207,7 +207,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                     <Calendar className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ngày đăng</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ngày đăng</p>
                                     <p className="text-sm font-bold text-gray-900">
                                         {job.published_at ? new Date(job.published_at).toLocaleDateString('vi-VN') : 'Mới'}
                                     </p>
@@ -250,7 +250,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 </Button>
                             </div>
                         </div>
-                        <div className="flex items-center justify-center gap-4 text-xs text-gray-400 font-medium pt-2">
+                        <div className="flex items-center justify-center gap-4 text-xs text-slate-500 font-medium pt-2">
                             <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {job.application_count} lượt ứng tuyển</span>
                             <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> {job.view_count} lượt xem</span>
                         </div>

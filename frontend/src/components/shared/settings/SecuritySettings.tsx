@@ -35,12 +35,26 @@ export function SecuritySettings() {
             await authService.changePassword({
                 old_password: data.oldPassword,
                 new_password: data.newPassword,
-                confirm_password: data.confirmPassword
+                new_password_confirm: data.confirmPassword
             });
             toast.success("Thay đổi mật khẩu thành công!");
             reset();
         } catch (error: any) {
-            toast.error(error.response?.data?.detail || "Đã có lỗi xảy ra khi đổi mật khẩu");
+            const resData = error.response?.data;
+            let msg = "Đã có lỗi xảy ra khi đổi mật khẩu";
+            if (resData) {
+                if (resData.detail) msg = resData.detail;
+                else if (typeof resData.message === 'string') msg = resData.message;
+                else {
+                    const firstKey = Object.keys(resData)[0];
+                    if (firstKey && Array.isArray(resData[firstKey])) {
+                        msg = resData[firstKey][0];
+                    } else if (firstKey && typeof resData[firstKey] === 'string') {
+                        msg = resData[firstKey];
+                    }
+                }
+            }
+            toast.error(msg);
         } finally {
             setIsLoading(false);
         }

@@ -92,11 +92,11 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
                     <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-indigo-100 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-wider">Quy mô</p>
+                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Quy mô</p>
                         <p className="text-sm font-black text-gray-900 group-hover/stat:text-indigo-600 transition-colors uppercase">{company.company_size}</p>
                     </div>
                     <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-indigo-100 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-wider">Thành lập</p>
+                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Thành lập</p>
                         <p className="text-sm font-black text-gray-900 group-hover/stat:text-indigo-600 transition-colors">{company.founded_year || 'N/A'}</p>
                     </div>
                 </div>

@@ -176,7 +176,17 @@ export default function App() {
                             <Route path="notifications" element={<NotificationsPage />} />
                         </Route>
 
-                        {/* ── Public site: aurora + header + footer ── */}
+                        {/* ── Auth page: Standalone no footer ── */}
+                        <Route path="/auth" element={
+                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                                <Header />
+                                <main className="flex-1 w-full relative z-10 flex flex-col">
+                                    <PublicRoute><Auth /></PublicRoute>
+                                </main>
+                            </div>
+                        } />
+
+                        {/* ── Public site: header + footer ── */}
                         <Route path="*" element={
                             <div className="min-h-screen flex flex-col relative font-sans bg-white">
                                 <Header />
@@ -191,7 +201,7 @@ export default function App() {
                                         <Route path="/assessment-tests" element={<TestCatalogue />} />
                                         <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
                                         <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
-                                        <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
+                                        <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />
                                         <Route path="/contact" element={<Contact />} />

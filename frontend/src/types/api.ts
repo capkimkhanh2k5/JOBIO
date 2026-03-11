@@ -52,14 +52,17 @@ export interface RegisterRequest {
   full_name: string;
   phone?: string;
   password: string;
-  confirm_password: string;
+  password_confirm: string;
+  otp: string;
   role: 'candidate' | 'company';
+  company_name?: string;
+  tax_code?: string;
 }
 
 export interface ChangePasswordRequest {
   old_password: string;
   new_password: string;
-  confirm_password: string;
+  new_password_confirm: string;
 }
 
 export interface ForgotPasswordRequest {

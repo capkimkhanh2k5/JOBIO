@@ -18,9 +18,11 @@ from .services.auth import (
     verify_email, resend_verification, change_password, check_email,
     social_login, verify_2fa, get_2fa_status, enable_2fa, disable_2fa,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
-    ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
+    VerifyEmailInput, ResendVerificationInput, 
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
-    AuthenticationError
+    AuthenticationError,
+    send_registration_otp, SendRegistrationOtpInput,
+    verify_registration_otp, VerifyRegistrationOtpInput
 )
 from .services.passkey import (
     generate_registration_options, verify_registration,
@@ -35,6 +37,7 @@ from .serializers import (
     ForgotPasswordSerializer, ResetPasswordSerializer, VerifyEmailSerializer, 
     ResendVerificationSerializer, ChangePasswordSerializer, CheckEmailSerializer,
     SocialAuthSerializer, Verify2FASerializer,
+    SendRegistrationOtpSerializer, VerifyRegistrationOtpSerializer,
     TwoFactorStatusSerializer, TwoFactorEnableSerializer, TwoFactorDisableSerializer,
     UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
     PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
@@ -57,12 +60,12 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         return list_users(filters=self.request.query_params)
 
     def get_permissions(self):
-        # Public endpoints (không cần auth)
         public_actions = [
             'create', 'auth_login', 'auth_register', 'auth_forgot_password',
             'auth_reset_password', 'auth_verify_email', 'auth_resend_verification',
             'auth_check_email', 'auth_social_login',
             'passkey_auth_options', 'passkey_auth_verify',
+            'auth_send_registration_otp', 'auth_verify_registration_otp'
         ]
         if self.action in public_actions:
             return [AllowAny()]
@@ -270,6 +273,35 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
         return Response({"detail": "Logout successfully"}, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['post'], url_path='auth/send-registration-otp', throttle_classes=[EmailVerificationRateThrottle])
+    def auth_send_registration_otp(self, request):
+        """POST /api/users/auth/send-registration-otp/ - Gửi mã OTP đăng ký"""
+        serializer = SendRegistrationOtpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            send_registration_otp(data=SendRegistrationOtpInput(
+                email=serializer.validated_data['email']
+            ))
+            return Response({"detail": "Mã OTP đã được gửi đến email của bạn."}, status=status.HTTP_200_OK)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='auth/verify-registration-otp')
+    def auth_verify_registration_otp(self, request):
+        """POST /api/users/auth/verify-registration-otp/ - Xác thực OTP 6 số"""
+        serializer = VerifyRegistrationOtpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            verify_registration_otp(data=VerifyRegistrationOtpInput(
+                email=serializer.validated_data['email'],
+                otp=serializer.validated_data['otp']
+            ))
+            return Response({"detail": "Xác thực OTP thành công!"}, status=status.HTTP_200_OK)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=False, methods=['post'], url_path='auth/register', throttle_classes=[RegisterRateThrottle])
     def auth_register(self, request):
         """POST /api/users/auth/register/ - Đăng ký"""
@@ -281,7 +313,8 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 email=serializer.validated_data['email'],
                 password=serializer.validated_data['password'],
                 full_name=serializer.validated_data['full_name'],
-                role=serializer.validated_data.get('role', 'candidate')
+                role=serializer.validated_data.get('role', 'candidate'),
+                otp=serializer.validated_data['otp']
             ))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

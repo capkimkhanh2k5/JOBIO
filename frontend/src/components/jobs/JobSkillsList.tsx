@@ -66,7 +66,7 @@ export const JobSkillsList = ({ skills }: JobSkillsListProps) => {
                                         />
                                     ))}
                                 </div>
-                                <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">
+                                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
                                     {s.proficiency_level || 'N/A'}
                                 </span>
                             </div>

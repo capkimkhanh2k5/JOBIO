@@ -176,19 +176,39 @@ export default function JobsPage() {
                                     </Button>
                                 </div>
                             ) : (
-                                <motion.div
-                                    layout
-                                    className={cn(
-                                        "grid gap-4",
-                                        view === "grid" ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2" : "grid-cols-1"
+                                <AnimatePresence mode="wait">
+                                    {view === "grid" ? (
+                                        <motion.div
+                                            key="grid-view"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-2"
+                                        >
+                                            <AnimatePresence mode="popLayout">
+                                                {data?.items?.map((job: any) => (
+                                                    <JobCard key={`grid-${job.id}`} job={job} view="grid" />
+                                                ))}
+                                            </AnimatePresence>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="list-view"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="grid gap-4 grid-cols-1"
+                                        >
+                                            <AnimatePresence mode="popLayout">
+                                                {data?.items?.map((job: any) => (
+                                                    <JobCard key={`list-${job.id}`} job={job} view="list" />
+                                                ))}
+                                            </AnimatePresence>
+                                        </motion.div>
                                     )}
-                                >
-                                    <AnimatePresence mode="popLayout">
-                                        {data?.items?.map((job: any) => (
-                                            <JobCard key={job.id} job={job} view={view} />
-                                        ))}
-                                    </AnimatePresence>
-                                </motion.div>
+                                </AnimatePresence>
                             )}
 
                             {/* Pagination */}

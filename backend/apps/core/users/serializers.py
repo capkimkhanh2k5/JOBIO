@@ -22,6 +22,13 @@ class LoginResponseSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
     user = CustomUserSerializer()
 
+class SendRegistrationOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class VerifyRegistrationOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(
@@ -37,16 +44,46 @@ class RegisterSerializer(serializers.Serializer):
         choices=['candidate', 'company'],
         default='candidate'
     )
+    otp = serializers.CharField(
+        write_only=True,
+        max_length=6,
+        min_length=6,
+        error_messages={
+            'max_length': 'Mã OTP phải có đúng 6 ký tự',
+            'min_length': 'Mã OTP phải có đúng 6 ký tự'
+        }
+    )
+
+    company_name = serializers.CharField(
+        max_length=255, 
+        required=False, 
+        allow_blank=True,
+        error_messages={'max_length': 'Tên công ty không được vượt quá 255 ký tự'}
+    )
+    tax_code = serializers.CharField(
+        max_length=50, 
+        required=False, 
+        allow_blank=True,
+        error_messages={'max_length': 'Mã số thuế không được vượt quá 50 ký tự'}
+    )
 
     def validate(self, data):
-        """Kiểm tra password và password_confirm khớp nhau"""
-        if data['password'] != data['password_confirm']:
+        """Kiểm tra password và password_confirm khớp nhau, và validate thông tin công ty"""
+        if data.get('password') != data.get('password_confirm'):
             raise serializers.ValidationError({
-                'password_confirm': 'Mật khẩu xác nhận không khớp'
+                "password_confirm": "Mật khẩu xác nhận không khớp"
             })
+            
+        role = data.get('role', 'candidate')
+        if role == 'company':
+            # company_name is required when role is company
+            company_name = data.get('company_name')
+            if not company_name or not str(company_name).strip():
+                raise serializers.ValidationError({
+                    "company_name": "Tên công ty là bắt buộc đối với nhà tuyển dụng"
+                })
+        
         return data
-
-
 class RegisterResponseSerializer(serializers.Serializer):
     access_token = serializers.CharField()
     refresh_token = serializers.CharField()

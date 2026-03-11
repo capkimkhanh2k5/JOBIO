@@ -234,13 +234,20 @@ class Command(BaseCommand):
             raw_cycle = item.get('billing_cycle', 'monthly')
             days = duration_map.get(raw_cycle, 30)
 
+            # Merge root-level limits into features so the frontend can access them
+            features = dict(item.get('features') or {})
+            if 'job_post_limit' in item:
+                features['job_post_limit'] = item['job_post_limit']
+            if 'cv_view_limit' in item:
+                features['cv_view_limit'] = item['cv_view_limit']
+
             objs.append(SubscriptionPlan(
                 name=item['name'],
                 slug=item['slug'],
                 price=item['price'],
                 currency='VND',
                 duration_days=days,
-                features=item.get('features'),
+                features=features,
             ))
         SubscriptionPlan.objects.bulk_create(objs)
         self.stdout.write(self.style.SUCCESS(f'  ✓ SubscriptionPlans: {len(objs)} records'))

@@ -134,7 +134,7 @@ export default function JobDetailPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8">
-                                    <Card className="p-8 border-white/10 bg-white/5 backdrop-blur-xl rounded-3xl relative overflow-hidden group">
+                                    <Card className="p-8 border-gray-200 bg-white/90 backdrop-blur-xl shadow-xl shadow-indigo-500/5 rounded-3xl relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                                             <Sparkles size={120} className="text-primary" />
                                         </div>
@@ -215,15 +215,15 @@ export default function JobDetailPage() {
 function JobDetailSkeleton() {
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl animate-pulse">
-            <Skeleton className="h-10 w-40 mb-6 bg-white/5" />
+            <Skeleton className="h-10 w-40 mb-6 bg-gray-100" />
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-8">
-                    <Skeleton className="h-64 w-full rounded-2xl mb-8 bg-white/5" />
-                    <Skeleton className="h-40 w-full rounded-2xl mb-8 bg-white/5" />
-                    <Skeleton className="h-96 w-full rounded-2xl mb-8 bg-white/5" />
+                    <Skeleton className="h-64 w-full rounded-2xl mb-8 bg-gray-100" />
+                    <Skeleton className="h-40 w-full rounded-2xl mb-8 bg-gray-100" />
+                    <Skeleton className="h-96 w-full rounded-2xl mb-8 bg-gray-100" />
                 </div>
                 <div className="lg:col-span-4">
-                    <Skeleton className="h-[500px] w-full rounded-2xl bg-white/5" />
+                    <Skeleton className="h-[500px] w-full rounded-2xl bg-gray-100" />
                 </div>
             </div>
         </div>

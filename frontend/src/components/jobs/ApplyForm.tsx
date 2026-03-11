@@ -34,7 +34,6 @@ import { applicationService } from '@/services/applicationService';
 import { useUserStore } from '@/store/userStore';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
     cv_id: z.string().min(1, "Vui lòng chọn CV của bạn"),
@@ -185,7 +184,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                                             <SelectItem key={cv.id} value={cv.id.toString()} className="focus:bg-indigo-50 focus:text-indigo-600 rounded-lg m-1">
                                                                 <div className="flex flex-col items-start">
                                                                     <span className="font-bold">{cv.cv_name || cv.name}</span>
-                                                                    <span className="text-[10px] text-gray-400">Cập nhật: {new Date(cv.updated_at).toLocaleDateString('vi-VN')}</span>
+                                                                    <span className="text-[10px] text-slate-500">Cập nhật: {new Date(cv.updated_at).toLocaleDateString('vi-VN')}</span>
                                                                 </div>
                                                             </SelectItem>
                                                         ))}
@@ -211,7 +210,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                             <FormItem>
                                                 <div className="flex justify-between items-center mb-2">
                                                     <FormLabel className="text-gray-900 font-bold">Thư giới thiệu (tùy chọn)</FormLabel>
-                                                    <span className="text-[10px] font-bold text-gray-400">{(field.value?.length || 0)}/1000</span>
+                                                    <span className="text-[10px] font-bold text-slate-500">{(field.value?.length || 0)}/1000</span>
                                                 </div>
                                                 <FormControl>
                                                     <Textarea
