@@ -1048,6 +1048,9 @@ export interface MatchingScore {
   education_match_score: number;
   location_match_score: number;
   salary_match_score: number;
+  match_status: string;
+  breakdown: any;
+  ai_insights?: any;
   calculated_at: string;
   is_valid: boolean;
 }

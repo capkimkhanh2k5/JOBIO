@@ -74,7 +74,7 @@ export default function JobDetailPage() {
     // Fetch AI Match Score
     const { data: matchData } = useQuery({
         queryKey: ['job-match-score', id, user?.id],
-        queryFn: () => matchingService.getJobMatchScore(Number(id), user?.id || 999),
+        queryFn: () => matchingService.getJobMatchScore(Number(id), user?.id || 999).then(r => r.data),
         enabled: !!job && isAuthenticated
     });
 
@@ -82,7 +82,7 @@ export default function JobDetailPage() {
     if (isJobError || !job) return <JobNotFoundError />;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl relative z-10">
             {/* Back Button */}
             <Button
                 variant="ghost"
@@ -125,18 +125,18 @@ export default function JobDetailPage() {
                                 className="space-y-6"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                                    <div className="p-2 rounded-lg bg-sky-50 text-sky-700">
                                         <BrainCircuit size={24} />
                                     </div>
-                                    <h3 className="text-2xl font-bold italic tracking-tight">
-                                        JOBIO <span className="text-primary underline decoration-primary/30 underline-offset-4">AI Matching</span>
+                                    <h3 className="text-2xl font-bold italic tracking-tight text-slate-900">
+                                        JOBIO <span className="text-sky-700 underline decoration-sky-700/30 underline-offset-4">AI Matching</span>
                                     </h3>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8">
-                                    <Card className="p-8 border-gray-200 bg-white/90 backdrop-blur-xl shadow-xl shadow-indigo-500/5 rounded-3xl relative overflow-hidden group">
+                                    <Card className="p-8 border-slate-200 bg-white shadow-sm rounded-3xl relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                                            <Sparkles size={120} className="text-primary" />
+                                            <Sparkles size={120} className="text-sky-700" />
                                         </div>
                                         <div className="relative z-10 flex flex-col md:flex-row gap-10 items-center">
                                             <div className="flex-shrink-0 text-center space-y-4">
@@ -145,7 +145,7 @@ export default function JobDetailPage() {
                                                     <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Match Score</p>
                                                     <p className={cn(
                                                         "text-xl font-black italic",
-                                                        matchData.overall_score >= 80 ? "text-emerald-400" : "text-primary"
+                                                        matchData.overall_score >= 80 ? "text-emerald-500" : "text-sky-700"
                                                     )}>
                                                         {matchData.match_status.toUpperCase()}
                                                     </p>
@@ -168,10 +168,10 @@ export default function JobDetailPage() {
                         <div className="mt-4">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
-                                    <Sparkles size={24} className="text-primary" />
+                                    <Sparkles size={24} className="text-sky-700" />
                                     Việc làm tương tự
                                 </h3>
-                                <Button variant="link" className="text-primary group">
+                                <Button variant="link" className="text-sky-700 group">
                                     Xem tất cả
                                     <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
                                 </Button>
@@ -202,7 +202,7 @@ export default function JobDetailPage() {
             {/* Floating Apply Button for Mobile */}
             <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                 <Button
-                    className="w-full h-14 bg-primary text-white font-bold text-lg rounded-2xl shadow-2xl glow-cyan animate-in fade-in slide-in-from-bottom-10"
+                    className="w-full h-14 bg-sky-700 hover:bg-sky-800 text-white font-bold text-lg rounded-2xl shadow-lg transition-all animate-in fade-in slide-in-from-bottom-10"
                     onClick={() => setIsApplyModalOpen(true)}
                 >
                     Ứng tuyển ngay
@@ -214,7 +214,7 @@ export default function JobDetailPage() {
 
 function JobDetailSkeleton() {
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl animate-pulse">
+        <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl animate-pulse">
             <Skeleton className="h-10 w-40 mb-6 bg-gray-100" />
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-8">
@@ -232,7 +232,7 @@ function JobDetailSkeleton() {
 
 function JobNotFoundError() {
     return (
-        <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center">
+        <div className="container mx-auto px-4 pt-32 pb-32 flex flex-col items-center justify-center text-center">
             <div className="h-24 w-24 rounded-full bg-red-400/10 flex items-center justify-center text-red-500 mb-6">
                 <Sparkles size={48} />
             </div>
@@ -240,7 +240,7 @@ function JobNotFoundError() {
             <p className="text-muted-foreground mb-8 max-w-md">
                 Tin tuyển dụng này có thể đã hết hạn hoặc không tồn tại. Hãy quay lại danh sách để tìm kiếm cơ hội khác.
             </p>
-            <Button asChild className="bg-primary px-8 h-12 rounded-xl">
+            <Button asChild className="bg-sky-700 hover:bg-sky-800 px-8 h-12 rounded-xl text-white font-medium">
                 <a href="/jobs">Quay lại danh sách</a>
             </Button>
         </div>
