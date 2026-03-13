@@ -52,10 +52,10 @@ export default function Moderation() {
     });
 
     return (
-        <div className="p-6 lg:p-8 space-y-6 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)}>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                    <Shield className="w-6 h-6 text-blue-600" />
+                    <Shield className="w-6 h-6 text-violet-600" />
                     Duyệt & Kiểm duyệt
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">Duyệt công ty và kiểm duyệt đánh giá</p>
@@ -63,7 +63,7 @@ export default function Moderation() {
 
             {/* Tabs */}
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-white rounded-xl border border-slate-200 shadow-sm p-1 w-fit">
+                <div className="flex gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         const count = tab.id === 'companies' ? companiesData.length : reviewsData.length;
@@ -74,7 +74,7 @@ export default function Moderation() {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer
                                     ${activeTab === tab.id
-                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        ? 'bg-violet-600 text-white shadow-sm'
                                         : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                     }`}
                             >
@@ -97,22 +97,22 @@ export default function Moderation() {
             {activeTab === 'companies' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
                     {loadingCompanies ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-                            <Loader2 className="w-10 h-10 text-blue-500 mx-auto mb-3 animate-spin" />
+                        <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-12 text-center">
+                            <Loader2 className="w-10 h-10 text-violet-500 mx-auto mb-3 animate-spin" />
                             <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
                         </div>
                     ) : companiesData.length === 0 ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
+                        <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-12 text-center">
                             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
                             <p className="text-lg font-bold text-slate-900">Tất cả đã duyệt!</p>
                             <p className="text-sm text-slate-500 mt-1">Không có công ty nào chờ xác minh.</p>
                         </div>
                     ) : (
                         companiesData.map((company) => (
-                            <div key={company.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+                            <div key={company.id} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6 hover:shadow-md transition-shadow">
                                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                                     <div className="flex gap-4 flex-1">
-                                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-sm shrink-0">
+                                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-orange-500 flex items-center justify-center text-white font-black text-xl shadow-sm shrink-0">
                                             {company.company_name.charAt(0)}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -162,18 +162,18 @@ export default function Moderation() {
             {activeTab === 'reviews' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
                     {loadingReviews ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-                            <Loader2 className="w-10 h-10 text-blue-500 mx-auto mb-3 animate-spin" />
+                        <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-12 text-center">
+                            <Loader2 className="w-10 h-10 text-violet-500 mx-auto mb-3 animate-spin" />
                             <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
                         </div>
                     ) : reviewsData.length === 0 ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
+                        <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-12 text-center">
                             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
                             <p className="text-lg font-bold text-slate-900">Không có đánh giá chờ duyệt!</p>
                         </div>
                     ) : (
                         reviewsData.map((review) => (
-                            <div key={review.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+                            <div key={review.id} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6 hover:shadow-md transition-shadow">
                                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap mb-2">

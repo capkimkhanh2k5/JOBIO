@@ -63,23 +63,23 @@ export default function BlogManagement() {
     const tags = tagsResp ?? [];
 
     return (
-        <div className="p-6 lg:p-8 space-y-6 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <FileText className="w-6 h-6 text-blue-600" />
+                        <FileText className="w-6 h-6 text-violet-600" />
                         Quản lý Blog
                     </h1>
                     <p className="text-sm text-slate-500 mt-1">Quản lý bài viết, danh mục và tags</p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold shadow-sm">
+                <Button className="bg-violet-600 hover:bg-violet-700 rounded-xl font-semibold text-white shadow-sm">
                     <Plus className="w-4 h-4 mr-2" /> Tạo bài viết
                 </Button>
             </motion.div>
 
             {/* Tabs */}
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-white rounded-xl border border-slate-200 shadow-sm p-1 w-fit">
+                <div className="flex gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
@@ -87,7 +87,7 @@ export default function BlogManagement() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer
-                                    ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                    ${activeTab === tab.id ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
                             >
                                 <Icon className="w-4 h-4" />{tab.label}
                             </button>
@@ -100,19 +100,19 @@ export default function BlogManagement() {
             {activeTab === 'posts' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
                     {/* Search */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input type="text" placeholder="Tìm bài viết..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300" />
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300" />
                         </div>
                     </div>
 
                     {/* Posts Table */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
                         {loadingPosts ? (
                             <div className="py-12 flex items-center justify-center">
-                                <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                                <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
                             </div>
                         ) : (
                             <table className="w-full text-sm">
@@ -142,9 +142,9 @@ export default function BlogManagement() {
                                             <td className="py-3 px-4 text-slate-600 text-xs font-medium">{post.view_count.toLocaleString()}</td>
                                             <td className="py-3 px-4 text-right">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"><Eye className="w-4 h-4" /></button>
-                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"><Edit3 className="w-4 h-4" /></button>
-                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-violet-600 transition-colors cursor-pointer"><Eye className="w-4 h-4" /></button>
+                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"><Edit3 className="w-4 h-4" /></button>
+                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -160,22 +160,22 @@ export default function BlogManagement() {
             {activeTab === 'categories' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
                     {loadingCategories ? (
-                        <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                        <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {categories.map((cat) => (
-                                <div key={cat.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-shadow group cursor-pointer">
+                                <div key={cat.id} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5 hover:shadow-md transition-shadow group cursor-pointer">
                                     <div className="flex items-center justify-between mb-3">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50">
-                                            <FolderOpen className="w-5 h-5 text-blue-600" />
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-50 border border-violet-100/50 text-violet-600">
+                                            <FolderOpen className="w-5 h-5" />
                                         </div>
-                                        <button className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 opacity-0 group-hover:opacity-100 transition-all"><MoreHorizontal className="w-4 h-4" /></button>
+                                        <button className="p-1 rounded-lg hover:bg-slate-100/50 text-slate-400 opacity-0 group-hover:opacity-100 transition-all"><MoreHorizontal className="w-4 h-4" /></button>
                                     </div>
                                     <h4 className="font-bold text-sm text-slate-900">{cat.name}</h4>
                                     <p className="text-xs text-slate-500 mt-1">/{cat.slug}</p>
                                 </div>
                             ))}
-                            <button className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-5 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-blue-300 hover:text-blue-600 transition-all cursor-pointer">
+                            <button className="bg-white/40 backdrop-blur rounded-2xl border-2 border-dashed border-slate-200 p-5 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-violet-300 hover:bg-violet-50/30 hover:text-violet-600 transition-all cursor-pointer">
                                 <Plus className="w-6 h-6" />
                                 <span className="text-xs font-semibold">Thêm danh mục</span>
                             </button>
@@ -187,19 +187,19 @@ export default function BlogManagement() {
             {/* Tags Tab */}
             {activeTab === 'tags' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
                         {loadingTags ? (
-                            <div className="py-8 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                            <div className="py-8 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                         ) : (
                             <div className="flex flex-wrap gap-2.5">
                                 {tags.map((tag) => (
-                                    <div key={tag.id} className="group flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-blue-200 hover:bg-blue-50/50 transition-all cursor-pointer">
-                                        <Tag className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
-                                        <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors">{tag.name}</span>
+                                    <div key={tag.id} className="group flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white/50 hover:border-violet-200 hover:bg-violet-50/50 transition-all cursor-pointer shadow-sm">
+                                        <Tag className="w-3.5 h-3.5 text-slate-400 group-hover:text-violet-500 transition-colors" />
+                                        <span className="text-sm font-semibold text-slate-700 group-hover:text-violet-700 transition-colors">{tag.name}</span>
                                         <button className="ml-1 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"><Trash2 className="w-3 h-3" /></button>
                                     </div>
                                 ))}
-                                <button className="flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-blue-300 hover:text-blue-600 transition-all cursor-pointer">
+                                <button className="flex items-center gap-2 px-3 py-2 rounded-xl border-2 border-dashed border-slate-200 bg-white/30 text-slate-400 hover:border-violet-300 hover:bg-violet-50/30 hover:text-violet-600 transition-all cursor-pointer">
                                     <Plus className="w-3.5 h-3.5" />
                                     <span className="text-sm font-semibold">Thêm tag</span>
                                 </button>

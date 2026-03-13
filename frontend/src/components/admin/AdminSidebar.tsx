@@ -53,7 +53,7 @@ export function AdminSidebar() {
                             className={({ isActive }) =>
                                 `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group relative
                                 ${isActive
-                                    ? 'bg-blue-50/80 text-blue-700 shadow-sm border border-blue-100/50'
+                                    ? 'bg-violet-50/80 text-violet-700 shadow-sm border border-violet-100/50'
                                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                                 }`
                             }
@@ -64,10 +64,10 @@ export function AdminSidebar() {
                                     {isActive && (
                                         <motion.span
                                             layoutId="admin-sidebar-active"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-md -ml-3"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-violet-600 rounded-r-md -ml-3"
                                         />
                                     )}
-                                    <span className={`transition-colors duration-200 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-600'}`}>
+                                    <span className={`transition-colors duration-200 ${isActive ? 'text-violet-600' : 'text-slate-400 group-hover:text-violet-600'}`}>
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
@@ -116,7 +116,7 @@ export function AdminSidebar() {
             </div>
 
             {/* Admin info box */}
-            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-slate-50/50 to-blue-50/50 border border-slate-100/50">
+            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-slate-50/50 to-violet-50/50 border border-slate-100/50">
                 <p className="text-xs font-bold text-slate-900 mb-1">⚡ Admin Panel</p>
                 <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Quản trị hệ thống JOBIO. Mọi thay đổi sẽ ảnh hưởng toàn bộ platform.</p>
             </div>

@@ -28,9 +28,9 @@ interface User {
 }
 
 const roleColors: Record<string, string> = {
-    candidate: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    candidate: 'bg-slate-50 text-slate-700 border-slate-200',
     company: 'bg-violet-50 text-violet-700 border-violet-200',
-    admin: 'bg-amber-50 text-amber-700 border-amber-200',
+    admin: 'bg-orange-50 text-orange-700 border-orange-200',
 };
 
 const roleLabels: Record<string, string> = {
@@ -98,17 +98,17 @@ export default function UserManagement() {
     ];
 
     return (
-        <div className="p-6 lg:p-8 space-y-6 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             {/* Header */}
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <UserCog className="w-6 h-6 text-blue-600" />
+                        <UserCog className="w-6 h-6 text-violet-600" />
                         Quản lý Users
                     </h1>
                     <p className="text-sm text-slate-500 mt-1">Quản lý tất cả tài khoản trong hệ thống</p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold shadow-sm">
+                <Button className="bg-violet-600 hover:bg-violet-700 rounded-xl font-semibold shadow-sm text-white">
                     <Download className="w-4 h-4 mr-2" /> Xuất CSV
                 </Button>
             </motion.div>
@@ -117,7 +117,7 @@ export default function UserManagement() {
             <motion.div {...fadeUp(0.05)}>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {stats.map((stat) => (
-                        <div key={stat.label} className="bg-white rounded-xl border border-slate-200 shadow-sm px-4 py-3 flex items-center justify-between">
+                        <div key={stat.label} className="bg-white/60 backdrop-blur-xl rounded-xl border border-white/40 shadow-sm px-4 py-3 flex items-center justify-between transition-transform hover:-translate-y-0.5 duration-200">
                             <p className="text-xs font-medium text-slate-500">{stat.label}</p>
                             <p className={`text-lg font-black ${stat.color}`}>{stat.value}</p>
                         </div>
@@ -127,7 +127,7 @@ export default function UserManagement() {
 
             {/* Search & Filters */}
             <motion.div {...fadeUp(0.1)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
@@ -135,14 +135,14 @@ export default function UserManagement() {
                             placeholder="Tìm theo tên hoặc email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all bg-white/50"
                         />
                     </div>
                     <div className="flex gap-2">
                         <select
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value)}
-                            className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+                            className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer"
                         >
                             <option value="all">Tất cả Role</option>
                             <option value="candidate">Ứng viên</option>
@@ -152,7 +152,7 @@ export default function UserManagement() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+                            className="px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 bg-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer"
                         >
                             <option value="all">Tất cả Status</option>
                             <option value="active">Hoạt động</option>
@@ -166,10 +166,10 @@ export default function UserManagement() {
             {/* Bulk Actions */}
             {selectedUsers.length > 0 && (
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
-                        <p className="text-sm font-semibold text-blue-800">Đã chọn {selectedUsers.length} user(s)</p>
+                    <div className="bg-violet-50/80 backdrop-blur border border-violet-200 rounded-xl p-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold text-violet-800">Đã chọn {selectedUsers.length} user(s)</p>
                         <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="rounded-lg text-xs font-semibold border-blue-200 text-blue-700 hover:bg-blue-100">
+                            <Button size="sm" variant="outline" className="rounded-lg text-xs font-semibold border-violet-200 text-violet-700 hover:bg-violet-100">
                                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Kích hoạt
                             </Button>
                             <Button size="sm" variant="outline" className="rounded-lg text-xs font-semibold border-red-200 text-red-700 hover:bg-red-50">
@@ -182,7 +182,7 @@ export default function UserManagement() {
 
             {/* Users Table */}
             <motion.div {...fadeUp(0.15)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
@@ -192,7 +192,7 @@ export default function UserManagement() {
                                             type="checkbox"
                                             checked={selectedUsers.length === users.length && users.length > 0}
                                             onChange={toggleSelectAll}
-                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                            className="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
                                         />
                                     </th>
                                     <th className="text-left py-3 px-4 font-semibold text-slate-500">Tên</th>
@@ -206,7 +206,7 @@ export default function UserManagement() {
                             </thead>
                             <tbody>
                                 {loadingUsers ? (
-                                    <tr><td colSpan={8} className="py-12 text-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500 mx-auto" /></td></tr>
+                                    <tr><td colSpan={8} className="py-12 text-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500 mx-auto" /></td></tr>
                                 ) : users.map((user) => (
                                     <tr key={user.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                         <td className="py-3 px-4">
@@ -214,12 +214,12 @@ export default function UserManagement() {
                                                 type="checkbox"
                                                 checked={selectedUsers.includes(user.id)}
                                                 onChange={() => toggleSelect(user.id)}
-                                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                                className="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500 cursor-pointer"
                                             />
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0">
+                                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-orange-400 flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0">
                                                     {user.full_name?.split(' ').pop()?.charAt(0) ?? '?'}
                                                 </div>
                                                 <div>
@@ -249,7 +249,7 @@ export default function UserManagement() {
                                         <td className="py-3 px-4 text-slate-600 text-xs font-medium">{user.last_login ? new Date(user.last_login).toLocaleDateString('vi-VN') : '-'}</td>
                                         <td className="py-3 px-4 text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer" title="Xem">
+                                                <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-violet-600 transition-colors cursor-pointer" title="Xem">
                                                     <Eye className="w-4 h-4" />
                                                 </button>
                                                 <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-600 transition-colors cursor-pointer" title="Khóa">

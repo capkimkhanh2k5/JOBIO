@@ -33,12 +33,12 @@ const userGrowthData = [
 ];
 
 const industryData = [
-    { name: 'Công nghệ', value: 35, color: '#0ea5e9' },
-    { name: 'Tài chính', value: 20, color: '#8b5cf6' },
-    { name: 'Marketing', value: 15, color: '#f43f5e' },
-    { name: 'Giáo dục', value: 12, color: '#10b981' },
-    { name: 'Sản xuất', value: 10, color: '#f59e0b' },
-    { name: 'Khác', value: 8, color: '#94a3b8' },
+    { name: 'Công nghệ', value: 35, color: '#7c3aed' },
+    { name: 'Tài chính', value: 20, color: '#a78bfa' },
+    { name: 'Marketing', value: 15, color: '#f97316' },
+    { name: 'Giáo dục', value: 12, color: '#fb923c' },
+    { name: 'Sản xuất', value: 10, color: '#c084fc' },
+    { name: 'Khác', value: 8, color: '#e879f9' },
 ];
 
 export default function AdminDashboard() {
@@ -48,13 +48,13 @@ export default function AdminDashboard() {
     });
 
     const kpiData = adminStats ? [
-        { label: 'Tổng Users', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-cyan-500 to-sky-600', period: '30 ngày' },
-        { label: 'Tổng Việc Làm', value: adminStats.jobs?.total?.toLocaleString() ?? '0', delta: `${adminStats.jobs?.active ?? 0} active`, deltaType: 'up' as const, icon: Briefcase, gradient: 'from-violet-500 to-purple-600', period: 'đang hoạt động' },
-        { label: 'Doanh thu', value: `${(Number(adminStats.revenue?.total ?? 0) / 1_000_000).toFixed(1)}M`, delta: `+${(Number(adminStats.revenue?.revenue_30d ?? 0) / 1_000_000).toFixed(1)}M`, deltaType: 'up' as const, icon: Building2, gradient: 'from-emerald-500 to-green-600', period: '30 ngày' },
-        { label: 'Đơn Ứng Tuyển', value: '-', delta: '', deltaType: 'up' as const, icon: FileCheck, gradient: 'from-pink-500 to-rose-600', period: '' },
+        { label: 'Tổng Users', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-violet-500 to-violet-600', period: '30 ngày' },
+        { label: 'Tổng Việc Làm', value: adminStats.jobs?.total?.toLocaleString() ?? '0', delta: `${adminStats.jobs?.active ?? 0} active`, deltaType: 'up' as const, icon: Briefcase, gradient: 'from-fuchsia-500 to-fuchsia-600', period: 'đang hoạt động' },
+        { label: 'Doanh thu', value: `${(Number(adminStats.revenue?.total ?? 0) / 1_000_000).toFixed(1)}M`, delta: `+${(Number(adminStats.revenue?.revenue_30d ?? 0) / 1_000_000).toFixed(1)}M`, deltaType: 'up' as const, icon: Building2, gradient: 'from-orange-400 to-orange-500', period: '30 ngày' },
+        { label: 'Đơn Ứng Tuyển', value: '-', delta: '', deltaType: 'up' as const, icon: FileCheck, gradient: 'from-indigo-500 to-indigo-600', period: '' },
     ] : [];
     return (
-        <div className="p-6 lg:p-8 space-y-8 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
+        <div className="p-6 lg:p-8 space-y-8 w-full flex-1">
             {/* Welcome */}
             <motion.div {...fadeUp(0)}>
                 <div className="flex items-center justify-between">
@@ -62,7 +62,7 @@ export default function AdminDashboard() {
                         <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
                         <p className="text-sm text-slate-500 mt-1">Tổng quan hệ thống JOBIO</p>
                     </div>
-                    <Badge className="bg-amber-50 text-amber-700 border border-amber-200 font-semibold px-3 py-1.5">
+                    <Badge className="bg-violet-50 text-violet-700 border border-violet-200 font-semibold px-3 py-1.5">
                         <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
                         Dashboard
                     </Badge>
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
                         {kpiData.map((kpi) => {
                             const Icon = kpi.icon;
                             return (
-                                <div key={kpi.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3">
+                                <div key={kpi.label} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5 flex flex-col gap-3 transition-transform hover:-translate-y-1 duration-300">
                                     <div className="flex items-center justify-between">
                                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-sm`}>
                                             <Icon className="w-5 h-5" />
@@ -102,15 +102,15 @@ export default function AdminDashboard() {
             {/* Charts Row */}
             <motion.div {...fadeUp(0.16)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* User Growth Chart */}
-                <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div className="xl:col-span-2 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="font-bold text-base text-slate-900">Tăng trưởng</h3>
                             <p className="text-xs text-slate-500 mt-0.5">Users & Việc làm theo tháng</p>
                         </div>
                         <div className="flex gap-4 text-xs font-medium">
-                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500" /> Users</span>
-                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-500" /> Việc làm</span>
+                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-400" /> Users</span>
+                            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-600" /> Việc làm</span>
                         </div>
                     </div>
                     <ResponsiveContainer width="100%" height={260}>
@@ -119,14 +119,14 @@ export default function AdminDashboard() {
                             <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 13 }} />
-                            <Line type="monotone" dataKey="users" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4, fill: '#06b6d4' }} />
-                            <Line type="monotone" dataKey="jobs" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 4, fill: '#8b5cf6' }} />
+                            <Line type="monotone" dataKey="users" stroke="#a78bfa" strokeWidth={2.5} dot={{ r: 4, fill: '#a78bfa' }} />
+                            <Line type="monotone" dataKey="jobs" stroke="#7c3aed" strokeWidth={2.5} dot={{ r: 4, fill: '#7c3aed' }} />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
 
                 {/* Industry Pie Chart */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
                     <h3 className="font-bold text-base text-slate-900 mb-1">Ngành nghề</h3>
                     <p className="text-xs text-slate-500 mb-4">Phân bổ theo ngành</p>
                     <ResponsiveContainer width="100%" height={180}>
@@ -154,14 +154,14 @@ export default function AdminDashboard() {
             {/* Quick Actions Row */}
             <motion.div {...fadeUp(0.24)} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Pending Company Verifications */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                            <ShieldCheck className="w-5 h-5 text-blue-600" />
+                            <ShieldCheck className="w-5 h-5 text-violet-600" />
                             Duyệt công ty
                         </h3>
                         <Link to="/admin/moderation">
-                            <Button variant="ghost" size="sm" className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                            <Button variant="ghost" size="sm" className="text-xs font-semibold text-violet-600 hover:text-violet-700 hover:bg-violet-50">
                                 Xem tất cả <ArrowRight className="w-3.5 h-3.5 ml-1" />
                             </Button>
                         </Link>
@@ -170,14 +170,14 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Pending Reviews */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                            <Star className="w-5 h-5 text-amber-500" />
+                            <Star className="w-5 h-5 text-orange-500" />
                             Đánh giá chờ duyệt
                         </h3>
                         <Link to="/admin/moderation">
-                            <Button variant="ghost" size="sm" className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                            <Button variant="ghost" size="sm" className="text-xs font-semibold text-violet-600 hover:text-violet-700 hover:bg-violet-50">
                                 Xem tất cả <ArrowRight className="w-3.5 h-3.5 ml-1" />
                             </Button>
                         </Link>
