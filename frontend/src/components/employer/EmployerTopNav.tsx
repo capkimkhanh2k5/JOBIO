@@ -33,10 +33,10 @@ export function EmployerTopNav() {
             if (refreshToken) await authService.logout();
             clearAuth();
             toast.success('Đã đăng xuất. Hẹn gặp lại!');
-            navigate('/auth');
+            navigate('/');
         } catch {
             clearAuth();
-            navigate('/auth');
+            navigate('/');
         }
     };
 

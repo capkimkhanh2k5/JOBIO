@@ -58,7 +58,7 @@ interface FileUploadItem {
 
 const actionColors: Record<string, string> = {
     CREATE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    UPDATE: 'bg-blue-50 text-blue-700 border-blue-200',
+    UPDATE: 'bg-violet-50 text-violet-700 border-violet-200',
     DELETE: 'bg-red-50 text-red-700 border-red-200',
 };
 
@@ -86,10 +86,10 @@ export default function SystemSettings() {
     const files: FileUploadItem[] = Array.isArray(filesRaw) ? filesRaw : filesRaw?.results ?? [];
 
     return (
-        <div className="p-6 lg:p-8 space-y-6 max-w-screen-2xl mx-auto bg-slate-50 min-h-screen">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)}>
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                    <Settings className="w-6 h-6 text-blue-600" />
+                    <Settings className="w-6 h-6 text-violet-600" />
                     Cài đặt hệ thống
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">Quản lý cấu hình, nhật ký và tệp tải lên</p>
@@ -97,7 +97,7 @@ export default function SystemSettings() {
 
             {/* Tabs */}
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-white rounded-xl border border-slate-200 shadow-sm p-1 w-fit">
+                <div className="flex gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
@@ -106,7 +106,7 @@ export default function SystemSettings() {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer
                                     ${activeTab === tab.id
-                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        ? 'bg-violet-600 text-white shadow-sm'
                                         : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                     }`}
                             >
@@ -121,15 +121,15 @@ export default function SystemSettings() {
             {/* Settings Tab */}
             {activeTab === 'settings' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-slate-100/50 flex items-center justify-between">
                             <p className="text-sm font-bold text-slate-900">Cấu hình hệ thống</p>
-                            <Button size="sm" className="rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-semibold">
+                            <Button size="sm" className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white">
                                 <Save className="w-3.5 h-3.5 mr-1.5" /> Lưu thay đổi
                             </Button>
                         </div>
                         {loadingSettings ? (
-                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                         ) : (
                             <div className="divide-y divide-slate-50">
                                 {settings.map((setting) => (
@@ -151,7 +151,7 @@ export default function SystemSettings() {
                                                 <input
                                                     type={setting.setting_type === 'number' ? 'number' : 'text'}
                                                     defaultValue={setting.setting_value}
-                                                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+                                                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-900 bg-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
                                                 />
                                             )}
                                         </div>
@@ -166,7 +166,7 @@ export default function SystemSettings() {
             {/* Activity Logs Tab */}
             {activeTab === 'logs' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex gap-3">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4 flex gap-3">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
@@ -174,16 +174,16 @@ export default function SystemSettings() {
                                 placeholder="Tìm trong logs..."
                                 value={logSearch}
                                 onChange={(e) => setLogSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
                             />
                         </div>
-                        <Button variant="outline" className="rounded-xl font-semibold text-sm">
+                        <Button variant="outline" className="rounded-xl font-semibold text-sm border-slate-200 text-slate-700 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200">
                             <RefreshCw className="w-4 h-4 mr-2" /> Làm mới
                         </Button>
                     </div>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
                         {loadingLogs ? (
-                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                         ) : (
                             <table className="w-full text-sm">
                                 <thead>
@@ -221,12 +221,12 @@ export default function SystemSettings() {
             {/* File Uploads Tab */}
             {activeTab === 'files' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-slate-100/50">
                             <p className="text-sm font-bold text-slate-900">Tệp tải lên gần đây</p>
                         </div>
                         {loadingFiles ? (
-                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-blue-500" /></div>
+                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                         ) : (
                             <table className="w-full text-sm">
                                 <thead>
@@ -253,8 +253,8 @@ export default function SystemSettings() {
                                             <td className="py-3 px-4 text-slate-500 text-xs">{new Date(file.created_at).toLocaleDateString('vi-VN')}</td>
                                             <td className="py-3 px-4 text-right">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"><Eye className="w-4 h-4" /></button>
-                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-violet-600 transition-colors cursor-pointer"><Eye className="w-4 h-4" /></button>
+                                                    <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -52,8 +52,10 @@ export const Header = () => {
             await authService.logout();
             clearAuth();
             toast.success("Hẹn gặp lại bạn!");
+            navigate('/');
         } catch {
             clearAuth();
+            navigate('/');
         }
     };
 
@@ -158,7 +160,7 @@ export const Header = () => {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator className="bg-white/5" />
                                     <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'company' ? '/employer/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
+                                        <Link to={user.role === 'admin' ? '/admin/dashboard' : user.role === 'company' ? '/employer/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
                                             <LayoutDashboard className="mr-3 h-4 w-4" />
                                             <span>Dashboard</span>
                                         </Link>
