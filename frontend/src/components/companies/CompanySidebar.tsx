@@ -69,60 +69,64 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm shadow-indigo-500/5 sticky top-24"
+                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm sticky top-32"
             >
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="h-16 w-16 rounded-xl bg-gray-50 p-2 border border-gray-100 flex items-center justify-center shrink-0">
+                    <div className="h-16 w-16 rounded-xl bg-slate-50 p-2 border border-slate-200 flex items-center justify-center shrink-0">
                         {company.logo_url ? (
                             <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
                         ) : (
-                            <Building className="w-8 h-8 text-gray-300" />
+                            <Building className="w-8 h-8 text-slate-300" />
                         )}
                     </div>
                     <div className="min-w-0">
-                        <h4 className="font-bold text-gray-900 flex items-center gap-1.5">
+                        <h4 className="font-bold text-slate-900 flex items-center gap-1.5">
                             <span className="truncate">{company.company_name}</span>
                             {company.verification_status === 'verified' && (
-                                <CheckCircle2 size={16} className="text-blue-500 fill-blue-50 shrink-0" />
+                                <CheckCircle2 size={16} className="text-sky-600 fill-sky-50 shrink-0" />
                             )}
                         </h4>
-                        <p className="text-sm text-gray-500 truncate">{company.industry?.name || 'Ngành nghề chưa cập nhật'}</p>
+                        <p className="text-sm text-slate-500 truncate">{company.industry?.name || 'Ngành nghề chưa cập nhật'}</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-6">
-                    <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-indigo-100 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-wider">Quy mô</p>
-                        <p className="text-sm font-black text-gray-900 group-hover/stat:text-indigo-600 transition-colors uppercase">{company.company_size}</p>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-white hover:border-sky-200 transition-all group/stat">
+                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Quy mô</p>
+                        <p className="text-sm font-black text-slate-900 group-hover/stat:text-sky-700 transition-colors uppercase truncate" title={company.company_size}>
+                            {company.company_size || 'Đang cập nhật'}
+                        </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-indigo-100 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-wider">Thành lập</p>
-                        <p className="text-sm font-black text-gray-900 group-hover/stat:text-indigo-600 transition-colors">{company.founded_year || 'N/A'}</p>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-white hover:border-sky-200 transition-all group/stat">
+                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Thành lập</p>
+                        <p className="text-sm font-black text-slate-900 group-hover/stat:text-sky-700 transition-colors">
+                            {company.founded_year || 'N/A'}
+                        </p>
                     </div>
                 </div>
 
                 <div className="space-y-4 mb-8">
                     <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2 text-sm text-gray-500">
-                            <Users size={16} className="text-gray-400" />
+                        <span className="flex items-center gap-2 text-sm text-slate-600">
+                            <Users size={16} className="text-slate-400" />
                             Người theo dõi
                         </span>
-                        <span className="font-bold text-gray-900">{(company.follower_count || 0).toLocaleString()}</span>
+                        <span className="font-bold text-slate-900">{(company.follower_count || 0).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2 text-sm text-gray-500">
-                            <Building size={16} className="text-gray-400" />
+                        <span className="flex items-center gap-2 text-sm text-slate-600">
+                            <Building size={16} className="text-slate-400" />
                             Tin đang tuyển
                         </span>
-                        <span className="font-bold text-gray-900">{company.job_count || 0}</span>
+                        <span className="font-bold text-slate-900">{company.job_count || 0}</span>
                     </div>
                     {company.website && (
-                        <div className="pt-2 border-t border-gray-50">
+                        <div className="pt-2 border-t border-slate-100">
                             <a
                                 href={company.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-between text-sm text-indigo-600 hover:text-indigo-700 font-bold group/link"
+                                className="flex items-center justify-between text-sm text-sky-700 hover:text-sky-800 font-bold group/link"
                             >
                                 <span className="flex items-center gap-2">
                                     <Globe size={16} />
@@ -142,8 +146,8 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                         className={cn(
                             "w-full h-11 rounded-xl font-bold transition-all",
                             isFollowing
-                                ? "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"
-                                : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-100"
+                                ? "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
+                                : "bg-sky-700 hover:bg-sky-800 text-white shadow-none"
                         )}
                     >
                         {isFollowing ? "Đang theo dõi" : "Theo dõi công ty"}
@@ -151,7 +155,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                     <Button
                         asChild
                         variant="ghost"
-                        className="w-full text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl group/jobs"
+                        className="w-full text-sky-700 hover:text-sky-800 hover:bg-sky-50 rounded-xl group/jobs font-bold"
                     >
                         <a href={`/jobs?company_id=${company.id}`}>
                             Xem tất cả tin tuyển dụng

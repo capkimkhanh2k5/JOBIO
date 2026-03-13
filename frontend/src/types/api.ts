@@ -52,14 +52,17 @@ export interface RegisterRequest {
   full_name: string;
   phone?: string;
   password: string;
-  confirm_password: string;
+  password_confirm: string;
+  otp: string;
   role: 'candidate' | 'company';
+  company_name?: string;
+  tax_code?: string;
 }
 
 export interface ChangePasswordRequest {
   old_password: string;
   new_password: string;
-  confirm_password: string;
+  new_password_confirm: string;
 }
 
 export interface ForgotPasswordRequest {
@@ -1045,6 +1048,9 @@ export interface MatchingScore {
   education_match_score: number;
   location_match_score: number;
   salary_match_score: number;
+  match_status: string;
+  breakdown: any;
+  ai_insights?: any;
   calculated_at: string;
   is_valid: boolean;
 }

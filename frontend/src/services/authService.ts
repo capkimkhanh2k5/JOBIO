@@ -22,6 +22,14 @@ export const authService = {
     return api.post<LoginResponse>('/api/users/auth/register/', data);
   },
 
+  sendRegistrationOtp(data: { email: string }) {
+    return api.post('/api/users/auth/send-registration-otp/', data);
+  },
+
+  verifyRegistrationOtp(data: { email: string; otp: string }) {
+    return api.post('/api/users/auth/verify-registration-otp/', data);
+  },
+
   logout() {
     return api.post('/api/users/auth/logout/');
   },
@@ -73,7 +81,7 @@ export const authService = {
   },
 
   checkEmail(email: string) {
-    return api.post<{ is_available: boolean }>('/api/users/auth/check-email/', { email });
+    return api.post<{ exists: boolean }>('/api/users/auth/check-email/', { email });
   },
 
   // ─── 2FA ─────────────────────────────────────────────────────────────────

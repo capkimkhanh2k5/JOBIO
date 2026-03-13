@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useUiStore } from '../../store/uiStore';
 import { useUserStore } from '../../store/userStore';
 import { Search, Menu, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
@@ -17,10 +17,27 @@ import {
 import { toast } from 'sonner';
 import { NotificationBell } from '../shared/notifications/NotificationBell';
 
+interface NavItem {
+    name: string;
+    path: string;
+    requiresAuth?: boolean;
+    requiresRole?: 'company' | 'candidate' | 'admin';
+}
+
+const NAV_ITEMS: NavItem[] = [
+    { name: 'Trang Chủ', path: '/' },
+    { name: 'Việc Làm', path: '/jobs' },
+    { name: 'Công Ty', path: '/companies' },
+    { name: 'Đăng Tuyển', path: '/employer/jobs/create', requiresAuth: true, requiresRole: 'company' },
+    { name: 'Giá Dịch Vụ', path: '/pricing' },
+    { name: 'Tạo CV', path: '/cv-builder', requiresAuth: true },
+];
+
 export const Header = () => {
     const toggleCommand = useUiStore((state) => state.toggleCommand);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const { user, isAuthenticated, clearAuth } = useUserStore();
 
@@ -35,14 +52,38 @@ export const Header = () => {
             await authService.logout();
             clearAuth();
             toast.success("Hẹn gặp lại bạn!");
-        } catch (error) {
+        } catch {
             clearAuth();
         }
     };
 
+    const handleNavClick = (item: NavItem) => {
+        // Không cần auth → điều hướng thẳng
+        if (!item.requiresAuth) {
+            navigate(item.path);
+            return;
+        }
+
+        // Chưa login → redirect đến trang auth
+        if (!isAuthenticated || !user) {
+            navigate('/auth', { state: { from: item.path } });
+            return;
+        }
+
+        // Có yêu cầu role cụ thể (company)
+        if (item.requiresRole && user.role !== item.requiresRole && user.role !== 'admin') {
+            toast.warning('Chức năng này không dành cho bạn', {
+                description: 'Tính năng "Đăng Tuyển" chỉ dành cho tài khoản Nhà tuyển dụng.',
+            });
+            return;
+        }
+
+        navigate(item.path);
+    };
+
     return (
         <header className={`fixed top-0 z-50 w-full transition-all duration-700 ${isScrolled ? 'py-4' : 'py-8'}`}>
-            <div className="container mx-auto px-4">
+            <div className="w-full max-w-[1600px] mx-auto px-6">
                 <div className={`flex items-center justify-between px-10 h-20 rounded-[32px] transition-all duration-700 ${isScrolled ? 'glass-effect shadow-2xl scale-[1.02]' : 'bg-transparent border-transparent'}`}>
                     <div className="flex items-center gap-16">
                         <Link to="/" className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter hover:opacity-80 transition-opacity">
@@ -50,20 +91,31 @@ export const Header = () => {
                         </Link>
 
                         <nav className="hidden lg:flex items-center gap-10">
-                            {[
-                                { name: 'Trang Chủ', path: '/' },
-                                { name: 'Việc Làm', path: '/jobs' },
-                                { name: 'Công Ty', path: '/companies' },
-                                { name: 'Đăng Tuyển', path: '/auth?mode=register' }
-                            ].map((item) => (
-                                <Link
-                                    key={item.name}
-                                    to={item.path}
-                                    className={`text-[15px] font-black uppercase tracking-widest transition-all hover:text-primary ${location.pathname === item.path ? 'text-primary' : 'text-foreground/60'}`}
-                                >
-                                    {item.name}
-                                </Link>
-                            ))}
+                            {NAV_ITEMS.map((item) => {
+                                const isActive = location.pathname === item.path;
+
+                                if (!item.requiresAuth) {
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            to={item.path}
+                                            className={`text-[15px] font-black uppercase tracking-widest transition-all hover:text-primary ${isActive ? 'text-primary' : 'text-foreground/60'}`}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    );
+                                }
+
+                                return (
+                                    <button
+                                        key={item.name}
+                                        onClick={() => handleNavClick(item)}
+                                        className={`text-[15px] font-black uppercase tracking-widest transition-all hover:text-primary cursor-pointer ${isActive ? 'text-primary' : 'text-foreground/60'}`}
+                                    >
+                                        {item.name}
+                                    </button>
+                                );
+                            })}
                         </nav>
                     </div>
 

@@ -35,6 +35,18 @@ export function MiniFooter() {
                     >
                         Về chúng tôi
                     </Link>
+                    <Link
+                        to="/terms"
+                        className="hover:text-primary transition-colors duration-200"
+                    >
+                        Điều khoản
+                    </Link>
+                    <Link
+                        to="/privacy"
+                        className="hover:text-primary transition-colors duration-200"
+                    >
+                        Bảo mật
+                    </Link>
                 </nav>
             </div>
         </footer>

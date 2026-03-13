@@ -85,7 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="name@example.com"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                        className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
                                         {...field}
                                     />
                                 </FormControl>
@@ -102,7 +102,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <FormLabel>Mật khẩu</FormLabel>
                                     <Button
                                         variant="link"
-                                        className="p-0 h-auto text-xs text-primary hover:text-primary/80 font-semibold"
+                                        className="p-0 h-auto text-sm text-blue-600 hover:text-blue-700 font-semibold"
                                         onClick={onForgotPassword}
                                         type="button"
                                     >
@@ -113,7 +113,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10"
+                                        className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
                                         {...field}
                                     />
                                 </FormControl>
@@ -142,7 +142,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"
+                        className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-md shadow-blue-500/20 hover:-translate-y-[1px]"
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -165,7 +165,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 Chưa có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-primary hover:text-primary/80 font-semibold"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-700 font-bold"
                     onClick={onSwitchToRegister}
                 >
                     Đăng ký ngay

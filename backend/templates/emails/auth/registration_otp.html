@@ -1,0 +1,30 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Mã xác thực Đăng ký{% endblock %}
+
+{% block content %}
+<div style="text-align: center;">
+    <h2 style="font-size: 24px; color: #111827;">Mã xác nhận tài khoản của bạn</h2>
+
+    <p style="color: #4B5563; line-height: 1.6;">
+        Chào bạn, cảm ơn bạn đã đăng ký tài khoản tại <strong>Jobio</strong>. Dưới đây là mã xác thực OTP của bạn để
+        hoàn tất quá trình đăng ký.
+    </p>
+
+    <div
+        style="margin: 32px auto; padding: 24px; background-color: #F8FAFC; border-radius: 12px; border: 1px dashed #CBD5E1; max-width: 300px;">
+        <p style="font-size: 36px; font-weight: 700; color: #4F46E5; letter-spacing: 8px; margin: 0;">{{ otp_code }}</p>
+    </div>
+
+    <p style="color: #6B7280; font-size: 14px;">
+        Mã xác thực này sẽ hết hạn sau <strong>{{ expiry_minutes }} phút</strong>.
+        <br />Vui lòng không chia sẻ mã này cho bất kỳ ai.
+    </p>
+
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #E5E7EB; text-align: left;">
+        <p style="font-size: 13px; color: #9CA3AF; margin-bottom: 0;">
+            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.
+        </p>
+    </div>
+</div>
+{% endblock %}

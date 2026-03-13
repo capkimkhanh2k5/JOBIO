@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
+from django.core.cache import cache
 
 from ..selectors.users import get_user_by_email, get_user_by_reset_token, get_user_by_verification_token
 from ..models import CustomUser
@@ -185,11 +186,62 @@ def logout_user(data: LogoutInput) -> bool:
     except Exception as e:
         raise AuthenticationError(f"Can't logout: {str(e)}")
 
+class SendRegistrationOtpInput(BaseModel):
+    email: EmailStr
+
+def send_registration_otp(data: SendRegistrationOtpInput) -> bool:
+    """
+    Gửi mã OTP 6 số để xác thực email trước khi đăng ký
+    """
+    existing_user = get_user_by_email(email=data.email)
+    if existing_user:
+        raise AuthenticationError("Email is already in use!")
+
+    # Generate 6-digit OTP
+    otp_code = ''.join(secrets.choice(string.digits) for _ in range(6))
+    
+    # Cache the OTP for 5 minutes (300 seconds)
+    cache.set(f'reg_otp_{data.email}', otp_code, timeout=300)
+
+    # Send OTP Email
+    EmailService.send_email(
+        recipient=data.email,
+        subject="[JobPortal] Mã xác thực đăng ký tài khoản",
+        template_path="emails/auth/registration_otp.html",
+        context={
+            "otp_code": otp_code,
+            "expiry_minutes": 5
+        }
+    )
+    return True
+
+class VerifyRegistrationOtpInput(BaseModel):
+    email: EmailStr
+    otp: str
+
+def verify_registration_otp(data: VerifyRegistrationOtpInput) -> bool:
+    """
+    Xác thực mã OTP 6 số do user nhập vào độc lập.
+    Được dùng cho tính năng auto-verify trên giao diện.
+    """
+    cached_otp = cache.get(f'reg_otp_{data.email}')
+    
+    if not cached_otp:
+        raise AuthenticationError("Mã OTP đã hết hạn hoặc chưa được gửi.")
+        
+    if str(cached_otp) != str(data.otp):
+        raise AuthenticationError("Mã OTP không chính xác.")
+        
+    return True
+
 class RegisterInput(BaseModel):
     email: EmailStr
     password: str
     full_name: str
     role: str = 'candidate'  # Mặc định là ứng viên
+    otp: str
+    company_name: str | None = None
+    tax_code: str | None = None
 
 def register_user(data: RegisterInput) -> dict:
     """
@@ -207,6 +259,14 @@ def register_user(data: RegisterInput) -> dict:
     if existing_user:
         raise AuthenticationError("Email is already in use!")
     
+    # Xác thực mã OTP
+    cached_otp = cache.get(f'reg_otp_{data.email}')
+    if not cached_otp:
+        raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
+    
+    if cached_otp != data.otp:
+        raise AuthenticationError("Mã xác thực không chính xác!")
+
     #Create new user
     user = CustomUser.objects.create_user(
         email=data.email,
@@ -215,22 +275,29 @@ def register_user(data: RegisterInput) -> dict:
         role=data.role
     )
     
-    user.email_verification_token = secrets.token_urlsafe(32)
-    user.save(update_fields=["email_verification_token"])
+    # Import service tạo company ngay tại đây để tránh vòng lặp Import (circular import)
+    if data.role == 'company':
+        from apps.company.companies.services.companies import create_company, CompanyCreateInput
+        if not data.company_name:
+            # Revert tạo user nếu lỗi logic (mặc dù Serializer đã chặn trước)
+            user.delete()
+            raise ValueError("Tên công ty là bắt buộc đối với Nhà tuyển dụng.")
+            
+        create_company(
+            user=user,
+            data=CompanyCreateInput(
+                company_name=data.company_name,
+                tax_code=data.tax_code
+            )
+        )
+    
+    # Mark email as verified since OTP was correct
+    user.email_verified = True
+    user.save(update_fields=["email_verified"])
+    
+    # Clean up OTP from cache
+    cache.delete(f'reg_otp_{data.email}')
 
-    # Send Verification Email
-    verification_link = f"http://localhost:3000/auth/verify-email?token={user.email_verification_token}"
-    
-    EmailService.send_email(
-        recipient=user.email,
-        subject="[JobPortal] Xác thực tài khoản của bạn",
-        template_path="emails/auth/verify_email.html",
-        context={
-            "user_name": user.full_name,
-            "verification_link": verification_link
-        }
-    )
-    
     #Return kết quả
     return generate_tokens(user)
 

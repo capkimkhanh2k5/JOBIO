@@ -49,9 +49,20 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             toast.success("Mật khẩu đã được thay đổi thành công!");
             onSuccess();
         } catch (error: any) {
-            const msg = error.response?.data?.detail
-                || error.response?.data?.message
-                || 'Lỗi. Vui lòng thử lại.';
+            const data = error.response?.data;
+            let msg = 'Lỗi. Vui lòng thử lại.';
+            if (data) {
+                if (data.detail) msg = data.detail;
+                else if (typeof data.message === 'string') msg = data.message;
+                else {
+                    const firstKey = Object.keys(data)[0];
+                    if (firstKey && Array.isArray(data[firstKey])) {
+                        msg = data[firstKey][0];
+                    } else if (firstKey && typeof data[firstKey] === 'string') {
+                        msg = data[firstKey];
+                    }
+                }
+            }
             toast.error(msg);
         }
     };

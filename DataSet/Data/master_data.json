@@ -2101,6 +2101,7 @@
       "features": {
         "search_cv": true,
         "top_job": true,
+        "mass_email": true,
         "priority_support": true,
         "employer_branding": true
       },
@@ -2115,6 +2116,7 @@
       "features": {
         "search_cv": true,
         "top_job": true,
+        "mass_email": true,
         "priority_support": true,
         "employer_branding": true
       },
@@ -2129,6 +2131,7 @@
       "features": {
         "search_cv": true,
         "top_job": true,
+        "mass_email": true,
         "priority_support": true,
         "employer_branding": true
       },
