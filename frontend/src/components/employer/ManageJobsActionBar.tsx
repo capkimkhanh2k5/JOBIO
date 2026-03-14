@@ -72,7 +72,7 @@ export function ManageJobsActionBar({
                 {/* Create button */}
                 <Button
                     onClick={() => navigate('/employer/jobs/create')}
-                    className="gap-2 bg-gradient-to-r from-cyan-500 to-violet-500 hover:from-cyan-400 hover:to-violet-400 text-white font-semibold shadow-lg shadow-cyan-500/20 shrink-0"
+                    className="gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold shadow-lg shadow-violet-500/25 shrink-0 rounded-xl h-10 px-6"
                 >
                     <Plus className="w-4 h-4" />
                     Tạo tin mới
@@ -80,21 +80,21 @@ export function ManageJobsActionBar({
 
                 {/* Search */}
                 <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         defaultValue={searchValue}
                         onChange={handleSearchInput}
                         placeholder="Tìm kiếm vị trí..."
-                        className="w-full h-9 pl-9 pr-3 rounded-xl bg-white/5 border border-white/10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-cyan-400/50 focus:bg-white/8 transition-all"
+                        className="w-full h-10 pl-9 pr-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-400/50 transition-all font-medium"
                     />
                 </div>
 
                 {/* Status filter */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-1.5 bg-white/5 border-white/10 hover:bg-white/10 text-sm">
+                        <Button variant="outline" size="sm" className="gap-1.5 bg-white border-slate-200 hover:bg-slate-50 text-sm font-medium h-10 rounded-xl">
                             {STATUS_LABELS[statusFilter]}
-                            <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="bg-white border-border shadow-lg">
@@ -111,9 +111,9 @@ export function ManageJobsActionBar({
                 {/* Sort */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-1.5 bg-white/5 border-white/10 hover:bg-white/10 text-sm">
+                        <Button variant="outline" size="sm" className="gap-1.5 bg-white border-slate-200 hover:bg-slate-50 text-sm font-medium h-10 rounded-xl">
                             {SORT_LABELS[sortOption]}
-                            <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="bg-white border-border shadow-lg">
@@ -128,7 +128,7 @@ export function ManageJobsActionBar({
                 </DropdownMenu>
 
                 {/* View toggle */}
-                <div className="flex items-center rounded-xl overflow-hidden border border-white/10 bg-white/5 ml-auto">
+                <div className="flex items-center rounded-xl overflow-hidden border border-slate-200 bg-slate-50 ml-auto h-10 p-1">
                     {(['table', 'list', 'grid'] as ViewMode[]).map((mode) => {
                         const Icon = mode === 'table' ? Table2 : mode === 'list' ? AlignJustify : LayoutGrid;
                         return (
@@ -136,9 +136,9 @@ export function ManageJobsActionBar({
                                 key={mode}
                                 onClick={() => onViewModeChange(mode)}
                                 aria-label={`View as ${mode}`}
-                                className={`p-2 transition-all duration-150 ${viewMode === mode
-                                    ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-cyan-400'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-white/8'
+                                className={`p-1.5 rounded-lg transition-all duration-150 ${viewMode === mode
+                                    ? 'bg-white text-violet-600 shadow-sm'
+                                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
                                     }`}
                             >
                                 <Icon className="w-4 h-4" />
@@ -158,14 +158,14 @@ export function ManageJobsActionBar({
                         transition={{ duration: 0.2 }}
                         className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20"
                     >
-                        <span className="text-sm font-semibold text-violet-300">
+                        <span className="text-sm font-bold text-violet-600">
                             Đã chọn {selectedIds.length} tin
                         </span>
                         <div className="flex-1" />
                         <Button
                             size="sm" variant="outline"
                             onClick={onBulkExtend}
-                            className="gap-1.5 border-violet-400/30 hover:bg-violet-500/15 text-violet-300 text-xs"
+                            className="gap-1.5 border-violet-200 hover:bg-white text-violet-600 text-xs font-bold rounded-lg h-8"
                         >
                             <CalendarClock className="w-3.5 h-3.5" />
                             Gia hạn deadline
@@ -173,7 +173,7 @@ export function ManageJobsActionBar({
                         <Button
                             size="sm" variant="outline"
                             onClick={onBulkClose}
-                            className="gap-1.5 border-orange-400/30 hover:bg-orange-500/15 text-orange-300 text-xs"
+                            className="gap-1.5 border-orange-200 hover:bg-white text-orange-600 text-xs font-bold rounded-lg h-8"
                         >
                             <XCircle className="w-3.5 h-3.5" />
                             Đóng tin đã chọn
@@ -181,7 +181,7 @@ export function ManageJobsActionBar({
                         <Button
                             size="sm" variant="outline"
                             onClick={onBulkDelete}
-                            className="gap-1.5 border-red-400/30 hover:bg-red-500/15 text-red-400 text-xs"
+                            className="gap-1.5 border-red-200 hover:bg-white text-red-600 text-xs font-bold rounded-lg h-8"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
                             Xóa đã chọn

@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ApplicationDetailSheet } from '@/components/candidate/applications/ApplicationDetailSheet';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 const STATUS_FILTERS = [
     { id: 'Tất cả', label: 'Tất cả', count: 0 },
@@ -123,23 +124,14 @@ export default function MyApplications() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 relative pb-12">
-            <div className="absolute top-0 left-0 w-full h-[300px] overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-20%] right-[10%] w-[500px] h-[500px] rounded-full bg-violet-400/10 blur-[100px]" />
-                <div className="absolute top-[10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-cyan-400/10 blur-[120px]" />
-            </div>
+        <div className="min-h-screen pb-12 w-full flex-1">
+            <PageHeader
+                title="Việc làm đã ứng tuyển"
+                description="Theo dõi và quản lý quá trình ứng tuyển của bạn."
+                icon={Briefcase}
+            />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
-                <motion.div
-                    className="mb-8"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-cyan-600 tracking-tight">
-                        Việc làm đã ứng tuyển
-                    </h1>
-                    <p className="text-muted-foreground mt-2 font-medium">Theo dõi và quản lý quá trình ứng tuyển của bạn.</p>
-                </motion.div>
+            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
 
                 {/* Initial Loading Skeleton for Stats */}
                 {isLoading && !applications && (
@@ -207,7 +199,7 @@ export default function MyApplications() {
                                     <TabsTrigger
                                         key={s.id}
                                         value={s.id}
-                                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-cyan-500 data-[state=active]:bg-transparent data-[state=active]:text-cyan-600 px-1 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 shadow-none data-[state=active]:shadow-none transition-colors"
+                                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-violet-700 px-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 shadow-none data-[state=active]:shadow-none transition-colors"
                                     >
                                         {s.label}
                                         {applications && (
@@ -237,7 +229,7 @@ export default function MyApplications() {
                                         {searchQuery ? "Không có kết quả nào phù hợp với tìm kiếm của bạn." : "Bạn chưa có đơn ứng tuyển nào ở trạng thái này."}
                                     </p>
                                     {!searchQuery && activeTab === 'Tất cả' && (
-                                        <Button className="mt-6 bg-cyan-600 hover:bg-cyan-700" asChild>
+                                        <Button className="mt-6 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20" asChild>
                                             <Link to="/jobs">Tìm việc ngay</Link>
                                         </Button>
                                     )}
@@ -268,7 +260,7 @@ export default function MyApplications() {
                                                 {/* Middle: Job Info */}
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <h3 className="text-lg font-bold text-slate-900 truncate group-hover:text-cyan-600 transition-colors">
+                                                        <h3 className="text-lg font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
                                                             {app.job_title}
                                                         </h3>
                                                         <Badge className={`${statusColorMap[app.status]} sm:hidden`}>
@@ -302,7 +294,7 @@ export default function MyApplications() {
 
                                                 {/* Right: Actions */}
                                                 <div className="flex-shrink-0 flex items-center gap-2 sm:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
+                                                    <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
                                                         Chi tiết
                                                     </Button>
                                                     {['Mới gửi', 'Đang xét'].includes(app.status) && (

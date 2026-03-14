@@ -74,7 +74,7 @@ export function NewThreadDialog({ open, onOpenChange, onCreated, defaultSelected
             <DialogContent className="max-w-md sm:max-w-lg bg-card border-border shadow-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-base">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center">
                             <Users className="w-4 h-4 text-white" />
                         </div>
                         Tạo cuộc hội thoại mới
@@ -139,7 +139,7 @@ export function NewThreadDialog({ open, onOpenChange, onCreated, defaultSelected
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors border-b border-border/30 last:border-b-0 ${isSelected ? 'bg-violet-50 dark:bg-violet-500/10' : 'hover:bg-muted/60'
                                                 }`}
                                         >
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                            <div className="w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
                                                 {getInitials(r.full_name)}
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -193,7 +193,7 @@ export function NewThreadDialog({ open, onOpenChange, onCreated, defaultSelected
                     <Button
                         onClick={() => createMutation.mutate()}
                         disabled={!canSubmit}
-                        className="gap-2 bg-gradient-to-r from-violet-500 to-cyan-500 hover:opacity-90 text-white"
+                        className="gap-2 bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-500/20"
                     >
                         {createMutation.isPending ? (
                             <><Loader2 className="w-4 h-4 animate-spin" /> Đang tạo...</>

@@ -28,7 +28,7 @@ export default function TestResult() {
     const { assessment_test: test } = result;
 
     return (
-        <div className="container mx-auto px-4 max-w-3xl pt-40 pb-12">
+        <div className="p-6 lg:p-8 w-full flex-1 pb-12">
             <div className="mb-6">
                 <Button variant="ghost" onClick={() => navigate('/assessment-tests')} className="text-muted-foreground">
                     <ArrowLeft className="w-4 h-4 mr-2" />

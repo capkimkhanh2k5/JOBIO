@@ -42,15 +42,18 @@ export default function EmployerCVSearch() {
             {/* Page Header */}
             <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/40 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Tìm kiếm ứng viên</h1>
-                    <p className="text-muted-foreground text-sm mt-1">Duyệt qua hàng ngàn hồ sơ chất lượng cao</p>
+                    <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        <Users className="w-6 h-6 text-violet-600" />
+                        Tìm kiếm ứng viên
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-1">Duyệt qua hàng ngàn hồ sơ chất lượng cao</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button onClick={handleExport} variant="outline" className="bg-card shadow-sm border-border/50">
+                    <Button onClick={handleExport} variant="outline" className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900">
                         <Download className="w-4 h-4 mr-2" />
                         Xuất báo cáo
                     </Button>
-                    <Button onClick={handleCreateCampaign} className="shadow-lg shadow-primary/20">
+                    <Button onClick={handleCreateCampaign} className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
                         <UserPlus className="w-4 h-4 mr-2" />
                         Tạo chiến dịch tuyển dụng
                     </Button>
@@ -58,7 +61,7 @@ export default function EmployerCVSearch() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex flex-1 w-full max-w-[1600px] mx-auto overflow-hidden">
+            <div className="flex flex-1 w-full mx-auto overflow-hidden">
                 {/* Fixed Left Sidebar for Filters */}
                 <div className="w-[300px] border-r border-border/40 hidden md:flex flex-col flex-shrink-0 bg-background/30 z-10">
                     <div className="p-4 h-full">
@@ -76,7 +79,7 @@ export default function EmployerCVSearch() {
                                 {isLoading ? (
                                     <Skeleton className="w-32 h-6" />
                                 ) : (
-                                    <span>Tìm thấy {data?.total || 0} hồ sơ phù hợp</span>
+                                    <span>Tìm thấy {data?.count || 0} hồ sơ phù hợp</span>
                                 )}
                             </h2>
                             {isBackgroundFetching && (
@@ -93,8 +96,8 @@ export default function EmployerCVSearch() {
                                 Array(6).fill(0).map((_, i) => (
                                     <CandidateCardSkeleton key={i} />
                                 ))
-                            ) : data?.items?.length ? (
-                                data.items.map((candidate: any) => (
+                            ) : data?.results?.length ? (
+                                data.results.map((candidate: any) => (
                                     <CandidateCard
                                         key={candidate.id}
                                         candidate={candidate}

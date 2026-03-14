@@ -11,6 +11,7 @@ import { CampaignList } from '@/components/employer/campaigns/CampaignList';
 import { CreateCampaignModal } from '@/components/employer/campaigns/CreateCampaignModal';
 import { CampaignDetailSheet } from '@/components/employer/campaigns/CampaignDetailSheet';
 import { employerService } from '@/services/employerService';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function EmployerCampaigns() {
     const queryClient = useQueryClient();
@@ -28,7 +29,7 @@ export default function EmployerCampaigns() {
     // Queries
     const { data: campaignsData, isLoading } = useQuery({
         queryKey: ['campaigns', activeTab, searchQuery],
-        queryFn: () => employerService.listCampaigns({ status: activeTab !== 'all' ? activeTab : undefined, search: searchQuery }).then(r => r.data),
+        queryFn: () => employerService.listCampaigns({ status: activeTab !== 'all' ? activeTab : undefined }).then(r => r.data),
     });
 
     const campaigns = campaignsData?.results || [];
@@ -106,57 +107,47 @@ export default function EmployerCampaigns() {
         : undefined;
 
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-slate-900 overflow-hidden relative pb-12">
+        <div className="min-h-screen bg-white overflow-hidden relative pb-12">
             {/* Background elements */}
             <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
 
-            <div className="max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 pt-8 space-y-8 relative z-10 w-full max-w-full">
+            <div className="w-full mx-auto space-y-8 relative z-10">
 
                 {/* Header Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex flex-col md:flex-row md:items-end justify-between gap-4"
-                >
-                    <div className="space-y-1">
-                        <h1 className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 to-violet-600 dark:from-cyan-400 dark:to-violet-400 flex items-center gap-2">
-                            <Target className="w-8 h-8 text-cyan-500" />
-                            Chiến Dịch Tuyển Dụng
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 font-medium">
-                            Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng.
-                        </p>
-                    </div>
-
-                    <Button
-                        onClick={handleCreateClick}
-                        className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-700 hover:to-violet-700 text-white shadow-lg shadow-cyan-500/20 px-6 h-11 shrink-0 group relative overflow-hidden"
-                    >
-                        <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
-                        <div className="relative flex items-center">
-                            <Plus className="w-4 h-4 mr-2" />
-                            <span className="font-semibold">Chiến dịch mới</span>
-                        </div>
-                    </Button>
-                </motion.div>
+                <PageHeader
+                    title="Chiến Dịch Tuyển Dụng"
+                    description="Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng."
+                    icon={Target}
+                    action={
+                        <Button
+                            onClick={handleCreateClick}
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-6 h-11 shrink-0 group relative overflow-hidden rounded-xl"
+                        >
+                            <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+                            <div className="relative flex items-center">
+                                <Plus className="w-4 h-4 mr-2" />
+                                <span className="font-semibold">Chiến dịch mới</span>
+                            </div>
+                        </Button>
+                    }
+                />
 
                 {/* Filters & Tabs */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white/60 dark:bg-slate-900/60 p-2 border border-slate-200 dark:border-slate-800/60 rounded-xl backdrop-blur-md sticky top-4 z-20 shadow-sm"
+                    className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50 p-2 border border-slate-200 rounded-xl sticky top-4 z-20 shadow-sm"
                 >
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto overflow-x-auto hidden-scrollbar">
                         <TabsList className="bg-transparent border-none p-0 h-10 w-full justify-start md:justify-center">
-                            <TabsTrigger value="all" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm rounded-lg">Tất cả</TabsTrigger>
-                            <TabsTrigger value="active" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm rounded-lg">Đang chạy</TabsTrigger>
-                            <TabsTrigger value="draft" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm rounded-lg">Bản nháp</TabsTrigger>
-                            <TabsTrigger value="paused" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm rounded-lg">Tạm dừng</TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm rounded-lg">Hoàn thành</TabsTrigger>
+                            <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Tất cả</TabsTrigger>
+                            <TabsTrigger value="active" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Đang chạy</TabsTrigger>
+                            <TabsTrigger value="draft" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Bản nháp</TabsTrigger>
+                            <TabsTrigger value="paused" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Tạm dừng</TabsTrigger>
+                            <TabsTrigger value="completed" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Hoàn thành</TabsTrigger>
                         </TabsList>
                     </Tabs>
 
@@ -165,12 +156,12 @@ export default function EmployerCampaigns() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
                                 placeholder="Tìm tên chiến dịch..."
-                                className="pl-9 bg-white/80 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 h-10 w-full"
+                                className="pl-9 bg-white border-slate-200 h-10 w-full rounded-xl"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <Button variant="outline" size="icon" className="shrink-0 h-10 w-10 border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80">
+                        <Button variant="outline" size="icon" className="shrink-0 h-10 w-10 border-slate-200 bg-white rounded-xl">
                             <Filter className="w-4 h-4 text-slate-500" />
                         </Button>
                     </div>

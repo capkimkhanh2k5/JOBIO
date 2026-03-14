@@ -91,7 +91,7 @@ export default function TakeTest() {
 
     if (!hasStarted) {
         return (
-            <div className="container mx-auto px-4 max-w-2xl pt-40 pb-16">
+            <div className="p-6 lg:p-8 w-full flex-1 pb-16">
                 <Card className="shadow-lg border-primary/20">
                     <CardHeader className="text-center pb-8 border-b bg-muted/20">
                         <CardTitle className="text-2xl mb-2">{test.title}</CardTitle>
@@ -134,7 +134,7 @@ export default function TakeTest() {
     const q = questions?.[currentQuestionIndex];
 
     return (
-        <div className="container mx-auto px-4 max-w-6xl pt-40 pb-8">
+        <div className="p-6 lg:p-8 w-full flex-1 pb-8">
             <div className="flex flex-col md:flex-row gap-6">
 
                 {/* Main Content */}

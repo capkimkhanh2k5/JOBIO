@@ -1,8 +1,9 @@
 import { useSearchParams } from 'react-router-dom';
-import { User, ShieldCheck } from 'lucide-react';
+import { User, ShieldCheck, Settings } from 'lucide-react';
 import { SettingsLayout, SettingsTab } from '@/components/shared/settings/SettingsLayout';
 import { AccountSettings } from '@/components/shared/settings/AccountSettings';
 import { SecuritySettings } from '@/components/shared/settings/SecuritySettings';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 const CANDIDATE_TABS: SettingsTab[] = [
     { id: 'account', label: 'Tài khoản', icon: User },
@@ -19,16 +20,24 @@ export function CandidateSettingsPage() {
     };
 
     return (
-        <SettingsLayout
-            title="Cài đặt tài khoản"
-            description="Quản lý thông tin định danh và tài khoản bảo mật của bạn."
-            tabs={CANDIDATE_TABS}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-        >
-            {activeTab === 'account' && <AccountSettings />}
-            {activeTab === 'security' && <SecuritySettings />}
-        </SettingsLayout>
+        <>
+            <PageHeader
+                title="Cài đặt tài khoản"
+                description="Quản lý thông tin định danh và tài khoản bảo mật của bạn."
+                icon={Settings}
+            />
+            
+            <div className="p-6 lg:p-8 w-full flex-1">
+                <SettingsLayout
+                    tabs={CANDIDATE_TABS}
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                >
+                    {activeTab === 'account' && <AccountSettings />}
+                    {activeTab === 'security' && <SecuritySettings />}
+                </SettingsLayout>
+            </div>
+        </>
     );
 }
 

@@ -80,23 +80,28 @@ const BillingDashboard: React.FC = () => {
     });
 
     return (
-        <div className="container mx-auto max-w-7xl space-y-8 py-8 animate-in fade-in duration-700">
+        <div className="space-y-8 py-6 lg:py-8 animate-in fade-in duration-700 w-full mx-auto min-h-screen">
             {/* Header Section */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between px-1">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                        Thanh toán & Gói dịch vụ
-                    </h1>
-                    <p className="mt-2 text-muted-foreground">
-                        Quản lý đăng ký, phương thức thanh toán và xem lịch sử giao dịch của bạn.
-                    </p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center shrink-0 border border-violet-100 shadow-sm">
+                        <History className="w-6 h-6 text-violet-600" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
+                            Thanh toán & Gói dịch vụ
+                        </h1>
+                        <p className="text-sm text-slate-500 font-medium">
+                            Quản lý đăng ký, phương thức thanh toán và xem lịch sử giao dịch của bạn.
+                        </p>
+                    </div>
                 </div>
                 <div className="flex gap-3">
-                    <Button variant="outline" className="gap-2 border-border bg-background hover:bg-muted text-foreground">
+                    <Button variant="outline" className="gap-2 h-11 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm">
                         <Download className="h-4 w-4" />
                         Xuất báo cáo
                     </Button>
-                    <Button asChild className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white leading-none">
+                    <Button asChild className="gap-2 h-11 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md border-none px-6">
                         <Link to="/employer/subscription">
                             <Plus className="h-4 w-4" />
                             Nâng cấp gói
@@ -111,20 +116,20 @@ const BillingDashboard: React.FC = () => {
                     {currentSub?.data && currentSub.data.length > 0 ? (
                         <SubscriptionStatusCard subscription={currentSub.data[0]} />
                     ) : (
-                        <div className="h-48 rounded-3xl border border-border bg-muted/30 animate-pulse" />
+                        <div className="h-48 rounded-3xl border border-slate-200 bg-white animate-pulse shadow-sm" />
                     )}
                 </div>
                 <div>
-                    <div className="h-full rounded-3xl border border-indigo-500/20 bg-indigo-500/5 p-6 glass-card">
-                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-600 dark:text-indigo-400">
-                            <ShieldCheck className="h-6 w-6" />
+                    <div className="h-full rounded-3xl border border-slate-200 bg-white p-8 shadow-sm flex flex-col items-center text-center">
+                        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 border border-violet-100 shadow-sm">
+                            <ShieldCheck className="h-7 w-7" />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground">Bảo mật thanh toán</h3>
-                        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        <h3 className="text-xl font-black text-slate-900">Bảo mật thanh toán</h3>
+                        <p className="mt-3 text-sm leading-relaxed text-slate-500 font-medium">
                             Mọi giao dịch trên JOBIO đều được mã hóa SSL/TLS 256-bit.
-                            Chúng tôi không lưu trữ trực tiếp thông tin thẻ ngân hàng của bạn.
+                            Thông tin thẻ được bảo vệ tối đa.
                         </p>
-                        <Button variant="link" className="mt-4 h-auto p-0 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
+                        <Button variant="link" className="mt-auto h-auto p-0 pt-6 text-violet-600 hover:text-violet-700 font-bold">
                             Tìm hiểu thêm về bảo mật
                         </Button>
                     </div>
@@ -134,12 +139,12 @@ const BillingDashboard: React.FC = () => {
             {/* Main Tabs Container */}
             <Tabs defaultValue="transactions" className="space-y-6" onValueChange={setActiveTab}>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
-                    <TabsList className="bg-muted border border-border p-1 h-11 shrink-0">
-                        <TabsTrigger value="transactions" className="gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                    <TabsList className="bg-slate-100 border border-slate-200 p-1 h-12 shrink-0 rounded-xl">
+                        <TabsTrigger value="transactions" className="gap-2 px-6 rounded-lg font-bold text-slate-500 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all">
                             <History className="h-4 w-4" />
                             Lịch sử giao dịch
                         </TabsTrigger>
-                        <TabsTrigger value="payment-methods" className="gap-2 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                        <TabsTrigger value="payment-methods" className="gap-2 px-6 rounded-lg font-bold text-slate-500 data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all">
                             <CreditCard className="h-4 w-4" />
                             Phương thức thanh toán
                         </TabsTrigger>
@@ -147,14 +152,14 @@ const BillingDashboard: React.FC = () => {
 
                     {activeTab === "transactions" && (
                         <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
+                            <div className="relative group">
+                                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
                                 <Input
                                     placeholder="Tìm giao dịch..."
-                                    className="h-10 w-[200px] border-border bg-background pl-9 text-sm focus:border-indigo-500/50 text-foreground"
+                                    className="h-11 w-[240px] border-slate-200 bg-white pl-10 text-sm focus:border-violet-500 focus:ring-violet-500/20 text-slate-900 rounded-xl"
                                 />
                             </div>
-                            <Button variant="outline" size="icon" className="h-10 w-10 border-border bg-background text-muted-foreground hover:text-foreground">
+                            <Button variant="outline" size="icon" className="h-11 w-11 border-slate-200 bg-white text-slate-400 hover:text-violet-600 hover:border-violet-200 rounded-xl shadow-sm transition-all">
                                 <Filter className="h-4 w-4" />
                             </Button>
                         </div>
@@ -163,7 +168,7 @@ const BillingDashboard: React.FC = () => {
                     {activeTab === "payment-methods" && (
                         <Button
                             onClick={() => setIsAddPaymentModalOpen(true)}
-                            className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className="gap-2 h-11 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md border-none px-6"
                         >
                             <Plus className="h-4 w-4" />
                             Thêm phương thức
@@ -193,7 +198,7 @@ const BillingDashboard: React.FC = () => {
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsAddPaymentModalOpen(true)}
-                                    className="mt-6 border-border text-foreground hover:bg-muted"
+                                    className="mt-6 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold rounded-xl shadow-sm"
                                 >
                                     Thêm thẻ ngay
                                 </Button>
@@ -225,12 +230,6 @@ const BillingDashboard: React.FC = () => {
                 onSubmit={(values) => addPMMutation.mutate(values)}
                 isLoading={addPMMutation.isPending}
             />
-
-            {/* Background Aurora Effect */}
-            <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[10%] -left-[10%] h-[50%] w-[50%] rounded-full bg-indigo-500/10 blur-[120px]" />
-                <div className="absolute top-[40%] -right-[10%] h-[60%] w-[50%] rounded-full bg-emerald-500/5 blur-[120px]" />
-            </div>
         </div>
     );
 };

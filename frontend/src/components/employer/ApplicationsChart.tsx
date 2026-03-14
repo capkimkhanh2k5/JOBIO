@@ -52,7 +52,7 @@ export function ApplicationsChart() {
     const tickInterval = period === 7 ? 0 : period === 30 ? 4 : 14;
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full flex flex-col">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
@@ -88,7 +88,7 @@ export function ApplicationsChart() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: isFetching ? 0.65 : 1 }}
                         transition={{ duration: 0.3 }}
-                        className="h-64"
+                        className="flex-1 min-h-[300px]"
                     >
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>

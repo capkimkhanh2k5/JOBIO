@@ -11,9 +11,9 @@ interface Step2DescriptionProps {
 
 function SectionLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
     return (
-        <label className="text-sm font-semibold text-white/80 flex items-center gap-1.5">
+        <label className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
             {children}
-            {required && <span className="text-red-400">*</span>}
+            {required && <span className="text-red-500">*</span>}
         </label>
     );
 }
@@ -27,15 +27,15 @@ function SectionCard({ title, required, hint, children, error }: {
 }) {
     return (
         <div className={cn(
-            'rounded-xl p-4 border border-white/10 bg-white/3 space-y-2',
-            error && 'border-red-500/20'
+            'rounded-xl p-4 border border-slate-200 bg-slate-50/50 space-y-2',
+            error && 'border-red-500/30 bg-red-50/30'
         )}>
             <div className="flex items-start justify-between">
                 <SectionLabel required={required}>{title}</SectionLabel>
-                {hint && <span className="text-[11px] text-white/30 italic">{hint}</span>}
+                {hint && <span className="text-[11px] text-slate-400 italic font-medium">{hint}</span>}
             </div>
             {children}
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+            {error && <p className="text-red-500 text-xs font-medium">{error}</p>}
         </div>
     );
 }

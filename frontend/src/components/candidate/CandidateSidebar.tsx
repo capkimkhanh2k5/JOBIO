@@ -70,7 +70,7 @@ export function CandidateSidebar() {
                                     {isActive && (
                                         <motion.span
                                             layoutId="candidate-sidebar-active"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-gradient-to-b from-violet-400 to-cyan-500 rounded-full -ml-3"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-violet-600 rounded-full -ml-3"
                                         />
                                     )}
                                     <span className={`transition-colors duration-200 ${isActive ? 'text-violet-600' : 'text-slate-400 group-hover:text-slate-700'}`}>
@@ -78,7 +78,7 @@ export function CandidateSidebar() {
                                     </span>
                                     <span className="flex-1">{item.label}</span>
                                     {item.badge && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center px-1.5">
+                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-100 text-violet-700 rounded-full flex items-center justify-center px-1.5">
                                             {item.badge}
                                         </span>
                                     )}
@@ -101,21 +101,27 @@ export function CandidateSidebar() {
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group
+                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative
                                 ${isActive
-                                    ? 'bg-slate-100 text-slate-900'
-                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                    ? 'bg-violet-50 text-violet-700 border border-violet-100'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                                 }`
                             }
                         >
                             {({ isActive }) => (
                                 <>
-                                    <span className={`transition-colors ${isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-700'}`}>
+                                    {isActive && (
+                                        <motion.span
+                                            layoutId="candidate-sidebar-active"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-violet-600 rounded-full -ml-3"
+                                        />
+                                    )}
+                                    <span className={`transition-colors duration-200 ${isActive ? 'text-violet-600' : 'text-slate-400 group-hover:text-slate-700'}`}>
                                         {item.icon}
                                     </span>
-                                    <span>{item.label}</span>
+                                    <span className="flex-1">{item.label}</span>
                                     {item.badge && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center px-1.5 ml-auto">
+                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-100 text-violet-700 rounded-full flex items-center justify-center px-1.5">
                                             {item.badge}
                                         </span>
                                     )}
@@ -129,7 +135,7 @@ export function CandidateSidebar() {
             <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-violet-50 via-cyan-50 to-transparent border border-violet-100">
                 <p className="text-xs font-bold text-foreground mb-1">Kiến tạo sự nghiệp</p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">Tạo CV chuyên nghiệp bật nhất chỉ với 1 click.</p>
-                <button className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-gradient-to-r from-violet-500 to-cyan-500 text-white hover:opacity-90 transition-opacity">
+                <button className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors">
                     Cập nhật CV ngay
                 </button>
             </div>

@@ -15,8 +15,8 @@ export interface Interview {
     scheduled_at: string;
     duration_minutes: number;
     status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
-    job_id: string;
-    candidate_id: string;
+    job_id?: string;
+    candidate_id?: string;
     location?: string;
     meeting_link?: string;
     notes?: string;
@@ -46,12 +46,12 @@ export function EmployerCalendar({ interviews, isLoading, onInterviewClick }: Em
 
     const getStatusColor = (status: Interview['status']) => {
         switch (status) {
-            case 'scheduled': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-            case 'confirmed': return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border-green-200 dark:border-green-800';
-            case 'completed': return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700';
+            case 'scheduled': return 'bg-blue-50 text-blue-700 border-blue-100';
+            case 'confirmed': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+            case 'completed': return 'bg-slate-50 text-slate-600 border-slate-200';
             case 'cancelled':
-            case 'no_show': return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-200 dark:border-red-800';
-            case 'in_progress': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 border-amber-200 dark:border-amber-800';
+            case 'no_show': return 'bg-red-100 text-red-700 border-red-200';
+            case 'in_progress': return 'bg-amber-100 text-amber-700 border-amber-200';
             default: return 'bg-slate-100 text-slate-700';
         }
     };
@@ -68,26 +68,26 @@ export function EmployerCalendar({ interviews, isLoading, onInterviewClick }: Em
                 <div
                     key={day.toString()}
                     className={cn(
-                        "min-h-[140px] p-2 border-r border-b border-slate-200 dark:border-slate-800 transition-colors",
-                        !isSameMonth(day, currentDate) ? "bg-slate-50/50 dark:bg-slate-900/50 text-slate-400" : "bg-white dark:bg-slate-900",
-                        isSameDay(day, new Date()) ? "bg-violet-50/50 dark:bg-violet-900/10" : ""
+                        "min-h-[100px] p-2 border-r border-b border-slate-200 transition-colors",
+                        !isSameMonth(day, currentDate) ? "bg-slate-50/80 text-slate-400" : "bg-white text-slate-700",
+                        isSameDay(day, new Date()) ? "bg-violet-50/30" : ""
                     )}
                 >
                     <div className="flex justify-between items-start">
                         <span className={cn(
-                            "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors",
-                            isSameDay(day, new Date()) ? "bg-violet-600 text-white" : "text-slate-700 dark:text-slate-300"
+                            "text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition-colors",
+                            isSameDay(day, new Date()) ? "bg-violet-600 text-white shadow-sm" : "text-slate-700"
                         )}>
                             {formattedDate}
                         </span>
                         {dayInterviews.length > 0 && (
-                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded-full font-medium">
+                            <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full font-medium">
                                 {dayInterviews.length}
                             </span>
                         )}
                     </div>
 
-                    <div className="mt-2 flex flex-col gap-1.5">
+                    <div className="mt-1 flex flex-col gap-1">
                         {isLoading ? (
                             Array(2).fill(null).map((_, idx) => (
                                 <Skeleton key={idx} className="h-12 w-full rounded-md" />
@@ -116,7 +116,7 @@ export function EmployerCalendar({ interviews, isLoading, onInterviewClick }: Em
                                     </div>
                                 ))}
                                 {dayInterviews.length > 3 && (
-                                    <div className="text-[10px] text-center text-slate-500 font-medium cursor-pointer hover:text-violet-600 dark:hover:text-violet-400 bg-slate-100 dark:bg-slate-800 py-1 rounded-sm mt-1">
+                                    <div className="text-[10px] text-center text-slate-500 font-medium cursor-pointer hover:text-violet-600 bg-slate-100/50 py-1 rounded-sm mt-1">
                                         + {dayInterviews.length - 3} lịch khác
                                     </div>
                                 )}
@@ -136,33 +136,33 @@ export function EmployerCalendar({ interviews, isLoading, onInterviewClick }: Em
     }
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+        <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden flex flex-col">
             {/* Calendar Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-4">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white capitalize min-w-[180px]">
+                    <h2 className="text-xl font-black text-slate-900 capitalize min-w-[180px]">
                         {format(currentDate, 'MMMM, yyyy', { locale: vi })}
                     </h2>
-                    <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md p-0.5 shadow-sm">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={prevMonth}>
-                            <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    <div className="flex items-center bg-white border border-slate-200 rounded-xl p-0.5 shadow-sm">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={prevMonth}>
+                            <ChevronLeft className="w-4 h-4 text-slate-600" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 px-3 text-sm font-medium rounded-sm border-x border-slate-100 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800" onClick={today}>
+                        <Button variant="ghost" size="sm" className="h-8 px-3 text-sm font-bold rounded-lg border-x border-slate-100 hover:bg-slate-100" onClick={today}>
                             Hôm nay
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-800" onClick={nextMonth}>
-                            <ChevronRight className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={nextMonth}>
+                            <ChevronRight className="w-4 h-4 text-slate-600" />
                         </Button>
                     </div>
                 </div>
-                <div className="hidden lg:flex items-center gap-4 bg-white dark:bg-slate-900 p-1.5 px-3 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                <div className="hidden lg:flex items-center gap-4 bg-white p-1.5 px-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                         <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Sắp tới
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div> Đã xác nhận
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Đã xác nhận
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                         <div className="w-2.5 h-2.5 rounded-full bg-slate-400"></div> Hoàn thành
                     </div>
                 </div>
@@ -170,14 +170,14 @@ export function EmployerCalendar({ interviews, isLoading, onInterviewClick }: Em
 
             {/* Calendar Grid */}
             <div className="flex-1 flex flex-col">
-                <div className="grid grid-cols-7 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
+                <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50">
                     {['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'].map((dayName) => (
-                        <div key={dayName} className="py-2.5 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <div key={dayName} className="py-2 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-r border-slate-200 last:border-r-0">
                             {dayName}
                         </div>
                     ))}
                 </div>
-                <div className="flex-1 bg-slate-50/50 dark:bg-slate-900">
+                <div className="flex-1 bg-slate-50/20">
                     {rows}
                 </div>
             </div>

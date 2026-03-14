@@ -25,8 +25,8 @@ interface Props {
 function EmptyMessages() {
     return (
         <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/10 to-cyan-500/10 flex items-center justify-center">
-                <MessageSquareDashed className="w-8 h-8 text-violet-400" />
+            <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center">
+                <MessageSquareDashed className="w-8 h-8 text-violet-600" />
             </div>
             <div>
                 <p className="font-semibold text-foreground">Chưa có tin nhắn nào</p>
@@ -275,7 +275,7 @@ export function ConversationView({ thread, onShowParticipants }: Props) {
                     {/* Send button */}
                     <Button
                         size="icon"
-                        className="w-8 h-8 shrink-0 mb-0.5 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 hover:opacity-90 transition-opacity disabled:opacity-50"
+                        className="w-8 h-8 shrink-0 mb-0.5 rounded-xl bg-violet-600 hover:bg-violet-700 transition-colors shadow-sm shadow-violet-500/20 disabled:opacity-50"
                         onClick={handleSend}
                         disabled={(!inputValue.trim() && !attachingFile) || sendMutation.isPending || isUploading}
                         aria-label="Gửi tin nhắn"

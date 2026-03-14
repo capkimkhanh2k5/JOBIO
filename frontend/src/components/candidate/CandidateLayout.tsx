@@ -10,14 +10,14 @@ import { MiniFooter } from '@/components/layout/MiniFooter';
  */
 export function CandidateLayout() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-slate-50/30">
             <ScrollProgress />
 
             <Header />
             {/* pt to offset fixed header */}
             <div className="flex flex-1 pt-[112px]">
                 <CandidateSidebar />
-                <main className="flex-1 min-w-0 flex flex-col overflow-y-auto">
+                <main className="flex-1 min-w-0 flex flex-col overflow-y-auto w-full">
                     <div className="flex-1 flex flex-col">
                         <Outlet />
                     </div>

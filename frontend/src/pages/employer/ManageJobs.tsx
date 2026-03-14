@@ -12,6 +12,7 @@ import {
     type JobStatusFilter,
     type SortOption,
 } from '@/components/employer/ManageJobsActionBar';
+import { Briefcase } from 'lucide-react';
 import { ManageJobsTable } from '@/components/employer/ManageJobsTable';
 import { ManageJobsList } from '@/components/employer/ManageJobsList';
 import { ManageJobsGrid } from '@/components/employer/ManageJobsGrid';
@@ -33,7 +34,7 @@ export default function ManageJobs() {
     const [pageSize, setPageSize] = useState(10);
 
     // Bulk selection
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
     // ── Fetch employer jobs ────────────────────────────────────────────────
     const { data, isLoading } = useQuery({
@@ -78,7 +79,7 @@ export default function ManageJobs() {
         mutationFn: (id: string) => jobService.delete(Number(id)),
         onSuccess: (_, id) => {
             toast.success('Đã xóa tin tuyển dụng');
-            setSelectedIds(prev => prev.filter(x => x !== id));
+            setSelectedIds(prev => prev.filter(x => x !== Number(id)));
             invalidate();
         },
         onError: () => toast.error('Xóa tin thất bại. Vui lòng thử lại.'),
@@ -102,8 +103,8 @@ export default function ManageJobs() {
     });
 
     const bulkMutation = useMutation({
-        mutationFn: ({ ids, action }: { ids: string[]; action: 'close' | 'delete' | 'extend' }) =>
-            api.post('/api/jobs/bulk-action/', { ids: ids.map(Number), action }).then(r => r.data),
+        mutationFn: ({ ids, action }: { ids: number[]; action: 'close' | 'delete' | 'extend' }) =>
+            api.post('/api/jobs/bulk-action/', { ids, action }).then(r => r.data),
         onSuccess: (data, { action }) => {
             const msg = action === 'close'
                 ? `Đã đóng ${data.affected} tin tuyển dụng`
@@ -118,11 +119,11 @@ export default function ManageJobs() {
 
     // ── Selection handlers ─────────────────────────────────────────────────
     const handleSelectAll = useCallback(
-        (checked: boolean) => setSelectedIds(checked ? jobs.map(j => j.id) : []),
+        (checked: boolean) => setSelectedIds(checked ? jobs.map(j => Number(j.id)) : []),
         [jobs]
     );
     const handleSelectOne = useCallback((id: string, checked: boolean) => {
-        setSelectedIds(prev => checked ? [...prev, id] : prev.filter(x => x !== id));
+        setSelectedIds(prev => checked ? [...prev, Number(id)] : prev.filter(x => x !== Number(id)));
     }, []);
 
     // ── Per-row action handlers ────────────────────────────────────────────
@@ -150,51 +151,50 @@ export default function ManageJobs() {
     };
 
     return (
-        <div className="p-6 lg:p-8 max-w-screen-2xl mx-auto">
+        <div className="space-y-8 py-6 lg:py-8 animate-in fade-in duration-700 w-full mx-auto min-h-screen">
             {/* Page header */}
-            <motion.div
-                initial={{ opacity: 0, y: -12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mb-6"
-            >
-                <h1 className="text-2xl font-black text-foreground">Quản lý tin tuyển dụng</h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    {total > 0
-                        ? `${total} tin tuyển dụng · Đang hiển thị ${Math.min((page - 1) * pageSize + 1, total)}–${Math.min(page * pageSize, total)}`
-                        : 'Không tìm thấy tin tuyển dụng phù hợp'
-                    }
-                </p>
-            </motion.div>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center shrink-0 border border-violet-100 shadow-sm">
+                        <Briefcase className="w-6 h-6 text-violet-600" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
+                            Quản lý tin tuyển dụng
+                        </h1>
+                        <p className="text-sm text-slate-500 font-medium">
+                            {total > 0
+                                ? `${total} tin tuyển dụng · Đang hiển thị ${Math.min((page - 1) * pageSize + 1, total)}–${Math.min(page * pageSize, total)}`
+                                : 'Không tìm thấy tin tuyển dụng phù hợp'}
+                        </p>
+                    </div>
+                </div>
+            </div>
 
             {/* Summary stat cards */}
             <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.05 }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6"
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 px-1"
             >
                 {(
                     [
-                        { label: 'Tất cả', value: 30, key: 'all' as const, color: 'from-slate-500/10 to-slate-400/5', text: 'text-foreground' },
-                        { label: 'Đang tuyển', value: 6, key: 'active' as const, color: 'from-emerald-500/15 to-emerald-400/5', text: 'text-emerald-300' },
-                        { label: 'Chờ duyệt', value: 6, key: 'pending' as const, color: 'from-amber-500/15 to-amber-400/5', text: 'text-amber-300' },
-                        { label: 'Nháp', value: 6, key: 'draft' as const, color: 'from-slate-500/15 to-slate-400/5', text: 'text-slate-300' },
-                        { label: 'Đã đóng / Hết hạn', value: 12, key: 'closed' as const, color: 'from-red-500/10 to-red-400/5', text: 'text-red-400' },
+                        { label: 'Tất cả', value: total, key: 'all' as const, activeClass: 'border-slate-200 bg-white shadow-md ring-2 ring-slate-100', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-white', text: 'text-slate-900' },
+                        { label: 'Đang tuyển', value: 6, key: 'active' as const, activeClass: 'border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-100 ring-2 ring-emerald-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-emerald-50/50', text: 'text-emerald-600' },
+                        { label: 'Chờ duyệt', value: 6, key: 'pending' as const, activeClass: 'border-amber-200 bg-amber-50 shadow-md shadow-amber-100 ring-2 ring-amber-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-amber-50/50', text: 'text-amber-600' },
+                        { label: 'Nháp', value: 6, key: 'draft' as const, activeClass: 'border-slate-200 bg-slate-100 shadow-md ring-2 ring-slate-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/50', text: 'text-slate-500' },
+                        { label: 'Đã đóng', value: 12, key: 'closed' as const, activeClass: 'border-rose-200 bg-rose-50 shadow-md shadow-rose-100 ring-2 ring-rose-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-rose-50/50', text: 'text-rose-600' },
                     ] as const
                 ).map(stat => (
                     <button
                         key={stat.key}
                         onClick={() => handleStatusChange(stat.key)}
-                        className={`p-3 rounded-xl border text-left transition-all duration-150
-                            bg-gradient-to-br ${stat.color}
-                            ${statusFilter === stat.key
-                                ? 'border-white/20 shadow-md'
-                                : 'border-white/8 hover:border-white/14'
-                            }`}
+                        className={`p-4 rounded-2xl border text-left transition-all duration-300
+                            ${statusFilter === stat.key ? stat.activeClass : stat.inactiveClass}`}
                     >
-                        <p className={`text-xl font-black ${stat.text}`}>{stat.value}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                        <p className={`text-2xl font-black ${stat.text}`}>{stat.value}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">{stat.label}</p>
                     </button>
                 ))}
             </motion.div>
@@ -215,7 +215,7 @@ export default function ManageJobs() {
                     onSortChange={handleSortChange}
                     searchValue={search}
                     onSearchChange={handleSearch}
-                    selectedIds={selectedIds}
+                    selectedIds={selectedIds.map(String)}
                     onBulkClose={handleBulkClose}
                     onBulkDelete={handleBulkDelete}
                     onBulkExtend={handleBulkExtend}
@@ -234,6 +234,8 @@ export default function ManageJobs() {
                     {viewMode === 'table' && (
                         <ManageJobsTable
                             {...viewProps}
+                            jobs={jobs as any}
+                            selectedIds={selectedIds.map(String)}
                             onSelectAll={handleSelectAll}
                             onSelectOne={handleSelectOne}
                         />
@@ -241,12 +243,16 @@ export default function ManageJobs() {
                     {viewMode === 'list' && (
                         <ManageJobsList
                             {...viewProps}
+                            jobs={jobs as any}
+                            selectedIds={selectedIds.map(String)}
                             onSelectOne={handleSelectOne}
                         />
                     )}
                     {viewMode === 'grid' && (
                         <ManageJobsGrid
                             {...viewProps}
+                            jobs={jobs as any}
+                            selectedIds={selectedIds.map(String)}
                             onSelectOne={handleSelectOne}
                         />
                     )}
@@ -307,8 +313,8 @@ export default function ManageJobs() {
                                         onClick={() => setPage(p as number)}
                                         className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-all
                                             ${page === p
-                                                ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 text-foreground border border-white/15'
-                                                : 'border border-white/10 bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground'
+                                                ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/20 border-violet-600'
+                                                : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900'
                                             }`}
                                         aria-current={page === p ? 'page' : undefined}
                                     >
