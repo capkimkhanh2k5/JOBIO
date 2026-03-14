@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, Variants } from 'framer-motion';
 import {
-    Briefcase, CalendarClock, Eye, Star, TrendingUp, CheckCircle2,
-    ChevronRight, ExternalLink, MapPin, Building2, Timer, FileText, ArrowUpRight, Bookmark
+    Briefcase, CalendarClock, Eye, Star, CheckCircle2,
+    ChevronRight, ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { candidateService } from '@/services/candidateService';
@@ -15,7 +15,6 @@ import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CandidateDashboard() {
@@ -38,7 +37,7 @@ export default function CandidateDashboard() {
 
     const { data: matchingJobs, isLoading: loadingMatching } = useQuery({
         queryKey: ['candidate', 'matching-jobs'],
-        queryFn: () => jobService.featured({ page_size: 5 }).then(r => r.data.results),
+        queryFn: () => jobService.featured({ page_size: 5 }).then(r => (r.data as any).results || r.data),
     });
 
     const { data: applications, isLoading: loadingApps } = useQuery({
@@ -73,23 +72,28 @@ export default function CandidateDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 relative pb-12">
+        <div className="min-h-screen relative pb-12 w-full flex-1">
             {/* Background effects */}
             <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
                 <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/8 blur-[140px]" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
+            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
                 <motion.div
                     className="mb-8"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-500 via-cyan-400 to-sky-500 tracking-tight">
-                        Tổng quan nghề nghiệp
-                    </h1>
-                    <p className="text-muted-foreground mt-1">Chào mừng bạn trở lại! Hãy xem những cơ hội mới nhất dành cho bạn.</p>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
+                            <LayoutDashboard className="w-6 h-6" />
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                            Tổng quan nghề nghiệp
+                        </h1>
+                    </div>
+                    <p className="text-muted-foreground">Chào mừng bạn trở lại! Hãy xem những cơ hội mới nhất dành cho bạn.</p>
                 </motion.div>
 
                 <motion.div
@@ -184,7 +188,7 @@ export default function CandidateDashboard() {
                                     </div>
 
                                     <div className="flex-shrink-0">
-                                        <Button className="bg-gradient-to-r from-cyan-500 to-violet-500 text-white border-0 shadow-lg shadow-cyan-500/25 hover:opacity-90">
+                                        <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25 transition-all">
                                             Cập nhật ngay
                                         </Button>
                                     </div>
@@ -335,7 +339,7 @@ export default function CandidateDashboard() {
                                                 <p className="text-xs text-muted-foreground mt-0.5">Với TechCorp Inc.</p>
                                             </div>
                                             {interviews[0].meeting_link && (
-                                                <Button size="sm" className="w-full mt-3 bg-amber-500 hover:bg-amber-600 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link, '_blank')}>
+                                                <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link, '_blank')}>
                                                     Tham gia <ExternalLink className="w-3 h-3 ml-2" />
                                                 </Button>
                                             )}

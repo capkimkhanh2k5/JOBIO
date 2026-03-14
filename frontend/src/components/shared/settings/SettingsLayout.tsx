@@ -9,8 +9,8 @@ export interface SettingsTab {
 }
 
 interface SettingsLayoutProps {
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     tabs: SettingsTab[];
     activeTab: string;
     onTabChange: (tab: string) => void;
@@ -19,22 +19,26 @@ interface SettingsLayoutProps {
 
 export function SettingsLayout({ title, description, tabs, activeTab, onTabChange, children }: SettingsLayoutProps) {
     return (
-        <div className="min-h-screen bg-slate-50 pb-12 pt-8 relative">
+        <div className="min-h-screen pb-12 pt-8 relative w-full flex-1">
             {/* Background effects */}
             <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
                 <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/8 blur-[140px]" />
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                    <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-500 via-cyan-400 to-sky-500 tracking-tight">
-                        {title}
-                    </h1>
-                    <p className="text-muted-foreground mt-2">{description}</p>
-                </motion.div>
+            <div className="p-6 lg:p-8 relative z-10 w-full">
+                {(title || description) && (
+                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+                        {title && (
+                            <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-500 via-cyan-400 to-sky-500 tracking-tight">
+                                {title}
+                            </h1>
+                        )}
+                        {description && <p className="text-muted-foreground mt-2">{description}</p>}
+                    </motion.div>
+                )}
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
+                <div className={`grid grid-cols-1 md:grid-cols-4 gap-8 ${ (title || description) ? 'mt-8' : ''}`}>
                     {/* Sidebar Tabs */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}

@@ -19,10 +19,10 @@ function NoThreadSelected() {
         <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center select-none">
             {/* Aurora glow */}
             <div className="relative">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-violet-500/20 to-cyan-500/20 flex items-center justify-center ring-1 ring-violet-200 dark:ring-violet-500/30">
-                    <MessageSquare className="w-10 h-10 text-violet-400" />
+                <div className="w-24 h-24 rounded-3xl bg-violet-50 flex items-center justify-center ring-1 ring-violet-100">
+                    <MessageSquare className="w-10 h-10 text-violet-600" />
                 </div>
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-violet-400/10 to-cyan-400/10 blur-xl -z-10" />
+                <div className="absolute inset-0 rounded-3xl bg-violet-400/10 blur-xl -z-10" />
             </div>
             <div className="max-w-xs">
                 <h3 className="font-bold text-lg text-foreground">Chọn cuộc trò chuyện</h3>

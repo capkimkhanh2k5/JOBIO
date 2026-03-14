@@ -6,8 +6,9 @@ import { CandidateTable } from '@/components/employer/candidates/CandidateTable'
 import { CandidatesFilterSidebar } from '@/components/employer/candidates/CandidatesFilterSidebar';
 import { CandidateDetailSheet } from '@/components/employer/candidates/CandidateDetailSheet';
 import { Button } from '@/components/ui/button';
-import { Kanban, List, RefreshCw, Mail, UserX, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { Kanban, List, RefreshCw, Mail, UserX, CheckCircle2, Users as UsersIcon } from 'lucide-react';
 
 export default function ManageCandidates() {
     const { viewMode, setViewMode, filters, selectedCandidatesForBulk, clearBulkSelection } = useCandidateStore();
@@ -54,24 +55,19 @@ export default function ManageCandidates() {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-background">
+        <div className="flex flex-col h-full overflow-hidden bg-slate-50/30">
             {/* Header Area */}
-            <header className="flex-shrink-0 border-b border-border/50 bg-card p-6 pb-4">
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Quản lý Ứng viên</h1>
-                        <p className="text-muted-foreground mt-1">
-                            {applications.length} ứng viên đang hiển thị dựa trên bộ lọc
-                        </p>
-                    </div>
-
+            <PageHeader
+                title="Quản lý Ứng viên"
+                description={`${applications.length} ứng viên đang hiển thị dựa trên bộ lọc`}
+                icon={UsersIcon}
+                action={
                     <div className="flex items-center gap-3">
-                        {/* View Toggles */}
-                        <div className="flex items-center bg-secondary/50 rounded-lg p-1 border border-border/50">
+                        <div className="flex items-center bg-white rounded-lg p-1 border border-slate-200">
                             <Button
                                 variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
                                 size="sm"
-                                className={`h-8 px-3 ${viewMode === 'kanban' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+                                className={`h-8 px-3 ${viewMode === 'kanban' ? 'bg-violet-50 text-violet-700' : 'text-slate-500'}`}
                                 onClick={() => setViewMode('kanban')}
                             >
                                 <Kanban className="w-4 h-4 mr-2" /> Board
@@ -79,18 +75,20 @@ export default function ManageCandidates() {
                             <Button
                                 variant={viewMode === 'table' ? 'secondary' : 'ghost'}
                                 size="sm"
-                                className={`h-8 px-3 ${viewMode === 'table' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+                                className={`h-8 px-3 ${viewMode === 'table' ? 'bg-violet-50 text-violet-700' : 'text-slate-500'}`}
                                 onClick={() => setViewMode('table')}
                             >
                                 <List className="w-4 h-4 mr-2" /> Table
                             </Button>
                         </div>
-
-                        <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 shrink-0">
+                        <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 bg-white border-slate-200 text-slate-600 hover:text-slate-900">
                             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                         </Button>
                     </div>
-                </div>
+                }
+            />
+
+            <div className="flex-shrink-0 px-6 mt-4">
 
                 {/* Bulk Actions Bar - only shows in table mode when items are selected */}
                 {viewMode === 'table' && selectedCandidatesForBulk.length > 0 && (
@@ -111,7 +109,7 @@ export default function ManageCandidates() {
                         </div>
                     </div>
                 )}
-            </header>
+            </div>
 
             {/* Main Content Area with Sidebar */}
             <div className="flex-1 overflow-hidden flex p-6 gap-6 relative hide-scrollbar">
@@ -120,13 +118,13 @@ export default function ManageCandidates() {
                 <main className="flex-1 overflow-hidden">
                     {viewMode === 'kanban' ? (
                         <CandidateBoard
-                            applications={applications}
+                            applications={applications as any}
                             isLoading={isLoading}
                             onStatusChange={() => refetch()}
                         />
                     ) : (
                         <CandidateTable
-                            applications={applications}
+                            applications={applications as any}
                             isLoading={isLoading}
                         />
                     )}

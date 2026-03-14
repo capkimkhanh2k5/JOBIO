@@ -27,10 +27,10 @@ const PROFICIENCY_LABELS: Record<ProficiencyLevel, string> = {
 };
 
 const PROFICIENCY_COLORS: Record<ProficiencyLevel, string> = {
-    beginner: 'text-slate-400 bg-slate-400/10 border-slate-400/20',
-    intermediate: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
-    advanced: 'text-violet-400 bg-violet-400/10 border-violet-400/20',
-    expert: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+    beginner: 'text-slate-500 bg-slate-50 border-slate-200',
+    intermediate: 'text-violet-600 bg-violet-50 border-violet-100',
+    advanced: 'text-indigo-600 bg-indigo-50 border-indigo-100',
+    expert: 'text-amber-600 bg-amber-50 border-amber-100',
 };
 
 export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
@@ -44,11 +44,12 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
         staleTime: 30_000,
     });
 
-    const addSkill = useCallback((skill: { id: string; name: string }) => {
-        if (value.some(s => s.skill_id === skill.id)) return;
+    const addSkill = useCallback((skill: { id: string | number; name: string }) => {
+        const stringId = String(skill.id);
+        if (value.some(s => s.skill_id === stringId)) return;
         onChange([
             ...value,
-            { skill_id: skill.id, skill_name: skill.name, is_required: true, proficiency_level: 'intermediate' },
+            { skill_id: stringId, skill_name: skill.name, is_required: true, proficiency_level: 'intermediate' },
         ]);
         setQuery('');
         setOpen(false);
@@ -63,13 +64,13 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
         onChange(value.map(s => s.skill_id === skillId ? { ...s, ...patch } : s));
     }, [value, onChange]);
 
-    const filtered = suggestions.filter(s => !value.some(v => v.skill_id === s.id));
+    const filtered = suggestions.filter(s => !value.some(v => v.skill_id === String(s.id)));
 
     return (
         <div className="space-y-3">
             {/* Search input */}
             <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                     <Search size={15} />
                 </div>
                 <input
@@ -85,23 +86,23 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                     placeholder="Tìm kỹ năng (React, Python, AWS...)"
                     className={cn(
                         'w-full pl-9 pr-4 py-2.5 rounded-xl text-sm',
-                        'bg-white/5 border border-white/10 text-white placeholder:text-white/30',
-                        'focus:outline-none focus:border-cyan-500/40 focus:bg-white/8',
-                        'transition-all duration-200'
+                        'bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400',
+                        'focus:outline-none focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5',
+                        'transition-all duration-200 shadow-sm'
                     )}
                 />
 
                 {/* Dropdown */}
                 {open && filtered.length > 0 && (
-                    <div className="absolute z-50 top-full left-0 right-0 mt-1.5 glass-card rounded-xl overflow-hidden border border-white/15 shadow-2xl">
+                    <div className="absolute z-50 top-full left-0 right-0 mt-1.5 bg-white rounded-xl overflow-hidden border border-slate-200 shadow-xl py-1">
                         {filtered.map(skill => (
                             <button
                                 key={skill.id}
                                 type="button"
                                 onMouseDown={() => addSkill(skill)}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white/80 hover:bg-white/10 hover:text-white transition-colors text-left"
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors text-left"
                             >
-                                <span className="w-2 h-2 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex-shrink-0" />
+                                <span className="w-2 h-2 rounded-full bg-violet-600 flex-shrink-0" />
                                 {skill.name}
                             </button>
                         ))}
@@ -115,10 +116,10 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                     {value.map(skill => (
                         <div
                             key={skill.skill_id}
-                            className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10 flex-wrap sm:flex-nowrap"
+                            className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex-wrap sm:flex-nowrap"
                         >
                             {/* Skill name */}
-                            <span className="font-medium text-sm text-white flex-shrink-0 mr-auto">{skill.skill_name}</span>
+                            <span className="font-bold text-sm text-slate-900 flex-shrink-0 mr-auto">{skill.skill_name}</span>
 
                             {/* Is required toggle */}
                             <label className="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
@@ -126,9 +127,9 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                                     type="checkbox"
                                     checked={skill.is_required}
                                     onChange={e => updateSkill(skill.skill_id, { is_required: e.target.checked })}
-                                    className="w-3.5 h-3.5 accent-cyan-500 cursor-pointer"
+                                    className="w-3.5 h-3.5 accent-violet-600 cursor-pointer"
                                 />
-                                <span className="text-xs text-white/50">Bắt buộc</span>
+                                <span className="text-xs text-slate-500 font-medium">Bắt buộc</span>
                             </label>
 
                             {/* Proficiency select */}
@@ -143,7 +144,7 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                                     )}
                                 >
                                     {(Object.keys(PROFICIENCY_LABELS) as ProficiencyLevel[]).map(lvl => (
-                                        <option key={lvl} value={lvl} className="bg-[#0f1117] text-white">
+                                        <option key={lvl} value={lvl} className="text-slate-900 bg-white">
                                             {PROFICIENCY_LABELS[lvl]}
                                         </option>
                                     ))}
@@ -155,7 +156,7 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                             <button
                                 type="button"
                                 onClick={() => removeSkill(skill.skill_id)}
-                                className="text-white/30 hover:text-red-400 transition-colors flex-shrink-0 p-0.5"
+                                className="text-slate-300 hover:text-red-500 transition-colors flex-shrink-0 p-0.5"
                             >
                                 <X size={14} />
                             </button>
@@ -165,14 +166,14 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
             )}
 
             {value.length === 0 && (
-                <p className="text-xs text-white/30 italic">Chưa có kỹ năng nào được thêm.</p>
+                <p className="text-xs text-slate-400 italic font-medium">Chưa có kỹ năng nào được thêm.</p>
             )}
 
             {/* Tags preview */}
             {value.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
                     {value.map(s => (
-                        <Badge key={s.skill_id} variant="outline" className={cn('text-xs border', s.is_required ? 'border-cyan-500/40 text-cyan-400' : 'border-white/10 text-white/50')}>
+                        <Badge key={s.skill_id} variant="outline" className={cn('text-xs border font-medium', s.is_required ? 'border-violet-200 bg-violet-50 text-violet-600' : 'border-slate-200 bg-slate-50 text-slate-500')}>
                             {s.skill_name}
                             {s.is_required && <span className="ml-1 text-[10px] text-red-400">*</span>}
                         </Badge>

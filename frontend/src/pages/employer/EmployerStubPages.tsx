@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 function StubPage({ title, desc }: { title: string; desc: string }) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center p-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center text-3xl">
+            <div className="w-16 h-16 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-3xl shadow-sm border border-violet-100">
                 🚧
             </div>
-            <h1 className="text-2xl font-black">{title}</h1>
-            <p className="text-muted-foreground max-w-sm">{desc}</p>
+            <h1 className="text-2xl font-black text-slate-900">{title}</h1>
+            <p className="text-slate-500 max-w-sm font-medium">{desc}</p>
             <Link
                 to="/employer/dashboard"
-                className="text-sm text-cyan-400 hover:text-cyan-300 underline underline-offset-4 transition-colors"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-violet-600 bg-violet-50 rounded-lg hover:bg-violet-100 transition-colors"
             >
                 ← Quay lại Dashboard
             </Link>

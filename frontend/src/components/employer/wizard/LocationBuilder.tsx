@@ -36,7 +36,7 @@ function LocationRowItem({
 }) {
     const { data: provinces = [], isLoading: provinceLoading } = useQuery({
         queryKey: ['provinces-detailed'],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results ?? r.data),
         staleTime: 60_000,
     });
 
@@ -64,37 +64,36 @@ function LocationRowItem({
 
     const selectClass = cn(
         'w-full px-3 py-2.5 rounded-xl text-sm',
-        'bg-white/5 border border-white/10 text-white',
-        'focus:outline-none focus:border-cyan-500/40',
-        'transition-all duration-200 appearance-none cursor-pointer'
+        'bg-white border border-slate-200 text-slate-900',
+        'focus:outline-none focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5',
+        'transition-all duration-200 appearance-none cursor-pointer shadow-sm'
     );
 
     return (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/3 space-y-3">
+        <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3 shadow-sm">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
-                        <MapPin size={12} className="text-cyan-400" />
+                    <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                        <MapPin size={12} className="text-violet-600" />
                     </div>
-                    <span className="text-xs font-semibold text-white/60">Địa điểm #{index + 1}</span>
+                    <span className="text-xs font-bold text-slate-500">Địa điểm #{index + 1}</span>
                 </div>
                 <div className="flex items-center gap-3">
                     {/* is_primary toggle */}
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                        <Star size={12} className={row.is_primary ? 'text-amber-400' : 'text-white/30'} />
-                        <span className="text-xs text-white/50">Chính</span>
+                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                        <Star size={12} className={row.is_primary ? 'text-amber-500 fill-amber-500' : 'text-slate-300 group-hover:text-slate-400'} />
+                        <span className="text-xs text-slate-500 font-medium">Chính</span>
                         <Switch
                             checked={row.is_primary}
                             onCheckedChange={v => onUpdate({ is_primary: v })}
-                            className="scale-75"
                         />
                     </label>
                     {canRemove && (
                         <button
                             type="button"
                             onClick={onRemove}
-                            className="text-white/30 hover:text-red-400 transition-colors p-1"
+                            className="text-slate-300 hover:text-red-500 transition-colors p-1"
                         >
                             <Trash2 size={14} />
                         </button>
@@ -105,14 +104,14 @@ function LocationRowItem({
             {/* Province */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label className="text-xs text-white/50 mb-1 block">Tỉnh / Thành phố <span className="text-red-400">*</span></label>
+                    <label className="text-xs text-slate-500 mb-1 block font-medium">Tỉnh / Thành phố <span className="text-red-500">*</span></label>
                     {provinceLoading ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
                         <select value={row.province_id} onChange={e => handleProvinceChange(e.target.value)} className={selectClass}>
-                            <option value="" className="bg-[#0f1117]">-- Chọn tỉnh/thành phố --</option>
+                            <option value="">-- Chọn tỉnh/thành phố --</option>
                             {provinces.map(p => (
-                                <option key={p.id} value={p.id} className="bg-[#0f1117]">{p.name}</option>
+                                <option key={p.id} value={p.id} className="text-slate-900">{p.name}</option>
                             ))}
                         </select>
                     )}
@@ -120,7 +119,7 @@ function LocationRowItem({
 
                 {/* Commune */}
                 <div>
-                    <label className="text-xs text-white/50 mb-1 block">Quận / Huyện</label>
+                    <label className="text-xs text-slate-500 mb-1 block font-medium">Quận / Huyện</label>
                     {communeLoading && row.province_id ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
@@ -130,9 +129,9 @@ function LocationRowItem({
                             disabled={!row.province_id}
                             className={cn(selectClass, !row.province_id && 'opacity-40 cursor-not-allowed')}
                         >
-                            <option value="" className="bg-[#0f1117]">-- Chọn quận/huyện --</option>
+                            <option value="">-- Chọn quận/huyện --</option>
                             {communes.map(c => (
-                                <option key={c.id} value={c.id} className="bg-[#0f1117]">{c.name}</option>
+                                <option key={c.id} value={c.id} className="text-slate-900">{c.name}</option>
                             ))}
                         </select>
                     )}
@@ -141,13 +140,13 @@ function LocationRowItem({
 
             {/* Address line */}
             <div>
-                <label className="text-xs text-white/50 mb-1 block">Địa chỉ cụ thể</label>
+                <label className="text-xs text-slate-500 mb-1 block font-medium">Địa chỉ cụ thể</label>
                 <input
                     type="text"
                     value={row.address_line}
                     onChange={e => onUpdate({ address_line: e.target.value })}
                     placeholder="Số nhà, tên đường..."
-                    className={cn(selectClass, 'w-full appearance-none placeholder:text-white/30')}
+                    className={cn(selectClass, 'w-full appearance-none placeholder:text-slate-400')}
                 />
             </div>
         </div>
@@ -210,9 +209,9 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
                 type="button"
                 onClick={addRow}
                 className={cn(
-                    'w-full py-3 rounded-xl border border-dashed border-white/20',
-                    'flex items-center justify-center gap-2 text-sm text-white/40',
-                    'hover:border-cyan-500/40 hover:text-cyan-400 transition-all duration-200',
+                    'w-full py-3 rounded-xl border border-dashed border-slate-300',
+                    'flex items-center justify-center gap-2 text-sm text-slate-400 font-medium',
+                    'hover:border-violet-500/40 hover:text-violet-600 hover:bg-violet-50/30 transition-all duration-200',
                     'group'
                 )}
             >

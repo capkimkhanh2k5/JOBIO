@@ -14,11 +14,10 @@ import { Step3Location } from '@/components/employer/wizard/Step3Location';
 import { Step4SeoReview } from '@/components/employer/wizard/Step4SeoReview';
 import type { PostJobFormData } from '@/types/postJob';
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+    Dialog, DialogContent,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, SendHorizonal, X, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const step1Schema = z.object({
@@ -200,163 +199,182 @@ export default function PostJob() {
 
     // ─ Render ─────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen py-8 px-4 relative overflow-hidden" style={{
-            background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
-        }}>
-            {/* Blobs */}
-            <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
-            <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
-            {/* Dot grid */}
-            <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
-                backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
-                backgroundSize: '24px 24px'
-            }} />
+        <div className="min-h-screen bg-[#f8fafc] py-8 px-4 sm:px-6 lg:px-8">
+            {/* Background elements to match admin/candidate sections */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-violet-100/30 blur-[100px]" />
+                <div className="absolute -bottom-[10%] -left-[10%] w-[35%] h-[35%] rounded-full bg-indigo-100/30 blur-[100px]" />
+            </div>
 
-            {/* Width constraint */}
-            <div className="max-w-3xl mx-auto space-y-6 relative z-10">
-
-                {/* Header */}
-                <div className="flex items-center justify-between">
+            <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+                {/* Modern Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-xl font-black text-gray-900">
-                            Đăng tin tuyển dụng
+                        <div className="flex items-center gap-2 text-violet-600 mb-1">
+                            <SendHorizonal size={18} className="animate-pulse" />
+                            <span className="text-xs font-bold uppercase tracking-wider">Nhà tuyển dụng chuyên nghiệp</span>
+                        </div>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+                            Đăng tin <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">tuyển dụng</span>
                         </h1>
-                        <p className="text-xs text-gray-500 mt-0.5">
-                            Bước {step}/4 · {draftId ? `Nháp: ${draftId}` : 'Chưa lưu'}
+                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
+                            Bước {step} trên 4 · {draftId ? `Draft ID: #${draftId.slice(-6)}` : 'Đang khởi tạo'}
                             {lastSavedRef.current && (
-                                <span className="ml-2 text-emerald-400 flex-inline items-center gap-1">
-                                    <Clock size={10} className="inline mb-0.5" /> {lastSavedRef.current.toLocaleTimeString('vi-VN')}
+                                <span className="flex items-center gap-1 text-emerald-600 font-medium">
+                                    <Clock size={12} /> Đã lưu {lastSavedRef.current.toLocaleTimeString('vi-VN')}
                                 </span>
                             )}
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => isDirty ? setDiscardOpen(true) : navigate('/employer/jobs')}
-                        className="text-gray-400 hover:text-gray-700 transition-colors p-1.5 rounded-lg hover:bg-gray-100"
-                    >
-                        <X size={18} />
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => isDirty ? setDiscardOpen(true) : navigate('/employer/jobs')}
+                            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 h-11"
+                        >
+                            <X size={18} />
+                            Hủy bỏ
+                        </Button>
+                    </div>
                 </div>
 
-                {/* Glass card */}
-                <div className="dark rounded-2xl p-6 md:p-8 space-y-8 border border-white/10 bg-[#1a2236] shadow-2xl">
+                {/* Main Content Area */}
+                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="p-6 md:p-10 space-y-10">
+                        {/* Progress Stepper with subtle styling */}
+                        <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
+                            <WizardProgress current={step} />
+                        </div>
 
-                    {/* Progress */}
-                    <WizardProgress current={step} />
+                        {/* Step body container with min-height for stability */}
+                        <div className="min-h-[400px]">
+                            <AnimatePresence mode="wait" custom={direction}>
+                                <motion.div
+                                    key={step}
+                                    custom={direction}
+                                    variants={slideVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                                >
+                                    {step === 1 && <Step1BasicInfo control={control} errors={errors} />}
+                                    {step === 2 && <Step2Description control={control} errors={errors} />}
+                                    {step === 3 && <Step3Location control={control} />}
+                                    {step === 4 && <Step4SeoReview control={control} />}
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
 
-                    <div className="border-t border-white/10" />
-
-                    {/* Step body */}
-                    <AnimatePresence mode="wait" custom={direction}>
-                        <motion.div
-                            key={step}
-                            custom={direction}
-                            variants={slideVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            transition={{ duration: 0.25, ease: 'easeInOut' }}
-                        >
-                            {step === 1 && <Step1BasicInfo control={control} errors={errors} />}
-                            {step === 2 && <Step2Description control={control} errors={errors} />}
-                            {step === 3 && <Step3Location control={control} />}
-                            {step === 4 && <Step4SeoReview control={control} />}
-                        </motion.div>
-                    </AnimatePresence>
-
-                    {/* Navigation footer */}
-                    <div className="flex items-center justify-between pt-2 border-t border-white/10 gap-3 flex-wrap">
-                        {/* Left: back */}
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={goPrev}
-                            disabled={step === 1}
-                            className="gap-1.5 text-white/60 hover:text-white disabled:opacity-30"
-                        >
-                            <ChevronLeft size={16} /> Quay lại
-                        </Button>
-
-                        {/* Right: save draft + next/publish */}
-                        <div className="flex items-center gap-2 ml-auto flex-wrap">
-                            {/* Save draft - always available */}
+                        {/* Spacious Navigation footer */}
+                        <div className="flex items-center justify-between pt-8 border-t border-slate-100 gap-4">
                             <Button
                                 type="button"
-                                variant="outline"
-                                onClick={onSaveDraft}
-                                disabled={saveDraftMutation.isPending}
-                                className={cn(
-                                    'border-white/15 text-white/60 hover:text-white hover:border-white/30 gap-1.5',
-                                    saveDraftMutation.isPending && 'opacity-50'
-                                )}
+                                variant="ghost"
+                                onClick={goPrev}
+                                disabled={step === 1}
+                                className="h-12 px-6 rounded-xl gap-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-20 transition-all font-bold"
                             >
-                                <Save size={14} />
-                                {saveDraftMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
+                                <ChevronLeft size={20} /> Quay lại
                             </Button>
 
-                            {/* Next or Publish */}
-                            {step < 4 ? (
+                            <div className="flex items-center gap-3">
                                 <Button
                                     type="button"
-                                    onClick={goNext}
-                                    className="bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white gap-1.5 shadow-lg shadow-violet-500/20"
+                                    variant="outline"
+                                    onClick={onSaveDraft}
+                                    disabled={saveDraftMutation.isPending}
+                                    className="h-12 px-6 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold transition-all shadow-sm"
                                 >
-                                    Tiếp theo <ChevronRight size={16} />
+                                    {saveDraftMutation.isPending ? (
+                                        <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                                    ) : <Save size={18} />}
+                                    Lưu nháp
                                 </Button>
-                            ) : (
-                                <Button
-                                    type="button"
-                                    onClick={onPublish}
-                                    disabled={publishMutation.isPending}
-                                    className={cn(
-                                        'bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500',
-                                        'text-white gap-1.5 shadow-lg shadow-violet-500/25 min-w-[120px]',
-                                        publishMutation.isPending && 'opacity-70'
-                                    )}
-                                >
-                                    <SendHorizonal size={14} />
-                                    {publishMutation.isPending ? 'Đang đăng...' : 'Đăng tin'}
-                                </Button>
-                            )}
+
+                                {step < 4 ? (
+                                    <Button
+                                        type="button"
+                                        onClick={goNext}
+                                        className="h-12 px-8 rounded-xl bg-violet-600 hover:bg-violet-700 text-white gap-2 font-bold shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all transform hover:-translate-y-0.5"
+                                    >
+                                        Tiếp theo <ChevronRight size={20} />
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        onClick={onPublish}
+                                        disabled={publishMutation.isPending}
+                                        className="h-12 px-8 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white gap-2 font-bold shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all transform hover:-translate-y-0.5 min-w-[140px]"
+                                    >
+                                        {publishMutation.isPending ? (
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        ) : <SendHorizonal size={18} />}
+                                        Đăng tin ngay
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Tips card */}
-                <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-xs text-slate-600 space-y-1">
-                    <p className="font-semibold text-slate-800">💡 Mẹo tối ưu tin tuyển dụng</p>
-                    <ul className="list-disc list-inside space-y-0.5 ml-1">
-                        <li>Tiêu đề rõ ràng → tăng 40% lượt click</li>
-                        <li>Mô tả lương cụ thể → tăng 35% đơn ứng tuyển</li>
-                        <li>Điền đầy đủ kỹ năng → AI match chính xác hơn</li>
-                    </ul>
+                {/* Enhancement Tips with modern look */}
+                <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-[1.5rem] border border-violet-100 p-6 shadow-sm">
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
+                            <Clock size={20} />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="font-bold text-slate-900">Mẹo tối ưu: Hãy dành 5 phút để hoàn thảo tốt tin này</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                                <div className="text-xs text-slate-600 flex items-start gap-2">
+                                    <span className="text-violet-500 font-bold">•</span>
+                                    <span>Tiêu đề rõ ràng giúp tăng <strong>40%</strong> lượt click từ ứng viên.</span>
+                                </div>
+                                <div className="text-xs text-slate-600 flex items-start gap-2">
+                                    <span className="text-violet-500 font-bold">•</span>
+                                    <span>Mô tả mức lương cụ thể thu hút hơn <strong>35%</strong> lượt ứng tuyển.</span>
+                                </div>
+                                <div className="text-xs text-slate-600 flex items-start gap-2">
+                                    <span className="text-violet-500 font-bold">•</span>
+                                    <span>Gắn thẻ kỹ năng chuẩn xác giúp AI gợi ý ứng viên phù hợp nhất.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Discard dialog */}
+            {/* Discard Confirmation Dialog */}
             <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
-                <DialogContent className="glass-card border-white/15 max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="text-white">Hủy tạo tin?</DialogTitle>
-                    </DialogHeader>
-                    <p className="text-sm text-white/60 pb-2">
-                        Bạn có chắc muốn thoát? Các thay đổi chưa lưu sẽ bị mất.
-                    </p>
-                    <DialogFooter className="gap-2">
-                        <Button variant="ghost" onClick={() => setDiscardOpen(false)} className="text-white/60">
-                            Tiếp tục chỉnh sửa
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={() => navigate('/employer/jobs')}
-                            className="bg-red-500/80 hover:bg-red-500"
-                        >
-                            Hủy & thoát
-                        </Button>
-                    </DialogFooter>
+                <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
+                    <div className="bg-white p-8 space-y-6">
+                        <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto">
+                            <X size={32} className="text-red-500" />
+                        </div>
+                        <div className="text-center space-y-2">
+                            <h2 className="text-2xl font-black text-slate-900">Hủy tạo tin?</h2>
+                            <p className="text-slate-500">
+                                Bạn có chắc muốn rời khỏi trang này? Tất cả các thay đổi chưa được lưu sẽ bị xóa vĩnh viễn.
+                            </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <Button 
+                                variant="ghost" 
+                                onClick={() => setDiscardOpen(false)} 
+                                className="flex-1 h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100 order-2 sm:order-1"
+                            >
+                                Quay lại chỉnh sửa
+                            </Button>
+                            <Button 
+                                onClick={() => navigate('/employer/jobs')}
+                                className="flex-1 h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-lg shadow-red-100 order-1 sm:order-2"
+                            >
+                                Hủy và thoát
+                            </Button>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

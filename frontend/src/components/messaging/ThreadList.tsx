@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, MessageSquareDashed } from 'lucide-react';
+import { Search, Plus, MessageSquareDashed, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -73,7 +73,8 @@ export function ThreadList({ selectedId, onSelectThread, onNewThread }: Props) {
             <div className="px-4 pt-5 pb-3 shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <h2 className="font-bold text-base text-foreground">Tin nhắn</h2>
+                        <MessageSquare className="w-5 h-5 text-violet-600" />
+                        <h2 className="font-bold text-base text-slate-900">Tin nhắn</h2>
                         {totalUnread > 0 && (
                             <Badge className="bg-violet-500 text-white text-[10px] h-5 min-w-[20px] px-1.5 rounded-full">
                                 {totalUnread}
@@ -82,7 +83,7 @@ export function ThreadList({ selectedId, onSelectThread, onNewThread }: Props) {
                     </div>
                     <Button
                         size="sm"
-                        className="gap-1.5 h-8 text-xs rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 hover:opacity-90 text-white"
+                        className="gap-1.5 h-8 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 text-white shadow-sm shadow-violet-500/20"
                         onClick={onNewThread}
                         aria-label="Tạo cuộc hội thoại mới"
                     >
@@ -132,14 +133,14 @@ export function ThreadList({ selectedId, onSelectThread, onNewThread }: Props) {
                                 >
                                     {/* Active indicator */}
                                     {isSelected && (
-                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-10 bg-gradient-to-b from-violet-400 to-cyan-500 rounded-r-full" />
+                                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-10 bg-violet-600 rounded-r-full" />
                                     )}
 
                                     {/* Avatar */}
                                     <div className="relative shrink-0">
                                         <div className={cn(
-                                            'w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold bg-gradient-to-br',
-                                            isSelected ? 'from-violet-500 to-cyan-400' : 'from-slate-400 to-slate-500'
+                                            'w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold bg-violet-500',
+                                            isSelected ? 'bg-violet-600' : 'bg-slate-400'
                                         )}>
                                             {getInitials(displayName)}
                                         </div>

@@ -64,7 +64,7 @@ export default function TestCatalogue() {
     };
 
     return (
-        <div className="container mx-auto px-4 max-w-7xl pb-16 pt-40">
+        <div className="p-6 lg:p-8 w-full flex-1 relative z-10 pb-16">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold tracking-tight mb-2">Trung tâm Đánh giá Năng lực</h1>
                 <p className="text-muted-foreground">

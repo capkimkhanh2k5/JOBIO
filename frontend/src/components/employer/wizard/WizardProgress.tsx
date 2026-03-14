@@ -31,15 +31,15 @@ export function WizardProgress({ current }: WizardProgressProps) {
                                     animate={{
                                         scale: active ? 1.1 : 1,
                                         boxShadow: active
-                                            ? '0 0 0 4px rgba(6,182,212,0.2)'
+                                            ? '0 0 0 4px rgba(124, 58, 237, 0.15)'
                                             : 'none',
                                     }}
                                     transition={{ duration: 0.3 }}
                                     className={cn(
                                         'w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-300',
-                                        done && 'bg-gradient-to-br from-cyan-500 to-violet-500 text-white',
-                                        active && 'bg-gradient-to-br from-cyan-400 to-violet-500 text-white ring-2 ring-cyan-500/30',
-                                        !done && !active && 'bg-white/10 text-white/40 border border-white/10'
+                                        done && 'bg-violet-600 text-white',
+                                        active && 'bg-violet-600 text-white shadow-lg shadow-violet-500/20',
+                                        !done && !active && 'bg-slate-100 text-slate-400 border border-slate-200'
                                     )}
                                 >
                                     {done ? <Check size={16} /> : stepNum}
@@ -47,20 +47,20 @@ export function WizardProgress({ current }: WizardProgressProps) {
                                 {/* Label */}
                                 <div className="mt-2 text-center hidden sm:block">
                                     <p className={cn(
-                                        'text-xs font-semibold whitespace-nowrap',
-                                        active ? 'text-white' : done ? 'text-cyan-400' : 'text-white/40'
+                                        'text-xs font-bold whitespace-nowrap',
+                                        active ? 'text-violet-600' : done ? 'text-slate-900' : 'text-slate-400'
                                     )}>
                                         {step.label}
                                     </p>
-                                    <p className="text-[10px] text-white/30 mt-0.5 whitespace-nowrap">{step.sub}</p>
+                                    <p className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">{step.sub}</p>
                                 </div>
                             </div>
 
                             {/* Connector line (not after last) */}
                             {idx < STEPS.length - 1 && (
-                                <div className="flex-1 h-0.5 mx-2 mt-0 sm:-mt-6 rounded-full overflow-hidden bg-white/10">
+                                <div className="flex-1 h-0.5 mx-2 mt-0 sm:-mt-6 rounded-full overflow-hidden bg-slate-100">
                                     <motion.div
-                                        className="h-full bg-gradient-to-r from-cyan-500 to-violet-500"
+                                        className="h-full bg-violet-600"
                                         initial={{ width: '0%' }}
                                         animate={{ width: done ? '100%' : '0%' }}
                                         transition={{ duration: 0.4, ease: 'easeInOut' }}

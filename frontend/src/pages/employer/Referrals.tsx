@@ -17,21 +17,21 @@ export default function EmployerReferrals() {
     });
 
     return (
-        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 pb-24">
+        <div className="p-6 md:p-8 w-full mx-auto space-y-8 pb-24">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2 flex items-center gap-3">
-                        <Gift className="w-8 h-8 text-cyan-500" />
+                    <h1 className="text-3xl font-black text-slate-900 mb-2 flex items-center gap-3">
+                        <Gift className="w-8 h-8 text-violet-600" />
                         Quản lý Giới thiệu (Referrals)
                     </h1>
-                    <p className="text-muted-foreground text-sm max-w-2xl">
+                    <p className="text-slate-500 text-sm max-w-2xl">
                         Giới thiệu nhân tài và nhận thưởng hấp dẫn. Theo dõi trạng thái ứng viên bạn đã giới thiệu.
                     </p>
                 </div>
                 <Button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="bg-gradient-to-r from-cyan-500 to-violet-500 text-white hover:opacity-90 shadow-lg shadow-cyan-500/25 shrink-0"
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:opacity-90 shadow-lg shadow-violet-500/25 shrink-0 px-6 h-11"
                 >
                     <Plus className="w-4 h-4 mr-2" />
                     Giới thiệu ứng viên
@@ -40,10 +40,10 @@ export default function EmployerReferrals() {
 
             {/* Programs Section */}
             <section className="space-y-4">
-                <h2 className="text-lg font-bold text-foreground">Chương trình thưởng hiện tại</h2>
+                <h2 className="text-lg font-bold text-slate-800">Chương trình thưởng hiện tại</h2>
                 {isLoadingPrograms ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-2xl bg-white/5" />)}
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-2xl bg-slate-100" />)}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -53,11 +53,11 @@ export default function EmployerReferrals() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className="p-5 rounded-2xl bg-white/2 border border-white/10 backdrop-blur-md flex flex-col justify-between hover:bg-white/5 transition-colors"
+                                className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between hover:border-violet-300 hover:shadow-md transition-all group"
                             >
                                 <div>
-                                    <h3 className="font-semibold text-foreground">{prog.title}</h3>
-                                    <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mt-2">
+                                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-600 transition-colors uppercase text-xs tracking-wider">{prog.title}</h3>
+                                    <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 mt-2">
                                         ${prog.bonus}
                                     </p>
                                 </div>
@@ -73,7 +73,7 @@ export default function EmployerReferrals() {
 
             {/* Referral List */}
             <section className="space-y-4">
-                <h2 className="text-lg font-bold text-foreground">Danh sách Giới thiệu</h2>
+                <h2 className="text-lg font-bold text-slate-800">Danh sách Giới thiệu</h2>
                 <ReferralList />
             </section>
 

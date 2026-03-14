@@ -11,6 +11,7 @@ import { EmployerCalendar } from '@/components/employer/interviews/EmployerCalen
 import { EmployerInterviewList } from '@/components/employer/interviews/EmployerInterviewList';
 import { CreateInterviewModal } from '@/components/employer/interviews/CreateInterviewModal';
 import { InterviewDetailModal } from '@/components/employer/interviews/InterviewDetailModal';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function EmployerInterviewsPage() {
     const [view, setView] = useState('calendar');
@@ -27,31 +28,32 @@ export default function EmployerInterviewsPage() {
     };
 
     return (
-        <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+        <div className="p-6 md:p-8 space-y-6 w-full mx-auto">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Lịch Phỏng Vấn</h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Quản lý và sắp xếp lịch phỏng vấn với ứng viên.</p>
-                </div>
-                <Button
-                    onClick={() => setIsCreateOpen(true)}
-                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-600/20 w-full md:w-auto"
-                >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Tạo lịch phỏng vấn
-                </Button>
-            </div>
+            <PageHeader
+                title="Lịch Phỏng Vấn"
+                description="Quản lý và sắp xếp lịch phỏng vấn với ứng viên."
+                icon={Calendar}
+                action={
+                    <Button
+                        onClick={() => setIsCreateOpen(true)}
+                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-600/20 w-full md:w-auto px-6 h-11 rounded-xl"
+                    >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Tạo lịch phỏng vấn
+                    </Button>
+                }
+            />
 
             {/* Main Content */}
             <Tabs defaultValue="calendar" value={view} onValueChange={setView} className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <TabsList className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1">
-                        <TabsTrigger value="calendar" className="data-[state=active]:bg-violet-100 data-[state=active]:text-violet-700 dark:data-[state=active]:bg-violet-900/30 dark:data-[state=active]:text-violet-400">
+                    <TabsList className="bg-slate-50 p-1 border border-slate-200 rounded-xl">
+                        <TabsTrigger value="calendar" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm">
                             <Calendar className="w-4 h-4 mr-2" />
                             Lịch (Calendar)
                         </TabsTrigger>
-                        <TabsTrigger value="list" className="data-[state=active]:bg-violet-100 data-[state=active]:text-violet-700 dark:data-[state=active]:bg-violet-900/30 dark:data-[state=active]:text-violet-400">
+                        <TabsTrigger value="list" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm">
                             <List className="w-4 h-4 mr-2" />
                             Danh sách (List)
                         </TabsTrigger>
@@ -60,9 +62,9 @@ export default function EmployerInterviewsPage() {
                     <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
                         <div className="relative min-w-[200px] flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <Input placeholder="Tìm kiếm ứng viên hoặc vị trí..." className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800" />
+                            <Input placeholder="Tìm kiếm ứng viên hoặc vị trí..." className="pl-9 bg-white border-slate-200 rounded-xl" />
                         </div>
-                        <Button variant="outline" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 whitespace-nowrap">
+                        <Button variant="outline" className="bg-white border-slate-200 rounded-xl whitespace-nowrap">
                             <Filter className="w-4 h-4 mr-2" />
                             Bộ lọc
                         </Button>

@@ -64,10 +64,10 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
     if (isLoading) {
         return (
             <div className="w-full">
-                <div className="border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-                    <div className="bg-slate-50/50 dark:bg-slate-800/30 min-h-[50px] border-b border-slate-200 dark:border-slate-800/50"></div>
+                <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+                    <div className="bg-slate-50 min-h-[50px] border-b border-slate-200"></div>
                     {Array(4).fill(null).map((_, i) => (
-                        <div key={i} className="flex p-4 border-b border-slate-200 dark:border-slate-800/50 gap-4">
+                        <div key={i} className="flex p-4 border-b border-slate-200 gap-4">
                             <Skeleton className="w-10 h-10 rounded-md" />
                             <div className="flex-1 space-y-2 py-1">
                                 <Skeleton className="h-4 w-[250px]" />
@@ -86,18 +86,18 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
 
     if (!campaigns || campaigns.length === 0) {
         return (
-            <div className="p-12 text-center text-slate-500 border border-slate-200 dark:border-slate-800/50 rounded-xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-md">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/10 to-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/20">
-                    <Target className="w-8 h-8 text-cyan-600 dark:text-cyan-400" />
+            <div className="p-16 text-center text-slate-500 border border-slate-200 rounded-3xl bg-slate-50/50 mt-4">
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-100">
+                    <Target className="w-10 h-10 text-violet-600" />
                 </div>
-                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">Chưa có chiến dịch nào</h3>
+                <h3 className="text-xl font-black text-slate-900 mb-2">Chưa có chiến dịch nào</h3>
                 <p className="text-sm">Bạn chưa tạo chiến dịch tuyển dụng nào hoặc không có kết quả phù hợp với bộ lọc.</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full border border-slate-200 dark:border-slate-800/60 rounded-xl overflow-hidden bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm">
+        <div className="w-full border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm mt-4">
             <div className="overflow-x-auto min-h-[400px]">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-slate-50/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-medium">
@@ -110,14 +110,14 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                             <th className="px-6 py-4 whitespace-nowrap text-right">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60">
+                    <tbody className="divide-y divide-slate-100">
                         {campaigns.map((camp) => {
                             const statusInfo = getStatusInfo(camp.status);
                             const budgetPercent = camp.budget > 0 ? Math.min(100, (camp.spent_amount / camp.budget) * 100) : 0;
                             const hirePercent = camp.target_positions > 0 ? Math.min(100, (camp.hired_count / camp.target_positions) * 100) : 0;
 
                             return (
-                                <tr key={camp.id} className="hover:bg-cyan-50/30 dark:hover:bg-cyan-900/10 transition-colors group">
+                                <tr key={camp.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div>
                                             <p className="font-semibold text-slate-900 dark:text-white text-base group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors cursor-pointer" onClick={() => onViewDetail(camp.id)}>
@@ -133,35 +133,35 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col items-start gap-2">
-                                            <Badge variant="outline" className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-none font-normal">
+                                            <Badge variant="outline" className="bg-slate-100 text-slate-600 border-none font-bold uppercase text-[10px]">
                                                 {getTypeInfo(camp.campaign_type)}
                                             </Badge>
-                                            <Badge variant="outline" className={cn("px-2 py-0.5 font-medium border text-xs", statusInfo.color)}>
+                                            <Badge variant="outline" className={cn("px-2 py-0.5 font-bold border-none text-[10px] uppercase rounded-md", statusInfo.color)}>
                                                 {statusInfo.text}
                                             </Badge>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="w-[140px]">
-                                            <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                                <span className="text-slate-600 dark:text-slate-300 flex items-center"><DollarSign className="w-3 h-3 mr-0.5" />{camp.spent_amount.toLocaleString()}</span>
+                                            <div className="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-tight">
+                                                <span className="text-slate-700 flex items-center"><DollarSign className="w-3 h-3 mr-0.5 text-violet-500" />{camp.spent_amount.toLocaleString()}</span>
                                                 <span className="text-slate-400">/ {camp.budget.toLocaleString()}</span>
                                             </div>
-                                            <Progress value={budgetPercent} className="h-1.5" indicatorClassName={budgetPercent > 90 ? "bg-red-500" : budgetPercent > 75 ? "bg-amber-500" : "bg-cyan-500"} />
+                                            <Progress value={budgetPercent} className="h-1.5 bg-slate-100" indicatorClassName={budgetPercent > 90 ? "bg-red-500" : budgetPercent > 75 ? "bg-amber-500" : "bg-violet-500"} />
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="w-[120px]">
-                                            <div className="flex justify-between text-xs mb-1.5 font-medium">
-                                                <span className="text-slate-600 dark:text-slate-300">{camp.hired_count} hired</span>
+                                            <div className="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-tight">
+                                                <span className="text-slate-700">{camp.hired_count} hired</span>
                                                 <span className="text-slate-400">/ {camp.target_positions}</span>
                                             </div>
-                                            <Progress value={hirePercent} className="h-1.5" indicatorClassName="bg-violet-500" />
+                                            <Progress value={hirePercent} className="h-1.5 bg-slate-100" indicatorClassName="bg-indigo-500" />
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex flex-col text-sm text-slate-600 dark:text-slate-300 gap-1.5">
-                                            <div className="flex items-center gap-1.5">
+                                        <div className="flex flex-col text-sm text-slate-700 gap-1.5">
+                                            <div className="flex items-center gap-1.5 font-bold">
                                                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
                                                 <span>{format(parseISO(camp.start_date), 'dd/MM/yyyy', { locale: vi })}</span>
                                             </div>
@@ -174,9 +174,9 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                     <td className="px-6 py-4 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 rounded-xl hover:bg-white hover:text-violet-600 hover:shadow-sm border border-transparent hover:border-slate-100 transition-all">
                                                     <span className="sr-only">Open menu</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <MoreHorizontal className="h-5 w-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-[180px] bg-white/90 dark:bg-slate-900/90 backdrop-blur border-slate-200 dark:border-slate-800">
@@ -212,8 +212,8 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                 </table>
             </div>
             {campaigns.length > 0 && (
-                <div className="py-3 px-6 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500">
-                    <div>Tổng cộng: <span className="font-medium text-slate-900 dark:text-white">{campaigns.length}</span> chiến dịch</div>
+                <div className="py-4 px-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                    <div>Tổng cộng: <span className="font-bold text-slate-900">{campaigns.length}</span> chiến dịch</div>
                 </div>
             )}
         </div>

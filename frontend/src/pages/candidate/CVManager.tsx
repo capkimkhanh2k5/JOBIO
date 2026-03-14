@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
 import api from '@/services/api';
@@ -11,6 +11,7 @@ import { CVListSidebar } from '@/components/candidate/cv/CVListSidebar';
 import { CVBuilder } from '@/components/candidate/cv/CVBuilder';
 import { CVLivePreview } from '@/components/candidate/cv/CVLivePreview';
 import { NewCVDialog } from '@/components/candidate/cv/NewCVDialog';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface CVItem {
@@ -51,10 +52,10 @@ export default function CVManager() {
     // Select first CV by default when list loads
     useEffect(() => {
         if (cvList.length > 0 && !selectedCvId) {
-            const def = cvList.find((c: CVItem) => c.is_default) ?? cvList[0];
-            setSelectedCvId(def.id);
-            setCvName(def.cv_name);
-            setSelectedTemplateId(def.template_id);
+            const def = (cvList as any).find((c: any) => c.is_default) ?? cvList[0];
+            setSelectedCvId((def as any).id);
+            setCvName((def as any).cv_name);
+            setSelectedTemplateId((def as any).template_id || (def as any).template);
         }
     }, [cvList, selectedCvId]);
 
@@ -78,7 +79,7 @@ export default function CVManager() {
 
     const defaultMutation = useMutation({
         mutationFn: (cvId: string) => cvService.setDefault(Number(recruiterId), Number(cvId)),
-        onSuccess: (_, cvId) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
             toast.success('Đã đặt làm CV mặc định.');
         },
@@ -125,10 +126,10 @@ export default function CVManager() {
     }, [selectedCvId, autoSaveStatus, triggerAutoSave]);
 
     // ── Handlers ──────────────────────────────────────────────────────────────
-    const handleSelectCV = (cv: CVItem) => {
+    const handleSelectCV = (cv: any) => {
         setSelectedCvId(cv.id);
         setCvName(cv.cv_name);
-        setSelectedTemplateId(cv.template_id);
+        setSelectedTemplateId(cv.template_id || cv.template);
         setCvData({});
         setAutoSaveStatus('idle');
     };
@@ -141,55 +142,45 @@ export default function CVManager() {
         triggerAutoSave();
     };
 
-    const selectedCV = cvList.find((c: CVItem) => c.id === selectedCvId) ?? null;
+    const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
 
     return (
-        <div className="min-h-screen bg-slate-50 relative">
-            {/* Subtle aurora blobs */}
-            <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-                <div className="absolute -top-32 right-0 w-[500px] h-[500px] rounded-full bg-violet-300/10 blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-cyan-300/10 blur-[100px]" />
-            </div>
-
+        <div className="min-h-screen relative flex flex-col w-full">
             {/* Page header */}
-            <div className="border-b border-slate-200 bg-white sticky top-0 z-20 shadow-sm">
-                <div className="flex items-center justify-between px-6 py-4">
-                    <div>
-                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-cyan-500 to-sky-500">
-                            Quản lý CV
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                            Tạo và quản lý CV chuyên nghiệp với AI hỗ trợ
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {/* AI Generate button */}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-violet-200 text-violet-700 hover:bg-violet-50 gap-2"
-                            onClick={() => aiGenMutation.mutate()}
-                            disabled={aiGenMutation.isPending || !selectedCvId}
-                        >
-                            <Sparkles className={`w-4 h-4 ${aiGenMutation.isPending ? 'animate-spin text-violet-400' : ''}`} />
-                            {aiGenMutation.isPending ? 'AI đang tạo...' : 'AI Generate'}
-                        </Button>
-                        <Button
-                            size="sm"
-                            className="bg-gradient-to-r from-violet-500 to-cyan-500 text-white border-0 shadow-md shadow-violet-500/25 gap-2"
-                            onClick={() => setShowNewDialog(true)}
-                        >
-                            <Plus className="w-4 h-4" /> Tạo CV mới
-                        </Button>
-                    </div>
-                </div>
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Quản lý CV"
+                    description="Tạo và quản lý CV chuyên nghiệp với AI hỗ trợ"
+                    icon={FileText}
+                    action={
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-violet-200 text-violet-700 hover:bg-violet-100 bg-white/50 backdrop-blur-sm gap-2 h-11 px-6 rounded-xl"
+                                onClick={() => aiGenMutation.mutate()}
+                                disabled={aiGenMutation.isPending || !selectedCvId}
+                            >
+                                <Sparkles className={`w-4 h-4 ${aiGenMutation.isPending ? 'animate-spin text-violet-400' : ''}`} />
+                                {aiGenMutation.isPending ? 'AI đang tạo...' : 'AI Generate'}
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 gap-2 transition-all h-11 px-6 rounded-xl font-bold"
+                                onClick={() => setShowNewDialog(true)}
+                            >
+                                <Plus className="w-4 h-4" /> Tạo CV mới
+                            </Button>
+                        </div>
+                    }
+                />
             </div>
 
             {/* Main 3-column layout */}
-            <div className="flex h-[calc(100vh-73px)] relative z-10">
+            <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1">
                 {/* Column 1: CV List Sidebar */}
                 <CVListSidebar
-                    cvList={cvList}
+                    cvList={cvList as any}
                     loading={loadingCVs}
                     selectedId={selectedCvId}
                     onSelect={handleSelectCV}
@@ -232,7 +223,7 @@ export default function CVManager() {
                             queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
                             setSelectedCvId(newCV.id);
                             setCvName(newCV.cv_name);
-                            setSelectedTemplateId(newCV.template_id);
+                            setSelectedTemplateId(newCV.template_id || newCV.template);
                             setCvData({});
                             setAutoSaveStatus('idle');
                             setShowNewDialog(false);

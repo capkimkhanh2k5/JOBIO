@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Star, MoreVertical, Edit2, Trash2, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () => void; onDelete: () => void }) {
     return (
@@ -139,13 +140,14 @@ export function MyReviews() {
     };
 
     return (
-        <div className="max-w-4xl max-w-full w-full mx-auto space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900">Đánh giá của tôi</h1>
-                    <p className="text-sm text-gray-500 mt-1">Quản lý các đánh giá bạn đã viết cho các công ty.</p>
-                </div>
-            </div>
+        <>
+            <PageHeader
+                title="Đánh giá của tôi"
+                description="Quản lý các đánh giá bạn đã viết cho các công ty."
+                icon={Star}
+            />
+
+            <div className="w-full flex-1 p-6 lg:p-8 space-y-6">
 
             {isLoading ? (
                 <div className="space-y-4">
@@ -158,7 +160,7 @@ export function MyReviews() {
                         <Star className="h-8 w-8 text-gray-300" />
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Chưa có đánh giá nào</h3>
-                    <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                    <p className="text-sm text-gray-500 mx-auto">
                         Bạn chưa viết đánh giá cho công ty nào. Hãy để lại đánh giá sau khi phỏng vấn hoặc làm việc nhé.
                     </p>
                 </div>
@@ -198,6 +200,7 @@ export function MyReviews() {
                 </AlertDialogContent>
             </AlertDialog>
         </div>
+        </>
     );
 }
 

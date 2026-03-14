@@ -9,15 +9,15 @@ import type { PostJobFormData } from '@/types/postJob';
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 const inputClass = cn(
     'w-full px-4 py-2.5 rounded-xl text-sm',
-    'bg-white/5 border border-white/10 text-white placeholder:text-white/30',
-    'focus:outline-none focus:border-cyan-500/40 focus:bg-white/8',
-    'transition-all duration-200'
+    'bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400',
+    'focus:outline-none focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5',
+    'transition-all duration-200 shadow-sm'
 );
 
 const selectClass = cn(inputClass, 'appearance-none cursor-pointer');
 
 const fieldErr = (msg?: string) =>
-    msg ? <p className="text-red-400 text-xs mt-1">{msg}</p> : null;
+    msg ? <p className="text-red-500 text-xs mt-1 font-medium">{msg}</p> : null;
 
 const JOB_TYPES = [
     { value: 'full_time', label: 'Toàn thời gian' },
@@ -58,8 +58,8 @@ function RadioGroup<T extends string>({
                     className={cn(
                         'px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-150',
                         value === opt.value
-                            ? 'bg-gradient-to-r from-cyan-500/20 to-violet-500/20 border-cyan-500/40 text-cyan-400'
-                            : 'bg-white/5 border-white/30 text-white/75 hover:border-white/50 hover:text-white'
+                            ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/20'
+                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-sm'
                     )}
                 >
                     {opt.label}
@@ -77,9 +77,9 @@ function Field({ label, required, children, error }: {
     error?: string;
 }) {
     return (
-        <div className="space-y-1">
-            <label className="text-sm font-medium text-white/80">
-                {label} {required && <span className="text-red-400">*</span>}
+        <div className="space-y-1.5">
+            <label className="text-sm font-bold text-slate-700">
+                {label} {required && <span className="text-red-500">*</span>}
             </label>
             {children}
             {fieldErr(error)}
@@ -136,14 +136,14 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                             ) : (
                                 <select
                                     {...field}
-                                    className={cn(selectClass, errors.category_id && 'border-red-500/50')}
+                                    className={cn(selectClass, errors.category_id && 'border-red-500')}
                                 >
-                                    <option value="" className="bg-[#0f1117]">-- Chọn lĩnh vực --</option>
+                                    <option value="" className="text-slate-400">-- Chọn lĩnh vực --</option>
                                     {flatCats.map(cat => (
                                         <option
                                             key={cat.id}
                                             value={cat.id}
-                                            className="bg-[#0f1117]"
+                                            className="text-slate-900"
                                         >
                                             {cat.depth > 0 ? `　└ ${cat.name}` : cat.name}
                                         </option>
@@ -198,7 +198,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
             {/* Salary range */}
             <div>
                 <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-medium text-white/80">Mức lương</label>
+                    <label className="text-sm font-bold text-slate-700">Mức lương</label>
                     <Controller
                         name="is_salary_visible"
                         control={control}
@@ -208,7 +208,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                 <div
                                     className={cn(
                                         'w-8 h-5 rounded-full border-2 relative transition-all duration-200 flex-shrink-0',
-                                        field.value ? 'bg-cyan-500 border-cyan-500' : 'bg-white/10 border-white/40'
+                                        field.value ? 'bg-violet-600 border-violet-600' : 'bg-slate-100 border-slate-200'
                                     )}
                                     onClick={() => field.onChange(!field.value)}
                                 >
@@ -227,8 +227,8 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                         control={control}
                         render={({ field }) => (
                             <select {...field} className={selectClass}>
-                                <option value="VND" className="bg-[#0f1117]">VND</option>
-                                <option value="USD" className="bg-[#0f1117]">USD</option>
+                                <option value="VND">VND</option>
+                                <option value="USD">USD</option>
                             </select>
                         )}
                     />
@@ -265,7 +265,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
 
             {/* Experience range */}
             <div>
-                <label className="text-sm font-medium text-white/80 block mb-2">Kinh nghiệm (năm)</label>
+                <label className="text-sm font-bold text-slate-700 block mb-2">Kinh nghiệm (năm)</label>
                 <div className="grid grid-cols-2 gap-3">
                     <Controller
                         name="experience_min"
@@ -311,8 +311,8 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                 {...field}
                                 type="date"
                                 min={new Date().toISOString().split('T')[0]}
-                                className={cn(inputClass, 'cursor-pointer', errors.deadline && 'border-red-500/50',
-                                    '[color-scheme:dark]'
+                                className={cn(inputClass, 'cursor-pointer', errors.deadline && 'border-red-500',
+                                    '[color-scheme:light]'
                                 )}
                             />
                         )}
@@ -331,8 +331,8 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                     className={cn(
                                         'w-10 h-6 rounded-full border-2 relative transition-all duration-200 flex-shrink-0',
                                         field.value
-                                            ? 'bg-cyan-500 border-cyan-500'
-                                            : 'bg-white/10 border-white/40'
+                                            ? 'bg-violet-600 border-violet-600 shadow-sm'
+                                            : 'bg-slate-100 border-slate-200'
                                     )}
                                     onClick={() => field.onChange(!field.value)}
                                 >
@@ -341,7 +341,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                         field.value ? 'left-[calc(100%-18px)]' : 'left-0.5'
                                     )} />
                                 </div>
-                                <span className="text-sm text-white/70 group-hover:text-white transition-colors">
+                                <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">
                                     {field.value ? '🌐 Hỗ trợ làm việc từ xa (Remote)' : '🏢 Làm việc tại văn phòng'}
                                 </span>
                             </label>
