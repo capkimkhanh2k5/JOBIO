@@ -464,3 +464,9 @@ import os
 logs_dir = BASE_DIR / 'logs'
 if not os.path.exists(logs_dir):
     os.makedirs(logs_dir, exist_ok=True)
+
+# Import local settings to override default settings
+try:
+    from .local_settings import *
+except ImportError:
+    pass
