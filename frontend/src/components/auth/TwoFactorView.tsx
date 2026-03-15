@@ -26,8 +26,8 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
             const { data } = await authService.verify2FA(code);
 
             // Backend returns tokens + user after successful 2FA
-            if (data.access && data.user) {
-                setAuth(data.user, data.access, data.refresh);
+            if (data.access_token && data.user) {
+                setAuth(data.user, data.access_token, data.refresh_token);
             }
 
             toast.success("Xác thực 2FA thành công!");
