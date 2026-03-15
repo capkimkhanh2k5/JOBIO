@@ -26,7 +26,7 @@ export const SocialAuth: React.FC = () => {
                     provider: 'google',
                     access_token: tokenResponse.access_token,
                 });
-                setAuth(data.user, data.access, data.refresh);
+                setAuth(data.user, data.access_token, data.refresh_token);
                 toast.dismiss();
                 toast.success(`Chào mừng ${data.user.full_name}!`);
             } catch (error) {

@@ -31,8 +31,8 @@ export interface User {
 }
 
 export interface AuthTokens {
-  access: string;
-  refresh: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 export interface LoginRequest {
@@ -41,8 +41,8 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access: string;
-  refresh: string;
+  access_token: string;
+  refresh_token: string;
   user: User;
   requires_2fa?: boolean;
 }

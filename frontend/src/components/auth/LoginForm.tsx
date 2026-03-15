@@ -54,7 +54,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 return;
             }
 
-            setAuth(data.user, data.access, data.refresh);
+            setAuth(data.user, data.access_token, data.refresh_token);
             toast.success(`Chào mừng trở lại, ${data.user.full_name}!`);
         } catch (error: any) {
             const msg = error.response?.data?.detail
