@@ -37,7 +37,8 @@ export default function EmployerCampaigns() {
     // Filter local if mock endpoint doesn't handle all filters yet
     const filteredCampaigns = (campaigns as any[]).filter(c => {
         const matchTab = activeTab === 'all' || c.status === activeTab;
-        const matchSearch = c.campaign_name.toLowerCase().includes(searchQuery.toLowerCase());
+        const name = c.title || c.campaign_name || '';
+        const matchSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchTab && matchSearch;
     });
 
@@ -69,10 +70,21 @@ export default function EmployerCampaigns() {
 
     // Handlers
     const handleCreateSubmit = async (data: any) => {
+        // Transform data for backend (title and slug)
+        const transformedData = {
+            ...data,
+            title: data.campaign_name,
+            slug: data.campaign_name.toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim() + '-' + Math.random().toString(36).substring(2, 7)
+        };
+
         if (editingCampaignId) {
-            await updateMutation.mutateAsync({ id: editingCampaignId, data });
+            await updateMutation.mutateAsync({ id: editingCampaignId, data: transformedData });
         } else {
-            await createMutation.mutateAsync(data);
+            await createMutation.mutateAsync(transformedData);
         }
     };
 

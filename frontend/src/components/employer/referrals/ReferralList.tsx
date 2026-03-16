@@ -14,7 +14,7 @@ import {
     Filter,
     Gift
 } from 'lucide-react';
-// Referral APIs stubbed - no backend endpoint available yet
+import { referralService } from '@/services/referralService';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -32,8 +32,8 @@ const statusConfig: Record<string, { label: string, color: string, icon: any }> 
     pending: { label: "Chờ liên hệ", color: "bg-amber-500/10 text-amber-500 border-amber-500/20", icon: Clock },
     contacted: { label: "Đã liên hệ", color: "bg-blue-500/10 text-blue-500 border-blue-500/20", icon: Mail },
     applied: { label: "Đã ứng tuyển", color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20", icon: Briefcase },
-    interviewing: { label: "Đang phỏng vấn", color: "bg-purple-500/10 text-purple-500 border-purple-500/20", icon: Clock },
     hired: { label: "Đã tuyển", color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20", icon: CheckCircle2 },
+    interviewed: { label: "Đã phỏng vấn", color: "bg-purple-500/10 text-purple-500 border-purple-500/20", icon: Clock },
     rejected: { label: "Từ chối", color: "bg-red-500/10 text-red-500 border-red-500/20", icon: XCircle },
 };
 
@@ -56,14 +56,14 @@ export function ReferralList() {
 
     const { data: referrals, isLoading } = useQuery({
         queryKey: ['referrals'],
-        queryFn: () => Promise.resolve([]),  // TODO: no referrals endpoint
+        queryFn: referralService.listReferrals,
     });
 
-    const filteredReferrals = referrals?.filter((ref: any) => {
+    const filteredReferrals = referrals?.results?.filter((ref: any) => {
         const matchesSearch =
-            ref.referred_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ref.job_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            ref.referred_email.toLowerCase().includes(searchTerm.toLowerCase());
+            (ref.candidate_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (ref.job_title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (ref.candidate_email || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === "all" || ref.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -76,7 +76,7 @@ export function ReferralList() {
         );
     }
 
-    if (!referrals || referrals.length === 0) {
+    if (!referrals?.results || referrals.results.length === 0) {
         return (
             <div className="text-center py-12 bg-white/5 border border-white/10 rounded-2xl">
                 <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -132,15 +132,15 @@ export function ReferralList() {
                             <div className="flex items-start gap-4 flex-1 overflow-hidden">
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center shrink-0">
                                     <span className="font-bold text-cyan-400">
-                                        {ref.referred_name.charAt(0)}
+                                        {(ref.candidate_name || '?').charAt(0)}
                                     </span>
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h4 className="font-semibold text-foreground truncate">{ref.referred_name}</h4>
+                                    <h4 className="font-semibold text-foreground truncate">{ref.candidate_name}</h4>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                         <span className="truncate">{ref.job_title}</span>
                                         <span>•</span>
-                                        <span className="truncate">{ref.referred_email}</span>
+                                        <span className="truncate">{ref.candidate_email}</span>
                                     </div>
                                     <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
                                         <span className="flex items-center gap-1">

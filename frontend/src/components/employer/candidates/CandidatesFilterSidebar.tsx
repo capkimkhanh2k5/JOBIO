@@ -10,7 +10,18 @@ import { Input } from '@/components/ui/input';
 import { employerService } from '@/services/employerService';
 import { taxonomyService } from '@/services/taxonomyService';
 
-const STATUSES = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
+const STATUSES = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'hired', 'rejected', 'withdrawn'];
+
+const STATUS_LABELS: Record<string, string> = {
+    'pending': 'Submitted',
+    'reviewing': 'Reviewing',
+    'shortlisted': 'Shortlisted',
+    'interview': 'Interview',
+    'offered': 'Offered',
+    'hired': 'Hired',
+    'rejected': 'Rejected',
+    'withdrawn': 'Withdrawn'
+};
 
 export function CandidatesFilterSidebar() {
     const { filters, setFilters, clearFilters } = useCandidateStore();
@@ -103,7 +114,7 @@ export function CandidatesFilterSidebar() {
                                     checked={filters.statuses.includes(status)}
                                     onCheckedChange={() => toggleStatus(status)}
                                 />
-                                <label htmlFor={`status-${status}`} className="text-sm cursor-pointer">{status}</label>
+                                <label htmlFor={`status-${status}`} className="text-sm cursor-pointer">{STATUS_LABELS[status] || status}</label>
                             </div>
                         ))}
                         {STATUSES.length > 5 && (

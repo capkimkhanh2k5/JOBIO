@@ -92,7 +92,9 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                         <div className="text-right text-foreground font-medium">{formatDate(transaction.date)}</div>
 
                         <div className="text-muted-foreground">Phương thức</div>
-                        <div className="text-right text-foreground font-medium capitalize">{transaction.payment_method.replace('_', ' ')}</div>
+                        <div className="text-right text-foreground font-medium capitalize">
+                            {(transaction.payment_method?.name || transaction.payment_method?.code || 'N/A').replace('_', ' ')}
+                        </div>
 
                         {transaction.vnpay_txn_ref && (
                             <>

@@ -783,12 +783,13 @@ export interface JobAlertMatch {
 // Interviews
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type InterviewStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+export type InterviewStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 export type InterviewResult = 'pass' | 'fail' | 'pending';
 
 export interface InterviewListItem {
   id: number;
-  application: { id: number; job_title: string; recruiter_name: string };
+  application: { id: number; job_title: string; recruiter_name: string; applicant_name?: string };
+  applicant_name?: string;
   interview_type: { id: number; name: string };
   round_number: number;
   scheduled_at: string;
@@ -799,15 +800,19 @@ export interface InterviewListItem {
   type?: string;
   candidate_name?: string;
   candidate_avatar?: string | null;
+  applicant_avatar?: string | null;
   job_title?: string;
   meeting_link?: string | null;
+  location?: string | null;
 }
 
 export interface InterviewDetail extends InterviewListItem {
   address: Address | null;
+  location: string | null;
   meeting_link: string | null;
   notes: string | null;
   feedback: string | null;
+  rating?: number | null;
   interviewers: User[];
   updated_at: string;
 }
@@ -1240,7 +1245,7 @@ export interface BillingTransaction {
   subscription: number;
   amount: number;
   currency: string;
-  payment_method: string;
+  payment_method: { id: number; name: string; code: string };
   status: 'pending' | 'completed' | 'failed' | 'refunded';
   vnpay_txn_ref?: string;
   payment_url?: string;
@@ -1272,3 +1277,40 @@ export interface SubscribeResponse {
 }
 
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Referrals
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface ReferralProgram {
+  id: number;
+  company: number;
+  program_name: string;
+  description: string | null;
+  bonus_amount: number;
+  bonus_currency: string;
+  terms_conditions: string | null;
+  is_active: boolean;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+}
+
+export interface Referral {
+  id: number;
+  program: number | null;
+  program_detail: ReferralProgram | null;
+  job: number;
+  job_title: string;
+  referrer: number;
+  referrer_name: string;
+  referred_email: string | null;
+  referred_name: string | null;
+  referred_phone: string | null;
+  status: 'pending' | 'contacted' | 'applied' | 'interviewed' | 'hired' | 'rejected';
+  bonus_amount: number | null;
+  bonus_paid: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

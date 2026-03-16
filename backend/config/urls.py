@@ -112,6 +112,8 @@ urlpatterns = [
     path('api/reviews/', include('apps.social.reviews.urls')),
     path('api/connections/', include('apps.social.recruiter_connections.urls')),
     path('api/recommendations/', include('apps.social.recommendations.urls')),
+    path('api/social/referrals/', include('apps.social.referrals.urls')),
+    path('api/social/referral-programs/', include('apps.social.referral_programs.urls')),
     
     # Notifications & Messages
     path('api/notifications/', include('apps.communication.notifications.urls')),

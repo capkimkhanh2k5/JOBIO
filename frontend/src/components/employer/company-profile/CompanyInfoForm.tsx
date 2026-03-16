@@ -19,9 +19,9 @@ import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Ima
 const formSchema = z.object({
     company_name: z.string().min(2, 'Tên công ty phải có ít nhất 2 ký tự.'),
     tax_code: z.string().min(5, 'Mã số thuế không hợp lệ.'),
-    industry: z.string().min(1, 'Vui lòng chọn lĩnh vực hoạt động.'),
+    industry_id: z.string().min(1, 'Vui lòng chọn lĩnh vực hoạt động.'),
     company_size: z.string().min(1, 'Vui lòng chọn quy mô công ty.'),
-    website_url: z.string().url('URL không hợp lệ.').or(z.literal('')),
+    website: z.string().url('URL không hợp lệ.').or(z.literal('')),
     founded_year: z.number().int().min(1800).max(new Date().getFullYear()),
     description: z.string().min(10, 'Mô tả cần ít nhất 10 ký tự.'),
     headquarters: z.string().min(5, 'Địa chỉ trụ sở chính không hợp lệ.'),
@@ -44,9 +44,9 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
         defaultValues: {
             company_name: company?.company_name || '',
             tax_code: company?.tax_code || '',
-            industry: company?.industry || '',
+            industry_id: company?.industry?.toString() || '',
             company_size: company?.company_size || '',
-            website_url: company?.website_url || '',
+            website: company?.website || '',
             founded_year: company?.founded_year || new Date().getFullYear(),
             description: company?.description || '',
             headquarters: company?.headquarters || '',
@@ -54,7 +54,10 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     });
 
     const updateMutation = useMutation({
-        mutationFn: (data: FormValues) => companyService.update(Number(company.id), data as any).then(r => r.data),
+        mutationFn: (data: FormValues) => companyService.update(Number(company.id), {
+            ...data,
+            industry_id: Number(data.industry_id)
+        } as any).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã cập nhật thông tin công ty.');
             queryClient.invalidateQueries({ queryKey: ['employerCompany'] });
@@ -214,11 +217,11 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
 
                             <FormField
                                 control={form.control}
-                                name="industry"
+                                name="industry_id"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Lĩnh vực hoạt động</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm">
                                                     <SelectValue placeholder="Chọn lĩnh vực" />
@@ -226,7 +229,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                             </FormControl>
                                             <SelectContent className="bg-white border-slate-200 rounded-xl">
                                                 {industries?.map(ind => (
-                                                    <SelectItem key={ind.id} value={ind.name} className="hover:bg-slate-50 focus:bg-slate-50 font-bold">{ind.name}</SelectItem>
+                                                    <SelectItem key={ind.id} value={ind.id.toString()} className="hover:bg-slate-50 focus:bg-slate-50 font-bold">{ind.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -241,7 +244,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Quy mô nhân sự</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm">
                                                     <SelectValue placeholder="Chọn quy mô" />
@@ -277,7 +280,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
 
                             <FormField
                                 control={form.control}
-                                name="website_url"
+                                name="website"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><Globe className="w-3.5 h-3.5" /> Website Công ty</FormLabel>

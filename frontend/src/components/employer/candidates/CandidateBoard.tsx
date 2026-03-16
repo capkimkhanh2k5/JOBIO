@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 interface Application {
     id: string;
     job_id: string;
-    candidate_id: string;
-    candidate_name: string;
-    candidate_avatar: string;
+    recruiter_id: string;
+    recruiter_name: string;
+    recruiter_avatar: string;
     job_title: string;
     status: string;
     ai_score: number;
@@ -22,7 +22,18 @@ interface Application {
     skills: string[];
 }
 
-const COLUMNS = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
+const COLUMNS = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'hired', 'rejected', 'withdrawn'];
+
+const STATUS_LABELS: Record<string, string> = {
+    'pending': 'Submitted',
+    'reviewing': 'Reviewing',
+    'shortlisted': 'Shortlisted',
+    'interview': 'Interview',
+    'offered': 'Offered',
+    'hired': 'Hired',
+    'rejected': 'Rejected',
+    'withdrawn': 'Withdrawn'
+};
 
 export function CandidateBoard({ applications, isLoading, onStatusChange }: {
     applications: Application[],
@@ -105,7 +116,7 @@ export function CandidateBoard({ applications, isLoading, onStatusChange }: {
                     >
                         <div className="flex justify-between items-center mb-4 px-1">
                             <h3 className="font-semibold text-sm flex items-center gap-2">
-                                {status}
+                                {STATUS_LABELS[status] || status}
                                 <Badge variant="secondary" className="px-1.5 py-0 min-w-5 justify-center rounded-full text-xs bg-background">
                                     {columnApps.length}
                                 </Badge>
@@ -135,12 +146,12 @@ export function CandidateBoard({ applications, isLoading, onStatusChange }: {
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="flex gap-3">
                                                 <Avatar className="h-10 w-10 border border-background">
-                                                    <AvatarImage src={app.candidate_avatar} />
+                                                    <AvatarImage src={app.recruiter_avatar} />
                                                     <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                                 </Avatar>
                                                 <div>
                                                     <h4 className="font-medium text-sm leading-tight group-hover:text-primary transition-colors">
-                                                        {app.candidate_name}
+                                                        {app.recruiter_name}
                                                     </h4>
                                                     <p className="text-xs text-muted-foreground mt-0.5 max-w-[180px] truncate">
                                                         {app.job_title}
@@ -151,14 +162,14 @@ export function CandidateBoard({ applications, isLoading, onStatusChange }: {
                                         </div>
 
                                         <div className="flex flex-wrap gap-1.5 mb-3">
-                                            {app.skills.slice(0, 3).map(skill => (
+                                            {(app.skills || []).slice(0, 3).map(skill => (
                                                 <Badge key={skill} variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-secondary/50 border-border/50">
                                                     {skill}
                                                 </Badge>
                                             ))}
-                                            {app.skills.length > 3 && (
+                                            {(app.skills || []).length > 3 && (
                                                 <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-secondary/50 border-border/50">
-                                                    +{app.skills.length - 3}
+                                                    +{(app.skills || []).length - 3}
                                                 </Badge>
                                             )}
                                         </div>

@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Gift, Plus } from 'lucide-react';
-// No backend endpoint for referral programs yet
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ReferralList } from '@/components/employer/referrals/ReferralList';
 import { CreateReferralModal } from '@/components/employer/referrals/CreateReferralModal';
+import { referralService } from '@/services/referralService';
+import { ReferralProgram } from '@/types/api';
 
 export default function EmployerReferrals() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const { data: programs, isLoading: isLoadingPrograms } = useQuery({
         queryKey: ['referral-programs'],
-        queryFn: () => Promise.resolve([]),
+        queryFn: referralService.listPrograms,
     });
 
     return (
@@ -47,7 +48,7 @@ export default function EmployerReferrals() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {programs?.map((prog: any, i: number) => (
+                        {programs?.results?.map((prog: any, i: number) => (
                             <motion.div
                                 key={prog.id}
                                 initial={{ opacity: 0, y: 20 }}
@@ -56,9 +57,9 @@ export default function EmployerReferrals() {
                                 className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between hover:border-violet-300 hover:shadow-md transition-all group"
                             >
                                 <div>
-                                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-600 transition-colors uppercase text-xs tracking-wider">{prog.title}</h3>
+                                    <h3 className="font-semibold text-slate-800 group-hover:text-violet-600 transition-colors uppercase text-xs tracking-wider">{prog.program_name}</h3>
                                     <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 mt-2">
-                                        ${prog.bonus}
+                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: prog.bonus_currency }).format(prog.bonus_amount)}
                                     </p>
                                 </div>
                                 <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">

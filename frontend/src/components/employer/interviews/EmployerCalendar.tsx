@@ -9,7 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 export interface Interview {
     id: string;
     candidate_name: string;
+    applicant_name?: string;
     candidate_avatar: string;
+    applicant_avatar?: string;
     job_title: string;
     type: 'video' | 'phone' | 'onsite';
     scheduled_at: string;
@@ -17,9 +19,12 @@ export interface Interview {
     status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
     job_id?: string;
     candidate_id?: string;
+    applicant_id?: string;
     location?: string;
     meeting_link?: string;
     notes?: string;
+    feedback?: string;
+    rating?: number;
     interviewers?: { id: string; name: string; avatar: string }[];
 }
 

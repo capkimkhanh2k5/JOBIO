@@ -72,6 +72,7 @@ class CompanyUpdateInput(BaseModel):
     industry_id: int | None = None
     website: str | None = None
     description: str | None = None
+    headquarters: str | None = None
     founded_year: int | None = None
 
 
@@ -105,6 +106,10 @@ def update_company(company: Company, data: CompanyUpdateInput) -> Company:
     if data.description is not None:
         company.description = data.description or None
         fields_to_update.append('description')
+    
+    if data.headquarters is not None:
+        company.headquarters = data.headquarters or None
+        fields_to_update.append('headquarters')
     
     if data.founded_year is not None:
         company.founded_year = data.founded_year or None
