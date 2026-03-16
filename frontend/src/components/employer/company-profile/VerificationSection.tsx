@@ -40,79 +40,80 @@ export function VerificationSection({ company }: { company: any }) {
     };
 
     return (
-        <Card className="border-cyan-500/10 bg-white/5 backdrop-blur-md overflow-hidden relative">
-            {/* Background gradient hint */}
-            {company?.verification_status === 'verified' && (
-                <div className="absolute -right-20 -top-20 w-40 h-40 bg-green-500/20 blur-3xl rounded-full pointer-events-none" />
-            )}
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+            {/* Subtle multi-layer background accents */}
+            <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
+            <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-cyan-500/5 blur-[100px] pointer-events-none" />
 
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-cyan-400" />
+            <CardHeader className="relative z-10">
+                <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-800">
+                    <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500">
+                        <ShieldCheck className="w-5 h-5" />
+                    </div>
                     Xác minh Doanh nghiệp
                 </CardTitle>
-                <CardDescription>Hồ sơ đã xác minh giúp tăng độ uy tín và thu hút nhiều ứng viên chất lượng hơn.</CardDescription>
+                <CardDescription className="text-slate-500 font-medium leading-relaxed">Tăng độ tin cậy và thu hút ứng viên tài năng nhất qua quy trình xác thực chính danh.</CardDescription>
             </CardHeader>
-            <CardContent>
-                <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between p-4 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-                    <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-full ${statusStyle.bg} ${statusStyle.border} border`}>
-                            <StatusIcon className={`w-6 h-6 ${statusStyle.color}`} />
+            <CardContent className="relative z-10">
+                <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-5">
+                        <div className={`p-4 rounded-2xl ${statusStyle.bg} ${statusStyle.border} border shadow-sm`}>
+                            <StatusIcon className={`w-8 h-8 ${statusStyle.color}`} />
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground mb-1">Trạng thái hiện tại</p>
+                            <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Trạng thái hiện tại</p>
                             <div className="flex items-center gap-2">
-                                <span className={`font-semibold ${statusStyle.color}`}>
+                                <span className={`text-lg font-black ${statusStyle.color}`}>
                                     {statusStyle.label}
                                 </span>
                                 {company?.verification_status === 'verified' && (
-                                    <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20 border-green-500/20">
-                                        Trust+
+                                    <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-500/20 px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-tight">
+                                        Trust+ Verified
                                     </Badge>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="max-w-sm text-sm text-muted-foreground">
+                    <div className="max-w-sm text-sm text-slate-600 leading-relaxed font-semibold">
                         {company?.verification_status === 'verified' && (
-                            "Tài khoản của bạn đã được xác minh đầy đủ giấy phép kinh doanh. Huy hiệu xác minh sẽ hiển thị trên tất cả tin tuyển dụng."
+                            "Tuyệt vời! Doanh nghiệp của bạn đã được xác minh toàn diện. Huy hiệu uy tín sẽ hiển thị trên tất cả các tin tuyển dụng và trang cá nhân."
                         )}
                         {company?.verification_status === 'pending' && (
-                            "Hồ sơ của bạn đang được duyệt. Quá trình này thường mất 1-2 ngày làm việc. Nếu cần gấp báo cáo qua email hỗ trợ."
+                            "Hồ sơ đang trong quá trình kiểm duyệt kỹ thuật. Chúng tôi sẽ thông báo kết quả cho bạn trong vòng 24-48 giờ làm việc."
                         )}
                         {(company?.verification_status === 'unverified' || !company?.verification_status) && (
-                            "Bạn chưa gửi yêu cầu xác minh. Hãy chuẩn bị bản scan Giấy phép Đăng ký kinh doanh (PDF/JPG) để bắt đầu xác minh."
+                            "Bạn chưa xác minh. Hãy gửi Giấy phép Kinh doanh để mở khóa các đặc quyền cao cấp và tăng 300% hiệu quả tuyển dụng."
                         )}
                     </div>
                 </div>
 
-                {/* Benefits of verification */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="flex gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">Hiển thị huy hiệu xác minh xanh</span>
-                    </div>
-                    <div className="flex gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">Ưu tiên hiển thị trên kết quả tìm kiếm</span>
-                    </div>
-                    <div className="flex gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm">Tăng 300% tỷ lệ nộp hồ sơ</span>
-                    </div>
+                {/* Benefits of verification with better icons */}
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {[
+                        "Huy hiệu xác minh Trust+",
+                        "Ưu tiên vị trí hiển thị TOP",
+                        "Tăng 300% tỷ lệ nộp hồ sơ",
+                    ].map((benefit, i) => (
+                        <div key={i} className="flex gap-3 items-center group/benefit">
+                            <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover/benefit:scale-110 transition-transform shadow-sm">
+                                <CheckCircle2 className="w-4 h-4" />
+                            </div>
+                            <span className="text-sm font-black text-slate-700">{benefit}</span>
+                        </div>
+                    ))}
                 </div>
             </CardContent>
 
             {(company?.verification_status === 'unverified' || !company?.verification_status) && (
-                <CardFooter className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 justify-end">
+                <CardFooter className="bg-slate-50/50 border-t border-slate-100 justify-end py-4">
                     <Button
                         onClick={handleRequest}
                         disabled={isRequesting}
-                        className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-none shadow-md shadow-cyan-500/20"
+                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white border-none shadow-lg shadow-cyan-500/20 h-11 px-8 rounded-xl font-black transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isRequesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
-                        Gửi yêu cầu xác minh ngay
+                        Bắt đầu xác minh ngay
                     </Button>
                 </CardFooter>
             )}

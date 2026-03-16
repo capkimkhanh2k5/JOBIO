@@ -121,7 +121,7 @@ export default function Connections() {
                                     />
                                 ) : (
                                     <div className="space-y-4">
-                                        {pendingData?.results.map((request: any) => (
+                                        {pendingData?.results?.map((request: any) => (
                                             <PendingRequestCard key={request.id} request={request} />
                                         ))}
                                     </div>

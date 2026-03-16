@@ -97,6 +97,7 @@ export default function App() {
     // Dark mode class sync
     useEffect(() => {
         document.documentElement.classList.toggle('dark', theme === 'dark');
+        document.documentElement.classList.toggle('light', theme !== 'dark');
     }, [theme]);
 
     // Ctrl+K command palette

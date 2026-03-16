@@ -2,6 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Controller, type Control, type FieldErrors } from 'react-hook-form';
 import { taxonomyService } from '@/services/taxonomyService';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 import { cn } from '@/lib/utils';
 import type { PostJobFormData } from '@/types/postJob';
@@ -14,7 +21,7 @@ const inputClass = cn(
     'transition-all duration-200 shadow-sm'
 );
 
-const selectClass = cn(inputClass, 'appearance-none cursor-pointer');
+const selectClass = cn(inputClass, 'cursor-pointer px-3');
 
 const fieldErr = (msg?: string) =>
     msg ? <p className="text-red-500 text-xs mt-1 font-medium">{msg}</p> : null;
@@ -134,21 +141,23 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                             catLoading ? (
                                 <Skeleton className="h-10 w-full rounded-xl" />
                             ) : (
-                                <select
-                                    {...field}
-                                    className={cn(selectClass, errors.category_id && 'border-red-500')}
-                                >
-                                    <option value="" className="text-slate-400">-- Chọn lĩnh vực --</option>
-                                    {flatCats.map(cat => (
-                                        <option
-                                            key={cat.id}
-                                            value={cat.id}
-                                            className="text-slate-900"
-                                        >
-                                            {cat.depth > 0 ? `　└ ${cat.name}` : cat.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className={cn(selectClass, errors.category_id && 'border-red-500')}>
+                                        <SelectValue placeholder="-- Chọn lĩnh vực --" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white border-slate-200">
+                                        {flatCats.map(cat => (
+                                            <SelectItem
+                                                key={cat.id}
+                                                value={cat.id.toString()}
+                                                className="text-[#0f172a] focus:bg-slate-50 focus:text-[#0f172a] bg-white"
+                                                style={{ color: '#0f172a' }}
+                                            >
+                                                {cat.depth > 0 ? `　└ ${cat.name}` : cat.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             )
                         )}
                     />
@@ -226,10 +235,15 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                         name="salary_currency"
                         control={control}
                         render={({ field }) => (
-                            <select {...field} className={selectClass}>
-                                <option value="VND">VND</option>
-                                <option value="USD">USD</option>
-                            </select>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger className={selectClass}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white border-slate-200">
+                                    <SelectItem value="VND" className="text-[#0f172a] bg-white" style={{ color: '#0f172a' }}>VND</SelectItem>
+                                    <SelectItem value="USD" className="text-[#0f172a] bg-white" style={{ color: '#0f172a' }}>USD</SelectItem>
+                                </SelectContent>
+                            </Select>
                         )}
                     />
                     <Controller
@@ -313,7 +327,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                 min={new Date().toISOString().split('T')[0]}
                                 className={cn(inputClass, 'cursor-pointer', errors.deadline && 'border-red-500',
                                     '[color-scheme:light]'
-                                )}
+                                ) }
                             />
                         )}
                     />

@@ -3,7 +3,7 @@ import { ConnectionSuggestion } from '@/types/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building2, Briefcase, UserPlus, Users } from 'lucide-react';
+import { Briefcase, UserPlus, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SendConnectionDialog } from './SendConnectionDialog';
 import { Badge } from '@/components/ui/badge';

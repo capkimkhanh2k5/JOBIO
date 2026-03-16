@@ -1,0 +1,187 @@
+{
+  "applications": [
+    {
+      "id": 1,
+      "job_id": 1,
+      "job_title": "Senior Frontend Developer (React)",
+      "recruiter_id": 5,
+      "candidate_name": "Nguyễn Văn A",
+      "candidate_avatar": null,
+      "cv_id": 10,
+      "status": "interview",
+      "applied_at": "2026-03-10T08:30:00Z",
+      "rating": 4,
+      "notes": "Ứng viên có kỹ năng React tốt, cần phỏng vấn thêm về kiến thức hệ thống.",
+      "ai_score": 85
+    },
+    {
+      "id": 2,
+      "job_id": 2,
+      "job_title": "Backend Engineer (Django)",
+      "recruiter_id": 8,
+      "candidate_name": "Trần Thị B",
+      "candidate_avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=B",
+      "cv_id": 12,
+      "status": "pending",
+      "applied_at": "2026-03-12T14:15:00Z",
+      "rating": null,
+      "notes": null,
+      "ai_score": 78
+    },
+    {
+      "id": 3,
+      "job_id": 1,
+      "job_title": "Senior Frontend Developer (React)",
+      "recruiter_id": 15,
+      "candidate_name": "Lê Hoàng C",
+      "candidate_avatar": null,
+      "cv_id": 20,
+      "status": "rejected",
+      "applied_at": "2026-03-05T10:00:00Z",
+      "rating": 2,
+      "notes": "Kinh nghiệm thực tế chưa đủ cho vị trí Senior.",
+      "ai_score": 45
+    }
+  ],
+  "interviews": [
+    {
+      "id": 1,
+      "application_id": 1,
+      "candidate_name": "Nguyễn Văn A",
+      "job_title": "Senior Frontend Developer (React)",
+      "interview_type": "Technical Interview",
+      "round_number": 1,
+      "scheduled_at": "2026-03-20T14:00:00Z",
+      "duration_minutes": 60,
+      "status": "scheduled",
+      "meeting_link": "https://meet.google.com/abc-defg-hij",
+      "interviewer_names": ["Trưởng phòng Kỹ thuật", "Senior Developer A"]
+    },
+    {
+      "id": 2,
+      "application_id": 5,
+      "candidate_name": "Phạm Minh D",
+      "job_title": "UI/UX Designer",
+      "interview_type": "Culture Fit",
+      "round_number": 2,
+      "scheduled_at": "2026-03-15T09:30:00Z",
+      "duration_minutes": 45,
+      "status": "completed",
+      "result": "pass",
+      "feedback": "Phù hợp với văn hóa công ty, thái độ làm việc tốt."
+    }
+  ],
+  "recommendations": [
+    {
+      "id": 1,
+      "recruiter_id": 5,
+      "candidate_name": "Nguyễn Văn A",
+      "recommender_name": "Trần Văn Quản Lý",
+      "relationship": "Quản lý trực tiếp cũ",
+      "content": "A là một nhân viên rất tận tâm và có tư duy logic tốt. Tôi rất tiến cử A cho vị trí frontend.",
+      "created_at": "2026-02-28T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "recruiter_id": 12,
+      "candidate_name": "Hoàng Tuyết Mai",
+      "recommender_name": "Lê Minh Giáo Sư",
+      "relationship": "Giảng viên đại học",
+      "content": "Mai luôn nằm trong top sinh viên xuất sắc nhất khóa, có khả năng tự học rất nhanh.",
+      "created_at": "2026-03-01T15:30:00Z"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": 1,
+      "title": "Tuyển dụng nhân sự Tech Quý 1/2026",
+      "slug": "tuyen-dung-tech-q1-2026",
+      "description": "Chiến dịch tập trung tìm kiếm các vị trí Dev và Designer cho dự án JOBIO.",
+      "start_date": "2026-01-01",
+      "end_date": "2026-03-31",
+      "status": "active",
+      "budget": 50000000.0,
+      "job_count": 5,
+      "application_count": 28
+    },
+    {
+      "id": 2,
+      "title": "Thực tập sinh tiềm năng mùa hè",
+      "slug": "thuc-tap-sinh-he-2026",
+      "description": "Chương trình thực tập sinh cho các bạn sinh viên năm cuối.",
+      "start_date": "2026-05-01",
+      "end_date": "2026-08-31",
+      "status": "draft",
+      "budget": 10000000.0,
+      "job_count": 10,
+      "application_count": 0
+    }
+  ],
+  "billing_history": [
+    {
+      "id": 1,
+      "transaction_id": "TX-10045",
+      "plan_name": "Premium Employer (Monthly)",
+      "amount": 499000.0,
+      "currency": "VND",
+      "status": "completed",
+      "payment_method": "VNPay",
+      "created_at": "2026-03-01T10:20:00Z",
+      "description": "Thanh toán gia hạn gói Premium"
+    },
+    {
+      "id": 2,
+      "transaction_id": "TX-10102",
+      "plan_name": "Standard Employer (Yearly)",
+      "amount": 3990000.0,
+      "currency": "VND",
+      "status": "completed",
+      "payment_method": "Momo",
+      "created_at": "2025-12-15T14:45:00Z",
+      "description": "Đăng ký gói Standard năm 2026"
+    },
+    {
+      "id": 3,
+      "transaction_id": "TX-10567",
+      "plan_name": "Job Highlight Add-on",
+      "amount": 99000.0,
+      "currency": "VND",
+      "status": "failed",
+      "payment_method": "VNPay",
+      "created_at": "2026-03-16T16:00:00Z",
+      "description": "Giao dịch bị hủy bởi người dùng"
+    }
+  ],
+  "cv_search_results": [
+    {
+      "id": 5,
+      "full_name": "Nguyễn Văn A",
+      "position": "Senior Frontend Developer",
+      "experience_years": 5,
+      "skills": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+      "address": "Quận 1, TP. Hồ Chí Minh",
+      "avatar_url": null,
+      "score": 92
+    },
+    {
+      "id": 8,
+      "full_name": "Trần Thị B",
+      "position": "Backend Engineer",
+      "experience_years": 3,
+      "skills": ["Python", "Django", "PostgreSQL", "Docker"],
+      "address": "Cầu Giấy, Hà Nội",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=B",
+      "score": 88
+    },
+    {
+      "id": 12,
+      "full_name": "Hoàng Tuyết Mai",
+      "position": "Product Designer",
+      "experience_years": 2,
+      "skills": ["Figma", "UI/UX", "Prototyping"],
+      "address": "Đà Nẵng",
+      "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Mai",
+      "score": 95
+    }
+  ]
+}

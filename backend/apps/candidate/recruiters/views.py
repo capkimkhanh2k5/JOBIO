@@ -1,7 +1,8 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, pagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from apps.core.pagination import StandardResultsSetPagination
 
 from .models import Recruiter
 from .serializers import (
@@ -27,9 +28,23 @@ class RecruiterViewSet(viewsets.GenericViewSet):
     ViewSet quản lý hồ sơ ứng viên (Recruiters).
     """
     permission_classes = [IsAuthenticated]
-    
+    pagination_class = StandardResultsSetPagination
+
     def get_queryset(self):
         return Recruiter.objects.all()
+
+    def list(self, request):
+        """
+        GET /api/recruiters/ - Liệt kê và tìm kiếm ứng viên
+        """
+        recruiters = search_recruiters(request.query_params)
+        page = self.paginate_queryset(recruiters)
+        if page is not None:
+            serializer = RecruiterSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = RecruiterSerializer(recruiters, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         """

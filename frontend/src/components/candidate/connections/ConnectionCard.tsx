@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageSquare, UserMinus, Building2, Briefcase } from 'lucide-react';
+import { MessageSquare, UserMinus, Briefcase } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { toast } from 'sonner';
