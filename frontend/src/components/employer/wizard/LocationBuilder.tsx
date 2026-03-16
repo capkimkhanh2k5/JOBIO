@@ -5,6 +5,13 @@ import { Plus, Trash2, MapPin, Star } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 export interface LocationRow {
     id: string;
@@ -48,25 +55,25 @@ function LocationRowItem({
     });
 
     const handleProvinceChange = useCallback((provinceId: string) => {
-        const province = provinces.find(p => p.id === provinceId);
+        const province = provinces.find(p => p.id.toString() === provinceId);
         onUpdate({
             province_id: provinceId,
-            province_name: province?.name ?? '',
+            province_name: province?.province_name ?? '',
             commune_id: '',
             commune_name: '',
         });
     }, [provinces, onUpdate]);
 
     const handleCommuneChange = useCallback((communeId: string) => {
-        const commune = communes.find(c => c.id === communeId);
-        onUpdate({ commune_id: communeId, commune_name: commune?.name ?? '' });
+        const commune = communes.find(c => c.id.toString() === communeId);
+        onUpdate({ commune_id: communeId, commune_name: commune?.commune_name ?? '' });
     }, [communes, onUpdate]);
 
-    const selectClass = cn(
-        'w-full px-3 py-2.5 rounded-xl text-sm',
-        'bg-white border border-slate-200 text-slate-900',
-        'focus:outline-none focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5',
-        'transition-all duration-200 appearance-none cursor-pointer shadow-sm'
+    const triggerClass = cn(
+        'w-full py-2.5 rounded-xl text-sm h-10',
+        'bg-white border border-slate-200 text-slate-900 px-3',
+        'focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500/40 outline-none',
+        'transition-all duration-200 shadow-sm'
     );
 
     return (
@@ -108,12 +115,23 @@ function LocationRowItem({
                     {provinceLoading ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
-                        <select value={row.province_id} onChange={e => handleProvinceChange(e.target.value)} className={selectClass}>
-                            <option value="">-- Chọn tỉnh/thành phố --</option>
-                            {provinces.map(p => (
-                                <option key={p.id} value={p.id} className="text-slate-900">{p.name}</option>
-                            ))}
-                        </select>
+                        <Select value={row.province_id} onValueChange={handleProvinceChange}>
+                            <SelectTrigger className={triggerClass}>
+                                <SelectValue placeholder="-- Chọn tỉnh/thành phố --" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                                {provinces.map(p => (
+                                    <SelectItem 
+                                        key={p.id} 
+                                        value={p.id.toString()} 
+                                        className="text-[#0f172a] focus:bg-slate-50 focus:text-[#0f172a] bg-white"
+                                        style={{ color: '#0f172a' }}
+                                    >
+                                        {p.province_name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     )}
                 </div>
 
@@ -123,17 +141,27 @@ function LocationRowItem({
                     {communeLoading && row.province_id ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
-                        <select
+                        <Select
                             value={row.commune_id}
-                            onChange={e => handleCommuneChange(e.target.value)}
+                            onValueChange={handleCommuneChange}
                             disabled={!row.province_id}
-                            className={cn(selectClass, !row.province_id && 'opacity-40 cursor-not-allowed')}
                         >
-                            <option value="">-- Chọn quận/huyện --</option>
-                            {communes.map(c => (
-                                <option key={c.id} value={c.id} className="text-slate-900">{c.name}</option>
-                            ))}
-                        </select>
+                            <SelectTrigger className={cn(triggerClass, !row.province_id && 'opacity-40 cursor-not-allowed')}>
+                                <SelectValue placeholder="-- Chọn quận/huyện --" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white border-slate-200">
+                                {communes.map(c => (
+                                    <SelectItem 
+                                        key={c.id} 
+                                        value={c.id.toString()} 
+                                        className="text-[#0f172a] focus:bg-slate-50 focus:text-[#0f172a] bg-white"
+                                        style={{ color: '#0f172a' }}
+                                    >
+                                        {c.commune_name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     )}
                 </div>
             </div>
@@ -146,7 +174,7 @@ function LocationRowItem({
                     value={row.address_line}
                     onChange={e => onUpdate({ address_line: e.target.value })}
                     placeholder="Số nhà, tên đường..."
-                    className={cn(selectClass, 'w-full appearance-none placeholder:text-slate-400')}
+                    className={cn(triggerClass, 'w-full placeholder:text-slate-400')}
                 />
             </div>
         </div>

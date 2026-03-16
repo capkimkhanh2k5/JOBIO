@@ -23,6 +23,7 @@ class SubscriptionPlanViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubscriptionPlanSerializer
     permission_classes = [AllowAny]
     lookup_field = 'slug'
+    pagination_class = None
 
 class CompanySubscriptionViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated, IsCompanyOwner]
@@ -39,7 +40,7 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             
         sub = CompanySubscription.objects.filter(company=company_profile, status=CompanySubscription.Status.ACTIVE).first()
         if not sub:
-            return Response({"detail": "No active subscription"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(None, status=status.HTTP_200_OK)
             
         serializer = self.get_serializer(sub)
         return Response(serializer.data)

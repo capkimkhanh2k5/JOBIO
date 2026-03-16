@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { toast } from 'sonner';
-import { Check, X, Building2, Briefcase } from 'lucide-react';
+import { Check, X, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface PendingRequestCardProps {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from '@/store/userStore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -86,11 +87,27 @@ const slideVariants = {
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function PostJob() {
     const navigate = useNavigate();
+    const { user } = useUserStore();
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [discardOpen, setDiscardOpen] = useState(false);
     const [draftId, setDraftId] = useState<string | null>(null);
     const lastSavedRef = useRef<Date | null>(null);
+
+    // Helper to transform frontend data to backend format
+    const transformToBackend = useCallback((data: PostJobFormData) => {
+        return {
+            ...data,
+            company_id: user?.company_id,
+            job_type: data.job_type.replace('_', '-'),
+            number_of_positions: data.quantity,
+            application_deadline: data.deadline,
+            experience_years_min: data.experience_min ?? 0,
+            experience_years_max: data.experience_max,
+            category_id: data.category_id ? Number(data.category_id) : null,
+            is_salary_negotiable: !data.is_salary_visible,
+        };
+    }, [user?.company_id]);
 
     const {
         control, handleSubmit, trigger, getValues, formState: { errors, isDirty },
@@ -125,10 +142,11 @@ export default function PostJob() {
     // ── Auto-save draft every 30s ──────────────────────────────────────────────
     const autoSaveMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
+            const payload = transformToBackend(data);
             if (draftId) {
-                return jobService.update(Number(draftId), { ...data, status: 'draft' } as any).then(r => r.data);
+                return jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
             }
-            const res = await jobService.create({ ...data, status: 'draft' } as any).then(r => r.data);
+            const res = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
             return res;
         },
         onSuccess: (res: any) => {
@@ -153,8 +171,9 @@ export default function PostJob() {
     // ── Submit mutations ───────────────────────────────────────────────────────
     const saveDraftMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
-            if (draftId) return jobService.update(Number(draftId), { ...data, status: 'draft' } as any).then(r => r.data);
-            return jobService.create({ ...data, status: 'draft' } as any).then(r => r.data);
+            const payload = transformToBackend(data);
+            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
+            return jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
         },
         onSuccess: (res: any) => {
             if (!draftId && res?.id) setDraftId(res.id);
@@ -164,8 +183,9 @@ export default function PostJob() {
 
     const publishMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
-            if (draftId) return jobService.update(Number(draftId), { ...data, status: 'pending' } as any).then(r => r.data);
-            return jobService.create({ ...data, status: 'pending' } as any).then(r => r.data);
+            const payload = transformToBackend(data);
+            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'pending' } as any).then(r => r.data);
+            return jobService.create({ ...payload, status: 'pending' } as any).then(r => r.data);
         },
         onSuccess: () => {
             toast.success('Tin tuyển dụng đã được gửi duyệt!', {
