@@ -36,6 +36,29 @@ class RecruiterSerializer(serializers.ModelSerializer):
         from .services.recruiters import calculate_profile_completeness_service
         return calculate_profile_completeness_service(obj).get('checklist', [])
 
+class RecruiterDetailSerializer(RecruiterSerializer):
+    """Serializer chi tiết cho Recruiter bao gồm đầy đủ các bảng liên quan"""
+    
+    from apps.candidate.recruiter_experience.serializers import ExperienceSerializer
+    from apps.candidate.recruiter_education.serializers import EducationSerializer
+    from apps.candidate.recruiter_skills.serializers import RecruiterSkillSerializer
+    from apps.candidate.recruiter_certifications.serializers import CertificationSerializer
+    from apps.candidate.recruiter_languages.serializers import RecruiterLanguageSerializer
+    from apps.candidate.recruiter_projects.serializers import ProjectSerializer
+
+    experiences = ExperienceSerializer(many=True, read_only=True)
+    education = EducationSerializer(many=True, read_only=True)
+    skills = RecruiterSkillSerializer(many=True, read_only=True)
+    certifications = CertificationSerializer(many=True, read_only=True)
+    languages = RecruiterLanguageSerializer(many=True, read_only=True)
+    projects = ProjectSerializer(many=True, read_only=True)
+
+    class Meta(RecruiterSerializer.Meta):
+        fields = RecruiterSerializer.Meta.fields + [
+            'experiences', 'education', 'skills', 
+            'certifications', 'languages', 'projects'
+        ]
+
 class RecruiterCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recruiter

@@ -102,7 +102,10 @@ def search_recruiters(filters: dict) -> QuerySet:
     max_salary = filters.get('salary_max')
     if max_salary is not None and str(max_salary).lower() != 'all':
         try:
-            queryset = queryset.filter(desired_salary_min__lte=float(max_salary))
+            val = float(max_salary)
+            if val < 100000000:  # Skip filter if it's our UI's logical "max"
+                from django.db.models import Q
+                queryset = queryset.filter(Q(desired_salary_min__lte=val) | Q(desired_salary_min__isnull=True))
         except (ValueError, TypeError):
             pass
 
