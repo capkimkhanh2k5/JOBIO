@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from apps.core.users.models import CustomUser
 from .serializers import (
     MessageSerializer,
+    MessageSenderSerializer,
     AttachmentUploadSerializer,
 )
 from .selectors.messages import (
@@ -25,10 +27,15 @@ class MessageViewSet(viewsets.GenericViewSet):
     - DELETE /api/messages/:id/              - Delete message
     - GET    /api/messages/unread-count/     - Get unread count
     - POST   /api/messages/upload-attachment/ - Upload attachment
+    - GET    /api/messages/recipients/        - List available recipients
     """
     
     permission_classes = [IsAuthenticated]
-    serializer_class = MessageSerializer
+    
+    def get_serializer_class(self):
+        if self.action == 'recipients':
+            return MessageSenderSerializer
+        return MessageSerializer
     
     def destroy(self, request, pk=None):
         """
@@ -87,3 +94,19 @@ class MessageViewSet(viewsets.GenericViewSet):
                 {'detail': f'Failed to upload file: {str(e)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+    @action(detail=False, methods=['get'], url_path='recipients')
+    def recipients(self, request):
+        """
+        GET /api/messages/recipients/
+        
+        List available recipients (all active users except current user).
+        """
+        # For simplicity, return all active users of different roles
+        
+        queryset = CustomUser.objects.filter(
+            status=CustomUser.Status.ACTIVE
+        ).exclude(id=request.user.id)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

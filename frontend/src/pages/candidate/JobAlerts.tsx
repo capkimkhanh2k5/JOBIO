@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Plus, Search, Filter, Trash2, Edit2, Clock, MapPin, Briefcase, LucideIcon, Mail, Laptop } from 'lucide-react';
-import { candidateService } from '@/services/candidateService';
+import { alertService } from '@/services/alertService';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,15 +28,74 @@ export default function JobAlerts() {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingAlert, setEditingAlert] = useState<any>(null);
 
+    // Form state
+    const [formData, setFormData] = useState({
+        alert_name: '',
+        keywords: '',
+        location_ids: [] as number[],
+        frequency: 'daily'
+    });
+
     // Fetch alerts
     const { data: alerts, isLoading } = useQuery({
         queryKey: ['candidate', 'job-alerts'],
-        queryFn: () => candidateService.getJobAlerts().then(r => r.data),
+        queryFn: () => alertService.list().then(r => r.data.results || []),
+    });
+
+    // Fetch provinces
+    const { data: provincesRaw } = useQuery({
+        queryKey: ['provinces'],
+        queryFn: () => taxonomyService.listProvinces({ page_size: 100 }).then(r => r.data),
+    });
+    const provinces = (provincesRaw as any)?.results || [];
+
+    // Reset form when dialog opens/closes or editing changes
+    useEffect(() => {
+        if (editingAlert) {
+            setFormData({
+                alert_name: editingAlert.alert_name || '',
+                keywords: editingAlert.keywords || '',
+                location_ids: editingAlert.locations?.map((l: any) => l.id) || [],
+                frequency: editingAlert.frequency || 'daily'
+            });
+        } else {
+            setFormData({
+                alert_name: '',
+                keywords: '',
+                location_ids: [],
+                frequency: 'daily'
+            });
+        }
+    }, [editingAlert, isFormOpen]);
+
+    // Create mutation
+    const createMutation = useMutation({
+        mutationFn: (data: any) => alertService.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'job-alerts'] });
+            toast.success("Đã tạo thông báo việc làm mới.");
+            setIsFormOpen(false);
+        },
+        onError: (error: any) => {
+            console.error("Create Alert Error:", error.response?.data);
+            toast.error("Không thể tạo thông báo, vui lòng thử lại.");
+        }
+    });
+
+    // Update mutation
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: number, data: any }) => alertService.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'job-alerts'] });
+            toast.success("Đã cập nhật thông báo.");
+            setIsFormOpen(false);
+        },
+        onError: () => toast.error("Không thể cập nhật thông báo.")
     });
 
     // Delete mutation
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => candidateService.deleteJobAlert(id),
+        mutationFn: (id: number) => alertService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['candidate', 'job-alerts'] });
             toast.success("Đã xóa thông báo việc làm.");
@@ -44,11 +104,30 @@ export default function JobAlerts() {
 
     // Toggle status mutation
     const toggleMutation = useMutation({
-        mutationFn: ({ id, data }: { id: number, data: any }) => candidateService.updateJobAlert(id, data),
+        mutationFn: ({ id, data }: { id: number, data: any }) => alertService.update(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['candidate', 'job-alerts'] });
         }
     });
+
+    const handleSubmit = () => {
+        if (!formData.alert_name) {
+            toast.error("Vui lòng nhập tên thông báo.");
+            return;
+        }
+
+        const payload = {
+            ...formData,
+            // Ensure location_ids is an array of numbers
+            location_ids: formData.location_ids.map(Number)
+        };
+
+        if (editingAlert) {
+            updateMutation.mutate({ id: editingAlert.id, data: payload });
+        } else {
+            createMutation.mutate(payload);
+        }
+    };
 
     return (
         <div className="min-h-screen relative pb-12 w-full flex-1">
@@ -86,7 +165,10 @@ export default function JobAlerts() {
                         </p>
                         <Button
                             className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-12 px-8 shadow-lg shadow-violet-500/20"
-                            onClick={() => setIsFormOpen(true)}
+                            onClick={() => {
+                                setEditingAlert(null);
+                                setIsFormOpen(true);
+                            }}
                         >
                             <Plus size={18} className="mr-2" />
                             Tạo thông báo ngay
@@ -112,8 +194,8 @@ export default function JobAlerts() {
                                                     <Mail className="w-6 h-6 text-violet-600" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-slate-900 text-lg group-hover:text-violet-600 transition-colors">{alert.title}</h3>
-                                                    <p className="text-xs text-slate-500 font-medium">Tần suất: {alert.frequency === 'daily' ? 'Hàng ngày' : 'Hàng tuần'}</p>
+                                                    <h3 className="font-bold text-slate-900 text-lg group-hover:text-violet-600 transition-colors">{alert.alert_name}</h3>
+                                                    <p className="text-xs text-slate-500 font-medium">Tần suất: {alert.frequency === 'daily' ? 'Hàng ngày' : alert.frequency === 'weekly' ? 'Hàng tuần' : 'Ngay lập tức'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
@@ -127,16 +209,16 @@ export default function JobAlerts() {
 
                                         <div className="space-y-3 mb-6">
                                             <div className="flex flex-wrap gap-2 pt-2">
-                                                {alert.keyword && (
+                                                {alert.keywords && (
                                                     <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none font-medium px-3 py-1">
-                                                        <Search size={12} className="mr-1.5 opacity-60" /> {alert.keyword}
+                                                        <Search size={12} className="mr-1.5 opacity-60" /> {alert.keywords}
                                                     </Badge>
                                                 )}
-                                                {alert.location && (
-                                                    <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none font-medium px-3 py-1">
-                                                        <MapPin size={12} className="mr-1.5 opacity-60" /> {alert.location}
+                                                {alert.locations_detail?.length > 0 && alert.locations_detail.map((loc: any) => (
+                                                    <Badge key={loc.id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none font-medium px-3 py-1">
+                                                        <MapPin size={12} className="mr-1.5 opacity-60" /> {loc.province_name}
                                                     </Badge>
-                                                )}
+                                                ))}
                                                 {alert.job_type && (
                                                     <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none font-medium px-3 py-1">
                                                         <Briefcase size={12} className="mr-1.5 opacity-60" /> {alert.job_type}
@@ -201,7 +283,8 @@ export default function JobAlerts() {
                                     id="title"
                                     placeholder="Ví dụ: Senior React Developer tại Hà Nội"
                                     className="rounded-xl border-slate-200 h-11 focus-visible:ring-violet-600 py-6 text-base"
-                                    defaultValue={editingAlert?.title}
+                                    value={formData.alert_name}
+                                    onChange={(e) => setFormData({ ...formData, alert_name: e.target.value })}
                                 />
                             </div>
                             <div className="grid gap-2">
@@ -210,26 +293,40 @@ export default function JobAlerts() {
                                     id="keyword"
                                     placeholder="Ví dụ: React, Node.js, UI/UX..."
                                     className="rounded-xl border-slate-200 h-11 focus-visible:ring-violet-600 py-6 text-base"
-                                    defaultValue={editingAlert?.keyword}
+                                    value={formData.keywords}
+                                    onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="location" className="font-bold text-slate-700">Địa điểm</Label>
-                                    <Input
-                                        id="location"
-                                        placeholder="Ví dụ: Hà Nội, Remote..."
-                                        className="rounded-xl border-slate-200 h-11 focus-visible:ring-violet-600 py-6 text-base"
-                                        defaultValue={editingAlert?.location}
-                                    />
+                                    <Select 
+                                        value={formData.location_ids[0]?.toString() || ""}
+                                        onValueChange={(val) => setFormData({ ...formData, location_ids: [parseInt(val)] })}
+                                    >
+                                        <SelectTrigger className="rounded-xl border-slate-200 h-11 focus:ring-violet-600 py-6 text-base">
+                                            <SelectValue placeholder="Chọn tỉnh thành" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl bg-white max-h-[300px]">
+                                            {provinces.map((province: any) => (
+                                                <SelectItem key={province.id} value={province.id.toString()} className="py-2">
+                                                    {province.province_name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="grid gap-2">
                                     <Label htmlFor="frequency" className="font-bold text-slate-700">Tần suất nhận</Label>
-                                    <Select defaultValue={editingAlert?.frequency || 'daily'}>
+                                    <Select 
+                                        value={formData.frequency}
+                                        onValueChange={(val) => setFormData({ ...formData, frequency: val })}
+                                    >
                                         <SelectTrigger className="rounded-xl border-slate-200 h-11 focus:ring-violet-600 py-6 text-base">
-                                            <SelectValue placeholder="Chọn tần nuôi" />
+                                            <SelectValue placeholder="Chọn tần suất" />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
+                                        <SelectContent className="rounded-xl bg-white">
+                                            <SelectItem value="instant" className="py-3">Ngay lập tức</SelectItem>
                                             <SelectItem value="daily" className="py-3">Hàng ngày</SelectItem>
                                             <SelectItem value="weekly" className="py-3">Hàng tuần</SelectItem>
                                         </SelectContent>
@@ -243,8 +340,12 @@ export default function JobAlerts() {
                         <Button variant="ghost" onClick={() => setIsFormOpen(false)} className="rounded-xl h-12 px-6 font-bold text-slate-500">
                             Hủy bỏ
                         </Button>
-                        <Button className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-12 px-8 font-bold shadow-lg shadow-violet-500/20">
-                            {editingAlert ? 'Lưu thay đổi' : 'Tạo ngay'}
+                        <Button 
+                            className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-12 px-8 font-bold shadow-lg shadow-violet-500/20"
+                            onClick={handleSubmit}
+                            disabled={createMutation.isPending || updateMutation.isPending}
+                        >
+                            {(createMutation.isPending || updateMutation.isPending) ? 'Đang xử lý...' : (editingAlert ? 'Lưu thay đổi' : 'Tạo ngay')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

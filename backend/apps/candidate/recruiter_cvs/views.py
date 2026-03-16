@@ -31,6 +31,7 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
     - DELETE /:id/       → destroy
     """
     permission_classes = [IsAuthenticated]
+    pagination_class = None
     
     def get_queryset(self):
         recruiter_id = self.kwargs.get('recruiter_id')

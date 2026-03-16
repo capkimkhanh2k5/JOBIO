@@ -8,7 +8,7 @@ class MessageSenderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CustomUser
-        fields = ['id', 'full_name', 'avatar_url']
+        fields = ['id', 'full_name', 'email', 'avatar_url']
 
 
 class MessageSerializer(serializers.ModelSerializer):

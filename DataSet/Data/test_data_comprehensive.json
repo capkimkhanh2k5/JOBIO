@@ -328,5 +328,50 @@
       "referral_date": "2026-02-20T09:00:00Z",
       "bonus_amount": 5000000.0
     }
+  ],
+  "company_reviews": [
+    {
+      "id": 1,
+      "company_id": 1,
+      "recruiter_id": 5,
+      "rating": 5,
+      "title": "Môi trường làm việc tuyệt vời",
+      "content": "Công ty có môi trường làm việc rất năng động, đồng nghiệp thân thiện và hỗ trợ lẫn nhau. Quy trình làm việc chuyên nghiệp.",
+      "pros": "Lương thưởng cạnh tranh, văn phòng đẹp, trà cà phê miễn phí.",
+      "cons": "Đôi khi phải OT vào cuối dự án.",
+      "helpful_count": 12,
+      "status": "approved",
+      "is_anonymous": false,
+      "created_at": "2026-03-10T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "company_id": 2,
+      "recruiter_id": 8,
+      "rating": 4,
+      "title": "Cơ hội phát triển tốt",
+      "content": "Đây là nơi tốt để học hỏi các công nghệ mới. Sếp tâm lý và tạo điều kiện cho nhân viên phát triển.",
+      "pros": "Có lớp học tiếng Anh, bảo hiểm sức khỏe tốt.",
+      "cons": "Quy trình review lương hơi chậm.",
+      "helpful_count": 5,
+      "status": "approved",
+      "is_anonymous": true,
+      "created_at": "2026-03-12T14:30:00Z"
+    },
+    {
+      "id": 3,
+      "company_id": 1,
+      "recruiter_id": 12,
+      "rating": 3,
+      "title": "Cân bằng giữa công việc và cuộc sống",
+      "content": "Làm việc tại đây khá thoải mái về mặt thời gian, tuy nhiên dự án đôi khi lặp đi lặp lại.",
+      "pros": "Giờ giấc linh hoạt.",
+      "cons": "Ít các hoạt động team building.",
+      "helpful_count": 2,
+      "status": "pending",
+      "is_anonymous": false,
+      "created_at": "2026-03-15T09:15:00Z"
+    }
   ]
 }
+
