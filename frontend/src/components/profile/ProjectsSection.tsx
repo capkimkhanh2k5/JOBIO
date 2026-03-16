@@ -30,7 +30,7 @@ interface ProjectFormProps {
     open: boolean;
     onClose: () => void;
     entry?: ProjectEntry | null;
-    userId: string;
+    userId: number;
 }
 
 const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
@@ -67,9 +67,13 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
 
     const mutation = useMutation({
         mutationFn: () => {
+            const { start_date, end_date, is_ongoing, technologies_raw, ...rest } = formData;
             const data = {
-                ...formData,
-                technologies_used: formData.technologies_raw.split(',').map(t => t.trim()).filter(Boolean),
+                ...rest,
+                is_ongoing,
+                start_date: start_date || null,
+                end_date: is_ongoing ? null : (end_date || null),
+                technologies_used: technologies_raw.split(',').map(t => t.trim()).filter(Boolean).join(', '),
             };
             return isEdit ? candidateService.updateProject(Number(userId), Number(entry!.id), data).then(r => r.data) : candidateService.addProject(Number(userId), data).then(r => r.data);
         },
@@ -159,7 +163,7 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
     );
 };
 
-export const ProjectsSection = ({ userId }: { userId: string }) => {
+export const ProjectsSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<ProjectEntry | null>(null);

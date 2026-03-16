@@ -90,7 +90,14 @@ class SavedJobViewSet(viewsets.GenericViewSet):
         if folder_name:
             queryset = queryset.filter(folder_name=folder_name)
         
-        return Response(SavedJobSerializer(queryset, many=True).data)
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SavedJobSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = SavedJobSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         """

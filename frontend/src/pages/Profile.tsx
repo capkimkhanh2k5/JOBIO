@@ -66,8 +66,10 @@ const Profile = () => {
         enabled: !!userId,
     });
 
+    const recruiterId = profile?.id;
+
     const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => candidateService.update(Number(userId), { is_public: isPublic } as any).then(r => r.data),
+        mutationFn: (isPublic: boolean) => candidateService.update(Number(recruiterId), { is_public: isPublic } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật cài đặt quyền riêng tư");
@@ -75,7 +77,7 @@ const Profile = () => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: (status: string) => candidateService.update(Number(userId), { job_search_status: status } as any).then(r => r.data),
+        mutationFn: (status: string) => candidateService.update(Number(recruiterId), { job_search_status: status } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật trạng thái tìm việc");
@@ -115,19 +117,19 @@ const Profile = () => {
                             <PersonalForm profile={profile} />
                         </SectionWrapper>
 
-                        <ExperienceSection userId={Number(userId)} />
+                        <ExperienceSection userId={recruiterId as number} />
 
-                        <EducationSection userId={Number(userId)} />
+                        <EducationSection userId={recruiterId as number} />
 
-                        <SkillsSection userId={Number(userId)} />
+                        <SkillsSection userId={recruiterId as number} />
 
-                        <CertificationsSection userId={Number(userId)} />
+                        <CertificationsSection userId={recruiterId as number} />
 
-                        <LanguagesSection userId={Number(userId)} />
+                        <LanguagesSection userId={recruiterId as number} />
 
-                        <ProjectsSection userId={Number(userId)} />
+                        <ProjectsSection userId={recruiterId as number} />
 
-                        <RecommendationsSection userId={Number(userId)} isOwner={true} />
+                        <RecommendationsSection userId={recruiterId as number} isOwner={true} />
                     </div>
 
                     {/* ── Sidebar ── */}
@@ -174,7 +176,7 @@ const Profile = () => {
 
                                 {/* Checklist */}
                                 <ul className="space-y-3">
-                                    {completeness?.checklist.map((item: any, idx: number) => (
+                                    {completeness?.checklist?.map((item: any, idx: number) => (
                                         <li key={idx} className="flex items-start gap-3 text-sm group">
                                             <div className={`mt-0.5 shrink-0 transition-colors ${item.completed ? 'text-emerald-500' : 'text-muted-foreground/40'}`}>
                                                 {item.completed

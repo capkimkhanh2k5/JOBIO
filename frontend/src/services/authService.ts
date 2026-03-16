@@ -31,7 +31,18 @@ export const authService = {
   },
 
   logout() {
-    return api.post('/api/users/auth/logout/');
+    // Lấy refresh token từ localStorage để backend thực hiện blacklist
+    const raw = localStorage.getItem('jobio-user-storage');
+    let refresh_token = null;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        refresh_token = parsed?.state?.refreshToken;
+      } catch (e) {
+        console.error('Error parsing storage for logout:', e);
+      }
+    }
+    return api.post('/api/users/auth/logout/', { refresh_token });
   },
 
   refreshToken(refresh: string) {

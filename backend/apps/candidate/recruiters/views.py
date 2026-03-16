@@ -58,6 +58,15 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         """
         PUT /api/recruiters/:id/ - Cập nhật hồ sơ
         """
+        return self._update(request, pk, partial=False)
+
+    def partial_update(self, request, pk=None):
+        """
+        PATCH /api/recruiters/:id/ - Cập nhật một phần hồ sơ
+        """
+        return self._update(request, pk, partial=True)
+
+    def _update(self, request, pk=None, partial=False):
         recruiter = get_recruiter_by_id(pk)
         if not recruiter:
             return Response({"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND)
@@ -65,7 +74,7 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         if recruiter.user != request.user:
              return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
              
-        serializer = RecruiterUpdateSerializer(data=request.data)
+        serializer = RecruiterUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         try:
@@ -97,7 +106,11 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         try:
             recruiter = Recruiter.objects.get(user=request.user)
         except Recruiter.DoesNotExist:
-            return Response({"detail": "You don't have a recruiter profile"}, status=status.HTTP_404_NOT_FOUND)
+            # Nếu user có role candidate nhưng chưa có profile (do lỗi logic cũ hoặc db mới), tạo luôn
+            if hasattr(request.user, 'role') and request.user.role == 'candidate':
+                recruiter = Recruiter.objects.create(user=request.user)
+            else:
+                return Response({"detail": "You don't have a recruiter profile"}, status=status.HTTP_404_NOT_FOUND)
         return Response(RecruiterSerializer(recruiter).data)
 
     @action(detail=True, methods=['patch'], url_path='job-search-status')

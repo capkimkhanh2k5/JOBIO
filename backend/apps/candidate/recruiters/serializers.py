@@ -3,8 +3,14 @@ from .models import Recruiter
 from apps.core.users.serializers import CustomUserSerializer
 
 
+from apps.geography.addresses.serializers import AddressDetailSerializer
+
+
 class RecruiterSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
+    address = AddressDetailSerializer(read_only=True)
+    score = serializers.SerializerMethodField()
+    checklist = serializers.SerializerMethodField()
     
     class Meta:
         model = Recruiter
@@ -15,12 +21,20 @@ class RecruiterSerializer(serializers.ModelSerializer):
             'job_search_status', 'desired_salary_min', 'desired_salary_max', 'salary_currency',
             'available_from_date', 'years_of_experience', 'highest_education_level',
             'profile_completeness_score', 'is_profile_public', 'profile_views_count',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at', 'score', 'checklist'
         ]
         read_only_fields = [
             'id', 'created_at', 'updated_at', 
-            'profile_completeness_score', 'profile_views_count'
+            'profile_completeness_score', 'profile_views_count',
+            'score', 'checklist'
         ]
+
+    def get_score(self, obj):
+        return obj.profile_completeness_score
+
+    def get_checklist(self, obj):
+        from .services.recruiters import calculate_profile_completeness_service
+        return calculate_profile_completeness_service(obj).get('checklist', [])
 
 class RecruiterCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,9 +49,13 @@ class RecruiterCreateSerializer(serializers.ModelSerializer):
         ]
 
 class RecruiterUpdateSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(required=False)
+    address = serializers.JSONField(required=False)
+    
     class Meta:
         model = Recruiter
         fields = [
+            'full_name',
             'current_company', 'current_position', 
             'date_of_birth', 'gender', 'address', 'bio', 
             'linkedin_url', 'facebook_url', 'github_url', 'portfolio_url',

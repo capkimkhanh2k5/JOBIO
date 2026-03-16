@@ -13,7 +13,7 @@ class RecruiterInput(BaseModel):
     current_position: Optional[str] = None
     date_of_birth: Optional[date] = None
     gender: Optional[str] = None
-    address: Optional[Address] = None
+    address: Optional[Address | dict] = None
     bio: Optional[str] = None
     linkedin_url: Optional[str] = None
     facebook_url: Optional[str] = None
@@ -26,7 +26,7 @@ class RecruiterInput(BaseModel):
     available_from_date: Optional[date] = None
     years_of_experience: Optional[int] = None
     highest_education_level: Optional[str] = None
-    is_profile_public: Optional[bool] = None
+    full_name: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -50,6 +50,46 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
     """
     fields = data.dict(exclude_unset=True)
     for field, value in fields.items():
+        if field == 'full_name':
+            if recruiter.user:
+                recruiter.user.full_name = value
+                recruiter.user.save()
+            continue
+        
+        if field == 'address' and isinstance(value, dict):
+            from apps.geography.addresses.models import Address
+            from apps.geography.provinces.models import Province
+            from apps.geography.communes.models import Commune
+            
+            addr_data = value.copy()
+            province_name = addr_data.pop('province', None)
+            commune_name = addr_data.pop('commune', None)
+            
+            # Find province by name
+            province = None
+            if province_name:
+                province = Province.objects.filter(province_name__icontains=province_name).first()
+            
+            # Find commune by name
+            commune = None
+            if commune_name and province:
+                commune = Commune.objects.filter(commune_name__icontains=commune_name, province=province).first()
+            
+            if recruiter.address:
+                for addr_key, addr_val in addr_data.items():
+                    if hasattr(recruiter.address, addr_key):
+                        setattr(recruiter.address, addr_key, addr_val)
+                if province:
+                    recruiter.address.province = province
+                if commune:
+                    recruiter.address.commune = commune
+                recruiter.address.save()
+            elif province: # Only create if we have a valid province
+                addr_data['province'] = province
+                addr_data['commune'] = commune
+                recruiter.address = Address.objects.create(**addr_data)
+            continue
+
         setattr(recruiter, field, value)
     
     recruiter.save()
@@ -202,11 +242,22 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     recruiter.profile_completeness_score = final_score
     recruiter.save(update_fields=['profile_completeness_score', 'ai_assessment_result'])
     
+    # Create checklist for frontend
+    checklist = [
+        {'task': 'Thêm ảnh đại diện', 'completed': recruiter.user.avatar_url is not None},
+        {'task': 'Cập nhật giới thiệu bản thân (>50 ký tự)', 'completed': len(recruiter.bio or "") >= 50},
+        {'task': 'Thêm kinh nghiệm làm việc (>=2 mục)', 'completed': (recruiter.experience.count() if hasattr(recruiter, 'experience') else 0) >= 2},
+        {'task': 'Thêm thông tin học vấn', 'completed': (recruiter.education.count() if hasattr(recruiter, 'education') else 0) >= 1},
+        {'task': 'Thêm kỹ năng (>=4 kỹ năng)', 'completed': (recruiter.skills.count() if hasattr(recruiter, 'skills') else 0) >= 4},
+        {'task': 'Liên kết mạng xã hội (LinkedIn/Github)', 'completed': (recruiter.linkedin_url or recruiter.github_url) is not None},
+    ]
+
     return {
         'score': final_score,
         'hard_score': min(score, 100),
         'ai_score': int(ai_score),
         'missing_fields': missing_fields,
+        'checklist': checklist,
         'details': details,
         'ai_result': getattr(recruiter, 'ai_assessment_result', {})
     }

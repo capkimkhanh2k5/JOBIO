@@ -471,11 +471,13 @@ export interface RecruiterDetail extends RecruiterListItem {
   linkedin_url: string | null;
   github_url: string | null;
   portfolio_url: string | null;
-  salary_expectation_min: number | null;
-  salary_expectation_max: number | null;
+  desired_salary_min: number | null;
+  desired_salary_max: number | null;
   salary_currency: string | null;
   highest_education_level: string | null;
   is_profile_public: boolean;
+  score: number;
+  checklist: Array<{ task: string; completed: boolean }>;
   ai_assessment_result: Record<string, unknown> | null;
   skills: RecruiterSkill[];
   education: RecruiterEducation[];
@@ -514,6 +516,8 @@ export interface RecruiterEducation {
   field_of_study: string | null;
   start_date: string | null;
   end_date: string | null;
+  is_current: boolean;
+  gpa: number | null;
   description: string | null;
   display_order: number;
 }
@@ -528,26 +532,29 @@ export interface RecruiterEducationRequest {
   display_order?: number;
 }
 
-// ─── Experience ──────────────────────────────────────────────────────────────
-
 export interface RecruiterExperience {
   id: number;
   company_name: string;
-  position: string;
+  job_title: string;
+  industry?: number;
+  industry_name?: string;
   start_date: string | null;
   end_date: string | null;
   is_current: boolean;
   description: string | null;
+  achievements?: string | null;
   display_order: number;
 }
 
 export interface RecruiterExperienceRequest {
   company_name: string;
-  position: string;
-  start_date?: string;
-  end_date?: string;
+  job_title: string;
+  industry_id?: number | null;
+  start_date: string;
+  end_date?: string | null;
   is_current?: boolean;
   description?: string;
+  achievements?: string;
   display_order?: number;
 }
 
@@ -592,13 +599,16 @@ export interface RecruiterCertificationRequest {
 
 // ─── Languages ───────────────────────────────────────────────────────────────
 
-export type LanguageProficiency = 'basic' | 'conversational' | 'proficient' | 'fluent' | 'native';
+export type LanguageProficiency = 'basic' | 'intermediate' | 'advanced' | 'fluent' | 'native';
 
 export interface RecruiterLanguage {
   id: number;
-  language: LanguageRef;
+  language_id: number;
+  language_code: string;
+  language_name: string;
   proficiency_level: LanguageProficiency;
   is_native: boolean;
+  created_at: string;
 }
 
 export interface RecruiterLanguageRequest {

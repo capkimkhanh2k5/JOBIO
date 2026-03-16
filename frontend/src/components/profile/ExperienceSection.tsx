@@ -30,7 +30,7 @@ interface ExperienceFormProps {
     open: boolean;
     onClose: () => void;
     entry?: ExperienceEntry | null;
-    userId: string;
+    userId: number;
 }
 
 const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) => {
@@ -68,8 +68,20 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
     }, [entry, open]);
 
     const mutation = useMutation({
-        mutationFn: (data: typeof formData) =>
-            isEdit ? candidateService.updateExperience(Number(userId), Number(entry!.id), data).then(r => r.data) : candidateService.addExperience(Number(userId), data).then(r => r.data),
+        mutationFn: (data: typeof formData) => {
+            const { industry, location, start_date, end_date, is_current, ...rest } = data;
+            
+            const payload = {
+                ...rest,
+                is_current,
+                start_date: start_date || null,
+                end_date: is_current ? null : (end_date || null)
+            };
+            
+            return isEdit 
+                ? candidateService.updateExperience(Number(userId), Number(entry!.id), payload as any).then(r => r.data) 
+                : candidateService.addExperience(Number(userId), payload as any).then(r => r.data);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['experience', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -171,7 +183,7 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
     );
 };
 
-export const ExperienceSection = ({ userId }: { userId: string }) => {
+export const ExperienceSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<ExperienceEntry | null>(null);
@@ -181,10 +193,10 @@ export const ExperienceSection = ({ userId }: { userId: string }) => {
         queryFn: () => candidateService.listExperience(Number(userId)).then(r => r.data),
     });
 
-    const [items, setItems] = useState<ExperienceEntry[]>(experiences as ExperienceEntry[]);
+    const [items, setItems] = useState<any[]>(experiences as any[]);
 
     useEffect(() => {
-        if (experiences.length > 0) setItems(experiences as ExperienceEntry[]);
+        if (experiences && experiences.length > 0) setItems(experiences as any[]);
     }, [experiences]);
 
     const deleteMutation = useMutation({
