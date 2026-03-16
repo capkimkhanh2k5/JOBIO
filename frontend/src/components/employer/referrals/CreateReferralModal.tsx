@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { jobService } from '@/services/jobService';
+import { referralService } from '@/services/referralService';
 
 import {
     Dialog,
@@ -68,7 +69,12 @@ export function CreateReferralModal({ isOpen, onClose }: Props) {
     });
 
     const createMutation = useMutation({
-        mutationFn: (_data: ReferralFormValues) => Promise.resolve() as any,  // TODO: no referrals endpoint
+        mutationFn: (data: ReferralFormValues) => referralService.createReferral({
+            job: Number(data.job_id),
+            referred_name: data.referred_name,
+            referred_email: data.referred_email,
+            notes: data.notes,
+        }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['referrals'] });
             toast.success('Giới thiệu ứng viên thành công!');
@@ -113,7 +119,7 @@ export function CreateReferralModal({ isOpen, onClose }: Props) {
                                                 <div className="p-2 text-sm text-center text-muted-foreground">Đang tải...</div>
                                             ) : (
                                                 jobs.map((job: any) => (
-                                                    <SelectItem key={job.id} value={job.id}>
+                                                    <SelectItem key={job.id} value={job.id.toString()}>
                                                         {job.title}
                                                     </SelectItem>
                                                 ))

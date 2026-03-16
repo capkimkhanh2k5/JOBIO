@@ -15,7 +15,7 @@ const initialCVSearchFilters: CVSearchFilters = {
     skills: [],
     experience_min: 0,
     search_status: 'all',
-    salary_max: 10000,
+    salary_max: 100000000,
 };
 
 export interface JobFilters {

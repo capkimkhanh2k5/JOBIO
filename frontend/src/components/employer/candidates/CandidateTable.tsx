@@ -11,9 +11,9 @@ import { cn } from '@/lib/utils';
 interface Application {
     id: string;
     job_id: string;
-    candidate_id: string;
-    candidate_name: string;
-    candidate_avatar: string;
+    recruiter_id: string;
+    recruiter_name: string;
+    recruiter_avatar: string;
     job_title: string;
     status: string;
     ai_score: number;
@@ -22,6 +22,17 @@ interface Application {
     rating: number;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+    'pending': 'Submitted',
+    'reviewing': 'Reviewing',
+    'shortlisted': 'Shortlisted',
+    'interview': 'Interview',
+    'offered': 'Offered',
+    'hired': 'Hired',
+    'rejected': 'Rejected',
+    'withdrawn': 'Withdrawn'
+};
+
 const getScoreColor = (score: number) => {
     if (score >= 80) return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
     if (score >= 60) return "text-amber-500 bg-amber-500/10 border-amber-500/20";
@@ -29,13 +40,13 @@ const getScoreColor = (score: number) => {
 };
 
 const getStatusColor = (status: string) => {
-    switch (status) {
-        case 'Hired': return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-        case 'Offered': return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-        case 'Interview': return "bg-violet-500/10 text-violet-500 border-violet-500/20";
-        case 'Rejected': return "bg-red-500/10 text-red-500 border-red-500/20";
-        case 'Withdrawn': return "bg-muted text-muted-foreground border-border";
-        case 'Shortlisted': return "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    switch (status.toLowerCase()) {
+        case 'hired': return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+        case 'offered': return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+        case 'interview': return "bg-violet-500/10 text-violet-500 border-violet-500/20";
+        case 'rejected': return "bg-red-500/10 text-red-500 border-red-500/20";
+        case 'withdrawn': return "bg-muted text-muted-foreground border-border";
+        case 'shortlisted': return "bg-amber-500/10 text-amber-500 border-amber-500/20";
         default: return "bg-secondary text-secondary-foreground border-border";
     }
 };
@@ -118,12 +129,12 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                 </td>
                                 <th scope="row" className="px-4 py-3 font-medium text-foreground whitespace-nowrap flex items-center gap-3">
                                     <Avatar className="h-8 w-8 border border-border/50">
-                                        <AvatarImage src={app.candidate_avatar} />
+                                        <AvatarImage src={app.recruiter_avatar} />
                                         <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <div className="font-semibold text-sm hover:text-primary transition-colors">{app.candidate_name}</div>
-                                        <div className="text-xs text-muted-foreground font-normal">{app.skills.slice(0, 2).join(", ")}</div>
+                                        <div className="font-semibold text-sm hover:text-primary transition-colors">{app.recruiter_name}</div>
+                                        <div className="text-xs text-muted-foreground font-normal">{(app.skills || []).slice(0, 2).join(", ")}</div>
                                     </div>
                                 </th>
                                 <td className="px-4 py-3 text-muted-foreground">
@@ -131,7 +142,7 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                 </td>
                                 <td className="px-4 py-3">
                                     <Badge variant="outline" className={cn("font-normal shadow-sm", getStatusColor(app.status))}>
-                                        {app.status}
+                                        {STATUS_LABELS[app.status] || app.status}
                                     </Badge>
                                 </td>
                                 <td className="px-4 py-3">

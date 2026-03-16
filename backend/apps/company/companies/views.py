@@ -122,6 +122,12 @@ class CompanyViewSet(viewsets.GenericViewSet):
         
         output_serializer = CompanySerializer(updated_company)
         return Response(output_serializer.data)
+
+    def partial_update(self, request, pk=None):
+        """
+        PATCH /api/companies/:id/ - Cập nhật thông tin công ty (từng phần)
+        """
+        return self.update(request, pk)
     
     def destroy(self, request, pk=None):
         """

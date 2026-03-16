@@ -3,6 +3,8 @@ from .models import Application
 
 from apps.recruitment.jobs.models import Job
 from apps.candidate.recruiter_cvs.models import RecruiterCV
+from apps.assessment.ai_matching_scores.models import AIMatchingScore
+from apps.candidate.recruiter_skills.models import RecruiterSkill
 
 class ApplicationListSerializer(serializers.ModelSerializer):
     """
@@ -14,14 +16,35 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     recruiter_email = serializers.CharField(source='recruiter.user.email', read_only=True)
     job_title = serializers.CharField(source='job.title', read_only=True)
     
+    recruiter_avatar = serializers.URLField(source='recruiter.user.avatar_url', read_only=True)
+    ai_score = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
+    
     class Meta:
         model = Application
         fields = [
             'id', 'job_id', 'job_title',
-            'recruiter_id', 'recruiter_name', 'recruiter_email',
-            'status', 'rating', 'applied_at', 'updated_at'
+            'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar',
+            'status', 'rating', 'ai_score', 'skills',
+            'applied_at', 'updated_at'
         ]
         read_only_fields = ['id', 'applied_at', 'updated_at']
+
+    def get_ai_score(self, obj):
+        try:
+            score_obj = AIMatchingScore.objects.filter(job=obj.job, recruiter=obj.recruiter).first()
+            if score_obj:
+                return int(score_obj.overall_score)
+            return 0
+        except Exception:
+            return 0
+
+    def get_skills(self, obj):
+        try:
+            skill_names = RecruiterSkill.objects.filter(recruiter=obj.recruiter).values_list('skill__name', flat=True)
+            return list(skill_names)
+        except Exception:
+            return []
 
 
 class ApplicationDetailSerializer(serializers.ModelSerializer):
@@ -36,18 +59,38 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='job.title', read_only=True)
     cv_url = serializers.CharField(source='cv.file_url', read_only=True, allow_null=True)
     reviewed_by_name = serializers.CharField(source='reviewed_by.full_name', read_only=True, allow_null=True)
+    recruiter_avatar = serializers.URLField(source='recruiter.user.avatar_url', read_only=True)
+    recruiter_phone = serializers.CharField(source='recruiter.user.phone', read_only=True)
+    ai_score = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
     
     class Meta:
         model = Application
         fields = [
             'id', 'job_id', 'job_title',
-            'recruiter_id', 'recruiter_name', 'recruiter_email',
+            'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar', 'recruiter_phone',
             'cv_url', 'cover_letter',
-            'status', 'rating', 'notes',
+            'status', 'rating', 'notes', 'ai_score', 'skills',
             'applied_at', 'updated_at',
             'reviewed_by_name', 'reviewed_at'
         ]
         read_only_fields = ['id', 'applied_at', 'updated_at']
+
+    def get_ai_score(self, obj):
+        try:
+            score_obj = AIMatchingScore.objects.filter(job=obj.job, recruiter=obj.recruiter).first()
+            if score_obj:
+                return int(score_obj.overall_score)
+            return 0
+        except Exception:
+            return 0
+
+    def get_skills(self, obj):
+        try:
+            skill_names = RecruiterSkill.objects.filter(recruiter=obj.recruiter).values_list('skill__name', flat=True)
+            return list(skill_names)
+        except Exception:
+            return []
 
 
 class ApplicationCreateSerializer(serializers.Serializer):

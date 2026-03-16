@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Search, MapPin, Briefcase, DollarSign, Command, X, SlidersHorizontal, ChevronDown, ChevronUp, CheckCircle
@@ -32,9 +33,9 @@ export const CVSearchFiltersPanel = () => {
 
     const { data: provincesRaw } = useQuery({
         queryKey: ['provinces-locations'],
-        queryFn: () => taxonomyService.listProvinces({ page_size: 10 }).then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces({ page_size: 100 }).then(r => r.data),
     });
-    const LOCATIONS: string[] = ((provincesRaw as any)?.results ?? []).map((p: any) => p.name);
+    const LOCATIONS: string[] = ((provincesRaw as any)?.results ?? []).map((p: any) => p.province_name);
 
     // Custom expand/collapse for sections
     const [sections, setSections] = useState({
@@ -165,26 +166,23 @@ export const CVSearchFiltersPanel = () => {
                         {sections.location ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>
                     {sections.location && (
-                        <div className="grid grid-cols-2 gap-2 pt-1">
-                            <Button
-                                variant={filters.location === 'all' ? 'default' : 'outline'}
-                                size="sm"
-                                className={`justify-start text-xs ${filters.location === 'all' ? 'shadow-md shadow-primary/10' : 'bg-background/50 border-border/50'}`}
-                                onClick={() => updateCVSearchFilter({ location: 'all' })}
+                        <div className="pt-1">
+                            <Select
+                                value={filters.location}
+                                onValueChange={(val) => updateCVSearchFilter({ location: val })}
                             >
-                                Tất cả
-                            </Button>
-                            {LOCATIONS.slice(0, 5).map(loc => (
-                                <Button
-                                    key={loc}
-                                    variant={filters.location === loc ? 'default' : 'outline'}
-                                    size="sm"
-                                    className={`justify-start text-xs ${filters.location === loc ? 'shadow-md shadow-primary/10' : 'bg-background/50 border-border/50'}`}
-                                    onClick={() => updateCVSearchFilter({ location: loc })}
-                                >
-                                    {loc}
-                                </Button>
-                            ))}
+                                <SelectTrigger className="w-full h-10 bg-background/50 border-border/50 focus-visible:ring-primary/30">
+                                    <SelectValue placeholder="Chọn địa điểm..." />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px] bg-white">
+                                    <SelectItem value="all">Tất cả địa điểm</SelectItem>
+                                    {LOCATIONS.map(loc => (
+                                        <SelectItem key={loc} value={loc}>
+                                            {loc}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
                     )}
                 </div>

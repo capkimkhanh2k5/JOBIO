@@ -44,12 +44,12 @@ export function ReferralDetailModal({ isOpen, onClose, referral }: ReferralDetai
                     <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center shrink-0 border border-white/10">
                             <span className="text-2xl font-black text-cyan-400">
-                                {referral.referred_name?.charAt(0)}
+                                {referral.candidate_name?.charAt(0)}
                             </span>
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-foreground">{referral.referred_name}</h3>
-                            <p className="text-sm text-muted-foreground">{referral.referred_email}</p>
+                            <h3 className="text-lg font-bold text-foreground">{referral.candidate_name}</h3>
+                            <p className="text-sm text-muted-foreground">{referral.candidate_email}</p>
                         </div>
                     </div>
 

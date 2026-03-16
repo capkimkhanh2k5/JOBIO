@@ -103,6 +103,12 @@ class Company(models.Model):
         related_name='companies',
         verbose_name='Địa chỉ'
     )
+    headquarters = models.CharField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name='Trụ sở chính'
+    )
     founded_year = models.IntegerField(
         null=True,
         blank=True,

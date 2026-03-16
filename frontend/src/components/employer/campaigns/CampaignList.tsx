@@ -17,13 +17,14 @@ import { Progress } from "@/components/ui/progress";
 
 export interface Campaign {
     id: string;
-    campaign_name: string;
-    campaign_type: string;
+    title?: string;
+    campaign_name?: string;
+    campaign_type?: string;
     status: 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
-    budget: number;
-    spent_amount: number;
-    target_positions: number;
-    hired_count: number;
+    budget?: number;
+    spent_amount?: number;
+    target_positions?: number;
+    hired_count?: number;
     start_date: string;
     end_date: string;
     job_count: number;
@@ -50,7 +51,8 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
         }
     };
 
-    const getTypeInfo = (type: string) => {
+    const getTypeInfo = (type: string | undefined) => {
+        if (!type) return 'N/A';
         switch (type) {
             case 'mass_hiring': return 'Mass Hiring';
             case 'campus': return 'Campus Tour';
@@ -113,15 +115,20 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                     <tbody className="divide-y divide-slate-100">
                         {campaigns.map((camp) => {
                             const statusInfo = getStatusInfo(camp.status);
-                            const budgetPercent = camp.budget > 0 ? Math.min(100, (camp.spent_amount / camp.budget) * 100) : 0;
-                            const hirePercent = camp.target_positions > 0 ? Math.min(100, (camp.hired_count / camp.target_positions) * 100) : 0;
+                            const budget = camp.budget || 0;
+                            const spent = camp.spent_amount || 0;
+                            const targets = camp.target_positions || 0;
+                            const hired = camp.hired_count || 0;
+
+                            const budgetPercent = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+                            const hirePercent = targets > 0 ? Math.min(100, (hired / targets) * 100) : 0;
 
                             return (
                                 <tr key={camp.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div>
-                                            <p className="font-semibold text-slate-900 dark:text-white text-base group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors cursor-pointer" onClick={() => onViewDetail(camp.id)}>
-                                                {camp.campaign_name}
+                                            <p className="font-semibold text-slate-900 text-base group-hover:text-cyan-600 transition-colors cursor-pointer" onClick={() => onViewDetail(camp.id)}>
+                                                {camp.title || camp.campaign_name || 'Unnamed Campaign'}
                                             </p>
                                             <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                                                 <span className="flex items-center gap-1">
@@ -144,8 +151,8 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                     <td className="px-6 py-4">
                                         <div className="w-[140px]">
                                             <div className="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-tight">
-                                                <span className="text-slate-700 flex items-center"><DollarSign className="w-3 h-3 mr-0.5 text-violet-500" />{camp.spent_amount.toLocaleString()}</span>
-                                                <span className="text-slate-400">/ {camp.budget.toLocaleString()}</span>
+                                                <span className="text-slate-700 flex items-center"><DollarSign className="w-3 h-3 mr-0.5 text-violet-500" />{spent.toLocaleString()}</span>
+                                                <span className="text-slate-400">/ {budget.toLocaleString()}</span>
                                             </div>
                                             <Progress value={budgetPercent} className="h-1.5 bg-slate-100" indicatorClassName={budgetPercent > 90 ? "bg-red-500" : budgetPercent > 75 ? "bg-amber-500" : "bg-violet-500"} />
                                         </div>
@@ -153,8 +160,8 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                     <td className="px-6 py-4">
                                         <div className="w-[120px]">
                                             <div className="flex justify-between text-[11px] mb-2 font-bold uppercase tracking-tight">
-                                                <span className="text-slate-700">{camp.hired_count} hired</span>
-                                                <span className="text-slate-400">/ {camp.target_positions}</span>
+                                                <span className="text-slate-700">{hired} hired</span>
+                                                <span className="text-slate-400">/ {targets}</span>
                                             </div>
                                             <Progress value={hirePercent} className="h-1.5 bg-slate-100" indicatorClassName="bg-indigo-500" />
                                         </div>

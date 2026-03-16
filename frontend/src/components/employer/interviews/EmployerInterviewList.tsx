@@ -100,12 +100,12 @@ export function EmployerInterviewList({ interviews, isLoading, onInterviewClick 
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <Avatar className="w-10 h-10 border border-slate-200 dark:border-slate-700">
-                                                <AvatarImage src={interview.candidate_avatar} alt={interview.candidate_name} />
-                                                <AvatarFallback>{interview.candidate_name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                <AvatarImage src={interview.candidate_avatar || (interview as any).applicant_avatar} alt={(interview as any).applicant_name || interview.candidate_name} />
+                                                <AvatarFallback>{((interview as any).applicant_name || interview.candidate_name || '??').substring(0, 2).toUpperCase()}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-semibold text-slate-900 dark:text-white">{interview.candidate_name}</p>
-                                                <p className="text-xs text-slate-500">#{interview.candidate_id}</p>
+                                                <p className="font-semibold text-slate-900 dark:text-white">{(interview as any).applicant_name || interview.candidate_name}</p>
+                                                <p className="text-xs text-slate-500">#{interview.candidate_id || (interview as any).applicant_id}</p>
                                             </div>
                                         </div>
                                     </td>

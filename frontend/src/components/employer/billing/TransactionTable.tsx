@@ -92,7 +92,8 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                             return (
                                 <TableRow key={tx.id} className="hover:bg-slate-50/80 border-slate-100 transition-colors group">
                                     <TableCell className="font-mono text-[10px] font-bold text-slate-500 pl-6">
-                                        {tx.id.substring(0, 12)}...
+                                        {(tx.reference_code || String(tx.id)).substring(0, 12)}
+                                        {(tx.reference_code || String(tx.id)).length > 12 && '...'}
                                     </TableCell>
                                     <TableCell className="max-w-[200px] truncate text-slate-900 font-bold">
                                         {tx.description}
@@ -101,7 +102,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                                         {formatCurrency(Number(tx.amount), tx.currency)}
                                     </TableCell>
                                     <TableCell className="capitalize text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                                        {tx.payment_method.replace('_', ' ')}
+                                        {(tx.payment_method?.name || tx.payment_method?.code || 'N/A').replace('_', ' ')}
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant="outline" className={`gap-1.5 px-2 py-0.5 font-bold text-[10px] uppercase tracking-tighter ${status.color}`}>

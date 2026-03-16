@@ -82,12 +82,12 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[700px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-slate-200 dark:border-slate-800">
+            <DialogContent className="sm:max-w-[700px] bg-white border-slate-200 shadow-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 to-violet-600 dark:from-cyan-400 dark:to-violet-400">
+                    <DialogTitle className="text-2xl font-black text-slate-900">
                         {initialData?.campaign_name ? 'Chỉnh sửa chiến dịch' : 'Tạo chiến dịch mới'}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-slate-500 font-medium">
                         Điền thông tin chi tiết về chiến dịch tuyển dụng để tiếp cận ứng viên mục tiêu.
                     </DialogDescription>
                 </DialogHeader>
@@ -100,9 +100,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="campaign_name"
                                 render={({ field }) => (
                                     <FormItem className="md:col-span-2">
-                                        <FormLabel>Tên chiến dịch</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Tên chiến dịch</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="VD: Tuyển dụng lập trình viên Q1/2024" {...field} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input placeholder="VD: Tuyển dụng lập trình viên Q1/2024" {...field} className="bg-slate-50 border-slate-200 focus:bg-white transition-all h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -114,14 +114,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="campaign_type"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Loại chiến dịch</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Loại chiến dịch</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="bg-white/50 dark:bg-slate-950/50">
+                                                <SelectTrigger className="bg-slate-50 border-slate-200 focus:bg-white h-11">
                                                     <SelectValue placeholder="Chọn loại chiến dịch" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-white dark:bg-slate-900">
+                                            <SelectContent className="bg-white border-slate-200">
                                                 <SelectItem value="mass_hiring">Mass Hiring (Tuyển hàng loạt)</SelectItem>
                                                 <SelectItem value="campus">Campus Tour (Sinh viên mới)</SelectItem>
                                                 <SelectItem value="referral">Referral Bonus (Nội bộ giới thiệu)</SelectItem>
@@ -139,9 +139,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="budget"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Tổng ngân sách (USD)</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Tổng ngân sách (USD)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input type="number" placeholder="0" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} className="bg-slate-50 border-slate-200 focus:bg-white h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -153,9 +153,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="start_date"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Ngày bắt đầu</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Ngày bắt đầu</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input type="date" {...field} className="bg-slate-50 border-slate-200 focus:bg-white h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -167,9 +167,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="end_date"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Ngày kết thúc</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Ngày kết thúc</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input type="date" {...field} className="bg-slate-50 border-slate-200 focus:bg-white h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -181,9 +181,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="target_positions"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Mục tiêu tuyển (Số lượng)</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Mục tiêu tuyển (Số lượng)</FormLabel>
                                         <FormControl>
-                                            <Input type="number" placeholder="1" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input type="number" placeholder="1" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : Number(e.target.value))} className="bg-slate-50 border-slate-200 focus:bg-white h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -195,9 +195,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="target_audience"
                                 render={({ field }) => (
                                     <FormItem className="md:col-span-2">
-                                        <FormLabel>Đối tượng mục tiêu</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Đối tượng mục tiêu</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="VD: Frontend Engineers, Fresher React..." {...field} className="bg-white/50 dark:bg-slate-950/50" />
+                                            <Input placeholder="VD: Frontend Engineers, Fresher React..." {...field} className="bg-slate-50 border-slate-200 focus:bg-white h-11" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -209,11 +209,11 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                                 name="description"
                                 render={({ field }) => (
                                     <FormItem className="md:col-span-2">
-                                        <FormLabel>Mô tả chiến dịch</FormLabel>
+                                        <FormLabel className="text-slate-700 font-bold">Mô tả chiến dịch</FormLabel>
                                         <FormControl>
                                             <Textarea
                                                 placeholder="Mô tả nội dung và cách thức thực hiện..."
-                                                className="resize-none h-24 bg-white/50 dark:bg-slate-950/50"
+                                                className="resize-none h-24 bg-slate-50 border-slate-200 focus:bg-white"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -224,10 +224,10 @@ export function CreateCampaignModal({ isOpen, onClose, onSubmit, initialData }: 
                         </div>
 
                         <div className="flex justify-end gap-3 pt-4">
-                            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+                            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting} className="border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl">
                                 Hủy bỏ
                             </Button>
-                            <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-700 hover:to-violet-700 text-white shadow-lg">
+                            <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 rounded-xl px-8">
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 {initialData?.campaign_name ? 'Cập nhật' : 'Tạo chiến dịch'}
                             </Button>

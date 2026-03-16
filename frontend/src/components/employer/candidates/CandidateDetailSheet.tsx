@@ -35,17 +35,21 @@ export function CandidateDetailSheet() {
             if (!selectedCandidateId) return;
             setIsLoading(true);
             try {
-                const candidateNumId = Number(selectedCandidateId);
+                const appNumId = Number(selectedCandidateId);
+                const appRes = await applicationService.getById(appNumId);
+                const appData = appRes.data;
+                const recruiterId = appData.recruiter_id;
+
                 const [prof, edu, exp, skls, hist, tests] = await Promise.all([
-                    candidateService.getById(candidateNumId).then(r => r.data),
-                    candidateService.listEducation(candidateNumId).then(r => r.data),
-                    candidateService.listExperience(candidateNumId).then(r => r.data),
-                    candidateService.listSkills(candidateNumId).then(r => r.data),
-                    applicationService.getStatusHistory(candidateNumId).then(r => r.data),
+                    candidateService.getById(recruiterId).then(r => r.data),
+                    candidateService.listEducation(recruiterId).then(r => r.data),
+                    candidateService.listExperience(recruiterId).then(r => r.data),
+                    candidateService.listSkills(recruiterId).then(r => r.data),
+                    applicationService.getStatusHistory(appNumId).then(r => r.data),
                     Promise.resolve([]),  // TODO: no test-results endpoint
                 ]);
                 if (!isMtd) return;
-                setDetails(prof);
+                setDetails({ ...prof, ...appData });
                 setEducation(edu);
                 setExperience(exp);
                 setSkills(skls);
@@ -106,18 +110,18 @@ export function CandidateDetailSheet() {
                             <div className="flex justify-between items-start mb-6">
                                 <div className="flex gap-4">
                                     <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-md">
-                                        <AvatarImage src={details.avatar_url} />
-                                        <AvatarFallback className="text-xl">{(details.full_name || 'U').charAt(0)}</AvatarFallback>
+                                        <AvatarImage src={details.recruiter_avatar} />
+                                        <AvatarFallback className="text-xl">{(details.recruiter_name || 'U').charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <h2 className="text-xl font-bold tracking-tight">{details.full_name}</h2>
+                                        <h2 className="text-xl font-bold tracking-tight">{details.recruiter_name}</h2>
                                         <p className="text-muted-foreground flex items-center gap-1.5 mt-1 text-sm">
                                             <Briefcase className="w-4 h-4" /> {details.current_position}
                                             {details.current_company && ` tại ${details.current_company}`}
                                         </p>
                                         <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                                            <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {details.email}</span>
-                                            <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {details.phone}</span>
+                                            <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {details.recruiter_email}</span>
+                                            <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {details.recruiter_phone || (details.user && details.user.phone)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -152,7 +156,7 @@ export function CandidateDetailSheet() {
                                     </Select>
                                 </div>
                                 <div className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm font-semibold whitespace-nowrap">
-                                    AI Match: 85%
+                                    AI Match: {details.ai_score || 0}%
                                 </div>
                             </div>
                         </div>
@@ -172,15 +176,7 @@ export function CandidateDetailSheet() {
                                             <FileText className="w-4 h-4 text-primary" /> Cover Letter
                                         </h3>
                                         <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                            Kính gửi Ban Tuyển Dụng,
-                                            <br /><br />
-                                            Tôi tình cờ thấy thông tin tuyển dụng vị trí Frontend Engineer và rất quan tâm đên cơ hội này.
-                                            Với hơn 5 năm kinh nghiệm làm việc với React, TypeScript và các công nghệ web hiện đại,
-                                            tôi tin mình có thể đóng góp hiệu quả vào việc cải thiện trải nghiệm người dùng của JOBIO.
-                                            <br /><br />
-                                            Rất mong có cơ hội trao đổi thêm.
-                                            <br />
-                                            Trân trọng.
+                                            {details.cover_letter || "Không có thư giới thiệu."}
                                         </p>
                                     </div>
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5 flex flex-col h-[600px]">
@@ -191,8 +187,12 @@ export function CandidateDetailSheet() {
                                             {/* Simulate iframe for PDF */}
                                             <div className="text-center text-muted-foreground">
                                                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                                <p>Frontend_Dev_CV.pdf</p>
-                                                <Button variant="link" className="mt-2 text-primary">Mở trong tab mới</Button>
+                                                <p>{details.cv_url ? "Dữ liệu CV hiện có" : "Chưa tải lên CV"}</p>
+                                                {details.cv_url && (
+                                                    <Button variant="link" className="mt-2 text-primary" onClick={() => window.open(details.cv_url, '_blank')}>
+                                                        Mở trong tab mới
+                                                    </Button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

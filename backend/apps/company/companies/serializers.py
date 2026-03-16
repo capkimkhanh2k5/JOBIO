@@ -14,7 +14,7 @@ class CompanySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'company_name', 'slug', 'tax_code', 'company_size',
             'industry', 'industry_name', 'website', 'logo_url', 'banner_url',
-            'description', 'address', 'founded_year', 'verification_status',
+            'description', 'address', 'headquarters', 'founded_year', 'verification_status',
             'verified_at', 'follower_count', 'job_count',
             'user', 'user_email', 'created_at', 'updated_at'
         ]
@@ -70,6 +70,7 @@ class CompanyUpdateSerializer(serializers.Serializer):
     industry_id = serializers.IntegerField(required=False, allow_null=True)
     website = serializers.URLField(max_length=255, required=False, allow_blank=True)
     description = serializers.CharField(required=False, allow_blank=True)
+    headquarters = serializers.CharField(max_length=500, required=False, allow_blank=True)
     founded_year = serializers.IntegerField(required=False, allow_null=True)
     
     def validate_industry_id(self, value):
