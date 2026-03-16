@@ -28,6 +28,8 @@ export interface User {
   email_verified: boolean;
   date_joined: string;
   last_login: string | null;
+  recruiter_id?: number;
+  company_id?: number;
 }
 
 export interface AuthTokens {
@@ -854,14 +856,14 @@ export interface RecruiterBrief {
   id: number;
   full_name: string;
   avatar_url: string | null;
-  current_position: string | null;
-  current_company: string | null;
+  headline: string | null;
+  job_search_status: string;
 }
 
 export interface Connection {
   id: number;
   requester: RecruiterBrief;
-  recipient: RecruiterBrief;
+  receiver: RecruiterBrief;
   status: ConnectionStatus;
   message: string | null;
   created_at: string;
@@ -870,7 +872,7 @@ export interface Connection {
 
 export interface ConnectionSuggestion {
   recruiter: RecruiterBrief;
-  mutual_connections_count: number;
+  mutual_connections: number;
   common_skills: string[];
   score: number;
 }

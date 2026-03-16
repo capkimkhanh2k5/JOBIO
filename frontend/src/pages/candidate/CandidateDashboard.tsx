@@ -20,7 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function CandidateDashboard() {
     const navigate = useNavigate();
     const { user } = useUserStore();
-    const recruiterId = user?.id;
+    const recruiterId = user?.recruiter_id;
 
     // Data fetching
     const { data: profileCompleteness, isLoading: loadingCompleteness } = useQuery({

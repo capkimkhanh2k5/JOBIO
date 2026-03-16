@@ -50,16 +50,10 @@ export function PendingRequestCard({ request }: PendingRequestCardProps) {
                         <h3 className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">
                             {requester.full_name}
                         </h3>
-                        {requester.current_position && (
+                        {requester.headline && (
                             <div className="flex items-center text-sm text-slate-500 mt-1">
                                 <Briefcase className="w-3.5 h-3.5 mr-1.5 opacity-70" />
-                                <span>{requester.current_position}</span>
-                            </div>
-                        )}
-                        {requester.current_company && (
-                            <div className="flex items-center text-sm text-slate-500 mt-0.5">
-                                <Building2 className="w-3.5 h-3.5 mr-1.5 opacity-70" />
-                                <span>{requester.current_company}</span>
+                                <span>{requester.headline}</span>
                             </div>
                         )}
 
