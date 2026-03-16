@@ -2,13 +2,32 @@ from rest_framework import serializers
 from .models import CustomUser
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    recruiter_id = serializers.SerializerMethodField()
+    company_id = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomUser
-        fields = ['id', 'email', 'full_name', 'role', 'status', 'email_verified', 'password', 'last_login', 'phone', 'avatar_url']
+        fields = [
+            'id', 'email', 'full_name', 'role', 'status', 
+            'email_verified', 'password', 'last_login', 
+            'phone', 'avatar_url', 'recruiter_id', 'company_id'
+        ]
         extra_kwargs = {
             'password': {'write_only': True},
             'last_login': {'read_only': True}
         }
+
+    def get_recruiter_id(self, obj):
+        try:
+            return obj.recruiter_profile.id
+        except:
+            return None
+
+    def get_company_id(self, obj):
+        try:
+            return obj.company_profile.id
+        except:
+            return None
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
