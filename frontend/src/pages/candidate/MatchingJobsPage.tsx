@@ -12,7 +12,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 
 export default function MatchingJobsPage() {
     const { user } = useUserStore();
-    const recruiterId = user?.id ?? 0;
+    const recruiterId = user?.recruiter_id ?? 0;
 
     const { data, isLoading, refetch, isFetching } = useQuery({
         queryKey: ["matching-jobs", recruiterId],

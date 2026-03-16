@@ -58,6 +58,38 @@ class InterviewViewSet(viewsets.GenericViewSet):
     """
     permission_classes = [IsAuthenticated]
     
+    def list(self, request):
+        """
+            GET /api/interviews/
+            Danh sách lịch phỏng vấn
+        """
+        user = request.user
+        
+        # Nếu là ứng viên: Lấy lịch phỏng vấn của chính họ
+        if hasattr(user, 'role') and user.role == 'candidate':
+            queryset = Interview.objects.filter(application__recruiter__user=user)
+        # Nếu là nhà tuyển dụng: Lấy lịch phỏng vấn của các job họ quản lý
+        elif hasattr(user, 'role') and user.role == 'company':
+            queryset = Interview.objects.filter(application__job__company__user=user)
+        else:
+            queryset = Interview.objects.none()
+
+        # Filters
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+            
+        queryset = queryset.order_by('scheduled_at')
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = InterviewListSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = InterviewListSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
     def _is_job_owner(self, request, interview):
         """
             Kiểm tra nếu user sở hữu job

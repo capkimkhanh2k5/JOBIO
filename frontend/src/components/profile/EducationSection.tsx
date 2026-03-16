@@ -32,7 +32,7 @@ interface EducationFormProps {
     open: boolean;
     onClose: () => void;
     entry?: EducationEntry | null;
-    userId: string;
+    userId: number;
 }
 
 const EducationForm = ({ open, onClose, entry, userId }: EducationFormProps) => {
@@ -68,10 +68,19 @@ const EducationForm = ({ open, onClose, entry, userId }: EducationFormProps) => 
     }, [entry, open]);
 
     const mutation = useMutation({
-        mutationFn: (data: typeof formData) =>
-            isEdit
-                ? candidateService.updateEducation(Number(userId), Number(entry!.id), data).then(r => r.data)
-                : candidateService.addEducation(Number(userId), data).then(r => r.data),
+        mutationFn: (data: typeof formData) => {
+            const { start_date, end_date, gpa, is_current, ...rest } = data;
+            const payload = { 
+                ...rest, 
+                is_current,
+                start_date: start_date || null,
+                end_date: is_current ? null : (end_date || null),
+                gpa: gpa ? Number(gpa) : null 
+            };
+            return isEdit
+                ? candidateService.updateEducation(Number(userId), Number(entry!.id), payload as any).then(r => r.data)
+                : candidateService.addEducation(Number(userId), payload as any).then(r => r.data);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['education', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -168,7 +177,7 @@ const EducationForm = ({ open, onClose, entry, userId }: EducationFormProps) => 
     );
 };
 
-export const EducationSection = ({ userId }: { userId: string }) => {
+export const EducationSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<EducationEntry | null>(null);
@@ -178,10 +187,10 @@ export const EducationSection = ({ userId }: { userId: string }) => {
         queryFn: () => candidateService.listEducation(Number(userId)).then(r => r.data),
     });
 
-    const [items, setItems] = useState<EducationEntry[]>(educations as EducationEntry[]);
+    const [items, setItems] = useState<any[]>(educations as any[]);
 
     useEffect(() => {
-        if (educations.length > 0) setItems(educations as EducationEntry[]);
+        if (educations && educations.length > 0) setItems(educations as any[]);
     }, [educations]);
 
     const deleteMutation = useMutation({

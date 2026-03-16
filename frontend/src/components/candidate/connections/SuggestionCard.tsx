@@ -14,7 +14,7 @@ interface SuggestionCardProps {
 
 export function SuggestionCard({ suggestion }: SuggestionCardProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const { recruiter, mutual_connections_count, common_skills } = suggestion;
+    const { recruiter, mutual_connections, common_skills } = suggestion;
 
     return (
         <>
@@ -34,24 +34,17 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
                         {recruiter.full_name}
                     </h3>
 
-                    {recruiter.current_position && (
+                    {recruiter.headline && (
                         <div className="flex items-center text-sm text-slate-500 mt-1 justify-center w-full truncate">
                             <Briefcase className="w-3.5 h-3.5 mr-1.5 opacity-70 flex-shrink-0" />
-                            <span className="truncate">{recruiter.current_position}</span>
+                            <span className="truncate">{recruiter.headline}</span>
                         </div>
                     )}
 
-                    {recruiter.current_company && (
-                        <div className="flex items-center text-sm text-slate-500 mt-0.5 justify-center w-full truncate">
-                            <Building2 className="w-3.5 h-3.5 mr-1.5 opacity-70 flex-shrink-0" />
-                            <span className="truncate">{recruiter.current_company}</span>
-                        </div>
-                    )}
-
-                    {mutual_connections_count > 0 && (
+                    {mutual_connections > 0 && (
                         <div className="flex items-center mt-3 text-xs text-slate-500">
                             <Users className="w-3 h-3 mr-1" />
-                            <span>{mutual_connections_count} bạn chung</span>
+                            <span>{mutual_connections} bạn chung</span>
                         </div>
                     )}
 

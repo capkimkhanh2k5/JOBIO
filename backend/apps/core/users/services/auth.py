@@ -290,6 +290,9 @@ def register_user(data: RegisterInput) -> dict:
                 tax_code=data.tax_code
             )
         )
+    elif data.role == 'candidate':
+        from apps.candidate.recruiters.models import Recruiter
+        Recruiter.objects.create(user=user)
     
     # Mark email as verified since OTP was correct
     user.email_verified = True

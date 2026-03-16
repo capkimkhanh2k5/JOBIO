@@ -27,7 +27,7 @@ interface CertFormProps {
     open: boolean;
     onClose: () => void;
     entry?: CertEntry | null;
-    userId: string;
+    userId: number;
 }
 
 const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
@@ -39,10 +39,18 @@ const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
     });
 
     const mutation = useMutation({
-        mutationFn: () =>
-            isEdit
-                ? candidateService.updateCertification(Number(userId), Number(entry!.id), formData).then(r => r.data)
-                : candidateService.addCertification(Number(userId), formData).then(r => r.data),
+        mutationFn: () => {
+            const { issue_date, expiry_date, does_not_expire, ...rest } = formData;
+            const payload = {
+                ...rest,
+                does_not_expire,
+                issue_date: issue_date || null,
+                expiry_date: does_not_expire ? null : (expiry_date || null)
+            };
+            return isEdit
+                ? candidateService.updateCertification(Number(userId), Number(entry!.id), payload).then(r => r.data)
+                : candidateService.addCertification(Number(userId), payload).then(r => r.data);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['certifications', userId] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
@@ -126,7 +134,7 @@ const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
     );
 };
 
-export const CertificationsSection = ({ userId }: { userId: string }) => {
+export const CertificationsSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<CertEntry | null>(null);

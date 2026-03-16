@@ -42,49 +42,72 @@ const personalSchema = z.object({
 type PersonalFormValues = z.infer<typeof personalSchema>;
 
 const EDUCATION_LEVELS = [
-    { value: 'High School', label: 'Trung học phổ thông' },
-    { value: 'Associate', label: 'Cao đẳng' },
-    { value: 'Bachelor', label: 'Đại học' },
-    { value: 'Master', label: 'Thạc sĩ' },
-    { value: 'PhD', label: 'Tiến sĩ' },
-    { value: 'Other', label: 'Khác' },
+    { value: 'thpt', label: 'Trung học phổ thông' },
+    { value: 'cao_dang', label: 'Cao đẳng' },
+    { value: 'dai_hoc', label: 'Đại học' },
+    { value: 'thac_si', label: 'Thạc sĩ' },
+    { value: 'tien_si', label: 'Tiến sĩ' },
+    { value: 'khac', label: 'Khác' },
 ];
 
-const CURRENCIES = ['USD', 'VND', 'EUR', 'SGD'];
+const CURRENCIES = ['VND', 'USD', 'EUR', 'SGD'];
 
 export const PersonalForm = ({ profile }: { profile: any }) => {
     const queryClient = useQueryClient();
     const form = useForm<PersonalFormValues>({
         resolver: zodResolver(personalSchema),
         defaultValues: {
-            full_name: profile?.full_name || "",
+            full_name: (profile as any)?.user?.full_name || (profile as any)?.full_name || "",
             bio: profile?.bio || "",
-            dob: profile?.dob || "",
+            dob: profile?.date_of_birth || "",
             gender: profile?.gender || "other",
             address: {
-                province: profile?.address?.province || "",
-                commune: profile?.address?.commune || "",
-                address_line: profile?.address?.address_line || "",
+                province: (profile?.address as any)?.province_name || "",
+                commune: (profile?.address as any)?.commune_name || "",
+                address_line: (profile?.address as any)?.address_line || "",
             },
             social_links: {
-                linkedin: profile?.social_links?.linkedin || "",
-                github: profile?.social_links?.github || "",
-                facebook: profile?.social_links?.facebook || "",
-                portfolio: profile?.social_links?.portfolio || "",
+                linkedin: profile?.linkedin_url || "",
+                github: profile?.github_url || "",
+                facebook: profile?.facebook_url || "",
+                portfolio: profile?.portfolio_url || "",
             },
             desired_salary: {
-                min: profile?.desired_salary?.min || undefined,
-                max: profile?.desired_salary?.max || undefined,
-                currency: profile?.desired_salary?.currency || "USD",
+                min: profile?.desired_salary_min ? Number(profile.desired_salary_min) : undefined,
+                max: profile?.desired_salary_max ? Number(profile.desired_salary_max) : undefined,
+                currency: profile?.salary_currency || "VND",
             },
-            available_from: profile?.available_from || "",
+            available_from: profile?.available_from_date || "",
             years_of_experience: profile?.years_of_experience || 0,
-            highest_education: profile?.highest_education || "Bachelor",
+            highest_education: profile?.highest_education_level || "dai_hoc",
         }
     });
 
     const mutation = useMutation({
-        mutationFn: (data: PersonalFormValues) => candidateService.update(Number(profile?.id ?? 0), data as any).then(r => r.data),
+        mutationFn: (values: PersonalFormValues) => {
+            const payload = {
+                full_name: values.full_name,
+                date_of_birth: values.dob || null,
+                gender: values.gender,
+                bio: values.bio,
+                linkedin_url: values.social_links.linkedin || null,
+                github_url: values.social_links.github || null,
+                facebook_url: values.social_links.facebook || null,
+                portfolio_url: values.social_links.portfolio || null,
+                desired_salary_min: values.desired_salary.min || null,
+                desired_salary_max: values.desired_salary.max || null,
+                salary_currency: values.desired_salary.currency || 'VND',
+                available_from_date: values.available_from || null,
+                years_of_experience: values.years_of_experience,
+                highest_education_level: values.highest_education,
+                address: {
+                    address_line: values.address.address_line,
+                    province: values.address.province,
+                    commune: values.address.commune,
+                }
+            };
+            return candidateService.update(Number(profile?.id ?? 0), payload as any).then(r => r.data);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });

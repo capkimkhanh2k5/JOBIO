@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Award, TrendingUp, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,22 +35,40 @@ interface SkillEditDialogProps {
     open: boolean;
     onClose: () => void;
     skill: SkillEntry | null;
-    userId: string;
-    prefilledName?: string;
+    userId: number;
+    selectedSkillInfo?: { id: number; name: string } | null;
 }
 
-const SkillEditDialog = ({ open, onClose, skill, userId, prefilledName = '' }: SkillEditDialogProps) => {
+const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: SkillEditDialogProps) => {
     const queryClient = useQueryClient();
     const isEdit = !!skill;
 
-    const [name, setName] = useState(skill?.name || prefilledName);
+    const [name, setName] = useState(skill?.name || selectedSkillInfo?.name || '');
+    const [skillId, setSkillId] = useState<number | null>(selectedSkillInfo?.id || null);
     const [level, setLevel] = useState(skill?.proficiency_level || 'intermediate');
     const [yearsExp, setYearsExp] = useState(skill?.years_of_experience?.toString() || '1');
 
+    useEffect(() => {
+        if (open) {
+            setName(skill?.name || selectedSkillInfo?.name || '');
+            setSkillId(selectedSkillInfo?.id || null);
+            setLevel(skill?.proficiency_level || 'intermediate');
+            setYearsExp(skill?.years_of_experience?.toString() || '1');
+        }
+    }, [open, skill, selectedSkillInfo]);
+
     const mutation = useMutation({
         mutationFn: () => {
-            const data = { name, proficiency_level: level, years_of_experience: parseInt(yearsExp) || 1 };
-            return isEdit ? candidateService.updateSkill(Number(userId), Number(skill!.id), data).then(r => r.data) : candidateService.addSkill(Number(userId), data).then(r => r.data);
+            const payload: any = { 
+                proficiency_level: level, 
+                years_of_experience: Number(yearsExp) || 0,
+            };
+            if (!isEdit) {
+                payload.skill_id = Number(skillId);
+            }
+            return isEdit 
+                ? candidateService.updateSkill(Number(userId), Number(skill!.id), payload).then(r => r.data) 
+                : candidateService.addSkill(Number(userId), payload).then(r => r.data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['skills', userId] });
@@ -97,14 +115,14 @@ const SkillEditDialog = ({ open, onClose, skill, userId, prefilledName = '' }: S
     );
 };
 
-export const SkillsSection = ({ userId }: { userId: string }) => {
+export const SkillsSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editSkill, setEditSkill] = useState<SkillEntry | null>(null);
     const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [addName, setAddName] = useState('');
+    const [addSkillInfo, setAddSkillInfo] = useState<{ id: number; name: string } | null>(null);
 
     const { data: skills = [], isLoading } = useQuery({
         queryKey: ['skills', userId],
@@ -126,10 +144,10 @@ export const SkillsSection = ({ userId }: { userId: string }) => {
         }
     });
 
-    const handleSelectSearchResult = (skillName: string) => {
+    const handleSelectSearchResult = (skill: any) => {
         setSearchOpen(false);
         setSearchValue('');
-        setAddName(skillName);
+        setAddSkillInfo({ id: skill.id, name: skill.name });
         setAddDialogOpen(true);
     };
 
@@ -148,7 +166,7 @@ export const SkillsSection = ({ userId }: { userId: string }) => {
             <div className="space-y-6">
                 <div className="flex flex-wrap gap-3">
                     <AnimatePresence>
-                        {(skills as SkillEntry[]).map((skill) => {
+                        {(skills as any[]).map((skill) => {
                             const profInfo = getProficiencyInfo(skill.proficiency_level);
                             return (
                                 <motion.div
@@ -216,22 +234,15 @@ export const SkillsSection = ({ userId }: { userId: string }) => {
                                     onValueChange={setSearchValue}
                                 />
                                 <CommandList>
-                                    <CommandEmpty>
-                                        <button
-                                            className="w-full px-3 py-2 text-sm text-primary hover:bg-primary/5 transition-colors text-left"
-                                            onClick={() => handleSelectSearchResult(searchValue)}
-                                        >
-                                            + Thêm "{searchValue}"
-                                        </button>
-                                    </CommandEmpty>
+                                    <CommandEmpty>Không tìm thấy kỹ năng phù hợp.</CommandEmpty>
                                     <CommandGroup heading="Gợi ý">
-                                        {(searchResults as string[]).map((s) => (
+                                        {(searchResults as any[]).map((s) => (
                                             <CommandItem
-                                                key={s}
+                                                key={s.id}
                                                 onSelect={() => handleSelectSearchResult(s)}
                                                 className="cursor-pointer hover:bg-primary/10"
                                             >
-                                                {s}
+                                                {s.name}
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
@@ -263,10 +274,10 @@ export const SkillsSection = ({ userId }: { userId: string }) => {
             {/* Add new skill dialog */}
             <SkillEditDialog
                 open={addDialogOpen}
-                onClose={() => { setAddDialogOpen(false); setAddName(''); }}
+                onClose={() => { setAddDialogOpen(false); setAddSkillInfo(null); }}
                 skill={null}
                 userId={userId}
-                prefilledName={addName}
+                selectedSkillInfo={addSkillInfo}
             />
         </SectionWrapper>
     );

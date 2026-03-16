@@ -166,9 +166,15 @@ import type {
   RecommendationUpdateRequest,
 } from '@/types/api';
 
+export interface RecommendationsResponse {
+  recruiter_id: number;
+  recommendations: Recommendation[];
+  total: number;
+}
+
 export const recommendationService = {
   getRecommendations(recruiterId: number) {
-    return api.get<Recommendation[]>(`/api/recruiters/${recruiterId}/recommendations/`);
+    return api.get<RecommendationsResponse>(`/api/recruiters/${recruiterId}/recommendations/`).then(r => r.data);
   },
 
   writeRecommendation(recruiterId: number, data: RecommendationCreateRequest) {

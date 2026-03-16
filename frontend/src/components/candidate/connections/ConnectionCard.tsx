@@ -22,7 +22,7 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
 
     // Determine which user is the connection (the other person)
     const isRequester = connection.requester.id === currentUserId;
-    const connectedUser = isRequester ? connection.recipient : connection.requester;
+    const connectedUser = isRequester ? connection.receiver : connection.requester;
 
     const removeMutation = useMutation({
         mutationFn: () => api.delete(`/api/connections/${connection.id}/`),
@@ -50,16 +50,10 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
                         <h3 className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">
                             {connectedUser.full_name}
                         </h3>
-                        {connectedUser.current_position && (
+                        {connectedUser.headline && (
                             <div className="flex items-center text-sm text-slate-500 mt-1">
                                 <Briefcase className="w-3.5 h-3.5 mr-1.5 opacity-70" />
-                                <span>{connectedUser.current_position}</span>
-                            </div>
-                        )}
-                        {connectedUser.current_company && (
-                            <div className="flex items-center text-sm text-slate-500 mt-0.5">
-                                <Building2 className="w-3.5 h-3.5 mr-1.5 opacity-70" />
-                                <span>{connectedUser.current_company}</span>
+                                <span>{connectedUser.headline}</span>
                             </div>
                         )}
                         <span className="text-xs text-slate-400 mt-2">

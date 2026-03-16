@@ -12,11 +12,12 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { toast } from 'sonner';
+import { RecruiterLanguage, LanguageRef, LanguageProficiency } from '@/types/api';
 
 const PROFICIENCY_LEVELS = [
     { value: 'basic', label: 'Cơ bản' },
-    { value: 'intermediate', label: 'Trung cấp' },
-    { value: 'advanced', label: 'Nâng cao' },
+    { value: 'intermediate', label: 'Giao tiếp' },
+    { value: 'advanced', label: 'Thành thạo' },
     { value: 'fluent', label: 'Lưu loát' },
     { value: 'native', label: 'Ngôn ngữ mẹ đẻ' },
 ];
@@ -29,49 +30,33 @@ const LEVEL_COLORS: Record<string, string> = {
     native: 'bg-emerald-500/10 text-emerald-600',
 };
 
-interface UserLanguage {
-    id: string;
-    language_id?: string;
-    name: string;
-    proficiency_level: string;
-    is_native: boolean;
-}
-
-interface Language {
-    id: string;
-    name: string;
-    code: string;
-}
 
 interface LangFormProps {
     open: boolean;
     onClose: () => void;
-    entry?: UserLanguage | null;
-    userId: string;
-    availableLanguages: Language[];
+    entry?: RecruiterLanguage | null;
+    userId: number;
+    availableLanguages: LanguageRef[];
 }
 
 const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangFormProps) => {
     const queryClient = useQueryClient();
     const isEdit = !!entry;
 
-    const [selectedLangId, setSelectedLangId] = useState(entry?.language_id || '');
-    const [proficiency, setProficiency] = useState(entry?.proficiency_level || 'intermediate');
+    const [selectedLangId, setSelectedLangId] = useState(entry?.language_id?.toString() || '');
+    const [proficiency, setProficiency] = useState<LanguageProficiency>((entry?.proficiency_level as LanguageProficiency) || 'intermediate');
     const [isNative, setIsNative] = useState(entry?.is_native || false);
-
-    const selectedLang = availableLanguages.find(l => l.id === selectedLangId);
 
     const mutation = useMutation({
         mutationFn: () => {
             const data = {
-                language_id: selectedLangId,
-                name: selectedLang?.name || '',
-                proficiency_level: isNative ? 'native' : proficiency,
+                language_id: Number(selectedLangId),
+                proficiency_level: isNative ? ('native' as LanguageProficiency) : proficiency,
                 is_native: isNative,
             };
             return isEdit
-                ? candidateService.updateLanguage(Number(userId), Number(entry!.id), data).then(r => r.data)
-                : candidateService.addLanguage(Number(userId), data).then(r => r.data);
+                ? candidateService.updateLanguage(Number(userId), Number(entry!.id), data as any).then(r => r.data)
+                : candidateService.addLanguage(Number(userId), data as any).then(r => r.data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
@@ -92,17 +77,19 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
                 <div className="space-y-5 mt-2">
                     <div className="space-y-2">
                         <Label>Ngôn ngữ</Label>
-                        <Select value={selectedLangId} onValueChange={setSelectedLangId}>
+                        <Select value={selectedLangId} onValueChange={setSelectedLangId} disabled={isEdit}>
                             <SelectTrigger className=""><SelectValue placeholder="Chọn ngôn ngữ" /></SelectTrigger>
                             <SelectContent>
-                                {availableLanguages.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
+                                {availableLanguages.map(l => (
+                                    <SelectItem key={l.id} value={l.id.toString()}>{l.language_name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
                         <Label>Mức độ</Label>
-                        <Select value={proficiency} onValueChange={setProficiency} disabled={isNative}>
+                        <Select value={proficiency} onValueChange={(v) => setProficiency(v as LanguageProficiency)} disabled={isNative}>
                             <SelectTrigger className=""><SelectValue /></SelectTrigger>
                             <SelectContent>
                                 {PROFICIENCY_LEVELS.filter(p => p.value !== 'native').map(p =>
@@ -131,10 +118,10 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
     );
 };
 
-export const LanguagesSection = ({ userId }: { userId: string }) => {
+export const LanguagesSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [editEntry, setEditEntry] = useState<UserLanguage | null>(null);
+    const [editEntry, setEditEntry] = useState<RecruiterLanguage | null>(null);
 
     const { data: userLangs = [], isLoading: langsLoading } = useQuery({
         queryKey: ['user-languages', userId],
@@ -148,7 +135,7 @@ export const LanguagesSection = ({ userId }: { userId: string }) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (langId: string) => candidateService.deleteLanguage(Number(userId), Number(langId)).then(r => r.data),
+        mutationFn: (langId: number) => candidateService.deleteLanguage(Number(userId), Number(langId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-languages', userId] });
             toast.success('Đã xoá ngôn ngữ.');
@@ -168,7 +155,7 @@ export const LanguagesSection = ({ userId }: { userId: string }) => {
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <AnimatePresence>
-                        {(userLangs as UserLanguage[]).map((lang) => {
+                        {(userLangs as RecruiterLanguage[]).map((lang) => {
                             const levelInfo = PROFICIENCY_LEVELS.find(p => p.value === lang.proficiency_level) || PROFICIENCY_LEVELS[1];
                             const levelColor = LEVEL_COLORS[lang.proficiency_level] || LEVEL_COLORS.intermediate;
 
@@ -186,7 +173,7 @@ export const LanguagesSection = ({ userId }: { userId: string }) => {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <h4 className="font-bold text-sm">{lang.name}</h4>
+                                                <h4 className="font-bold text-sm">{lang.language_name}</h4>
                                                 {lang.is_native && (
                                                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                                                 )}
@@ -234,7 +221,7 @@ export const LanguagesSection = ({ userId }: { userId: string }) => {
                 onClose={() => { setDialogOpen(false); setEditEntry(null); }}
                 entry={editEntry}
                 userId={userId}
-                availableLanguages={availableLanguages as Language[]}
+                availableLanguages={availableLanguages}
             />
         </SectionWrapper>
     );

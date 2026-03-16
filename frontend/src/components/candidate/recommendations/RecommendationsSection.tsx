@@ -67,7 +67,7 @@ export const RecommendationsSection = ({ userId, userName, isOwner }: Recommenda
                             <Skeleton key={i} className="h-40 w-full rounded-2xl" />
                         ))}
                     </div>
-                ) : !data || data.results.length === 0 ? (
+                ) : !data || data.recommendations.length === 0 ? (
                     <div className="text-center py-10 px-4 rounded-2xl border border-dashed border-border/60 bg-muted/20">
                         <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
                             <Star className="w-6 h-6" />
@@ -86,7 +86,7 @@ export const RecommendationsSection = ({ userId, userName, isOwner }: Recommenda
                     </div>
                 ) : (
                     <div className="grid gap-4">
-                        {data.results.map((rec) => (
+                        {data.recommendations.map((rec) => (
                             <RecommendationItem
                                 key={rec.id}
                                 recommendation={rec}

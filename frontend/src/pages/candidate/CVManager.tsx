@@ -31,7 +31,7 @@ export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
 
 export default function CVManager() {
     const { user } = useUserStore();
-    const recruiterId = user?.id;
+    const recruiterId = user?.recruiter_id;
     const queryClient = useQueryClient();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [showNewDialog, setShowNewDialog] = useState(false);

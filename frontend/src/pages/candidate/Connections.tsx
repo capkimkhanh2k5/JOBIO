@@ -20,8 +20,9 @@ export default function Connections() {
 
     // Fetch My Connections (Accepted)
     const { data: connectionsData, isLoading: isConnectionsLoading } = useQuery({
-        queryKey: ['connections', 'accepted'],
-        queryFn: () => api.get('/api/connections/').then(r => r.data),
+        queryKey: ['connections', 'accepted', user?.recruiter_id],
+        queryFn: () => api.get(`/api/recruiters/${user?.recruiter_id}/connections/`).then(r => r.data),
+        enabled: !!user?.recruiter_id,
     });
 
     // Fetch Pending Requests
@@ -39,7 +40,7 @@ export default function Connections() {
         queryFn: () => api.get('/api/connections/suggestions/', { params: { limit: 12 } }).then(r => r.data.suggestions),
     });
 
-    const connectionsCount = connectionsData?.count || 0;
+    const connectionsCount = connectionsData?.counts?.total || 0;
     const pendingCount = pendingData?.count || 0;
 
     return (
@@ -78,7 +79,7 @@ export default function Connections() {
                                     <div className="space-y-4">
                                         {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)}
                                     </div>
-                                ) : connectionsData?.results?.length === 0 ? (
+                                ) : connectionsData?.connections?.length === 0 ? (
                                     <EmptyState
                                         icon={<Users className="w-12 h-12 text-slate-300" />}
                                         title="Chưa có kết nối nào"
@@ -87,11 +88,11 @@ export default function Connections() {
                                     />
                                 ) : (
                                     <div className="space-y-4">
-                                        {connectionsData?.results.map((connection: any) => (
+                                        {connectionsData?.connections?.map((connection: any) => (
                                             <ConnectionCard
                                                 key={connection.id}
                                                 connection={connection}
-                                                currentUserId={user?.id ?? 0}
+                                                currentUserId={user?.recruiter_id ?? 0}
                                             />
                                         ))}
                                     </div>

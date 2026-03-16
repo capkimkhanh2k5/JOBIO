@@ -215,6 +215,42 @@ class ApplicationViewSet(viewsets.GenericViewSet):
     """
     permission_classes = [IsAuthenticated]
     
+    def list(self, request):
+        """
+            GET /api/applications/
+            Danh sách đơn ứng tuyển của user
+        """
+        user = request.user
+        
+        # Nếu là ứng viên: Lấy các ứng tuyển của chính họ
+        if hasattr(user, 'role') and user.role == 'candidate':
+            recruiter = get_recruiter_by_user(user)
+            if not recruiter:
+                return Response([])
+            queryset = Application.objects.filter(recruiter=recruiter)
+        # Nếu là nhà tuyển dụng: Lấy các ứng tuyển vào các job của họ
+        elif hasattr(user, 'role') and user.role == 'company':
+            queryset = Application.objects.filter(job__company__user=user)
+        else:
+            queryset = Application.objects.none()
+
+        # Áp dụng filters từ query params nếu cần
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+            
+        ordering = request.query_params.get('ordering', '-applied_at')
+        queryset = queryset.order_by(ordering)
+        
+        # Pagination
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = ApplicationListSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ApplicationListSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
     def _is_applicant(self, request, application):
         """
             Kiểm tra nếu user là người nộp đơn
