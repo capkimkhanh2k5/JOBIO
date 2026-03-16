@@ -16,6 +16,7 @@ import {
 } from '../ui/dropdown-menu';
 import { toast } from 'sonner';
 import { NotificationBell } from '../shared/notifications/NotificationBell';
+import { Logo } from '@/components/shared/Logo';
 
 interface NavItem {
     name: string;
@@ -88,9 +89,11 @@ export const Header = () => {
             <div className="w-full max-w-[1600px] mx-auto px-6">
                 <div className={`flex items-center justify-between px-10 h-20 rounded-[32px] transition-all duration-700 ${isScrolled ? 'glass-effect shadow-2xl scale-[1.02]' : 'bg-transparent border-transparent'}`}>
                     <div className="flex items-center gap-16">
-                        <Link to="/" className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter hover:opacity-80 transition-opacity">
-                            JOBIO
-                        </Link>
+                        <Logo
+                            className="mr-2"
+                            imageClassName="h-16 w-auto object-contain drop-shadow-md"
+                            textClassName="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                        />
 
                         <nav className="hidden lg:flex items-center gap-10">
                             {NAV_ITEMS.map((item) => {

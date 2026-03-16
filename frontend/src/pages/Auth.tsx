@@ -7,6 +7,7 @@ import { ResetPasswordForm } from '../components/auth/ResetPasswordForm';
 import { VerifyEmailView } from '../components/auth/VerifyEmailView';
 import { TwoFactorView } from '../components/auth/TwoFactorView';
 import { useSearchParams } from 'react-router-dom';
+import { Logo } from '@/components/shared/Logo';
 
 type AuthView = 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-email' | '2fa';
 
@@ -105,8 +106,14 @@ const Auth: React.FC = () => {
                     style={{ background: 'radial-gradient(ellipse 60% 55% at 50% 45%, rgba(255,255,255,0.4) 0%, transparent 100%)' }}
                 />
 
-                {/* Empty top to push content down since Logo is removed */}
-                <div className="relative z-10 flex items-center h-8"></div>
+                {/* Top Logo */}
+                <div className="relative z-10 flex items-center h-8">
+                    <Logo
+                        to="/"
+                        imageClassName="h-16 w-auto object-contain drop-shadow"
+                        textClassName="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                    />
+                </div>
 
                 {/* Main Content middle */}
                 <div className="relative z-10 max-w-lg mb-20 animate-in fade-in slide-in-from-bottom-8 duration-1000">

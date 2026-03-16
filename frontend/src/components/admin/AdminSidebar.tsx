@@ -4,6 +4,7 @@ import {
     LayoutDashboard, Users, FileText,
     Mail, Settings, Shield
 } from 'lucide-react';
+import { Logo } from '@/components/shared/Logo';
 
 interface NavItem {
     label: string;
@@ -36,6 +37,13 @@ export function AdminSidebar() {
             aria-label="Admin Navigation"
         >
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
+                <div className="px-6 mb-4">
+                    <Logo
+                        to="/admin/dashboard"
+                        imageClassName="h-10 w-auto object-contain drop-shadow"
+                        textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                    />
+                </div>
                 <div className="px-3 mb-2">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3">Admin Panel</p>
                 </div>

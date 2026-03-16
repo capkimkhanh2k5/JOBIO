@@ -15,6 +15,7 @@ import { authService } from '@/services/authService';
 import { employerService } from '@/services/employerService';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
+import { Logo } from '@/components/shared/Logo';
 
 // Removed relativeTime and notifIcon as they are no longer used here.
 
@@ -46,14 +47,12 @@ export function EmployerTopNav() {
     return (
         <header className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5 bg-white/3 backdrop-blur-xl z-30">
             {/* Logo */}
-            <Link
+            <Logo
                 to="/"
-                className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tighter hover:opacity-80 transition-opacity"
-                aria-label="JOBIO – Về trang chủ"
-            >
-                JOBIO
-                <span className="ml-2 text-xs font-bold text-indigo-600 uppercase tracking-widest align-middle">Employer</span>
-            </Link>
+                className=""
+                imageClassName="h-12 w-auto object-contain drop-shadow"
+                textClassName="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tighter"
+            />
 
             {/* Right actions */}
             <div className="flex items-center gap-3">
