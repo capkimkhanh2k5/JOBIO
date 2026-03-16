@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Linkedin, Github } from 'lucide-react';
 
+import { Logo } from '@/components/shared/Logo';
+
 const footerNav = [
     {
         title: 'Ứng Viên',
@@ -45,7 +47,12 @@ export const Footer = () => (
                 {/* Brand column */}
                 <div className="lg:col-span-2 space-y-5">
                     <div className="text-2xl font-black tracking-tight">
-                        <span className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">JOBIO</span>
+                        <Logo
+                            to="/"
+                            className=""
+                            imageClassName="h-14 w-auto object-contain drop-shadow"
+                            textClassName="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent"
+                        />
                     </div>
                     <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                         Nền tảng tuyển dụng hàng đầu Việt Nam — kết nối ứng viên tài năng với doanh nghiệp hàng đầu mỗi ngày.
