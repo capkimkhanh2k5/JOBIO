@@ -66,7 +66,11 @@ export const CVSearchFiltersPanel = () => {
         if (key === 'q') return acc;
         const val = filters[key as keyof Filters];
         if (Array.isArray(val) && val.length > 0) return acc + 1;
-        if (typeof val === 'number' && val > 0) return acc + 1;
+        if (typeof val === 'number') {
+            if (key === 'salary_max' && val >= 100000000) return acc;
+            if (val > 0) return acc + 1;
+            return acc;
+        }
         if (typeof val === 'string' && val !== 'all' && val !== '') return acc + 1;
         if (typeof val === 'boolean' && val === true) return acc + 1;
         return acc;
@@ -240,22 +244,27 @@ export const CVSearchFiltersPanel = () => {
                 {/* Salary */}
                 <div className="space-y-4">
                     <button onClick={() => toggleSection('salary')} className="w-full flex justify-between items-center group font-semibold text-sm text-foreground/80 hover:text-foreground transition-colors">
-                        <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Mức lương mong đợi (USD)</span>
+                        <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Mức lương mong đợi (VNĐ)</span>
                         {sections.salary ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>
                     {sections.salary && (
                         <div className="px-2 pt-2 space-y-4 pb-4">
                             <Slider
                                 value={[filters.salary_max]}
-                                max={10000}
-                                step={500}
+                                max={100000000}
+                                step={1000000}
                                 onValueChange={(val) => updateCVSearchFilter({ salary_max: val[0] })}
                                 className="[&>span:first-child]:h-1.5 [&>span:first-child]:bg-secondary [&_[role=slider]]:h-4 [&_[role=slider]]:w-4 [&_[role=slider]]:border-primary [&_[role=slider]]:hover:scale-110 [&_[role=slider]]:transition-transform"
                             />
                             <div className="flex justify-between text-xs font-medium text-muted-foreground">
                                 <span>Bất kỳ</span>
-                                <span className="text-primary font-bold">≤ ${filters.salary_max}</span>
-                                <span>$10,000+</span>
+                                <span className="text-primary font-bold">
+                                    {filters.salary_max >= 100000000 
+                                        ? "Bất kỳ" 
+                                        : `≤ ${filters.salary_max >= 1000000 ? `${filters.salary_max / 1000000} triệu` : `${filters.salary_max.toLocaleString()}đ`}`
+                                    }
+                                </span>
+                                <span>100tr+</span>
                             </div>
                         </div>
                     )}

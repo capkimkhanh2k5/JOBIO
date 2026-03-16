@@ -67,7 +67,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         recruiter = get_recruiter_by_id(pk)
         if not recruiter:
             return Response({"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND)
-        return Response(RecruiterSerializer(recruiter).data)
+        
+        from .serializers import RecruiterDetailSerializer
+        return Response(RecruiterDetailSerializer(recruiter).data)
 
     def update(self, request, pk=None):
         """
@@ -126,7 +128,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 recruiter = Recruiter.objects.create(user=request.user)
             else:
                 return Response({"detail": "You don't have a recruiter profile"}, status=status.HTTP_404_NOT_FOUND)
-        return Response(RecruiterSerializer(recruiter).data)
+        
+        from .serializers import RecruiterDetailSerializer
+        return Response(RecruiterDetailSerializer(recruiter).data)
 
     @action(detail=True, methods=['patch'], url_path='job-search-status')
     def update_status(self, request, pk=None):

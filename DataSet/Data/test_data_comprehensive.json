@@ -155,23 +155,27 @@
   "cv_search_results": [
     {
       "id": 5,
-      "full_name": "Nguyễn Văn A",
+      "full_name": "Nguyên Văn A",
       "position": "Senior Frontend Developer",
       "experience_years": 5,
       "skills": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
       "address": "Quận 1, TP. Hồ Chí Minh",
       "avatar_url": null,
-      "score": 92
+      "score": 92,
+      "desired_salary_min": 15000000,
+      "desired_salary_max": 25000000
     },
     {
       "id": 8,
-      "full_name": "Trần Thị B",
+      "full_name": "Tràn Thị B",
       "position": "Backend Engineer",
       "experience_years": 3,
       "skills": ["Python", "Django", "PostgreSQL", "Docker"],
-      "address": "Cầu Giấy, Hà Nội",
+      "address": "Càu Giáy, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=B",
-      "score": 88
+      "score": 88,
+      "desired_salary_min": 12000000,
+      "desired_salary_max": 20000000
     },
     {
       "id": 12,
@@ -181,7 +185,9 @@
       "skills": ["Figma", "UI/UX", "Prototyping"],
       "address": "Liên Chiểu, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Mai",
-      "score": 95
+      "score": 95,
+      "desired_salary_min": 10000000,
+      "desired_salary_max": 18000000
     },
     {
       "id": 20,
@@ -191,7 +197,9 @@
       "skills": ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
       "address": "Thủ Đức, TP. Hồ Chí Minh",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Tam",
-      "score": 88
+      "score": 88,
+      "desired_salary_min": 20000000,
+      "desired_salary_max": 35000000
     },
     {
       "id": 25,
@@ -201,7 +209,9 @@
       "skills": ["Machine Learning", "Python", "R", "SQL", "Pandas"],
       "address": "Bình Thạnh, TP. Hồ Chí Minh",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Dang",
-      "score": 90
+      "score": 90,
+      "desired_salary_min": 25000000,
+      "desired_salary_max": 45000000
     },
     {
       "id": 32,
@@ -211,7 +221,9 @@
       "skills": ["Flutter", "Dart", "Firebase", "Git"],
       "address": "Thanh Xuân, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan",
-      "score": 82
+      "score": 82,
+      "desired_salary_min": 14000000,
+      "desired_salary_max": 22000000
     },
     {
       "id": 41,
@@ -221,7 +233,9 @@
       "skills": ["Selenium", "Java", "TestNG", "Jenkins"],
       "address": "Hải Châu, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Thu",
-      "score": 87
+      "score": 87,
+      "desired_salary_min": 18000000,
+      "desired_salary_max": 30000000
     },
     {
       "id": 56,
@@ -231,7 +245,9 @@
       "skills": ["Agile", "Scrum", "Jira", "Leadership", "Communication"],
       "address": "Hoàn Kiếm, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Huan",
-      "score": 91
+      "score": 91,
+      "desired_salary_min": 30000000,
+      "desired_salary_max": 50000000
     },
     {
       "id": 62,
@@ -241,7 +257,9 @@
       "skills": ["Deep Learning", "PyTorch", "TensorFlow", "NLP", "Computer Vision"],
       "address": "Sơn Trà, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Chau",
-      "score": 98
+      "score": 98,
+      "desired_salary_min": 40000000,
+      "desired_salary_max": 70000000
     }
   ],
   "referral_programs": [
