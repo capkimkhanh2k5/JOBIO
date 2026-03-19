@@ -7,7 +7,6 @@ import { KpiCard } from '@/components/employer/KpiCard';
 import { ApplicationsChart } from '@/components/employer/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/employer/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/employer/UpcomingInterviewsCard';
-import { TopMatchesWidget } from '@/components/dashboard/TopMatchesWidget';
 import { useUserStore } from '@/store/userStore';
 import { employerService } from '@/services/employerService';
 import { billingService } from '@/services/billingService';
@@ -189,15 +188,12 @@ export default function EmployerDashboard() {
                     <UpcomingInterviewsCard />
                 </motion.div>
 
-                <motion.div {...fadeUp(0.3)} className="xl:col-span-1 space-y-6 flex flex-col h-full">
+                <motion.div {...fadeUp(0.3)} className="xl:col-span-1 flex flex-col h-full">
                     {currentSubscription && (
                         <div className="shrink-0 flex-none">
                             <SubscriptionStatus subscription={currentSubscription} />
                         </div>
                     )}
-                    <div className="flex-1 min-h-0">
-                        <TopMatchesWidget />
-                    </div>
                 </motion.div>
             </div>
 

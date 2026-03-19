@@ -125,7 +125,6 @@ export default function CandidateDashboard() {
                                 { title: "Việc đã ứng tuyển", value: stats?.applied_jobs_count, icon: <Briefcase className="w-5 h-5 text-violet-500" />, loading: loadingStats },
                                 { title: "Phỏng vấn sắp tới", value: stats?.upcoming_interviews_count, icon: <CalendarClock className="w-5 h-5 text-amber-500" />, loading: loadingStats },
                                 { title: "Lượt xem hồ sơ", value: stats?.profile_views_count, icon: <Eye className="w-5 h-5 text-cyan-500" />, loading: loadingStats },
-                                { title: "Việc làm phù hợp", value: stats?.matching_jobs_count, icon: <Star className="w-5 h-5 text-yellow-500" />, loading: loadingStats },
                             ].map((stat, i) => (
                                 <motion.div key={i} variants={itemVariants}>
                                     <Card className="p-4 bg-white border border-slate-200 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-2xl">
@@ -292,7 +291,7 @@ export default function CandidateDashboard() {
                                         </div>
                                         <h3 className="font-bold text-lg">AI Đề xuất</h3>
                                     </div>
-                                    <Link to="/jobs?matching=true" className="p-1 text-muted-foreground hover:text-cyan-400 transition-colors">
+                                    <Link to="/jobs" className="p-1 text-muted-foreground hover:text-cyan-400 transition-colors">
                                         <ArrowUpRight className="w-4 h-4" />
                                     </Link>
                                 </div>
@@ -322,8 +321,8 @@ export default function CandidateDashboard() {
                                         ))
                                     )}
                                 </div>
-                                <Button variant="ghost" className="w-full mt-3 text-sm text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50" onClick={() => navigate('/jobs?matching=true')}>
-                                    Xem thêm {stats?.matching_jobs_count ?? ''} việc làm
+                                <Button variant="ghost" className="w-full mt-3 text-sm text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50" onClick={() => navigate('/jobs')}>
+                                    Xem thêm việc làm
                                 </Button>
                             </Card>
                         </motion.div>

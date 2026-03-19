@@ -9,7 +9,7 @@ from .serializers import (
     RecruiterSerializer, RecruiterCreateSerializer, RecruiterUpdateSerializer, 
     JobSearchStatusSerializer, ProfileCompletenessSerializer, RecruiterAvatarSerializer,
     RecruiterPublicProfileSerializer, RecruiterPrivacySerializer, RecruiterStatsSerializer,
-    MatchingJobSerializer, RecruiterApplicationSerializer, SavedJobSerializer
+    RecruiterApplicationSerializer, SavedJobSerializer
 )
 from .services.recruiters import (
     create_recruiter_service, update_recruiter_service,
@@ -19,7 +19,7 @@ from .services.recruiters import (
 )
 from .selectors.recruiters import (
     get_recruiter_by_id, get_recruiter_stats, search_recruiters,
-    get_matching_jobs, get_recruiter_applications, get_saved_jobs
+    get_recruiter_applications, get_saved_jobs
 )
 
 
@@ -252,20 +252,6 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         recruiters = search_recruiters(request.query_params)
         return Response(RecruiterSerializer(recruiters, many=True).data)
 
-    @action(detail=True, methods=['get'], url_path='matching-jobs')
-    def matching_jobs(self, request, pk=None):
-        """
-        GET /api/recruiters/:id/matching-jobs - Lấy các công việc phù hợp
-        """
-        recruiter = get_recruiter_by_id(pk)
-        if not recruiter:
-            return Response({"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND)
-        
-        if recruiter.user != request.user:
-             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-        
-        jobs = get_matching_jobs(recruiter)
-        return Response(MatchingJobSerializer(jobs, many=True).data)
 
     @action(detail=True, methods=['get'], url_path='applications')
     def applications(self, request, pk=None):

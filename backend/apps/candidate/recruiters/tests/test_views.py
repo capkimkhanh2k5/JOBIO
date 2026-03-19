@@ -295,21 +295,6 @@ class RecruiterViewTest(APITestCase):
         response = self.client.post(url, {"phone": "0123456789"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_matching_jobs(self):
-        """Test GET /api/recruiters/:id/matching-jobs"""
-        recruiter = Recruiter.objects.create(user=self.user)
-        url = f'/api/recruiters/{recruiter.id}/matching-jobs/'
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, list)
-
-    def test_matching_jobs_not_owner(self):
-        """Only owner can view matching jobs"""
-        recruiter2 = Recruiter.objects.create(user=self.user2)
-        url = f'/api/recruiters/{recruiter2.id}/matching-jobs/'
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_applications(self):
         """Test GET /api/recruiters/:id/applications"""

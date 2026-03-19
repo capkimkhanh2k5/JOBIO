@@ -3,7 +3,6 @@ from .models import Application
 
 from apps.recruitment.jobs.models import Job
 from apps.candidate.recruiter_cvs.models import RecruiterCV
-from apps.assessment.ai_matching_scores.models import AIMatchingScore
 from apps.candidate.recruiter_skills.models import RecruiterSkill
 
 class ApplicationListSerializer(serializers.ModelSerializer):
@@ -33,13 +32,7 @@ class ApplicationListSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'applied_at', 'updated_at']
 
     def get_ai_score(self, obj):
-        try:
-            score_obj = AIMatchingScore.objects.filter(job=obj.job, recruiter=obj.recruiter).first()
-            if score_obj:
-                return int(score_obj.overall_score)
-            return 0
-        except Exception:
-            return 0
+        return 0
 
     def get_skills(self, obj):
         try:
@@ -79,13 +72,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'applied_at', 'updated_at']
 
     def get_ai_score(self, obj):
-        try:
-            score_obj = AIMatchingScore.objects.filter(job=obj.job, recruiter=obj.recruiter).first()
-            if score_obj:
-                return int(score_obj.overall_score)
-            return 0
-        except Exception:
-            return 0
+        return 0
 
     def get_skills(self, obj):
         try:
