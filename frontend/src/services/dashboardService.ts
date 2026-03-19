@@ -6,7 +6,6 @@ import type {
   BlogPost,
   BlogCategory,
   BlogTag,
-  MatchingScore,
   Review,
   FileUpload,
 } from '@/types/api';
@@ -46,16 +45,6 @@ export const dashboardService = {
 
   listBlogTags() {
     return api.get<BlogTag[]>('/api/blog/tags/');
-  },
-
-  // ─── AI Matching ──────────────────────────────────────────────────────
-
-  listMatchingScores(params?: { job_id?: number; recruiter_id?: number; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<MatchingScore>>('/api/matching-scores/', { params });
-  },
-
-  calculateMatch(jobId: number, recruiterId: number) {
-    return api.post<MatchingScore>('/api/matching-scores/calculate/', { job_id: jobId, recruiter_id: recruiterId });
   },
 
   // ─── Reviews (write) ─────────────────────────────────────────────────

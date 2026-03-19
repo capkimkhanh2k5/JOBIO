@@ -136,11 +136,6 @@ class RecruiterSearchFilterSerializer(serializers.Serializer):
     min_experience = serializers.IntegerField()
     job_status = serializers.CharField()
 
-class MatchingJobSerializer(serializers.Serializer):
-    job_id = serializers.IntegerField()
-    job_title = serializers.CharField()
-    company_name = serializers.CharField()
-    match_score = serializers.IntegerField()
 
 class RecruiterApplicationSerializer(serializers.Serializer):
     """Placeholder cho danh sách đơn ứng tuyển"""

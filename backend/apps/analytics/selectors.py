@@ -6,7 +6,6 @@ from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
 from apps.recruitment.interviews.models import Interview
 from apps.billing.models import Transaction, CompanySubscription
-from apps.assessment.ai_matching_scores.models import AIMatchingScore
 
 class DashboardSelector:
     @staticmethod
@@ -107,10 +106,7 @@ class DashboardSelector:
 
         profile_views_count = getattr(recruiter, 'profile_views_count', 0) or 0
 
-        matching_jobs_count = AIMatchingScore.objects.filter(
-            recruiter=recruiter,
-            is_valid=True
-        ).count()
+        matching_jobs_count = 0
 
         return {
             'applied_jobs_count': applied_jobs_count,

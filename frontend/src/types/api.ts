@@ -1050,26 +1050,6 @@ export interface CompanyStats {
   upcoming_interviews_delta?: number;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// AI Matching
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface MatchingScore {
-  id: number;
-  job: { id: number; title: string; slug: string; company_name: string };
-  recruiter: { id: number; full_name: string; avatar_url: string | null };
-  overall_score: number;
-  skill_match_score: number;
-  experience_match_score: number;
-  education_match_score: number;
-  location_match_score: number;
-  salary_match_score: number;
-  match_status: string;
-  breakdown: any;
-  ai_insights?: any;
-  calculated_at: string;
-  is_valid: boolean;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Blog

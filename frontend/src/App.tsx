@@ -48,7 +48,6 @@ import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 import EmployerReferrals from '@/pages/employer/Referrals';
-import JobMatching from '@/pages/employer/JobMatching';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -61,7 +60,6 @@ import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
-import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
 import SearchHistory from '@/pages/candidate/SearchHistory';
 
 // Admin area
@@ -157,7 +155,6 @@ export default function App() {
                             {/* Legacy route redirects */}
                             <Route path="post-job" element={<Navigate to="/employer/jobs/create" replace />} />
                             <Route path="manage-jobs" element={<Navigate to="/employer/jobs" replace />} />
-                            <Route path="jobs/:id/matching" element={<JobMatching />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<EmployerCVSearch />} />
@@ -193,7 +190,6 @@ export default function App() {
                                     <Routes>
                                         <Route path="/" element={<Home />} />
                                         <Route path="/jobs" element={<Jobs />} />
-                                        <Route path="/jobs/matching" element={<ProtectedRoute><MatchingJobsPage /></ProtectedRoute>} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
