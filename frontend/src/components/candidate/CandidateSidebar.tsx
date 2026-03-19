@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
     Bell, CheckSquare, MessageSquare, CalendarClock, Users, Settings, Star,
-    BrainCircuit, Globe
+    BrainCircuit
 } from 'lucide-react';
-import { useUserStore } from '@/store/userStore';
 
 interface NavItem {
     label: string;
@@ -20,12 +19,9 @@ const itemVariants = {
 };
 
 export function CandidateSidebar() {
-    const { user } = useUserStore();
-
     const navItems: NavItem[] = [
         { label: 'Dashboard', path: '/candidate/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { label: 'Chỉnh sửa hồ sơ', path: '/candidate/profile', icon: <UserCircle className="w-5 h-5" /> },
-        { label: 'Hồ sơ công khai', path: user?.recruiter_id ? `/profile/${user.recruiter_id}` : '/candidate/profile', icon: <Globe className="w-5 h-5" /> },
         { label: 'Quản lý CV', path: '/candidate/cv', icon: <FileText className="w-5 h-5" /> },
         { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
