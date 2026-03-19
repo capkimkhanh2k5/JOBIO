@@ -5,7 +5,6 @@ from django.db import transaction
 from apps.candidate.recruiters.models import Recruiter
 from apps.company.companies.models import Company
 from apps.geography.addresses.models import Address
-from apps.candidate.recruiters.services.ai_evaluation import ProfileEvaluator
     
 
 class RecruiterInput(BaseModel):
@@ -222,25 +221,9 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     # Cap at 100
     final_score = min(score, 100)
     
-    # AI Evaluation Integration (optional, only if basic score > 30%)
-    ai_score = 0
-
-    try:
-        if final_score > 30:
-            ai_result = ProfileEvaluator.evaluate(recruiter)
-            if ai_result:
-                recruiter.ai_assessment_result = ai_result
-                ai_score = ai_result.get('score', 0)
-    except Exception as e:
-        print(f"AI Eval failed: {e}")
-    
-    # Hybrid Formula: 70% Hard + 30% AI (if available)
-    if recruiter.ai_assessment_result and ai_score > 0:
-        final_score = int((final_score * 0.7) + (ai_score * 0.3))
-    
     # Update DB
     recruiter.profile_completeness_score = final_score
-    recruiter.save(update_fields=['profile_completeness_score', 'ai_assessment_result'])
+    recruiter.save(update_fields=['profile_completeness_score'])
     
     # Create checklist for frontend
     checklist = [
@@ -254,12 +237,9 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
 
     return {
         'score': final_score,
-        'hard_score': min(score, 100),
-        'ai_score': int(ai_score),
         'missing_fields': missing_fields,
         'checklist': checklist,
         'details': details,
-        'ai_result': getattr(recruiter, 'ai_assessment_result', {})
     }
 
 def upload_recruiter_avatar_service(recruiter: Recruiter, file_data: dict) -> Recruiter:

@@ -4,12 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { jobService } from '@/services/jobService';
 import { companyService } from '@/services/companyService';
-import api from '@/services/api';
 import { JobDetailHeader } from '@/components/jobs/JobDetailHeader';
 import { JobDetailContent } from '@/components/jobs/JobDetailContent';
 import { JobSkillsList } from '@/components/jobs/JobSkillsList';
 import { CompanySidebar } from '@/components/companies/CompanySidebar';
-import { RequiredTestsSection } from '@/components/jobs/RequiredTestsSection';
 import { ApplyForm } from '@/components/jobs/ApplyForm';
 import { JobCard } from '@/components/jobs/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,13 +43,6 @@ export default function JobDetailPage() {
     const { data: locations } = useQuery({
         queryKey: ['job-locations', id],
         queryFn: () => jobService.listLocations(Number(id)).then(r => r.data),
-        enabled: !!job
-    });
-
-    // Fetch Required Tests
-    const { data: tests } = useQuery({
-        queryKey: ['job-tests', id],
-        queryFn: () => api.get(`/api/jobs/${id}/required-tests/`).then(r => r.data),
         enabled: !!job
     });
 
@@ -161,8 +152,6 @@ export default function JobDetailPage() {
                                 </div>
                             </motion.div>
                         )}
-
-                        {tests && tests.length > 0 && <RequiredTestsSection tests={tests} />}
 
                         {/* Related Jobs Section */}
                         <div className="mt-4">

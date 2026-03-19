@@ -62,9 +62,6 @@ import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
 import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
-import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
-import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
-import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
 import SearchHistory from '@/pages/candidate/SearchHistory';
 
 // Admin area
@@ -200,9 +197,6 @@ export default function App() {
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
-                                        <Route path="/assessment-tests" element={<TestCatalogue />} />
-                                        <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
-                                        <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
                                         <Route path="/profile/:id" element={<PublicProfile />} />
                                         <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
                                         {/* Profile is now under /candidate/profile */}

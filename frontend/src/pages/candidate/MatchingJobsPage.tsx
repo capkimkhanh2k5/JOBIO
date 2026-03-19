@@ -105,13 +105,10 @@ export default function MatchingJobsPage() {
                     </div>
                     <h2 className="text-3xl font-black italic text-slate-900">Muốn điểm số cao hơn?</h2>
                     <p className="text-slate-600 text-lg mx-auto">
-                        Profile của bạn đang ở mức hoàn thiện 75%. Hãy hoàn thành các bài test kỹ năng để chúng tôi chứng thực khả năng của bạn với nhà tuyển dụng.
+                        Hãy hoàn thiện hồ sơ của bạn để hệ thống AI có thể gợi ý chính xác hơn những công việc phù hợp nhất.
                     </p>
                     <div className="flex justify-center gap-4">
                         <Button size="lg" asChild className="bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl px-8 h-14 shadow-xl shadow-violet-500/20 cursor-pointer">
-                            <Link to="/assessment-tests">Làm Skill Test ngay</Link>
-                        </Button>
-                        <Button size="lg" variant="outline" asChild className="rounded-2xl border-slate-200 bg-white px-8 h-14 hover:bg-slate-50 cursor-pointer">
                             <Link to="/candidate/profile">Chỉnh sửa Profile</Link>
                         </Button>
                     </div>

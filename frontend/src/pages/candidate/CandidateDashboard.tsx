@@ -5,6 +5,8 @@ import {
     ChevronRight, ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { formatDistanceToNow, format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { savedJobService } from '@/services/savedJobService';
@@ -43,6 +45,19 @@ export default function CandidateDashboard() {
         queryKey: ['candidate', 'applications', 'recent'],
         queryFn: () => applicationService.list({ ordering: '-applied_at', page_size: 5 }).then(r => r.data.results),
     });
+
+    const { data: allApplications } = useQuery({
+        queryKey: ['candidate', 'applications', 'all'],
+        queryFn: () => applicationService.list({ page_size: 100 }).then(r => r.data.results),
+    });
+
+    // Thống kê dựa trên danh sách lớn nhất
+    const appStats = {
+        total: stats?.applied_jobs_count || 1,
+        reviewing: allApplications?.filter((a: any) => ['reviewing', 'shortlisted'].includes(a.status)).length || 0,
+        interview: allApplications?.filter((a: any) => a.status === 'interview').length || 0,
+        offered: allApplications?.filter((a: any) => ['offered', 'hired'].includes(a.status)).length || 0,
+    };
 
     const { data: savedJobs, isLoading: loadingSaved } = useQuery({
         queryKey: ['candidate', 'saved-jobs', 'preview'],
@@ -210,10 +225,10 @@ export default function CandidateDashboard() {
                                 <div className="p-5 p-0">
                                     <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 overflow-x-auto p-4 border-b border-slate-100">
                                         {[
-                                            { label: 'Đã gửi (12)', value: 12, col: 'bg-slate-500' },
-                                            { label: 'Đang xem xét (4)', value: 4, col: 'bg-blue-500' },
-                                            { label: 'Phỏng vấn (2)', value: 2, col: 'bg-amber-500' },
-                                            { label: 'Trúng tuyển (1)', value: 1, col: 'bg-emerald-500' },
+                                            { label: `Đã gửi (${stats?.applied_jobs_count || 0})`, value: stats?.applied_jobs_count || 0, col: 'bg-slate-500' },
+                                            { label: `Đang xem xét (${appStats.reviewing})`, value: appStats.reviewing, col: 'bg-blue-500' },
+                                            { label: `Phỏng vấn (${appStats.interview})`, value: appStats.interview, col: 'bg-amber-500' },
+                                            { label: `Trúng tuyển (${appStats.offered})`, value: appStats.offered, col: 'bg-emerald-500' },
                                         ].map(s => (
                                             <div key={s.label} className="flex-1 px-4 py-2 flex flex-col items-center">
                                                 <div className="flex items-center gap-2 mb-2">
@@ -221,7 +236,7 @@ export default function CandidateDashboard() {
                                                     <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{s.label}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                                    <div className={`h-full ${s.col}`} style={{ width: `${(s.value / 12) * 100}%` }} />
+                                                    <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(stats?.applied_jobs_count || 1, 1)) * 100}%` }} />
                                                 </div>
                                             </div>
                                         ))}
@@ -250,7 +265,7 @@ export default function CandidateDashboard() {
                                                         }>
                                                             {app.status}
                                                         </Badge>
-                                                        <p className="text-[11px] text-muted-foreground mt-1 text-right">3 ngày trước</p>
+                                                        <p className="text-[11px] text-muted-foreground mt-1 text-right">{app.applied_at ? formatDistanceToNow(new Date(app.applied_at), { addSuffix: true, locale: vi }) : ''}</p>
                                                     </div>
                                                 </div>
                                             ))
@@ -328,14 +343,18 @@ export default function CandidateDashboard() {
                                         <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-inner">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <h4 className="font-bold text-amber-600 text-sm">Hôm nay, 14:00</h4>
-                                                    <p className="text-xs text-muted-foreground">{interviews[0].type === 'video' ? 'Online Interview' : 'Onsite Interview'}</p>
+                                                    <h4 className="font-bold text-amber-600 text-sm">
+                                                        {interviews[0].scheduled_at ? format(new Date(interviews[0].scheduled_at), 'dd/MM, HH:mm', { locale: vi }) : ''}
+                                                    </h4>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {interviews[0].interview_type?.name || (interviews[0].type === 'video' ? 'Online Interview' : 'Onsite Interview')}
+                                                    </p>
                                                 </div>
                                                 <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/20 border-amber-500/30">Sắp diễn ra</Badge>
                                             </div>
                                             <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                                <p className="font-medium text-sm">{interviews[0].job_title}</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Với TechCorp Inc.</p>
+                                                <p className="font-medium text-sm">{interviews[0].application?.job_title || interviews[0].job_title || 'Phỏng vấn'}</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Với {interviews[0].application?.recruiter_name || 'Nhà tuyển dụng'}</p>
                                             </div>
                                             {interviews[0].meeting_link && (
                                                 <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link as string, '_blank')}>
