@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
 import CandidateProfile from '@/pages/Profile';
+import PublicProfile from '@/pages/public/PublicProfile';
 import Jobs from '@/pages/Jobs';
 import Companies from '@/pages/Companies';
 import JobDetail from '@/pages/JobDetailPage';
@@ -202,6 +203,7 @@ export default function App() {
                                         <Route path="/assessment-tests" element={<TestCatalogue />} />
                                         <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
                                         <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
+                                        <Route path="/profile/:id" element={<PublicProfile />} />
                                         <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />
