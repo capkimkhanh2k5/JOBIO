@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { RecruiterDetail } from '@/types/api';
 import { User } from 'lucide-react';
 
 export const ProfileCover = ({ profile }: { profile: RecruiterDetail }) => {
     // Default Facebook-style cover and avatar background
     const defaultCoverBg = 'bg-[#F0F2F5]'; // Typical FB light gray
+    
+    const [imgError, setImgError] = useState(false);
 
 
     return (
@@ -17,8 +19,13 @@ export const ProfileCover = ({ profile }: { profile: RecruiterDetail }) => {
                     {/* Avatar */}
                     <div className="relative group">
                         <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white overflow-hidden bg-white shadow-xl relative z-10">
-                            {profile.user?.avatar_url ? (
-                                <img src={profile.user.avatar_url} alt={profile.user.full_name} className="w-full h-full object-cover" />
+                            {profile.user?.avatar_url && !imgError ? (
+                                <img 
+                                    src={profile.user.avatar_url} 
+                                    alt={profile.user.full_name} 
+                                    className="w-full h-full object-cover" 
+                                    onError={() => setImgError(true)}
+                                />
                             ) : (
                                 <div className="w-full h-full bg-[#E4E6EB] flex items-center justify-center text-[#BCC0C4]">
                                     <User className="w-20 h-20" fill="currentColor" strokeWidth={0} />
