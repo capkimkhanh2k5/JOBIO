@@ -96,12 +96,6 @@ INSTALLED_APPS = [
     'apps.candidate.cv_templates',
     'apps.candidate.cv_template_categories',
     'apps.candidate.recruiter_cvs',
-    # Assessment Domain (for AI Matching)
-    'apps.assessment.assessment_categories',
-    'apps.assessment.assessment_tests',
-    'apps.assessment.test_results',
-    'apps.assessment.ai_matching_scores',
-    'apps.assessment.job_assessment_requirements',
     'apps.email',
     'apps.communication.notifications',
     'apps.communication.notification_types',

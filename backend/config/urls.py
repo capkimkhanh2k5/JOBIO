@@ -103,11 +103,6 @@ urlpatterns = [
     path('api/communes/', include('apps.geography.communes.urls')),
     path('api/addresses/', include('apps.geography.addresses.urls')),
     
-    # Assessment Module 10-11: AI Matching, Tests, Results
-    path('api/', include('apps.assessment.ai_matching_scores.urls')),
-    path('api/assessment-tests/', include('apps.assessment.assessment_tests.urls')),
-    path('api/test-results/', include('apps.assessment.test_results.urls')),
-    
     # Reviews, Connections, Recommendations
     path('api/reviews/', include('apps.social.reviews.urls')),
     path('api/connections/', include('apps.social.recruiter_connections.urls')),

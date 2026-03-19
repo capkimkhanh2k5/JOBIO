@@ -17,13 +17,15 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     job_title = serializers.CharField(source='job.title', read_only=True)
     
     recruiter_avatar = serializers.URLField(source='recruiter.user.avatar_url', read_only=True)
+    company_name = serializers.CharField(source='job.company.company_name', read_only=True)
+    company_logo = serializers.URLField(source='job.company.logo_url', read_only=True)
     ai_score = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     
     class Meta:
         model = Application
         fields = [
-            'id', 'job_id', 'job_title',
+            'id', 'job_id', 'job_title', 'company_name', 'company_logo',
             'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar',
             'status', 'rating', 'ai_score', 'skills',
             'applied_at', 'updated_at'

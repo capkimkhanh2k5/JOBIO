@@ -6,8 +6,6 @@ import type {
   BlogPost,
   BlogCategory,
   BlogTag,
-  AssessmentTest,
-  TestResult,
   MatchingScore,
   Review,
   FileUpload,
@@ -48,32 +46,6 @@ export const dashboardService = {
 
   listBlogTags() {
     return api.get<BlogTag[]>('/api/blog/tags/');
-  },
-
-  // ─── Assessment & Tests ───────────────────────────────────────────────
-
-  listTests(params?: { test_type?: string; difficulty_level?: string; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<AssessmentTest>>('/api/assessment-tests/', { params });
-  },
-
-  getTest(id: number) {
-    return api.get<AssessmentTest>(`/api/assessment-tests/${id}/`);
-  },
-
-  startTest(testId: number) {
-    return api.post(`/api/assessment-tests/${testId}/start/`);
-  },
-
-  submitTest(testId: number, answers: Record<string, unknown>) {
-    return api.post<TestResult>(`/api/assessment-tests/${testId}/submit/`, { answers });
-  },
-
-  listTestResults(params?: { page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<TestResult>>('/api/test-results/', { params });
-  },
-
-  getTestResult(id: number) {
-    return api.get<TestResult>(`/api/test-results/${id}/`);
   },
 
   // ─── AI Matching ──────────────────────────────────────────────────────

@@ -14,7 +14,6 @@ export { taxonomyService } from './taxonomyService';
 export { employerService } from './employerService';
 export { dashboardService } from './dashboardService';
 export { notificationService } from './notificationService';
-export { assessmentService } from './assessmentService';
 export { matchingService } from './matchingService';
 export { billingService } from './billingService';
 
