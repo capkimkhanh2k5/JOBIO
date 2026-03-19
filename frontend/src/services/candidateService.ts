@@ -45,6 +45,10 @@ export const candidateService = {
       matching_jobs_count: number;
     }>('/api/dashboard/stats/candidate/');
   },
+  
+  getProfileCompleteness(id: number) {
+    return api.get<{ score: number; checklist: any[] }>(`/api/recruiters/${id}/profile-completeness/`);
+  },
 
   update(id: number, data: RecruiterUpdateRequest) {
     return api.patch<RecruiterDetail>(`/api/recruiters/${id}/`, data);
@@ -156,6 +160,12 @@ export const candidateService = {
 
   deleteProject(recruiterId: number, projId: number) {
     return api.delete(`/api/recruiters/${recruiterId}/projects/${projId}/`);
+  },
+
+  // ─── Interviews ────────────────────────────────────────────────────────
+
+  listInterviews(params?: { status?: string; application_id?: number; page?: number; page_size?: number }) {
+    return api.get<PaginatedResponse<any>>('/api/interviews/', { params });
   },
 };
 

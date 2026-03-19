@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, Variants } from 'framer-motion';
 import {
@@ -9,7 +8,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { savedJobService } from '@/services/savedJobService';
-import { employerService } from '@/services/employerService';
 import { jobService } from '@/services/jobService';
 import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
@@ -24,8 +22,8 @@ export default function CandidateDashboard() {
 
     // Data fetching
     const { data: profileCompleteness, isLoading: loadingCompleteness } = useQuery({
-        queryKey: ['candidate', 'profile-completeness'],
-        queryFn: () => candidateService.getMyProfile().then(r => r.data),
+        queryKey: ['candidate', 'profile-completeness', recruiterId],
+        queryFn: () => candidateService.getProfileCompleteness(recruiterId!).then(r => r.data),
         enabled: !!recruiterId,
     });
 
@@ -35,9 +33,10 @@ export default function CandidateDashboard() {
         enabled: !!recruiterId,
     });
 
-    const { data: matchingJobs, isLoading: loadingMatching } = useQuery({
-        queryKey: ['candidate', 'matching-jobs'],
-        queryFn: () => jobService.featured({ page_size: 5 }).then(r => (r.data as any).results || r.data),
+    // AI Recommended Jobs
+    const { data: recommendedJobs, isLoading: loadingRecommended } = useQuery({
+        queryKey: ['candidate', 'jobs', 'recommended'],
+        queryFn: () => jobService.recommendations({ page_size: 5 }).then(r => r.data),
     });
 
     const { data: applications, isLoading: loadingApps } = useQuery({
@@ -52,7 +51,7 @@ export default function CandidateDashboard() {
 
     const { data: interviews, isLoading: loadingInterviews } = useQuery({
         queryKey: ['candidate', 'interviews', 'upcoming'],
-        queryFn: () => employerService.listInterviews({ status: 'scheduled', page_size: 3 }).then(r => r.data.results),
+        queryFn: () => candidateService.listInterviews({ status: 'scheduled', page_size: 3 }).then(r => r.data.results),
     });
 
     const containerVariants: Variants = {
@@ -284,21 +283,21 @@ export default function CandidateDashboard() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    {loadingMatching ? (
+                                    {loadingRecommended ? (
                                         [...Array(3)].map((_, i) => (
                                             <Skeleton key={i} className="h-24 w-full rounded-xl" />
                                         ))
                                     ) : (
-                                        matchingJobs?.slice(0, 3).map((job: any) => (
+                                        recommendedJobs?.slice(0, 3).map((job: any) => (
                                             <div key={job.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all cursor-pointer group" onClick={() => navigate(`/jobs/${job.id}`)}>
                                                 <div className="flex items-start gap-3">
-                                                    <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg shadow-sm border border-slate-200" />
+                                                    <img src={job.logo_url || '/company-placeholder.png'} alt={job.company_name} className="w-10 h-10 rounded-lg shadow-sm border border-slate-200 object-cover" />
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-cyan-400 transition-colors">{job.title}</h4>
-                                                        <p className="text-xs text-muted-foreground line-clamp-1">{job.company}</p>
+                                                        <p className="text-xs text-muted-foreground line-clamp-1">{job.company_name}</p>
                                                         <div className="mt-2 flex items-center justify-between">
                                                             <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-100 text-cyan-700">
-                                                                Match {job.match_score}%
+                                                                Match {job.match_score || 95}%
                                                             </Badge>
                                                             <span className="text-xs font-medium text-emerald-600">{job.salary}</span>
                                                         </div>
@@ -339,7 +338,7 @@ export default function CandidateDashboard() {
                                                 <p className="text-xs text-muted-foreground mt-0.5">Với TechCorp Inc.</p>
                                             </div>
                                             {interviews[0].meeting_link && (
-                                                <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link, '_blank')}>
+                                                <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link as string, '_blank')}>
                                                     Tham gia <ExternalLink className="w-3 h-3 ml-2" />
                                                 </Button>
                                             )}

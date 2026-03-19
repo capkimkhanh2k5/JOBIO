@@ -63,6 +63,11 @@ export const jobService = {
     return api.get<JobListItem[]>(`/api/jobs/${id}/similar/`);
   },
 
+  /** AI Recommended jobs for candidate */
+  recommendations(params?: { page_size?: number }) {
+    return api.get<JobListItem[]>('/api/jobs/recommendations/', { params });
+  },
+
   // ─── Nested: Job Skills ───────────────────────────────────────────────
 
   listSkills(jobId: number) {
