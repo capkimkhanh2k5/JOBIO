@@ -19,7 +19,7 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
     return (
         <>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} layout>
-                <Card className="flex flex-col p-5 h-full hover:shadow-md transition-shadow duration-300 border-slate-200 bg-white/50 backdrop-blur-sm group items-center text-center relative overflow-hidden">
+                <Card className="flex flex-col p-5 h-full hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 border-white/40 bg-white/60 backdrop-blur-xl shadow-sm group items-center text-center relative overflow-hidden">
                     {/* Background decoration */}
                     <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-violet-50/80 to-transparent -z-10" />
 

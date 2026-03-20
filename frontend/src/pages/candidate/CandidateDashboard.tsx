@@ -86,7 +86,7 @@ export default function CandidateDashboard() {
     };
 
     return (
-        <div className="min-h-screen relative pb-12 w-full flex-1">
+        <div className="relative pb-12 w-full flex-1">
             {/* Background effects */}
             <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
@@ -122,23 +122,23 @@ export default function CandidateDashboard() {
                         {/* KPI Stats */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {[
-                                { title: "Việc đã ứng tuyển", value: stats?.applied_jobs_count, icon: <Briefcase className="w-5 h-5 text-violet-500" />, loading: loadingStats },
-                                { title: "Phỏng vấn sắp tới", value: stats?.upcoming_interviews_count, icon: <CalendarClock className="w-5 h-5 text-amber-500" />, loading: loadingStats },
-                                { title: "Lượt xem hồ sơ", value: stats?.profile_views_count, icon: <Eye className="w-5 h-5 text-cyan-500" />, loading: loadingStats },
+                                { title: "Việc đã ứng tuyển", value: stats?.applied_jobs_count, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats },
+                                { title: "Phỏng vấn sắp tới", value: stats?.upcoming_interviews_count, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats },
+                                { title: "Lượt xem hồ sơ", value: stats?.profile_views_count, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats },
                             ].map((stat, i) => (
                                 <motion.div key={i} variants={itemVariants}>
-                                    <Card className="p-4 bg-white border border-slate-200 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-2xl">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                                    <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-2xl hover:shadow-md">
+                                        <div className="flex flex-col gap-3">
+                                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} text-white flex items-center justify-center shadow-sm`}>
                                                 {stat.icon}
                                             </div>
                                             <div>
                                                 {stat.loading ? (
                                                     <Skeleton className="h-8 w-16 mb-1 rounded-md" />
                                                 ) : (
-                                                    <p className="text-3xl font-black text-foreground">{stat.value}</p>
+                                                    <p className="text-3xl font-black text-slate-900">{stat.value}</p>
                                                 )}
-                                                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                                                <p className="text-sm font-medium text-slate-500">{stat.title}</p>
                                             </div>
                                         </div>
                                     </Card>
@@ -148,7 +148,7 @@ export default function CandidateDashboard() {
 
                         {/* Profile Completion */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-6 bg-white border border-cyan-200 shadow-md shadow-cyan-100/50 relative overflow-hidden rounded-2xl">
+                            <Card className="p-6 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-100/60 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
 
                                 <div className="flex flex-col md:flex-row gap-6 items-center relative z-10">
@@ -211,8 +211,8 @@ export default function CandidateDashboard() {
 
                         {/* Applications Summary */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-                                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                                <div className="p-5 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
                                     <div className="flex items-center gap-2">
                                         <FileText className="w-5 h-5 text-violet-400" />
                                         <h3 className="font-bold">Tiến trình ứng tuyển</h3>
@@ -281,8 +281,8 @@ export default function CandidateDashboard() {
 
                         {/* AI Recommended Jobs */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-5 bg-white border border-cyan-200 shadow-md shadow-cyan-100/50 relative overflow-hidden h-full rounded-2xl">
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-100/80 blur-[40px] rounded-full pointer-events-none" />
+                            <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden h-full rounded-2xl hover:shadow-md transition-shadow">
+                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-400/10 blur-[40px] rounded-full pointer-events-none" />
 
                                 <div className="flex items-center justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-2">
@@ -303,9 +303,9 @@ export default function CandidateDashboard() {
                                         ))
                                     ) : (
                                         recommendedJobs?.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-cyan-300 hover:bg-cyan-50/50 transition-all cursor-pointer group" onClick={() => navigate(`/jobs/${job.id}`)}>
+                                            <div key={job.id} className="p-3 rounded-xl bg-white/40 border border-white/60 hover:border-cyan-300 hover:bg-white/60 transition-all cursor-pointer group shadow-sm" onClick={() => navigate(`/jobs/${job.id}`)}>
                                                 <div className="flex items-start gap-3">
-                                                    <img src={job.logo_url || '/company-placeholder.png'} alt={job.company_name} className="w-10 h-10 rounded-lg shadow-sm border border-slate-200 object-cover" />
+                                                    <img src={job.logo_url || '/company-placeholder.png'} alt={job.company_name} className="w-10 h-10 rounded-lg shadow-sm border border-white/50 object-cover" />
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-cyan-400 transition-colors">{job.title}</h4>
                                                         <p className="text-xs text-muted-foreground line-clamp-1">{job.company_name}</p>
@@ -329,8 +329,8 @@ export default function CandidateDashboard() {
 
                         {/* Upcoming Interviews */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-                                <div className="p-4 border-b border-slate-100 bg-slate-50">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                                <div className="p-4 border-b border-white/40 bg-white/40 backdrop-blur-md">
                                     <h3 className="font-bold flex items-center gap-2">
                                         <CalendarClock className="w-4 h-4 text-amber-500" /> Phỏng vấn sắp tới
                                     </h3>
@@ -339,7 +339,7 @@ export default function CandidateDashboard() {
                                     {loadingInterviews ? (
                                         <div className="space-y-3"><Skeleton className="h-16 w-full" /></div>
                                     ) : interviews && interviews.length > 0 ? (
-                                        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-inner">
+                                        <div className="p-4 rounded-xl bg-white/60 border border-white/60 shadow-sm backdrop-blur-md">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
                                                     <h4 className="font-bold text-amber-600 text-sm">
@@ -375,8 +375,8 @@ export default function CandidateDashboard() {
 
                         {/* Saved Jobs Preview */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                                <div className="p-4 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
                                     <h3 className="font-bold flex items-center gap-2 text-sm">
                                         <Bookmark className="w-4 h-4 text-rose-400" /> Việc làm đã lưu
                                     </h3>

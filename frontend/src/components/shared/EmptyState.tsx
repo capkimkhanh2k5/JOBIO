@@ -17,9 +17,9 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-300 rounded-2xl bg-slate-50/50 h-[300px]"
+            className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-white/40 rounded-3xl bg-white/60 backdrop-blur-xl shadow-sm h-[300px]"
         >
-            <div className="p-4 bg-white rounded-full shadow-sm border border-slate-100 mb-4">
+            <div className="p-4 bg-white/80 backdrop-blur-md rounded-full shadow-sm border border-white/60 mb-4">
                 {icon}
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-2">{title}</h3>

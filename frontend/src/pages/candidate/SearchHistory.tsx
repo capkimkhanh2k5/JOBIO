@@ -94,7 +94,7 @@ export default function SearchHistory() {
                 }
             />
 
-            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 min-h-screen">
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Main: History List */}
@@ -104,12 +104,14 @@ export default function SearchHistory() {
                         Tìm kiếm gần đây
                     </h2>
                     {isLoading ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 flex items-center justify-center">
-                            <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-12 flex items-center justify-center">
+                            <Loader2 className="w-6 h-6 animate-spin text-violet-600" />
                         </div>
                     ) : history.length === 0 ? (
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-                            <Search className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-dashed border-white/40 shadow-sm p-12 text-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Search className="w-10 h-10 text-white" />
+                            </div>
                             <p className="text-lg font-bold text-slate-900">Chưa có lịch sử tìm kiếm</p>
                             <p className="text-sm text-slate-500 mt-1">Bắt đầu tìm kiếm việc làm để lưu lịch sử tại đây.</p>
                              <Link to="/jobs">
@@ -120,11 +122,11 @@ export default function SearchHistory() {
                         </div>
                     ) : (
                         history.map((item) => (
-                            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition-shadow group">
+                            <div key={item.id} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4 hover:shadow-lg hover:shadow-violet-500/5 transition-all group">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                                         <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
-                                             <Search className="w-5 h-5 text-violet-600" />
+                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-200/50 flex items-center justify-center shrink-0 shadow-sm">
+                                             <Search className="w-5 h-5 text-violet-700" />
                                          </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold text-slate-900">{item.search_query}</p>
@@ -160,7 +162,7 @@ export default function SearchHistory() {
                 {/* Sidebar: Suggestions */}
                 <motion.div {...fadeUp(0.16)} className="space-y-6">
                     {/* Smart Suggestions */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5">
                         <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
                             <Zap className="w-4 h-4 text-amber-500" />
                             Gợi ý cho bạn
@@ -178,7 +180,7 @@ export default function SearchHistory() {
                     </div>
 
                     {/* Popular Skills */}
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5">
                         <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
                             <TrendingUp className="w-4 h-4 text-emerald-500" />
                             Kỹ năng hot

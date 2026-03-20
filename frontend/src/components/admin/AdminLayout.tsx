@@ -10,15 +10,13 @@ import { MiniFooter } from '@/components/layout/MiniFooter';
  */
 export function AdminLayout() {
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50/30">
+        <div className="h-screen flex flex-col bg-slate-50/30">
             <ScrollProgress />
             <Header />
-            <div className="flex flex-1 pt-[112px]">
+            <div className="flex flex-1 min-h-0 pt-[112px]">
                 <AdminSidebar />
-                <main className="flex-1 min-w-0 flex flex-col overflow-y-auto w-full">
-                    <div className="flex-1 flex flex-col">
-                        <Outlet />
-                    </div>
+                <main className="flex-1 min-w-0 min-h-0 overflow-y-auto w-full">
+                    <Outlet />
                     <MiniFooter />
                 </main>
             </div>
