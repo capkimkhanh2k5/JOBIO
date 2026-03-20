@@ -124,7 +124,7 @@ export default function MyApplications() {
     };
 
     return (
-        <div className="min-h-screen pb-12 w-full flex-1">
+        <div className="pb-12 w-full flex-1">
             <PageHeader
                 title="Việc làm đã ứng tuyển"
                 description="Theo dõi và quản lý quá trình ứng tuyển của bạn."

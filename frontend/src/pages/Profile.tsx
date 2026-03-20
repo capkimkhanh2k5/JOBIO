@@ -104,7 +104,7 @@ const Profile = () => {
         : score >= 50 ? 'from-amber-500 to-primary' : 'from-destructive to-orange-500';
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12">
+        <div className="h-full bg-slate-50 pb-12">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

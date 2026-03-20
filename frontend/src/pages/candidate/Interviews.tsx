@@ -35,7 +35,7 @@ export default function Interviews() {
     });
 
     return (
-        <div className="min-h-screen relative pb-12 w-full flex-1">
+        <div className="relative pb-12 w-full flex-1">
             <PageHeader
                 title="Lịch phỏng vấn"
                 description="Theo dõi và quản lý các buổi phỏng vấn sắp tới của bạn."

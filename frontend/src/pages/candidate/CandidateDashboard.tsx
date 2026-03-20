@@ -86,7 +86,7 @@ export default function CandidateDashboard() {
     };
 
     return (
-        <div className="min-h-screen relative pb-12 w-full flex-1">
+        <div className="relative pb-12 w-full flex-1">
             {/* Background effects */}
             <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />

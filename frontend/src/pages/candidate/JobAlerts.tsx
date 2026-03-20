@@ -130,7 +130,7 @@ export default function JobAlerts() {
     };
 
     return (
-        <div className="min-h-screen relative pb-12 w-full flex-1">
+        <div className="relative pb-12 w-full flex-1">
             <PageHeader
                 title="Thông báo việc làm"
                 description="Tự động nhận thông báo khi có việc làm phù hợp với tiêu chí của bạn."

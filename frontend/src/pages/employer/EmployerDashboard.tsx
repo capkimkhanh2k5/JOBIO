@@ -105,7 +105,7 @@ export default function EmployerDashboard() {
     });
 
     return (
-        <div className="p-6 lg:p-8 space-y-8 w-full mx-auto min-h-screen">
+        <div className="p-6 lg:p-8 space-y-8 w-full mx-auto flex-1">
             {/* ── Welcome Card ───────────────────────────── */}
             <motion.div {...fadeUp(0)}>
                 <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200 p-6 lg:p-8">
