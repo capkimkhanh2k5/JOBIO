@@ -155,7 +155,7 @@ export default function JobAlerts() {
                         {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48 rounded-2xl" />)}
                     </div>
                 ) : !alerts?.length ? (
-                    <div className="py-20 text-center flex flex-col items-center bg-white/50 border border-dashed border-slate-200 rounded-3xl w-full shadow-sm backdrop-blur-sm">
+                    <div className="py-20 text-center flex flex-col items-center bg-white/60 backdrop-blur-xl border border-dashed border-white/40 rounded-3xl w-full shadow-sm">
                         <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-6">
                             <Bell className="w-10 h-10 text-slate-300" />
                         </div>
@@ -185,13 +185,13 @@ export default function JobAlerts() {
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.3, delay: idx * 0.1 }}
                                 >
-                                    <Card className="p-6 bg-white border-slate-200 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 rounded-2xl group relative overflow-hidden">
+                                    <Card className="p-6 bg-white/60 backdrop-blur-xl border-white/40 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 rounded-2xl group relative overflow-hidden shadow-sm">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-violet-50 rounded-bl-full -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
-                                                    <Mail className="w-6 h-6 text-violet-600" />
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 flex items-center justify-center text-white">
+                                                    <Mail className="w-6 h-6 text-white" />
                                                 </div>
                                                 <div>
                                                     <h3 className="font-bold text-slate-900 text-lg group-hover:text-violet-600 transition-colors">{alert.alert_name}</h3>

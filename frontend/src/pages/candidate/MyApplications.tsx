@@ -147,30 +147,30 @@ export default function MyApplications() {
                         animate={{ opacity: 1, y: 0 }}
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
                     >
-                        <Card className="p-5 flex flex-col justify-center border border-slate-200/60 shadow-sm bg-white/60 backdrop-blur-sm rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
                             <div className="flex items-center gap-3 text-slate-500 mb-2">
-                                <div className="p-2 rounded-lg bg-slate-100"><Briefcase className="w-5 h-5" /></div>
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 text-white shadow-sm"><Briefcase className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Tổng số đơn</span>
                             </div>
                             <span className="text-3xl font-black">{stats.total}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-blue-200/60 shadow-sm bg-blue-50/40 backdrop-blur-sm rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
                             <div className="flex items-center gap-3 text-blue-600 mb-2">
-                                <div className="p-2 rounded-lg bg-blue-100/50"><Activity className="w-5 h-5" /></div>
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-sm"><Activity className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Đang diễn ra</span>
                             </div>
                             <span className="text-3xl font-black text-blue-700">{stats.active}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-emerald-200/60 shadow-sm bg-emerald-50/40 backdrop-blur-sm rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
                             <div className="flex items-center gap-3 text-emerald-600 mb-2">
-                                <div className="p-2 rounded-lg bg-emerald-100/50"><CheckCircle2 className="w-5 h-5" /></div>
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-sm"><CheckCircle2 className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Thành công</span>
                             </div>
                             <span className="text-3xl font-black text-emerald-700">{stats.success}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-red-200/60 shadow-sm bg-red-50/40 backdrop-blur-sm rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
                             <div className="flex items-center gap-3 text-red-600 mb-2">
-                                <div className="p-2 rounded-lg bg-red-100/50"><XCircle className="w-5 h-5" /></div>
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white shadow-sm"><XCircle className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Chưa phù hợp</span>
                             </div>
                             <span className="text-3xl font-black text-red-700">{stats.failed}</span>
@@ -178,9 +178,9 @@ export default function MyApplications() {
                     </motion.div>
                 )}
 
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden mb-8">
                     {/* Filters Header */}
-                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-50/50">
+                    <div className="p-4 border-b border-white/20 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/40">
                         <div className="relative w-full sm:w-80">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
@@ -235,7 +235,7 @@ export default function MyApplications() {
                                     )}
                                 </div>
                             ) : (
-                                <div className="divide-y divide-slate-100">
+                                <div className="divide-y divide-white/30">
                                     <AnimatePresence mode="popLayout">
                                         {filteredApps.map((app: any, idx: number) => (
                                             <motion.div
@@ -244,7 +244,7 @@ export default function MyApplications() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, scale: 0.95 }}
                                                 transition={{ duration: 0.2, delay: idx * 0.05 }}
-                                                className="p-5 hover:bg-slate-50/80 transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
+                                                className="p-5 hover:bg-white/50 transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
                                                 onClick={() => setSelectedApp(app.id)}
                                             >
                                                 {/* Left: Logo & Status */}

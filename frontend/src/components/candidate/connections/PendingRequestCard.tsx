@@ -37,7 +37,7 @@ export function PendingRequestCard({ request }: PendingRequestCardProps) {
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} layout>
-            <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4 hover:shadow-md transition-shadow duration-300 border-slate-200 bg-white/50 backdrop-blur-sm">
+            <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4 hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 border-white/40 bg-white/60 backdrop-blur-xl shadow-sm">
                 <div className="flex items-start gap-4">
                     <Avatar className="h-16 w-16 border-2 border-white shadow-sm ring-1 ring-slate-100">
                         <AvatarImage src={requester.avatar_url || ''} alt={requester.full_name} />
