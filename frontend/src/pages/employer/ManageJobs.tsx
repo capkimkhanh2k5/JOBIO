@@ -2,7 +2,8 @@ import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Briefcase, PlusSquare } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { employerService } from '@/services/employerService';
 import { jobService } from '@/services/jobService';
 import api from '@/services/api';
@@ -12,13 +13,13 @@ import {
     type JobStatusFilter,
     type SortOption,
 } from '@/components/employer/ManageJobsActionBar';
-import { Briefcase } from 'lucide-react';
 import { ManageJobsTable } from '@/components/employer/ManageJobsTable';
 import { ManageJobsList } from '@/components/employer/ManageJobsList';
 import { ManageJobsGrid } from '@/components/employer/ManageJobsGrid';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
@@ -151,32 +152,31 @@ export default function ManageJobs() {
     };
 
     return (
-        <div className="space-y-8 py-6 lg:py-8 animate-in fade-in duration-700 w-full mx-auto min-h-screen">
+        <div className="w-full mx-auto min-h-screen">
             {/* Page header */}
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-1">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center shrink-0 border border-violet-100 shadow-sm">
-                        <Briefcase className="w-6 h-6 text-violet-600" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
-                            Quản lý tin tuyển dụng
-                        </h1>
-                        <p className="text-sm text-slate-500 font-medium">
-                            {total > 0
-                                ? `${total} tin tuyển dụng · Đang hiển thị ${Math.min((page - 1) * pageSize + 1, total)}–${Math.min(page * pageSize, total)}`
-                                : 'Không tìm thấy tin tuyển dụng phù hợp'}
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                title="Quản lý tin tuyển dụng"
+                description={total > 0
+                    ? `${total} tin tuyển dụng · Đang hiển thị ${Math.min((page - 1) * pageSize + 1, total)}–${Math.min(page * pageSize, total)}`
+                    : 'Đăng và quản lý tất cả tin tuyển dụng của bạn'}
+                icon={Briefcase}
+                action={
+                    <Link to="/employer/jobs/create">
+                        <button className="flex items-center gap-2 h-11 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition-all">
+                            <PlusSquare className="w-4 h-4" />
+                            Đăng tin mới
+                        </button>
+                    </Link>
+                }
+            />
 
+            <div className="p-6 md:p-8 space-y-6">
             {/* Summary stat cards */}
             <motion.div
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.05 }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 px-1"
+                transition={{ duration: 0.4, delay: 0.1 }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
             >
                 {(
                     [
@@ -201,10 +201,9 @@ export default function ManageJobs() {
 
             {/* Action bar */}
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="mb-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
             >
                 <ManageJobsActionBar
                     viewMode={viewMode}
@@ -339,6 +338,7 @@ export default function ManageJobs() {
                     </p>
                 </motion.div>
             )}
+            </div>
         </div>
     );
 }

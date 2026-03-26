@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import { Download, UserPlus, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -11,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CVSearchFiltersPanel } from '@/components/employer/cv/CVSearchFilters';
 import { CandidateCard, CandidateCardSkeleton } from '@/components/employer/cv/CandidateCard';
 import { CandidateProfileSheet } from '@/components/employer/cv/CandidateProfileSheet';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function EmployerCVSearch() {
     const filters = useFilterStore(state => state.cvFilters);
@@ -20,57 +22,59 @@ export default function EmployerCVSearch() {
     const { data, isLoading, isFetching } = useQuery({
         queryKey: ['employer', 'cvSearch', filters, 1],
         queryFn: () => candidateService.list({ ...filters, page: 1, page_size: 12 }).then(r => r.data),
-        placeholderData: (prev) => prev, // keepPreviousData approach
+        placeholderData: (prev) => prev,
     });
 
     const isBackgroundFetching = isFetching && !isLoading;
 
-    const handleCandidateClick = (id: string) => {
-        setSelectedCandidateId(id);
-    };
-
-    const handleExport = () => {
-        toast.info("Tính năng xuất báo cáo sẽ được cập nhật trong phiên bản tới!");
-    };
-
-    const handleCreateCampaign = () => {
-        navigate('/employer/campaigns');
-    };
+    const handleCandidateClick = (id: string) => setSelectedCandidateId(id);
+    const handleExport = () => toast.info("Tính năng xuất báo cáo sẽ được cập nhật trong phiên bản tới!");
+    const handleCreateCampaign = () => navigate('/employer/campaigns');
 
     return (
-        <div className="flex-1 w-full flex flex-col min-h-0 bg-background/50">
+        <div className="w-full mx-auto min-h-screen flex flex-col">
             {/* Page Header */}
-            <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/40 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                        <Users className="w-6 h-6 text-violet-600" />
-                        Tìm kiếm ứng viên
-                    </h1>
-                    <p className="text-slate-500 text-sm mt-1">Duyệt qua hàng ngàn hồ sơ chất lượng cao</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button onClick={handleExport} variant="outline" className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900">
-                        <Download className="w-4 h-4 mr-2" />
-                        Xuất báo cáo
-                    </Button>
-                    <Button onClick={handleCreateCampaign} className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Tạo chiến dịch tuyển dụng
-                    </Button>
-                </div>
-            </div>
+            <PageHeader
+                title="Tìm kiếm ứng viên"
+                description="Duyệt qua hàng ngàn hồ sơ chất lượng cao"
+                icon={Users}
+                action={
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={handleExport}
+                            variant="outline"
+                            className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900 h-10 rounded-xl font-semibold"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Xuất báo cáo
+                        </Button>
+                        <Button
+                            onClick={handleCreateCampaign}
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 h-10 rounded-xl font-semibold"
+                        >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Tạo chiến dịch
+                        </Button>
+                    </div>
+                }
+            />
 
             {/* Main Content Area */}
-            <div className="flex flex-1 w-full mx-auto overflow-hidden">
-                {/* Fixed Left Sidebar for Filters */}
-                <div className="w-[300px] border-r border-border/40 hidden md:flex flex-col flex-shrink-0 bg-background/30 z-10">
-                    <div className="p-4 h-full">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+                className="flex flex-1 w-full overflow-hidden border-t border-border/40"
+            >
+                {/* Left Sidebar for Filters */}
+                <div className="w-[300px] border-r border-border/40 hidden md:flex flex-col flex-shrink-0 bg-background/30">
+                    <div className="p-4 h-full overflow-y-auto">
                         <CVSearchFiltersPanel />
                     </div>
                 </div>
 
-                {/* Right Scrollable Content: Results Grid */}
-                <div className="flex-1 overflow-y-auto relative custom-scrollbar">
+                {/* Right Content: Results Grid */}
+                <div className="flex-1 overflow-y-auto">
                     <div className="p-6">
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">
@@ -93,9 +97,7 @@ export default function EmployerCVSearch() {
                         {/* Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                             {isLoading ? (
-                                Array(6).fill(0).map((_, i) => (
-                                    <CandidateCardSkeleton key={i} />
-                                ))
+                                Array(6).fill(0).map((_, i) => <CandidateCardSkeleton key={i} />)
                             ) : data?.results?.length ? (
                                 data.results.map((candidate: any) => (
                                     <CandidateCard
@@ -110,13 +112,15 @@ export default function EmployerCVSearch() {
                                         <Users className="w-12 h-12 text-muted-foreground/50" />
                                     </div>
                                     <h3 className="text-xl font-semibold mb-2">Không tìm thấy ứng viên</h3>
-                                    <p className="text-muted-foreground max-w-md">Hãy thử thay đổi tiêu chí tìm kiếm hoặc xóa bớt bộ lọc để nhận được nhiều kết quả hơn.</p>
+                                    <p className="text-muted-foreground max-w-md">
+                                        Hãy thử thay đổi tiêu chí tìm kiếm hoặc xóa bớt bộ lọc để nhận được nhiều kết quả hơn.
+                                    </p>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Candidate Profile Sheet */}
             <CandidateProfileSheet
