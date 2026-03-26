@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
@@ -49,12 +49,19 @@ const ProfileSkeleton = () => (
 
 const Profile = () => {
     const queryClient = useQueryClient();
-    const { user } = useUserStore();
+    const { user, updateUser } = useUserStore();
     const userId = user?.id;
 
     const { data: profile, isLoading: profileLoading } = useQuery({
         queryKey: ['profile', userId],
-        queryFn: () => candidateService.getMyProfile().then(r => r.data),
+        queryFn: async () => {
+            const res = await candidateService.getMyProfile();
+            // Update user recruiter_id in store if it's not set
+            if (res.data?.id && user && user.recruiter_id !== res.data.id) {
+                updateUser({ recruiter_id: res.data.id });
+            }
+            return res.data;
+        },
         staleTime: 60_000,
         enabled: !!userId,
     });
@@ -97,7 +104,7 @@ const Profile = () => {
         : score >= 50 ? 'from-amber-500 to-primary' : 'from-destructive to-orange-500';
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-12">
+        <div className="h-full bg-slate-50 pb-12">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -17,11 +17,13 @@ export function CandidateLayout() {
             {/* pt to offset fixed header */}
             <div className="flex flex-1 pt-[112px]">
                 <CandidateSidebar />
-                <main className="flex-1 min-w-0 flex flex-col overflow-y-auto w-full">
-                    <div className="flex-1 flex flex-col">
+                <main className="flex-1 flex flex-col min-w-0 w-full">
+                    <div className="flex-1 w-full">
                         <Outlet />
                     </div>
-                    <MiniFooter />
+                    <div className="mt-auto shrink-0 w-full">
+                        <MiniFooter />
+                    </div>
                 </main>
             </div>
         </div>

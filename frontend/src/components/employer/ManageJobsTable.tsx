@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
     Eye, Edit3, Copy, Users, XCircle, RotateCcw, Trash2,
-    MoreHorizontal, Briefcase, Sparkles,
+    MoreHorizontal, Briefcase,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -233,13 +233,6 @@ export function ManageJobsTable({
                                                         onClick={() => onDuplicate(job.id)}
                                                     >
                                                         <Copy className="w-4 h-4" /> Duplicate
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="gap-2 cursor-pointer text-primary font-bold bg-primary/5 focus:bg-primary/10"
-                                                        onClick={() => navigate(`/employer/jobs/${job.id}/matching`)}
-                                                    >
-                                                        <Sparkles className="w-4 h-4 fill-primary/20" /> AI Matching
-                                                        <Badge variant="outline" className="ml-auto text-[10px] bg-primary/10 border-primary/20">NEW</Badge>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         className="gap-2 cursor-pointer"

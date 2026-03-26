@@ -106,11 +106,11 @@ class DashboardSelector:
 
         profile_views_count = getattr(recruiter, 'profile_views_count', 0) or 0
 
-        saved_jobs_count = recruiter.saved_jobs.count() if hasattr(recruiter, 'saved_jobs') else 0
+        matching_jobs_count = 0
 
         return {
             'applied_jobs_count': applied_jobs_count,
             'upcoming_interviews_count': upcoming_interviews_count,
             'profile_views_count': profile_views_count,
-            'matching_jobs_count': saved_jobs_count,
+            'matching_jobs_count': matching_jobs_count,
         }

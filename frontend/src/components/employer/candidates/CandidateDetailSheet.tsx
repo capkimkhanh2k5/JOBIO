@@ -11,9 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import {
     Briefcase, GraduationCap, MapPin, Mail, Phone, Calendar,
-    FileText, Download, Target, MessageSquare, Clock
+    FileText, Download, Target, MessageSquare
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 const STATUSES = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
@@ -25,7 +24,6 @@ export function CandidateDetailSheet() {
     const [experience, setExperience] = useState<any[]>([]);
     const [skills, setSkills] = useState<any[]>([]);
     const [history, setHistory] = useState<any[]>([]);
-    const [testResults, setTestResults] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [updatingStatus, setUpdatingStatus] = useState(false);
 
@@ -40,13 +38,12 @@ export function CandidateDetailSheet() {
                 const appData = appRes.data;
                 const recruiterId = appData.recruiter_id;
 
-                const [prof, edu, exp, skls, hist, tests] = await Promise.all([
+                const [prof, edu, exp, skls, hist] = await Promise.all([
                     candidateService.getById(recruiterId).then(r => r.data),
                     candidateService.listEducation(recruiterId).then(r => r.data),
                     candidateService.listExperience(recruiterId).then(r => r.data),
                     candidateService.listSkills(recruiterId).then(r => r.data),
                     applicationService.getStatusHistory(appNumId).then(r => r.data),
-                    Promise.resolve([]),  // TODO: no test-results endpoint
                 ]);
                 if (!isMtd) return;
                 setDetails({ ...prof, ...appData });
@@ -54,7 +51,6 @@ export function CandidateDetailSheet() {
                 setExperience(exp);
                 setSkills(skls);
                 setHistory(hist);
-                setTestResults(tests);
             } catch (err) {
                 console.error(err);
                 if (isMtd) toast.error("Lỗi khi tải thông tin chi tiết ứng viên");
@@ -163,10 +159,9 @@ export function CandidateDetailSheet() {
 
                         <div className="p-6 pt-0 flex-1">
                             <Tabs defaultValue="cv" className="w-full mt-4">
-                                <TabsList className="w-full grid grid-cols-4 bg-secondary/30 mb-6 p-1">
+                                <TabsList className="w-full grid grid-cols-3 bg-secondary/30 mb-6 p-1">
                                     <TabsTrigger value="cv" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">CV & Đơn</TabsTrigger>
                                     <TabsTrigger value="profile" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Hồ sơ</TabsTrigger>
-                                    <TabsTrigger value="assessments" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Đánh giá</TabsTrigger>
                                     <TabsTrigger value="history" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Hoạt động</TabsTrigger>
                                 </TabsList>
 
@@ -256,28 +251,6 @@ export function CandidateDetailSheet() {
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="assessments" className="space-y-4 m-0">
-                                    {testResults.length > 0 ? testResults.map(test => (
-                                        <div key={test.id} className="bg-secondary/30 border border-border/50 rounded-xl p-5 flex items-center justify-between">
-                                            <div>
-                                                <h4 className="font-medium">{test.test_name}</h4>
-                                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                    <Clock className="w-3 h-3" /> Hoàn thành: {new Date(test.completed_at).toLocaleDateString('vi-VN')}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">
-                                                    {test.score}/{test.max_score}
-                                                </div>
-                                                <Badge variant="outline" className="mt-1 border-emerald-500/30 text-emerald-500 bg-emerald-500/10">Passed</Badge>
-                                            </div>
-                                        </div>
-                                    )) : (
-                                        <div className="text-center p-8 text-muted-foreground border border-dashed border-border/50 rounded-xl">
-                                            Chưa có bài kiểm tra nào
-                                        </div>
-                                    )}
-                                </TabsContent>
 
                                 <TabsContent value="history" className="space-y-6 m-0">
                                     <div className="space-y-6">

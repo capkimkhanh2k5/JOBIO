@@ -109,13 +109,6 @@ INSTALLED_APPS = [
     'apps.candidate.skill_categories',
     'apps.candidate.languages',
     
-    # ===== Assessment Domain =====
-    'apps.assessment.assessment_tests',
-    'apps.assessment.assessment_categories',
-    'apps.assessment.job_assessment_requirements',
-    'apps.assessment.test_results',
-    'apps.assessment.ai_matching_scores',
-    
     # ===== Social Domain =====
     'apps.social.reviews',
     'apps.social.review_reactions',

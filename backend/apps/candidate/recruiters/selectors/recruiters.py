@@ -1,7 +1,6 @@
 from typing import Optional
 from django.db.models import QuerySet
 from apps.candidate.recruiters.models import Recruiter
-from apps.assessment.ai_matching_scores.models import AIMatchingScore
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from django.db.models import F
 
@@ -130,19 +129,6 @@ def search_recruiters(filters: dict) -> QuerySet:
         queryset = queryset.filter(skills__skill__name__in=skills).distinct()
     
     return queryset
-
-def get_matching_jobs(recruiter: Recruiter) -> list:
-    """
-    Tìm kiếm công việc phù hợp với hồ sơ ứng viên.
-    Sử dụng kết quả matching AI đã tính toán sẵn.
-    """
-    # Get top 10 jobs with highest overall score
-    matches = AIMatchingScore.objects.filter(
-        recruiter=recruiter,
-        is_valid=True
-    ).select_related('job', 'job__company', 'job__address').order_by('-overall_score')[:10]
-    
-    return [match.job for match in matches]
 
 def get_recruiter_applications(recruiter: Recruiter) -> QuerySet:
     """

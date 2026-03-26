@@ -44,7 +44,7 @@ export default function Connections() {
     const pendingCount = pendingData?.count || 0;
 
     return (
-        <div className="relative min-h-screen flex flex-col w-full">
+        <div className="relative flex flex-col w-full">
             <PageHeader
                 title="Mạng lưới kết nối"
                 description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Recruiter."

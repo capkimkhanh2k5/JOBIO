@@ -9,9 +9,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Building2, Calendar, FileText, CheckCircle2, Search, Video, FileBadge } from 'lucide-react';
+import { Building2, Calendar, FileText, CheckCircle2 } from 'lucide-react';
 import { applicationService } from '@/services/applicationService';
 
 interface ApplicationDetailSheetProps {
@@ -37,12 +36,6 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
     const { data: history, isLoading: isLoadingHistory } = useQuery({
         queryKey: ['application-history', applicationId],
         queryFn: () => applicationService.getStatusHistory(Number(applicationId)).then(r => r.data),
-        enabled: open
-    });
-
-    const { data: testResults, isLoading: isLoadingTests } = useQuery({
-        queryKey: ['application-tests', applicationId],
-        queryFn: () => Promise.resolve([]),  // TODO: no test-results endpoint
         enabled: open
     });
 
@@ -174,40 +167,6 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         </div>
                                     )}
                                 </section>
-
-                                {/* Test Results / Interviews Section (if applicable) */}
-                                {app.status !== 'Mới gửi' && app.status !== 'Từ chối' && app.status !== 'Rút đơn' && (
-                                    <section>
-                                        <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                            <FileBadge className="w-4 h-4 text-cyan-600" />
-                                            Đánh giá & Phỏng vấn
-                                        </h3>
-                                        {isLoadingTests ? (
-                                            <Skeleton className="h-20 w-full" />
-                                        ) : testResults && testResults.length > 0 ? (
-                                            <div className="grid gap-3">
-                                                {testResults.map((test: any) => (
-                                                    <div key={test.id} className="p-4 rounded-xl border border-slate-200 bg-white flex justify-between items-center group hover:border-cyan-200 transition-colors">
-                                                        <div>
-                                                            <p className="font-bold text-sm text-slate-900">{test.test_name}</p>
-                                                            <p className="text-xs text-slate-500 mt-1">Hoàn thành: {new Date(test.completed_at).toLocaleDateString()}</p>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <p className="font-black text-lg text-emerald-600">{test.score}/{test.max_score}</p>
-                                                            <Badge variant="outline" className="text-[10px] mt-1 bg-emerald-50 border-emerald-200 text-emerald-700 uppercase">
-                                                                {test.status}
-                                                            </Badge>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50">
-                                                <p className="text-sm text-slate-500">Chưa có thông tin đánh giá hoặc lịch phỏng vấn.</p>
-                                            </div>
-                                        )}
-                                    </section>
-                                )}
 
                             </div>
                         </ScrollArea>

@@ -480,7 +480,6 @@ export interface RecruiterDetail extends RecruiterListItem {
   is_profile_public: boolean;
   score: number;
   checklist: Array<{ task: string; completed: boolean }>;
-  ai_assessment_result: Record<string, unknown> | null;
   skills: RecruiterSkill[];
   education: RecruiterEducation[];
   experience: RecruiterExperience[];
@@ -1051,76 +1050,6 @@ export interface CompanyStats {
   upcoming_interviews_delta?: number;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// AI Matching
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface MatchingScore {
-  id: number;
-  job: { id: number; title: string; slug: string; company_name: string };
-  recruiter: { id: number; full_name: string; avatar_url: string | null };
-  overall_score: number;
-  skill_match_score: number;
-  experience_match_score: number;
-  education_match_score: number;
-  location_match_score: number;
-  salary_match_score: number;
-  match_status: string;
-  breakdown: any;
-  ai_insights?: any;
-  calculated_at: string;
-  is_valid: boolean;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Assessment
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface AssessmentTest {
-  id: number;
-  title: string;
-  slug: string;
-  category: { id: number; name: string } | null;
-  test_type: 'skill' | 'personality' | 'aptitude' | 'language' | 'technical';
-  difficulty_level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  duration_minutes: number;
-  total_questions: number;
-  passing_score: number;
-  max_retakes: number;
-  retake_wait_days: number;
-  is_active: boolean;
-  is_public: boolean;
-  created_at: string;
-}
-
-export interface AssessmentQuestion {
-  id: number;
-  test_id: number;
-  question_type: 'multiple_choice' | 'text_input' | 'code_editor';
-  points: number;
-  question_data: Record<string, unknown>; // JSON structure based on type
-}
-
-export interface TestResult {
-  id: number;
-  assessment_test: { id: number; title: string; test_type: string; passing_score: number; difficulty_level: string };
-  score: number;
-  percentage_score: number;
-  passed: boolean;
-  time_taken_minutes: number;
-  certificate_url: string | null;
-  detailed_results: Record<string, unknown> | null;
-  started_at: string;
-  completed_at: string;
-}
-
-export interface JobRequiredTest {
-  test_id: number;
-  test_title: string;
-  test_type: string;
-  is_required: boolean;
-  minimum_score: number;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Blog

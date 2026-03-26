@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
 import CandidateProfile from '@/pages/Profile';
+import PublicProfile from '@/pages/public/PublicProfile';
 import Jobs from '@/pages/Jobs';
 import Companies from '@/pages/Companies';
 import JobDetail from '@/pages/JobDetailPage';
@@ -47,7 +48,6 @@ import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
 import EmployerReferrals from '@/pages/employer/Referrals';
-import JobMatching from '@/pages/employer/JobMatching';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -60,10 +60,6 @@ import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
-import MatchingJobsPage from '@/pages/candidate/MatchingJobsPage';
-import TestCatalogue from '@/pages/candidate/AssessmentTests/TestCatalogue';
-import TakeTest from '@/pages/candidate/AssessmentTests/TakeTest';
-import TestResult from '@/pages/candidate/AssessmentTests/TestResult';
 import SearchHistory from '@/pages/candidate/SearchHistory';
 
 // Admin area
@@ -159,7 +155,6 @@ export default function App() {
                             {/* Legacy route redirects */}
                             <Route path="post-job" element={<Navigate to="/employer/jobs/create" replace />} />
                             <Route path="manage-jobs" element={<Navigate to="/employer/jobs" replace />} />
-                            <Route path="jobs/:id/matching" element={<JobMatching />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<EmployerCVSearch />} />
@@ -195,13 +190,10 @@ export default function App() {
                                     <Routes>
                                         <Route path="/" element={<Home />} />
                                         <Route path="/jobs" element={<Jobs />} />
-                                        <Route path="/jobs/matching" element={<ProtectedRoute><MatchingJobsPage /></ProtectedRoute>} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
-                                        <Route path="/assessment-tests" element={<TestCatalogue />} />
-                                        <Route path="/assessment-tests/:id/take" element={<ProtectedRoute><TakeTest /></ProtectedRoute>} />
-                                        <Route path="/assessment-tests/:id/result" element={<ProtectedRoute><TestResult /></ProtectedRoute>} />
+                                        <Route path="/profile/:id" element={<PublicProfile />} />
                                         <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />

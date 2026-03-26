@@ -145,7 +145,7 @@ export default function CVManager() {
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
 
     return (
-        <div className="min-h-screen relative flex flex-col w-full">
+        <div className="relative flex flex-col w-full">
             {/* Page header */}
             <div className="sticky top-0 z-20">
                 <PageHeader
@@ -192,7 +192,7 @@ export default function CVManager() {
                 />
 
                 {/* Column 2: CV Builder */}
-                <div className="flex-1 overflow-y-auto border-r border-slate-200 bg-white">
+                <div className="flex-1 overflow-y-auto border-transparent bg-white/60 backdrop-blur-xl">
                     <CVBuilder
                         cvName={cvName}
                         selectedTemplateId={selectedTemplateId}
@@ -204,7 +204,7 @@ export default function CVManager() {
                 </div>
 
                 {/* Column 3: Live Preview */}
-                <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-slate-100 border-l border-slate-200">
+                <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-white/40 backdrop-blur-xl border-l border-white/40">
                     <CVLivePreview
                         cvName={cvName}
                         cvData={cvData}
