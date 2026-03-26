@@ -48,12 +48,12 @@ export default function EmployerInterviewsPage() {
             {/* Main Content */}
             <Tabs defaultValue="calendar" value={view} onValueChange={setView} className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <TabsList className="bg-slate-50 p-1 border border-slate-200 rounded-xl">
-                        <TabsTrigger value="calendar" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm">
+                    <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl gap-1 h-auto">
+                        <TabsTrigger value="calendar" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">
                             <Calendar className="w-4 h-4 mr-2" />
                             Lịch (Calendar)
                         </TabsTrigger>
-                        <TabsTrigger value="list" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm">
+                        <TabsTrigger value="list" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">
                             <List className="w-4 h-4 mr-2" />
                             Danh sách (List)
                         </TabsTrigger>

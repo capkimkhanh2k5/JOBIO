@@ -323,7 +323,7 @@ export function CVLivePreview({ cvId, cvName, cvData, templateId }: Props) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0 text-slate-400 hover:text-violet-600"
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-violet-600 cursor-pointer"
                         onClick={handleRefresh}
                         disabled={!cvId || refreshing}
                         title="Làm mới preview"
@@ -334,7 +334,7 @@ export function CVLivePreview({ cvId, cvName, cvData, templateId }: Props) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0 text-slate-400 hover:text-violet-600"
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-violet-600 cursor-pointer"
                         onClick={() => setFullscreen(true)}
                         disabled={!cvId}
                         title="Xem toàn màn hình"
@@ -376,7 +376,7 @@ export function CVLivePreview({ cvId, cvName, cvData, templateId }: Props) {
             {/* Bottom CTA – opens fullscreen */}
             <div className="p-4 border-t border-slate-200 bg-white shrink-0">
                 <Button
-                    className="w-full bg-gradient-to-r from-violet-500 to-cyan-500 text-white border-0 shadow-md shadow-violet-200 hover:opacity-90 gap-2"
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 gap-2 cursor-pointer"
                     onClick={() => setFullscreen(true)}
                     disabled={!cvId}
                 >

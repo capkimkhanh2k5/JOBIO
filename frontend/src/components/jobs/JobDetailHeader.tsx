@@ -169,7 +169,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                         {/* Quick Info Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 py-6 border-y border-gray-50">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sky-700">
+                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                                     <DollarSign className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -178,7 +178,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sky-700">
+                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                                     <MapPin className="w-5 h-5" />
                                 </div>
                                 <div className="min-w-0">
@@ -189,7 +189,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sky-700">
+                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                                     <Clock className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -203,7 +203,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-sky-700">
+                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
                                     <Calendar className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -220,7 +220,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                     <div className="flex flex-col gap-3 min-w-[280px]">
                         <Button
                             onClick={onApply}
-                            className="w-full h-14 rounded-2xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-lg shadow-sm transition-all active:scale-[0.98]"
+                            className="w-full h-14 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg shadow-md shadow-violet-600/20 transition-all active:scale-[0.98]"
                         >
                             Ứng tuyển ngay
                         </Button>

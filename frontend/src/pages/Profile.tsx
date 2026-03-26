@@ -104,12 +104,12 @@ const Profile = () => {
         : score >= 50 ? 'from-amber-500 to-primary' : 'from-destructive to-orange-500';
 
     return (
-        <div className="h-full bg-slate-50 pb-12">
+        <div className="relative pb-12 w-full flex-1 bg-slate-50/50">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}
-                className="container mx-auto px-4 py-10 max-w-6xl relative z-10"
+                className="p-6 lg:p-8 w-full flex-1 relative z-10"
             >
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* ── Main Content ── */}
@@ -144,8 +144,8 @@ const Profile = () => {
                         {/* Profile Completeness Card */}
                         <Card className="glass-effect p-6 rounded-[28px] border-none sticky top-24">
                             <div className="flex items-center gap-3 mb-5">
-                                <div className="p-2 bg-primary/10 rounded-xl">
-                                    <Trophy className="w-5 h-5 text-primary" />
+                                <div className="p-2 bg-violet-100 rounded-xl">
+                                    <Trophy className="w-5 h-5 text-violet-600" />
                                 </div>
                                 <div>
                                     <h3 className="text-base font-bold">Độ hoàn thiện</h3>
@@ -164,7 +164,7 @@ const Profile = () => {
                                         variant="outline"
                                         className={`rounded-full text-xs font-semibold ${score >= 80
                                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                            : score >= 50 ? 'bg-primary/10 text-primary border-primary/20'
+                                            : score >= 50 ? 'bg-violet-100 text-violet-600 border-violet-200'
                                                 : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}`}
                                     >
                                         {score >= 80 ? '✨ Nổi bật' : score >= 50 ? '📈 Phát triển' : '🚀 Bắt đầu'}
@@ -193,7 +193,7 @@ const Profile = () => {
                                             </div>
                                             <span className={`transition-all leading-snug ${item.completed
                                                 ? 'text-muted-foreground/50 line-through text-xs'
-                                                : 'font-medium text-sm group-hover:text-primary cursor-default'
+                                                : 'font-medium text-sm group-hover:text-violet-600 cursor-default'
                                                 }`}
                                             >
                                                 {item.task}
@@ -206,9 +206,9 @@ const Profile = () => {
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="p-3 bg-gradient-to-r from-primary/10 to-emerald-500/10 rounded-xl border border-primary/10 text-center"
+                                        className="p-3 bg-gradient-to-r from-violet-100 to-emerald-500/10 rounded-xl border border-violet-100 text-center"
                                     >
-                                        <p className="text-xs font-bold text-primary">🏆 Verified Excellence</p>
+                                        <p className="text-xs font-bold text-violet-600">🏆 Verified Excellence</p>
                                         <p className="text-[10px] text-muted-foreground mt-0.5">Hồ sơ của bạn đã đạt chuẩn vàng!</p>
                                     </motion.div>
                                 )}
@@ -231,9 +231,9 @@ const Profile = () => {
                                     <a
                                         key={id}
                                         href={`#${id}`}
-                                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background/40 hover:bg-primary/10 hover:text-primary text-[11px] font-semibold uppercase tracking-wider transition-all group"
+                                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background/40 hover:bg-violet-100 hover:text-violet-600 text-[11px] font-semibold uppercase tracking-wider transition-all group"
                                     >
-                                        <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                                        <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-violet-600 transition-colors shrink-0" />
                                         <span className="truncate">{label}</span>
                                     </a>
                                 ))}
@@ -245,15 +245,15 @@ const Profile = () => {
                             <h4 className="font-bold text-sm mb-3">💡 Mẹo tăng cơ hội</h4>
                             <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
                                 <li className="flex items-start gap-2">
-                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    <span className="text-violet-600 font-bold shrink-0">→</span>
                                     Giữ trạng thái <strong className="text-foreground">Đang tìm việc</strong> để xuất hiện trong tìm kiếm của nhà tuyển dụng.
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    <span className="text-violet-600 font-bold shrink-0">→</span>
                                     Thêm ít nhất <strong className="text-foreground">5 kỹ năng</strong> với mức độ chính xác để tăng điểm match.
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="text-primary font-bold shrink-0">→</span>
+                                    <span className="text-violet-600 font-bold shrink-0">→</span>
                                     Hồ sơ có <strong className="text-foreground">ảnh đại diện</strong> được xem nhiều hơn 14 lần so với hồ sơ không có ảnh.
                                 </li>
                             </ul>

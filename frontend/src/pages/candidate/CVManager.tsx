@@ -145,7 +145,7 @@ export default function CVManager() {
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
 
     return (
-        <div className="relative flex flex-col w-full">
+        <div className="relative flex flex-col w-full p-6 lg:p-8">
             {/* Page header */}
             <div className="sticky top-0 z-20">
                 <PageHeader

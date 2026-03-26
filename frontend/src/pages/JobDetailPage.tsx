@@ -95,10 +95,10 @@ export default function JobDetailPage() {
                         <div className="mt-4">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-2xl font-bold flex items-center gap-2">
-                                    <Sparkles size={24} className="text-sky-700" />
+                                    <Sparkles size={24} className="text-violet-600" />
                                     Việc làm tương tự
                                 </h3>
-                                <Button variant="link" className="text-sky-700 group">
+                                <Button variant="link" className="text-violet-600 group hover:text-violet-700">
                                     Xem tất cả
                                     <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />
                                 </Button>
@@ -129,7 +129,7 @@ export default function JobDetailPage() {
             {/* Floating Apply Button for Mobile */}
             <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                 <Button
-                    className="w-full h-14 bg-sky-700 hover:bg-sky-800 text-white font-bold text-lg rounded-2xl shadow-lg transition-all animate-in fade-in slide-in-from-bottom-10"
+                    className="w-full h-14 bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg rounded-2xl shadow-md shadow-violet-600/20 transition-all animate-in fade-in slide-in-from-bottom-10"
                     onClick={() => setIsApplyModalOpen(true)}
                 >
                     Ứng tuyển ngay

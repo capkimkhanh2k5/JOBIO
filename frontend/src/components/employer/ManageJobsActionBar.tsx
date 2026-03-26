@@ -136,7 +136,7 @@ export function ManageJobsActionBar({
                                 key={mode}
                                 onClick={() => onViewModeChange(mode)}
                                 aria-label={`View as ${mode}`}
-                                className={`p-1.5 rounded-lg transition-all duration-150 ${viewMode === mode
+                                className={`p-1.5 rounded-lg cursor-pointer transition-all duration-150 ${viewMode === mode
                                     ? 'bg-white text-violet-600 shadow-sm'
                                     : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
                                     }`}

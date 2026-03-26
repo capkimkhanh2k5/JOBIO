@@ -30,7 +30,7 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
                 {(title || description) && (
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
                         {title && (
-                            <h1 className="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-500 via-cyan-400 to-sky-500 tracking-tight">
+                            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
                                 {title}
                             </h1>
                         )}
@@ -53,8 +53,8 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
                                 <button
                                     key={tab.id}
                                     onClick={() => onTabChange(tab.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-semibold text-sm ${isActive
-                                            ? 'bg-white shadow-sm text-cyan-600 border border-slate-200'
+                                    className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all font-semibold text-sm ${isActive
+                                            ? 'bg-white shadow-sm text-violet-600 border border-slate-200'
                                             : 'text-slate-500 hover:text-slate-900 hover:bg-white border border-transparent'
                                         }`}
                                 >

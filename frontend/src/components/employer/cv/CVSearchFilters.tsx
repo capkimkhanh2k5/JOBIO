@@ -81,10 +81,10 @@ export const CVSearchFiltersPanel = () => {
             {/* Header Sticky */}
             <div className="p-5 border-b border-border/40 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur z-20">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <SlidersHorizontal className="w-5 h-5 text-primary" />
+                    <SlidersHorizontal className="w-5 h-5 text-violet-600" />
                     Bộ lọc tìm kiếm
                     {activeFilterCount > 0 && (
-                        <Badge variant="secondary" className="bg-primary/10 text-primary ml-1">
+                        <Badge variant="secondary" className="bg-violet-100 text-violet-600 ml-1">
                             {activeFilterCount}
                         </Badge>
                     )}

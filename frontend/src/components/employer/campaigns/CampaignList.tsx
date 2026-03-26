@@ -42,11 +42,11 @@ interface CampaignListProps {
 export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onStatusChange, onDelete }: CampaignListProps) {
     const getStatusInfo = (status: Campaign['status']) => {
         switch (status) {
-            case 'active': return { text: 'Active', color: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' };
-            case 'draft': return { text: 'Draft', color: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' };
-            case 'paused': return { text: 'Paused', color: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:border-amber-800' };
-            case 'completed': return { text: 'Completed', color: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' };
-            case 'cancelled': return { text: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' };
+            case 'active': return { text: 'Active', color: 'bg-green-100 text-green-700 border-green-200' };
+            case 'draft': return { text: 'Draft', color: 'bg-slate-100 text-slate-700 border-slate-200' };
+            case 'paused': return { text: 'Paused', color: 'bg-amber-100 text-amber-700 border-amber-200' };
+            case 'completed': return { text: 'Completed', color: 'bg-blue-100 text-blue-700 border-blue-200' };
+            case 'cancelled': return { text: 'Cancelled', color: 'bg-red-100 text-red-700 border-red-200' };
             default: return { text: 'Unknown', color: 'bg-slate-100 text-slate-700' };
         }
     };
@@ -102,7 +102,7 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
         <div className="w-full border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm mt-4">
             <div className="overflow-x-auto min-h-[400px]">
                 <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-medium">
+                    <thead className="bg-slate-50/80 text-slate-600 font-medium">
                         <tr>
                             <th className="px-6 py-4 whitespace-nowrap">Chiến dịch</th>
                             <th className="px-6 py-4 whitespace-nowrap">Loại / Trạng thái</th>
@@ -173,7 +173,7 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                                 <span>{format(parseISO(camp.start_date), 'dd/MM/yyyy', { locale: vi })}</span>
                                             </div>
                                             <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-                                                <span className="w-3.5 h-[1px] bg-slate-300 dark:bg-slate-700 text-transparent">-</span>
+                                                <span className="w-3.5 h-[1px] bg-slate-300 text-transparent">-</span>
                                                 <span>{format(parseISO(camp.end_date), 'dd/MM/yyyy', { locale: vi })}</span>
                                             </div>
                                         </div>
@@ -186,7 +186,7 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                                     <MoreHorizontal className="h-5 w-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-[180px] bg-white/90 dark:bg-slate-900/90 backdrop-blur border-slate-200 dark:border-slate-800">
+                                            <DropdownMenuContent align="end" className="w-[180px] bg-white/90 backdrop-blur border-slate-200">
                                                 <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem onClick={() => onViewDetail(camp.id)} className="cursor-pointer">
@@ -206,7 +206,7 @@ export function CampaignList({ campaigns, isLoading, onViewDetail, onEdit, onSta
                                                         <Play className="mr-2 h-4 w-4 text-green-500" /> Kích hoạt
                                                     </DropdownMenuItem>
                                                 )}
-                                                <DropdownMenuItem onClick={() => onDelete(camp.id)} className="text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-500 dark:focus:bg-red-900/30 cursor-pointer">
+                                                <DropdownMenuItem onClick={() => onDelete(camp.id)} className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
                                                     <Trash2 className="mr-2 h-4 w-4" /> Xóa chiến dịch
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>

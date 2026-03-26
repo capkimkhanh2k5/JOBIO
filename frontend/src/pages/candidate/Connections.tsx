@@ -53,14 +53,14 @@ export default function Connections() {
 
             <div className="p-6 lg:p-8 w-full flex-1 relative z-10">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="bg-white/60 backdrop-blur-md border border-slate-200/50 p-1 mb-8">
-                        <TabsTrigger value="connections" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6 font-semibold">
-                            Kết nối của tôi <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">{connectionsCount}</span>
+                    <TabsList className="bg-white/60 backdrop-blur-md border border-slate-200/50 p-1 mb-8 rounded-xl h-auto">
+                        <TabsTrigger value="connections" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
+                            Kết nối của tôi <span className="ml-2 bg-white/20 text-slate-700 data-[state=active]:text-white px-2 py-0.5 rounded-full text-xs transition-colors group-data-[state=active]:text-white group-data-[state=active]:bg-white/20">{connectionsCount}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="pending" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6 font-semibold">
+                        <TabsTrigger value="pending" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
                             Lời mời chờ duyệt {pendingCount > 0 && <span className="ml-2 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-black">{pendingCount}</span>}
                         </TabsTrigger>
-                        <TabsTrigger value="suggestions" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6 font-semibold">
+                        <TabsTrigger value="suggestions" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
                             Gợi ý kết nối
                         </TabsTrigger>
                     </TabsList>

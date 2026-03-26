@@ -63,19 +63,25 @@ export default function ManageCandidates() {
                 icon={UsersIcon}
                 action={
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center bg-white rounded-lg p-1 border border-slate-200">
+                        <div className="flex gap-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl">
                             <Button
-                                variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
-                                size="sm"
-                                className={`h-8 px-3 ${viewMode === 'kanban' ? 'bg-violet-50 text-violet-700' : 'text-slate-500'}`}
+                                variant="ghost"
+                                className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
+                                    viewMode === 'kanban'
+                                        ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                }`}
                                 onClick={() => setViewMode('kanban')}
                             >
                                 <Kanban className="w-4 h-4 mr-2" /> Board
                             </Button>
                             <Button
-                                variant={viewMode === 'table' ? 'secondary' : 'ghost'}
-                                size="sm"
-                                className={`h-8 px-3 ${viewMode === 'table' ? 'bg-violet-50 text-violet-700' : 'text-slate-500'}`}
+                                variant="ghost"
+                                className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
+                                    viewMode === 'table'
+                                        ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
+                                        : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                }`}
                                 onClick={() => setViewMode('table')}
                             >
                                 <List className="w-4 h-4 mr-2" /> Table

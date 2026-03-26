@@ -79,7 +79,7 @@ export default function EmployerCVSearch() {
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-semibold flex items-center gap-2">
-                                <Users className="w-5 h-5 text-primary" />
+                                <Users className="w-5 h-5 text-violet-600" />
                                 {isLoading ? (
                                     <Skeleton className="w-32 h-6" />
                                 ) : (
@@ -87,8 +87,8 @@ export default function EmployerCVSearch() {
                                 )}
                             </h2>
                             {isBackgroundFetching && (
-                                <div className="text-sm text-primary flex items-center gap-2">
-                                    <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                <div className="text-sm text-violet-600 flex items-center gap-2">
+                                    <div className="w-3 h-3 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
                                     Đang làm mới...
                                 </div>
                             )}

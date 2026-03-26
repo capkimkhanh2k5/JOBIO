@@ -151,14 +151,14 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                             <Button
                                 type="button"
                                 variant="outline"
-                                className="flex-1 border-slate-200"
+                                className="flex-1 border-slate-200 cursor-pointer"
                                 onClick={onClose}
                             >
                                 Hủy
                             </Button>
                             <Button
                                 type="submit"
-                                className="flex-1 bg-gradient-to-r from-violet-500 to-cyan-500 text-white border-0 shadow-md hover:opacity-90"
+                                className="flex-1 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 cursor-pointer"
                                 disabled={createMutation.isPending || !recruiterId || !selectedTemplate}
                             >
                                 {createMutation.isPending ? 'Đang tạo...' : 'Tạo CV'}

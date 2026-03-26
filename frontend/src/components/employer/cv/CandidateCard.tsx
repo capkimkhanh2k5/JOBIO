@@ -1,8 +1,6 @@
-import { Link } from 'react-router-dom';
-import { MapPin, Briefcase, GraduationCap, CheckCircle } from 'lucide-react';
+import { MapPin, Briefcase, GraduationCap } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
@@ -38,7 +36,7 @@ interface CandidateCardProps {
 export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
     // Robust accessors
     const name = candidate.name || candidate.user?.full_name || 'N/A';
-    const avatar = candidate.avatar_url || candidate.user?.avatar_url;
+    const avatar = candidate.avatar_url || candidate.user?.avatar_url || undefined;
     const company = typeof candidate.current_company === 'string' 
         ? candidate.current_company 
         : candidate.current_company?.company_name || 'N/A';
@@ -102,7 +100,7 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
 
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start gap-2">
-                                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-primary transition-colors">
+                                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-violet-600 transition-colors">
                                     {name}
                                 </h3>
                                 {candidate.is_profile_public && (

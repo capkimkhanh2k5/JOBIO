@@ -168,7 +168,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                     className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center group"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                                        <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600">
                                             <LangIcon className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -190,7 +190,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                     </div>
 
                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                             onClick={() => { setEditEntry(lang); setDialogOpen(true); }}>
                                             <Pencil className="w-3.5 h-3.5" />
                                         </Button>

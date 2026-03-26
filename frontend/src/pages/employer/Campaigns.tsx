@@ -119,13 +119,13 @@ export default function EmployerCampaigns() {
         : undefined;
 
     return (
-        <div className="min-h-screen bg-white overflow-hidden relative pb-12">
+        <div className="min-h-screen bg-white overflow-hidden relative">
             {/* Background elements */}
             <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
 
-            <div className="w-full mx-auto space-y-8 relative z-10">
+            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
 
                 {/* Header Section */}
                 <PageHeader
@@ -154,12 +154,12 @@ export default function EmployerCampaigns() {
                     className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50 p-2 border border-slate-200 rounded-xl sticky top-4 z-20 shadow-sm"
                 >
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto overflow-x-auto hidden-scrollbar">
-                        <TabsList className="bg-transparent border-none p-0 h-10 w-full justify-start md:justify-center">
-                            <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Tất cả</TabsTrigger>
-                            <TabsTrigger value="active" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Đang chạy</TabsTrigger>
-                            <TabsTrigger value="draft" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Bản nháp</TabsTrigger>
-                            <TabsTrigger value="paused" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Tạm dừng</TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg data-[state=active]:text-violet-600">Hoàn thành</TabsTrigger>
+                        <TabsList className="bg-transparent border-none p-0 h-auto w-full justify-start md:justify-center gap-1">
+                            <TabsTrigger value="all" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Tất cả</TabsTrigger>
+                            <TabsTrigger value="active" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Đang chạy</TabsTrigger>
+                            <TabsTrigger value="draft" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Bản nháp</TabsTrigger>
+                            <TabsTrigger value="paused" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Tạm dừng</TabsTrigger>
+                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Hoàn thành</TabsTrigger>
                         </TabsList>
                     </Tabs>
 

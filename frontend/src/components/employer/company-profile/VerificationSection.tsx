@@ -43,11 +43,11 @@ export function VerificationSection({ company }: { company: any }) {
         <Card className="border-slate-200 bg-white shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
             {/* Subtle multi-layer background accents */}
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
-            <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-cyan-500/5 blur-[100px] pointer-events-none" />
+            <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-violet-600/5 blur-[100px] pointer-events-none" />
 
             <CardHeader className="relative z-10">
                 <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-800">
-                    <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500">
+                    <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
                         <ShieldCheck className="w-5 h-5" />
                     </div>
                     Xác minh Doanh nghiệp
@@ -110,7 +110,7 @@ export function VerificationSection({ company }: { company: any }) {
                     <Button
                         onClick={handleRequest}
                         disabled={isRequesting}
-                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white border-none shadow-lg shadow-cyan-500/20 h-11 px-8 rounded-xl font-black transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="bg-violet-600 hover:bg-violet-700 text-white border-none shadow-lg shadow-violet-500/20 h-11 px-8 rounded-xl font-black transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isRequesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
                         Bắt đầu xác minh ngay

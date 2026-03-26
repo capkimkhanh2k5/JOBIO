@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, Mail, Phone, MapPin, Globe, Linkedin, Facebook, Github, Eye, EyeOff, Upload, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
@@ -72,7 +71,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                     >
                         <Avatar className="w-36 h-36 border-4 border-white shadow-2xl ring-2 ring-violet-200">
                             <AvatarImage src={localAvatarUrl || profile?.avatar_url} />
-                            <AvatarFallback className="text-3xl bg-gradient-to-br from-primary/20 to-cyan-400/20 text-primary font-bold">
+                            <AvatarFallback className="text-3xl bg-gradient-to-br from-violet-200 to-cyan-400/20 text-violet-600 font-bold">
                                 {profile?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
@@ -129,8 +128,8 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                             <span>{profile?.current_position}</span>
                             {profile?.current_company && (
                                 <>
-                                    <span className="text-primary/40 text-sm">@</span>
-                                    <span className="text-primary font-semibold">{profile?.current_company}</span>
+                                    <span className="text-violet-400 text-sm">@</span>
+                                    <span className="text-violet-600 font-semibold">{profile?.current_company}</span>
                                 </>
                             )}
                         </p>
@@ -138,25 +137,25 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
 
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                         {profile?.email && (
-                            <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                            <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
                                 <Mail className="w-4 h-4" />
                                 {profile.email}
                             </a>
                         )}
                         {profile?.phone && (
-                            <a href={`tel:${profile.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                            <a href={`tel:${profile.phone}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
                                 <Phone className="w-4 h-4" />
                                 {profile.phone}
                             </a>
                         )}
                         {profile?.address?.province && (
-                            <div className="flex items-center gap-2 text-primary/80">
+                            <div className="flex items-center gap-2 text-violet-500">
                                 <MapPin className="w-4 h-4" />
                                 {profile.address.province}
                             </div>
                         )}
                         {profile?.years_of_experience > 0 && (
-                            <Badge variant="outline" className="rounded-full border-primary/20 text-primary/80 text-xs">
+                            <Badge variant="outline" className="rounded-full border-violet-200 text-violet-500 text-xs">
                                 {profile.years_of_experience} năm kinh nghiệm
                             </Badge>
                         )}
@@ -187,7 +186,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                         )}
                         {profile?.social_links?.portfolio && (
                             <motion.a whileHover={{ scale: 1.1, y: -2 }} href={profile.social_links.portfolio} target="_blank" rel="noreferrer"
-                                className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-primary hover:border-primary/30 hover:bg-violet-50 transition-all text-slate-600"
+                                className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-violet-600 hover:border-violet-200 hover:bg-violet-50 transition-all text-slate-600"
                                 aria-label="Portfolio">
                                 <Globe className="w-4 h-4" />
                             </motion.a>
@@ -212,6 +211,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                             checked={profile?.is_profile_public ?? false}
                             onCheckedChange={onTogglePrivacy}
                             aria-label="Toggle profile visibility"
+                            className="data-[state=checked]:bg-violet-600"
                         />
                     </div>
 
@@ -225,7 +225,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                                 <button
                                     key={status.value}
                                     onClick={() => onUpdateStatus(status.value)}
-                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all
                                         ${profile?.job_search_status === status.value
                                             ? `bg-white ${status.textColor} shadow-sm ring-1 ${status.borderColor}`
                                             : 'text-slate-500 hover:bg-white hover:shadow-sm'

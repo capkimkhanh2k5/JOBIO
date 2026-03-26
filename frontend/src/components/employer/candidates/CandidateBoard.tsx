@@ -150,7 +150,7 @@ export function CandidateBoard({ applications, isLoading, onStatusChange }: {
                                                     <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                                 </Avatar>
                                                 <div>
-                                                    <h4 className="font-medium text-sm leading-tight group-hover:text-primary transition-colors">
+                                                    <h4 className="font-medium text-sm leading-tight group-hover:text-violet-600 transition-colors">
                                                         {app.recruiter_name}
                                                     </h4>
                                                     <p className="text-xs text-muted-foreground mt-0.5 max-w-[180px] truncate">

@@ -63,7 +63,7 @@ export function NotificationSettings() {
         <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
+                    <div className="p-2 bg-violet-100 text-violet-600 rounded-lg shrink-0">
                         <Bell className="w-5 h-5" />
                     </div>
                     <div>

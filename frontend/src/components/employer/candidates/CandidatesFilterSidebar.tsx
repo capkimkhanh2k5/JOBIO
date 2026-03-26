@@ -58,7 +58,7 @@ export function CandidatesFilterSidebar() {
         <div className="w-[300px] flex-shrink-0 bg-card border border-border/50 rounded-xl p-5 flex flex-col h-[calc(100vh-200px)] sticky top-0 hide-scrollbar overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600">
                         <Filter className="w-4 h-4" />
                     </div>
                     <h2 className="font-semibold">Bộ lọc nâng cao</h2>
@@ -118,7 +118,7 @@ export function CandidatesFilterSidebar() {
                             </div>
                         ))}
                         {STATUSES.length > 5 && (
-                            <Button variant="link" className="p-0 h-auto text-xs text-muted-foreground hover:text-primary">
+                            <Button variant="link" className="p-0 h-auto text-xs text-muted-foreground hover:text-violet-600">
                                 + Xem thêm
                             </Button>
                         )}
@@ -160,7 +160,7 @@ export function CandidatesFilterSidebar() {
                                         else setFilters({ skills: [...cur, skill] });
                                     }}
                                     className={`px-3 py-1.5 rounded-full text-xs transition-colors border ${active
-                                            ? 'bg-primary/20 border-primary/30 text-primary font-medium'
+                                            ? 'bg-violet-100 border-violet-200 text-violet-600 font-medium'
                                             : 'bg-secondary/30 border-border/50 text-muted-foreground hover:bg-secondary'
                                         }`}
                                 >

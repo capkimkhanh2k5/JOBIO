@@ -118,7 +118,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
             <Card className="border-slate-200 bg-white shadow-sm">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-3 text-lg font-black text-slate-800">
-                        <div className="p-2 rounded-xl bg-cyan-600/10 text-cyan-600">
+                        <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
                             <UploadCloud className="w-5 h-5" />
                         </div>
                         Hình ảnh nhận diện
@@ -129,7 +129,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                     {/* Banner Section */}
                     <div className="space-y-3">
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Ảnh bìa hồ sơ (Banner)</p>
-                        <div className="relative group w-full h-56 rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all hover:border-cyan-400/50">
+                        <div className="relative group w-full h-56 rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all hover:border-violet-400/50">
                             {company?.banner_url ? (
                                 <img src={company.banner_url} alt="Banner" className="w-full h-full object-cover" />
                             ) : (
@@ -142,7 +142,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                             )}
                             <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] flex items-center justify-center">
                                 <label className="cursor-pointer bg-white px-5 py-2.5 rounded-xl text-slate-900 flex items-center gap-3 text-sm font-black shadow-xl transition-all hover:scale-105 active:scale-95">
-                                    {isUploadingBanner ? <Loader2 className="w-4 h-4 animate-spin text-cyan-500" /> : <UploadCloud className="w-4 h-4 text-cyan-500" />}
+                                    {isUploadingBanner ? <Loader2 className="w-4 h-4 animate-spin text-violet-500" /> : <UploadCloud className="w-4 h-4 text-violet-500" />}
                                     Thay đổi ảnh bìa
                                     <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} disabled={isUploadingBanner} />
                                 </label>
@@ -162,14 +162,14 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                             )}
                             <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] flex items-center justify-center">
                                 <label className="cursor-pointer p-3 rounded-full bg-white text-slate-900 shadow-xl transition-all hover:scale-110 active:scale-90">
-                                    {isUploadingLogo ? <Loader2 className="w-5 h-5 animate-spin text-cyan-500" /> : <UploadCloud className="w-5 h-5 text-cyan-500" />}
+                                    {isUploadingLogo ? <Loader2 className="w-5 h-5 animate-spin text-violet-500" /> : <UploadCloud className="w-5 h-5 text-violet-500" />}
                                     <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploadingLogo} />
                                 </label>
                             </div>
                         </div>
                         <div className="flex-1 space-y-2">
                             <p className="text-sm font-black text-slate-800">Logo thương hiệu</p>
-                            <p className="text-xs text-slate-500 leading-relaxed font-semibold">Khuyến nghị kích thước <span className="text-cyan-600 font-black">400x400px</span>. Sử dụng logo nền trong suốt (PNG) để tối ưu hiển thị.</p>
+                            <p className="text-xs text-slate-500 leading-relaxed font-semibold">Khuyến nghị kích thước <span className="text-violet-600 font-black">400x400px</span>. Sử dụng logo nền trong suốt (PNG) để tối ưu hiển thị.</p>
                         </div>
                     </div>
                 </CardContent>
@@ -180,7 +180,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                     <Card className="border-slate-200 bg-white shadow-sm">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-3 text-lg font-black text-slate-800">
-                                <div className="p-2 rounded-xl bg-cyan-600/10 text-cyan-600">
+                                <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
                                     <FileText className="w-5 h-5" />
                                 </div>
                                 Thông tin cơ bản
@@ -194,7 +194,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                     <FormItem className="col-span-1 md:col-span-2">
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tên công ty</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Ví dụ: JOBIO Tech Corporation" className="h-12 bg-white border-slate-200 focus:ring-cyan-500/20 focus:border-cyan-500 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                            <Input placeholder="Ví dụ: JOBIO Tech Corporation" className="h-12 bg-white border-slate-200 focus:ring-violet-500/20 focus:border-violet-500 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -331,7 +331,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                         <Button type="button" variant="ghost" className="h-11 px-8 rounded-xl font-black text-slate-400 hover:text-slate-600 transition-colors">Hủy</Button>
                         <Button
                             type="submit"
-                            className="bg-slate-900 text-white hover:bg-black h-11 px-10 rounded-xl font-black shadow-xl shadow-slate-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="bg-violet-600 text-white hover:bg-violet-700 h-11 px-10 rounded-xl font-black shadow-xl shadow-violet-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
                             disabled={updateMutation.isPending}
                         >
                             {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-3 opacity-70" /> : null}

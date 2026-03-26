@@ -133,7 +133,7 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                         <AvatarFallback><User className="w-4 h-4" /></AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <div className="font-semibold text-sm hover:text-primary transition-colors">{app.recruiter_name}</div>
+                                        <div className="font-semibold text-sm hover:text-violet-600 transition-colors">{app.recruiter_name}</div>
                                         <div className="text-xs text-muted-foreground font-normal">{(app.skills || []).slice(0, 2).join(", ")}</div>
                                     </div>
                                 </th>
@@ -165,7 +165,7 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                 </td>
                                 <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                     <div className="flex items-center justify-end gap-2">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={() => setSelectedCandidateId(app.id)}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-violet-600" onClick={() => setSelectedCandidateId(app.id)}>
                                             <Eye className="w-4 h-4" />
                                         </Button>
                                         <DropdownMenu>
