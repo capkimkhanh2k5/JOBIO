@@ -122,7 +122,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
 
     const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
         <div className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+            <div className="p-1.5 bg-violet-100 rounded-lg text-violet-600">
                 <Icon className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{children}</span>
@@ -397,7 +397,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2">
-                                        <Globe className="w-3.5 h-3.5 text-primary" /> Portfolio / Website
+                                        <Globe className="w-3.5 h-3.5 text-violet-600" /> Portfolio / Website
                                     </FormLabel>
                                     <FormControl>
                                         <Input placeholder="https://yourname.dev" {...field} value={field.value ?? ''} className="" />
@@ -409,7 +409,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                 </div>
 
                 <div className="flex justify-end pt-2">
-                    <Button type="submit" className="px-10 rounded-full shadow-lg hover:shadow-primary/20 transition-all font-bold" disabled={mutation.isPending}>
+                    <Button type="submit" className="px-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white shadow-lg hover:shadow-violet-600/20 transition-all font-bold" disabled={mutation.isPending}>
                         {mutation.isPending ? (
                             <span className="flex items-center gap-2">
                                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

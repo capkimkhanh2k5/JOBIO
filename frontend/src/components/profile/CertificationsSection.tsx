@@ -183,21 +183,21 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group"
                             >
-                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                                    <Award className="w-6 h-6 text-primary" />
+                                <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                                    <Award className="w-6 h-6 text-violet-600" />
                                 </div>
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0">
                                             <h3 className="font-bold text-sm md:text-base truncate">{cert.certification_name}</h3>
-                                            <p className="text-sm font-medium text-primary/80 flex items-center gap-1.5">
+                                            <p className="text-sm font-medium text-violet-500 flex items-center gap-1.5">
                                                 <ShieldCheck className="w-3.5 h-3.5" />
                                                 {cert.issuing_organization}
                                             </p>
                                         </div>
                                         <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                 onClick={() => { setEditEntry(cert); setDialogOpen(true); }}>
                                                 <Pencil className="w-3.5 h-3.5" />
                                             </Button>
@@ -239,7 +239,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
 
                                     {cert.credential_url && (
                                         <a href={cert.credential_url} target="_blank" rel="noreferrer"
-                                            className="inline-flex items-center gap-1 mt-2 text-xs text-primary hover:underline font-semibold">
+                                            className="inline-flex items-center gap-1 mt-2 text-xs text-violet-600 hover:underline font-semibold">
                                             Xem chứng chỉ <ExternalLink className="w-3 h-3" />
                                         </a>
                                     )}
@@ -256,7 +256,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
                 </AnimatePresence>
 
                 <Button variant="outline" onClick={() => { setEditEntry(null); setDialogOpen(true); }}
-                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-primary/5 hover:border-primary hover:text-primary transition-all">
+                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-violet-50 hover:border-violet-600 hover:text-violet-600 transition-all">
                     <Plus className="w-5 h-5 mr-2" />
                     Thêm chứng chỉ
                 </Button>

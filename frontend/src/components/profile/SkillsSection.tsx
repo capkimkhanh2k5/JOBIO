@@ -18,8 +18,7 @@ import { toast } from 'sonner';
 const PROFICIENCY_LEVELS = [
     { value: 'basic', label: 'Cơ bản', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
     { value: 'intermediate', label: 'Trung cấp', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-    { value: 'advanced', label: 'Nâng cao', color: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
-    { value: 'expert', label: 'Chuyên gia', color: 'bg-primary/10 text-primary border-primary/20' },
+    { value: 'expert', label: 'Chuyên gia', color: 'bg-violet-100 text-violet-600 border-violet-200' },
 ];
 
 interface SkillEntry {
@@ -202,7 +201,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     </div>
 
                                     <div className="flex gap-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="p-1 hover:text-primary transition-colors rounded"
+                                        <button className="p-1 hover:text-violet-600 transition-colors rounded"
                                             onClick={() => { setEditSkill(skill); setEditDialogOpen(true); }}
                                             aria-label="Chỉnh sửa kỹ năng">
                                             <Pencil className="w-3 h-3" />
@@ -222,7 +221,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                     <Popover open={searchOpen} onOpenChange={setSearchOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline"
-                                className="h-[64px] px-5 rounded-2xl border-dashed border-2 hover:border-primary hover:text-primary transition-all">
+                                className="h-[64px] px-5 rounded-2xl border-dashed border-2 hover:border-violet-600 hover:text-violet-600 transition-all">
                                 <Plus className="w-5 h-5 mr-2" />
                                 Thêm kỹ năng
                             </Button>
@@ -240,7 +239,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                             <CommandItem
                                                 key={s.id}
                                                 onSelect={() => handleSelectSearchResult(s)}
-                                                className="cursor-pointer hover:bg-primary/10"
+                                                className="cursor-pointer hover:bg-violet-100"
                                             >
                                                 {s.name}
                                             </CommandItem>
@@ -253,10 +252,10 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                 </div>
 
                 {/* Tip */}
-                <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 flex gap-4 items-start">
-                    <TrendingUp className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div className="bg-violet-50 p-4 rounded-2xl border border-violet-100 flex gap-4 items-start">
+                    <TrendingUp className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
                     <div>
-                        <h5 className="font-bold text-sm text-primary">Mẹo cho bạn</h5>
+                        <h5 className="font-bold text-sm text-violet-600">Mẹo cho bạn</h5>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                             Kỹ năng có mức <strong>Chuyên gia</strong> được xác thực sẽ giúp hồ sơ nổi bật hơn <strong>40%</strong> trong mắt nhà tuyển dụng.
                         </p>

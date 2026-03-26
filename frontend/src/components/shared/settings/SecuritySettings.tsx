@@ -63,7 +63,7 @@ export function SecuritySettings() {
     return (
         <div className="p-6">
             <div className="mb-6 flex items-start gap-3">
-                <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg shrink-0">
+                <div className="p-2 bg-violet-100 text-violet-600 rounded-lg shrink-0">
                     <Shield className="w-5 h-5" />
                 </div>
                 <div>
@@ -114,7 +114,7 @@ export function SecuritySettings() {
                 </div>
 
                 <div className="pt-4">
-                    <Button type="submit" disabled={isLoading} className="bg-slate-900 hover:bg-slate-800 text-white shadow-md">
+                    <Button type="submit" disabled={isLoading} className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 px-8">
                         {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Cập nhật mật khẩu
                     </Button>

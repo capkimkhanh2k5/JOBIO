@@ -24,7 +24,7 @@ export function WizardProgress({ current }: WizardProgressProps) {
                     const active = stepNum === current;
 
                     return (
-                        <div key={idx} className="flex items-center flex-1">
+                        <div key={idx} className={cn("flex items-center", idx < STEPS.length - 1 ? "flex-1" : "")}>
                             {/* Circle */}
                             <div className="flex flex-col items-center flex-shrink-0">
                                 <motion.div

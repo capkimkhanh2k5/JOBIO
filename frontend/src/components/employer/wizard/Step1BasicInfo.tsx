@@ -63,7 +63,7 @@ function RadioGroup<T extends string>({
                     type="button"
                     onClick={() => onChange(opt.value)}
                     className={cn(
-                        'px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-150',
+                        'px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-150 cursor-pointer',
                         value === opt.value
                             ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/20'
                             : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900 shadow-sm'

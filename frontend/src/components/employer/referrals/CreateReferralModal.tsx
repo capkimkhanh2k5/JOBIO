@@ -184,7 +184,7 @@ export function CreateReferralModal({ isOpen, onClose }: Props) {
                             <Button
                                 type="submit"
                                 disabled={createMutation.isPending}
-                                className="bg-gradient-to-r from-cyan-500 to-violet-500 text-white"
+                                className="bg-violet-600 hover:bg-violet-700 text-white"
                             >
                                 {createMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                 Gửi giới thiệu

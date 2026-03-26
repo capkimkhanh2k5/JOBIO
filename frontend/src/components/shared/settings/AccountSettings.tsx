@@ -60,7 +60,7 @@ export function AccountSettings() {
                 </div>
 
                 <div className="pt-6 border-t border-slate-100 flex justify-end">
-                    <Button className="bg-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-600/20 px-8">
+                    <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 px-8">
                         Lưu thay đổi
                     </Button>
                 </div>

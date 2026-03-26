@@ -66,7 +66,7 @@ export default function CompanyProfile() {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-5xl mx-auto pb-12">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 w-full mx-auto p-6 lg:p-8">
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-8">
                 <div>
@@ -82,9 +82,9 @@ export default function CompanyProfile() {
                         <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Mức độ hoàn thiện</span>
                         <div className="flex items-center gap-3">
                             <div className="w-32 h-2.5 rounded-full bg-slate-100 overflow-hidden shadow-inner">
-                                <div className="h-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500 w-[85%] rounded-full shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
+                                <div className="h-full bg-gradient-to-r from-cyan-400 to-violet-600 w-[85%] rounded-full shadow-[0_0_8px_rgba(139,92,246,0.4)]" />
                             </div>
-                            <span className="text-sm font-black text-emerald-600">85%</span>
+                            <span className="text-sm font-black text-violet-600">85%</span>
                         </div>
                     </div>
                 </div>
@@ -97,21 +97,21 @@ export default function CompanyProfile() {
                 <TabsList className="w-full justify-start border-b border-slate-200 rounded-none h-auto p-0 bg-transparent flex-wrap gap-8 mb-8">
                     <TabsTrigger
                         value="info"
-                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-500 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
+                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
                     >
                         <Building2 className="w-4 h-4 mr-2" />
                         Thông tin chung
                     </TabsTrigger>
                     <TabsTrigger
                         value="benefits"
-                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-500 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
+                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
                     >
                         <Heart className="w-4 h-4 mr-2" />
                         Phúc lợi & Chế độ
                     </TabsTrigger>
                     <TabsTrigger
                         value="media"
-                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-cyan-500 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
+                        className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600 rounded-none px-1 py-4 bg-transparent text-slate-500 font-bold text-sm data-[state=active]:text-slate-900 transition-all hover:text-slate-800"
                     >
                         <ImageIcon className="w-4 h-4 mr-2" />
                         Thư viện Media

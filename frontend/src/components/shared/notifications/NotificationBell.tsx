@@ -75,7 +75,7 @@ export const NotificationBell = () => {
             </PopoverTrigger>
             <PopoverContent
                 align="end"
-                className="w-80 md:w-96 p-0 border border-white/10 dark:glass-effect bg-background/95 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden"
+                className="w-80 md:w-96 p-0 border border-slate-200 bg-white shadow-2xl rounded-2xl overflow-hidden"
                 sideOffset={8}
             >
                 <NotificationDropdown onClose={() => setIsOpen(false)} />

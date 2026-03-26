@@ -181,7 +181,7 @@ export default function SavedJobs() {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-8 w-8 text-slate-400 opacity-0 group-hover/note:opacity-100 hover:text-violet-600 hover:bg-violet-50 transition-all rounded-full"
+                                                                className="h-8 w-8 text-violet-400 opacity-40 group-hover/note:opacity-100 hover:text-violet-600 hover:bg-violet-50 transition-all rounded-full shrink-0"
                                                                 onClick={() => handleEditNote(job.id, job.notes)}
                                                             >
                                                                 <Edit3 className="w-4 h-4" />

@@ -218,21 +218,21 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                     className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group select-none cursor-default relative overflow-hidden"
                                 >
                                     {/* Subtle gradient accent */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                                     <div className="mt-1 text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
-                                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                                        <FolderGit2 className="w-6 h-6 text-primary/60" />
+                                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <FolderGit2 className="w-6 h-6 text-violet-600" />
                                     </div>
 
                                     <div className="flex-1 space-y-2 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <h3 className="text-base font-bold group-hover:text-primary transition-colors">{project.project_name}</h3>
+                                                    <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors">{project.project_name}</h3>
                                                     {project.is_ongoing && (
                                                         <Badge variant="outline" className="text-[10px] h-[18px] px-2 text-emerald-500 border-emerald-500/20 flex items-center gap-1">
                                                             <Zap className="w-2.5 h-2.5" /> Đang thực hiện
@@ -249,7 +249,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                                 )}
                                             </div>
                                             <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => { setEditEntry(project); setDialogOpen(true); }}>
                                                     <Pencil className="w-3.5 h-3.5" />
                                                 </Button>
@@ -275,7 +275,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                         <div className="flex gap-4 pt-1">
                                             {project.project_url && (
                                                 <a href={project.project_url} target="_blank" rel="noreferrer"
-                                                    className="text-xs flex items-center gap-1 font-semibold text-primary hover:underline">
+                                                    className="text-xs flex items-center gap-1 font-semibold text-violet-600 hover:underline">
                                                     <ExternalLink className="w-3 h-3" /> Live Demo
                                                 </a>
                                             )}
@@ -300,7 +300,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                 </AnimatePresence>
 
                 <Button variant="outline" onClick={() => { setEditEntry(null); setDialogOpen(true); }}
-                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-primary/5 hover:border-primary hover:text-primary transition-all">
+                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-violet-50 hover:border-violet-600 hover:text-violet-600 transition-all">
                     <Plus className="w-5 h-5 mr-2" />
                     Thêm dự án mới
                 </Button>

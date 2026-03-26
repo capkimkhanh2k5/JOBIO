@@ -247,18 +247,18 @@ export const EducationSection = ({ userId }: { userId: number }) => {
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
-                                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                                        <GraduationCap className="w-5 h-5 text-primary" />
+                                    <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <GraduationCap className="w-5 h-5 text-violet-600" />
                                     </div>
 
                                     <div className="flex-1 space-y-1 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
-                                                <h3 className="text-base font-bold group-hover:text-primary transition-colors truncate">{edu.school_name}</h3>
-                                                <p className="text-sm text-primary/80 font-medium">{edu.degree} — {edu.field_of_study}</p>
+                                                <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors truncate">{edu.school_name}</h3>
+                                                <p className="text-sm text-violet-500 font-medium">{edu.degree} — {edu.field_of_study}</p>
                                             </div>
                                             <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => handleEdit(edu)}>
                                                     <Pencil className="w-3.5 h-3.5" />
                                                 </Button>
@@ -295,7 +295,7 @@ export const EducationSection = ({ userId }: { userId: number }) => {
                 </AnimatePresence>
 
                 <Button variant="outline" onClick={handleAdd}
-                    className="w-full h-12 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary hover:text-primary transition-all">
+                    className="w-full h-12 border-2 border-dashed rounded-2xl hover:bg-violet-50 hover:border-violet-600 hover:text-violet-600 transition-all">
                     <Plus className="w-5 h-5 mr-2" />
                     Thêm học vấn
                 </Button>

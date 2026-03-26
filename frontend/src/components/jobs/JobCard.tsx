@@ -201,7 +201,7 @@ export function JobCard({ job, view }: JobCardProps) {
                     <div className="flex items-center gap-2 flex-shrink-0">
                         <Button
                             size="sm"
-                            className="h-8 px-4 bg-primary hover:bg-primary/90 text-white font-semibold text-xs rounded-lg hidden sm:flex"
+                            className="h-8 px-4 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-xs rounded-lg hidden sm:flex"
                             onClick={e => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}
                         >
                             Ứng tuyển
@@ -358,7 +358,7 @@ export function JobCard({ job, view }: JobCardProps) {
                 {/* CTA bar */}
                 <div className="px-5 pb-4">
                     <Button
-                        className="w-full h-9 bg-primary hover:bg-primary/90 text-white font-semibold text-sm rounded-lg transition-colors"
+                        className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg transition-colors"
                         onClick={e => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}
                     >
                         Ứng tuyển ngay

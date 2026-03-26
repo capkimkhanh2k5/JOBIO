@@ -60,15 +60,16 @@ export function ApplicationsChart() {
                     <p className="text-sm text-slate-500 font-medium">Theo dõi số lượng ứng tuyển và lượt xem theo thời gian</p>
                 </div>
                 {/* Period filter tabs */}
-                <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
+                <div className="flex items-center gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl cursor-default">
                     {periods.map((p) => (
                         <button
                             key={p.value}
                             onClick={() => setPeriod(p.value)}
-                            className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${period === p.value
-                                ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
-                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
-                                }`}
+                            className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                                period === p.value
+                                    ? 'bg-violet-600 text-white shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                            }`}
                         >
                             {p.label}
                         </button>

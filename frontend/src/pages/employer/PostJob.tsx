@@ -217,16 +217,15 @@ export default function PostJob() {
 
     const onPublish = handleSubmit(data => publishMutation.mutate(data));
 
-    // ─ Render ─────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-[#f8fafc] py-8 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen overflow-hidden relative">
             {/* Background elements to match admin/candidate sections */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
                 <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-violet-100/30 blur-[100px]" />
                 <div className="absolute -bottom-[10%] -left-[10%] w-[35%] h-[35%] rounded-full bg-indigo-100/30 blur-[100px]" />
             </div>
 
-            <div className="max-w-5xl mx-auto relative z-10 space-y-6">
+            <div className="w-full mx-auto relative z-10 space-y-6 p-6 lg:p-8 animate-in fade-in duration-700">
                 {/* Modern Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>

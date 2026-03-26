@@ -241,21 +241,21 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
-                                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                                        <Briefcase className="w-5 h-5 text-primary" />
+                                    <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <Briefcase className="w-5 h-5 text-violet-600" />
                                     </div>
 
                                     <div className="flex-1 space-y-1.5 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
-                                                <h3 className="text-base font-bold group-hover:text-primary transition-colors">{exp.job_title}</h3>
-                                                <p className="text-sm text-primary/80 font-medium flex items-center gap-1.5">
+                                                <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors">{exp.job_title}</h3>
+                                                <p className="text-sm text-violet-500 font-medium flex items-center gap-1.5">
                                                     <Building2 className="w-3.5 h-3.5" /> {exp.company_name}
                                                     {exp.industry && <span className="text-muted-foreground">· {exp.industry}</span>}
                                                 </p>
                                             </div>
                                             <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => { setEditEntry(exp); setDialogOpen(true); }}>
                                                     <Pencil className="w-3.5 h-3.5" />
                                                 </Button>
@@ -285,7 +285,7 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                         )}
 
                                         {exp.achievements && (
-                                            <div className="mt-2 pl-3 border-l-2 border-primary/30">
+                                            <div className="mt-2 pl-3 border-l-2 border-violet-200">
                                                 <p className="text-xs text-muted-foreground/70 italic line-clamp-2">{exp.achievements}</p>
                                             </div>
                                         )}
@@ -303,7 +303,7 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                 </AnimatePresence>
 
                 <Button variant="outline" onClick={() => { setEditEntry(null); setDialogOpen(true); }}
-                    className="w-full h-12 border-2 border-dashed rounded-2xl hover:bg-primary/5 hover:border-primary hover:text-primary transition-all">
+                    className="w-full h-12 border-2 border-dashed rounded-2xl hover:bg-violet-50 hover:border-violet-600 hover:text-violet-600 transition-all">
                     <Plus className="w-5 h-5 mr-2" />
                     Thêm kinh nghiệm
                 </Button>

@@ -128,7 +128,7 @@ export function CandidateDetailSheet() {
                                     <Button size="icon" variant="outline" className="h-9 w-9 border-border/50">
                                         <Calendar className="w-4 h-4" />
                                     </Button>
-                                    <Button size="sm" className="h-9 text-xs">
+                                    <Button size="sm" className="h-9 text-xs bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20">
                                         <Download className="w-3.5 h-3.5 mr-1.5" /> Tải CV
                                     </Button>
                                 </div>
@@ -159,16 +159,16 @@ export function CandidateDetailSheet() {
 
                         <div className="p-6 pt-0 flex-1">
                             <Tabs defaultValue="cv" className="w-full mt-4">
-                                <TabsList className="w-full grid grid-cols-3 bg-secondary/30 mb-6 p-1">
-                                    <TabsTrigger value="cv" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">CV & Đơn</TabsTrigger>
-                                    <TabsTrigger value="profile" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Hồ sơ</TabsTrigger>
-                                    <TabsTrigger value="history" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Hoạt động</TabsTrigger>
+                                <TabsList className="w-full grid grid-cols-3 bg-slate-100/80 p-1 rounded-xl border border-slate-200 shadow-inner mb-6">
+                                    <TabsTrigger value="cv" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">CV & Đơn</TabsTrigger>
+                                    <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">Hồ sơ</TabsTrigger>
+                                    <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">Hoạt động</TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent value="cv" className="space-y-6 m-0">
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5">
                                         <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <FileText className="w-4 h-4 text-primary" /> Cover Letter
+                                            <FileText className="w-4 h-4 text-violet-600" /> Cover Letter
                                         </h3>
                                         <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                                             {details.cover_letter || "Không có thư giới thiệu."}
@@ -176,7 +176,7 @@ export function CandidateDetailSheet() {
                                     </div>
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5 flex flex-col h-[600px]">
                                         <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <FileText className="w-4 h-4 text-primary" /> CV Đính kèm
+                                            <FileText className="w-4 h-4 text-violet-600" /> CV Đính kèm
                                         </h3>
                                         <div className="flex-1 bg-secondary/30 rounded-lg flex items-center justify-center border border-dashed border-border/50">
                                             {/* Simulate iframe for PDF */}
@@ -197,7 +197,7 @@ export function CandidateDetailSheet() {
                                     <div className="space-y-6">
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <GraduationCap className="w-4 h-4" /> Học vấn
+                                                <GraduationCap className="w-4 h-4 text-violet-600" /> Học vấn
                                             </h3>
                                             <div className="space-y-4">
                                                 {education.map(edu => (
@@ -216,7 +216,7 @@ export function CandidateDetailSheet() {
 
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <Briefcase className="w-4 h-4" /> Kinh nghiệm
+                                                <Briefcase className="w-4 h-4 text-violet-600" /> Kinh nghiệm
                                             </h3>
                                             <div className="space-y-6">
                                                 {experience.map(exp => (
@@ -238,7 +238,7 @@ export function CandidateDetailSheet() {
 
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <Target className="w-4 h-4" /> Kỹ năng
+                                                <Target className="w-4 h-4 text-violet-600" /> Kỹ năng
                                             </h3>
                                             <div className="flex flex-wrap gap-2">
                                                 {skills.map(skill => (
@@ -257,7 +257,7 @@ export function CandidateDetailSheet() {
                                         <div className="bg-secondary/30 border border-border/50 rounded-xl p-4">
                                             <Textarea placeholder="Thêm ghi chú nội bộ (chỉ team tuyển dụng xem được)..." className="resize-none bg-secondary/20 border-border/50 focus-visible:ring-1 focus-visible:ring-primary h-20" />
                                             <div className="flex justify-end mt-3">
-                                                <Button size="sm">Lưu ghi chú</Button>
+                                                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20">Lưu ghi chú</Button>
                                             </div>
                                         </div>
 

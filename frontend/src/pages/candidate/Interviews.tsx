@@ -45,14 +45,14 @@ export default function Interviews() {
             <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                        <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1">
-                            <TabsTrigger value="upcoming" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6">
+                        <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 rounded-xl">
+                            <TabsTrigger value="upcoming" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
                                 Sắp tới
                             </TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6">
+                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
                                 Đã xong
                             </TabsTrigger>
-                            <TabsTrigger value="cancelled" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-md px-6">
+                            <TabsTrigger value="cancelled" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
                                 Đã hủy
                             </TabsTrigger>
                         </TabsList>
