@@ -46,6 +46,28 @@ class DashboardViewSet(viewsets.ViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @action(detail=False, methods=['get'], url_path='employer-analytics')
+    def employer_analytics(self, request):
+        """
+        GET /api/dashboard/stats/employer-analytics/
+        Comprehensive analytics data for the employer analytics page.
+        """
+        user = request.user
+        company = getattr(user, 'company_profile', None)
+        if not company:
+            return Response(
+                {'error': 'User is not associated with any company'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        try:
+            data = DashboardSelector.get_employer_analytics(company)
+            return Response(data)
+        except Exception as e:
+            return Response(
+                {'error': f'Error fetching analytics: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     @action(detail=False, methods=['get'], url_path='candidate')
     def candidate_stats(self, request):
         """

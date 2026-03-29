@@ -87,17 +87,17 @@ export function RecentApplicationsTable() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="w-8 h-8 border border-slate-200 shrink-0">
-                                                    <AvatarImage src={app.candidate_avatar || undefined} />
+                                                    <AvatarImage src={app.recruiter_avatar || undefined} />
                                                     <AvatarFallback className="text-xs font-bold bg-blue-50 text-blue-700">
-                                                        {(app.candidate_name || 'U').split(' ').pop()?.charAt(0)}
+                                                        {(app.recruiter_name || 'U').split(' ').pop()?.charAt(0)}
                                                     </AvatarFallback>
                                                 </Avatar>
-                                                <span className="font-semibold text-slate-900 text-sm whitespace-nowrap">{app.candidate_name || 'Ứng viên'}</span>
+                                                <span className="font-semibold text-slate-900 text-sm whitespace-nowrap">{app.recruiter_name || 'Ứng viên'}</span>
                                             </div>
                                         </td>
                                         {/* Vị trí */}
                                         <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-slate-600 whitespace-nowrap">{app.position}</span>
+                                            <span className="text-sm font-medium text-slate-600 whitespace-nowrap">{app.job_title}</span>
                                         </td>
                                         {/* Trạng thái */}
                                         <td className="px-6 py-4">

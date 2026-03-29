@@ -372,17 +372,28 @@ export type ApplicationStatus =
 
 export interface ApplicationListItem {
   id: number;
-  job: { id: number; title: string; company_name: string };
-  recruiter: { id: number; full_name: string; avatar: string | null };
+  job_id?: number;
+  job_title?: string;
+  company_name?: string;
+  company_logo?: string | null;
+  recruiter_id?: number;
+  recruiter_name?: string;
+  recruiter_email?: string;
+  recruiter_avatar?: string | null;
+  job: { id: number; title: string; company_name: string } | null;
+  recruiter: { id: number; full_name: string; avatar: string | null } | null;
   cv: { id: number; file_name: string } | null;
   status: ApplicationStatus;
   rating: number | null;
   applied_at: string;
   created_at: string;
+  updated_at?: string;
+  ai_score?: number;
+  skills?: string[];
+  // Legacy / optional fields kept for compat
   candidate_name?: string;
   candidate_avatar?: string | null;
   position?: string;
-  ai_score?: number;
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
@@ -787,21 +798,24 @@ export type InterviewResult = 'pass' | 'fail' | 'pending';
 
 export interface InterviewListItem {
   id: number;
-  application: { id: number; job_title: string; recruiter_name: string; applicant_name?: string };
-  applicant_name?: string;
-  interview_type: { id: number; name: string };
+  application_id: number;
+  job_title: string;
+  applicant_name: string;
+  applicant_avatar?: string | null;
+  interview_type_name: string;
   round_number: number;
   scheduled_at: string;
   duration_minutes: number;
+  meeting_link?: string | null;
   status: InterviewStatus;
   result: InterviewResult;
-  created_at: string;
+  // Legacy fields from previous type iterations (kept for fallback)
+  application?: any;
+  interview_type?: any;
+  created_at?: string;
   type?: string;
   candidate_name?: string;
   candidate_avatar?: string | null;
-  applicant_avatar?: string | null;
-  job_title?: string;
-  meeting_link?: string | null;
   location?: string | null;
 }
 
@@ -1074,12 +1088,14 @@ export interface BlogPost {
   slug: string;
   author: number;
   author_name: string;
+  author_avatar?: string | null;
   category: BlogCategory | null;
   tags: BlogTag[];
   summary: string | null;
   content: string;
   thumbnail: string | null;
   status: 'draft' | 'published' | 'archived';
+  is_featured: boolean;
   published_at: string | null;
   view_count: number;
   meta_title: string | null;

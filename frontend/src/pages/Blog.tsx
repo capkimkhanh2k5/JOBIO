@@ -1,163 +1,245 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, Newspaper, Lightbulb, ArrowRight, UserCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, Calendar, ArrowRight, UserCircle, Loader2, Tag as TagIcon, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { dashboardService } from '@/services/dashboardService';
+import { blogService } from '@/services/blogService';
+
+const fadeUp = (delay: number) => ({
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] as const }
+});
 
 export default function Blog() {
-    const { data, isLoading } = useQuery({
-        queryKey: ['blog-posts', 'published'],
-        queryFn: () => dashboardService.listPosts({ status: 'published', page_size: 9 }),
-        staleTime: 1000 * 60 * 5,
+    const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
+
+    // ── Queries ──
+    const { data: featuredResp } = useQuery({
+        queryKey: ['blog-featured'],
+        queryFn: () => blogService.listPosts({ is_featured: true, page_size: 1 }).then(r => r.data),
+        staleTime: 60_000,
+    });
+    const featuredPost = featuredResp?.results?.[0];
+
+    const { data: postsResp, isLoading: isLoadingPosts } = useQuery({
+        queryKey: ['blog-posts', selectedCategory],
+        queryFn: () => blogService.listPosts({ category_id: selectedCategory, page_size: 10 }).then(r => r.data),
+        staleTime: 60_000,
+    });
+    const posts = postsResp?.results ?? [];
+
+    const { data: categories } = useQuery({
+        queryKey: ['blog-categories'],
+        queryFn: () => blogService.listCategories().then(r => r.data.results),
+        staleTime: 1000 * 60 * 60,
     });
 
-    const posts = data?.data?.results ?? [];
+    const { data: tags } = useQuery({
+        queryKey: ['blog-tags'],
+        queryFn: () => blogService.listTags().then(r => r.data.results),
+        staleTime: 1000 * 60 * 60,
+    });
 
     return (
-        <div className="relative min-h-screen pb-24 bg-gray-50/30">
-            {/* Hero Section */}
-            <section className="relative pt-28 pb-16 px-4 text-center overflow-hidden bg-white border-b border-gray-100">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-3xl mx-auto relative z-10"
-                >
-                    <Badge className="bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100 mb-6 px-4 py-1.5 font-semibold">
-                        <BookOpen className="w-4 h-4 mr-2 inline" />
-                        Blog Nghề Nghiệp
+        <div className="min-h-screen bg-slate-50/50 pb-24">
+            {/* ── Page Header ── */}
+            <section className="bg-white border-b border-slate-100 pt-24 pb-16 px-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-600/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
+                <motion.div {...fadeUp(0)} className="max-w-7xl mx-auto text-center relative z-10">
+                    <Badge className="bg-violet-50 text-violet-700 hover:bg-violet-100 mb-6 px-4 py-1.5 font-bold tracking-tight border-none">
+                        <BookOpen className="w-4 h-4 mr-2 inline" /> Blog Chuyên Đề
                     </Badge>
-                    <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-6 text-gray-900">
-                        Kiến thức phát triển sự nghiệp
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6 text-slate-900 leading-[1.15]">
+                        Khám phá bí quyết <br className="hidden md:block"/> phát triển nghề nghiệp
                     </h1>
-                    <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                        Khám phá bí quyết ứng tuyển, xu hướng thị trường, và câu chuyện nghề nghiệp từ những chuyên gia hàng đầu.
+                    <p className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed font-medium">
+                        Cập nhật xu hướng tuyển dụng, đọc tin tức chuyên ngành và tìm hiểu văn hóa doanh nghiệp từ các chuyên gia hàng đầu.
                     </p>
                 </motion.div>
-
-                {/* Background blur effects */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none translate-y-1/2 -translate-x-1/3" />
             </section>
 
-            {/* Featured Posts and List */}
-            <section className="max-w-7xl mx-auto px-4 pt-16">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
-                        <Newspaper className="w-6 h-6 text-primary" />
-                        Bài viết mới nhất
-                    </h2>
-                    <div className="flex gap-2 hidden sm:flex">
-                        {['Tất cả', 'Kỹ năng tìm việc', 'Xu hướng thị trường', 'Góc phòng vấn'].map(cat => (
-                            <Badge key={cat} variant={cat === 'Tất cả' ? 'default' : 'outline'} className={cat === 'Tất cả' ? 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer' : 'border-gray-200 text-gray-600 hover:bg-gray-50 cursor-pointer text-sm font-medium py-1 px-3'}>
-                                {cat}
-                            </Badge>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {isLoading
-                        ? Array(3).fill(0).map((_, i) => (
-                            <Skeleton key={i} className="h-96 w-full rounded-3xl bg-gray-100" />
-                        ))
-                        : posts.map((post, idx) => (
-                        <motion.article
-                            key={post.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1 }}
-                            className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 group flex flex-col h-full"
-                        >
-                            <div className="aspect-[16/10] overflow-hidden relative">
-                                {post.thumbnail ? (
-                                    <img
-                                        src={post.thumbnail}
-                                        alt={post.title}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-indigo-50 flex items-center justify-center">
-                                        <BookOpen className="w-12 h-12 text-indigo-200" />
+            <main className="max-w-7xl mx-auto px-6 pt-12 lg:pt-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+                {/* ── MAIN CONTENT ── */}
+                <div className="lg:col-span-8 space-y-12">
+                    
+                    {/* Featured Hero Card */}
+                    {featuredPost && !selectedCategory && (
+                        <motion.div {...fadeUp(0.1)} className="group cursor-pointer">
+                            <Link to={`/blog/${featuredPost.slug}`} className="block relative bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-violet-600/5 transition-all duration-300">
+                                <div className="absolute top-4 left-4 z-20">
+                                    <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-none font-bold uppercase tracking-wider text-[10px] shadow-sm">
+                                        Bài nổi bật
+                                    </Badge>
+                                </div>
+                                <div className="aspect-[21/9] md:aspect-[2/1] relative overflow-hidden bg-slate-100">
+                                    {featuredPost.thumbnail ? (
+                                        <img src={featuredPost.thumbnail} alt={featuredPost.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-slate-300"><BookOpen className="w-16 h-16" /></div>
+                                    )}
+                                </div>
+                                <div className="p-6 md:p-8 relative z-10">
+                                    <div className="flex items-center gap-3 text-slate-500 text-sm font-medium mb-3">
+                                        <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {new Date(featuredPost.published_at!).toLocaleDateString('vi-VN')}</span>
+                                        {featuredPost.category && <span className="flex items-center gap-1.5 before:content-['•'] before:mr-1.5 before:opacity-50">{featuredPost.category.name}</span>}
                                     </div>
-                                )}
-                                {post.category && (
-                                    <div className="absolute top-4 left-4">
-                                        <Badge className="bg-white/90 text-indigo-700 backdrop-blur-md border-0 uppercase font-bold tracking-wider text-[10px]">
-                                            {post.category.name}
-                                        </Badge>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="p-6 md:p-8 flex flex-col flex-grow">
-                                <h3 className="text-xl font-bold text-gray-900 leading-snug mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                                    {post.title}
-                                </h3>
-                                <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-3">
-                                    {post.summary ?? ''}
-                                </p>
-
-                                <div className="mt-auto pt-6 border-t border-gray-100 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-                                            <UserCircle className="w-5 h-5" />
+                                    <h2 className="text-2xl md:text-3xl font-bold text-slate-900 leading-snug mb-3 group-hover:text-violet-600 transition-colors">
+                                        {featuredPost.title}
+                                    </h2>
+                                    <p className="text-slate-600 line-clamp-2 md:text-lg mb-6 max-w-3xl">
+                                        {featuredPost.summary}
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden">
+                                            {featuredPost.author_avatar ? <img src={featuredPost.author_avatar} alt="" /> : <UserCircle className="w-6 h-6" />}
                                         </div>
-                                        <div className="text-xs">
-                                            <p className="font-semibold text-gray-900">{post.author_name}</p>
-                                            <p className="text-gray-400">
-                                                {post.published_at ? new Date(post.published_at).toLocaleDateString('vi-VN') : ''}
-                                            </p>
-                                        </div>
+                                        <span className="font-semibold text-slate-900">{featuredPost.author_name}</span>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.article>
-                    ))}
-                </div>
+                            </Link>
+                        </motion.div>
+                    )}
 
-                <div className="flex justify-center mt-12">
-                    <Button variant="outline" className="rounded-xl h-12 px-8 font-semibold border-gray-200 hover:bg-gray-50">
-                        Xem thêm bài viết
-                    </Button>
-                </div>
-            </section>
-
-            {/* Newsletter CTA */}
-            <section className="max-w-4xl mx-auto px-4 mt-24">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-500/20"
-                >
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-                    <div className="relative z-10 space-y-6">
-                        <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 backdrop-blur-md">
-                            <Lightbulb className="w-8 h-8 text-indigo-100" />
+                    {/* Posts Grid */}
+                    <div>
+                        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+                            <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+                                {selectedCategory ? 'Tất cả bài viết' : 'Bài viết mới nhất'}
+                            </h3>
                         </div>
-                        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                            Đừng bỏ lỡ các bí quyết nghề nghiệp!
-                        </h2>
-                        <p className="text-indigo-100 max-w-lg mx-auto md:text-lg">
-                            Đăng ký nhận bản tin định kỳ hàng tuần từ đội ngũ chuyên gia của chúng tôi.
-                        </p>
-                        <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mt-8" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                type="email"
-                                placeholder="Email của bạn..."
-                                className="flex-1 h-12 bg-white/10 border border-white/20 rounded-xl px-4 text-white placeholder:text-indigo-200 outline-none focus:bg-white/20 focus:border-white/40 transition-all font-medium"
-                                required
-                            />
-                            <Button className="h-12 bg-white text-indigo-600 hover:bg-gray-50 rounded-xl font-bold px-6 shadow-none">
-                                Đăng ký
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                            </Button>
-                        </form>
+
+                        {isLoadingPosts ? (
+                            <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-violet-600" /></div>
+                        ) : posts.length === 0 ? (
+                            <div className="text-center py-12"><p className="text-slate-500 font-medium">Không tìm thấy bài viết nào.</p></div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                                {posts.map((post, idx) => {
+                                    if (featuredPost && post.id === featuredPost.id && !selectedCategory) return null; // Deduplicate
+                                    return (
+                                        <motion.article 
+                                            key={post.id} 
+                                            {...fadeUp(0.1 + idx * 0.05)}
+                                            className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:shadow-violet-600/5 transition-all duration-300 overflow-hidden flex flex-col group"
+                                        >
+                                            <Link to={`/blog/${post.slug}`} className="flex flex-col h-full">
+                                                <div className="aspect-[16/10] overflow-hidden bg-slate-50 relative">
+                                                    {post.thumbnail ? (
+                                                        <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-200"><BookOpen className="w-10 h-10" /></div>
+                                                    )}
+                                                    {post.category && (
+                                                        <Badge className="absolute top-3 left-3 bg-white/90 text-violet-700 backdrop-blur border-none font-bold text-[10px] uppercase shadow-sm">
+                                                            {post.category.name}
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                                <div className="p-6 flex flex-col flex-1">
+                                                    <div className="text-xs text-slate-500 font-medium mb-3 flex items-center gap-1.5">
+                                                        <Calendar className="w-3.5 h-3.5" /> 
+                                                        {new Date(post.published_at!).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                    <h4 className="text-lg font-bold text-slate-900 leading-snug mb-2 group-hover:text-violet-600 transition-colors line-clamp-2">
+                                                        {post.title}
+                                                    </h4>
+                                                    <p className="text-sm text-slate-500 line-clamp-2 mb-6 flex-1">
+                                                        {post.summary}
+                                                    </p>
+                                                    <div className="pt-4 border-t border-slate-50 flex items-center justify-between mt-auto">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden">
+                                                                {post.author_avatar ? <img src={post.author_avatar} alt="" /> : <UserCircle className="w-4 h-4" />}
+                                                            </div>
+                                                            <span className="text-xs font-semibold text-slate-700">{post.author_name}</span>
+                                                        </div>
+                                                        <span className="text-violet-600 text-xs font-bold flex items-center gap-1 opacity-0 -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all">
+                                                            Đọc tiếp <ArrowRight className="w-3 h-3" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </motion.article>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        
+                        {posts.length > 0 && (
+                            <div className="flex justify-center mt-12">
+                                <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold px-8 h-12 shadow-sm">
+                                    Tải thêm bài viết
+                                </Button>
+                            </div>
+                        )}
                     </div>
-                </motion.div>
-            </section>
+                </div>
+
+                {/* ── SIDEBAR ── */}
+                <aside className="lg:col-span-4 space-y-8">
+                    {/* Search / Newsletter snippet -> repurposed as Category list */}
+                    <motion.div {...fadeUp(0.2)} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8">
+                        <h4 className="font-black text-slate-900 tracking-tight mb-6 flex items-center gap-2">
+                            <BookOpen className="w-5 h-5 text-violet-600" /> Danh mục
+                        </h4>
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => setSelectedCategory(undefined)}
+                                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer
+                                    ${!selectedCategory ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                            >
+                                Tất cả bài viết
+                                {!selectedCategory && <ChevronRight className="w-4 h-4 opacity-50" />}
+                            </button>
+                            {categories?.map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.id)}
+                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer
+                                        ${selectedCategory === cat.id ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                                >
+                                    {cat.name}
+                                    {selectedCategory === cat.id && <ChevronRight className="w-4 h-4 opacity-50" />}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+
+                    {/* Popular Tags */}
+                    {tags && tags.length > 0 && (
+                        <motion.div {...fadeUp(0.3)} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 lg:p-8">
+                            <h4 className="font-black text-slate-900 tracking-tight mb-6 flex items-center gap-2">
+                                <TagIcon className="w-5 h-5 text-violet-600" /> Chủ đề quan tâm
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                {tags.map((tag) => (
+                                    <Badge key={tag.id} className="bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 font-semibold px-3 py-1.5 border border-slate-200 transition-colors shadow-none cursor-pointer">
+                                        #{tag.name}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {/* Banner Ads / Promo CTA */}
+                    <motion.div {...fadeUp(0.4)} className="bg-gradient-to-br from-violet-600 to-violet-800 rounded-3xl p-8 text-white relative overflow-hidden shadow-lg shadow-violet-600/20 text-center">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+                        <div className="relative z-10 flex flex-col items-center">
+                            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur mb-6">
+                                <span className="text-2xl font-bold font-serif">"</span>
+                            </div>
+                            <h4 className="text-xl font-bold mb-4 leading-tight">Đăng ký nhận bài viết mới hàng tuần</h4>
+                            <p className="text-violet-100 text-sm mb-6">Trọn bộ cẩm nang từ chuyên gia nhân sự.</p>
+                            <Button className="w-full bg-white text-violet-700 hover:bg-slate-50 font-bold h-11 rounded-xl shadow-sm">
+                                Theo dõi ngay
+                            </Button>
+                        </div>
+                    </motion.div>
+                </aside>
+            </main>
         </div>
     );
 }

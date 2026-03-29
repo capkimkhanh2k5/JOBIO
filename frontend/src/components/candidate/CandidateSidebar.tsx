@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, MessageSquare, CalendarClock, Users, Settings, Star
+    Bell, MessageSquare, CalendarClock, Users, Settings, Star, BookOpen
 } from 'lucide-react';
 
 interface NavItem {
@@ -30,6 +30,7 @@ export function CandidateSidebar() {
         { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
         { label: 'Kết nối', path: '/candidate/connections', icon: <Users className="w-5 h-5" /> },
         { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
+        { label: 'Blog', path: '/blog', icon: <BookOpen className="w-5 h-5" /> },
     ];
 
     const mainItems = navItems.slice(0, 10);

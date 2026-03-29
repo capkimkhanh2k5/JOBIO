@@ -24,26 +24,38 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated] # Allow all authenticated users (logic limited in perform_create)
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'summary', 'content', 'tags__name', 'category__name']
     ordering_fields = ['published_at', 'view_count', 'created_at']
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'view_count']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
         user = self.request.user
+        qs = Post.objects.all()
+        
+        # Apply is_featured filter if provided
+        is_featured = self.request.query_params.get('is_featured')
+        if is_featured:
+            is_featured_bool = is_featured.lower() == 'true'
+            qs = qs.filter(is_featured=is_featured_bool)
+
         if user.is_authenticated:
-            # Staff sees all
+            # Staff sees all (with optional feature filter)
             if user.is_staff:
-                return BlogSelector.get_all_posts_for_admin()
+                return qs
             # Regular user sees enabled public posts AND their own posts
-            # Logic: (Public) OR (My Posts)
-            return Post.objects.filter(
+            return qs.filter(
                 models.Q(status=Post.Status.PUBLISHED) | 
                 models.Q(author=user)
             ).distinct()
             
-        return BlogSelector.get_public_posts()
+        # Unauthenticated users only see published posts
+        return qs.filter(status=Post.Status.PUBLISHED)
 
     def perform_create(self, serializer):
         user = self.request.user

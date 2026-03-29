@@ -29,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
     { name: 'Trang Chủ', path: '/' },
     { name: 'Việc Làm', path: '/jobs' },
     { name: 'Công Ty', path: '/companies' },
+    { name: 'Blog', path: '/blog' },
     { name: 'Đăng Tuyển', path: '/employer/jobs/create', requiresAuth: true, requiresRole: 'company' },
     { name: 'Giá Dịch Vụ', path: '/pricing' },
     { name: 'Tạo CV', path: '/cv-builder', requiresAuth: true },

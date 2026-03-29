@@ -76,6 +76,9 @@ class Post(TimeStampedModel):
     # SEO
     meta_title = models.CharField(max_length=255, blank=True)
     meta_description = models.TextField(blank=True)
+    
+    # Flags
+    is_featured = models.BooleanField(default=False, verbose_name='Bài viết nổi bật')
 
     class Meta:
         ordering = ['-created_at']
