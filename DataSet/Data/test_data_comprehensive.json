@@ -372,6 +372,142 @@
       "is_anonymous": false,
       "created_at": "2026-03-15T09:15:00Z"
     }
-  ]
+  ],
+  "analytics_report": {
+    "_comment": "Sample data for employer analytics page. Represents a company with company_id=1 (e.g. TechCorp Vietnam). Use this data to test the /api/dashboard/stats/employer-analytics/ endpoint.",
+    "summary": {
+      "total_jobs": 12,
+      "active_jobs": 7,
+      "total_applications": 143,
+      "new_applications_30d": 38,
+      "applications_delta": 18.75,
+      "total_views": 4820,
+      "hired_count": 9,
+      "hire_rate": 6.3,
+      "interview_count": 14
+    },
+    "time_series": [
+      { "date": "01/01", "full_date": "2026-01-01", "applications": 2, "views": 48 },
+      { "date": "08/01", "full_date": "2026-01-08", "applications": 3, "views": 52 },
+      { "date": "15/01", "full_date": "2026-01-15", "applications": 5, "views": 61 },
+      { "date": "22/01", "full_date": "2026-01-22", "applications": 4, "views": 58 },
+      { "date": "29/01", "full_date": "2026-01-29", "applications": 6, "views": 72 },
+      { "date": "05/02", "full_date": "2026-02-05", "applications": 4, "views": 55 },
+      { "date": "12/02", "full_date": "2026-02-12", "applications": 7, "views": 80 },
+      { "date": "19/02", "full_date": "2026-02-19", "applications": 5, "views": 65 },
+      { "date": "26/02", "full_date": "2026-02-26", "applications": 9, "views": 95 },
+      { "date": "05/03", "full_date": "2026-03-05", "applications": 6, "views": 74 },
+      { "date": "12/03", "full_date": "2026-03-12", "applications": 11, "views": 110 },
+      { "date": "19/03", "full_date": "2026-03-19", "applications": 8, "views": 92 },
+      { "date": "26/03", "full_date": "2026-03-26", "applications": 13, "views": 125 },
+      { "date": "29/03", "full_date": "2026-03-29", "applications": 7, "views": 88 }
+    ],
+    "funnel": [
+      { "stage": "Tổng ứng tuyển", "count": 143, "color": "#8b5cf6" },
+      { "stage": "Đang xem xét", "count": 68, "color": "#3b82f6" },
+      { "stage": "Phỏng vấn", "count": 28, "color": "#06b6d4" },
+      { "stage": "Offer", "count": 12, "color": "#10b981" },
+      { "stage": "Tuyển thành công", "count": 9, "color": "#22c55e" }
+    ],
+    "status_breakdown": [
+      { "status": "pending", "label": "Chờ xử lý", "count": 32, "color": "#f59e0b" },
+      { "status": "reviewing", "label": "Đang xem", "count": 45, "color": "#3b82f6" },
+      { "status": "shortlisted", "label": "Vào vòng tiếp", "count": 23, "color": "#8b5cf6" },
+      { "status": "interview", "label": "Phỏng vấn", "count": 14, "color": "#06b6d4" },
+      { "status": "offered", "label": "Đang offer", "count": 3, "color": "#10b981" },
+      { "status": "accepted", "label": "Nhận việc", "count": 9, "color": "#22c55e" },
+      { "status": "rejected", "label": "Từ chối", "count": 17, "color": "#ef4444" }
+    ],
+    "top_jobs": [
+      {
+        "id": 1,
+        "title": "Senior Frontend Developer (React)",
+        "status": "published",
+        "views": 980,
+        "applications": 34,
+        "interviews": 7,
+        "hired": 2,
+        "conversion_rate": 5.9,
+        "published_at": "2026-01-10T09:00:00Z"
+      },
+      {
+        "id": 2,
+        "title": "Backend Engineer (Django/Python)",
+        "status": "published",
+        "views": 820,
+        "applications": 28,
+        "interviews": 5,
+        "hired": 2,
+        "conversion_rate": 7.1,
+        "published_at": "2026-01-15T08:30:00Z"
+      },
+      {
+        "id": 3,
+        "title": "UI/UX Designer",
+        "status": "published",
+        "views": 710,
+        "applications": 22,
+        "interviews": 4,
+        "hired": 1,
+        "conversion_rate": 4.5,
+        "published_at": "2026-01-20T10:00:00Z"
+      },
+      {
+        "id": 4,
+        "title": "DevOps Engineer (AWS/Kubernetes)",
+        "status": "closed",
+        "views": 640,
+        "applications": 18,
+        "interviews": 4,
+        "hired": 1,
+        "conversion_rate": 5.6,
+        "published_at": "2025-12-01T09:00:00Z"
+      },
+      {
+        "id": 5,
+        "title": "Product Manager",
+        "status": "published",
+        "views": 590,
+        "applications": 15,
+        "interviews": 5,
+        "hired": 2,
+        "conversion_rate": 13.3,
+        "published_at": "2026-02-01T08:00:00Z"
+      },
+      {
+        "id": 6,
+        "title": "Data Scientist (Machine Learning)",
+        "status": "published",
+        "views": 530,
+        "applications": 12,
+        "interviews": 2,
+        "hired": 1,
+        "conversion_rate": 8.3,
+        "published_at": "2026-02-10T09:00:00Z"
+      },
+      {
+        "id": 7,
+        "title": "Mobile Developer (React Native)",
+        "status": "draft",
+        "views": 210,
+        "applications": 8,
+        "interviews": 1,
+        "hired": 0,
+        "conversion_rate": 0.0,
+        "published_at": null
+      },
+      {
+        "id": 8,
+        "title": "QA Engineer (Automation)",
+        "status": "published",
+        "views": 340,
+        "applications": 6,
+        "interviews": 2,
+        "hired": 0,
+        "conversion_rate": 0.0,
+        "published_at": "2026-03-01T10:00:00Z"
+      }
+    ]
+  }
 }
 
