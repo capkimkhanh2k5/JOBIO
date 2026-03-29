@@ -13,6 +13,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    author_avatar = serializers.URLField(source='author.avatar_url', read_only=True)
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True, required=False, allow_null=True
@@ -25,8 +26,10 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'slug', 'author_name', 'category', 'category_id', 
-            'tags', 'tag_ids', 'summary', 'content', 'thumbnail', 
+            'id', 'title', 'slug', 'author_name', 'author_avatar', 
+            'category', 'category_id', 'tags', 'tag_ids', 
+            'summary', 'content', 'thumbnail', 'is_featured',
+            'meta_title', 'meta_description',
             'status', 'published_at', 'view_count', 'created_at'
         ]
         read_only_fields = ['author', 'published_at', 'view_count', 'slug']

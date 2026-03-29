@@ -1088,12 +1088,14 @@ export interface BlogPost {
   slug: string;
   author: number;
   author_name: string;
+  author_avatar?: string | null;
   category: BlogCategory | null;
   tags: BlogTag[];
   summary: string | null;
   content: string;
   thumbnail: string | null;
   status: 'draft' | 'published' | 'archived';
+  is_featured: boolean;
   published_at: string | null;
   view_count: number;
   meta_title: string | null;

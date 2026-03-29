@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { dashboardService } from '@/services/dashboardService';
+import { blogService } from '@/services/blogService';
 import { motion } from 'framer-motion';
 import {
     FileText, Plus, Search, Edit3, Trash2, Eye,
-    Tag, FolderOpen, MoreHorizontal, Loader2
+    Tag, FolderOpen, MoreHorizontal, Loader2, Star
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,24 +43,24 @@ export default function BlogManagement() {
 
     const { data: postsResp, isLoading: loadingPosts } = useQuery({
         queryKey: ['admin-blog-posts', searchQuery],
-        queryFn: () => dashboardService.listPosts({ search: searchQuery || undefined }).then(r => r.data),
+        queryFn: () => blogService.listPosts({ search: searchQuery || undefined }).then(r => r.data),
         staleTime: 30_000,
     });
     const posts = postsResp?.results ?? [];
 
     const { data: categoriesResp, isLoading: loadingCategories } = useQuery({
         queryKey: ['admin-blog-categories'],
-        queryFn: () => dashboardService.listBlogCategories().then(r => r.data),
+        queryFn: () => blogService.listCategories().then(r => r.data),
         staleTime: 60_000,
     });
-    const categories = categoriesResp ?? [];
+    const categories = categoriesResp?.results ?? [];
 
     const { data: tagsResp, isLoading: loadingTags } = useQuery({
         queryKey: ['admin-blog-tags'],
-        queryFn: () => dashboardService.listBlogTags().then(r => r.data),
+        queryFn: () => blogService.listTags().then(r => r.data),
         staleTime: 60_000,
     });
-    const tags = tagsResp ?? [];
+    const tags = tagsResp?.results ?? [];
 
     return (
         <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
@@ -131,7 +131,10 @@ export default function BlogManagement() {
                                     {posts.map((post) => (
                                         <tr key={post.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                                             <td className="py-3 px-4">
-                                                <p className="font-semibold text-slate-900 text-sm line-clamp-1">{post.title}</p>
+                                                <div className="flex items-center gap-2">
+                                                    {post.is_featured && <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />}
+                                                    <p className="font-semibold text-slate-900 text-sm line-clamp-1">{post.title}</p>
+                                                </div>
                                             </td>
                                             <td className="py-3 px-4 text-slate-600 text-xs">{post.category?.name ?? '—'}</td>
                                             <td className="py-3 px-4">

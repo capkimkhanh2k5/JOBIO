@@ -55,7 +55,10 @@
       "duration_minutes": 60,
       "status": "scheduled",
       "meeting_link": "https://meet.google.com/abc-defg-hij",
-      "interviewer_names": ["Trưởng phòng Kỹ thuật", "Senior Developer A"]
+      "interviewer_names": [
+        "Trưởng phòng Kỹ thuật",
+        "Senior Developer A"
+      ]
     },
     {
       "id": 2,
@@ -158,7 +161,12 @@
       "full_name": "Nguyên Văn A",
       "position": "Senior Frontend Developer",
       "experience_years": 5,
-      "skills": ["React", "TypeScript", "Tailwind CSS", "Next.js"],
+      "skills": [
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Next.js"
+      ],
       "address": "Quận 1, TP. Hồ Chí Minh",
       "avatar_url": null,
       "score": 92,
@@ -170,7 +178,12 @@
       "full_name": "Tràn Thị B",
       "position": "Backend Engineer",
       "experience_years": 3,
-      "skills": ["Python", "Django", "PostgreSQL", "Docker"],
+      "skills": [
+        "Python",
+        "Django",
+        "PostgreSQL",
+        "Docker"
+      ],
       "address": "Càu Giáy, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=B",
       "score": 88,
@@ -182,7 +195,11 @@
       "full_name": "Hoàng Tuyết Mai",
       "position": "Product Designer",
       "experience_years": 2,
-      "skills": ["Figma", "UI/UX", "Prototyping"],
+      "skills": [
+        "Figma",
+        "UI/UX",
+        "Prototyping"
+      ],
       "address": "Liên Chiểu, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Mai",
       "score": 95,
@@ -194,7 +211,13 @@
       "full_name": "Lê Minh Tâm",
       "position": "DevOps Engineer",
       "experience_years": 4,
-      "skills": ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
+      "skills": [
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "CI/CD"
+      ],
       "address": "Thủ Đức, TP. Hồ Chí Minh",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Tam",
       "score": 88,
@@ -206,7 +229,13 @@
       "full_name": "Phạm Hải Đăng",
       "position": "Data Scientist",
       "experience_years": 3,
-      "skills": ["Machine Learning", "Python", "R", "SQL", "Pandas"],
+      "skills": [
+        "Machine Learning",
+        "Python",
+        "R",
+        "SQL",
+        "Pandas"
+      ],
       "address": "Bình Thạnh, TP. Hồ Chí Minh",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Dang",
       "score": 90,
@@ -218,7 +247,12 @@
       "full_name": "Vũ Anh Tuấn",
       "position": "Mobile Developer (Flutter)",
       "experience_years": 2,
-      "skills": ["Flutter", "Dart", "Firebase", "Git"],
+      "skills": [
+        "Flutter",
+        "Dart",
+        "Firebase",
+        "Git"
+      ],
       "address": "Thanh Xuân, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Tuan",
       "score": 82,
@@ -230,7 +264,12 @@
       "full_name": "Đặng Thị Thu",
       "position": "QA Automation Engineer",
       "experience_years": 6,
-      "skills": ["Selenium", "Java", "TestNG", "Jenkins"],
+      "skills": [
+        "Selenium",
+        "Java",
+        "TestNG",
+        "Jenkins"
+      ],
       "address": "Hải Châu, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Thu",
       "score": 87,
@@ -242,7 +281,13 @@
       "full_name": "Bùi Xuân Huấn",
       "position": "Project Manager",
       "experience_years": 8,
-      "skills": ["Agile", "Scrum", "Jira", "Leadership", "Communication"],
+      "skills": [
+        "Agile",
+        "Scrum",
+        "Jira",
+        "Leadership",
+        "Communication"
+      ],
       "address": "Hoàn Kiếm, Hà Nội",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Huan",
       "score": 91,
@@ -254,7 +299,13 @@
       "full_name": "Ngô Bảo Châu",
       "position": "AI Research Scientist",
       "experience_years": 10,
-      "skills": ["Deep Learning", "PyTorch", "TensorFlow", "NLP", "Computer Vision"],
+      "skills": [
+        "Deep Learning",
+        "PyTorch",
+        "TensorFlow",
+        "NLP",
+        "Computer Vision"
+      ],
       "address": "Sơn Trà, Đà Nẵng",
       "avatar_url": "https://api.dicebear.com/7.x/avataaars/svg?seed=Chau",
       "score": 98,
@@ -387,36 +438,161 @@
       "interview_count": 14
     },
     "time_series": [
-      { "date": "01/01", "full_date": "2026-01-01", "applications": 2, "views": 48 },
-      { "date": "08/01", "full_date": "2026-01-08", "applications": 3, "views": 52 },
-      { "date": "15/01", "full_date": "2026-01-15", "applications": 5, "views": 61 },
-      { "date": "22/01", "full_date": "2026-01-22", "applications": 4, "views": 58 },
-      { "date": "29/01", "full_date": "2026-01-29", "applications": 6, "views": 72 },
-      { "date": "05/02", "full_date": "2026-02-05", "applications": 4, "views": 55 },
-      { "date": "12/02", "full_date": "2026-02-12", "applications": 7, "views": 80 },
-      { "date": "19/02", "full_date": "2026-02-19", "applications": 5, "views": 65 },
-      { "date": "26/02", "full_date": "2026-02-26", "applications": 9, "views": 95 },
-      { "date": "05/03", "full_date": "2026-03-05", "applications": 6, "views": 74 },
-      { "date": "12/03", "full_date": "2026-03-12", "applications": 11, "views": 110 },
-      { "date": "19/03", "full_date": "2026-03-19", "applications": 8, "views": 92 },
-      { "date": "26/03", "full_date": "2026-03-26", "applications": 13, "views": 125 },
-      { "date": "29/03", "full_date": "2026-03-29", "applications": 7, "views": 88 }
+      {
+        "date": "01/01",
+        "full_date": "2026-01-01",
+        "applications": 2,
+        "views": 48
+      },
+      {
+        "date": "08/01",
+        "full_date": "2026-01-08",
+        "applications": 3,
+        "views": 52
+      },
+      {
+        "date": "15/01",
+        "full_date": "2026-01-15",
+        "applications": 5,
+        "views": 61
+      },
+      {
+        "date": "22/01",
+        "full_date": "2026-01-22",
+        "applications": 4,
+        "views": 58
+      },
+      {
+        "date": "29/01",
+        "full_date": "2026-01-29",
+        "applications": 6,
+        "views": 72
+      },
+      {
+        "date": "05/02",
+        "full_date": "2026-02-05",
+        "applications": 4,
+        "views": 55
+      },
+      {
+        "date": "12/02",
+        "full_date": "2026-02-12",
+        "applications": 7,
+        "views": 80
+      },
+      {
+        "date": "19/02",
+        "full_date": "2026-02-19",
+        "applications": 5,
+        "views": 65
+      },
+      {
+        "date": "26/02",
+        "full_date": "2026-02-26",
+        "applications": 9,
+        "views": 95
+      },
+      {
+        "date": "05/03",
+        "full_date": "2026-03-05",
+        "applications": 6,
+        "views": 74
+      },
+      {
+        "date": "12/03",
+        "full_date": "2026-03-12",
+        "applications": 11,
+        "views": 110
+      },
+      {
+        "date": "19/03",
+        "full_date": "2026-03-19",
+        "applications": 8,
+        "views": 92
+      },
+      {
+        "date": "26/03",
+        "full_date": "2026-03-26",
+        "applications": 13,
+        "views": 125
+      },
+      {
+        "date": "29/03",
+        "full_date": "2026-03-29",
+        "applications": 7,
+        "views": 88
+      }
     ],
     "funnel": [
-      { "stage": "Tổng ứng tuyển", "count": 143, "color": "#8b5cf6" },
-      { "stage": "Đang xem xét", "count": 68, "color": "#3b82f6" },
-      { "stage": "Phỏng vấn", "count": 28, "color": "#06b6d4" },
-      { "stage": "Offer", "count": 12, "color": "#10b981" },
-      { "stage": "Tuyển thành công", "count": 9, "color": "#22c55e" }
+      {
+        "stage": "Tổng ứng tuyển",
+        "count": 143,
+        "color": "#8b5cf6"
+      },
+      {
+        "stage": "Đang xem xét",
+        "count": 68,
+        "color": "#3b82f6"
+      },
+      {
+        "stage": "Phỏng vấn",
+        "count": 28,
+        "color": "#06b6d4"
+      },
+      {
+        "stage": "Offer",
+        "count": 12,
+        "color": "#10b981"
+      },
+      {
+        "stage": "Tuyển thành công",
+        "count": 9,
+        "color": "#22c55e"
+      }
     ],
     "status_breakdown": [
-      { "status": "pending", "label": "Chờ xử lý", "count": 32, "color": "#f59e0b" },
-      { "status": "reviewing", "label": "Đang xem", "count": 45, "color": "#3b82f6" },
-      { "status": "shortlisted", "label": "Vào vòng tiếp", "count": 23, "color": "#8b5cf6" },
-      { "status": "interview", "label": "Phỏng vấn", "count": 14, "color": "#06b6d4" },
-      { "status": "offered", "label": "Đang offer", "count": 3, "color": "#10b981" },
-      { "status": "accepted", "label": "Nhận việc", "count": 9, "color": "#22c55e" },
-      { "status": "rejected", "label": "Từ chối", "count": 17, "color": "#ef4444" }
+      {
+        "status": "pending",
+        "label": "Chờ xử lý",
+        "count": 32,
+        "color": "#f59e0b"
+      },
+      {
+        "status": "reviewing",
+        "label": "Đang xem",
+        "count": 45,
+        "color": "#3b82f6"
+      },
+      {
+        "status": "shortlisted",
+        "label": "Vào vòng tiếp",
+        "count": 23,
+        "color": "#8b5cf6"
+      },
+      {
+        "status": "interview",
+        "label": "Phỏng vấn",
+        "count": 14,
+        "color": "#06b6d4"
+      },
+      {
+        "status": "offered",
+        "label": "Đang offer",
+        "count": 3,
+        "color": "#10b981"
+      },
+      {
+        "status": "accepted",
+        "label": "Nhận việc",
+        "count": 9,
+        "color": "#22c55e"
+      },
+      {
+        "status": "rejected",
+        "label": "Từ chối",
+        "count": 17,
+        "color": "#ef4444"
+      }
     ],
     "top_jobs": [
       {
@@ -508,6 +684,78 @@
         "published_at": "2026-03-01T10:00:00Z"
       }
     ]
-  }
+  },
+  "blogs": [
+    {
+      "title": "10 Kỹ Năng Quan Trọng Nhất Cho Lập Trình Viên Năm 2026",
+      "category": "Kỹ năng tìm việc",
+      "tags": [
+        "IT",
+        "Kỹ năng mềm",
+        "Phỏng vấn"
+      ],
+      "summary": "Thế giới công nghệ luôn thay đổi mỗi ngày. Để không bị bỏ lại phía sau, lập trình viên cần trang bị cho mình những gì ngoài khả năng code? Cùng tìm hiểu qua bài viết chuyên sâu này.",
+      "content": "<p>Năm 2026 đánh dấu bước tiến thần tốc của AI. Lập trình viên không chỉ cần giỏi chuyên môn (Technical Skills) mà còn cần <strong>Kỹ năng mềm (Soft skills)</strong> sắc bén.</p><blockquote><p>AI sẽ không thay thế lập trình viên, nhưng lập trình viên biết dùng AI sẽ thay thế những người còn lại.</p></blockquote><h3>1. Khả năng giải quyết vấn đề bằng AI</h3><p>Học cách sử dụng Copilot, ChatGPT một cách hiệu quả để giảm thời gian fix bug.</p><h3>2. Tư duy hệ thống</h3><p>Đừng chỉ gõ code, hãy hiểu cả hệ thống (System Design).</p>",
+      "thumbnail": null,
+      "status": "published",
+      "is_featured": true,
+      "view_count": 1500,
+      "meta_title": "10 Kỹ năng cho lập trình viên 2026 | JOBIO",
+      "meta_description": "Những kỹ năng then chốt giúp sinh viên IT và lập trình viên không bị đào thải trong kỷ nguyên AI năm 2026.",
+      "days_ago": 2
+    },
+    {
+      "title": "Bí Quyết Trả Lời Phỏng Vấn: 'Điểm Yếu Của Bạn Là Gì?'",
+      "category": "Góc phỏng vấn",
+      "tags": [
+        "Phỏng vấn",
+        "Mẹo xin việc",
+        "HR"
+      ],
+      "summary": "Câu hỏi kinh điển nhưng luôn khiến ứng viên lúng túng. Nếu trả lời 'tôi quá hoàn hảo', bạn thất bại. Nếu nói thật điểm yếu chí mạng, bạn cũng thất bại. Vậy phải trả lời sao?",
+      "content": "<p>Câu hỏi về <em>điểm yếu cá nhân</em> bản chất là cách Nhà tuyển dụng (HR) kiểm tra Mức độ tự nhận thức (Self-awareness) của bạn.</p><ul><li><strong>Không nên nói:</strong> Tôi quá cầu toàn, tôi làm việc quá chăm chỉ quên ăn.</li><li><strong>Nên nói:</strong> Nếu ra điểm yếu thật (không ảnh hưởng cốt lõi tới công việc) + CÁCH BẠN ĐANG KHẮC PHỤC NÓ.</li></ul><p>Ví dụ: <em>'Trước đây em thuyết trình trước đám đông chưa tốt lắm. Nên em đã chủ động tham gia CLB tranh biện và hiện tại em đã tự tin hơn 80%.'</em></p>",
+      "thumbnail": null,
+      "status": "published",
+      "is_featured": false,
+      "view_count": 2854,
+      "meta_title": "Cách trả lời câu hỏi điểm yếu khi phỏng vấn",
+      "meta_description": "Khám phá nghệ thuật trả lời phỏng vấn câu hỏi điểm yếu thông minh nhất giúp HR ấn tượng.",
+      "days_ago": 5
+    },
+    {
+      "title": "Xu Hướng Thị Trường Tuyển Dụng Nửa Cuối Năm 2026",
+      "category": "Xu hướng thị trường",
+      "tags": [
+        "Tuyển dụng",
+        "Thống kê",
+        "Trend 2026"
+      ],
+      "summary": "Báo cáo nội bộ từ JOBIO cho thấy sự gia tăng mạnh mẽ của nhu cầu tuyển dụng các kỹ sư Data và Cloud Architect so với nửa đầu năm.",
+      "content": "<p>Nửa cuối năm 2026 chứng kiến sự chuyển dịch từ tuyển ồ ạt sang <strong>tuyển dụng chắt lọc (Quality over Quantity)</strong>.</p><p>Các vị trí được săn đón nhiều nhất:</p><ul><li>DevOps / DevSecOps Engineer</li><li>Data Engineer & AI Researcher</li><li>Product Manager & Business Analyst</li></ul><p>Các công ty đang có xu hướng giữ chân nhân tài bằng các gói phúc lợi linh hoạt (Làm việc hybrid, bảo hiểm sức khỏe toàn diện) thay vì chỉ tăng lương cứng.</p>",
+      "thumbnail": null,
+      "status": "published",
+      "is_featured": true,
+      "view_count": 520,
+      "meta_title": "Xu hướng thị trường tuyển dụng 2026 chi tiết",
+      "meta_description": "Báo cáo độc quyền từ JOBIO về xu hướng tuyển dụng, các ngành nghề hot nhất nửa cuối năm 2026.",
+      "days_ago": 10
+    },
+    {
+      "title": "Cách Viết CV Gây Ấn Tượng Trong Vòng 6 Giây",
+      "category": "Kỹ năng tìm việc",
+      "tags": [
+        "Thiết kế CV",
+        "Mẹo xin việc"
+      ],
+      "summary": "Nhà tuyển dụng trung bình chỉ dành 6 giây để lướt qua một CV. Làm thế nào để hồ sơ của bạn lọt vào mắt xanh của họ ngay từ cái nhìn đầu tiên?",
+      "content": "<p>Nhiều bạn sinh viên mới ra trường thường có xu hướng viết CV như một bài văn dài dòng. Điều này là <strong>hoàn toàn sai lầm</strong>.</p><h3>Các quy tắc 'Vàng':</h3><ol><li><strong>Sử dụng định dạng chuẩn (ATS-friendly)</strong>: Đừng dùng quá nhiều cột hay hình ảnh đồ họa màu mè nếu bạn ứng tuyển vào vị trí khối văn phòng/tài chính.</li><li><strong>Kết quả hóa kinh nghiệm (Quantify results)</strong>: Đừng viết <em>'Quản lý fanpage'</em>. Hãy viết <em>'Quản lý fanpage 50k followers, tăng độ tương tác lên 25% trong vòng 3 tháng.'</em></li></ol>",
+      "thumbnail": null,
+      "status": "published",
+      "is_featured": false,
+      "view_count": 4120,
+      "meta_title": "Tuyệt chiêu viết CV chuẩn thu hút nhà tuyển dụng",
+      "meta_description": "Biến CV của bạn thành nam châm thu hút HR với các quy tắc vàng trong trình bày và câu chữ.",
+      "days_ago": 15
+    }
+  ]
 }
-
