@@ -57,7 +57,11 @@ export function UpcomingInterviewsCard() {
                             </div>
                         )
                         : data.map((interview, i) => {
-                            const typeConf = TYPE_CONFIG[interview.type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.video;
+                            const typeNameLower = (interview.interview_type_name || '').toLowerCase();
+                            let typeKey: keyof typeof TYPE_CONFIG = 'video';
+                            if (typeNameLower.includes('trực tiếp') || typeNameLower.includes('onsite') || typeNameLower.includes('tại công ty')) typeKey = 'onsite';
+                            else if (typeNameLower.includes('điện thoại') || typeNameLower.includes('phone') || typeNameLower.includes('gọi')) typeKey = 'phone';
+                            const typeConf = TYPE_CONFIG[typeKey];
                             const scheduledDate = new Date(interview.scheduled_at);
                             return (
                                 <motion.div
@@ -69,19 +73,19 @@ export function UpcomingInterviewsCard() {
                                 >
                                     {/* Avatar */}
                                     <Avatar className="w-10 h-10 border border-slate-200 shrink-0 shadow-sm">
-                                        <AvatarImage src={interview.candidate_avatar || undefined} />
+                                        <AvatarImage src={interview.applicant_avatar || undefined} />
                                         <AvatarFallback className="text-xs font-bold bg-blue-50 text-blue-700">
-                                            {(interview.candidate_name || 'U').split(' ').pop()?.charAt(0)}
+                                            {(interview.applicant_name || 'U').split(' ').pop()?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
 
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <p className="font-semibold text-slate-900 text-sm truncate">{interview.candidate_name || 'Ứng viên'}</p>
+                                            <p className="font-semibold text-slate-900 text-sm truncate">{interview.applicant_name || 'Ứng viên'}</p>
                                             <Badge className={`text-[10px] shadow-none font-bold border flex items-center gap-1 ${typeConf.className}`}>
                                                 {typeConf.icon}
-                                                {typeConf.label}
+                                                {interview.interview_type_name || typeConf.label}
                                             </Badge>
                                         </div>
                                         <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">{interview.job_title}</p>

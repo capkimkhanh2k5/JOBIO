@@ -6,7 +6,7 @@ import {
     CartesianGrid, Tooltip, Legend
 } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dashboardService } from '@/services/dashboardService';
+import { analyticsService } from '@/services/analyticsService';
 
 type ChartPeriod = 7 | 30 | 90;
 
@@ -41,14 +41,17 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export function ApplicationsChart() {
     const [period, setPeriod] = useState<ChartPeriod>(30);
 
-    const { data, isLoading, isFetching } = useQuery({
-        queryKey: ['employer', 'chart', period],
-        queryFn: () => dashboardService.getAnalyticsReports({ report_type: 'applications_chart' }).then(r => r.data),
+    const { data: analyticsData, isLoading, isFetching } = useQuery({
+        queryKey: ['employer', 'analytics'],
+        queryFn: () => analyticsService.getEmployerAnalytics().then(r => r.data),
         staleTime: 60_000,
         placeholderData: (prev) => prev,
     });
 
-    // For 30/90 day views, reduce tick density
+    // Slice the 90-day time_series to show only the requested period
+    const data = (analyticsData?.time_series ?? []).slice(-period);
+
+
     const tickInterval = period === 7 ? 0 : period === 30 ? 4 : 14;
 
     return (

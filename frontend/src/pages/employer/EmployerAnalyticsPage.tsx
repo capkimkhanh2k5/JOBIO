@@ -259,7 +259,7 @@ export function EmployerAnalyticsPage() {
     ];
 
     return (
-        <div className="p-6 lg:p-8 space-y-8 w-full max-w-screen-2xl mx-auto flex-1">
+        <div className="w-full mx-auto min-h-screen p-6 md:p-8 space-y-8">
             {/* ── Page Header ──────────────────────────────────────────── */}
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>

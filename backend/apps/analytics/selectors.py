@@ -46,46 +46,71 @@ class DashboardSelector:
     @staticmethod
     def get_company_overview(company) -> dict:
         """
-        Get stats for a specific company
+        Get stats for a specific company — aligned with CompanyStats frontend type.
+        Returns flat fields: active_jobs, new_applications, job_views, upcoming_interviews + delta values.
         """
         if not company:
             return {}
 
-        # Jobs
-        total_jobs = Job.objects.filter(company=company).count()
-        active_jobs = Job.objects.filter(company=company, status=Job.Status.PUBLISHED).count()
-        
-        # Applications
-        total_applications = Application.objects.filter(job__company=company).count()
-        
-        # Subscription
-        plan_name = "Free"
+        now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
+        sixty_days_ago = now - timedelta(days=60)
+
+        # ── Jobs ────────────────────────────────────────────────────────────
+        company_jobs = Job.objects.filter(company=company)
+        active_jobs = company_jobs.filter(status=Job.Status.PUBLISHED).count()
+        active_jobs_prev = company_jobs.filter(
+            status=Job.Status.PUBLISHED,
+            published_at__lt=thirty_days_ago
+        ).count()
+
+        # ── Applications ─────────────────────────────────────────────────────
+        company_applications = Application.objects.filter(job__company=company)
+        new_applications = company_applications.filter(applied_at__gte=thirty_days_ago).count()
+        new_applications_prev = company_applications.filter(
+            applied_at__gte=sixty_days_ago, applied_at__lt=thirty_days_ago
+        ).count()
+
+        # ── Job Views ────────────────────────────────────────────────────────
+        # Use denormalized view_count on Job (sum of all jobs)
+        from django.db.models import Sum as _Sum
+        job_views = company_jobs.aggregate(total=_Sum('view_count'))['total'] or 0
+
+        # ── Upcoming Interviews ──────────────────────────────────────────────
         try:
-            # Check for active subscription
-            current_sub = CompanySubscription.objects.filter(
-                company=company, 
-                is_active=True,
-                end_date__gte=timezone.now()
-            ).first()
-            
-            if current_sub and current_sub.plan:
-                plan_name = current_sub.plan.name
+            upcoming_interviews = Interview.objects.filter(
+                application__job__company=company,
+                status=Interview.Status.SCHEDULED,
+                scheduled_at__gte=now
+            ).count()
         except Exception:
-            # Fallback to defaults on error (e.g. Models missing)
-            pass
+            upcoming_interviews = 0
+
+        # ── Delta helpers ────────────────────────────────────────────────────
+        def _delta(current, previous):
+            if previous == 0:
+                return 0
+            return round(((current - previous) / previous) * 100, 1)
 
         return {
+            'active_jobs': active_jobs,
+            'active_jobs_delta': _delta(active_jobs, active_jobs_prev),
+            'new_applications': new_applications,
+            'new_applications_delta': _delta(new_applications, new_applications_prev),
+            'job_views': job_views,
+            'job_views_delta': 0,
+            'upcoming_interviews': upcoming_interviews,
+            'upcoming_interviews_delta': 0,
+            # Keep legacy nested structure for backward-compat
             'jobs': {
-                'total': total_jobs,
-                'active': active_jobs
+                'total': company_jobs.count(),
+                'active': active_jobs,
             },
             'applications': {
-                'total': total_applications
+                'total': company_applications.count(),
             },
-            'subscription': {
-                'plan': plan_name
-            }
         }
+
 
     @staticmethod
     def get_employer_analytics(company) -> dict:

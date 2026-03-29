@@ -10,15 +10,16 @@ class InterviewListSerializer(serializers.ModelSerializer):
     """
     
     applicant_name = serializers.CharField(source='application.recruiter.user.full_name', read_only=True)
+    applicant_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True)
     job_title = serializers.CharField(source='application.job.title', read_only=True)
     interview_type_name = serializers.CharField(source='interview_type.name', read_only=True)
     
     class Meta:
         model = Interview
         fields = [
-            'id', 'application_id', 'job_title', 'applicant_name',
+            'id', 'application_id', 'job_title', 'applicant_name', 'applicant_avatar',
             'interview_type_name', 'round_number',
-            'scheduled_at', 'duration_minutes',
+            'scheduled_at', 'duration_minutes', 'meeting_link',
             'status', 'result'
         ]
 
