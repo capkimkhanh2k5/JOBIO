@@ -11,7 +11,6 @@ import { CampaignList } from '@/components/employer/campaigns/CampaignList';
 import { CreateCampaignModal } from '@/components/employer/campaigns/CreateCampaignModal';
 import { CampaignDetailSheet } from '@/components/employer/campaigns/CampaignDetailSheet';
 import { employerService } from '@/services/employerService';
-import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function EmployerCampaigns() {
     const queryClient = useQueryClient();
@@ -119,7 +118,7 @@ export default function EmployerCampaigns() {
         : undefined;
 
     return (
-        <div className="min-h-screen bg-white overflow-hidden relative">
+        <div className="min-h-screen overflow-hidden relative">
             {/* Background elements */}
             <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
@@ -127,24 +126,35 @@ export default function EmployerCampaigns() {
 
             <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
 
-                {/* Header Section */}
-                <PageHeader
-                    title="Chiến Dịch Tuyển Dụng"
-                    description="Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng."
-                    icon={Target}
-                    action={
+                {/* Header Section - Modernized & Compact */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-4">
+                            <div className="p-2.5 rounded-xl bg-violet-50 text-violet-600 shadow-sm">
+                                <Target className="w-7 h-7" />
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                                Chiến Dịch Tuyển Dụng
+                            </h1>
+                        </div>
+                        <p className="mt-4 text-base md:text-lg text-slate-500 max-w-3xl font-medium leading-relaxed">
+                            Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng.
+                        </p>
+                    </div>
+
+                    <div className="shrink-0 flex items-center">
                         <Button
                             onClick={handleCreateClick}
-                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-6 h-11 shrink-0 group relative overflow-hidden rounded-xl"
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-8 h-12 shrink-0 group relative overflow-hidden rounded-2xl font-bold"
                         >
-                            <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+                            <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                             <div className="relative flex items-center">
-                                <Plus className="w-4 h-4 mr-2" />
-                                <span className="font-semibold">Chiến dịch mới</span>
+                                <Plus className="w-5 h-5 mr-2" />
+                                <span>Chiến dịch mới</span>
                             </div>
                         </Button>
-                    }
-                />
+                    </div>
+                </div>
 
                 {/* Filters & Tabs */}
                 <motion.div

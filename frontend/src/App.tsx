@@ -33,9 +33,7 @@ import EmployerDashboard from '@/pages/employer/EmployerDashboard';
 import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
-import {
-    EmployerSupportPage,
-} from '@/pages/employer/EmployerStubPages';
+import EmployerSupportPage from '@/pages/employer/Support/EmployerSupportPage';
 import { EmployerAnalyticsPage } from '@/pages/employer/EmployerAnalyticsPage';
 import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
 import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
