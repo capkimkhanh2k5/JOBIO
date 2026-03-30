@@ -8,12 +8,34 @@ export const blogService = {
     return api.get<PaginatedResponse<BlogPost>>('/api/blog/posts/', { params });
   },
 
+  listMyPosts(params?: { search?: string; page?: number; page_size?: number }) {
+    return api.get<PaginatedResponse<BlogPost>>('/api/blog/posts/my-posts/', { params });
+  },
+
   getPost(slug: string) {
     return api.get<BlogPost>(`/api/blog/posts/${slug}/`);
   },
 
   incrementViewCount(slug: string) {
     return api.post<{ view_count: number }>(`/api/blog/posts/${slug}/view/`);
+  },
+
+  // ─── Post Actions ───────────────────────────────────────────────────
+
+  createPost(data: any) {
+    return api.post<BlogPost>('/api/blog/posts/', data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+
+  updatePost(slug: string, data: any) {
+    return api.patch<BlogPost>(`/api/blog/posts/${slug}/`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+
+  deletePost(slug: string) {
+    return api.delete(`/api/blog/posts/${slug}/`);
   },
 
   // ─── Categories & Tags ────────────────────────────────────────────────

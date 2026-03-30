@@ -23,7 +23,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { PublicRoute, ProtectedRoute } from '@/components/layout/RouteGuards';
+import { PublicRoute } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
@@ -33,9 +33,7 @@ import EmployerDashboard from '@/pages/employer/EmployerDashboard';
 import PostJob from '@/pages/employer/PostJob';
 import ManageJobs from '@/pages/employer/ManageJobs';
 import ManageCandidates from '@/pages/employer/ManageCandidates';
-import {
-    EmployerSupportPage,
-} from '@/pages/employer/EmployerStubPages';
+import EmployerSupportPage from '@/pages/employer/Support/EmployerSupportPage';
 import { EmployerAnalyticsPage } from '@/pages/employer/EmployerAnalyticsPage';
 import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
 import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
@@ -62,6 +60,8 @@ import NotificationsPage from '@/pages/Notifications';
 import MyReviews from '@/pages/candidate/MyReviews';
 import ConnectionsPage from '@/pages/candidate/Connections';
 import SearchHistory from '@/pages/candidate/SearchHistory';
+import UserBlogManagement from '@/pages/shared/BlogManagement';
+import CreateBlogPost from '@/pages/shared/CreateBlogPost';
 
 // Admin area
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -131,6 +131,9 @@ export default function App() {
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="settings" element={<CandidateSettingsPage />} />
                             <Route path="search-history" element={<SearchHistory />} />
+                            <Route path="blog" element={<UserBlogManagement />} />
+                            <Route path="blog/create" element={<CreateBlogPost />} />
+                            <Route path="blog/edit/:slug" element={<CreateBlogPost />} />
                         </Route>
 
                         {/* ── Admin area ── */}
@@ -169,6 +172,9 @@ export default function App() {
                             <Route path="checkout" element={<CheckoutPage />} />
                             <Route path="payment-result" element={<PaymentResultPage />} />
                             <Route path="support" element={<EmployerSupportPage />} />
+                            <Route path="blog" element={<UserBlogManagement />} />
+                            <Route path="blog/create" element={<CreateBlogPost />} />
+                            <Route path="blog/edit/:slug" element={<CreateBlogPost />} />
 
                             <Route path="notifications" element={<NotificationsPage />} />
                         </Route>

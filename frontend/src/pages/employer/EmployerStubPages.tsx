@@ -41,6 +41,4 @@ export function EmployerSubscriptionPage() {
     return <StubPage title="Gói dịch vụ" desc="Nâng cấp gói để mở rộng khả năng tiếp cận ứng viên. Coming soon." />;
 }
 
-export function EmployerSupportPage() {
-    return <StubPage title="Hỗ trợ" desc="Trung tâm hỗ trợ và giải đáp thắc mắc. Coming soon." />;
-}
+// Removed EmployerSupportPage as it is implemented

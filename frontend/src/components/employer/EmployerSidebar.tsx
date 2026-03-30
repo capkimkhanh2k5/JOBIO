@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
     { label: 'Lịch sử giao dịch', path: '/employer/billing', icon: <History className="w-5 h-5" /> },
     { label: 'Cài đặt', path: '/employer/settings', icon: <Settings className="w-5 h-5" /> },
     { label: 'Hỗ trợ', path: '/employer/support', icon: <LifeBuoy className="w-5 h-5" /> },
-    { label: 'Blog', path: '/blog', icon: <BookOpen className="w-5 h-5" /> },
+    { label: 'Blog', path: '/employer/blog', icon: <BookOpen className="w-5 h-5" /> },
 ];
 
 // Split into main and bottom sections
@@ -54,7 +54,7 @@ export function EmployerSidebar() {
 
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-full border-r border-white/5 bg-white/2 backdrop-blur-lg"
+            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-white/5 bg-white/2 backdrop-blur-lg"
             aria-label="Employer Navigation"
         >
             {/* Top padding (matches topnav height) */}

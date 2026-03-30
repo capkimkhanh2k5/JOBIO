@@ -60,7 +60,9 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         company = None
-        status_val = Post.Status.DRAFT # Default to Draft for review
+        
+        # Get status from serializer or default to DRAFT
+        status_val = serializer.validated_data.get('status', Post.Status.DRAFT)
         
         # Determine Company
         company_profile = getattr(user, 'company_profile', None)
@@ -69,17 +71,39 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             recruiter_profile = getattr(user, 'recruiter_profile', None)
             if recruiter_profile:
-                company = recruiter_profile.current_company # Recruiter model field name check needed
+                company = recruiter_profile.current_company
                 
-        # If Admin, allow Publish immediately
-        if user.is_staff:
-            status_val = serializer.validated_data.get('status', Post.Status.PUBLISHED)
+        # If Admin, they can force status or it defaults to PUBLISHED if not specified
+        if user.is_staff and 'status' not in serializer.validated_data:
+            status_val = Post.Status.PUBLISHED
             
         serializer.save(
             author=user,
             company=company,
             status=status_val
         )
+
+    @action(detail=False, methods=['get'], url_path='my-posts', permission_classes=[IsAuthenticated])
+    def my_posts(self, request):
+        user = request.user
+        qs = Post.objects.filter(author=user)
+        
+        # Reuse filters
+        search = request.query_params.get('search')
+        if search:
+            qs = qs.filter(
+                models.Q(title__icontains=search) | 
+                models.Q(summary__icontains=search) |
+                models.Q(content__icontains=search)
+            )
+            
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['post'], url_path='publish')
     def publish(self, request, slug=None):
