@@ -54,7 +54,7 @@ export function EmployerSidebar() {
 
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-full border-r border-white/5 bg-white/2 backdrop-blur-lg"
+            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-white/5 bg-white/2 backdrop-blur-lg"
             aria-label="Employer Navigation"
         >
             {/* Top padding (matches topnav height) */}
