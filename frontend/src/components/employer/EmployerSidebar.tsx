@@ -29,7 +29,7 @@ const navItems: NavItem[] = [
     { label: 'Lịch sử giao dịch', path: '/employer/billing', icon: <History className="w-5 h-5" /> },
     { label: 'Cài đặt', path: '/employer/settings', icon: <Settings className="w-5 h-5" /> },
     { label: 'Hỗ trợ', path: '/employer/support', icon: <LifeBuoy className="w-5 h-5" /> },
-    { label: 'Blog', path: '/blog', icon: <BookOpen className="w-5 h-5" /> },
+    { label: 'Blog', path: '/employer/blog', icon: <BookOpen className="w-5 h-5" /> },
 ];
 
 // Split into main and bottom sections
