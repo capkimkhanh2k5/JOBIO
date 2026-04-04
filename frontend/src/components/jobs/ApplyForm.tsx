@@ -54,9 +54,9 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
 
     // Fetch user CVs
     const { data: cvs, isLoading: isLoadingCvs } = useQuery({
-        queryKey: ['candidate-cvs', user?.id],
-        queryFn: () => cvService.list().then(r => r.data), // No need to pass ID anymore if list() handles it via token
-        enabled: isOpen && isAuthenticated && !!user
+        queryKey: ['candidate-cvs', user?.recruiter_id],
+        queryFn: () => cvService.list(user!.recruiter_id!).then(r => r.data),
+        enabled: isOpen && isAuthenticated && !!user && !!user.recruiter_id
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -82,8 +82,20 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                 setIsSuccess(false);
                 form.reset();
             }, 3000);
-        } catch (error) {
-            toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
+        } catch (error: any) {
+            console.error("Apply error:", error.response?.data);
+            const data = error.response?.data;
+            let errMsg = "Gửi hồ sơ thất bại, vui lòng thử lại.";
+            if (data) {
+                if (data.detail) errMsg = data.detail;
+                else if (typeof data === 'object') {
+                    const firstKey = Object.keys(data)[0];
+                    if (Array.isArray(data[firstKey])) {
+                        errMsg = data[firstKey][0];
+                    }
+                }
+            }
+            toast.error(errMsg);
         } finally {
             setIsSubmitting(false);
         }

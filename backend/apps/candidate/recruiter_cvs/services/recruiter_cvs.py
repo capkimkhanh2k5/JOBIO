@@ -31,18 +31,121 @@ def set_cv_as_default(cv: RecruiterCV) -> RecruiterCV:
     cv.save()
     return cv
 
+
+def build_cv_data_from_profile(recruiter) -> dict:
+    """
+    Build cv_data dict from recruiter profile.
+    Used for auto-populating new CVs and for preview rendering.
+    """
+    skills_data = []
+    for rs in RecruiterSkill.objects.filter(recruiter=recruiter).select_related('skill'):
+        skills_data.append({
+            "name": rs.skill.name,
+            "proficiency_level": rs.proficiency_level,
+            "years_of_experience": rs.years_of_experience or 0,
+        })
+
+    education_data = []
+    for edu in RecruiterEducation.objects.filter(recruiter=recruiter).order_by('-start_date'):
+        education_data.append({
+            "school_name": edu.school_name,
+            "degree": edu.degree or "",
+            "field_of_study": edu.field_of_study or "",
+            "start_date": edu.start_date.isoformat() if edu.start_date else None,
+            "end_date": edu.end_date.isoformat() if edu.end_date else None,
+            "is_current": edu.is_current,
+            "description": edu.description or "",
+        })
+
+    experience_data = []
+    for exp in RecruiterExperience.objects.filter(recruiter=recruiter).order_by('-start_date'):
+        experience_data.append({
+            "company_name": exp.company_name,
+            "position": exp.job_title,
+            "job_title": exp.job_title,
+            "start_date": exp.start_date.isoformat() if exp.start_date else None,
+            "end_date": exp.end_date.isoformat() if exp.end_date else None,
+            "is_current": exp.is_current,
+            "description": exp.description or "",
+        })
+
+    certifications_data = []
+    for cert in RecruiterCertification.objects.filter(recruiter=recruiter).order_by('-issue_date'):
+        certifications_data.append({
+            "name": cert.certification_name,
+            "issuing_organization": cert.issuing_organization or "",
+            "issue_date": cert.issue_date.isoformat() if cert.issue_date else None,
+            "expiry_date": cert.expiry_date.isoformat() if cert.expiry_date else None,
+            "credential_id": cert.credential_id or "",
+            "credential_url": cert.credential_url or "",
+        })
+
+    projects_data = []
+    for proj in RecruiterProject.objects.filter(recruiter=recruiter).order_by('-start_date'):
+        technologies = []
+        if proj.technologies_used:
+            if isinstance(proj.technologies_used, list):
+                technologies = proj.technologies_used
+            else:
+                technologies = [t.strip() for t in str(proj.technologies_used).split(',') if t.strip()]
+        projects_data.append({
+            "name": proj.project_name,
+            "description": proj.description or "",
+            "project_url": proj.project_url or "",
+            "start_date": proj.start_date.isoformat() if proj.start_date else None,
+            "end_date": proj.end_date.isoformat() if proj.end_date else None,
+            "technologies": technologies,
+        })
+
+    languages_data = []
+    for lang in RecruiterLanguage.objects.filter(recruiter=recruiter).select_related('language'):
+        languages_data.append({
+            "name": lang.language.language_name if lang.language else "",
+            "proficiency_level": lang.proficiency_level,
+        })
+
+    return {
+        "personal": {
+            "full_name": recruiter.user.full_name,
+            "email": recruiter.user.email,
+            "phone": getattr(recruiter.user, 'phone_number', '') or '',
+            "current_position": recruiter.current_position or "",
+            "bio": recruiter.bio or "",
+            "avatar_url": getattr(recruiter.user, 'avatar_url', '') or '',
+            "years_of_experience": recruiter.years_of_experience or 0,
+        },
+        "location": {},
+        "links": {
+            "linkedin": recruiter.linkedin_url or "",
+            "github": recruiter.github_url or "",
+            "portfolio": recruiter.portfolio_url or "",
+            "facebook": recruiter.facebook_url or "",
+        },
+        "skills": skills_data,
+        "education": education_data,
+        "experience": experience_data,
+        "certifications": certifications_data,
+        "projects": projects_data,
+        "languages": languages_data,
+    }
+
+
 def render_cv_to_html(cv: RecruiterCV) -> str:
     """
-    Render CV data to HTML string using default modern template.
+    Render CV data to HTML string using the template associated with the CV.
+    Falls back to modern.html if no template is set.
     """
-    # Pick template. If cv.template is set, use it (future), else unique template.
-    template_name = 'cv/modern.html' 
-    
+    # Determine which HTML template file to use
+    if cv.template and cv.template.file_name:
+        template_name = f'cv/{cv.template.file_name}'
+    else:
+        template_name = 'cv/modern.html'
+
     context = {
         'data': cv.cv_data,
         'cv': cv
     }
-    
+
     html_string = render_to_string(template_name, context)
     return html_string
 
@@ -99,13 +202,13 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
 
 def generate_cv_preview(cv: RecruiterCV) -> dict:
     """
-    Return HTML for preview.
+    Return HTML for preview using the CV's associated template.
     """
     cv.view_count += 1
     cv.save(update_fields=['view_count'])
-    
-    html_content = render_to_string('cv/modern.html', {'data': cv.cv_data})
-    
+
+    html_content = render_cv_to_html(cv)
+
     return {
         "html_content": html_content,
         "template_id": cv.template_id
@@ -170,13 +273,14 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     certifications = RecruiterCertification.objects.filter(recruiter=recruiter).order_by('-issue_date')
     for cert in certifications:
         certifications_data.append({
-            "name": cert.name,
+            "name": cert.certification_name,  # fixed field name
             "issuing_organization": cert.issuing_organization or "",
             "issue_date": cert.issue_date.isoformat() if cert.issue_date else None,
             "expiry_date": cert.expiry_date.isoformat() if cert.expiry_date else None,
             "credential_id": cert.credential_id or "",
             "credential_url": cert.credential_url or "",
         })
+
     
     # Fetch projects
     projects_data = []
@@ -196,9 +300,10 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     languages = RecruiterLanguage.objects.filter(recruiter=recruiter).select_related('language')
     for lang in languages:
         languages_data.append({
-            "name": lang.language.name if lang.language else "",
+            "name": lang.language.language_name if lang.language else "",  # field is language_name
             "proficiency_level": lang.proficiency_level,
         })
+
     
     # Build cv_data from recruiter profile
     cv_data = {

@@ -1,256 +1,230 @@
 <!DOCTYPE html>
-
-<html class="light" lang="en"><head>
+<html lang="vi">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Modern Hybrid CV - Alexander Morgan</title>
+<title>{{ data.personal.full_name|default:"CV" }} | Modern Hybrid</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0696ef",
-                        "background-light": "#f5f7f8",
-                        "background-dark": "#0f1b23",
-                        "slate-sidebar": "#1e293b",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"],
-                        "sans": ["Inter", "sans-serif"],
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                },
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: { "primary": "#0696ef", "background-light": "#f5f7f8", "slate-sidebar": "#1e293b" },
+                fontFamily: { "display": ["Space Grotesk", "sans-serif"], "sans": ["Inter", "sans-serif"] },
             },
-        }
-    </script>
+        },
+    }
+</script>
 <style>
-        @media print {
-            body {
-                background: none;
-                padding: 0;
-            }
-            .cv-container {
-                box-shadow: none;
-                margin: 0;
-                width: 100%;
-            }
-            .no-print {
-                display: none;
-            }
-            /* Ensure background colors print */
-            .print-bg-slate {
-                background-color: #1e293b !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .font-display {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-    </style>
+    @media print { body { background: none; padding: 0; } .cv-container { box-shadow: none; margin: 0; width: 100%; } .no-print { display: none; } .print-bg-slate { background-color: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    body { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Space Grotesk', sans-serif; }
+    .placeholder { color: #94a3b8; font-style: italic; }
+</style>
 </head>
-<body class="bg-background-light dark:bg-background-dark min-h-screen py-12 px-4 flex justify-center items-start">
-<!-- A4 Canvas Container -->
+<body class="bg-background-light min-h-screen py-12 px-4 flex justify-center items-start">
+
 <div class="cv-container w-full max-w-[850px] bg-white shadow-2xl flex flex-row overflow-hidden min-h-[1100px] border border-slate-200">
-<!-- Sidebar (Left, 35% width) -->
-<aside class="w-[35%] bg-slate-sidebar print-bg-slate text-slate-100 flex flex-col p-8 shrink-0">
-<!-- Profile Image -->
-<div class="mb-8">
-<div class="w-full aspect-square bg-slate-700 rounded-sm overflow-hidden border-2 border-slate-600">
-<img alt="Professional headshot of Alexander Morgan" class="w-full h-full object-cover grayscale contrast-125" data-alt="Professional headshot of a senior male executive" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7f4YLYckCLbue7MA5WKQfWHRecvMrX_LAG_U4NElk8WHcAhJep6smAW4WKgjs2ijcB5NvdXnX5348IggnakUFMXLg70FPc5EywGb4k4A-kR_tvbMjz4KpfmIs2qh13FCRbBvQ7tm161GcXo06PyD-_8RUreZlKNtNMiwLfMMsGGltITMhSeTqyU95rKjrPKj0Re4eX7Xq37Pg3sowep8mqjO1insuN82d_OG3yGI1jdj74zyEKl3CSJv7fYQ_TOnMdZKEocGY_Bju"/>
-</div>
-</div>
-<!-- Name & Title -->
-<div class="mb-10">
-<h1 class="font-display text-3xl font-bold leading-none tracking-tight mb-2 text-white">ALEXANDER<br/>MORGAN</h1>
-<p class="text-primary font-display font-medium text-sm tracking-widest uppercase">Senior Systems Architect</p>
-</div>
-<!-- Contact Section -->
-<section class="mb-10">
-<h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Contact</h2>
-<div class="space-y-4">
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-lg">mail</span>
-<span class="text-xs font-light">alex.morgan@email.com</span>
-</div>
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-lg">phone_android</span>
-<span class="text-xs font-light">+1 (555) 012-3456</span>
-</div>
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-lg">location_on</span>
-<span class="text-xs font-light" data-location="San Francisco, CA">San Francisco, CA</span>
-</div>
-<div class="flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-lg">language</span>
-<span class="text-xs font-light">linkedin.com/in/alexmorgan</span>
-</div>
-</div>
-</section>
-<!-- Core Competencies -->
-<section class="mb-10">
-<h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Expertise</h2>
-<div class="flex flex-wrap gap-2">
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">CLOUD ARCHITECTURE</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">KUBERNETES</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">PYTHON</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">DISTRIBUTED SYSTEMS</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">GO</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">POSTGRESQL</span>
-<span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600">TERRAFORM</span>
-</div>
-</section>
-<!-- Proficiency Meters -->
-<section class="mb-10">
-<h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Software</h2>
-<div class="space-y-4">
-<div>
-<div class="flex justify-between text-[10px] mb-1 font-bold">
-<span>AWS / AZURE</span>
-<span>95%</span>
-</div>
-<div class="h-1 bg-slate-700 w-full rounded-full">
-<div class="h-full bg-primary rounded-full" style="width: 95%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between text-[10px] mb-1 font-bold">
-<span>DOCKER</span>
-<span>90%</span>
-</div>
-<div class="h-1 bg-slate-700 w-full rounded-full">
-<div class="h-full bg-primary rounded-full" style="width: 90%"></div>
-</div>
-</div>
-<div>
-<div class="flex justify-between text-[10px] mb-1 font-bold">
-<span>CI/CD PIPELINES</span>
-<span>85%</span>
-</div>
-<div class="h-1 bg-slate-700 w-full rounded-full">
-<div class="h-full bg-primary rounded-full" style="width: 85%"></div>
-</div>
-</div>
-</div>
-</section>
-<!-- Languages -->
-<section>
-<h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Languages</h2>
-<div class="space-y-1">
-<p class="text-xs flex justify-between"><span>English</span> <span class="text-slate-500 italic">Native</span></p>
-<p class="text-xs flex justify-between"><span>German</span> <span class="text-slate-500 italic">Professional</span></p>
-</div>
-</section>
-</aside>
-<!-- Main Content (Right, 65% width) -->
-<main class="w-[65%] bg-white p-12 flex flex-col gap-10">
-<!-- Executive Summary -->
-<section>
-<h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-4">EXECUTIVE SUMMARY</h2>
-<p class="text-slate-600 text-sm leading-relaxed">
-                    Senior Systems Architect with over 12 years of experience in designing and implementing scalable cloud infrastructure. Specialized in high-availability distributed systems and container orchestration. Proven track record of reducing infrastructure costs by 30% while improving system reliability and deployment frequency. Passionate about automation and engineering excellence.
+
+    <!-- Sidebar (35%) -->
+    <aside class="w-[35%] bg-slate-sidebar print-bg-slate text-slate-100 flex flex-col p-8 shrink-0">
+
+        <!-- Avatar placeholder -->
+        <div class="mb-8">
+            <div class="w-full aspect-square bg-slate-700 rounded-sm overflow-hidden border-2 border-slate-600 flex items-center justify-center">
+                {% if data.personal.avatar_url %}
+                <img src="{{ data.personal.avatar_url }}" alt="{{ data.personal.full_name }}" class="w-full h-full object-cover grayscale contrast-125"/>
+                {% else %}
+                <span class="material-symbols-outlined text-slate-500 text-6xl">person</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Name & Title -->
+        <div class="mb-10">
+            <h1 class="font-display text-3xl font-bold leading-none tracking-tight mb-2 text-white uppercase">
+                {% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}
+            </h1>
+            <p class="text-primary font-display font-medium text-sm tracking-widest uppercase">
+                {% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="text-slate-500 italic">Chức danh</span>{% endif %}
+            </p>
+        </div>
+
+        <!-- Contact -->
+        <section class="mb-8">
+            <h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Liên hệ</h2>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-lg">mail</span>
+                    <span class="text-xs font-light">{% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="placeholder">email@example.com</span>{% endif %}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-lg">phone_android</span>
+                    <span class="text-xs font-light">{% if data.personal.phone %}{{ data.personal.phone }}{% else %}<span class="placeholder">Số điện thoại</span>{% endif %}</span>
+                </div>
+                {% if data.links %}
+                {% if data.links.linkedin %}
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-lg">language</span>
+                    <span class="text-xs font-light">{{ data.links.linkedin }}</span>
+                </div>
+                {% endif %}
+                {% if data.links.github %}
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-lg">code</span>
+                    <span class="text-xs font-light">{{ data.links.github }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Skills -->
+        <section class="mb-8">
+            <h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Kỹ năng</h2>
+            {% if data.skills %}
+            <div class="flex flex-wrap gap-2">
+                {% for skill in data.skills %}
+                <span class="bg-slate-700/50 px-2 py-1 text-[10px] rounded-sm font-medium border border-slate-600 uppercase">{{ skill.name }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder text-xs">Thêm kỹ năng...</p>
+            {% endif %}
+        </section>
+
+        <!-- Languages -->
+        <section>
+            <h2 class="font-display text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-4 border-b border-slate-700 pb-1">Ngôn ngữ</h2>
+            {% if data.languages %}
+            <div class="space-y-1">
+                {% for lang in data.languages %}
+                <p class="text-xs flex justify-between">
+                    <span>{{ lang.name }}</span>
+                    <span class="text-slate-500 italic">{{ lang.proficiency_level }}</span>
                 </p>
-</section>
-<!-- Professional Experience (Timeline) -->
-<section>
-<h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-6 uppercase tracking-tight">Professional Experience</h2>
-<div class="relative border-l border-slate-200 ml-2 pl-8 space-y-10">
-<!-- Experience Item 1 -->
-<div class="relative">
-<div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full bg-white border-2 border-primary"></div>
-<div class="flex justify-between items-baseline mb-1">
-<h3 class="font-display font-bold text-slate-900 text-base">Principal Systems Architect</h3>
-<span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-sm">2020 — PRESENT</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder text-xs">Thêm ngôn ngữ...</p>
+            {% endif %}
+        </section>
+    </aside>
+
+    <!-- Main Content (65%) -->
+    <main class="w-[65%] bg-white p-12 flex flex-col gap-10">
+
+        <!-- Summary -->
+        <section>
+            <h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-4 uppercase">Giới thiệu</h2>
+            {% if data.personal.bio %}
+            <p class="text-slate-600 text-sm leading-relaxed">{{ data.personal.bio }}</p>
+            {% else %}
+            <p class="placeholder text-sm">Viết giới thiệu bản thân tại đây...</p>
+            {% endif %}
+        </section>
+
+        <!-- Experience -->
+        <section>
+            <h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-6 uppercase tracking-tight">Kinh nghiệm làm việc</h2>
+            {% if data.experience %}
+            <div class="relative border-l border-slate-200 ml-2 pl-8 space-y-10">
+                {% for exp in data.experience %}
+                <div class="relative">
+                    <div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full bg-white border-2 {% if forloop.first %}border-primary{% else %}border-slate-300{% endif %}"></div>
+                    <div class="flex justify-between items-baseline mb-1">
+                        <h3 class="font-display font-bold text-slate-900 text-base">
+                            {{ exp.position|default:exp.job_title|default:"Chức vụ" }}
+                        </h3>
+                        <span class="text-[10px] font-bold {% if forloop.first %}text-primary bg-primary/10{% else %}text-slate-400 bg-slate-100{% endif %} px-2 py-0.5 rounded-sm">
+                            {% if exp.start_date %}{{ exp.start_date }}{% endif %}{% if exp.is_current %} — HIỆN TẠI{% elif exp.end_date %} — {{ exp.end_date }}{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-xs font-semibold text-slate-500 mb-2">{{ exp.company_name }}</p>
+                    {% if exp.description %}
+                    <p class="text-xs text-slate-600 leading-relaxed">{{ exp.description }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder text-sm ml-2">Thêm kinh nghiệm làm việc...</p>
+            {% endif %}
+        </section>
+
+        <!-- Education -->
+        <section>
+            <h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-6 uppercase tracking-tight">Học vấn</h2>
+            {% if data.education %}
+            <div class="space-y-5">
+                {% for edu in data.education %}
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-display font-bold text-slate-900 text-sm">
+                            {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}
+                        </h3>
+                        <p class="text-xs text-slate-500">{{ edu.school_name }}</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400">{% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date }}{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder text-sm">Thêm học vấn...</p>
+            {% endif %}
+        </section>
+
+        <!-- Certifications -->
+        <section>
+            <h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-4 uppercase tracking-tight">Chứng chỉ</h2>
+            {% if data.certifications %}
+            <div class="grid grid-cols-2 gap-3">
+                {% for cert in data.certifications %}
+                <div class="p-3 border border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl">verified</span>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-900">{{ cert.name }}</p>
+                        {% if cert.issuing_organization %}
+                        <p class="text-[9px] text-slate-500 uppercase tracking-tighter">{{ cert.issuing_organization }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder text-sm">Thêm chứng chỉ...</p>
+            {% endif %}
+        </section>
+
+        {% if data.projects %}
+        <!-- Projects -->
+        <section>
+            <h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-4 uppercase tracking-tight">Dự án</h2>
+            <div class="space-y-4">
+                {% for proj in data.projects %}
+                <div class="p-3 border border-slate-100 bg-slate-50/50">
+                    <div class="flex justify-between items-baseline mb-1">
+                        <h3 class="font-display font-bold text-slate-900 text-sm">{{ proj.name }}</h3>
+                        {% if proj.project_url %}<a href="{{ proj.project_url }}" class="text-primary text-[10px]">{{ proj.project_url }}</a>{% endif %}
+                    </div>
+                    {% if proj.technologies %}
+                    <div class="flex flex-wrap gap-1 mb-1">
+                        {% for tech in proj.technologies %}
+                        <span class="text-[9px] bg-primary/10 text-primary font-semibold px-1.5 py-0.5 rounded">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if proj.description %}<p class="text-xs text-slate-600">{{ proj.description }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
 </div>
-<p class="text-xs font-semibold text-slate-500 mb-3">CloudScale Technologies | San Francisco</p>
-<ul class="text-xs text-slate-600 space-y-2 list-disc ml-4">
-<li>Led the migration of legacy monolithic infrastructure to a microservices architecture on AWS EKS, improving scalability.</li>
-<li>Designed a custom CI/CD framework using GitHub Actions and Terraform, reducing deployment time from 45 minutes to 8 minutes.</li>
-<li>Architected a multi-region disaster recovery plan achieving 99.99% availability across all core services.</li>
-</ul>
-</div>
-<!-- Experience Item 2 -->
-<div class="relative">
-<div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full bg-white border-2 border-slate-300"></div>
-<div class="flex justify-between items-baseline mb-1">
-<h3 class="font-display font-bold text-slate-900 text-base">Senior DevOps Engineer</h3>
-<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-sm">2016 — 2020</span>
-</div>
-<p class="text-xs font-semibold text-slate-500 mb-3">DataStream Solutions | Austin, TX</p>
-<ul class="text-xs text-slate-600 space-y-2 list-disc ml-4">
-<li>Managed a cluster of over 500 Kubernetes nodes across private and public clouds.</li>
-<li>Implemented comprehensive monitoring and alerting using Prometheus and Grafana, reducing MTTR by 40%.</li>
-<li>Mentored a team of 6 junior engineers on cloud-native best practices and Infrastructure as Code.</li>
-</ul>
-</div>
-<!-- Experience Item 3 -->
-<div class="relative">
-<div class="absolute -left-[37px] top-1 w-4 h-4 rounded-full bg-white border-2 border-slate-300"></div>
-<div class="flex justify-between items-baseline mb-1">
-<h3 class="font-display font-bold text-slate-900 text-base">Infrastructure Engineer</h3>
-<span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-sm">2012 — 2016</span>
-</div>
-<p class="text-xs font-semibold text-slate-500 mb-3">NextGen FinTech | New York, NY</p>
-<ul class="text-xs text-slate-600 space-y-2 list-disc ml-4">
-<li>Automated server provisioning using Ansible, resulting in a 70% reduction in setup time for new environments.</li>
-<li>Developed internal Python tools for database backup automation and security auditing.</li>
-</ul>
-</div>
-</div>
-</section>
-<!-- Education -->
-<section>
-<h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-6 uppercase tracking-tight">Education</h2>
-<div class="space-y-6">
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-display font-bold text-slate-900 text-sm">M.S. in Computer Science</h3>
-<p class="text-xs text-slate-500">Stanford University</p>
-</div>
-<span class="text-[10px] font-bold text-slate-400">2010 — 2012</span>
-</div>
-<div class="flex justify-between items-start">
-<div>
-<h3 class="font-display font-bold text-slate-900 text-sm">B.S. in Software Engineering</h3>
-<p class="text-xs text-slate-500">University of California, Berkeley</p>
-</div>
-<span class="text-[10px] font-bold text-slate-400">2006 — 2010</span>
-</div>
-</div>
-</section>
-<!-- Certifications -->
-<section>
-<h2 class="font-display text-lg font-bold text-slate-900 border-l-4 border-primary pl-4 mb-4 uppercase tracking-tight">Certifications</h2>
-<div class="grid grid-cols-2 gap-4">
-<div class="p-3 border border-slate-100 bg-slate-50/50 flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-xl">verified</span>
-<div>
-<p class="text-[11px] font-bold text-slate-900">AWS Certified Solutions Architect</p>
-<p class="text-[9px] text-slate-500 uppercase tracking-tighter">Professional Level</p>
-</div>
-</div>
-<div class="p-3 border border-slate-100 bg-slate-50/50 flex items-center gap-3">
-<span class="material-symbols-outlined text-primary text-xl">verified</span>
-<div>
-<p class="text-[11px] font-bold text-slate-900">Certified Kubernetes Administrator</p>
-<p class="text-[9px] text-slate-500 uppercase tracking-tighter">Linux Foundation</p>
-</div>
-</div>
-</div>
-</section>
-</main>
-</div>
-</body></html>
+</body>
+</html>

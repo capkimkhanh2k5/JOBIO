@@ -68,4 +68,24 @@ export const cvService = {
   listTemplateCategories() {
     return api.get<CVTemplateCategory[]>('/api/cv-templates/categories/');
   },
+
+  /**
+   * Render a template with real recruiter data → returns { html: string }
+   * Used for template picker preview (without a specific CV)
+   */
+  renderTemplatePreview(templateId: number, recruiterId: number) {
+    return api.post<{ html: string }>(`/api/cv-templates/${templateId}/preview/`, {
+      recruiter_id: recruiterId,
+    });
+  },
+
+  /**
+   * Preview a specific CV using its stored cv_data → returns { html_content: string }
+   * This uses the CV's actual cv_data (which the user has edited), plus its assigned template.
+   */
+  previewCv(recruiterId: number, cvId: number) {
+    return api.post<{ html_content: string; template_id: number }>(
+      `/api/recruiters/${recruiterId}/cvs/${cvId}/preview/`
+    );
+  },
 };

@@ -8,6 +8,13 @@ class CVTemplate(models.Model):
         max_length=100,
         verbose_name='Tên mẫu'
     )
+    file_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name='Tên file HTML template',
+        help_text='Tên file HTML trong thư mục templates/cv/ (vd: modern.html)'
+    )
     category = models.ForeignKey(
         'candidate_cv_template_categories.CVTemplateCategory',
         on_delete=models.CASCADE,

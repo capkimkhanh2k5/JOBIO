@@ -22,17 +22,21 @@ class CVTemplateListSerializer(serializers.ModelSerializer):
     """
     Serializer cho danh sách mẫu CV
     """
-    
+
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_slug = serializers.CharField(source='category.slug', read_only=True)
-    
+    tags = serializers.SerializerMethodField()
+
     class Meta:
         model = CVTemplate
         fields = [
-            'id', 'name', 'category_id', 'category_name', 'category_slug',
+            'id', 'name', 'file_name', 'category_id', 'category_name', 'category_slug',
             'thumbnail_url', 'is_premium', 'price',
-            'usage_count', 'rating', 'is_active'
+            'usage_count', 'rating', 'is_active', 'tags'
         ]
+
+    def get_tags(self, obj):
+        return (obj.template_data or {}).get('tags', [])
 
 
 class CVTemplateDetailSerializer(serializers.ModelSerializer):

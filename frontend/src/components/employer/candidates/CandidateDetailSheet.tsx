@@ -3,6 +3,7 @@ import { useCandidateStore } from '@/store/candidateStore';
 import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,29 @@ export function CandidateDetailSheet() {
     const [history, setHistory] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [updatingStatus, setUpdatingStatus] = useState(false);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+
+    const handlePreviewCv = async () => {
+        if (details.cv_url) {
+            window.open(details.cv_url, '_blank');
+            return;
+        }
+        if (!details.cv_id) {
+            toast.error("Không tìm thấy dữ liệu CV");
+            return;
+        }
+        try {
+            toast.loading("Đang tải dữ liệu CV...");
+            const res = await applicationService.previewCv(details.id);
+            setPreviewHtml(res.data.html_content);
+            setPreviewOpen(true);
+            toast.dismiss();
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Không thể tải bản xem trước CV");
+        }
+    };
 
     useEffect(() => {
         let isMtd = true;
@@ -182,10 +206,10 @@ export function CandidateDetailSheet() {
                                             {/* Simulate iframe for PDF */}
                                             <div className="text-center text-muted-foreground">
                                                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                                                <p>{details.cv_url ? "Dữ liệu CV hiện có" : "Chưa tải lên CV"}</p>
-                                                {details.cv_url && (
-                                                    <Button variant="link" className="mt-2 text-primary" onClick={() => window.open(details.cv_url, '_blank')}>
-                                                        Mở trong tab mới
+                                                <p>{details.cv_url || details.cv_id ? "Dữ liệu CV hiện có" : "Chưa tải lên CV"}</p>
+                                                {(details.cv_url || details.cv_id) && (
+                                                    <Button variant="link" className="mt-2 text-primary font-bold" onClick={handlePreviewCv}>
+                                                        Xem CV
                                                     </Button>
                                                 )}
                                             </div>
@@ -283,6 +307,50 @@ export function CandidateDetailSheet() {
                     </>
                 ) : null}
             </SheetContent>
+
+            <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+                <DialogContent className="max-w-[210mm] max-h-[90vh] overflow-auto p-0 bg-transparent border-none shadow-none z-[300]">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Xem trước CV</DialogTitle>
+                    </DialogHeader>
+                    <div className="bg-white mx-auto shadow-2xl relative group rounded" style={{ minWidth: '210mm', minHeight: '297mm' }}>
+                        {previewHtml && (
+                            <iframe
+                                srcDoc={`
+                                    <!DOCTYPE html>
+                                    <html>
+                                        <head>
+                                            <style>
+                                                body { margin: 0; padding: 0; background: white; }
+                                                ::-webkit-scrollbar { width: 0px; background: transparent; }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            ${previewHtml}
+                                        </body>
+                                    </html>
+                                `}
+                                className="w-full pointer-events-auto rounded"
+                                style={{
+                                    height: '100%',
+                                    minHeight: '297mm',
+                                    border: 'none',
+                                }}
+                                title="CV Preview"
+                                sandbox="allow-same-origin allow-scripts"
+                            />
+                        )}
+                        <Button 
+                            variant="default" 
+                            size="sm" 
+                            className="absolute top-4 right-4 z-50 bg-slate-900/50 hover:bg-slate-900 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setPreviewOpen(false)}
+                        >
+                            Đóng
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Sheet>
     );
 }
