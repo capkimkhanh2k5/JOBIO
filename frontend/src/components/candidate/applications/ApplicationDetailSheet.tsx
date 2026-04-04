@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
     Sheet,
@@ -6,12 +7,20 @@ import {
     SheetTitle,
     SheetDescription,
 } from '@/components/ui/sheet';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Building2, Calendar, FileText, CheckCircle2 } from 'lucide-react';
 import { applicationService } from '@/services/applicationService';
+import { cvService } from '@/services/cvService';
+import { toast } from 'sonner';
 
 interface ApplicationDetailSheetProps {
     applicationId: string;
@@ -40,6 +49,30 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
     });
 
     const canWithdraw = app && ['Mới gửi', 'Đang xét'].includes(app.status);
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+
+    const handlePreviewCv = async () => {
+        if (app.cv_url) {
+            window.open(app.cv_url, '_blank');
+            return;
+        }
+        if (!app.cv_id) {
+            toast.error("Không tìm thấy dữ liệu CV");
+            return;
+        }
+        try {
+            toast.loading("Đang tải dữ liệu CV...");
+            const res = await cvService.previewCv(app.recruiter_id, app.cv_id);
+            setPreviewHtml(res.data.html_content);
+            setPreviewOpen(true);
+            toast.dismiss();
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Không thể tải bản xem trước CV");
+        }
+    };
 
     const statusOptions = ['Mới gửi', 'Đang xét', 'Phỏng vấn', 'Đề nghị/Tuyển', 'Kết thúc'];
     let currentStepIndex = 0;
@@ -116,9 +149,12 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
                                             <span className="text-slate-500">CV đính kèm:</span>
-                                            <a href={app.cv_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-medium text-cyan-600 hover:text-cyan-700 hover:underline">
+                                            <button 
+                                                onClick={handlePreviewCv} 
+                                                className="flex items-center gap-1.5 font-medium text-cyan-600 hover:text-cyan-700 hover:underline"
+                                            >
                                                 <FileText className="w-4 h-4" /> {app.cv_name || "CV.pdf"}
-                                            </a>
+                                            </button>
                                         </div>
                                         {app.ai_score && (
                                             <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
@@ -173,6 +209,50 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                     </>
                 )}
             </SheetContent>
+
+            <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+                <DialogContent className="max-w-[210mm] max-h-[90vh] overflow-auto p-0 bg-transparent border-none shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>Xem trước CV</DialogTitle>
+                    </DialogHeader>
+                    <div className="bg-white mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
+                        {previewHtml && (
+                            <iframe
+                                srcDoc={`
+                                    <!DOCTYPE html>
+                                    <html>
+                                        <head>
+                                            <style>
+                                                body { margin: 0; padding: 0; background: white; }
+                                                ::-webkit-scrollbar { width: 0px; background: transparent; }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            ${previewHtml}
+                                        </body>
+                                    </html>
+                                `}
+                                className="w-full pointer-events-auto"
+                                style={{
+                                    height: '100%',
+                                    minHeight: '297mm',
+                                    border: 'none',
+                                }}
+                                title="CV Preview"
+                                sandbox="allow-same-origin allow-scripts"
+                            />
+                        )}
+                        <Button 
+                            variant="default" 
+                            size="sm" 
+                            className="absolute top-4 right-4 z-50 bg-slate-900/50 hover:bg-slate-900 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setPreviewOpen(false)}
+                        >
+                            Đóng
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </Sheet>
     );
 }

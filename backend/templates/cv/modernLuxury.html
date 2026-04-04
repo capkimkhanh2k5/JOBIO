@@ -1,333 +1,211 @@
 <!DOCTYPE html>
-
-<html class="scroll-smooth" lang="en"><head>
+<html lang="vi">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Alexander Pierce | Design Director CV</title>
-<!-- Google Fonts: Italiana (Display) and Space Grotesk (Body) -->
+<title>{{ data.personal.full_name|default:"CV" }} | Modern Luxury</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Italiana&amp;family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS CDN -->
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0A0A0A',
-            paper: '#F4F3EF',
-            electric: '#CCFF00',
-            muted: '#9CA3AF',
-          },
-          fontFamily: {
-            display: ['Italiana', 'serif'],
-            body: ['Space Grotesk', 'sans-serif'],
-          },
-          spacing: {
-            'section': '120px',
-          }
+        theme: {
+            extend: {
+                colors: { primary: '#0A0A0A', paper: '#F4F3EF', electric: '#CCFF00', muted: '#9CA3AF' },
+                fontFamily: { display: ['Italiana', 'serif'], body: ['Space Grotesk', 'sans-serif'] },
+            }
         }
-      }
     }
-  </script>
-<style data-purpose="custom-typography">
-    body {
-      background-color: #F4F3EF;
-      color: #0A0A0A;
-      font-family: 'Space Grotesk', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-    
+</script>
+<style>
+    body { background-color: #F4F3EF; color: #0A0A0A; font-family: 'Space Grotesk', sans-serif; -webkit-font-smoothing: antialiased; }
     .font-display { font-family: 'Italiana', serif; }
-    
-    /* Massive Name scaling for Hero */
-    .hero-name {
-      font-size: clamp(4rem, 15vw, 12rem);
-      line-height: 0.85;
-      letter-spacing: -0.04em;
-    }
-
-    /* Custom dropcap styling */
-    .dropcap::first-letter {
-      float: left;
-      font-size: 5rem;
-      line-height: 1;
-      padding-right: 12px;
-      color: #CCFF00;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-    }
-
-    /* Custom scrollbar for aesthetic */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #F4F3EF; }
-    ::-webkit-scrollbar-thumb { background: #0A0A0A; }
-  </style>
-<style data-purpose="animations">
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.2); }
-    }
-    .animate-pulse-dot {
-      animation: pulse-dot 2s infinite;
-    }
-    
-    .rail-line {
-      transition: all 0.3s ease;
-    }
-    .experience-row:hover .rail-line {
-      background-color: #CCFF00;
-      width: 4px;
-    }
-  </style>
+    .hero-name { font-size: clamp(3rem, 10vw, 8rem); line-height: 0.9; letter-spacing: -0.04em; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+    .animate-pulse-dot { animation: pulse-dot 2s infinite; }
+    .rail-line { transition: all 0.3s ease; width: 1px; }
+    .experience-row:hover .rail-line { background-color: #CCFF00 !important; }
+    .placeholder { color: #9CA3AF; font-style: italic; }
+</style>
 </head>
 <body class="min-h-screen">
-<!-- BEGIN: The Cover (Hero) -->
-<section class="relative h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden border-b border-primary/10" data-purpose="hero-section" id="hero">
-<!-- Top Bar Navigation/Status -->
-<div class="flex justify-between items-start w-full z-10">
-<!-- Availability Tag -->
-<div class="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-primary/10 px-4 py-2 rounded-full" data-purpose="availability-status">
-<span class="w-2 h-2 bg-lime-500 rounded-full animate-pulse-dot"></span>
-<span class="text-[10px] font-bold tracking-[0.2em] uppercase">Open for Commissions</span>
-</div>
-<!-- Role Definition -->
-<div class="text-right" data-purpose="header-title">
-<h2 class="font-body text-xl md:text-2xl font-medium border-b-4 border-electric inline-block leading-tight">
-          DESIGN DIRECTOR
-        </h2>
-<p class="text-[10px] tracking-widest text-muted mt-2 uppercase">London / Remote</p>
-</div>
-</div>
-<!-- Centered/Bottom Name Branding -->
-<div class="mt-auto mb-12" data-purpose="hero-branding">
-<h1 class="hero-name font-display uppercase">
-        Alexander<br/>Pierce
-      </h1>
-</div>
-<!-- Scroll Indicator -->
-<div class="absolute bottom-8 right-12 hidden md:block" data-purpose="scroll-hint">
-<div class="flex flex-col items-center gap-4">
-<span class="text-[10px] tracking-widest uppercase rotate-90 origin-left mb-8 text-muted">Scroll</span>
-<div class="w-[1px] h-16 bg-primary/20 relative overflow-hidden">
-<div class="absolute top-0 left-0 w-full h-1/2 bg-primary animate-bounce"></div>
-</div>
-</div>
-</div>
-</section>
-<!-- END: The Cover (Hero) -->
-<!-- BEGIN: The Narrative (Bio) -->
-<section class="py-section px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-primary/10" data-purpose="bio-section" id="narrative">
-<!-- Asymmetrical Spacer (Left Column) -->
-<div class="hidden md:block md:col-span-4 border-r border-primary/10 flex flex-col justify-start">
-<span class="text-[10px] tracking-[0.3em] uppercase text-muted rotate-180 [writing-mode:vertical-lr] py-8">02 — The Narrative</span>
-</div>
-<!-- Bio Content (Right Column) -->
-<div class="md:col-span-8 md:pl-12 flex flex-col justify-center max-w-3xl">
-<div class="space-y-12">
-<p class="text-2xl md:text-3xl font-body leading-relaxed text-primary/90">
-<span class="text-electric font-bold text-7xl inline-block mr-2 leading-none float-left">I</span>
-          am a Design Director with a focus on sustainable luxury and typographic systems. 
-          My work bridges the gap between functional product design and emotional brand storytelling. 
-          Currently defining visual languages for the next generation of fintech, ensuring that 
-          every pixel serves a purpose and every interaction feels like a conversation.
-        </p>
-<p class="text-xl md:text-2xl font-body text-muted leading-relaxed italic">
-          I believe in the power of ”less but better.” My approach strips away the non-essential 
-          to reveal the core truth of a brand. Whether it’s a digital interface or a physical 
-          installation, the goal remains the same: create clarity from chaos.
-        </p>
-<!-- Signature Block -->
-<div class="pt-8" data-purpose="signature">
-<span class="text-[10px] tracking-widest uppercase font-bold text-muted block mb-4">Signed</span>
-<svg class="opacity-80" fill="none" height="60" viewbox="0 0 200 60" width="200" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 45C30 45 40 10 60 30C80 50 90 20 120 35C150 50 160 25 190 30" stroke="black" stroke-linecap="round" stroke-width="2"></path>
-<path d="M45 35C55 15 70 15 80 35" stroke="black" stroke-linecap="round" stroke-width="2"></path>
-</svg>
-</div>
-</div>
-</div>
-</section>
-<!-- END: The Narrative (Bio) -->
-<!-- BEGIN: The Chronicle (Experience) -->
-<section class="py-section border-b border-primary/10 bg-white/30" data-purpose="experience-section" id="chronicle">
-<div class="px-6 md:px-12 mb-16">
-<h2 class="font-display text-6xl md:text-7xl uppercase">The Chronicle</h2>
-</div>
-<div class="relative">
-<!-- Central Rail Line -->
-<div class="absolute left-[30%] top-0 bottom-0 w-[1px] bg-primary/10 hidden md:block"></div>
-<!-- Experience Items -->
-<div class="space-y-0">
-<!-- Entry 1 -->
-<div class="experience-row grid grid-cols-1 md:grid-cols-[30%_1px_1fr] group" data-purpose="experience-entry">
-<div class="p-6 md:p-12 text-right">
-<span class="text-sm font-body tracking-widest text-muted uppercase">2022 — Present</span>
-</div>
-<div class="rail-line bg-primary/10 hidden md:block relative"></div>
-<div class="p-6 md:p-12 md:pl-20 border-t border-primary/10 md:border-t-0">
-<h3 class="font-display text-4xl md:text-5xl mb-2">Senior Art Director</h3>
-<p class="font-body text-xl italic mb-6">Vogue International</p>
-<ul class="space-y-4 text-primary/80 max-w-2xl font-body">
-<li>— Spearheading global digital campaigns for luxury fashion partnerships, bridging print heritage with interactive web experiences.</li>
-<li>— Directing a multidisciplinary team of 12 designers and motion artists to refresh the brand's digital identity system.</li>
-<li>— Implemented a new typography-first design language that increased editorial engagement by 40% across key verticals.</li>
-</ul>
-</div>
-</div>
-<!-- Entry 2 -->
-<div class="experience-row grid grid-cols-1 md:grid-cols-[30%_1px_1fr] group" data-purpose="experience-entry">
-<div class="p-6 md:p-12 text-right border-t border-primary/10 md:border-t-0">
-<span class="text-sm font-body tracking-widest text-muted uppercase">2019 — 2022</span>
-</div>
-<div class="rail-line bg-primary/10 hidden md:block relative"></div>
-<div class="p-6 md:p-12 md:pl-20 border-t border-primary/10 md:border-t-0">
-<h3 class="font-display text-4xl md:text-5xl mb-2">Lead Product Designer</h3>
-<p class="font-body text-xl italic mb-6">Ssense</p>
-<ul class="space-y-4 text-primary/80 max-w-2xl font-body">
-<li>— Architected the comprehensive e-commerce redesign, focusing on brutalist aesthetics and high-performance mobile UX.</li>
-<li>— Established the core design system ”Brutal Grid” utilized across web, app, and physical retail touchpoints.</li>
-<li>— Collaborated with engineering leads to reduce frontend technical debt by simplifying component libraries.</li>
-</ul>
-</div>
-</div>
-<!-- Entry 3 -->
-<div class="experience-row grid grid-cols-1 md:grid-cols-[30%_1px_1fr] group" data-purpose="experience-entry">
-<div class="p-6 md:p-12 text-right border-t border-primary/10 md:border-t-0">
-<span class="text-sm font-body tracking-widest text-muted uppercase">2017 — 2019</span>
-</div>
-<div class="rail-line bg-primary/10 hidden md:block relative"></div>
-<div class="p-6 md:p-12 md:pl-20 border-t border-primary/10 md:border-t-0">
-<h3 class="font-display text-4xl md:text-5xl mb-2">Visual Designer</h3>
-<p class="font-body text-xl italic mb-6">Pentagram</p>
-<ul class="space-y-4 text-primary/80 max-w-2xl font-body">
-<li>— Contributed to large-scale identity projects for cultural institutions and non-profit organizations.</li>
-<li>— Managed print production workflows, ensuring color accuracy and material quality for award-winning publications.</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- END: The Chronicle (Experience) -->
-<!-- BEGIN: The Index (Footer) -->
-<footer class="pt-section" data-purpose="footer-section" id="index">
-<!-- Top Grid -->
-<div class="grid grid-cols-1 md:grid-cols-4 border-t border-primary">
-<!-- Col 1: Expertise -->
-<div class="p-12 border-b md:border-b-0 md:border-r border-primary/10 flex flex-col justify-between min-h-[400px]">
-<div>
-<h4 class="font-display text-4xl mb-12">Expertise</h4>
-<ul class="font-body text-lg space-y-4">
-<li>Figma &amp; Principle</li>
-<li>Spline 3D</li>
-<li>HTML/CSS</li>
-<li>Webflow Dev</li>
-<li>Design Systems</li>
-</ul>
-</div>
-<div class="pt-12 text-[10px] tracking-widest text-muted uppercase">Toolkit V4.2</div>
-</div>
-<!-- Col 2: Recognition -->
-<div class="p-12 border-b md:border-b-0 md:border-r border-primary/10 flex flex-col justify-between min-h-[400px]">
-<div>
-<h4 class="font-display text-4xl mb-12">Recognition</h4>
-<div class="space-y-8">
-<div>
-<p class="font-body text-lg font-medium">Awwwards SOTD (x3)</p>
-<p class="text-xs text-muted mt-1 uppercase tracking-wider">2021, 2023</p>
-</div>
-<div>
-<p class="font-body text-lg font-medium">D&amp;AD Wood Pencil</p>
-<p class="text-xs text-muted mt-1 uppercase tracking-wider">Digital Design</p>
-</div>
-<div>
-<p class="font-body text-lg font-medium">Type Directors Club</p>
-<p class="text-xs text-muted mt-1 uppercase tracking-wider">Certificate of Excellence</p>
-</div>
-</div>
-</div>
-<div class="pt-12 text-[10px] tracking-widest text-muted uppercase">Selected Honors</div>
-</div>
-<!-- Col 3: Connect -->
-<div class="p-12 border-b md:border-b-0 md:border-r border-primary/10 flex flex-col justify-between min-h-[400px]">
-<div>
-<h4 class="font-display text-4xl mb-12">Connect</h4>
-<ul class="font-body text-lg space-y-8">
-<li>
-<a class="flex justify-between items-center group" href="#">
-                LinkedIn <span class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">↗</span>
-</a>
-</li>
-<li>
-<a class="flex justify-between items-center group" href="#">
-                Instagram <span class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">↗</span>
-</a>
-</li>
-<li>
-<a class="flex justify-between items-center group" href="#">
-                Read.cv <span class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">↗</span>
-</a>
-</li>
-</ul>
-</div>
-<button class="flex items-center gap-3 text-[10px] tracking-[0.2em] font-bold uppercase hover:text-electric transition-colors">
-<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>
-          Save as PDF
-        </button>
-</div>
-<!-- Col 4: CTA -->
-<div class="bg-primary p-0 flex flex-col justify-center items-center relative overflow-hidden group min-h-[400px]">
-<!-- Dot Pattern Background Overlay -->
-<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
-<div class="relative z-10 text-center px-8">
-<p class="text-[10px] tracking-[0.4em] text-white/40 uppercase mb-8">Start a Project</p>
-<h4 class="font-display text-white text-7xl md:text-8xl leading-tight mb-12">Let's Talk</h4>
-<button class="w-full bg-electric text-primary font-body font-bold text-sm tracking-widest py-6 px-4 flex items-center justify-center gap-4 hover:scale-105 transition-transform" id="copy-email-btn">
-            COPY EMAIL 
-            <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16"><rect height="13" rx="2" ry="2" width="13" x="9" y="9"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-</button>
-</div>
-</div>
-</div>
-<!-- Colophon Bottom Bar -->
-<div class="px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-center text-[10px] tracking-widest text-muted uppercase gap-4 border-t border-primary/10">
-<div data-purpose="copyright">© 2024 Editorial Folio</div>
-<div class="flex gap-8">
-<span>Last Updated: Oct 14</span>
-<span>UTC-5</span>
-</div>
-<div data-purpose="credit">Designed in Figma, Built in Code</div>
-</div>
-</footer>
-<!-- END: The Index (Footer) -->
-<script data-purpose="interaction-logic">
-    // Simple Email Copy Logic
-    const copyBtn = document.getElementById('copy-email-btn');
-    copyBtn.addEventListener('click', () => {
-      const email = 'hello@alexanderpierce.design'; // Example email
-      navigator.clipboard.writeText(email).then(() => {
-        const originalText = copyBtn.innerHTML;
-        copyBtn.innerHTML = 'COPIED!';
-        copyBtn.classList.remove('bg-electric');
-        copyBtn.classList.add('bg-white');
-        setTimeout(() => {
-          copyBtn.innerHTML = originalText;
-          copyBtn.classList.remove('bg-white');
-          copyBtn.classList.add('bg-electric');
-        }, 2000);
-      });
-    });
 
-    // Parallax logic for Hero Name (optional enhancement)
-    window.addEventListener('scroll', () => {
-      const scrolled = window.pageYOffset;
-      const heroName = document.querySelector('.hero-name');
-      if (heroName && scrolled < 600) {
-        heroName.style.transform = `translateY(${scrolled * 0.2}px)`;
-        heroName.style.opacity = `${1 - (scrolled / 800)}`;
-      }
-    });
-  </script>
-</body></html>
+<!-- ── Hero Section ── -->
+<section class="relative min-h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden border-b border-black/10">
+    <!-- Top bar -->
+    <div class="flex justify-between items-start w-full">
+        <div class="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-black/10 px-4 py-2 rounded-full">
+            <span class="w-2 h-2 bg-lime-500 rounded-full animate-pulse-dot"></span>
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase">Sẵn sàng làm việc</span>
+        </div>
+        <div class="text-right">
+            <h2 class="font-body text-lg font-medium border-b-4 border-[#CCFF00] inline-block leading-tight uppercase">
+                {% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="placeholder">Chức danh</span>{% endif %}
+            </h2>
+        </div>
+    </div>
+
+    <!-- Name -->
+    <div class="mt-auto mb-12 pt-16">
+        <h1 class="hero-name font-display uppercase">
+            {% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}
+        </h1>
+    </div>
+
+    <!-- Contact bar -->
+    <div class="flex flex-wrap gap-6 text-[11px] tracking-widest uppercase text-gray-500 pb-4 border-t border-black/10 pt-6">
+        {% if data.personal.email %}
+        <span>{{ data.personal.email }}</span>
+        {% else %}
+        <span class="placeholder">Email</span>
+        {% endif %}
+        {% if data.personal.phone %}
+        <span>{{ data.personal.phone }}</span>
+        {% endif %}
+        {% if data.links %}
+            {% if data.links.linkedin %}<span>{{ data.links.linkedin }}</span>{% endif %}
+            {% if data.links.github %}<span>{{ data.links.github }}</span>{% endif %}
+            {% if data.links.portfolio %}<span>{{ data.links.portfolio }}</span>{% endif %}
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── Bio / Narrative ── -->
+<section class="py-20 px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-black/10">
+    <div class="hidden md:flex md:col-span-3 border-r border-black/10 items-start">
+        <span class="text-[10px] tracking-[0.3em] uppercase text-gray-400 pt-4 block">— Giới thiệu</span>
+    </div>
+    <div class="md:col-span-9 md:pl-12 flex flex-col justify-center">
+        {% if data.personal.bio %}
+        <p class="text-xl font-body leading-relaxed text-black/90">{{ data.personal.bio }}</p>
+        {% else %}
+        <p class="placeholder text-xl font-body leading-relaxed">Viết giới thiệu bản thân tại đây...</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── Experience (The Chronicle) ── -->
+<section class="py-20 border-b border-black/10 bg-white/30">
+    <div class="px-6 md:px-12 mb-12">
+        <h2 class="font-display text-5xl md:text-7xl uppercase">Kinh nghiệm</h2>
+    </div>
+    {% if data.experience %}
+    <div class="relative">
+        <div class="absolute left-[28%] top-0 bottom-0 w-[1px] bg-black/10 hidden md:block"></div>
+        <div class="space-y-0">
+            {% for exp in data.experience %}
+            <div class="experience-row grid grid-cols-1 md:grid-cols-[28%_1px_1fr] group border-t border-black/10">
+                <div class="p-6 md:p-10 text-right">
+                    <span class="text-sm font-body tracking-widest text-gray-400 uppercase">
+                        {% if exp.start_date %}{{ exp.start_date }}{% endif %}
+                        {% if exp.is_current %} — Hiện tại{% elif exp.end_date %} — {{ exp.end_date }}{% endif %}
+                    </span>
+                    <p class="font-body text-sm italic mt-1 text-black/50">{{ exp.company_name }}</p>
+                </div>
+                <div class="rail-line bg-black/10 hidden md:block"></div>
+                <div class="p-6 md:p-10 md:pl-16">
+                    <h3 class="font-display text-3xl md:text-4xl mb-3">
+                        {% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}
+                    </h3>
+                    {% if exp.description %}
+                    <p class="text-black/70 max-w-2xl font-body text-sm leading-relaxed">{{ exp.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="px-6 md:px-12">
+        <p class="placeholder font-body">Thêm kinh nghiệm làm việc của bạn...</p>
+    </div>
+    {% endif %}
+</section>
+
+<!-- ── Footer Grid: Skills, Education, Contact ── -->
+<footer class="pt-0">
+    <div class="grid grid-cols-1 md:grid-cols-3 border-t border-black">
+
+        <!-- Skills -->
+        <div class="p-10 border-b md:border-b-0 md:border-r border-black/10">
+            <h4 class="font-display text-4xl mb-8">Kỹ năng</h4>
+            {% if data.skills %}
+            <ul class="font-body text-sm space-y-3">
+                {% for skill in data.skills %}
+                <li class="flex justify-between items-center">
+                    <span>{{ skill.name }}</span>
+                    {% if skill.proficiency_level %}
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ skill.proficiency_level }}</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="placeholder font-body text-sm">Thêm kỹ năng...</p>
+            {% endif %}
+        </div>
+
+        <!-- Education -->
+        <div class="p-10 border-b md:border-b-0 md:border-r border-black/10">
+            <h4 class="font-display text-4xl mb-8">Học vấn</h4>
+            {% if data.education %}
+            <div class="space-y-6">
+                {% for edu in data.education %}
+                <div>
+                    <p class="font-body text-sm font-medium">
+                        {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} · {{ edu.field_of_study }}{% endif %}
+                        {% elif edu.field_of_study %}{{ edu.field_of_study }}
+                        {% else %}Bằng cấp{% endif %}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">{{ edu.school_name }}</p>
+                    {% if edu.end_date %}<p class="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{{ edu.end_date }}</p>{% elif edu.is_current %}<p class="text-[10px] text-gray-400 uppercase tracking-wider mt-1">Hiện tại</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="placeholder font-body text-sm">Thêm học vấn...</p>
+            {% endif %}
+        </div>
+
+        <!-- Languages, Certifications & Contact -->
+        <div class="bg-[#0A0A0A] p-10 flex flex-col justify-between">
+            <div>
+                <h4 class="font-display text-white text-3xl mb-6">Ngôn ngữ</h4>
+                {% if data.languages %}
+                <ul class="space-y-2 mb-8">
+                    {% for lang in data.languages %}
+                    <li class="flex justify-between text-white/70 font-body text-sm">
+                        <span>{{ lang.name }}</span>
+                        <span class="text-white/30 text-[10px] uppercase tracking-wider">{{ lang.proficiency_level }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-white/30 font-body text-sm mb-8 italic">Thêm ngôn ngữ...</p>
+                {% endif %}
+
+                {% if data.certifications %}
+                <h4 class="font-display text-white text-3xl mb-4">Chứng chỉ</h4>
+                <ul class="space-y-2 mb-8">
+                    {% for cert in data.certifications %}
+                    <li class="text-white/70 font-body text-sm">
+                        {{ cert.name }}{% if cert.issuing_organization %} <span class="text-white/30">· {{ cert.issuing_organization }}</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <div class="border-t border-white/10 pt-8">
+                <p class="text-[10px] tracking-widest text-white/30 uppercase mb-3">Liên hệ</p>
+                <p class="text-white font-body font-bold text-sm">
+                    {% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="text-white/30 italic">Email chưa điền</span>{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

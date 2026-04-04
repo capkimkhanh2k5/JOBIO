@@ -22,6 +22,10 @@ export const applicationService = {
     return api.get<ApplicationDetail>(`/api/applications/${id}/`);
   },
 
+  previewCv(id: number) {
+    return api.get<{ html_content: string; template_id: number }>(`/api/applications/${id}/cv_preview/`);
+  },
+
   create(data: ApplicationCreateRequest) {
     return api.post<ApplicationDetail>('/api/applications/', data);
   },

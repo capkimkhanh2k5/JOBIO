@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { Plus, Sparkles, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
@@ -39,6 +39,7 @@ export default function CVManager() {
     const [selectedTemplateId, setSelectedTemplateId] = useState('tpl-1');
     const [cvData, setCvData] = useState<Record<string, any>>({});
     const [autoSaveStatus, setAutoSaveStatus] = useState<AutoSaveStatus>('idle');
+    const [previewKey, setPreviewKey] = useState(0); // increments after save to trigger preview refresh
     const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ── Fetch CV list ────────────────────────────────────────────────────────
@@ -53,17 +54,16 @@ export default function CVManager() {
     useEffect(() => {
         if (cvList.length > 0 && !selectedCvId) {
             const def = (cvList as any).find((c: any) => c.is_default) ?? cvList[0];
-            setSelectedCvId((def as any).id);
-            setCvName((def as any).cv_name);
-            setSelectedTemplateId((def as any).template_id || (def as any).template);
+            handleSelectCV(def as any);
         }
-    }, [cvList, selectedCvId]);
+    }, [cvList]); // eslint-disable-line
 
     // ── Mutations ─────────────────────────────────────────────────────────────
     const updateMutation = useMutation({
         mutationFn: (data: any) => cvService.update(Number(recruiterId), Number(selectedCvId), data).then(r => r.data),
         onSuccess: () => {
             setAutoSaveStatus('saved');
+            setPreviewKey(k => k + 1); // trigger preview refresh with latest saved data
             queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
         },
     });
@@ -129,14 +129,20 @@ export default function CVManager() {
     const handleSelectCV = (cv: any) => {
         setSelectedCvId(cv.id);
         setCvName(cv.cv_name);
-        setSelectedTemplateId(cv.template_id || cv.template);
-        setCvData({});
+        setSelectedTemplateId(String(cv.template_id || cv.template || ''));
         setAutoSaveStatus('idle');
+        // Load cv_data from CV detail
+        if (recruiterId) {
+            cvService.getById(Number(recruiterId), Number(cv.id)).then((res: any) => {
+                setCvData(res.data?.cv_data || {});
+            }).catch(() => setCvData({}));
+        }
     };
 
     const handleFieldChange = (field: string, value: any) => {
         if (field === 'cv_name') setCvName(value);
-        else if (field === 'template_id') setSelectedTemplateId(value);
+        else if (field === 'template_id') setSelectedTemplateId(String(value));
+        else if (field === 'cv_data') setCvData(value); // full cv_data object from CVBuilder
         else setCvData(prev => ({ ...prev, [field]: value }));
         setAutoSaveStatus('saving');
         triggerAutoSave();
@@ -207,9 +213,9 @@ export default function CVManager() {
                 <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-white/40 backdrop-blur-xl border-l border-white/40">
                     <CVLivePreview
                         cvName={cvName}
-                        cvData={cvData}
                         templateId={selectedTemplateId}
                         cvId={selectedCvId}
+                        previewKey={previewKey}
                     />
                 </div>
             </div>
@@ -221,11 +227,7 @@ export default function CVManager() {
                         onClose={() => setShowNewDialog(false)}
                         onCreated={(newCV) => {
                             queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs'] });
-                            setSelectedCvId(newCV.id);
-                            setCvName(newCV.cv_name);
-                            setSelectedTemplateId(newCV.template_id || newCV.template);
-                            setCvData({});
-                            setAutoSaveStatus('idle');
+                            handleSelectCV({ id: newCV.id, cv_name: newCV.cv_name, template_id: newCV.template_id || newCV.template });
                             setShowNewDialog(false);
                             toast.success('CV mới đã được tạo!');
                         }}

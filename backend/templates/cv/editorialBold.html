@@ -1,213 +1,217 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
+<html lang="vi">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Alexander Rivière | Editorial CV</title>
+<title>{{ data.personal.full_name|default:"CV" }} | Editorial Bold</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Italiana&amp;family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Italiana&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#c8f906",
-                        "background-light": "#f8f8f5",
-                        "background-dark": "#1f230f",
-                    },
-                    fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"],
-                        "serif": ["Italiana", "serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                },
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: { "primary": "#c8f906", "background-light": "#f8f8f5" },
+                fontFamily: { "display": ["Space Grotesk", "sans-serif"], "serif": ["Italiana", "serif"] },
             },
-        }
-    </script>
+        },
+    }
+</script>
 <style>
-        @media print {
-            body { background: white; }
-            .no-print { display: none; }
-            .print-container { width: 100%; max-width: 100%; padding: 0; margin: 0; box-shadow: none; }
-            @page { size: A4; margin: 0; }
-        }
-        .text-huge {
-            font-size: clamp(4rem, 12vw, 9rem);
-            line-height: 0.85;
-        }
-        .vertical-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-        }
-    </style>
+    @media print { body { background: white; } .no-print { display: none; } .print-container { width: 100%; max-width: 100%; padding: 0; margin: 0; box-shadow: none; } @page { size: A4; margin: 0; } }
+    .text-huge { font-size: clamp(3rem, 10vw, 7rem); line-height: 0.85; }
+    .placeholder { color: #cbd5e1; font-style: italic; }
+</style>
 </head>
-<body class="bg-slate-200 font-display text-slate-900 selection:bg-primary selection:text-black">
-<!-- CV Container (A4 Aspect Ratio Simulation) -->
+<body class="bg-slate-200 font-display text-slate-900">
+
 <div class="print-container mx-auto my-12 w-full max-w-[1000px] bg-background-light shadow-2xl overflow-hidden relative min-h-[1414px]">
-<!-- Background Accent Grid -->
-<div class="absolute top-0 right-0 w-1/3 h-full bg-white/50 border-l border-slate-200 -z-0"></div>
-<!-- Header Section -->
-<header class="relative pt-20 px-12 pb-16 z-10">
-<div class="flex flex-col">
-<span class="text-primary font-bold tracking-widest text-sm mb-4 uppercase">Portfolio No. 84 — CV</span>
-<h1 class="font-serif text-huge uppercase tracking-tighter -ml-2 mb-8">
-                    Alexander<br/>Rivière
-                </h1>
-<div class="flex items-center gap-6">
-<div class="h-[1px] w-24 bg-black"></div>
-<p class="text-xl font-light tracking-tight italic">Senior Creative Technologist &amp; Digital Architect</p>
-</div>
-</div>
-</header>
-<!-- Main Content Grid -->
-<main class="relative grid grid-cols-12 px-12 pb-24 z-10 gap-8">
-<!-- Left Narrative Column -->
-<div class="col-span-8 flex flex-col gap-16">
-<!-- Narrative Bio -->
-<section>
-<h2 class="font-serif text-4xl mb-6 flex items-center gap-4">
-<span class="bg-primary px-2 py-1 text-base font-display font-bold">01</span>
-                        The Manifesto
-                    </h2>
-<p class="text-2xl leading-relaxed font-light text-slate-800 pr-12">
-                        A manifesto of digital craftsmanship and avant-garde technical execution. Merging <span class="bg-primary/30 px-1">high-fashion editorial aesthetics</span> with robust engineering to create immersive digital experiences that challenge the status quo. I specialize in the intersection of interaction design and performance architecture.
+    <div class="absolute top-0 right-0 w-1/3 h-full bg-white/50 border-l border-slate-200 -z-0"></div>
+    <div class="absolute top-0 right-12 w-2 h-64 bg-primary -z-0"></div>
+
+    <!-- Header -->
+    <header class="relative pt-20 px-12 pb-16 z-10">
+        <div class="flex flex-col">
+            <span class="text-primary font-bold tracking-widest text-sm mb-4 uppercase">Portfolio — CV</span>
+            <h1 class="font-serif text-huge uppercase tracking-tighter -ml-2 mb-8">
+                {% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}
+            </h1>
+            <div class="flex items-center gap-6">
+                <div class="h-[1px] w-24 bg-black"></div>
+                <p class="text-xl font-light tracking-tight italic">
+                    {% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="placeholder">Chức danh chuyên môn</span>{% endif %}
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative grid grid-cols-12 px-12 pb-24 z-10 gap-8">
+        <!-- Left Column -->
+        <div class="col-span-8 flex flex-col gap-12">
+
+            <!-- Bio / Manifesto -->
+            <section>
+                <h2 class="font-serif text-4xl mb-6 flex items-center gap-4">
+                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">01</span>
+                    Giới thiệu
+                </h2>
+                {% if data.personal.bio %}
+                <p class="text-xl leading-relaxed font-light text-slate-800 pr-12">{{ data.personal.bio }}</p>
+                {% else %}
+                <p class="placeholder text-xl leading-relaxed pr-12">Viết giới thiệu bản thân tại đây...</p>
+                {% endif %}
+            </section>
+
+            <!-- Experience -->
+            <section>
+                <h2 class="font-serif text-4xl mb-10 flex items-center gap-4">
+                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">02</span>
+                    Kinh nghiệm
+                </h2>
+                {% if data.experience %}
+                <div class="space-y-10">
+                    {% for exp in data.experience %}
+                    <div class="grid grid-cols-10 gap-4">
+                        <div class="col-span-3">
+                            <span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">
+                                {{ exp.start_date|default:"" }}{% if exp.is_current %}—Hiện tại{% elif exp.end_date %}—{{ exp.end_date }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="col-span-7 {% if not forloop.first %}border-l border-primary pl-6 py-1{% endif %}">
+                            <h3 class="text-xl font-bold uppercase tracking-tight mb-1">
+                                {{ exp.position|default:exp.job_title|default:"Chức vụ" }}
+                            </h3>
+                            <p class="text-slate-500 mb-3 uppercase text-xs tracking-widest font-bold">{{ exp.company_name }}</p>
+                            {% if exp.description %}
+                            <p class="text-slate-700 leading-snug">{{ exp.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="placeholder">Thêm kinh nghiệm làm việc...</p>
+                {% endif %}
+            </section>
+
+            <!-- Education -->
+            <section>
+                <h2 class="font-serif text-4xl mb-8 flex items-center gap-4">
+                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">03</span>
+                    Học vấn
+                </h2>
+                {% if data.education %}
+                <div class="space-y-6">
+                    {% for edu in data.education %}
+                    <div class="flex justify-between items-baseline">
+                        <div>
+                            <h3 class="font-bold text-lg">
+                                {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}
+                            </h3>
+                            <p class="font-serif italic text-slate-600">{{ edu.school_name }}</p>
+                        </div>
+                        <span class="text-sm font-bold text-slate-400">{% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date }}{% endif %}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="placeholder">Thêm học vấn...</p>
+                {% endif %}
+            </section>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-span-4 flex flex-col gap-10 border-l border-slate-200 pl-8 pt-2">
+
+            <!-- Contact -->
+            <section>
+                <h2 class="font-serif text-3xl mb-5">Liên hệ</h2>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex flex-col">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">Email</span>
+                        <span>{% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="placeholder">email@example.com</span>{% endif %}</span>
+                    </li>
+                    <li class="flex flex-col">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">Điện thoại</span>
+                        <span>{% if data.personal.phone %}{{ data.personal.phone }}{% else %}<span class="placeholder">Số điện thoại</span>{% endif %}</span>
+                    </li>
+                    {% if data.links %}
+                    {% if data.links.linkedin %}
+                    <li class="flex flex-col">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">LinkedIn</span>
+                        <span class="text-sm">{{ data.links.linkedin }}</span>
+                    </li>
+                    {% endif %}
+                    {% if data.links.github %}
+                    <li class="flex flex-col">
+                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">GitHub</span>
+                        <span class="text-sm">{{ data.links.github }}</span>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+            </section>
+
+            <!-- Skills -->
+            <section>
+                <h2 class="font-serif text-3xl mb-5">Kỹ năng</h2>
+                {% if data.skills %}
+                <div class="flex flex-wrap gap-2">
+                    {% for skill in data.skills %}
+                    <span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">{{ skill.name }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="placeholder text-sm">Thêm kỹ năng...</p>
+                {% endif %}
+            </section>
+
+            <!-- Languages -->
+            <section>
+                <h2 class="font-serif text-3xl mb-5">Ngôn ngữ</h2>
+                {% if data.languages %}
+                <div class="space-y-1">
+                    {% for lang in data.languages %}
+                    <p class="text-sm flex justify-between">
+                        <span>{{ lang.name }}</span>
+                        <span class="text-slate-500 italic">{{ lang.proficiency_level }}</span>
                     </p>
-</section>
-<!-- Experience / Timeline -->
-<section>
-<h2 class="font-serif text-4xl mb-10 flex items-center gap-4">
-<span class="bg-primary px-2 py-1 text-base font-display font-bold">02</span>
-                        The Timeline
-                    </h2>
-<div class="space-y-12">
-<!-- Era 1 -->
-<div class="grid grid-cols-10 gap-4 group">
-<div class="col-span-3">
-<span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Era: 2021—Present</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="placeholder text-sm">Thêm ngôn ngữ...</p>
+                {% endif %}
+            </section>
+
+            <!-- Certifications -->
+            {% if data.certifications %}
+            <section>
+                <h2 class="font-serif text-3xl mb-5">Chứng chỉ</h2>
+                <ul class="space-y-2">
+                    {% for cert in data.certifications %}
+                    <li class="text-sm">
+                        <span class="font-bold">{{ cert.name }}</span>
+                        {% if cert.issuing_organization %}<span class="text-slate-500"> · {{ cert.issuing_organization }}</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-8 bg-black text-white p-12 flex justify-between items-end">
+        <div class="flex flex-col gap-2">
+            <span class="text-primary font-bold text-xs uppercase tracking-[0.2em]">Chữ ký số</span>
+            <span class="font-serif text-4xl">{{ data.personal.full_name|default:"CV" }}</span>
+        </div>
+        <div class="text-right text-[10px] text-slate-400 uppercase tracking-widest space-y-1">
+            <p>{{ data.personal.email }}</p>
+            <p>{{ data.personal.phone }}</p>
+        </div>
+    </footer>
 </div>
-<div class="col-span-7">
-<h3 class="text-xl font-bold uppercase tracking-tight mb-1">Lead Innovation Architect</h3>
-<p class="text-slate-500 mb-4 uppercase text-xs tracking-widest font-bold">VOGUE Tech / New York</p>
-<p class="text-slate-700 leading-snug">
-                                    Directing the digital transformation of luxury editorial assets. Pioneered a custom WebGL framework for interactive cover stories, increasing average user session time by 240%.
-                                </p>
-</div>
-</div>
-<!-- Era 2 -->
-<div class="grid grid-cols-10 gap-4 group">
-<div class="col-span-3">
-<span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Era: 2018—2021</span>
-</div>
-<div class="col-span-7 border-l border-primary pl-6 py-1">
-<h3 class="text-xl font-bold uppercase tracking-tight mb-1">Senior Interaction Designer</h3>
-<p class="text-slate-500 mb-4 uppercase text-xs tracking-widest font-bold">Studio 24 / Paris</p>
-<p class="text-slate-700 leading-snug">
-                                    Crafted award-winning experiential sites for LVMH brands. Focused on high-fidelity motion design and reactive UI components that blend physical and digital realms.
-                                </p>
-</div>
-</div>
-<!-- Era 3 -->
-<div class="grid grid-cols-10 gap-4 group">
-<div class="col-span-3">
-<span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">Era: 2016—2018</span>
-</div>
-<div class="col-span-7">
-<h3 class="text-xl font-bold uppercase tracking-tight mb-1">Creative Developer</h3>
-<p class="text-slate-500 mb-4 uppercase text-xs tracking-widest font-bold">LVMH Digital / London</p>
-<p class="text-slate-700 leading-snug">
-                                    Rapid prototyping for internal R&amp;D. Developing experimental e-commerce interfaces using cutting-edge frontend stacks.
-                                </p>
-</div>
-</div>
-</div>
-</section>
-</div>
-<!-- Right Sidebar (Metadata) -->
-<div class="col-span-4 flex flex-col gap-12 border-l border-slate-200 pl-8">
-<!-- Contact Section -->
-<section>
-<h2 class="font-serif text-3xl mb-6">Inquiry</h2>
-<ul class="space-y-4 text-sm font-medium">
-<li class="flex flex-col">
-<span class="text-[10px] uppercase text-slate-400 tracking-widest">Electronic Mail</span>
-<a class="hover:text-primary transition-colors" href="mailto:alexander@riviere.tech">alexander@riviere.tech</a>
-</li>
-<li class="flex flex-col">
-<span class="text-[10px] uppercase text-slate-400 tracking-widest">Global Wire</span>
-<a class="hover:text-primary transition-colors" href="#">+33 (0) 6 45 32 99 01</a>
-</li>
-<li class="flex flex-col">
-<span class="text-[10px] uppercase text-slate-400 tracking-widest">Location</span>
-<span>Manhattan / Remote</span>
-</li>
-</ul>
-</section>
-<!-- Toolkit Section -->
-<section>
-<h2 class="font-serif text-3xl mb-6">The Toolkit</h2>
-<div class="space-y-6">
-<div>
-<span class="text-[10px] uppercase text-slate-400 tracking-widest block mb-2">Technical Core</span>
-<div class="flex flex-wrap gap-2">
-<span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">React.js</span>
-<span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">Three.js</span>
-<span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">GSAP</span>
-<span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">Rust</span>
-<span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">WebGPU</span>
-</div>
-</div>
-<div>
-<span class="text-[10px] uppercase text-slate-400 tracking-widest block mb-2">Creative Direction</span>
-<div class="flex flex-wrap gap-2">
-<span class="bg-primary text-black text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">Figma</span>
-<span class="bg-primary text-black text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">Cinema 4D</span>
-<span class="bg-primary text-black text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">Motion Design</span>
-</div>
-</div>
-</div>
-</section>
-<!-- Recognition -->
-<section class="mt-8 p-4 bg-slate-100 rounded-sm">
-<h2 class="font-serif text-xl mb-3">Recognition</h2>
-<ul class="text-[10px] space-y-2 uppercase font-bold tracking-tight">
-<li class="flex justify-between"><span>Awwwards SOTD</span> <span class="text-slate-400">2023</span></li>
-<li class="flex justify-between"><span>FWA of the Month</span> <span class="text-slate-400">2022</span></li>
-<li class="flex justify-between"><span>Cannes Lions Gold</span> <span class="text-slate-400">2021</span></li>
-</ul>
-</section>
-</div>
-</main>
-<!-- Footer / Metadata Section -->
-<footer class="mt-12 bg-black text-white p-12 flex justify-between items-end">
-<div class="flex flex-col gap-2">
-<span class="text-primary font-bold text-xs uppercase tracking-[0.2em]">Digital Signature</span>
-<span class="font-serif text-4xl">A. Rivière</span>
-</div>
-<div class="text-right text-[10px] text-slate-400 uppercase tracking-widest space-y-1">
-<p>Designed for Digital Excellence</p>
-<p>A4 Version 1.2 — 2024</p>
-<p>© All Rights Reserved</p>
-</div>
-</footer>
-<!-- Decorative Elements -->
-<div class="absolute top-0 right-12 w-2 h-64 bg-primary -z-0"></div>
-<div class="absolute bottom-64 left-0 w-8 h-[2px] bg-primary z-20"></div>
-</div>
-<!-- Print Floating Action (Web UI Only) -->
-<div class="no-print fixed bottom-8 right-8 flex flex-col gap-4">
-<button class="bg-primary text-black font-bold h-14 w-14 rounded-full shadow-xl flex items-center justify-center hover:scale-105 transition-transform" onclick="window.print()">
-<span class="material-symbols-outlined">print</span>
-</button>
-<button class="bg-black text-white font-bold h-14 w-14 rounded-full shadow-xl flex items-center justify-center hover:scale-105 transition-transform">
-<span class="material-symbols-outlined">share</span>
-</button>
-</div>
-</body></html>
+</body>
+</html>

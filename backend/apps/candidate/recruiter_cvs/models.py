@@ -24,6 +24,7 @@ class RecruiterCV(models.Model):
         verbose_name='Tên CV'
     )
     cv_data = models.JSONField(
+        default=dict,
         verbose_name='Dữ liệu CV'
     )
     cv_url = models.URLField(

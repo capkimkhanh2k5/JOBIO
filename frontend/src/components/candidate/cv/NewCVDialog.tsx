@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { X, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,20 +21,40 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-const FALLBACK_COLORS = ['from-violet-400 to-cyan-400', 'from-slate-400 to-slate-600', 'from-cyan-500 to-sky-400'];
+// Map file_name → gradient color for visual variety in the picker
+const TEMPLATE_GRADIENTS: Record<string, string> = {
+    'modern.html':        'from-slate-400 to-slate-600',
+    'ATS_Prime.html':     'from-sky-500 to-blue-600',
+    'editorialBold.html': 'from-rose-500 to-pink-600',
+    'modernHybird.html':  'from-violet-500 to-purple-600',
+    'modernHybird2.html': 'from-indigo-500 to-violet-600',
+    'modernLuxury.html':  'from-amber-500 to-orange-600',
+};
+
+const TEMPLATE_ICONS: Record<string, string> = {
+    'modern.html':        '📄',
+    'ATS_Prime.html':     '🎯',
+    'editorialBold.html': '✏️',
+    'modernHybird.html':  '🎨',
+    'modernHybird2.html': '💼',
+    'modernLuxury.html':  '✨',
+};
 
 export function NewCVDialog({ onClose, onCreated }: Props) {
     const user = useUserStore(s => s.user);
-    const recruiterId = user?.id;
+    const recruiterId = user?.recruiter_id;  // recruiter profile ID, not user.id
 
     const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates-picker'],
-        queryFn: () => cvService.listTemplates({ page_size: 6 }).then(r => r.data),
+        queryFn: () => cvService.listTemplates({ page_size: 12 }).then(r => r.data),
     });
-    const templates = (templatesRaw?.results ?? []).map((t, i) => ({
+    const templates = (templatesRaw?.results ?? []).map((t) => ({
         id: String(t.id),
         name: t.name,
-        color: FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+        file_name: (t as any).file_name || '',
+        color: TEMPLATE_GRADIENTS[(t as any).file_name || ''] || 'from-violet-400 to-cyan-400',
+        icon: TEMPLATE_ICONS[(t as any).file_name || ''] || '📄',
+        tags: (t as any).tags || [],
     }));
 
     const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -78,8 +98,8 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center shadow-md">
-                                <FileText className="w-4.5 h-4.5 text-white" />
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center shadow-md text-white text-lg">
+                                📄
                             </div>
                             <div>
                                 <h3 className="text-base font-bold text-slate-900">Tạo CV mới</h3>
@@ -121,16 +141,16 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                                         key={t.id}
                                         type="button"
                                         onClick={() => setSelectedTemplate(t.id)}
-                                        className={`relative rounded-xl border-2 overflow-hidden transition-all duration-150 ${selectedTemplate === t.id
+                                        className={`relative rounded-xl border-2 overflow-hidden transition-all duration-150 cursor-pointer ${selectedTemplate === t.id
                                                 ? 'border-violet-500 shadow-md shadow-violet-200'
                                                 : 'border-slate-200 hover:border-violet-300'
                                             }`}
                                     >
-                                        <div className={`h-16 bg-gradient-to-br ${t.color} flex items-center justify-center`}>
-                                            <FileText className="w-5 h-5 text-white/80" />
+                                        <div className={`h-16 bg-gradient-to-br ${t.color} flex flex-col items-center justify-center gap-1`}>
+                                            <span className="text-2xl">{t.icon}</span>
                                         </div>
-                                        <div className="py-2 px-1">
-                                            <p className="text-[10px] font-semibold text-slate-700 line-clamp-1">{t.name}</p>
+                                        <div className="py-2 px-1 bg-white">
+                                            <p className="text-[10px] font-semibold text-slate-700 line-clamp-1 text-center">{t.name}</p>
                                         </div>
                                         {selectedTemplate === t.id && (
                                             <div className="absolute top-1.5 right-1.5">
@@ -140,6 +160,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                                     </button>
                                 ))}
                             </div>
+
                             )}
                             <p className="text-[11px] text-muted-foreground mt-2">
                                 Bạn có thể đổi template bất cứ lúc nào trong CV Builder.

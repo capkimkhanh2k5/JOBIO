@@ -20,13 +20,16 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     company_logo = serializers.URLField(source='job.company.logo_url', read_only=True)
     ai_score = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    cv_url = serializers.CharField(source='cv.cv_url', read_only=True, allow_null=True)
+    cv_name = serializers.CharField(source='cv.cv_name', read_only=True, allow_null=True)
+    cv_id = serializers.IntegerField(source='cv.id', read_only=True, allow_null=True)
     
     class Meta:
         model = Application
         fields = [
             'id', 'job_id', 'job_title', 'company_name', 'company_logo',
             'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar',
-            'status', 'rating', 'ai_score', 'skills',
+            'status', 'rating', 'ai_score', 'skills', 'cv_url', 'cv_name', 'cv_id',
             'applied_at', 'updated_at'
         ]
         read_only_fields = ['id', 'applied_at', 'updated_at']
@@ -52,7 +55,9 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
     recruiter_email = serializers.CharField(source='recruiter.user.email', read_only=True)
     job_id = serializers.IntegerField(source='job.id', read_only=True)
     job_title = serializers.CharField(source='job.title', read_only=True)
-    cv_url = serializers.CharField(source='cv.file_url', read_only=True, allow_null=True)
+    cv_url = serializers.CharField(source='cv.cv_url', read_only=True, allow_null=True)
+    cv_name = serializers.CharField(source='cv.cv_name', read_only=True, allow_null=True)
+    cv_id = serializers.IntegerField(source='cv.id', read_only=True, allow_null=True)
     reviewed_by_name = serializers.CharField(source='reviewed_by.full_name', read_only=True, allow_null=True)
     recruiter_avatar = serializers.URLField(source='recruiter.user.avatar_url', read_only=True)
     recruiter_phone = serializers.CharField(source='recruiter.user.phone', read_only=True)
@@ -64,7 +69,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'job_id', 'job_title',
             'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar', 'recruiter_phone',
-            'cv_url', 'cover_letter',
+            'cv_url', 'cv_name', 'cv_id', 'cover_letter',
             'status', 'rating', 'notes', 'ai_score', 'skills',
             'applied_at', 'updated_at',
             'reviewed_by_name', 'reviewed_at'

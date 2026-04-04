@@ -722,3 +722,35 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         
         interviews = list_interviews_by_application(int(pk))
         return Response(InterviewListSerializer(interviews, many=True).data)
+
+    @action(detail=True, methods=['get'])
+    def cv_preview(self, request, pk=None):
+        """
+            GET /api/applications/:id/cv_preview/
+            Preview CV content (HTML) for job owner or applicant
+        """
+        application, error = self._get_application_or_404(pk)
+        if error:
+            return error
+        
+        if not self._is_job_owner(request, application) and not self._is_applicant(request, application):
+            return Response(
+                {"detail": "Permission denied"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        if not application.cv:
+            return Response(
+                {"detail": "This application does not have a dynamic CV."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import generate_cv_preview
+        try:
+            result = generate_cv_preview(application.cv)
+            return Response(result)
+        except Exception as e:
+            return Response(
+                {"detail": f"Error generating preview: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

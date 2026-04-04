@@ -57,10 +57,14 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """
         Public: list, retrieve, categories, premium, popular
+        Authenticated: preview
         Admin: create, update, partial_update, destroy
         """
         if self.action in ['list', 'retrieve', 'categories', 'premium', 'popular']:
             return [AllowAny()]
+        if self.action == 'preview':
+            from rest_framework.permissions import IsAuthenticated
+            return [IsAuthenticated()]
         return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
@@ -104,3 +108,145 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         
         serializer = CVTemplateListSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], permission_classes=[])
+    def preview(self, request, pk=None):
+        """
+        POST /api/cv-templates/:id/preview/
+        Render template HTML với data thực của recruiter.
+        Body: { "recruiter_id": <int> }
+        Response: { "html": "<full html string>" }
+        """
+        from django.template.loader import render_to_string
+        from apps.candidate.recruiters.models import Recruiter
+        from apps.candidate.recruiter_skills.models import RecruiterSkill
+        from apps.candidate.recruiter_education.models import RecruiterEducation
+        from apps.candidate.recruiter_experience.models import RecruiterExperience
+        from apps.candidate.recruiter_certifications.models import RecruiterCertification
+        from apps.candidate.recruiter_projects.models import RecruiterProject
+        from apps.candidate.recruiter_languages.models import RecruiterLanguage
+
+        template_obj = self.get_object()
+
+        if not template_obj.file_name:
+            return Response(
+                {"detail": "Template chưa có file HTML được gán."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        recruiter_id = request.data.get("recruiter_id")
+        if not recruiter_id:
+            return Response(
+                {"detail": "recruiter_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            recruiter = Recruiter.objects.select_related("user").get(id=recruiter_id)
+        except Recruiter.DoesNotExist:
+            return Response({"detail": "Recruiter not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Build profile data (same structure as auto_generate_cv)
+        skills_data = []
+        for rs in RecruiterSkill.objects.filter(recruiter=recruiter).select_related("skill"):
+            skills_data.append({
+                "name": rs.skill.name,  # skill FK is always required (non-null)
+                "proficiency_level": rs.proficiency_level,
+                "years_of_experience": rs.years_of_experience,
+            })
+
+        education_data = []
+        for edu in RecruiterEducation.objects.filter(recruiter=recruiter).order_by("-start_date"):
+            education_data.append({
+                "school_name": edu.school_name,
+                "degree": edu.degree,
+                "field_of_study": edu.field_of_study or "",
+                "start_date": edu.start_date.isoformat() if edu.start_date else None,
+                "end_date": edu.end_date.isoformat() if edu.end_date else None,
+                "is_current": edu.is_current,
+                "description": edu.description or "",
+            })
+
+        experience_data = []
+        for exp in RecruiterExperience.objects.filter(recruiter=recruiter).order_by("-start_date"):
+            experience_data.append({
+                "company_name": exp.company_name,
+                "position": exp.job_title,
+                "job_title": exp.job_title,
+                "start_date": exp.start_date.isoformat() if exp.start_date else None,
+                "end_date": exp.end_date.isoformat() if exp.end_date else None,
+                "is_current": exp.is_current,
+                "description": exp.description or "",
+            })
+
+        certifications_data = []
+        for cert in RecruiterCertification.objects.filter(recruiter=recruiter).order_by("-issue_date"):
+            certifications_data.append({
+                "name": cert.certification_name,  # fixed: field is certification_name not name
+                "issuing_organization": cert.issuing_organization or "",
+                "issue_date": cert.issue_date.isoformat() if cert.issue_date else None,
+            })
+
+        projects_data = []
+        for proj in RecruiterProject.objects.filter(recruiter=recruiter).order_by("-start_date"):
+            technologies = []
+            if proj.technologies_used:
+                if isinstance(proj.technologies_used, list):
+                    technologies = proj.technologies_used
+                else:
+                    technologies = [t.strip() for t in str(proj.technologies_used).split(",") if t.strip()]
+            projects_data.append({
+                "name": proj.project_name,
+                "description": proj.description or "",
+                "project_url": proj.project_url or "",
+                "start_date": proj.start_date.isoformat() if proj.start_date else None,
+                "end_date": proj.end_date.isoformat() if proj.end_date else None,
+                "technologies": technologies,
+            })
+
+        languages_data = []
+        for lang in RecruiterLanguage.objects.filter(recruiter=recruiter).select_related("language"):
+            languages_data.append({
+                "name": lang.language.language_name if lang.language else "",  # field is language_name
+                "proficiency_level": lang.proficiency_level,
+            })
+
+        cv_data = {
+            "personal": {
+                "full_name": recruiter.user.full_name,
+                "email": recruiter.user.email,
+                "phone": getattr(recruiter.user, "phone_number", "") or "",
+                "current_position": recruiter.current_position or "",
+                "bio": recruiter.bio or "",
+                "avatar_url": getattr(recruiter.user, "avatar_url", "") or "",
+                "years_of_experience": recruiter.years_of_experience or 0,
+            },
+            "location": {},
+            "links": {
+                "linkedin": recruiter.linkedin_url or "",
+                "github": recruiter.github_url or "",
+                "portfolio": recruiter.portfolio_url or "",
+                "facebook": recruiter.facebook_url or "",
+            },
+            "skills": skills_data,
+            "education": education_data,
+            "experience": experience_data,
+            "certifications": certifications_data,
+            "projects": projects_data,
+            "languages": languages_data,
+        }
+
+        template_name = f"cv/{template_obj.file_name}"
+        try:
+            html = render_to_string(template_name, {"data": cv_data})
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error rendering CV template '{template_name}': {e}", exc_info=True)
+            return Response(
+                {"detail": f"Error rendering template: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response({"html": html})
+
