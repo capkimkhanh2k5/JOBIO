@@ -17,8 +17,8 @@ export type EmployerJob = {
     id: string;
     title: string;
     status: 'draft' | 'published' | 'closed' | 'expired';
-    posted_at: string;
-    deadline: string;
+    published_at: string | null;
+    application_deadline: string | null;
     views_count: number;
     applications_count: number;
     job_type: string;
@@ -126,7 +126,7 @@ export function ManageJobsTable({
                             jobs.map((job, i) => {
                                 const cfg = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.draft;
                                 const isSelected = selectedIds.includes(job.id);
-                                const isDeadlineSoon = job.deadline ? new Date(job.deadline).getTime() - Date.now() < 3 * 86400000 : false;
+                                const isDeadlineSoon = job.application_deadline ? new Date(job.application_deadline).getTime() - Date.now() < 3 * 86400000 : false;
                                 return (
                                     <motion.tr
                                         key={job.id}
@@ -178,14 +178,14 @@ export function ManageJobsTable({
                                         </td>
 
                                         {/* Posted date */}
-                                        <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
-                                            {job.posted_at ? format(new Date(job.posted_at), 'dd/MM/yyyy', { locale: vi }) : '—'}
+                                        <td className="py-3 px-4 whitespace-nowrap text-slate-600">
+                                            {job.published_at ? format(new Date(job.published_at), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                         </td>
 
                                         {/* Deadline */}
                                         <td className="py-3 px-4 whitespace-nowrap">
                                             <span className={isDeadlineSoon && job.status === 'published' ? 'text-amber-400 font-medium' : 'text-muted-foreground'}>
-                                                {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
+                                                {job.application_deadline ? format(new Date(job.application_deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                                 {isDeadlineSoon && job.status === 'published' && ' ⚠️'}
                                             </span>
                                         </td>

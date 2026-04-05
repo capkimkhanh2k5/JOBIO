@@ -116,7 +116,7 @@ export function ManageJobsList({
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
-                                    {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
+                                    {job.application_deadline ? format(new Date(job.application_deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                 </span>
                             </div>
                         </div>

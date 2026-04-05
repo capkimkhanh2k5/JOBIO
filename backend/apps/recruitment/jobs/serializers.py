@@ -75,11 +75,14 @@ class JobCreateSerializer(serializers.Serializer):
     
     # Required
     company_id = serializers.IntegerField(required=True)
-    title = serializers.CharField(max_length=255, required=True)
     job_type = serializers.ChoiceField(choices=['full-time', 'part-time', 'contract', 'internship', 'freelance'], required=True)
     level = serializers.ChoiceField(choices=['intern', 'fresher', 'junior', 'middle', 'senior', 'lead', 'manager', 'director'], required=True)
-    description = serializers.CharField(required=True)
-    requirements = serializers.CharField(required=True)
+    
+    # Optional / Partial Draft Support
+    title = serializers.CharField(max_length=255, required=False, allow_blank=True, default='Tin tuyển dụng mới')
+    description = serializers.CharField(required=False, allow_blank=True, default='')
+    requirements = serializers.CharField(required=False, allow_blank=True, default='')
+    status = serializers.ChoiceField(choices=['draft', 'published', 'closed', 'expired'], required=False, default='draft')
     
     # Optional
     category_id = serializers.IntegerField(required=False, allow_null=True)
