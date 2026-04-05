@@ -192,6 +192,13 @@ class InterviewViewSet(viewsets.GenericViewSet):
             return Response(InterviewDetailSerializer(updated).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
+    def partial_update(self, request, pk=None):
+        """
+            PATCH /api/interviews/:id/
+            Cập nhật một phần lịch phỏng vấn
+        """
+        return self.update(request, pk)
     
     def destroy(self, request, pk=None):
         """
