@@ -16,11 +16,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { EmployerJob } from './ManageJobsTable';
 
 const STATUS_CONFIG: Record<string, { label: string; className: string; dotColor: string }> = {
-    draft: { label: 'Nháp', className: 'bg-slate-500/15 text-slate-300 border-slate-500/20', dotColor: 'bg-slate-400' },
-    pending: { label: 'Chờ duyệt', className: 'bg-amber-500/15 text-amber-300 border-amber-500/20', dotColor: 'bg-amber-400' },
-    active: { label: 'Đang tuyển', className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20', dotColor: 'bg-emerald-400' },
-    closed: { label: 'Đã đóng', className: 'bg-red-500/15 text-red-400 border-red-500/20', dotColor: 'bg-red-400' },
-    expired: { label: 'Hết hạn', className: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20', dotColor: 'bg-zinc-400' },
+    draft: { label: 'Nháp', className: 'bg-slate-100 text-slate-700 border-slate-200 shadow-sm', dotColor: 'bg-slate-500' },
+    pending: { label: 'Chờ duyệt', className: 'bg-amber-100 text-amber-700 border-amber-200 shadow-sm', dotColor: 'bg-amber-500' },
+    published: { label: 'Đang tuyển', className: 'bg-emerald-100 text-emerald-700 border-emerald-200 shadow-sm', dotColor: 'bg-emerald-500' },
+    closed: { label: 'Đã đóng', className: 'bg-rose-100 text-rose-700 border-rose-200 shadow-sm', dotColor: 'bg-rose-500' },
+    expired: { label: 'Hết hạn', className: 'bg-zinc-100 text-zinc-700 border-zinc-200 shadow-sm', dotColor: 'bg-zinc-500' },
 };
 
 interface ManageJobsGridProps {
@@ -102,8 +102,8 @@ function JobGridCard({
                     className="w-4 h-4 rounded border-white/20 bg-white/10 accent-cyan-500 cursor-pointer mt-0.5"
                     aria-label={`Select ${job.title}`}
                 />
-                <Badge className={`text-[10px] font-medium border ${cfg.className}`}>
-                    <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${cfg.dotColor} ${job.status === 'active' ? 'animate-pulse' : ''}`} />
+                <Badge variant="outline" className={`text-[10px] font-medium border ${cfg.className}`}>
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${cfg.dotColor} ${job.status === 'published' ? 'animate-pulse' : ''}`} />
                     {cfg.label}
                 </Badge>
             </div>
@@ -122,10 +122,10 @@ function JobGridCard({
                     <MapPin className="w-3 h-3 shrink-0" />
                     <span>{job.location}</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${isDeadlineSoon && job.status === 'active' ? 'text-amber-400' : ''}`}>
+                <div className={`flex items-center gap-1.5 ${isDeadlineSoon && job.status === 'published' ? 'text-amber-400' : ''}`}>
                     <CalendarDays className="w-3 h-3 shrink-0" />
                     <span>Hết hạn: {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}</span>
-                    {isDeadlineSoon && job.status === 'active' && ' ⚠️'}
+                    {isDeadlineSoon && job.status === 'published' && ' ⚠️'}
                 </div>
             </div>
 
@@ -177,7 +177,7 @@ function JobGridCard({
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-white/8" />
                         <DropdownMenuItem className="gap-2 cursor-pointer" onClick={onToggleStatus}>
-                            {job.status === 'active'
+                            {job.status === 'published'
                                 ? <><XCircle className="w-4 h-4 text-orange-400" /> Đóng tin</>
                                 : <><RotateCcw className="w-4 h-4 text-emerald-400" /> Mở lại tin</>
                             }
