@@ -15,11 +15,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { EmployerJob } from './ManageJobsTable';
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-    draft: { label: 'Nháp', className: 'bg-slate-500/15 text-slate-300 border-slate-500/20' },
-    pending: { label: 'Chờ duyệt', className: 'bg-amber-500/15 text-amber-300 border-amber-500/20' },
-    active: { label: 'Đang tuyển', className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20' },
-    closed: { label: 'Đã đóng', className: 'bg-red-500/15 text-red-400 border-red-500/20' },
-    expired: { label: 'Hết hạn', className: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20' },
+    draft: { label: 'Nháp', className: 'bg-slate-100 text-slate-700 border-slate-200 shadow-sm' },
+    published: { label: 'Đang tuyển', className: 'bg-emerald-100 text-emerald-700 border-emerald-200 shadow-sm' },
+    closed: { label: 'Đã đóng', className: 'bg-rose-100 text-rose-700 border-rose-200 shadow-sm' },
+    expired: { label: 'Hết hạn', className: 'bg-zinc-100 text-zinc-700 border-zinc-200 shadow-sm' },
 };
 
 interface ManageJobsListProps {
@@ -117,7 +116,7 @@ export function ManageJobsList({
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
-                                    {job.deadline ? format(new Date(job.deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
+                                    {job.application_deadline ? format(new Date(job.application_deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                 </span>
                             </div>
                         </div>
@@ -133,7 +132,7 @@ export function ManageJobsList({
                         </div>
 
                         {/* Status badge */}
-                        <Badge className={`text-[11px] font-medium border shrink-0 ${cfg.className}`}>
+                        <Badge variant="outline" className={`shrink-0 text-xs font-medium px-2.5 py-0.5 border ${cfg.className}`}>
                             {cfg.label}
                         </Badge>
 
@@ -166,11 +165,15 @@ export function ManageJobsList({
                                     )}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-white/8" />
-                                <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => onToggleStatus(job.id, job.status)}>
-                                    {job.status === 'active'
-                                        ? <><XCircle className="w-4 h-4 text-orange-400" /> Đóng tin</>
-                                        : <><RotateCcw className="w-4 h-4 text-emerald-400" /> Mở lại tin</>
-                                    }
+                                <DropdownMenuItem
+                                    className="gap-2 cursor-pointer"
+                                    onClick={() => onToggleStatus(job.id, job.status)}
+                                >
+                                    {job.status === 'published' ? (
+                                        <><XCircle className="w-4 h-4 text-orange-400" /> Đóng tin</>
+                                    ) : (
+                                        <><RotateCcw className="w-4 h-4 text-emerald-400" /> Mở lại tin</>
+                                    )}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="bg-white/8" />
                                 <DropdownMenuItem

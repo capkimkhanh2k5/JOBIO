@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export type ViewMode = 'table' | 'list' | 'grid';
-export type JobStatusFilter = 'all' | 'draft' | 'pending' | 'active' | 'closed' | 'expired';
+export type JobStatusFilter = 'all' | 'draft' | 'published' | 'closed' | 'expired';
 export type SortOption = '-posted_at' | 'posted_at' | 'deadline' | '-views_count' | '-applications_count';
 
 interface ManageJobsActionBarProps {
@@ -33,8 +33,7 @@ interface ManageJobsActionBarProps {
 const STATUS_LABELS: Record<JobStatusFilter, string> = {
     all: 'Tất cả trạng thái',
     draft: 'Nháp',
-    pending: 'Chờ duyệt',
-    active: 'Đang tuyển',
+    published: 'Đang tuyển',
     closed: 'Đã đóng',
     expired: 'Hết hạn',
 };

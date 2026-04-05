@@ -68,14 +68,15 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
     if (!open) return null;
 
     const getStatusBadge = (status: string) => {
+        const badgeProps = { className: "ml-auto mr-8 px-3 py-1 font-bold shadow-sm" };
         switch (status) {
-            case 'scheduled': return <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200">Sắp tới</Badge>;
-            case 'confirmed': return <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200">Đã xác nhận</Badge>;
-            case 'completed': return <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200">Hoàn thành</Badge>;
-            case 'cancelled': return <Badge variant="destructive">Đã hủy</Badge>;
-            case 'no_show': return <Badge variant="destructive">Vắng mặt</Badge>;
-            case 'in_progress': return <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 hover:bg-amber-200">Đang diễn ra</Badge>;
-            default: return <Badge variant="outline">Không rõ</Badge>;
+            case 'scheduled': return <Badge {...badgeProps} className={`${badgeProps.className} bg-blue-500 text-white hover:bg-blue-600`}>Sắp tới</Badge>;
+            case 'confirmed': return <Badge {...badgeProps} className={`${badgeProps.className} bg-emerald-500 text-white hover:bg-emerald-600`}>Đã xác nhận</Badge>;
+            case 'completed': return <Badge {...badgeProps} className={`${badgeProps.className} bg-slate-600 text-white hover:bg-slate-700`}>Hoàn thành</Badge>;
+            case 'cancelled': return <Badge {...badgeProps} className={`${badgeProps.className} bg-rose-500 text-white hover:bg-rose-600`}>Đã hủy</Badge>;
+            case 'no_show': return <Badge {...badgeProps} className={`${badgeProps.className} bg-rose-700 text-white hover:bg-rose-800`}>Vắng mặt</Badge>;
+            case 'in_progress': return <Badge {...badgeProps} className={`${badgeProps.className} bg-amber-500 text-white hover:bg-amber-600`}>Đang diễn ra</Badge>;
+            default: return <Badge {...badgeProps} variant="outline">Không rõ</Badge>;
         }
     };
 

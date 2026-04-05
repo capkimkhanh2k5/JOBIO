@@ -85,6 +85,10 @@ class InterviewUpdateSerializer(serializers.Serializer):
     meeting_link = serializers.URLField(required=False, allow_null=True, allow_blank=True)
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     feedback = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    status = serializers.ChoiceField(
+        choices=['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'rescheduled', 'no_show'],
+        required=False
+    )
     result = serializers.ChoiceField(
         choices=['pass', 'fail', 'pending'],
         required=False

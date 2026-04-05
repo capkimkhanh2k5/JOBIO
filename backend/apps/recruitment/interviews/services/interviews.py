@@ -32,6 +32,7 @@ class InterviewUpdateInput(BaseModel):
     meeting_link: Optional[str] = None
     notes: Optional[str] = None
     feedback: Optional[str] = None
+    status: Optional[str] = None
     result: Optional[str] = None
 
 
@@ -103,6 +104,9 @@ def update_interview(interview: Interview, data: InterviewUpdateInput) -> Interv
     if data.feedback is not None:
         interview.feedback = data.feedback if data.feedback else None
     
+    if data.status is not None:
+        interview.status = data.status
+
     if data.result is not None:
         interview.result = data.result
         if data.result in ['pass', 'fail']:

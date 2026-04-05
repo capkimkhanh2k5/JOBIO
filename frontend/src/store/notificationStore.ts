@@ -37,7 +37,6 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => {
-    let simulationTimer: ReturnType<typeof setTimeout> | null = null;
 
     return {
         unreadCount: 0,
@@ -108,39 +107,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
 
             // Initial fetch
             get().fetchUnreadCount();
-
-            // Simulate SSE by pushing a new notification every 30-45 seconds
-            const scheduleNext = () => {
-                const nextDelay = 30000 + Math.random() * 15000; // 30s to 45s
-                simulationTimer = setTimeout(() => {
-                    const newNotification: NotificationItem = {
-                        id: `sim-${Date.now()}`,
-                        title: "Hệ thống (Mô phỏng SSE)",
-                        message: "Đây là một thông báo real-time được mô phỏng.",
-                        is_read: false,
-                        created_at: new Date().toISOString(),
-                        type: 'system'
-                    };
-
-                    get().addNotification(newNotification);
-
-                    // Fire custom event for toast listener
-                    window.dispatchEvent(new CustomEvent('new-notification', { detail: newNotification }));
-
-                    if (get().isStreaming) {
-                        scheduleNext();
-                    }
-                }, nextDelay);
-            };
-
-            scheduleNext();
         },
 
         stopSimulation: () => {
-            if (simulationTimer) {
-                clearTimeout(simulationTimer);
-                simulationTimer = null;
-            }
             set({ isStreaming: false });
         }
     };

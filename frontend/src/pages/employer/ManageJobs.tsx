@@ -56,6 +56,20 @@ export default function ManageJobs() {
     const total = data?.count ?? 0;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+    // ── Fetch employer stats for job counts ──────────────────────────────────
+    const { data: statsResponse } = useQuery({
+        queryKey: ['employer-stats'],
+        queryFn: () => employerService.getStats().then(r => r.data),
+        staleTime: 30_000,
+    });
+    
+    const statsJobs = statsResponse?.jobs || {
+        total: 0,
+        published: 0,
+        draft: 0,
+        closed: 0,
+    };
+
     // Reset page when filter/search changes
     const handleStatusChange = (s: JobStatusFilter) => {
         setStatusFilter(s);
@@ -73,8 +87,10 @@ export default function ManageJobs() {
     };
 
     // ── Mutations ──────────────────────────────────────────────────────────
-    const invalidate = () =>
+    const invalidate = () => {
         queryClient.invalidateQueries({ queryKey: ['employer-jobs'] });
+        queryClient.invalidateQueries({ queryKey: ['employer-stats'] });
+    };
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => jobService.delete(Number(id)),
@@ -131,7 +147,7 @@ export default function ManageJobs() {
     const handleDelete = (id: string) => deleteMutation.mutate(id);
     const handleDuplicate = (id: string) => duplicateMutation.mutate(id);
     const handleToggleStatus = (id: string, currentStatus: string) => {
-        const newStatus = currentStatus === 'active' ? 'closed' : 'active';
+        const newStatus = currentStatus === 'published' ? 'closed' : 'published';
         statusMutation.mutate({ id, status: newStatus });
     };
 
@@ -176,15 +192,14 @@ export default function ManageJobs() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
             >
                 {(
                     [
-                        { label: 'Tất cả', value: total, key: 'all' as const, activeClass: 'border-slate-200 bg-white shadow-md ring-2 ring-slate-100', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-white', text: 'text-slate-900' },
-                        { label: 'Đang tuyển', value: 6, key: 'active' as const, activeClass: 'border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-100 ring-2 ring-emerald-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-emerald-50/50', text: 'text-emerald-600' },
-                        { label: 'Chờ duyệt', value: 6, key: 'pending' as const, activeClass: 'border-amber-200 bg-amber-50 shadow-md shadow-amber-100 ring-2 ring-amber-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-amber-50/50', text: 'text-amber-600' },
-                        { label: 'Nháp', value: 6, key: 'draft' as const, activeClass: 'border-slate-200 bg-slate-100 shadow-md ring-2 ring-slate-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/50', text: 'text-slate-500' },
-                        { label: 'Đã đóng', value: 12, key: 'closed' as const, activeClass: 'border-rose-200 bg-rose-50 shadow-md shadow-rose-100 ring-2 ring-rose-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-rose-50/50', text: 'text-rose-600' },
+                        { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, activeClass: 'border-slate-200 bg-white shadow-md ring-2 ring-slate-100', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-white', text: 'text-slate-900' },
+                        { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, activeClass: 'border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-100 ring-2 ring-emerald-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-emerald-50/50', text: 'text-emerald-600' },
+                        { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, activeClass: 'border-slate-200 bg-slate-100 shadow-md ring-2 ring-slate-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/50', text: 'text-slate-500' },
+                        { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, activeClass: 'border-rose-200 bg-rose-50 shadow-md shadow-rose-100 ring-2 ring-rose-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-rose-50/50', text: 'text-rose-600' },
                     ] as const
                 ).map(stat => (
                     <button

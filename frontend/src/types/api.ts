@@ -1062,6 +1062,15 @@ export interface CompanyStats {
   job_views_delta?: number;
   upcoming_interviews?: number;
   upcoming_interviews_delta?: number;
+  jobs?: {
+    total: number;
+    published: number;
+    draft: number;
+    closed: number;
+  };
+  applications?: {
+    total: number;
+  };
 }
 
 

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { jobService } from '@/services/jobService';
@@ -91,7 +91,8 @@ export default function PostJob() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [discardOpen, setDiscardOpen] = useState(false);
-    const [draftId, setDraftId] = useState<string | null>(null);
+    const { id } = useParams<{ id: string }>();
+    const [draftId, setDraftId] = useState<string | null>(id || null);
     const lastSavedRef = useRef<Date | null>(null);
 
     // Helper to transform frontend data to backend format
@@ -110,7 +111,7 @@ export default function PostJob() {
     }, [user?.company_id]);
 
     const {
-        control, handleSubmit, trigger, getValues, formState: { errors, isDirty },
+        control, handleSubmit, trigger, getValues, reset, formState: { errors, isDirty },
     } = useForm<PostJobFormData>({
         resolver: zodResolver(fullSchema) as any,
         defaultValues: {
@@ -138,6 +139,40 @@ export default function PostJob() {
         },
         mode: 'onChange',
     });
+
+    const { data: existingJob } = useQuery({
+        queryKey: ['job', id],
+        queryFn: () => jobService.getById(Number(id)).then(res => res.data),
+        enabled: !!id,
+    });
+
+    useEffect(() => {
+        if (existingJob) {
+            reset({
+                title: existingJob.title || '',
+                category_id: existingJob.category_id ? String(existingJob.category_id) : '',
+                job_type: (existingJob.job_type?.replace('-', '_') as any) || 'full_time',
+                level: (existingJob.level as any) || 'middle',
+                quantity: existingJob.number_of_positions || 1,
+                salary_min: existingJob.salary_min ? Number(existingJob.salary_min) : null,
+                salary_max: existingJob.salary_max ? Number(existingJob.salary_max) : null,
+                salary_currency: (existingJob.salary_currency as any) || 'VND',
+                is_salary_visible: !existingJob.is_salary_negotiable,
+                experience_min: existingJob.experience_years_min || null,
+                experience_max: existingJob.experience_years_max || null,
+                deadline: existingJob.application_deadline || '',
+                is_remote: existingJob.is_remote || false,
+                description: existingJob.description || '',
+                requirements: existingJob.requirements || '',
+                benefits: existingJob.benefits || '',
+                skills: [], // Default to empty, will implement if required
+                locations: [], // Default to empty, will implement if required
+                seo_title: '',
+                seo_description: '',
+                seo_keywords: [],
+            });
+        }
+    }, [existingJob, reset]);
 
     // ── Auto-save draft every 30s ──────────────────────────────────────────────
     const autoSaveMutation = useMutation({
@@ -184,12 +219,12 @@ export default function PostJob() {
     const publishMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
-            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'pending' } as any).then(r => r.data);
-            return jobService.create({ ...payload, status: 'pending' } as any).then(r => r.data);
+            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
+            return jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
         },
         onSuccess: () => {
-            toast.success('Tin tuyển dụng đã được gửi duyệt!', {
-                description: 'Chúng tôi sẽ kiểm duyệt và phê duyệt trong vòng 24 giờ.',
+            toast.success('Đăng tin thành công!', {
+                description: 'Tin tuyển dụng của bạn đã được xuất bản.',
                 duration: 5000,
             });
             setTimeout(() => navigate('/employer/jobs'), 1500);
@@ -237,7 +272,7 @@ export default function PostJob() {
                             Đăng tin <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">tuyển dụng</span>
                         </h1>
                         <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                            Bước {step} trên 4 · {draftId ? `Draft ID: #${draftId.slice(-6)}` : 'Đang khởi tạo'}
+                            Bước {step} trên 4 · {draftId ? `Draft ID: #${String(draftId).slice(-6)}` : 'Đang khởi tạo'}
                             {lastSavedRef.current && (
                                 <span className="flex items-center gap-1 text-emerald-600 font-medium">
                                     <Clock size={12} /> Đã lưu {lastSavedRef.current.toLocaleTimeString('vi-VN')}

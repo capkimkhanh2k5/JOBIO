@@ -92,6 +92,10 @@ class DashboardSelector:
                 return 0
             return round(((current - previous) / previous) * 100, 1)
 
+        draft_jobs = company_jobs.filter(status=Job.Status.DRAFT).count()
+        closed_jobs = company_jobs.filter(status=Job.Status.CLOSED).count()
+        expired_jobs = company_jobs.filter(status=Job.Status.EXPIRED).count()
+
         return {
             'active_jobs': active_jobs,
             'active_jobs_delta': _delta(active_jobs, active_jobs_prev),
@@ -104,7 +108,9 @@ class DashboardSelector:
             # Keep legacy nested structure for backward-compat
             'jobs': {
                 'total': company_jobs.count(),
-                'active': active_jobs,
+                'published': active_jobs,
+                'draft': draft_jobs,
+                'closed': closed_jobs + expired_jobs,
             },
             'applications': {
                 'total': company_applications.count(),

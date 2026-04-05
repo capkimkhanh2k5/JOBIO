@@ -86,6 +86,9 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
     
     # Lấy category
     category_id = fields.pop('category_id', None)
+    status = fields.pop('status', None) or 'draft'
+    
+    published_at = timezone.now() if status == 'published' else None
     
     # Tạo job
     job = Job.objects.create(
@@ -93,7 +96,8 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
         slug=slug,
         category_id=category_id,
         created_by=user,
-        status='draft',  # Default status
+        status=status,
+        published_at=published_at,
         **fields
     )
     
