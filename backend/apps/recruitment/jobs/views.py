@@ -20,7 +20,8 @@ from .selectors.jobs import (
     list_featured_jobs,
     list_urgent_jobs,
     get_similar_jobs,
-    get_job_recommendations
+    get_job_recommendations,
+    get_job_suggestions_for_cv
 )
 from .services.jobs import (
     create_job,
@@ -355,7 +356,8 @@ class JobViewSet(viewsets.GenericViewSet):
     def recommendations(self, request):
         """
             GET /api/jobs/recommendations/
-            Gợi ý việc làm cho ứng viên
+            GET /api/jobs/recommendations/?cv_id=<id>
+            Gợi ý việc làm cho ứng viên (theo profile hoặc theo CV cụ thể)
         """
         if not request.user.is_authenticated:
             return Response(
@@ -369,7 +371,29 @@ class JobViewSet(viewsets.GenericViewSet):
                 {"detail": "Recruiter profile not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
+
+        cv_id = request.query_params.get('cv_id')
+
+        if cv_id:
+            # CV-based suggestions with match_score
+            try:
+                cv_id_int = int(cv_id)
+            except (ValueError, TypeError):
+                return Response({"detail": "cv_id must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+            suggestions = get_job_suggestions_for_cv(cv_id_int, recruiter)
+
+            result = []
+            for item in suggestions:
+                job = item['job']
+                serialized = JobListSerializer(job).data
+                serialized['match_score'] = item['match_score']
+                serialized['match_reasons'] = item['match_reasons']
+                result.append(serialized)
+
+            return Response(result)
+
+        # Default: skill-based recommendations (legacy)
         queryset = get_job_recommendations(recruiter.id)
         serializer = JobListSerializer(queryset, many=True)
         return Response(serializer.data)

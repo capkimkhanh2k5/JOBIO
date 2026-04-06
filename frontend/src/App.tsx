@@ -52,6 +52,7 @@ import EmployerReferrals from '@/pages/employer/Referrals';
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
 import CandidateDashboard from '@/pages/candidate/CandidateDashboard';
 import CVManager from '@/pages/candidate/CVManager';
+import SuggestedJobs from '@/pages/candidate/SuggestedJobs';
 import MyApplications from '@/pages/candidate/MyApplications';
 import SavedJobs from '@/pages/candidate/SavedJobs';
 import JobAlerts from '@/pages/candidate/JobAlerts';
@@ -121,6 +122,7 @@ export default function App() {
                             <Route path="dashboard" element={<CandidateDashboard />} />
                             <Route path="profile" element={<CandidateProfile />} />
                             <Route path="cv" element={<CVManager />} />
+                            <Route path="suggested-jobs" element={<SuggestedJobs />} />
                             <Route path="applications" element={<MyApplications />} />
                             <Route path="saved" element={<SavedJobs />} />
                             <Route path="alerts" element={<JobAlerts />} />

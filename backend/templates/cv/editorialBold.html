@@ -75,14 +75,16 @@
                     <div class="grid grid-cols-10 gap-4">
                         <div class="col-span-3">
                             <span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">
-                                {{ exp.start_date|default:"" }}{% if exp.is_current %}—Hiện tại{% elif exp.end_date %}—{{ exp.end_date }}{% endif %}
+                                {% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %}{% if exp.is_current %} — Hiện tại{% elif exp.end_date %} — {{ exp.end_date|slice:":7" }}{% endif %}
                             </span>
                         </div>
                         <div class="col-span-7 {% if not forloop.first %}border-l border-primary pl-6 py-1{% endif %}">
                             <h3 class="text-xl font-bold uppercase tracking-tight mb-1">
-                                {{ exp.position|default:exp.job_title|default:"Chức vụ" }}
+                                {% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}
                             </h3>
-                            <p class="text-slate-500 mb-3 uppercase text-xs tracking-widest font-bold">{{ exp.company_name }}</p>
+                            <p class="text-slate-500 mb-3 uppercase text-xs tracking-widest font-bold">
+                                {% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% else %}Công ty{% endif %}
+                            </p>
                             {% if exp.description %}
                             <p class="text-slate-700 leading-snug">{{ exp.description }}</p>
                             {% endif %}
@@ -91,7 +93,7 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="placeholder">Thêm kinh nghiệm làm việc...</p>
+                <p class="placeholder text-xl leading-relaxed pr-12">Thêm kinh nghiệm làm việc...</p>
                 {% endif %}
             </section>
 
@@ -105,13 +107,17 @@
                 <div class="space-y-6">
                     {% for edu in data.education %}
                     <div class="flex justify-between items-baseline">
-                        <div>
+                        <div class="max-w-[80%]">
                             <h3 class="font-bold text-lg">
                                 {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}
                             </h3>
-                            <p class="font-serif italic text-slate-600">{{ edu.school_name }}</p>
+                            <p class="font-serif italic text-slate-600">
+                                {% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% else %}Trường học{% endif %}
+                            </p>
                         </div>
-                        <span class="text-sm font-bold text-slate-400">{% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date }}{% endif %}</span>
+                        <span class="text-sm font-bold text-slate-400 whitespace-nowrap">
+                            {% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}
+                        </span>
                     </div>
                     {% endfor %}
                 </div>
@@ -159,11 +165,13 @@
                 {% if data.skills %}
                 <div class="flex flex-wrap gap-2">
                     {% for skill in data.skills %}
-                    <span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">{{ skill.name }}</span>
+                    <span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">
+                        {% if skill.name %}{{ skill.name }}{% elif skill.skill_name %}{{ skill.skill_name }}{% endif %}
+                    </span>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="placeholder text-sm">Thêm kỹ năng...</p>
+                <p class="placeholder text-sm">Thêm kỹ năng chuyên môn của bạn...</p>
                 {% endif %}
             </section>
 
@@ -175,12 +183,14 @@
                     {% for lang in data.languages %}
                     <p class="text-sm flex justify-between">
                         <span>{{ lang.name }}</span>
-                        <span class="text-slate-500 italic">{{ lang.proficiency_level }}</span>
+                        <span class="text-slate-500 italic">
+                            {% if lang.proficiency_level %}{{ lang.proficiency_level }}{% elif lang.level %}{{ lang.level }}{% endif %}
+                        </span>
                     </p>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="placeholder text-sm">Thêm ngôn ngữ...</p>
+                <p class="placeholder text-sm">Thêm ngoại ngữ...</p>
                 {% endif %}
             </section>
 

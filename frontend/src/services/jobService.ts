@@ -63,8 +63,8 @@ export const jobService = {
     return api.get<JobListItem[]>(`/api/jobs/${id}/similar/`);
   },
 
-  /** AI Recommended jobs for candidate */
-  recommendations(params?: { page_size?: number }) {
+  /** AI Recommended jobs for candidate. Pass cv_id for CV-based suggestions with match_score. */
+  recommendations(params?: { page_size?: number; cv_id?: string | null }) {
     return api.get<JobListItem[]>('/api/jobs/recommendations/', { params });
   },
 

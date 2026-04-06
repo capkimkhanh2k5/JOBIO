@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, MessageSquare, CalendarClock, Users, Settings, Star, BookOpen
+    Bell, MessageSquare, CalendarClock, Users, Settings, Star, BookOpen, Sparkles
 } from 'lucide-react';
 
 interface NavItem {
@@ -22,6 +22,7 @@ export function CandidateSidebar() {
         { label: 'Dashboard', path: '/candidate/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { label: 'Chỉnh sửa hồ sơ', path: '/candidate/profile', icon: <UserCircle className="w-5 h-5" /> },
         { label: 'Quản lý CV', path: '/candidate/cv', icon: <FileText className="w-5 h-5" /> },
+        { label: 'Gợi ý việc làm', path: '/candidate/suggested-jobs', icon: <Sparkles className="w-5 h-5" /> },
         { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
         { label: 'Job Alerts', path: '/candidate/alerts', icon: <Bell className="w-5 h-5" /> },
