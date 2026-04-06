@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
-import { Plus, Sparkles, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Sparkles, FileText, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
 import api from '@/services/api';
@@ -108,12 +109,21 @@ export default function CVManager() {
     });
 
     // ── Auto-save logic ───────────────────────────────────────────────────────
-    const triggerAutoSave = useCallback(() => {
+    const triggerAutoSave = useCallback((overrides?: { cv_name?: string, template_id?: string, cv_data?: any }) => {
         if (!selectedCvId) return;
         setAutoSaveStatus('saving');
         if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
         autoSaveTimer.current = setTimeout(() => {
-            updateMutation.mutate({ cv_name: cvName, template_id: selectedTemplateId, cv_data: cvData });
+            // Priority: provided override -> current state value
+            const finalCvName = overrides?.cv_name ?? cvName;
+            const finalTemplateId = overrides?.template_id ?? selectedTemplateId;
+            const finalCvData = overrides?.cv_data ?? cvData;
+
+            updateMutation.mutate({ 
+                cv_name: finalCvName, 
+                template_id: finalTemplateId, 
+                cv_data: finalCvData 
+            });
         }, 500);
     }, [selectedCvId, cvName, selectedTemplateId, cvData, updateMutation]);
 
@@ -140,14 +150,27 @@ export default function CVManager() {
     };
 
     const handleFieldChange = (field: string, value: any) => {
-        if (field === 'cv_name') setCvName(value);
-        else if (field === 'template_id') setSelectedTemplateId(String(value));
-        else if (field === 'cv_data') setCvData(value); // full cv_data object from CVBuilder
-        else setCvData(prev => ({ ...prev, [field]: value }));
+        const overrides: any = {};
+        if (field === 'cv_name') {
+            setCvName(value);
+            overrides.cv_name = value;
+        } else if (field === 'template_id') {
+            const valStr = String(value);
+            setSelectedTemplateId(valStr);
+            overrides.template_id = valStr;
+        } else if (field === 'cv_data') {
+            setCvData(value); // full cv_data object from CVBuilder
+            overrides.cv_data = value;
+        } else {
+            const newData = { ...cvData, [field]: value };
+            setCvData(newData);
+            overrides.cv_data = newData;
+        }
         setAutoSaveStatus('saving');
-        triggerAutoSave();
+        triggerAutoSave(overrides);
     };
 
+    const navigate = useNavigate();
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
 
     return (
@@ -160,6 +183,15 @@ export default function CVManager() {
                     icon={FileText}
                     action={
                         <div className="flex items-center gap-3">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-4 rounded-xl"
+                                onClick={() => navigate(`/candidate/suggested-jobs${selectedCvId ? `?cv_id=${selectedCvId}` : ''}`)}
+                            >
+                                <Lightbulb className="w-4 h-4" />
+                                Gợi ý việc làm
+                            </Button>
                             <Button
                                 variant="outline"
                                 size="sm"

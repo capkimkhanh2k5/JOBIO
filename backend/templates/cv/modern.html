@@ -239,11 +239,11 @@
                 <div class="skill-name">{{ skill.name }}</div>
                 <div class="skill-bar-bg">
                     <!-- Simple map: basic=25, intermediate=50... -->
-                    {% if skill.proficiency_level == 'expert' %}
+                    {% if skill.proficiency_level == 'expert' or skill.level == 'Expert' or skill.level == 'expert' %}
                     <div class="skill-bar-fill" style="width: 100%"></div>
-                    {% elif skill.proficiency_level == 'advanced' %}
+                    {% elif skill.proficiency_level == 'advanced' or skill.level == 'Advanced' or skill.level == 'advanced' %}
                     <div class="skill-bar-fill" style="width: 75%"></div>
-                    {% elif skill.proficiency_level == 'intermediate' %}
+                    {% elif skill.proficiency_level == 'intermediate' or skill.level == 'Intermediate' or skill.level == 'intermediate' %}
                     <div class="skill-bar-fill" style="width: 50%"></div>
                     {% else %}
                     <div class="skill-bar-fill" style="width: 25%"></div>
@@ -259,7 +259,10 @@
             {% if data.languages %}
             {% for lang in data.languages %}
             <div class="skill-item">
-                <div class="skill-name">{{ lang.name }} - {{ lang.proficiency_level|title }}</div>
+                <div class="skill-name">
+                    {{ lang.name }} - 
+                    {% if lang.proficiency_level %}{{ lang.proficiency_level|title }}{% elif lang.level %}{{ lang.level|title }}{% endif %}
+                </div>
             </div>
             {% endfor %}
             {% else %}
@@ -284,13 +287,17 @@
                 {% for exp in data.experience %}
                 <div class="item">
                     <div class="item-header">
-                        <div class="item-title">{{ exp.position|default:exp.job_title|default:"Chức vụ" }}</div>
+                        <div class="item-title">
+                            {% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}
+                        </div>
                         <div class="item-date">
-                            {{ exp.start_date|default:""|slice:":7" }} -
-                            {% if exp.is_current %}Hiện tại{% else %}{{ exp.end_date|default:""|slice:":7" }}{% endif %}
+                            {% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %} - 
+                            {% if exp.is_current %}Hiện tại{% elif exp.end_date %}{{ exp.end_date|slice:":7" }}{% endif %}
                         </div>
                     </div>
-                    <div class="item-subtitle">{{ exp.company_name }}</div>
+                    <div class="item-subtitle">
+                        {% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% else %}<span class="placeholder">Công ty</span>{% endif %}
+                    </div>
                     {% if exp.description %}
                     <div class="item-desc">
                         {{ exp.description|linebreaksbr }}
@@ -309,9 +316,11 @@
                 {% for proj in data.projects %}
                 <div class="item">
                     <div class="item-header">
-                        <div class="item-title">{{ proj.name }}</div>
+                        <div class="item-title">
+                            {% if proj.name %}{{ proj.name }}{% elif proj.project_name %}{{ proj.project_name }}{% else %}Tên dự án{% endif %}
+                        </div>
                         <div class="item-date">
-                            {{ proj.start_date|default:""|slice:":7" }} -
+                            {% if proj.start_date %}{{ proj.start_date|slice:":7" }}{% endif %} -
                             {% if proj.end_date %}{{ proj.end_date|slice:":7" }}{% else %}Hiện tại{% endif %}
                         </div>
                     </div>
@@ -324,9 +333,20 @@
                         <span class="chip">{{ tech }}</span>
                         {% endfor %}
                     </div>
+                    {% elif proj.technologies_used %}
+                    <div class="item-desc" style="margin-top: 5px;">
+                        {% for tech in proj.technologies_used %}
+                        <span class="chip">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
                     {% endif %}
                 </div>
                 {% endfor %}
+            </div>
+            {% else %}
+            <div class="section">
+                <div class="section-title">Dự án</div>
+                <p class="placeholder text-sm">Thêm dự án nổi bật...</p>
             </div>
             {% endif %}
 
@@ -336,10 +356,12 @@
                 {% for edu in data.education %}
                 <div class="item">
                     <div class="item-header">
-                        <div class="item-title">{{ edu.school_name }}</div>
+                        <div class="item-title">
+                            {% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% else %}Trường học / Cơ sở đào tạo{% endif %}
+                        </div>
                         <div class="item-date">
-                            {{ edu.start_date|default:""|slice:":7" }} -
-                            {% if edu.is_current %}Hiện tại{% else %}{{ edu.end_date|default:""|slice:":7" }}{% endif %}
+                            {% if edu.start_date %}{{ edu.start_date|slice:":7" }}{% endif %} - 
+                            {% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}
                         </div>
                     </div>
                     <div class="item-subtitle">{{ edu.degree }} - {{ edu.field_of_study }}</div>
