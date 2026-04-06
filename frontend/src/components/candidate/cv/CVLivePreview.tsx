@@ -14,12 +14,11 @@ interface Props {
     previewKey?: number; // increments from parent when data is saved → triggers re-fetch
 }
 
-// ─── Iframe HTML renderer ─────────────────────────────────────────────────────
 function CVIframe({ html, style }: { html: string; style?: React.CSSProperties }) {
     return (
         <iframe
             srcDoc={html}
-            sandbox="allow-same-origin"
+            sandbox="allow-same-origin allow-scripts"
             style={{ width: '100%', border: 'none', ...style }}
             title="CV Preview"
         />
@@ -81,9 +80,18 @@ function CVFullscreenModal({ cvName, html, templateName, onClose }: {
                     initial={{ opacity: 0, y: 24, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="w-full max-w-[860px] shadow-2xl shadow-black/60 rounded-2xl overflow-hidden bg-white"
+                    className="relative flex justify-center items-start w-full"
                 >
-                    <CVIframe html={html} style={{ height: 'calc(100vh - 160px)', minHeight: 600 }} />
+                    <div className="bg-white shadow-2xl rounded overflow-hidden origin-top"
+                         style={{ 
+                             width: '210mm', 
+                             height: '297mm',
+                             transform: 'scale(0.8)',
+                             flexShrink: 0,
+                             marginBottom: '-50mm'
+                         }}>
+                        <CVIframe html={html} style={{ height: '100%', display: 'block' }} />
+                    </div>
                 </motion.div>
             </div>
 

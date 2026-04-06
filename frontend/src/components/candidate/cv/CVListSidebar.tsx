@@ -30,10 +30,17 @@ export function CVListSidebar({
     return (
         <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white overflow-hidden">
             {/* Header */}
-            <div className="p-4 border-b border-slate-100">
+            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
                     Danh sách CV ({cvList.length})
                 </p>
+                <div 
+                    onClick={onCreateNew}
+                    className="w-7 h-7 rounded-md bg-violet-100 hover:bg-violet-200 text-violet-600 flex items-center justify-center cursor-pointer transition-colors shadow-sm"
+                    title="Tạo CV mới"
+                >
+                    <Plus className="w-4 h-4" />
+                </div>
             </div>
 
             {/* CV Cards list */}
@@ -160,16 +167,7 @@ export function CVListSidebar({
                 )}
             </div>
 
-            {/* Create new button pinned at bottom */}
-            <div className="p-3 border-t border-slate-100">
-                <Button
-                    variant="outline"
-                    className="w-full text-sm border-violet-200 text-violet-700 hover:bg-violet-50 gap-2"
-                    onClick={onCreateNew}
-                >
-                    <Plus className="w-4 h-4" /> Tạo CV mới
-                </Button>
-            </div>
+
         </aside>
     );
 }

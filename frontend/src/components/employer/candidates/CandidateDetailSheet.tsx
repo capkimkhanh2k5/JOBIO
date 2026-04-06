@@ -309,45 +309,54 @@ export function CandidateDetailSheet() {
             </SheetContent>
 
             <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-                <DialogContent className="max-w-[210mm] max-h-[90vh] overflow-auto p-0 bg-transparent border-none shadow-none z-[300]">
+                <DialogContent className="max-w-[850px] w-[95vw] h-[90vh] overflow-hidden p-0 bg-transparent border-none shadow-none z-[300] flex justify-center">
                     <DialogHeader className="sr-only">
                         <DialogTitle>Xem trước CV</DialogTitle>
                     </DialogHeader>
-                    <div className="bg-white mx-auto shadow-2xl relative group rounded" style={{ minWidth: '210mm', minHeight: '297mm' }}>
-                        {previewHtml && (
-                            <iframe
-                                srcDoc={`
-                                    <!DOCTYPE html>
-                                    <html>
-                                        <head>
-                                            <style>
-                                                body { margin: 0; padding: 0; background: white; }
-                                                ::-webkit-scrollbar { width: 0px; background: transparent; }
-                                            </style>
-                                        </head>
-                                        <body>
-                                            ${previewHtml}
-                                        </body>
-                                    </html>
-                                `}
-                                className="w-full pointer-events-auto rounded"
-                                style={{
-                                    height: '100%',
-                                    minHeight: '297mm',
-                                    border: 'none',
-                                }}
-                                title="CV Preview"
-                                sandbox="allow-same-origin allow-scripts"
-                            />
-                        )}
-                        <Button 
-                            variant="default" 
-                            size="sm" 
-                            className="absolute top-4 right-4 z-50 bg-slate-900/50 hover:bg-slate-900 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => setPreviewOpen(false)}
-                        >
-                            Đóng
-                        </Button>
+                    <div className="relative w-full h-full overflow-auto flex justify-center items-start pt-4 hide-scrollbar">
+                        <div className="bg-white shadow-2xl relative rounded overflow-hidden" 
+                             style={{ 
+                                 width: '210mm', 
+                                 height: '297mm', 
+                                 transform: 'scale(0.8)', 
+                                 transformOrigin: 'top center',
+                                 flexShrink: 0,
+                                 marginBottom: '-50mm' 
+                             }}>
+                            {previewHtml && (
+                                <iframe
+                                    srcDoc={`
+                                        <!DOCTYPE html>
+                                        <html>
+                                            <head>
+                                                <style>
+                                                    body { margin: 0; padding: 0; background: white; }
+                                                    ::-webkit-scrollbar { width: 0px; background: transparent; }
+                                                </style>
+                                            </head>
+                                            <body>
+                                                ${previewHtml}
+                                            </body>
+                                        </html>
+                                    `}
+                                    className="w-full pointer-events-auto rounded"
+                                    style={{
+                                        height: '100%',
+                                        border: 'none',
+                                    }}
+                                    title="CV Preview"
+                                    sandbox="allow-same-origin allow-scripts"
+                                />
+                            )}
+                            <Button 
+                                variant="default" 
+                                size="sm" 
+                                className="absolute top-4 right-4 z-50 bg-slate-900/50 hover:bg-slate-900 backdrop-blur-sm transition-opacity"
+                                onClick={() => setPreviewOpen(false)}
+                            >
+                                Đóng
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
