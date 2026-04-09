@@ -87,22 +87,20 @@
 }
 
 @utility glass-effect {
-  background-color: oklch(1 0 0 / 20%);
-  backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid oklch(1 0 0 / 30%);
+  background-color: oklch(1 0 0 / 8%);
+  backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid oklch(1 0 0 / 10%);
   box-shadow:
-    0 10px 15px -3px oklch(0 0 0 / 0.1),
-    0 4px 6px -4px oklch(0 0 0 / 0.1),
-    0 25px 50px -12px oklch(0 0 0 / 0.15);
-  transition: all 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+    0 4px 12px -2px oklch(0 0 0 / 0.04),
+    0 2px 4px -2px oklch(0 0 0 / 0.04);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 
   @variant dark {
-    background-color: oklch(0.1 0.02 260 / 40%);
-    border: 1px solid oklch(1 0 0 / 15%);
+    background-color: oklch(0.1 0.02 260 / 15%);
+    border: 1px solid oklch(1 0 0 / 8%);
     box-shadow:
-      0 10px 15px -3px oklch(0 0 0 / 0.4),
-      0 4px 6px -4px oklch(0 0 0 / 0.4),
-      0 25px 50px -12px oklch(0 0 0 / 0.6);
+      0 10px 15px -3px oklch(0 0 0 / 0.25),
+      0 4px 6px -4px oklch(0 0 0 / 0.15);
   }
 }
 

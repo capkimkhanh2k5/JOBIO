@@ -88,12 +88,12 @@ export const Header = () => {
     return (
         <header className={`fixed top-0 z-50 w-full transition-all duration-700 ${isScrolled ? 'py-4' : 'py-8'}`}>
             <div className="w-full max-w-[1600px] mx-auto px-6">
-                <div className={`flex items-center justify-between px-10 h-20 rounded-[32px] transition-all duration-700 ${isScrolled ? 'glass-effect shadow-2xl scale-[1.02]' : 'bg-transparent border-transparent'}`}>
+                <div className={`flex items-center justify-between px-10 h-20 transition-all duration-700 ${isScrolled ? 'glass-effect shadow-xl h-16 rounded-[28px]' : 'bg-transparent border-transparent rounded-[32px]'}`}>
                     <div className="flex items-center gap-16">
                         <Logo
                             className="mr-2"
-                            imageClassName="h-16 w-auto object-contain drop-shadow-md"
-                            textClassName="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                            imageClassName="h-14 w-auto object-contain drop-shadow-md transition-all duration-700"
+                            textClassName="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter transition-all duration-700"
                         />
 
                         <nav className="hidden lg:flex items-center gap-10">
