@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, SendHorizonal, X, Clock } from 'lucide-react';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const step1Schema = z.object({
@@ -260,44 +261,31 @@ export default function PostJob() {
                 <div className="absolute -bottom-[10%] -left-[10%] w-[35%] h-[35%] rounded-full bg-indigo-100/30 blur-[100px]" />
             </div>
 
-            <div className="w-full mx-auto relative z-10 space-y-6 p-6 lg:p-8 animate-in fade-in duration-700">
-                {/* Modern Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <div className="flex items-center gap-2 text-violet-600 mb-1">
-                            <SendHorizonal size={18} className="animate-pulse" />
-                            <span className="text-xs font-bold uppercase tracking-wider">Nhà tuyển dụng chuyên nghiệp</span>
-                        </div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                            Đăng tin <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">tuyển dụng</span>
-                        </h1>
-                        <p className="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                            Bước {step} trên 4 · {draftId ? `Draft ID: #${String(draftId).slice(-6)}` : 'Đang khởi tạo'}
-                            {lastSavedRef.current && (
-                                <span className="flex items-center gap-1 text-emerald-600 font-medium">
-                                    <Clock size={12} /> Đã lưu {lastSavedRef.current.toLocaleTimeString('vi-VN')}
-                                </span>
-                            )}
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Đăng tin tuyển dụng"
+                    description={`Bước ${step} trên 4 · ${draftId ? `Draft ID: #${String(draftId).slice(-6)}` : 'Đang khởi tạo'}`}
+                    icon={SendHorizonal}
+                    action={
                         <Button
                             variant="outline"
                             onClick={() => isDirty ? setDiscardOpen(true) : navigate('/employer/jobs')}
-                            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 h-11"
+                            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 h-11 shadow-sm"
                         >
                             <X size={18} />
                             Hủy bỏ
                         </Button>
-                    </div>
-                </div>
+                    }
+                />
+            </div>
+
+            <div className="w-full mx-auto relative z-10 space-y-8 p-6 lg:p-8 animate-in fade-in duration-700">
 
                 {/* Main Content Area */}
-                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden">
                     <div className="p-6 md:p-10 space-y-10">
                         {/* Progress Stepper with subtle styling */}
-                        <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
+                        <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
                             <WizardProgress current={step} />
                         </div>
 
@@ -374,7 +362,7 @@ export default function PostJob() {
                 </div>
 
                 {/* Enhancement Tips with modern look */}
-                <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-[1.5rem] border border-violet-100 p-6 shadow-sm">
+                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 p-6 shadow-sm">
                     <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
                             <Clock size={20} />

@@ -20,22 +20,24 @@ export default function EmployerReferrals() {
     return (
         <div className="w-full mx-auto min-h-screen">
             {/* Header */}
-            <PageHeader
-                title="Quản lý Giới thiệu"
-                description="Giới thiệu nhân tài và nhận thưởng hấp dẫn. Theo dõi trạng thái ứng viên bạn đã giới thiệu."
-                icon={Gift}
-                action={
-                    <Button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/25 px-6 h-11 rounded-xl font-bold"
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Giới thiệu ứng viên
-                    </Button>
-                }
-            />
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Quản lý Giới thiệu"
+                    description="Giới thiệu nhân tài và nhận thưởng hấp dẫn. Theo dõi trạng thái ứng viên bạn đã giới thiệu."
+                    icon={Gift}
+                    action={
+                        <Button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/25 px-6 h-11 rounded-xl font-bold"
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Giới thiệu ứng viên
+                        </Button>
+                    }
+                />
+            </div>
 
-            <div className="p-6 md:p-8 space-y-8">
+            <div className="p-6 lg:p-8 space-y-8">
                 {/* Programs Section */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}
@@ -46,7 +48,7 @@ export default function EmployerReferrals() {
                     <h2 className="text-lg font-bold text-slate-800">Chương trình thưởng hiện tại</h2>
                     {isLoadingPrograms ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-2xl bg-slate-100" />)}
+                            {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-3xl bg-slate-100" />)}
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -56,7 +58,7 @@ export default function EmployerReferrals() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.15 + i * 0.07 }}
-                                    className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between hover:border-violet-300 hover:shadow-md transition-all group"
+                                    className="p-5 rounded-3xl bg-white border border-slate-100 flex flex-col justify-between hover:border-violet-300 hover:shadow-md transition-all group shadow-sm bg-white/60 backdrop-blur-xl"
                                 >
                                     <div>
                                         <h3 className="font-semibold text-slate-800 group-hover:text-violet-600 transition-colors uppercase text-xs tracking-wider">
@@ -83,8 +85,10 @@ export default function EmployerReferrals() {
                     transition={{ duration: 0.4, delay: 0.2 }}
                     className="space-y-4"
                 >
-                    <h2 className="text-lg font-bold text-slate-800">Danh sách Giới thiệu</h2>
-                    <ReferralList />
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight ml-1">Danh sách Giới thiệu</h2>
+                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm">
+                        <ReferralList />
+                    </div>
                 </motion.section>
             </div>
 

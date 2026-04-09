@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
     Sparkles, Briefcase, MapPin, DollarSign, Clock, Calendar,
-    FileText, ChevronRight, ExternalLink, Star, Building2
+    FileText, ExternalLink, Star, Building2
 } from 'lucide-react';
 import { cvService } from '@/services/cvService';
 import { jobService } from '@/services/jobService';
@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 // ─── Match Score Badge ─────────────────────────────────────────────────────────
 function MatchBadge({ score }: { score: number }) {
@@ -49,7 +50,7 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <Card className="p-5 bg-white/70 backdrop-blur-sm border border-white/60 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-2xl h-full">
+            <Card className="p-5 bg-white/70 backdrop-blur-sm border border-white/60 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-3xl h-full shadow-sm">
                 {/* Header */}
                 <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl border border-slate-100 overflow-hidden shrink-0 bg-white flex items-center justify-center shadow-sm">
@@ -106,7 +107,7 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
                 {job.match_reasons?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                         {job.match_reasons.map((reason: string, i: number) => (
-                            <span key={i} className="text-[10px] bg-violet-50 text-violet-600 border border-violet-100 px-2 py-0.5 rounded-full">
+                            <span key={i} className="text-[10px] bg-violet-50 text-violet-600 border border-violet-100 px-2 py-0.5 rounded-full font-medium">
                                 ✓ {reason}
                             </span>
                         ))}
@@ -118,14 +119,14 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
                     <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 h-8 text-xs border-slate-200 hover:border-violet-300 hover:text-violet-700"
+                        className="flex-1 h-9 text-xs border-slate-200 hover:border-violet-300 hover:text-violet-700 rounded-xl font-bold"
                         onClick={() => navigate(`/jobs/${job.id}`)}
                     >
-                        <ExternalLink className="w-3 h-3 mr-1" /> Xem chi tiết
+                        <ExternalLink className="w-3 h-3 mr-1" /> Chi tiết
                     </Button>
                     <Button
                         size="sm"
-                        className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white shadow-sm"
+                        className="flex-1 h-9 text-xs bg-violet-600 hover:bg-violet-700 text-white shadow-sm rounded-xl font-bold"
                         onClick={() => onApply(job.id)}
                     >
                         <Briefcase className="w-3 h-3 mr-1" /> Ứng tuyển
@@ -144,13 +145,13 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
     loading: boolean;
 }) {
     return (
-        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
-            <div className="px-5 py-4 border-b border-slate-100 shrink-0 bg-slate-50/50">
-                <p className="text-[13px] font-black uppercase tracking-wider text-slate-800">
+        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white/50 backdrop-blur-xl overflow-y-auto">
+            <div className="px-5 py-5 border-b border-slate-100 shrink-0">
+                <p className="text-[12px] font-black uppercase tracking-wider text-slate-800">
                     Chọn CV để gợi ý
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1 font-medium leading-relaxed">
-                    Gợi ý việc làm phù hợp với CV được chọn
+                    Hệ thống sẽ gợi ý việc làm dựa trên CV được chọn
                 </p>
             </div>
 
@@ -174,34 +175,31 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
                             onClick={() => onSelect(String(cv.id))}
                             className={`relative rounded-xl border p-3.5 cursor-pointer transition-all duration-200 ${
                                 String(selectedId) === String(cv.id)
-                                    ? 'border-violet-300 bg-violet-50 shadow-sm'
-                                    : 'border-slate-200 hover:border-violet-200 hover:bg-violet-50/40'
+                                    ? 'border-violet-300 bg-white shadow-sm ring-1 ring-violet-200'
+                                    : 'border-transparent hover:border-slate-200 hover:bg-white/60'
                             }`}
                         >
                             {String(selectedId) === String(cv.id) && (
                                 <motion.div
                                     layoutId="cv-selector-active"
-                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-10 bg-violet-600 rounded-full"
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-violet-600 rounded-full"
                                 />
                             )}
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-11 rounded-lg bg-gradient-to-br from-violet-100 to-violet-50 border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden">
+                                <div className="w-9 h-11 rounded-lg bg-gradient-to-br from-violet-100 to-slate-50 border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                                     {cv.thumbnail_url ? (
-                                        <img src={cv.thumbnail_url} alt="" className="w-full h-full object-cover opacity-70" />
+                                        <img src={cv.thumbnail_url} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                         <FileText className="w-4 h-4 text-violet-400" />
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-1 mb-0.5">
-                                        <p className="text-sm font-semibold text-slate-800 truncate">{cv.cv_name}</p>
+                                        <p className="text-sm font-bold text-slate-800 truncate">{cv.cv_name}</p>
                                         {cv.is_default && <Star className="w-3 h-3 text-amber-500 fill-amber-400 shrink-0" />}
                                     </div>
-                                    <p className="text-[11px] text-muted-foreground truncate">{cv.template_name}</p>
+                                    <p className="text-[11px] text-muted-foreground truncate font-medium">{cv.template_name}</p>
                                 </div>
-                                {String(selectedId) === String(cv.id) && (
-                                    <ChevronRight className="w-4 h-4 text-violet-500 shrink-0" />
-                                )}
                             </div>
                         </div>
                     ))
@@ -270,13 +268,7 @@ export default function SuggestedJobs() {
     const selectedCV = (cvList as any[]).find((c: any) => String(c.id) === String(selectedCvId));
 
     return (
-        <div className="flex h-[calc(100vh-112px)] relative">
-            {/* Background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-violet-400/5 blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-violet-400/5 blur-[100px]" />
-            </div>
-
+        <div className="flex h-full w-full relative overflow-hidden bg-transparent">
             {/* LEFT: CV selector */}
             <CVSelector
                 cvList={cvList as any[]}
@@ -286,70 +278,69 @@ export default function SuggestedJobs() {
             />
 
             {/* RIGHT: Job suggestions */}
-            <div className="flex-1 overflow-y-auto relative z-10">
+            <div className="flex-1 flex flex-col min-w-0 bg-transparent">
                 {/* Page header */}
-                <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 mb-0.5">
-                            <div className="p-1.5 rounded-lg bg-violet-600">
-                                <Sparkles className="w-3.5 h-3.5 text-white" />
-                            </div>
-                            <h1 className="font-black text-xl text-slate-900">Việc làm gợi ý</h1>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            {selectedCV
-                                ? <>Gợi ý dựa trên CV <span className="font-semibold text-violet-600">"{selectedCV.cv_name}"</span></>
-                                : 'Chọn một CV để xem việc làm phù hợp'
-                            }
-                        </p>
-                    </div>
-                    <Button
-                        variant="default"
-                        size="sm"
-                        className="gap-2 bg-violet-600 text-white hover:bg-violet-700 transition-all duration-300 h-10 px-4 rounded-xl shadow-md shadow-violet-200/50"
-                        onClick={() => navigate('/candidate/cv')}
-                    >
-                        <FileText className="w-4 h-4" /> Quản lý CV
-                    </Button>
+                <div className="sticky top-0 z-20">
+                    <PageHeader
+                        title="Việc làm gợi ý"
+                        description={selectedCV 
+                            ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
+                            : "Chọn một CV để xem những việc làm phù hợp nhất"
+                        }
+                        icon={Sparkles}
+                        action={
+                            <Button
+                                variant="outline"
+                                className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 h-10 px-4 rounded-xl font-bold shadow-sm"
+                                onClick={() => navigate('/candidate/cv-manager')}
+                            >
+                                <FileText className="w-4 h-4" /> Quản lý CV
+                            </Button>
+                        }
+                    />
                 </div>
 
-                {/* Content */}
-                <div className="p-6">
+                {/* Content area */}
+                <div className="p-6 lg:p-8 space-y-6 flex-1 overflow-y-auto relative z-10">
                     {!selectedCvId ? (
                         <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-violet-100 flex items-center justify-center mb-4">
-                                <Sparkles className="w-7 h-7 text-violet-600" />
+                            <div className="w-20 h-20 rounded-full bg-violet-50 flex items-center justify-center mb-6">
+                                <Sparkles className="w-10 h-10 text-violet-400" />
                             </div>
-                            <h3 className="font-bold text-lg text-slate-800 mb-2">Chọn CV để xem gợi ý</h3>
-                            <p className="text-sm text-muted-foreground max-w-xs">
-                                Chọn một CV từ danh sách bên trái để xem những việc làm phù hợp nhất với bạn.
+                            <h3 className="text-xl font-black text-slate-900 mb-2">Sẵn sàng để kết nối?</h3>
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                                Chọn một CV từ danh sách bên trái để khám phá những cơ hội nghề nghiệp được AI gợi ý riêng cho bạn.
                             </p>
                         </div>
                     ) : loadingSuggestions ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {[...Array(6)].map((_, i) => (
-                                <Skeleton key={i} className="h-52 rounded-2xl" />
+                                <Skeleton key={i} className="h-48 rounded-3xl" />
                             ))}
                         </div>
                     ) : (suggestions as any[]).length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                <Briefcase className="w-6 h-6 text-slate-400" />
+                            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                                <Briefcase className="w-10 h-10 text-slate-300" />
                             </div>
-                            <h3 className="font-semibold text-slate-700 mb-1">Chưa tìm thấy việc làm phù hợp</h3>
-                            <p className="text-sm text-muted-foreground">Hãy cập nhật CV với thêm kỹ năng và vị trí mong muốn!</p>
+                            <h3 className="text-xl font-black text-slate-900 mb-2">Chưa tìm thấy việc làm phù hợp</h3>
+                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                                Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào CV của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
+                            </p>
                         </div>
                     ) : (
-                        <>
-                            <p className="text-sm text-muted-foreground mb-4">
-                                Tìm thấy <span className="font-semibold text-slate-700">{(suggestions as any[]).length}</span> việc làm phù hợp
-                            </p>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+                                    Tìm thấy <span className="text-violet-600">{(suggestions as any[]).length}</span> việc làm phù hợp
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
                                 {(suggestions as any[]).map((job: any) => (
                                     <JobCard key={job.id} job={job} onApply={handleApply} />
                                 ))}
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

@@ -34,7 +34,7 @@ function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () =>
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white/60 backdrop-blur-xl rounded-2xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-violet-500/5 group"
+            className="bg-white/60 backdrop-blur-xl rounded-3xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-violet-500/5 group"
         >
             <div className="flex justify-between items-start gap-4">
                 <div className="flex items-center gap-3">
@@ -140,67 +140,69 @@ export function MyReviews() {
     };
 
     return (
-        <>
-            <PageHeader
-                title="Đánh giá của tôi"
-                description="Quản lý các đánh giá bạn đã viết cho các công ty."
-                icon={Star}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Đánh giá của tôi"
+                    description="Quản lý các đánh giá bạn đã viết cho các công ty."
+                    icon={Star}
+                />
+            </div>
 
-            <div className="w-full flex-1 p-6 lg:p-8 space-y-6">
-
-            {isLoading ? (
-                <div className="space-y-4">
-                    <Skeleton className="h-40 w-full rounded-2xl" />
-                    <Skeleton className="h-40 w-full rounded-2xl" />
-                </div>
-            ) : data?.results.length === 0 ? (
-                <div className="text-center py-20 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 border-dashed shadow-sm">
-                    <div className="h-20 w-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Star className="h-10 w-10 text-white" />
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
+                {isLoading ? (
+                    <div className="space-y-4">
+                        <Skeleton className="h-40 w-full rounded-3xl" />
+                        <Skeleton className="h-40 w-full rounded-3xl" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">Chưa có đánh giá nào</h3>
-                    <p className="text-sm text-slate-500 mx-auto max-w-md">
-                        Bạn chưa viết đánh giá cho công ty nào. Hãy để lại đánh giá sau khi phỏng vấn hoặc làm việc nhé.
-                    </p>
-                </div>
-            ) : (
-                <div className="grid gap-4">
-                    <AnimatePresence>
-                        {data?.results.map((review: any) => (
-                            <MyReviewCard
-                                key={review.id}
-                                review={review}
-                                onEdit={() => handleEdit()}
-                                onDelete={() => setReviewToDelete(review.id)}
-                            />
-                        ))}
-                    </AnimatePresence>
-                </div>
-            )}
+                ) : data?.results.length === 0 ? (
+                    <div className="text-center py-20 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 border-dashed shadow-sm">
+                        <div className="h-20 w-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Star className="h-10 w-10 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 mb-2">Chưa có đánh giá nào</h3>
+                        <p className="text-sm text-slate-500 mx-auto max-w-md">
+                            Bạn chưa viết đánh giá cho công ty nào. Hãy để lại đánh giá sau khi phỏng vấn hoặc làm việc nhé.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid gap-4">
+                        <AnimatePresence>
+                            {data?.results.map((review: any) => (
+                                <MyReviewCard
+                                    key={review.id}
+                                    review={review}
+                                    onEdit={() => handleEdit()}
+                                    onDelete={() => setReviewToDelete(review.id)}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                )}
 
-            <AlertDialog open={!!reviewToDelete} onOpenChange={() => setReviewToDelete(null)}>
-                <AlertDialogContent className="rounded-2xl">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Xóa đánh giá này?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Bạn có chắc chắn muốn xóa đánh giá này không? Hành động này không thể hoàn tác.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={() => reviewToDelete && deleteMutation.mutate(reviewToDelete)}
-                            className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
-                            disabled={deleteMutation.isPending}
-                        >
-                            {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa đánh giá'}
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+                <AlertDialog open={!!reviewToDelete} onOpenChange={() => setReviewToDelete(null)}>
+                    <AlertDialogContent className="rounded-3xl">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Xóa đánh giá này?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Bạn có chắc chắn muốn xóa đánh giá này không? Hành động này không thể hoàn tác.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => reviewToDelete && deleteMutation.mutate(reviewToDelete)}
+                                className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                                disabled={deleteMutation.isPending}
+                            >
+                                {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa đánh giá'}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
         </div>
-        </>
     );
 }
 

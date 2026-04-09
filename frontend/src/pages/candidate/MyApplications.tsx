@@ -2,8 +2,7 @@ import { useState, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Briefcase, CalendarClock, Building2, MapPin, Search, Filter, Clock, MoreVertical,
-    FileText, CheckCircle2, XCircle, ArrowRight, ExternalLink, Activity, AlertCircle
+    Briefcase, Building2, Search, Clock, FileText, CheckCircle2, XCircle, Activity
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { applicationService } from '@/services/applicationService';
@@ -124,19 +123,21 @@ export default function MyApplications() {
     };
 
     return (
-        <div className="pb-12 w-full flex-1">
-            <PageHeader
-                title="Việc làm đã ứng tuyển"
-                description="Theo dõi và quản lý quá trình ứng tuyển của bạn."
-                icon={Briefcase}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Việc làm đã ứng tuyển"
+                    description="Theo dõi và quản lý quá trình ứng tuyển của bạn."
+                    icon={Briefcase}
+                />
+            </div>
 
-            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
 
                 {/* Initial Loading Skeleton for Stats */}
                 {isLoading && !applications && (
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}
+                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}
                     </div>
                 )}
 
@@ -147,28 +148,28 @@ export default function MyApplications() {
                         animate={{ opacity: 1, y: 0 }}
                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
                     >
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
                             <div className="flex items-center gap-3 text-slate-500 mb-2">
                                 <div className="p-2 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 text-white shadow-sm"><Briefcase className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Tổng số đơn</span>
                             </div>
                             <span className="text-3xl font-black">{stats.total}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
                             <div className="flex items-center gap-3 text-blue-600 mb-2">
                                 <div className="p-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-sm"><Activity className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Đang diễn ra</span>
                             </div>
                             <span className="text-3xl font-black text-blue-700">{stats.active}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
                             <div className="flex items-center gap-3 text-emerald-600 mb-2">
                                 <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-sm"><CheckCircle2 className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Thành công</span>
                             </div>
                             <span className="text-3xl font-black text-emerald-700">{stats.success}</span>
                         </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-2xl">
+                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
                             <div className="flex items-center gap-3 text-red-600 mb-2">
                                 <div className="p-2 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white shadow-sm"><XCircle className="w-5 h-5" /></div>
                                 <span className="font-medium text-sm">Chưa phù hợp</span>
@@ -178,7 +179,7 @@ export default function MyApplications() {
                     </motion.div>
                 )}
 
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden mb-8">
+                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden mb-8">
                     {/* Filters Header */}
                     <div className="p-4 border-b border-white/20 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/40">
                         <div className="relative w-full sm:w-80">
@@ -329,7 +330,7 @@ export default function MyApplications() {
             )}
 
             <AlertDialog open={!!appToWithdraw} onOpenChange={(open) => !open && setAppToWithdraw(null)}>
-                <AlertDialogContent className="rounded-2xl">
+                <AlertDialogContent className="rounded-3xl">
                     <AlertDialogHeader>
                         <AlertDialogTitle>Rút đơn ứng tuyển</AlertDialogTitle>
                         <AlertDialogDescription>

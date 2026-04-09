@@ -18,6 +18,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { BlogPost } from '@/types/api';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 const statusMap = {
     published: { label: 'Đã đăng', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
@@ -64,46 +65,28 @@ export default function BlogManagement() {
     };
 
     return (
-        <div className="min-h-screen overflow-hidden relative">
-            {/* Background elements */}
-            <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
-
-            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
-                
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2.5 rounded-xl bg-violet-50 text-violet-600 shadow-sm border border-violet-100">
-                                <BookOpen className="w-7 h-7" />
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                                Quản lý <span className="text-violet-600">Blog</span>
-                            </h1>
-                        </div>
-                        <p className="mt-4 text-base md:text-lg text-slate-500 max-w-2xl font-medium leading-relaxed">
-                            Nơi bạn chia sẻ kiến thức, kinh nghiệm và những câu chuyện thú vị trong sự nghiệp.
-                        </p>
-                    </div>
-
-                    <div className="shrink-0 flex items-center gap-3">
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Quản lý Blog"
+                    description="Nơi bạn chia sẻ kiến thức, kinh nghiệm và những câu chuyện thú vị trong sự nghiệp."
+                    icon={BookOpen}
+                    action={
                         <Button 
                             onClick={() => navigate(`${basePath}/create`)}
-                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-8 h-12 shrink-0 group relative overflow-hidden rounded-2xl font-bold"
+                            className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20 px-6 h-11 shrink-0 rounded-xl font-bold"
                         >
-                            <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                            <div className="relative flex items-center">
-                                <Plus className="w-5 h-5 mr-2" />
-                                <span>Viết bài mới</span>
-                            </div>
+                            <Plus className="w-4 h-4 mr-2" />
+                            <span>Viết bài mới</span>
                         </Button>
-                    </div>
-                </div>
+                    }
+                />
+            </div>
 
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {/* Filters Row */}
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-md p-2 border border-slate-200/60 rounded-2xl">
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-md p-2 border border-slate-200/60 rounded-3xl">
                     <div className="relative flex-1 w-full md:max-w-md">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400" />
                         <Input 
@@ -139,7 +122,7 @@ export default function BlogManagement() {
                                 className="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all p-5 flex flex-col md:flex-row gap-6 items-start md:items-center relative"
                             >
                                 {/* Thumbnail */}
-                                <div className="w-full md:w-32 h-24 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-100 group-hover:scale-[1.02] transition-transform">
+                                <div className="w-full md:w-32 h-24 rounded-3xl bg-slate-100 overflow-hidden shrink-0 border border-slate-100 group-hover:scale-[1.02] transition-transform">
                                     {post.thumbnail ? (
                                         <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
                                     ) : (
@@ -196,7 +179,7 @@ export default function BlogManagement() {
                                                     <MoreVertical className="w-5 h-5" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="rounded-2xl p-2 border-slate-200 w-48 shadow-xl">
+                                            <DropdownMenuContent align="end" className="rounded-3xl p-2 border-slate-200 w-48 shadow-xl">
                                                 <DropdownMenuItem 
                                                     onClick={() => navigate(`${basePath}/edit/${post.slug}`)}
                                                     className="rounded-xl px-4 py-2.5 font-bold text-slate-600 cursor-pointer hover:bg-violet-50 hover:text-violet-600 focus:bg-violet-50 focus:text-violet-600 transition-colors gap-3"
@@ -228,20 +211,12 @@ export default function BlogManagement() {
                             </div>
                             <Button 
                                 onClick={() => navigate(`${basePath}/create`)}
-                                className="bg-violet-600 hover:bg-violet-700 text-white rounded-2xl px-8 h-12 font-black shadow-lg shadow-violet-200"
+                                className="bg-violet-600 hover:bg-violet-700 text-white rounded-3xl px-8 h-12 font-black shadow-lg shadow-violet-200"
                             >
                                 Viết bài ngay <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                         </div>
                     )}
-                </div>
-
-                {/* Footer status */}
-                <div className="pt-10 flex flex-col items-center gap-4 text-center">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border border-slate-100 rounded-full">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dữ liệu được cập nhật thời gian thực</span>
-                    </div>
                 </div>
             </div>
         </div>

@@ -49,27 +49,34 @@ export default function SavedJobs() {
 
     if (isLoading) {
         return (
-            <div className="p-6 md:p-8 space-y-6 w-full flex-1">
-                <div>
-                    <Skeleton className="h-8 w-48 mb-2" />
-                    <Skeleton className="h-4 w-64" />
+            <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+                <div className="sticky top-0 z-20">
+                    <PageHeader
+                        title="Việc làm đã lưu"
+                        description="Đang tải danh sách việc làm đã lưu..."
+                        icon={Bookmark}
+                    />
                 </div>
-                <div className="space-y-4">
-                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full rounded-2xl" />)}
+                <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
+                    <div className="space-y-4">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full rounded-3xl" />)}
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <>
-            <PageHeader
-                title="Việc làm đã lưu"
-                description={`Quản lý và theo dõi các vị trí bạn quan tâm (${savedJobs?.length || 0})`}
-                icon={Bookmark}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Việc làm đã lưu"
+                    description={`Quản lý và theo dõi các vị trí bạn quan tâm (${savedJobs?.length || 0})`}
+                    icon={Bookmark}
+                />
+            </div>
 
-            <div className="p-6 md:p-8 w-full flex-1">
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {savedJobs?.length === 0 ? (
                     <div className="text-center py-16 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm">
                         <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-violet-500/20">
@@ -100,7 +107,7 @@ export default function SavedJobs() {
                                 >
                                     <Card className="overflow-hidden bg-white/60 backdrop-blur-xl border-white/40 hover:border-violet-300 hover:shadow-md transition-all rounded-3xl group shadow-sm">
                                         <div className="p-6 flex flex-col md:flex-row gap-6">
-                                            <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                            <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                                 <img src={job.logo_url} alt={job.company_name} className="w-10 h-10 object-contain" />
                                             </div>
 
@@ -215,6 +222,6 @@ export default function SavedJobs() {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }

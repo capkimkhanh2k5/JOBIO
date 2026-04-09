@@ -11,6 +11,7 @@ import { CampaignList } from '@/components/employer/campaigns/CampaignList';
 import { CreateCampaignModal } from '@/components/employer/campaigns/CreateCampaignModal';
 import { CampaignDetailSheet } from '@/components/employer/campaigns/CampaignDetailSheet';
 import { employerService } from '@/services/employerService';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function EmployerCampaigns() {
     const queryClient = useQueryClient();
@@ -124,52 +125,42 @@ export default function EmployerCampaigns() {
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>
 
-            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
-
-                {/* Header Section - Modernized & Compact */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2.5 rounded-xl bg-violet-50 text-violet-600 shadow-sm">
-                                <Target className="w-7 h-7" />
-                            </div>
-                            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                                Chiến Dịch Tuyển Dụng
-                            </h1>
-                        </div>
-                        <p className="mt-4 text-base md:text-lg text-slate-500 max-w-3xl font-medium leading-relaxed">
-                            Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng.
-                        </p>
-                    </div>
-
-                    <div className="shrink-0 flex items-center">
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Chiến Dịch Tuyển Dụng"
+                    description="Quản lý các chiến dịch quy mô lớn, theo dõi ngân sách và hiệu quả tuyển dụng."
+                    icon={Target}
+                    action={
                         <Button
                             onClick={handleCreateClick}
-                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-8 h-12 shrink-0 group relative overflow-hidden rounded-2xl font-bold"
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 px-8 h-11 shrink-0 group relative overflow-hidden rounded-xl font-bold"
                         >
                             <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-                            <div className="relative flex items-center">
+                            <div className="relative flex items-center text-sm">
                                 <Plus className="w-5 h-5 mr-2" />
                                 <span>Chiến dịch mới</span>
                             </div>
                         </Button>
-                    </div>
-                </div>
+                    }
+                />
+            </div>
+
+            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
 
                 {/* Filters & Tabs */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50 p-2 border border-slate-200 rounded-xl sticky top-4 z-20 shadow-sm"
+                    className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-white/60 backdrop-blur-xl p-4 border border-white/40 rounded-3xl shadow-sm"
                 >
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto overflow-x-auto hidden-scrollbar">
-                        <TabsList className="bg-transparent border-none p-0 h-auto w-full justify-start md:justify-center gap-1">
-                            <TabsTrigger value="all" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Tất cả</TabsTrigger>
-                            <TabsTrigger value="active" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Đang chạy</TabsTrigger>
-                            <TabsTrigger value="draft" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Bản nháp</TabsTrigger>
-                            <TabsTrigger value="paused" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Tạm dừng</TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:shadow-sm flex items-center justify-center">Hoàn thành</TabsTrigger>
+                        <TabsList className="bg-slate-100/50 p-1 w-full justify-start md:justify-center gap-1 rounded-2xl h-auto">
+                            <TabsTrigger value="all" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Tất cả</TabsTrigger>
+                            <TabsTrigger value="active" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Đang chạy</TabsTrigger>
+                            <TabsTrigger value="draft" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Bản nháp</TabsTrigger>
+                            <TabsTrigger value="paused" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Tạm dừng</TabsTrigger>
+                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Hoàn thành</TabsTrigger>
                         </TabsList>
                     </Tabs>
 
@@ -194,6 +185,7 @@ export default function EmployerCampaigns() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
+                    className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm"
                 >
                     <CampaignList
                         campaigns={filteredCampaigns}

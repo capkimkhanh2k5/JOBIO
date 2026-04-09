@@ -19,26 +19,23 @@ interface SettingsLayoutProps {
 
 export function SettingsLayout({ title, description, tabs, activeTab, onTabChange, children }: SettingsLayoutProps) {
     return (
-        <div className="min-h-screen pb-12 pt-8 relative w-full flex-1">
-            {/* Background effects */}
-            <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
-                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/8 blur-[140px]" />
-            </div>
-
-            <div className="p-6 lg:p-8 relative z-10 w-full">
-                {(title || description) && (
-                    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header style consistency */}
+            {(title || description) && (
+                <div className="bg-white/40 backdrop-blur-xl border-b border-white/20 px-6 lg:px-8 py-5 md:py-6 shrink-0">
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
                         {title && (
-                            <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
                                 {title}
                             </h1>
                         )}
-                        {description && <p className="text-muted-foreground mt-2">{description}</p>}
+                        {description && <p className="text-sm text-slate-500 font-medium mt-1">{description}</p>}
                     </motion.div>
-                )}
+                </div>
+            )}
 
-                <div className={`grid grid-cols-1 md:grid-cols-4 gap-8 ${ (title || description) ? 'mt-8' : ''}`}>
+            <div className="p-6 lg:p-8 relative z-10 w-full flex-1 overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Sidebar Tabs */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -81,3 +78,5 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
         </div>
     );
 }
+
+export default SettingsLayout;

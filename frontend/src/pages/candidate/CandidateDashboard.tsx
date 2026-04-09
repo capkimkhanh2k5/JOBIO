@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function CandidateDashboard() {
     const navigate = useNavigate();
@@ -86,29 +87,17 @@ export default function CandidateDashboard() {
     };
 
     return (
-        <div className="relative pb-12 w-full flex-1">
-            {/* Background effects */}
-            <div className="absolute top-0 left-0 w-full h-[400px] overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-violet-400/8 blur-[120px]" />
-                <div className="absolute top-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/8 blur-[140px]" />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Tổng quan nghề nghiệp"
+                    description={`Chào mừng bạn trở lại, ${user?.first_name || 'Ứng viên'}! Hãy xem những cơ hội mới nhất dành cho bạn.`}
+                    icon={LayoutDashboard}
+                />
             </div>
 
             <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
-                <motion.div
-                    className="mb-8"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
-                            <LayoutDashboard className="w-6 h-6" />
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                            Tổng quan nghề nghiệp
-                        </h1>
-                    </div>
-                    <p className="text-muted-foreground">Chào mừng bạn trở lại! Hãy xem những cơ hội mới nhất dành cho bạn.</p>
-                </motion.div>
 
                 <motion.div
                     variants={containerVariants}
@@ -120,14 +109,14 @@ export default function CandidateDashboard() {
                     <div className="md:col-span-8 space-y-6">
 
                         {/* KPI Stats */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             {[
                                 { title: "Việc đã ứng tuyển", value: stats?.applied_jobs_count, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats },
                                 { title: "Phỏng vấn sắp tới", value: stats?.upcoming_interviews_count, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats },
                                 { title: "Lượt xem hồ sơ", value: stats?.profile_views_count, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats },
                             ].map((stat, i) => (
                                 <motion.div key={i} variants={itemVariants}>
-                                    <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-2xl hover:shadow-md">
+                                    <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-3xl hover:shadow-md">
                                         <div className="flex flex-col gap-3">
                                             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} text-white flex items-center justify-center shadow-sm`}>
                                                 {stat.icon}
@@ -148,7 +137,7 @@ export default function CandidateDashboard() {
 
                         {/* Profile Completion */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-6 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                            <Card className="p-6 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-100/60 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
 
                                 <div className="flex flex-col md:flex-row gap-6 items-center relative z-10">
@@ -211,7 +200,7 @@ export default function CandidateDashboard() {
 
                         {/* Applications Summary */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
                                 <div className="p-5 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
                                     <div className="flex items-center gap-2">
                                         <FileText className="w-5 h-5 text-violet-400" />
@@ -281,7 +270,7 @@ export default function CandidateDashboard() {
 
                         {/* AI Recommended Jobs */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden h-full rounded-2xl hover:shadow-md transition-shadow">
+                            <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden h-full rounded-3xl hover:shadow-md transition-shadow">
                                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-400/10 blur-[40px] rounded-full pointer-events-none" />
 
                                 <div className="flex items-center justify-between mb-4 relative z-10">
@@ -329,7 +318,7 @@ export default function CandidateDashboard() {
 
                         {/* Upcoming Interviews */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
                                 <div className="p-4 border-b border-white/40 bg-white/40 backdrop-blur-md">
                                     <h3 className="font-bold flex items-center gap-2">
                                         <CalendarClock className="w-4 h-4 text-amber-500" /> Phỏng vấn sắp tới
@@ -375,7 +364,7 @@ export default function CandidateDashboard() {
 
                         {/* Saved Jobs Preview */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-2xl hover:shadow-md transition-shadow">
+                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
                                 <div className="p-4 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
                                     <h3 className="font-bold flex items-center gap-2 text-sm">
                                         <Bookmark className="w-4 h-4 text-rose-400" /> Việc làm đã lưu

@@ -9,8 +9,8 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, icon: Icon, action }: PageHeaderProps) {
     return (
-        <div className="relative w-full bg-white/40 backdrop-blur-md border-b border-slate-200/50 py-8 md:py-10 overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100/40 via-cyan-50/20 to-transparent" />
+        <div className="relative w-full bg-white/40 backdrop-blur-md border-b border-slate-200/50 py-5 md:py-6 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100/30 via-cyan-50/10 to-transparent" />
 
             <div className="w-full px-6 lg:px-8">
                 <motion.div
@@ -22,16 +22,16 @@ export function PageHeader({ title, description, icon: Icon, action }: PageHeade
                     <div className="flex flex-col">
                         <div className="flex items-center gap-3">
                             {Icon && (
-                                <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
+                                <div className="p-2 rounded-xl bg-violet-50 text-violet-600 border border-violet-100 shadow-sm transition-all duration-300">
                                     <Icon className="w-6 h-6" />
                                 </div>
                             )}
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight transition-all duration-300">
                                 {title}
                             </h1>
                         </div>
                         {description && (
-                            <p className="mt-3 text-base md:text-lg text-slate-600 max-w-3xl">
+                            <p className="mt-1 text-sm text-slate-500 max-w-3xl transition-all duration-300">
                                 {description}
                             </p>
                         )}

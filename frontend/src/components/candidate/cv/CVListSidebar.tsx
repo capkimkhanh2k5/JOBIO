@@ -9,7 +9,6 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 interface Props {
     cvList: CVItem[];
@@ -28,7 +27,7 @@ export function CVListSidebar({
     onDelete, onSetDefault, onDownload, onTogglePrivacy, onCreateNew
 }: Props) {
     return (
-        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white overflow-hidden">
+        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white/40 backdrop-blur-md overflow-hidden">
             {/* Header */}
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">

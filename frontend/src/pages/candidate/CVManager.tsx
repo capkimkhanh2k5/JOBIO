@@ -174,7 +174,7 @@ export default function CVManager() {
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
 
     return (
-        <div className="relative flex flex-col w-full p-6 lg:p-8">
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Page header */}
             <div className="sticky top-0 z-20">
                 <PageHeader
@@ -214,41 +214,43 @@ export default function CVManager() {
                 />
             </div>
 
-            {/* Main 3-column layout */}
-            <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1">
-                {/* Column 1: CV List Sidebar */}
-                <CVListSidebar
-                    cvList={cvList as any}
-                    loading={loadingCVs}
-                    selectedId={selectedCvId}
-                    onSelect={handleSelectCV}
-                    onDelete={(id) => deleteMutation.mutate(id)}
-                    onSetDefault={(id) => defaultMutation.mutate(id)}
-                    onDownload={(id) => downloadMutation.mutate(id)}
-                    onTogglePrivacy={(id, is_public) => privacyMutation.mutate({ cvId: id, is_public })}
-                    onCreateNew={() => setShowNewDialog(true)}
-                />
-
-                {/* Column 2: CV Builder */}
-                <div className="flex-1 overflow-y-auto border-transparent bg-white/60 backdrop-blur-xl">
-                    <CVBuilder
-                        cvName={cvName}
-                        selectedTemplateId={selectedTemplateId}
-                        cvData={cvData}
-                        autoSaveStatus={autoSaveStatus}
-                        onFieldChange={handleFieldChange}
-                        selectedCV={selectedCV}
+            <div className="flex-1 min-h-0 p-6 lg:p-8">
+                {/* Main 3-column layout */}
+                <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm rounded-3xl overflow-hidden">
+                    {/* Column 1: CV List Sidebar */}
+                    <CVListSidebar
+                        cvList={cvList as any}
+                        loading={loadingCVs}
+                        selectedId={selectedCvId}
+                        onSelect={handleSelectCV}
+                        onDelete={(id) => deleteMutation.mutate(id)}
+                        onSetDefault={(id) => defaultMutation.mutate(id)}
+                        onDownload={(id) => downloadMutation.mutate(id)}
+                        onTogglePrivacy={(id, is_public) => privacyMutation.mutate({ cvId: id, is_public })}
+                        onCreateNew={() => setShowNewDialog(true)}
                     />
-                </div>
 
-                {/* Column 3: Live Preview */}
-                <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-white/40 backdrop-blur-xl border-l border-white/40">
-                    <CVLivePreview
-                        cvName={cvName}
-                        templateId={selectedTemplateId}
-                        cvId={selectedCvId}
-                        previewKey={previewKey}
-                    />
+                    {/* Column 2: CV Builder */}
+                    <div className="flex-1 overflow-y-auto bg-transparent">
+                        <CVBuilder
+                            cvName={cvName}
+                            selectedTemplateId={selectedTemplateId}
+                            cvData={cvData}
+                            autoSaveStatus={autoSaveStatus}
+                            onFieldChange={handleFieldChange}
+                            selectedCV={selectedCV}
+                        />
+                    </div>
+
+                    {/* Column 3: Live Preview */}
+                    <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-white/20 border-l border-white/40">
+                        <CVLivePreview
+                            cvName={cvName}
+                            templateId={selectedTemplateId}
+                            cvId={selectedCvId}
+                            previewKey={previewKey}
+                        />
+                    </div>
                 </div>
             </div>
 

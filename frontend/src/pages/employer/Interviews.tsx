@@ -28,25 +28,28 @@ export default function EmployerInterviewsPage() {
     };
 
     return (
-        <div className="p-6 md:p-8 space-y-6 w-full mx-auto">
+        <div className="w-full mx-auto min-h-screen">
             {/* Header */}
-            <PageHeader
-                title="Lịch Phỏng Vấn"
-                description="Quản lý và sắp xếp lịch phỏng vấn với ứng viên."
-                icon={Calendar}
-                action={
-                    <Button
-                        onClick={() => setIsCreateOpen(true)}
-                        className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-600/20 w-full md:w-auto px-6 h-11 rounded-xl"
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Tạo lịch phỏng vấn
-                    </Button>
-                }
-            />
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Lịch Phỏng Vấn"
+                    description="Quản lý và sắp xếp lịch phỏng vấn với ứng viên."
+                    icon={Calendar}
+                    action={
+                        <Button
+                            onClick={() => setIsCreateOpen(true)}
+                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-600/20 w-full md:w-auto px-6 h-11 rounded-xl"
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Tạo lịch phỏng vấn
+                        </Button>
+                    }
+                />
+            </div>
 
             {/* Main Content */}
-            <Tabs defaultValue="calendar" value={view} onValueChange={setView} className="space-y-6">
+            <div className="p-6 lg:p-8 space-y-8">
+                <Tabs defaultValue="calendar" value={view} onValueChange={setView} className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                     <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl gap-1 h-auto">
                         <TabsTrigger value="calendar" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">
@@ -74,14 +77,15 @@ export default function EmployerInterviewsPage() {
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={view}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.2 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm mt-8"
                     >
                         <TabsContent value="calendar" className="mt-0 outline-none">
                             <EmployerCalendar
-                                interviews={interviews || []}
+                                interviews={(interviews as any) || []}
                                 isLoading={isLoading}
                                 onInterviewClick={handleInterviewClick}
                             />
@@ -89,7 +93,7 @@ export default function EmployerInterviewsPage() {
 
                         <TabsContent value="list" className="mt-0 outline-none">
                             <EmployerInterviewList
-                                interviews={interviews || []}
+                                interviews={(interviews as any) || []}
                                 isLoading={isLoading}
                                 onInterviewClick={handleInterviewClick}
                             />
@@ -97,6 +101,7 @@ export default function EmployerInterviewsPage() {
                     </motion.div>
                 </AnimatePresence>
             </Tabs>
+            </div>
 
             {/* Modals */}
             <CreateInterviewModal

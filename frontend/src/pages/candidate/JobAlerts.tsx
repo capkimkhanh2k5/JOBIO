@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Plus, Search, Filter, Trash2, Edit2, Clock, MapPin, Briefcase, LucideIcon, Mail, Laptop } from 'lucide-react';
+import { Bell, Plus, Search, Trash2, Edit2, Clock, MapPin, Briefcase, Mail } from 'lucide-react';
 import { alertService } from '@/services/alertService';
 import { taxonomyService } from '@/services/taxonomyService';
 import { Card } from '@/components/ui/card';
@@ -13,7 +13,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
@@ -45,7 +44,7 @@ export default function JobAlerts() {
     // Fetch provinces
     const { data: provincesRaw } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => taxonomyService.listProvinces({ page_size: 100 }).then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces({ page_size: 100 } as any).then(r => (r as any).data),
     });
     const provinces = (provincesRaw as any)?.results || [];
 
@@ -130,29 +129,32 @@ export default function JobAlerts() {
     };
 
     return (
-        <div className="relative pb-12 w-full flex-1">
-            <PageHeader
-                title="Thông báo việc làm"
-                description="Tự động nhận thông báo khi có việc làm phù hợp với tiêu chí của bạn."
-                icon={Bell}
-                action={
-                    <Button
-                        className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-11 px-6 shadow-md shadow-violet-500/20"
-                        onClick={() => {
-                            setEditingAlert(null);
-                            setIsFormOpen(true);
-                        }}
-                    >
-                        <Plus size={18} className="mr-2" />
-                        Tạo thông báo mới
-                    </Button>
-                }
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Thông báo việc làm"
+                    description="Tự động nhận thông báo khi có việc làm phù hợp với tiêu chí của bạn."
+                    icon={Bell}
+                    action={
+                        <Button
+                            className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-11 px-6 shadow-md shadow-violet-500/20 font-bold"
+                            onClick={() => {
+                                setEditingAlert(null);
+                                setIsFormOpen(true);
+                            }}
+                        >
+                            <Plus size={18} className="mr-2" />
+                            Tạo thông báo mới
+                        </Button>
+                    }
+                />
+            </div>
 
-            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48 rounded-2xl" />)}
+                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48 rounded-3xl" />)}
                     </div>
                 ) : !alerts?.length ? (
                     <div className="py-20 text-center flex flex-col items-center bg-white/60 backdrop-blur-xl border border-dashed border-white/40 rounded-3xl w-full shadow-sm">
@@ -185,7 +187,7 @@ export default function JobAlerts() {
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.3, delay: idx * 0.1 }}
                                 >
-                                    <Card className="p-6 bg-white/60 backdrop-blur-xl border-white/40 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 rounded-2xl group relative overflow-hidden shadow-sm">
+                                    <Card className="p-6 bg-white/60 backdrop-blur-xl border-white/40 hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 rounded-3xl group relative overflow-hidden shadow-sm">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-violet-50 rounded-bl-full -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                         
                                         <div className="flex justify-between items-start mb-4">
@@ -264,7 +266,7 @@ export default function JobAlerts() {
 
             {/* Form Dialog */}
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent className="sm:max-w-md rounded-2xl border-none p-0 overflow-hidden shadow-2xl">
+                <DialogContent className="sm:max-w-md rounded-3xl border-none p-0 overflow-hidden shadow-2xl">
                     <div className="bg-gradient-to-r from-violet-600 to-indigo-600 p-8 text-white relative">
                         <div className="absolute top-0 right-0 p-8 opacity-10">
                             <Bell className="w-24 h-24" />
