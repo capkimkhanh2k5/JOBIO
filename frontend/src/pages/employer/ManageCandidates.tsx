@@ -55,44 +55,46 @@ export default function ManageCandidates() {
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-slate-50/30">
+        <div className="flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Header Area */}
-            <PageHeader
-                title="Quản lý Ứng viên"
-                description={`${applications.length} ứng viên đang hiển thị dựa trên bộ lọc`}
-                icon={UsersIcon}
-                action={
-                    <div className="flex items-center gap-3">
-                        <div className="flex gap-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl">
-                            <Button
-                                variant="ghost"
-                                className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
-                                    viewMode === 'kanban'
-                                        ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
-                                }`}
-                                onClick={() => setViewMode('kanban')}
-                            >
-                                <Kanban className="w-4 h-4 mr-2" /> Board
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
-                                    viewMode === 'table'
-                                        ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
-                                }`}
-                                onClick={() => setViewMode('table')}
-                            >
-                                <List className="w-4 h-4 mr-2" /> Table
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Quản lý Ứng viên"
+                    description={`${applications.length} ứng viên đang hiển thị dựa trên bộ lọc`}
+                    icon={UsersIcon}
+                    action={
+                        <div className="flex items-center gap-3">
+                            <div className="flex gap-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl">
+                                <Button
+                                    variant="ghost"
+                                    className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
+                                        viewMode === 'kanban'
+                                            ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                    }`}
+                                    onClick={() => setViewMode('kanban')}
+                                >
+                                    <Kanban className="w-4 h-4 mr-2" /> Board
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
+                                        viewMode === 'table'
+                                            ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                    }`}
+                                    onClick={() => setViewMode('table')}
+                                >
+                                    <List className="w-4 h-4 mr-2" /> Table
+                                </Button>
+                            </div>
+                            <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 bg-white border-slate-200 text-slate-600 hover:text-slate-900">
+                                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                             </Button>
                         </div>
-                        <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 bg-white border-slate-200 text-slate-600 hover:text-slate-900">
-                            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        </Button>
-                    </div>
-                }
-            />
+                    }
+                />
+            </div>
 
             <div className="flex-shrink-0 px-6 mt-4">
 
@@ -118,22 +120,26 @@ export default function ManageCandidates() {
             </div>
 
             {/* Main Content Area with Sidebar */}
-            <div className="flex-1 overflow-hidden flex p-6 gap-6 relative hide-scrollbar">
-                <CandidatesFilterSidebar />
+            <div className="p-6 lg:p-8 space-y-8 flex-1 overflow-hidden flex gap-8 relative hide-scrollbar">
+                <div className="w-[300px] hidden md:block">
+                    <CandidatesFilterSidebar />
+                </div>
 
                 <main className="flex-1 overflow-hidden">
-                    {viewMode === 'kanban' ? (
-                        <CandidateBoard
-                            applications={applications as any}
-                            isLoading={isLoading}
-                            onStatusChange={() => refetch()}
-                        />
-                    ) : (
-                        <CandidateTable
-                            applications={applications as any}
-                            isLoading={isLoading}
-                        />
-                    )}
+                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden h-full shadow-sm">
+                        {viewMode === 'kanban' ? (
+                            <CandidateBoard
+                                applications={applications as any}
+                                isLoading={isLoading}
+                                onStatusChange={() => refetch()}
+                            />
+                        ) : (
+                            <CandidateTable
+                                applications={applications as any}
+                                isLoading={isLoading}
+                            />
+                        )}
+                    </div>
                 </main>
             </div>
 

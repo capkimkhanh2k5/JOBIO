@@ -44,14 +44,17 @@ export default function Connections() {
     const pendingCount = pendingData?.count || 0;
 
     return (
-        <div className="relative flex flex-col w-full">
-            <PageHeader
-                title="Mạng lưới kết nối"
-                description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Recruiter."
-                icon={Users}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Mạng lưới kết nối"
+                    description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Recruiter."
+                    icon={Users}
+                />
+            </div>
 
-            <div className="p-6 lg:p-8 w-full flex-1 relative z-10">
+            <div className="p-6 lg:p-8 w-full flex-1 relative z-10 space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="bg-white/60 backdrop-blur-md border border-slate-200/50 p-1 mb-8 rounded-xl h-auto">
                         <TabsTrigger value="connections" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
@@ -77,7 +80,7 @@ export default function Connections() {
 
                                 {isConnectionsLoading ? (
                                     <div className="space-y-4">
-                                        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)}
+                                        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-3xl" />)}
                                     </div>
                                 ) : connectionsData?.connections?.length === 0 ? (
                                     <EmptyState
@@ -111,7 +114,7 @@ export default function Connections() {
 
                                 {isPendingLoading ? (
                                     <div className="space-y-4">
-                                        {[1, 2].map((i) => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
+                                        {[1, 2].map((i) => <Skeleton key={i} className="h-32 w-full rounded-3xl" />)}
                                     </div>
                                 ) : pendingData?.results?.length === 0 ? (
                                     <EmptyState
@@ -140,7 +143,7 @@ export default function Connections() {
 
                                 {isSuggestionsLoading ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <Skeleton key={i} className="h-72 w-full rounded-2xl" />)}
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <Skeleton key={i} className="h-72 w-full rounded-3xl" />)}
                                     </div>
                                 ) : suggestionsData?.length === 0 ? (
                                     <EmptyState

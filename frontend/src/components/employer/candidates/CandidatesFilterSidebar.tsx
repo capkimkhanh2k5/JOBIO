@@ -55,7 +55,7 @@ export function CandidatesFilterSidebar() {
     };
 
     return (
-        <div className="w-[300px] flex-shrink-0 bg-card border border-border/50 rounded-xl p-5 flex flex-col h-[calc(100vh-200px)] sticky top-0 hide-scrollbar overflow-y-auto">
+        <div className="w-full flex-shrink-0 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm rounded-3xl p-6 flex flex-col h-full sticky top-0 hide-scrollbar overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600">

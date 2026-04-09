@@ -80,125 +80,127 @@ export default function SearchHistory() {
     };
 
     return (
-        <>
-            <PageHeader
-                title="Lịch sử tìm kiếm"
-                description="Quản lý lịch sử và khám phá gợi ý thông minh"
-                icon={Clock}
-                action={
-                    history.length > 0 && (
-                        <Button variant="outline" onClick={handleClearAll} className="rounded-xl font-semibold text-sm text-red-600 border-rose-200 hover:bg-rose-50 transition-all">
-                            <Trash2 className="w-4 h-4 mr-2" /> Xóa tất cả
-                        </Button>
-                    )
-                }
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Lịch sử tìm kiếm"
+                    description="Quản lý lịch sử và khám phá gợi ý thông minh"
+                    icon={Clock}
+                    action={
+                        history.length > 0 && (
+                            <Button variant="outline" onClick={handleClearAll} className="rounded-xl font-bold text-sm text-red-600 border-rose-200 hover:bg-rose-50 transition-all h-11 px-6 shadow-sm">
+                                <Trash2 className="w-4 h-4 mr-2" /> Xóa tất cả
+                            </Button>
+                        )
+                    }
+                />
+            </div>
 
-            <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Main: History List */}
-                <motion.div {...fadeUp(0.08)} className="xl:col-span-2 space-y-3">
-                    <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Search className="w-4 h-4 text-slate-400" />
-                        Tìm kiếm gần đây
-                    </h2>
-                    {isLoading ? (
-                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-12 flex items-center justify-center">
-                            <Loader2 className="w-6 h-6 animate-spin text-violet-600" />
-                        </div>
-                    ) : history.length === 0 ? (
-                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-dashed border-white/40 shadow-sm p-12 text-center">
-                            <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Search className="w-10 h-10 text-white" />
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Main: History List */}
+                    <motion.div {...fadeUp(0.08)} className="xl:col-span-2 space-y-3">
+                        <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 px-1 mb-2">
+                            <Search className="w-4 h-4 text-slate-400" />
+                            Tìm kiếm gần đây
+                        </h2>
+                        {isLoading ? (
+                            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-12 flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 animate-spin text-violet-600" />
                             </div>
-                            <p className="text-lg font-bold text-slate-900">Chưa có lịch sử tìm kiếm</p>
-                            <p className="text-sm text-slate-500 mt-1">Bắt đầu tìm kiếm việc làm để lưu lịch sử tại đây.</p>
-                             <Link to="/jobs">
-                                 <Button className="mt-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-md transition-all">
-                                     Tìm việc ngay <ArrowRight className="w-4 h-4 ml-2" />
-                                 </Button>
-                             </Link>
-                        </div>
-                    ) : (
-                        history.map((item) => (
-                            <div key={item.id} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4 hover:shadow-lg hover:shadow-violet-500/5 transition-all group">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-200/50 flex items-center justify-center shrink-0 shadow-sm">
-                                             <Search className="w-5 h-5 text-violet-700" />
-                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-900">{item.search_query}</p>
-                                            <div className="flex flex-wrap gap-1.5 mt-1.5">
-                                                {item.filters && formatFilters(item.filters).map((f, i) => (
-                                                    <Badge key={i} className="bg-slate-50 text-slate-500 border-slate-200 text-[10px] font-medium">{f}</Badge>
-                                                ))}
+                        ) : history.length === 0 ? (
+                            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-dashed border-white/40 shadow-sm p-12 text-center">
+                                <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Search className="w-10 h-10 text-white" />
+                                </div>
+                                <p className="text-lg font-bold text-slate-900">Chưa có lịch sử tìm kiếm</p>
+                                <p className="text-sm text-slate-500 mt-1">Bắt đầu tìm kiếm việc làm để lưu lịch sử tại đây.</p>
+                                <Link to="/jobs">
+                                    <Button className="mt-4 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-md transition-all">
+                                        Tìm việc ngay <ArrowRight className="w-4 h-4 ml-2" />
+                                    </Button>
+                                </Link>
+                            </div>
+                        ) : (
+                            history.map((item) => (
+                                <div key={item.id} className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-4 hover:shadow-lg hover:shadow-violet-500/5 transition-all group">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 border border-violet-200/50 flex items-center justify-center shrink-0 shadow-sm">
+                                                <Search className="w-5 h-5 text-violet-700" />
                                             </div>
-                                            <p className="text-xs text-slate-400 mt-2">
-                                                {item.results_count} kết quả • {new Date(item.searched_at).toLocaleString('vi-VN')}
-                                            </p>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-slate-900">{item.search_query}</p>
+                                                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                                                    {item.filters && formatFilters(item.filters).map((f, i) => (
+                                                        <Badge key={i} className="bg-slate-50 text-slate-500 border-slate-200 text-[10px] font-medium">{f}</Badge>
+                                                    ))}
+                                                </div>
+                                                <p className="text-xs text-slate-400 mt-2">
+                                                    {item.results_count} kết quả • {new Date(item.searched_at).toLocaleString('vi-VN')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <Link to={`/jobs?search=${encodeURIComponent(item.search_query)}`}>
+                                                <Button size="sm" variant="ghost" className="rounded-lg text-xs font-semibold text-violet-600 hover:bg-violet-50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <RotateCcw className="w-3.5 h-3.5 mr-1" /> Tìm lại
+                                                </Button>
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(item.id)}
+                                                className="p-1.5 rounded-lg hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1 shrink-0">
-                                        <Link to={`/jobs?search=${encodeURIComponent(item.search_query)}`}>
-                                             <Button size="sm" variant="ghost" className="rounded-lg text-xs font-semibold text-violet-600 hover:bg-violet-50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                 <RotateCcw className="w-3.5 h-3.5 mr-1" /> Tìm lại
-                                             </Button>
-                                        </Link>
-                                        <button
-                                            onClick={() => handleDelete(item.id)}
-                                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                                        >
-                                            <X className="w-4 h-4" />
-                                        </button>
-                                    </div>
                                 </div>
+                            ))
+                        )}
+                    </motion.div>
+
+                    {/* Sidebar: Suggestions */}
+                    <motion.div {...fadeUp(0.16)} className="space-y-6">
+                        {/* Smart Suggestions */}
+                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-5">
+                            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
+                                <Zap className="w-4 h-4 text-amber-500" />
+                                Gợi ý cho bạn
+                            </h3>
+                            <div className="space-y-2.5">
+                                {SUGGESTED_SEARCHES.map((s, i) => (
+                                    <Link key={i} to={`/jobs?search=${encodeURIComponent(s.query)}`}
+                                        className="block p-3 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                                    >
+                                        <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">{s.query}</p>
+                                        <p className="text-[11px] text-slate-400 mt-0.5">{s.reason}</p>
+                                    </Link>
+                                ))}
                             </div>
-                        ))
-                    )}
-                </motion.div>
-
-                {/* Sidebar: Suggestions */}
-                <motion.div {...fadeUp(0.16)} className="space-y-6">
-                    {/* Smart Suggestions */}
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5">
-                        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
-                            <Zap className="w-4 h-4 text-amber-500" />
-                            Gợi ý cho bạn
-                        </h3>
-                        <div className="space-y-2.5">
-                            {SUGGESTED_SEARCHES.map((s, i) => (
-                                <Link key={i} to={`/jobs?search=${encodeURIComponent(s.query)}`}
-                                    className="block p-3 rounded-xl border border-transparent hover:border-blue-100 hover:bg-blue-50/30 transition-all cursor-pointer group"
-                                >
-                                    <p className="text-sm font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">{s.query}</p>
-                                    <p className="text-[11px] text-slate-400 mt-0.5">{s.reason}</p>
-                                </Link>
-                            ))}
                         </div>
-                    </div>
 
-                    {/* Popular Skills */}
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5">
-                        <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
-                            <TrendingUp className="w-4 h-4 text-emerald-500" />
-                            Kỹ năng hot
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                            {POPULAR_SKILLS.map((skill) => (
-                                <Link key={skill.name} to={`/jobs?search=${encodeURIComponent(skill.name)}`}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-200 hover:bg-blue-50/50 transition-all cursor-pointer group"
-                                >
-                                     <span className="text-xs font-semibold text-slate-700 group-hover:text-violet-700 transition-colors">{skill.name}</span>
-                                    <span className="text-[10px] text-slate-400">{skill.count}</span>
-                                </Link>
-                            ))}
+                        {/* Popular Skills */}
+                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-5">
+                            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
+                                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                                Kỹ năng hot
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {POPULAR_SKILLS.map((skill) => (
+                                    <Link key={skill.name} to={`/jobs?search=${encodeURIComponent(skill.name)}`}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 hover:border-blue-200 hover:bg-blue-50/50 transition-all cursor-pointer group"
+                                    >
+                                        <span className="text-xs font-semibold text-slate-700 group-hover:text-violet-700 transition-colors">{skill.name}</span>
+                                        <span className="text-[10px] text-slate-400">{skill.count}</span>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </div>
             </div>
         </div>
-        </>
     );
 }

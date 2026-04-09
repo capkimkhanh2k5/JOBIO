@@ -34,30 +34,32 @@ export default function EmployerCVSearch() {
     return (
         <div className="w-full mx-auto min-h-screen flex flex-col">
             {/* Page Header */}
-            <PageHeader
-                title="Tìm kiếm ứng viên"
-                description="Duyệt qua hàng ngàn hồ sơ chất lượng cao"
-                icon={Users}
-                action={
-                    <div className="flex items-center gap-3">
-                        <Button
-                            onClick={handleExport}
-                            variant="outline"
-                            className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900 h-10 rounded-xl font-semibold"
-                        >
-                            <Download className="w-4 h-4 mr-2" />
-                            Xuất báo cáo
-                        </Button>
-                        <Button
-                            onClick={handleCreateCampaign}
-                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 h-10 rounded-xl font-semibold"
-                        >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Tạo chiến dịch
-                        </Button>
-                    </div>
-                }
-            />
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Tìm kiếm ứng viên"
+                    description="Duyệt qua hàng ngàn hồ sơ chất lượng cao"
+                    icon={Users}
+                    action={
+                        <div className="flex items-center gap-3">
+                            <Button
+                                onClick={handleExport}
+                                variant="outline"
+                                className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900 h-10 rounded-xl font-semibold"
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                Xuất báo cáo
+                            </Button>
+                            <Button
+                                onClick={handleCreateCampaign}
+                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 h-10 rounded-xl font-semibold"
+                            >
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Tạo chiến dịch
+                            </Button>
+                        </div>
+                    }
+                />
+            </div>
 
             {/* Main Content Area */}
             <motion.div
@@ -67,15 +69,13 @@ export default function EmployerCVSearch() {
                 className="flex flex-1 w-full overflow-hidden border-t border-border/40"
             >
                 {/* Left Sidebar for Filters */}
-                <div className="w-[300px] border-r border-border/40 hidden md:flex flex-col flex-shrink-0 bg-background/30">
-                    <div className="p-4 h-full overflow-y-auto">
-                        <CVSearchFiltersPanel />
-                    </div>
+                <div className="w-[300px] hidden md:flex flex-col flex-shrink-0 p-6 lg:pl-8">
+                    <CVSearchFiltersPanel />
                 </div>
 
                 {/* Right Content: Results Grid */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="p-6">
+                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden h-full shadow-sm">
+                        <div className="p-6 lg:p-8 space-y-8 min-h-full">
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-semibold flex items-center gap-2">

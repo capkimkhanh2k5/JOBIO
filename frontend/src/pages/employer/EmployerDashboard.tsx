@@ -108,7 +108,7 @@ export default function EmployerDashboard() {
         <div className="p-6 lg:p-8 space-y-8 w-full mx-auto flex-1">
             {/* ── Welcome Card ───────────────────────────── */}
             <motion.div {...fadeUp(0)}>
-                <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-200 p-6 lg:p-8">
+                <div className="relative overflow-hidden rounded-3xl bg-white shadow-sm border border-slate-200 p-8 lg:p-10">
                     {/* Subtle professional background shapes */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
                     <div className="absolute bottom-0 right-1/4 w-48 h-48 bg-indigo-600/5 rounded-full blur-3xl translate-y-1/2 pointer-events-none" />
@@ -146,7 +146,7 @@ export default function EmployerDashboard() {
                 </motion.div>
 
                 <motion.div {...fadeUp(0.22)} className="xl:col-span-1 h-full">
-                    <div className="bg-white rounded-2xl p-6 flex flex-col gap-5 border border-slate-200 shadow-sm h-full">
+                    <div className="bg-white rounded-3xl p-8 flex flex-col gap-6 border border-slate-200 shadow-sm h-full">
                         <div>
                             <h3 className="font-bold text-lg text-slate-900 tracking-tight">Thao tác nhanh</h3>
                             <p className="text-xs text-slate-500 mt-1 font-medium">Lối tắt tác vụ quan trọng</p>

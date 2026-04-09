@@ -83,28 +83,29 @@ const BillingDashboard: React.FC = () => {
 
     return (
         <div className="w-full mx-auto min-h-screen">
-            {/* Header Section */}
-            <PageHeader
-                title="Thanh toán & Gói dịch vụ"
-                description="Quản lý đăng ký, phương thức thanh toán và xem lịch sử giao dịch của bạn."
-                icon={History}
-                action={
-                    <div className="flex gap-3">
-                        <Button variant="outline" className="gap-2 h-11 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm">
-                            <Download className="h-4 w-4" />
-                            Xuất báo cáo
-                        </Button>
-                        <Button asChild className="gap-2 h-11 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md border-none px-6">
-                            <Link to="/employer/subscription">
-                                <Plus className="h-4 w-4" />
-                                Nâng cấp gói
-                            </Link>
-                        </Button>
-                    </div>
-                }
-            />
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Thanh toán & Gói dịch vụ"
+                    description="Quản lý đăng ký, phương thức thanh toán và xem lịch sử giao dịch của bạn."
+                    icon={History}
+                    action={
+                        <div className="flex gap-3">
+                            <Button variant="outline" className="gap-2 h-11 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl shadow-sm">
+                                <Download className="h-4 w-4" />
+                                Xuất báo cáo
+                            </Button>
+                            <Button asChild className="gap-2 h-11 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md border-none px-6">
+                                <Link to="/employer/subscription">
+                                    <Plus className="h-4 w-4" />
+                                    Nâng cấp gói
+                                </Link>
+                            </Button>
+                        </div>
+                    }
+                />
+            </div>
 
-            <div className="p-6 md:p-8 space-y-8">
+            <div className="p-6 lg:p-8 space-y-8">
 
             {/* Subscription Status Card column layout */}
             <motion.div
@@ -114,8 +115,8 @@ const BillingDashboard: React.FC = () => {
                 className="grid gap-8 lg:grid-cols-3"
             >
                 <div className="lg:col-span-2">
-                    {currentSub?.data && currentSub.data.length > 0 ? (
-                        <SubscriptionStatusCard subscription={currentSub.data[0]} />
+                    {currentSub?.data ? (
+                        <SubscriptionStatusCard subscription={currentSub.data} />
                     ) : (
                         <div className="h-48 rounded-3xl border border-slate-200 bg-white animate-pulse shadow-sm" />
                     )}

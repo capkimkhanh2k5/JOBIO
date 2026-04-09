@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CalendarClock, Video, MapPin, Building2, Clock, MoreVertical, ExternalLink, Calendar, CheckCircle2, XCircle } from 'lucide-react';
+import { CalendarClock, Video, MapPin, Building2, Clock, ExternalLink, Calendar } from 'lucide-react';
 import { employerService } from '@/services/employerService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,14 +35,17 @@ export default function Interviews() {
     });
 
     return (
-        <div className="relative pb-12 w-full flex-1">
-            <PageHeader
-                title="Lịch phỏng vấn"
-                description="Theo dõi và quản lý các buổi phỏng vấn sắp tới của bạn."
-                icon={CalendarClock}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Lịch phỏng vấn"
+                    description="Theo dõi và quản lý các buổi phỏng vấn sắp tới của bạn."
+                    icon={CalendarClock}
+                />
+            </div>
 
-            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                         <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 rounded-xl">
@@ -66,7 +69,7 @@ export default function Interviews() {
                     <TabsContent value={activeTab} className="mt-0 outline-none">
                         {isLoading ? (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[200px] rounded-2xl" />)}
+                                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[200px] rounded-3xl" />)}
                             </div>
                         ) : !filteredInterviews?.length ? (
                             <div className="py-20 text-center flex flex-col items-center w-full bg-white/60 backdrop-blur-xl border border-dashed border-white/40 rounded-3xl shadow-sm">
@@ -91,7 +94,7 @@ export default function Interviews() {
                                             exit={{ opacity: 0, scale: 0.95 }}
                                             transition={{ duration: 0.3, delay: idx * 0.1 }}
                                         >
-                                            <Card className="group relative bg-white/60 backdrop-blur-xl hover:shadow-xl hover:shadow-violet-500/5 border-white/40 shadow-sm transition-all duration-300 rounded-2xl overflow-hidden p-6">
+                                            <Card className="group relative bg-white/60 backdrop-blur-xl hover:shadow-xl hover:shadow-violet-500/5 border-white/40 shadow-sm transition-all duration-300 rounded-3xl overflow-hidden p-6">
                                                 <div className="flex justify-between items-start mb-6">
                                                     <div className="flex gap-4">
                                                         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 shadow-sm flex items-center justify-center text-2xl group-hover:from-violet-50 group-hover:to-violet-100 group-hover:border-violet-200 transition-colors">

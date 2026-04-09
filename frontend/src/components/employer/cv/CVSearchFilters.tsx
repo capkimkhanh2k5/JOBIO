@@ -77,9 +77,9 @@ export const CVSearchFiltersPanel = () => {
     }, 0);
 
     return (
-        <div className="w-full flex flex-col h-full bg-card/40 backdrop-blur-md rounded-2xl border border-border/40 shadow-sm overflow-hidden">
+        <div className="w-full flex flex-col h-full bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden">
             {/* Header Sticky */}
-            <div className="p-5 border-b border-border/40 flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur z-20">
+            <div className="p-6 border-b border-border/40 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                     <SlidersHorizontal className="w-5 h-5 text-violet-600" />
                     Bộ lọc tìm kiếm

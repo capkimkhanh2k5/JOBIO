@@ -8,6 +8,8 @@ import { SubscriptionStatus } from '@/components/employer/billing/SubscriptionSt
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 import type { BillingPlan } from '@/types/api';
+import { PageHeader } from '@/components/shared/PageHeader';
+import { CreditCard } from 'lucide-react';
 
 const PlansPage: React.FC = () => {
     const navigate = useNavigate();
@@ -48,15 +50,16 @@ const PlansPage: React.FC = () => {
     }
 
     return (
-        <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-12 pb-20">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
-                <h1 className="text-3xl sm:text-4xl font-black text-foreground mb-2">Gói dịch vụ</h1>
-                <p className="text-muted-foreground">Nâng tầm trải nghiệm tuyển dụng với các tính năng cao cấp từ JOBIO.</p>
-            </motion.div>
+        <div className="w-full mx-auto min-h-screen">
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Gói dịch vụ"
+                    description="Nâng tầm trải nghiệm tuyển dụng với các tính năng cao cấp từ JOBIO."
+                    icon={CreditCard}
+                />
+            </div>
+
+            <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-12 pb-20">
 
 
             {/* Current Subscription Section */}
@@ -119,6 +122,7 @@ const PlansPage: React.FC = () => {
                 </div>
             </div>
 
+        </div>
         </div>
     );
 };
