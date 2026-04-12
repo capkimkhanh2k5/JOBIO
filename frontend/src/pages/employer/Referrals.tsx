@@ -37,7 +37,7 @@ export default function EmployerReferrals() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-8">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6">
                 {/* Programs Section */}
                 <motion.section
                     initial={{ opacity: 0, y: 20 }}

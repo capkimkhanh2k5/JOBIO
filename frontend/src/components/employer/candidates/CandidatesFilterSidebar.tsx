@@ -173,7 +173,7 @@ export function CandidatesFilterSidebar() {
             </div>
 
             <div className="mt-8 pt-4 border-t border-border/50">
-                <Button className="w-full font-medium" onClick={() => {
+                <Button className="w-full font-medium bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20" onClick={() => {
                     // Force refresh logic could be triggered here if needed
                 }}>
                     Áp dụng bộ lọc

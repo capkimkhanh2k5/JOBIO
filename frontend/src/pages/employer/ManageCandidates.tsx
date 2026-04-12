@@ -96,10 +96,9 @@ export default function ManageCandidates() {
                 />
             </div>
 
-            <div className="flex-shrink-0 px-6 mt-4">
-
-                {/* Bulk Actions Bar - only shows in table mode when items are selected */}
-                {viewMode === 'table' && selectedCandidatesForBulk.length > 0 && (
+            {/* Bulk Actions Bar - only shows in table mode when items are selected */}
+            {viewMode === 'table' && selectedCandidatesForBulk.length > 0 && (
+                <div className="flex-shrink-0 px-6 lg:px-8 pt-6">
                     <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 animate-in fade-in slide-in-from-top-2">
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -116,11 +115,11 @@ export default function ManageCandidates() {
                             </Button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Main Content Area with Sidebar */}
-            <div className="p-6 lg:p-8 space-y-8 flex-1 overflow-hidden flex gap-8 relative hide-scrollbar">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6 flex-1 w-full flex overflow-hidden relative gap-6">
                 <div className="w-[300px] hidden md:block">
                     <CandidatesFilterSidebar />
                 </div>

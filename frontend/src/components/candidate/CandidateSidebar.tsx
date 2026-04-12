@@ -4,6 +4,7 @@ import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
     Bell, MessageSquare, CalendarClock, Users, Settings, Star, BookOpen, Sparkles
 } from 'lucide-react';
+import { Logo } from '@/components/shared/Logo';
 
 interface NavItem {
     label: string;
@@ -39,12 +40,19 @@ export function CandidateSidebar() {
 
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-slate-200 bg-white shadow-sm"
+            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-white/5 bg-white/2 backdrop-blur-lg"
             aria-label="Candidate Navigation"
         >
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
+                <div className="px-6 mb-4 mt-2">
+                    <Logo
+                        to="/candidate/dashboard"
+                        imageClassName="h-10 w-auto object-contain drop-shadow"
+                        textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                    />
+                </div>
                 <div className="px-3 mb-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 px-3">Quản lý nghề nghiệp</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 px-3">CANDIDATE PANEL</p>
                 </div>
                 {mainItems.map((item, i) => (
                     <motion.div

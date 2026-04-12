@@ -90,7 +90,7 @@ export default function CompanyProfile() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <VerificationSection company={company} />
 
                 {/* Main Content Tabs */}

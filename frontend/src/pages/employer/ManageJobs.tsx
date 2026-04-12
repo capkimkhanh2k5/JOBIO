@@ -62,7 +62,7 @@ export default function ManageJobs() {
         queryFn: () => employerService.getStats().then(r => r.data),
         staleTime: 30_000,
     });
-    
+
     const statsJobs = statsResponse?.jobs || {
         total: 0,
         published: 0,
@@ -187,7 +187,7 @@ export default function ManageJobs() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-8">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6">
                 {/* Summary stat cards */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
