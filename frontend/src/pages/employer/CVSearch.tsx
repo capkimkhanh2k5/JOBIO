@@ -66,15 +66,15 @@ export default function EmployerCVSearch() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
-                className="flex flex-1 w-full overflow-hidden border-t border-border/40"
+                className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 flex flex-1 w-full gap-6 overflow-hidden"
             >
                 {/* Left Sidebar for Filters */}
-                <div className="w-[300px] hidden md:flex flex-col flex-shrink-0 p-6 lg:pl-8">
+                <div className="w-[300px] hidden md:flex flex-col flex-shrink-0">
                     <CVSearchFiltersPanel />
                 </div>
 
                 {/* Right Content: Results Grid */}
-                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden h-full shadow-sm">
+                <div className="flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden h-full shadow-sm">
                         <div className="p-6 lg:p-8 space-y-8 min-h-full">
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">

@@ -145,39 +145,41 @@ export default function EmployerCampaigns() {
                 />
             </div>
 
-            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
+            <div className="w-full mx-auto space-y-6 relative z-10 px-6 lg:px-8 pb-6 lg:pb-8 pt-6 animate-in fade-in duration-700">
 
                 {/* Filters & Tabs */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-white/60 backdrop-blur-xl p-4 border border-white/40 rounded-3xl shadow-sm"
                 >
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto overflow-x-auto hidden-scrollbar">
-                        <TabsList className="bg-slate-100/50 p-1 w-full justify-start md:justify-center gap-1 rounded-2xl h-auto">
-                            <TabsTrigger value="all" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Tất cả</TabsTrigger>
-                            <TabsTrigger value="active" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Đang chạy</TabsTrigger>
-                            <TabsTrigger value="draft" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Bản nháp</TabsTrigger>
-                            <TabsTrigger value="paused" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Tạm dừng</TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-xl px-6 py-2.5 text-sm font-black text-slate-500 hover:text-slate-900 transition-all data-[state=active]:shadow-lg flex items-center justify-center border-none">Hoàn thành</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                            <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl gap-1 h-auto hidden-scrollbar overflow-x-auto">
+                                <TabsTrigger value="all" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">Tất cả</TabsTrigger>
+                                <TabsTrigger value="active" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">Đang chạy</TabsTrigger>
+                                <TabsTrigger value="draft" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">Bản nháp</TabsTrigger>
+                                <TabsTrigger value="paused" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">Tạm dừng</TabsTrigger>
+                                <TabsTrigger value="completed" className="rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-white transition-all data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-sm flex items-center justify-center">Hoàn thành</TabsTrigger>
+                            </TabsList>
 
-                    <div className="flex w-full md:w-auto gap-2">
-                        <div className="relative w-full md:w-[300px]">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <Input
-                                placeholder="Tìm tên chiến dịch..."
-                                className="pl-9 bg-white border-slate-200 h-10 w-full rounded-xl"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                                <div className="relative min-w-[200px] flex-1">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        placeholder="Tìm tên chiến dịch..."
+                                        className="pl-9 bg-white border-slate-200 rounded-xl"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                                <Button variant="outline" className="bg-white border-slate-200 rounded-xl whitespace-nowrap">
+                                    <Filter className="w-4 h-4 mr-2" />
+                                    Bộ lọc
+                                </Button>
+                            </div>
                         </div>
-                        <Button variant="outline" size="icon" className="shrink-0 h-10 w-10 border-slate-200 bg-white rounded-xl">
-                            <Filter className="w-4 h-4 text-slate-500" />
-                        </Button>
-                    </div>
+                    </Tabs>
                 </motion.div>
 
                 {/* Table Data Section */}

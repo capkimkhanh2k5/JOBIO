@@ -5,6 +5,7 @@ import {
     CalendarClock, MessageSquare, BarChart3, Building2, CreditCard,
     Settings, LifeBuoy, UserPlus, Search, History, BookOpen
 } from 'lucide-react';
+import { Logo } from '@/components/shared/Logo';
 
 interface NavItem {
     label: string;
@@ -59,8 +60,15 @@ export function EmployerSidebar() {
         >
             {/* Top padding (matches topnav height) */}
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
+                <div className="px-6 mb-4 mt-2">
+                    <Logo
+                        to="/employer/dashboard"
+                        imageClassName="h-10 w-auto object-contain drop-shadow"
+                        textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
+                    />
+                </div>
                 <div className="px-3 mb-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3">Menu</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3">EMPLOYER PANEL</p>
                 </div>
                 {mainItems.map((item, i) => {
                     const isActive = checkIsActive(item.path);

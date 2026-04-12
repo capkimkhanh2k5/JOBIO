@@ -62,7 +62,7 @@ const CheckoutPage: React.FC = () => {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={handleBack}
-                        className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-violet-200 hover:bg-violet-50 transition-all hover:shadow-sm"
+                        className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:border-violet-200 hover:bg-violet-50 transition-all hover:shadow-sm cursor-pointer"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -286,7 +286,7 @@ const PaymentOption = ({ active, onClick, title, desc, icon, tag }: any) => (
     <button
         onClick={onClick}
         className={cn(
-            "flex items-start gap-4 p-5 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden group",
+            "flex items-start gap-4 p-5 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden group cursor-pointer",
             active
                 ? "border-violet-600 bg-violet-50/50 ring-1 ring-violet-500 shadow-md shadow-violet-500/5"
                 : "border-slate-200 bg-white hover:border-violet-300 hover:bg-slate-50 shadow-sm"

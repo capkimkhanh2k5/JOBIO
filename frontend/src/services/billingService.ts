@@ -32,9 +32,9 @@ export const billingService = {
         return api.post<SubscribeResponse>('/api/billing/company-subscriptions/subscribe/', data);
     },
 
-    /** PATCH /api/billing/company-subscriptions/:id/cancel/ */
+    /** POST /api/billing/company-subscriptions/cancel/ */
     cancelSubscription(id: number) {
-        return api.patch<BillingSubscription>(`/api/billing/company-subscriptions/${id}/cancel/`);
+        return api.post<BillingSubscription>(`/api/billing/company-subscriptions/cancel/`);
     },
 
     /** GET /api/billing/transactions/ */

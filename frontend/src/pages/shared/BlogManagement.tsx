@@ -84,7 +84,7 @@ export default function BlogManagement() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6 w-full flex-1 relative z-10">
                 {/* Filters Row */}
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-md p-2 border border-slate-200/60 rounded-3xl">
                     <div className="relative flex-1 w-full md:max-w-md">

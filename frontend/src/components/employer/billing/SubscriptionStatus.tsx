@@ -91,9 +91,11 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                            <Button className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-none rounded-xl h-12 font-bold group shadow-md shadow-violet-100 transition-all border-b-4 border-indigo-700 active:border-b-0 active:translate-y-1">
-                                <ArrowUpCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                                Gia hạn gói
+                            <Button asChild className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-none rounded-xl h-12 font-bold group shadow-md shadow-violet-100 transition-all border-b-4 border-indigo-700 active:border-b-0 active:translate-y-1">
+                                <Link to={`/employer/checkout?planSlug=${subscription.plan.slug}`}>
+                                    <ArrowUpCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                                    Gia hạn gói
+                                </Link>
                             </Button>
                             <Button
                                 variant="ghost"
