@@ -498,9 +498,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                     className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary mt-1"
+                                    tabIndex={-1}
                                 />
                                 <Label htmlFor="agreeTerms" className="text-xs font-normal text-muted-foreground leading-relaxed">
-                                    Tôi đã đọc và đồng ý với <Link to="/terms" target="_blank" className="font-medium text-primary hover:underline transition-colors">Điều khoản dịch vụ</Link> và <Link to="/privacy" target="_blank" className="font-medium text-primary hover:underline transition-colors">Chính sách bảo mật</Link> của JOBIO.
+                                    Tôi đã đọc và đồng ý với <Link to="/terms" target="_blank" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Điều khoản dịch vụ</Link> và <Link to="/privacy" target="_blank" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Chính sách bảo mật</Link> của JOBIO.
                                 </Label>
                             </div>
                         )}

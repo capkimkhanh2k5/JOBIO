@@ -86,6 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <Input
                                         placeholder="name@example.com"
                                         className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                        tabIndex={1}
                                         {...field}
                                     />
                                 </FormControl>
@@ -105,6 +106,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                         className="p-0 h-auto text-sm text-blue-600 hover:text-blue-700 font-semibold"
                                         onClick={onForgotPassword}
                                         type="button"
+                                        tabIndex={-1}
                                     >
                                         Quên mật khẩu?
                                     </Button>
@@ -114,6 +116,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                         type="password"
                                         placeholder="••••••••"
                                         className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                        tabIndex={2}
                                         {...field}
                                     />
                                 </FormControl>
@@ -132,6 +135,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
                                     className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                    tabIndex={-1}
                                 />
                                 <Label htmlFor="rememberMe" className="text-sm font-normal text-muted-foreground cursor-pointer">
                                     Ghi nhớ đăng nhập
@@ -144,6 +148,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                         type="submit"
                         className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-md shadow-blue-500/20 hover:-translate-y-[1px]"
                         disabled={form.formState.isSubmitting}
+                        tabIndex={3}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Đăng nhập
