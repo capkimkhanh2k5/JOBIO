@@ -194,7 +194,7 @@ const Auth: React.FC = () => {
 
                     {/* Form Footer Text */}
                     {['login', 'register'].includes(view) && (
-                        <div className="mt-8 text-center text-[13px] font-medium text-slate-400 px-4">
+                        <div className="mt-8 text-center text-[13px] font-medium text-slate-400 sm:whitespace-nowrap">
                             Bằng cách tiếp tục, bạn đồng ý với{' '}
                             <a href="#" className="text-slate-600 hover:text-slate-900 transition-colors underline underline-offset-2">Điều khoản dịch vụ</a>
                             {' '}và{' '}
