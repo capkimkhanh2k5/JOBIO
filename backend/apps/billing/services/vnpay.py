@@ -9,7 +9,8 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from apps.billing.models import Transaction, CompanySubscription
+from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan
+from apps.billing.services.subscriptions import SubscriptionService
 # send_payment_confirmation_email_task sẽ được import bên trong method để tránh circular import
 import requests
 from zoneinfo import ZoneInfo
@@ -301,8 +302,8 @@ class VNPayService:
             if txn.status in [Transaction.Status.COMPLETED, Transaction.Status.FAILED]:
                 logger.info(f"VNPay Transaction already processed: {txn_ref} with status {txn.status}")
                 return {
-                    'success': True,
-                    'message': 'Order already confirmed',
+                    'success': txn.status == Transaction.Status.COMPLETED,
+                    'message': 'Order already confirmed' if txn.status == Transaction.Status.COMPLETED else 'Order already failed',
                     'rsp_code': '02',
                     'transaction': txn,
                     'subscription': None
@@ -323,20 +324,20 @@ class VNPayService:
                 
                 # Kích hoạt Subscription
                 try:
-                    # Parse từ description: PLAN_ID:1|SUB_ID:5
-                    if '|' in txn.description and 'SUB_ID:' in txn.description:
-                        sub_id = txn.description.split('|')[1].split(':')[1]
-                        subscription = CompanySubscription.objects.select_for_update().get(id=sub_id)
-                        subscription.status = CompanySubscription.Status.ACTIVE
-                        subscription.save()
-                        logger.info(f"Subscription {sub_id} activated successfully via IPN/Callback. Ref: {txn_ref}")
-                        
+                    plan_id = SubscriptionService.get_transaction_plan_id(txn)
+                    if plan_id:
+                        plan = SubscriptionPlan.objects.select_for_update().get(id=plan_id)
+                        subscription = SubscriptionService.activate_paid_subscription(txn.company, plan)
+                        logger.info(f"Subscription {subscription.id} activated successfully via IPN/Callback. Ref: {txn_ref}")
+
                         # Gửi email xác nhận thanh toán thành công
                         try:
                             from apps.billing.tasks import send_payment_confirmation_email_task
                             send_payment_confirmation_email_task.delay(txn.id)
                         except Exception as e:
                             logger.error(f"Failed to queue confirmation email for txn {txn_ref}: {e}")
+                    else:
+                        logger.error(f"Missing PLAN_ID metadata in transaction description. Ref: {txn_ref}")
                 except Exception as e:
                     logger.error(f"Failed to activate subscription for txn {txn_ref}: {str(e)}")
                 

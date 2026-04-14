@@ -6,6 +6,7 @@ import type {
     SavedPaymentMethod,
     SubscriptionCreateRequest,
     SubscribeResponse,
+    SubscriptionPreCheckResponse,
     PaginatedResponse,
 } from '@/types/api';
 
@@ -30,6 +31,13 @@ export const billingService = {
     /** POST /api/billing/company-subscriptions/subscribe/ */
     subscribe(data: SubscriptionCreateRequest) {
         return api.post<SubscribeResponse>('/api/billing/company-subscriptions/subscribe/', data);
+    },
+
+    /** GET /api/billing/company-subscriptions/pre-check/?plan_id= */
+    preCheckSubscription(planId: number) {
+        return api.get<SubscriptionPreCheckResponse>('/api/billing/company-subscriptions/pre-check/', {
+            params: { plan_id: planId },
+        });
     },
 
     /** POST /api/billing/company-subscriptions/cancel/ */

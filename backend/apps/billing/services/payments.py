@@ -4,7 +4,7 @@ from apps.billing.services.vnpay import VNPayService
 
 class PaymentService:
     @staticmethod
-    def process_payment(company, amount, payment_method: PaymentMethod, description: str = "", ip_addr: str = "127.0.0.1") -> tuple[Transaction, str]:
+    def process_payment(company, amount, payment_method: PaymentMethod, description: str = "", ip_addr: str = "127.0.0.1", metadata: dict | None = None) -> tuple[Transaction, str]:
         """
         Initiate payment process.
         Returns:
@@ -19,7 +19,8 @@ class PaymentService:
                 amount=amount,
                 status=Transaction.Status.PENDING,
                 description=description,
-                ip_address=ip_addr
+                ip_address=ip_addr,
+                metadata=metadata or {},
             )
             
             # Generate unique reference code based on ID

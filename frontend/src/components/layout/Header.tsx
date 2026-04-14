@@ -157,8 +157,15 @@ export const Header = () => {
                                             <p className="text-xs leading-none text-muted-foreground/70">
                                                 {user.email}
                                             </p>
-                                            <div className="inline-flex items-center px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold uppercase w-fit">
-                                                {user.role}
+                                            <div className="flex items-center gap-2">
+                                                <div className="inline-flex items-center px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold uppercase w-fit">
+                                                    {user.role}
+                                                </div>
+                                                {user.role === 'company' && user.subscription_plan && (
+                                                    <div className="inline-flex items-center px-2 py-1 rounded-full bg-violet-500/10 text-violet-400 text-[10px] font-bold uppercase w-fit">
+                                                        Gói: {user.subscription_plan}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </DropdownMenuLabel>

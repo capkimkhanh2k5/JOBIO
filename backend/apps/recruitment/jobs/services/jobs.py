@@ -95,12 +95,21 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
     if status == 'published':
         sub = SubscriptionService.get_active_subscription(company.id)
         if not sub:
-            raise ValueError("You don't have an active subscription to publish jobs!")
-        
-        limit = sub.plan.features.get('job_post_limit', 0)
-        current_count = Job.objects.filter(company=company, status='published').count()
-        if current_count >= limit:
-            raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+            # Cho phép đăng 1 tin miễn phí suốt đời nếu chưa từng có tin nào được đăng/đóng/hết hạn
+            total_published_ever = Job.objects.filter(
+                company=company, 
+                status__in=[Job.Status.PUBLISHED, Job.Status.CLOSED, Job.Status.EXPIRED]
+            ).count()
+            
+            if total_published_ever >= 1:
+                raise ValueError("Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin.")
+            limit = 1
+        else:
+            limit = sub.plan.features.get('job_post_limit', 0)
+            
+        current_active_count = Job.objects.filter(company=company, status='published').count()
+        if current_active_count >= limit:
+            raise ValueError(f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục.")
 
     # Tạo job
     job = Job.objects.create(
@@ -176,12 +185,20 @@ def change_job_status(job: Job, new_status: str) -> Job:
     if new_status == 'published' and job.status != 'published':
         sub = SubscriptionService.get_active_subscription(job.company_id)
         if not sub:
-            raise ValueError("You don't have an active subscription to publish jobs!")
+            total_published_ever = Job.objects.filter(
+                company_id=job.company_id, 
+                status__in=[Job.Status.PUBLISHED, Job.Status.CLOSED, Job.Status.EXPIRED]
+            ).count()
             
-        limit = sub.plan.features.get('job_post_limit', 0)
-        current_count = Job.objects.filter(company_id=job.company_id, status='published').count()
-        if current_count >= limit:
-            raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+            if total_published_ever >= 1:
+                raise ValueError("Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin.")
+            limit = 1
+        else:
+            limit = sub.plan.features.get('job_post_limit', 0)
+            
+        current_active_count = Job.objects.filter(company_id=job.company_id, status='published').count()
+        if current_active_count >= limit:
+            raise ValueError(f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục.")
         
         job.published_at = timezone.now()
     
@@ -202,12 +219,20 @@ def publish_job(job: Job) -> Job:
     # Kiểm tra Quota
     sub = SubscriptionService.get_active_subscription(job.company_id)
     if not sub:
-        raise ValueError("You don't have an active subscription to publish jobs!")
+        total_published_ever = Job.objects.filter(
+            company_id=job.company_id, 
+            status__in=[Job.Status.PUBLISHED, Job.Status.CLOSED, Job.Status.EXPIRED]
+        ).count()
         
-    limit = sub.plan.features.get('job_post_limit', 0)
-    current_count = Job.objects.filter(company_id=job.company_id, status='published').count()
-    if current_count >= limit:
-        raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+        if total_published_ever >= 1:
+            raise ValueError("Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin.")
+        limit = 1
+    else:
+        limit = sub.plan.features.get('job_post_limit', 0)
+        
+    current_active_count = Job.objects.filter(company_id=job.company_id, status='published').count()
+    if current_active_count >= limit:
+        raise ValueError(f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục.")
 
     job.status = 'published'
     job.published_at = timezone.now()

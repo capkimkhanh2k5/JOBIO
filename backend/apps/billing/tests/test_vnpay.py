@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 import hmac, hashlib, urllib.parse
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
 
 from apps.billing.services.vnpay import VNPayService
@@ -97,7 +99,7 @@ class TestVNPayIntegration(APITestCase):
             'vnp_OrderInfo': 'Subscribe',
             'vnp_PayDate': '20260101000000',
             'vnp_ResponseCode': '00',
-            'vnp_TmnCode': 'EMBIL7EU',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
             'vnp_TransactionNo': '12345678',
             'vnp_TxnRef': txn_ref,
         }
@@ -128,10 +130,12 @@ class TestVNPayIntegration(APITestCase):
         txn = Transaction.objects.get(reference_code=txn_ref)
         self.assertEqual(txn.status, Transaction.Status.COMPLETED)
         self.assertEqual(txn.vnp_TransactionNo, '12345678')
+        self.assertEqual(txn.metadata.get('plan_id'), self.plan.id)
+        self.assertEqual(txn.metadata.get('plan_name'), self.plan.name)
         
         # Verify Subscription Activated
-        sub_id = txn.description.split('|')[1].split(':')[1]
-        sub = CompanySubscription.objects.get(id=sub_id)
+        sub = CompanySubscription.objects.filter(company=self.company_profile, plan=self.plan, status=CompanySubscription.Status.ACTIVE).first()
+        self.assertIsNotNone(sub)
         self.assertEqual(sub.status, CompanySubscription.Status.ACTIVE)
 
     def test_payment_return_redirects_to_frontend(self):
@@ -147,7 +151,7 @@ class TestVNPayIntegration(APITestCase):
             'vnp_OrderInfo': 'Subscribe',
             'vnp_PayDate': '20260101000000',
             'vnp_ResponseCode': '00',
-            'vnp_TmnCode': 'EMBIL7EU',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
             'vnp_TransactionNo': '12345678',
             'vnp_TxnRef': txn_ref,
         }
@@ -171,6 +175,166 @@ class TestVNPayIntegration(APITestCase):
         self.assertIn('txnId=', response['Location'])
         self.assertIn('status=success', response['Location'])
 
+    def test_friendly_payment_return_url_allows_anonymous_and_redirects(self):
+        """The public friendly return URL must not require auth (VNPay browser callback)."""
+        url = reverse('company-subscriptions-subscribe')
+        response = self.client.post(url, {'plan_id': self.plan.id})
+        txn_ref = response.data['transaction_ref']
+
+        params = {
+            'vnp_Amount': '10000000',
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_ResponseCode': '00',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
+            'vnp_TransactionNo': '12345678',
+            'vnp_TxnRef': txn_ref,
+        }
+
+        sorted_params = sorted(params.items())
+        query_str = urllib.parse.urlencode(sorted_params)
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+        secure_hash = hmac.new(
+            secret.encode('utf-8'),
+            query_str.encode('utf-8'),
+            hashlib.sha512
+        ).hexdigest()
+        params['vnp_SecureHash'] = secure_hash
+
+        browser_client = APIClient()
+        response = browser_client.get('/billing/payment-return', params)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('/employer/payment-result', response['Location'])
+        self.assertIn('txnId=', response['Location'])
+        self.assertIn('status=success', response['Location'])
+
+    def test_precheck_blocks_different_active_plan(self):
+        """Pre-check should block checkout when another active plan exists."""
+        other_plan = SubscriptionPlan.objects.create(
+            name="Enterprise Plan",
+            slug="enterprise",
+            price=Decimal("500000"),
+            currency="VND",
+            duration_days=30,
+        )
+
+        active_sub = CompanySubscription.objects.create(
+            company=self.company_profile,
+            plan=self.plan,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=30),
+            status=CompanySubscription.Status.ACTIVE,
+            auto_renew=True,
+        )
+        self.assertIsNotNone(active_sub)
+
+        response = self.client.get(reverse('company-subscriptions-pre-check'), {'plan_id': other_plan.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_checkout'])
+        self.assertEqual(response.data['mode'], 'blocked')
+        self.assertEqual(response.data['code'], 'ACTIVE_SUBSCRIPTION_EXISTS')
+
+    def test_subscribe_reuses_pending_transaction_for_same_plan(self):
+        """Repeated subscribe calls for the same plan should reuse the pending transaction."""
+        first = self.client.post(reverse('company-subscriptions-subscribe'), {'plan_id': self.plan.id})
+        second = self.client.post(reverse('company-subscriptions-subscribe'), {'plan_id': self.plan.id})
+
+        self.assertEqual(first.status_code, status.HTTP_200_OK)
+        self.assertEqual(second.status_code, status.HTTP_200_OK)
+        self.assertEqual(first.data['transaction_ref'], second.data['transaction_ref'])
+        self.assertTrue(second.data.get('reused'))
+
+    def test_precheck_allows_same_family_different_duration(self):
+        """Pre-check should allow renewal when current and target plans are the same tier family."""
+        max_3 = SubscriptionPlan.objects.create(
+            name="Max (3 tháng)",
+            slug="max-3-thang",
+            price=Decimal("1890000"),
+            currency="VND",
+            duration_days=90,
+        )
+        max_6 = SubscriptionPlan.objects.create(
+            name="Max (6 tháng)",
+            slug="max-6-thang",
+            price=Decimal("3490000"),
+            currency="VND",
+            duration_days=180,
+        )
+
+        CompanySubscription.objects.create(
+            company=self.company_profile,
+            plan=max_3,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=90),
+            status=CompanySubscription.Status.ACTIVE,
+            auto_renew=True,
+        )
+
+        response = self.client.get(reverse('company-subscriptions-pre-check'), {'plan_id': max_6.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_checkout'])
+        self.assertEqual(response.data['mode'], 'renew')
+
+    def test_activate_paid_subscription_extends_when_same_family(self):
+        """Successful payment should extend the active subscription for same-tier plans."""
+        max_3 = SubscriptionPlan.objects.create(
+            name="Max (3 tháng)",
+            slug="max-3-thang",
+            price=Decimal("1890000"),
+            currency="VND",
+            duration_days=90,
+        )
+        max_6 = SubscriptionPlan.objects.create(
+            name="Max (6 tháng)",
+            slug="max-6-thang",
+            price=Decimal("3490000"),
+            currency="VND",
+            duration_days=180,
+        )
+
+        active_sub = CompanySubscription.objects.create(
+            company=self.company_profile,
+            plan=max_3,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=90),
+            status=CompanySubscription.Status.ACTIVE,
+            auto_renew=True,
+        )
+
+        subscribe_resp = self.client.post(reverse('company-subscriptions-subscribe'), {'plan_id': max_6.id})
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn_ref = subscribe_resp.data['transaction_ref']
+
+        params = {
+            'vnp_Amount': str(int(max_6.price * 100)),
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_ResponseCode': '00',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
+            'vnp_TransactionNo': '12345679',
+            'vnp_TxnRef': txn_ref,
+        }
+        sorted_params = sorted(params.items())
+        query_str = urllib.parse.urlencode(sorted_params)
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+        params['vnp_SecureHash'] = hmac.new(
+            secret.encode('utf-8'),
+            query_str.encode('utf-8'),
+            hashlib.sha512
+        ).hexdigest()
+
+        self.client.get(reverse('company-subscriptions-payment-return'), {**params, 'redirect': '0'})
+
+        active_sub.refresh_from_db()
+        self.assertEqual(active_sub.plan_id, max_6.id)
+        self.assertEqual(active_sub.status, CompanySubscription.Status.ACTIVE)
+        self.assertEqual(active_sub.end_date, timezone.now().date() + timedelta(days=270))
+
     def test_vnpay_ipn_idempotent_response(self):
         """IPN callback should return RspCode=02 for already processed transaction"""
         # 1. Subscribe
@@ -186,7 +350,7 @@ class TestVNPayIntegration(APITestCase):
             'vnp_OrderInfo': 'Subscribe',
             'vnp_PayDate': '20260101000000',
             'vnp_ResponseCode': '00',
-            'vnp_TmnCode': 'EMBIL7EU',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
             'vnp_TransactionNo': '12345678',
             'vnp_TxnRef': txn_ref,
         }

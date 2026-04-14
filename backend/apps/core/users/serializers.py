@@ -1,16 +1,19 @@
 from rest_framework import serializers
 from .models import CustomUser
+from apps.billing.services.subscriptions import SubscriptionService
 
 class CustomUserSerializer(serializers.ModelSerializer):
     recruiter_id = serializers.SerializerMethodField()
     company_id = serializers.SerializerMethodField()
+    subscription_plan = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = [
             'id', 'email', 'full_name', 'role', 'status', 
             'email_verified', 'password', 'last_login', 
-            'phone', 'avatar_url', 'recruiter_id', 'company_id'
+            'phone', 'avatar_url', 'recruiter_id', 'company_id',
+            'subscription_plan'
         ]
         extra_kwargs = {
             'password': {'write_only': True},
@@ -28,6 +31,15 @@ class CustomUserSerializer(serializers.ModelSerializer):
             return obj.company_profile.id
         except:
             return None
+
+    def get_subscription_plan(self, obj):
+        if obj.role != 'company' or not hasattr(obj, 'company_profile'):
+            return None
+        
+        sub = SubscriptionService.get_active_subscription(obj.company_profile.id)
+        if sub:
+            return sub.plan.name
+        return "Chưa đăng ký"
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
