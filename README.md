@@ -48,7 +48,19 @@ Services mặc định:
 - Backend: http://localhost:9000
 - Frontend: http://localhost:4000
 - PostgreSQL: localhost:5433
+- pgAdmin: http://localhost:5050
 - Redis: localhost:6379
+
+Thông tin đăng nhập pgAdmin mặc định:
+- Email: [EMAIL_ADDRESS]
+- Password: [PASSWORD]
+
+Kết nối PostgreSQL từ pgAdmin:
+- Host: postgres
+- Port: 5432
+- Database: jobportal_db
+- Username: postgres
+- Password: postgres
 
 Dừng services:
 

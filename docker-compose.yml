@@ -15,9 +15,9 @@ services:
       - REDIS_PORT=6379
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=jobportal_db
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - postgres
       - redis
@@ -27,11 +27,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=jobportal_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5433:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=${PGADMIN_CONFIG_SERVER_MODE:-False}
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
 
   redis:
     image: redis:7-alpine
@@ -55,5 +68,6 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:
   redis_data:
 
