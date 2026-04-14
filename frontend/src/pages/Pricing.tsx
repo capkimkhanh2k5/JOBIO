@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
     Check, X, Zap, Star, Crown, ArrowRight,
-    HelpCircle, ChevronDown, Briefcase, Search, Megaphone,
+    HelpCircle, ChevronDown, Briefcase, Megaphone,
     Headphones, Rocket, Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { billingService, type SubscriptionPlanAPI } from '@/services/billingService';
+
+import { toast } from 'sonner';
+import { useUserStore } from '@/store/userStore';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 /* ─── Types ─── */
 interface FaqItem { q: string; a: string; }
@@ -48,7 +53,7 @@ const TIER_CONFIG: TierConfig[] = [
     {
         key: 'plus',
         name: 'Plus',
-        description: 'Bắt đầu tuyển dụng hiệu quả với tìm CV thông minh.',
+        description: 'Bắt đầu tuyển dụng hiệu quả với tin tuyển dụng nổi bật.',
         icon: Briefcase,
         cardBg: 'bg-white/80 backdrop-blur-xl',
         cardBorder: 'border-blue-100/80',
@@ -68,7 +73,7 @@ const TIER_CONFIG: TierConfig[] = [
     {
         key: 'pro',
         name: 'Pro',
-        description: 'Đẩy mạnh tuyển dụng với tin nổi bật + gửi email hàng loạt.',
+        description: 'Đẩy mạnh tuyển dụng với tin nổi bật và hỗ trợ ưu tiên.',
         icon: Rocket,
         popular: true,
         cardBg: 'bg-white/90 backdrop-blur-xl',
@@ -135,13 +140,11 @@ interface FeatureRow {
 }
 
 const FEATURE_ROWS: FeatureRow[] = [
-    { icon: Search, label: 'Tìm kiếm CV', key: 'search_cv', type: 'boolean' },
     { icon: Megaphone, label: 'Đẩy top tin tuyển dụng', key: 'top_job', type: 'boolean' },
     { icon: Zap, label: 'Gửi email hàng loạt', key: 'mass_email', type: 'boolean' },
     { icon: Headphones, label: 'Hỗ trợ ưu tiên 24/7', key: 'priority_support', type: 'boolean' },
     { icon: Palette, label: 'Employer Branding', key: 'employer_branding', type: 'boolean' },
     { icon: Briefcase, label: 'Số tin đăng tuyển', key: 'job_post_limit', type: 'number' },
-    { icon: Search, label: 'Lượt xem CV / kỳ', key: 'cv_view_limit', type: 'number' },
 ];
 
 const BILLING_FAQS: FaqItem[] = [
@@ -199,7 +202,46 @@ const formatPrice = (price: number) => {
 
 /* ─── Main Component ─── */
 export default function Pricing() {
+    const navigate = useNavigate();
+    const { isAuthenticated, user } = useUserStore();
     const [selectedDuration, setSelectedDuration] = useState<Duration>('3_months');
+
+    // Mutation for subscription
+    const subscribeMutation = useMutation({
+        mutationFn: (planId: number) => billingService.subscribe({ plan_id: planId }),
+        onSuccess: (res) => {
+            if (res.data.payment_url) {
+                window.location.href = res.data.payment_url;
+            } else {
+                toast.success('Đăng ký gói thành công!');
+                navigate('/employer/dashboard');
+            }
+        },
+        onError: (err: any) => {
+            const msg = err.response?.data?.error || err.response?.data?.message || 'Có lỗi xảy ra khi đăng ký gói.';
+            toast.error(msg);
+        }
+    });
+
+    const handleSelectPlan = (planId: number | undefined) => {
+        if (!isAuthenticated) {
+            toast.error('Vui lòng đăng nhập để tiếp tục');
+            navigate('/auth');
+            return;
+        }
+
+        if (user?.role !== 'company') {
+            toast.error('Gói dịch vụ này chỉ dành cho tài khoản Nhà tuyển dụng');
+            return;
+        }
+
+        if (!planId) {
+            toast.error('Không tìm thấy thông tin gói dịch vụ');
+            return;
+        }
+
+        subscribeMutation.mutate(planId);
+    };
 
     const { data: rawPlans, isLoading } = useQuery({
         queryKey: ['billing-plans'],
@@ -382,15 +424,8 @@ export default function Pricing() {
                                                         </div>
                                                         <span className="leading-snug"><strong>{String(features.job_post_limit ?? '∞')}</strong> tin đăng tuyển</span>
                                                     </li>
-                                                    <li className={cn('flex items-start gap-3 text-sm font-medium', tier.textColor)}>
-                                                        <div className={cn('w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 border', tier.checkBg)}>
-                                                            <Check className={cn('w-3 h-3 font-bold', tier.checkColor)} />
-                                                        </div>
-                                                        <span className="leading-snug"><strong>{String(features.cv_view_limit ?? '∞')}</strong> lượt xem CV</span>
-                                                    </li>
                                                     {/* Boolean features */}
                                                     {[
-                                                        { key: 'search_cv', label: 'Tìm kiếm CV ứng viên' },
                                                         { key: 'top_job', label: 'Đẩy top tin tuyển dụng' },
                                                         { key: 'mass_email', label: 'Gửi email hàng loạt' },
                                                         { key: 'priority_support', label: 'Hỗ trợ ưu tiên 24/7' },
@@ -426,14 +461,22 @@ export default function Pricing() {
 
                                                 {/* CTA */}
                                                 <Button
-                                                    asChild
+                                                    onClick={() => handleSelectPlan(plan?.id)}
+                                                    disabled={subscribeMutation.isPending}
                                                     size="lg"
                                                     className={cn('w-full font-bold transition-all duration-300 mt-auto rounded-xl h-12 cursor-pointer', tier.btnClass)}
                                                 >
-                                                    <Link to="/auth" className="flex items-center justify-center w-full">
-                                                        Chọn gói {tier.name}
-                                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                                    </Link>
+                                                    {subscribeMutation.isPending && plan?.id === subscribeMutation.variables ? (
+                                                        <span className="flex items-center gap-2">
+                                                            <Rocket className="w-4 h-4 animate-bounce" />
+                                                            Đang xử lý...
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center justify-center w-full">
+                                                            Chọn gói {tier.name}
+                                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                                        </span>
+                                                    )}
                                                 </Button>
                                             </motion.div>
                                         </div>

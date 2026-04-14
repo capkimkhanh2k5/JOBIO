@@ -354,7 +354,8 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 VNP_TMN_CODE = os.getenv('VNP_TMN_CODE', '')
 VNP_HASH_SECRET = os.getenv('VNP_HASH_SECRET', '')
 VNP_URL = os.getenv('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html')
-VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:3000/billing/payment-return')
+VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:8000/api/billing/company-subscriptions/payment-return/')
+VNP_FRONTEND_RETURN_URL = os.getenv('VNP_FRONTEND_RETURN_URL', 'http://localhost:4000/employer/payment-result')
 
 # ===== AI Configuration =====
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
@@ -435,17 +436,17 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': False,
         },
         'apps': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },
         'apps.billing.services.vnpay': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'INFO',
             'propagate': False,
         },

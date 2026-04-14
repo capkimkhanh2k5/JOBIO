@@ -1,0 +1,69 @@
+INFO 2026-04-14 12:05:43,320 autoreload 47 281472929612992 Watching for file changes with StatReloader
+INFO 2026-04-14 12:05:56,393 runserver 47 281472811200864 HTTP GET /api/billing/subscription-plans/ 200 [0.02, 172.19.0.1:65040]
+INFO 2026-04-14 12:05:56,393 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.02, 172.19.0.1:65032]
+INFO 2026-04-14 12:05:56,395 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 200 [0.02, 172.19.0.1:65034]
+INFO 2026-04-14 12:05:56,407 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:65032]
+INFO 2026-04-14 12:05:56,407 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 200 [0.01, 172.19.0.1:65034]
+INFO 2026-04-14 12:05:56,416 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:65032]
+INFO 2026-04-14 12:05:56,424 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:65032]
+INFO 2026-04-14 12:06:51,296 vnpay 47 281472686551392 Generated VNPay payment URL for txn ORDER_23_1: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=29900000&vnp_Command=pay&vnp_CreateDate=20260414190651&vnp_CurrCode=VND&vnp_ExpireDate=20260414192151&vnp_IpAddr=172.19.0.1&vnp_Locale=vn&vnp_OrderInfo=Subscribe+to+Plus+3+thang&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Flocalhost%3A4000%2Fbilling%2Fpayment-return&vnp_TmnCode=EMBIL7EU&vnp_TxnRef=ORDER_23_1&vnp_Version=2.1.0&vnp_SecureHash=afd85010c98371c7c4e79cc3f292490e16f375759bf2ce0398346a9b320f0585882151beaec767334927b4e194995e4f6298d9875d45da921dfd00edf3dd8656
+INFO 2026-04-14 12:06:51,299 runserver 47 281472811200864 HTTP POST /api/billing/company-subscriptions/subscribe/ 200 [0.02, 172.19.0.1:65032]
+WARNING 2026-04-14 12:18:09,251 log 47 281472652734816 Unauthorized: /api/jobs/
+WARNING 2026-04-14 12:18:09,251 log 47 281472644280672 Unauthorized: /api/companies/
+WARNING 2026-04-14 12:18:09,251 log 47 281472091025760 Unauthorized: /api/jobs/featured/
+WARNING 2026-04-14 12:18:09,251 log 47 281472082571616 Unauthorized: /api/provinces/
+WARNING 2026-04-14 12:18:09,252 runserver 47 281472811200864 HTTP GET /api/jobs/?page_size=1 401 [0.01, 172.19.0.1:57800]
+WARNING 2026-04-14 12:18:09,252 runserver 47 281472811200864 HTTP GET /api/companies/?page_size=1 401 [0.02, 172.19.0.1:57772]
+WARNING 2026-04-14 12:18:09,252 log 47 281472652734816 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,254 runserver 47 281472811200864 HTTP GET /api/jobs/featured/ 401 [0.02, 172.19.0.1:57788]
+WARNING 2026-04-14 12:18:09,254 log 47 281472644280672 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,254 runserver 47 281472811200864 HTTP GET /api/provinces/ 401 [0.02, 172.19.0.1:57756]
+WARNING 2026-04-14 12:18:09,256 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 401 [0.02, 172.19.0.1:57746]
+WARNING 2026-04-14 12:18:09,256 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 401 [0.02, 172.19.0.1:57732]
+INFO 2026-04-14 12:18:09,260 runserver 47 281472811200864 HTTP OPTIONS /api/token/refresh/ 200 [0.00, 172.19.0.1:57746]
+WARNING 2026-04-14 12:18:09,270 log 47 281472091025760 Unauthorized: /api/companies/featured/
+WARNING 2026-04-14 12:18:09,270 runserver 47 281472811200864 HTTP GET /api/companies/featured/ 401 [0.01, 172.19.0.1:57772]
+WARNING 2026-04-14 12:18:09,271 log 47 281472082571616 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,271 log 47 281472652734816 Unauthorized: /api/industries/
+WARNING 2026-04-14 12:18:09,272 log 47 281472091025760 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,272 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 401 [0.01, 172.19.0.1:57756]
+WARNING 2026-04-14 12:18:09,272 log 47 281472644280672 Unauthorized: /api/job-categories/
+WARNING 2026-04-14 12:18:09,272 runserver 47 281472811200864 HTTP GET /api/industries/ 401 [0.02, 172.19.0.1:57788]
+WARNING 2026-04-14 12:18:09,273 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 401 [0.01, 172.19.0.1:57732]
+WARNING 2026-04-14 12:18:09,274 runserver 47 281472811200864 HTTP GET /api/job-categories/ 401 [0.02, 172.19.0.1:57800]
+INFO 2026-04-14 12:18:09,277 runserver 47 281472811200864 HTTP POST /api/token/refresh/ 200 [0.02, 172.19.0.1:57746]
+WARNING 2026-04-14 12:18:09,278 log 47 281472082571616 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,278 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 401 [0.00, 172.19.0.1:57772]
+WARNING 2026-04-14 12:18:09,288 log 47 281472652734816 Unauthorized: /api/notifications/
+WARNING 2026-04-14 12:18:09,288 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 401 [0.01, 172.19.0.1:57746]
+INFO 2026-04-14 12:18:09,304 runserver 47 281472811200864 HTTP GET /api/jobs/featured/ 200 [0.02, 172.19.0.1:57732]
+INFO 2026-04-14 12:18:09,304 runserver 47 281472811200864 HTTP GET /api/provinces/ 200 [0.02, 172.19.0.1:57788]
+INFO 2026-04-14 12:18:09,308 runserver 47 281472811200864 HTTP GET /api/jobs/?page_size=1 200 [0.03, 172.19.0.1:57772]
+INFO 2026-04-14 12:18:09,309 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 200 [0.03, 172.19.0.1:57756]
+INFO 2026-04-14 12:18:09,310 runserver 47 281472811200864 HTTP GET /api/companies/featured/ 200 [0.02, 172.19.0.1:57746]
+INFO 2026-04-14 12:18:09,311 runserver 47 281472811200864 HTTP GET /api/companies/?page_size=1 200 [0.03, 172.19.0.1:57800]
+INFO 2026-04-14 12:18:09,324 runserver 47 281472811200864 HTTP GET /api/job-categories/ 200 [0.02, 172.19.0.1:57788]
+INFO 2026-04-14 12:18:09,327 runserver 47 281472811200864 HTTP GET /api/industries/ 200 [0.02, 172.19.0.1:57732]
+INFO 2026-04-14 12:18:09,329 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=10 200 [0.02, 172.19.0.1:57746]
+INFO 2026-04-14 12:18:09,329 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.02, 172.19.0.1:57756]
+INFO 2026-04-14 12:18:09,330 runserver 47 281472811200864 HTTP POST /api/token/refresh/ 200 [0.02, 172.19.0.1:57772]
+INFO 2026-04-14 12:18:09,341 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:57756]
+INFO 2026-04-14 12:18:09,350 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:57756]
+INFO 2026-04-14 12:18:09,359 runserver 47 281472811200864 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:57756]
+INFO 2026-04-14 12:18:12,708 autoreload 8 281473562510528 Watching for file changes with StatReloader
+INFO 2026-04-14 12:18:14,255 runserver 8 281473444082016 HTTP GET /api/jobs/?page_size=1 200 [0.02, 172.19.0.1:57832]
+INFO 2026-04-14 12:18:14,264 runserver 8 281473444082016 HTTP GET /api/provinces/ 200 [0.03, 172.19.0.1:57816]
+INFO 2026-04-14 12:18:14,265 runserver 8 281473444082016 HTTP GET /api/jobs/featured/ 200 [0.03, 172.19.0.1:57842]
+INFO 2026-04-14 12:18:14,267 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=10 200 [0.03, 172.19.0.1:57830]
+INFO 2026-04-14 12:18:14,271 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.04, 172.19.0.1:57814]
+INFO 2026-04-14 12:18:14,274 runserver 8 281473444082016 HTTP GET /api/companies/?page_size=1 200 [0.04, 172.19.0.1:57834]
+INFO 2026-04-14 12:18:14,284 runserver 8 281473444082016 HTTP GET /api/job-categories/ 200 [0.03, 172.19.0.1:57832]
+INFO 2026-04-14 12:18:14,291 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.02, 172.19.0.1:57814]
+INFO 2026-04-14 12:18:14,292 runserver 8 281473444082016 HTTP GET /api/industries/ 200 [0.02, 172.19.0.1:57842]
+INFO 2026-04-14 12:18:14,292 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=10 200 [0.02, 172.19.0.1:57830]
+INFO 2026-04-14 12:18:14,293 runserver 8 281473444082016 HTTP GET /api/companies/featured/ 200 [0.02, 172.19.0.1:57816]
+INFO 2026-04-14 12:18:14,301 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:57814]
+INFO 2026-04-14 12:18:14,309 runserver 8 281473444082016 HTTP GET /api/notifications/?page_size=1&is_read=false 200 [0.01, 172.19.0.1:57814]
+INFO 2026-04-14 12:18:15,925 runserver 8 281473444082016 HTTP GET /api/billing/subscription-plans/ 200 [0.02, 172.19.0.1:57814]
+INFO 2026-04-14 12:18:17,842 vnpay 8 281473326248288 Generated VNPay payment URL for txn ORDER_24_1: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=69000000&vnp_Command=pay&vnp_CreateDate=20260414191817&vnp_CurrCode=VND&vnp_ExpireDate=20260414193317&vnp_IpAddr=172.19.0.1&vnp_Locale=vn&vnp_OrderInfo=Subscribe+to+Pro+3+thang&vnp_OrderType=other&vnp_ReturnUrl=http%3A%2F%2Fjobio.com%2Fbilling%2Fpayment-return&vnp_TmnCode=EMBIL7EU&vnp_TxnRef=ORDER_24_1&vnp_Version=2.1.0&vnp_SecureHash=f84cbdfe4fc8d432b14e0f2dbe9d796d1dbb3a92165501201454d70685a8b029352035c35106c92fa0e233f70412dfcdb065ffd0b106b0223b098adbb77b1a30
+INFO 2026-04-14 12:18:17,846 runserver 8 281473444082016 HTTP POST /api/billing/company-subscriptions/subscribe/ 200 [0.03, 172.19.0.1:57814]
