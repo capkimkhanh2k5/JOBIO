@@ -1,20 +1,17 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSearchParams, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { billingService } from '@/services/billingService';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { CheckCircle2, XCircle, Clock, ArrowRight, Home, ReceiptText } from 'lucide-react';
+import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatSalary, cn } from '@/lib/utils';
-
 
 const PaymentResultPage: React.FC = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const txnId = searchParams.get('txnId') ?? '';
 
-    const status = searchParams.get('status') as 'success' | 'failed';
+    const queryStatus = searchParams.get('status') as 'success' | 'failed' | null;
+    const queryMessage = searchParams.get('message') || '';
 
     const { data: txn, isLoading } = useQuery({
         queryKey: ['billing', 'transaction', txnId],
@@ -22,103 +19,64 @@ const PaymentResultPage: React.FC = () => {
         enabled: !!txnId,
     });
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 space-y-4">
-                <Skeleton className="w-16 h-16 rounded-full bg-white/5" />
-                <Skeleton className="h-8 w-48 bg-white/5" />
-                <Skeleton className="h-4 w-64 bg-white/5" />
-            </div>
-        );
-    }
+    const statusFromTransaction = txn?.status === 'completed'
+        ? 'success'
+        : txn?.status === 'failed'
+            ? 'failed'
+            : null;
+    
+    const finalStatus = statusFromTransaction || queryStatus || 'failed';
+    const isSuccess = finalStatus === 'success';
 
-    const isSuccess = status === 'success';
+    const upgradedPlanName = txn?.plan_name || txn?.subscription_name || (txn?.metadata as any)?.plan_name || '';
+    
+    const defaultMessage = isSuccess
+        ? upgradedPlanName
+            ? `Thanh toán thành công. Gói ${upgradedPlanName} đã được kích hoạt.`
+            : 'Thanh toán thành công. Gói dịch vụ của bạn đã được kích hoạt.'
+        : 'Thanh toán thất bại. Vui lòng kiểm tra lại phương thức thanh toán hoặc thử lại sau.';
+    
+    const displayMessage = queryMessage || defaultMessage;
+
+    useEffect(() => {
+        if (!isLoading) {
+            if (isSuccess) {
+                toast.success(displayMessage);
+                // Redirect to home page as requested
+                navigate('/');
+            } else {
+                toast.error(displayMessage);
+                // Redirect to subscription page so they can try again if failed
+                navigate('/employer/subscription');
+            }
+        }
+    }, [isLoading, isSuccess, displayMessage, navigate]);
 
     return (
-        <div className="p-4 sm:p-8 max-w-2xl mx-auto flex flex-col items-center justify-center min-h-[70vh]">
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', damping: 15 }}
-                className="w-full"
-            >
-                <Card className="p-10 bg-white border border-slate-100 shadow-2xl relative overflow-hidden text-center transition-all duration-500 hover:shadow-cyan-500/5">
+        <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 space-y-6 text-center">
+            <div className="relative">
+                <div className="w-20 h-20 rounded-3xl border-4 border-violet-100 border-t-violet-600 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-violet-50 animate-pulse" />
+                </div>
+            </div>
+            
+            <div className="space-y-2">
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                    Đang xử lý kết quả thanh toán
+                </h2>
+                <p className="text-slate-500 font-medium">
+                    Vui lòng không đóng trình duyệt. Bạn sẽ được chuyển hướng trong giây lát.
+                </p>
+            </div>
 
-
-                    {/* Background Aura */}
-                    <div className={cn(
-                        "absolute -top-32 -left-32 w-64 h-64 blur-[100px] rounded-full",
-                        isSuccess ? "bg-emerald-500/10" : "bg-red-500/10"
-                    )} />
-
-                    <div className="relative z-10 flex flex-col items-center">
-                        <div className={cn(
-                            "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-xl",
-                            isSuccess ? "bg-emerald-500 text-white shadow-emerald-500/30" : "bg-red-500 text-white shadow-red-500/30"
-                        )}>
-                            {isSuccess ? <CheckCircle2 className="w-10 h-10" /> : <XCircle className="w-10 h-10" />}
-                        </div>
-
-                        <h1 className="text-3xl font-black text-slate-900 mb-3">
-                            {isSuccess ? 'Thanh toán thành công!' : 'Thanh toán thất bại'}
-                        </h1>
-
-                        <p className="text-slate-500 mb-8 max-w-sm">
-                            {isSuccess
-                                ? 'Giao dịch của bạn đã được xử lý thành công. Gói dịch vụ mới đã được kích hoạt ngay lập tức.'
-                                : 'Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng kiểm tra lại phương thức thanh toán hoặc liên hệ hỗ trợ.'}
-                        </p>
-
-                        {txn && (
-                            <div className="w-full bg-muted/50 rounded-2xl p-6 mb-8 text-left space-y-3 border border-border/30">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">MÃ GIAO DỊCH</span>
-                                    <span className="text-slate-900 font-mono font-bold">{txn.vnpay_txn_ref || `TXN${txn.id}`}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">SỐ TIỀN</span>
-                                    <span className="text-slate-900 font-black">{formatSalary(txn.amount, 'VND')}</span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">PHƯƠNG THỨC</span>
-                                    <span className="text-slate-900 font-bold uppercase">{txn.payment_method}</span>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                            <Button asChild className="h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 border-none font-bold">
-                                <Link to="/employer/dashboard">
-                                    <Home className="w-4 h-4 mr-2" /> VỀ DASHBOARD
-                                </Link>
-                            </Button>
-                            <Button asChild className={cn(
-                                "h-12 rounded-xl font-black shadow-lg",
-                                isSuccess
-                                    ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-emerald-500/20"
-                                    : "bg-red-500 hover:bg-red-400 text-white shadow-red-500/20"
-                            )}>
-                                <Link to={isSuccess ? "/employer/subscription" : "/employer/checkout?planId=" + (txn?.subscription || "")}>
-                                    {isSuccess ? (
-                                        <>QUẢN LÝ GÓI <ArrowRight className="w-4 h-4 ml-2" /></>
-                                    ) : (
-                                        <>THỬ LẠI <Clock className="w-4 h-4 ml-2" /></>
-                                    )}
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                </Card>
-
-                {isSuccess && (
-                    <p className="mt-8 text-muted-foreground/60 text-xs text-center flex items-center justify-center gap-2">
-                        <ReceiptText className="w-4 h-4" /> Hóa đơn GTGT sẽ được gửi đến email đăng ký của bạn trong vòng 24h.
-                    </p>
-                )}
-            </motion.div>
+            <div className="flex gap-2">
+                <Skeleton className="h-2 w-2 rounded-full bg-violet-200" />
+                <Skeleton className="h-2 w-2 rounded-full bg-violet-400" />
+                <Skeleton className="h-2 w-2 rounded-full bg-violet-600" />
+            </div>
         </div>
     );
 };
-
 
 export default PaymentResultPage;

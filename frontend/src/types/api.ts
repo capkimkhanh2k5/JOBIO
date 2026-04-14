@@ -30,6 +30,7 @@ export interface User {
   last_login: string | null;
   recruiter_id?: number;
   company_id?: number;
+  subscription_plan?: string;
 }
 
 export interface AuthTokens {
@@ -1199,12 +1200,14 @@ export interface BillingTransaction {
   subscription: number;
   amount: number;
   currency: string;
-  payment_method: { id: number; name: string; code: string };
+  payment_method: { id: number; name: string; code: string } | string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
   vnpay_txn_ref?: string;
   payment_url?: string;
   description?: string;
+  plan_name?: string;
   subscription_name?: string;
+  metadata?: Record<string, unknown>;
   date: string;
   created_at: string;
   updated_at: string;
@@ -1223,6 +1226,33 @@ export interface SavedPaymentMethod {
 export interface SubscriptionCreateRequest {
   plan_id: number;
   payment_method_code?: string;
+  payment_method?: string;
+}
+
+export interface SubscriptionPreCheckResponse {
+  can_checkout: boolean;
+  mode: 'new' | 'renew' | 'blocked' | 'pending_reuse';
+  message: string;
+  code?: string;
+  plan: {
+    id: number;
+    name: string;
+    slug: string;
+    duration_days: number;
+    price: string;
+  };
+  current_subscription: null | {
+    id: number;
+    plan_id: number;
+    plan_name: string;
+    status: string;
+    end_date: string;
+  };
+  pending_transaction: null | {
+    id: number;
+    reference_code: string;
+    created_at: string;
+  };
 }
 
 export interface SubscribeResponse {

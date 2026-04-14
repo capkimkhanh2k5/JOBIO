@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -41,12 +41,52 @@ const CheckoutPage: React.FC = () => {
                 toast.success("Đăng ký gói thành công!");
                 navigate('/employer/subscription');
             }
+        },
+        onError: (err: any) => {
+            const code = err?.response?.data?.code;
+            const message = err?.response?.data?.error || err?.response?.data?.message || 'Không thể tạo giao dịch thanh toán.';
+            if (code === 'ACTIVE_SUBSCRIPTION_EXISTS') {
+                toast.error(message);
+                navigate('/employer/subscription');
+                return;
+            }
+            toast.error(message);
         }
     });
 
-    const handleNext = () => {
+    const preCheckMutation = useMutation({
+        mutationFn: () => billingService.preCheckSubscription(plan!.id).then(r => r.data),
+    });
+
+    useEffect(() => {
+        if (step === 3 && paymentMethod === 'vnpay' && plan?.id) {
+            preCheckMutation.mutate();
+        }
+    }, [step, paymentMethod, plan?.id]);
+
+    const handleNext = async () => {
         if (step < 3) setStep(step + 1);
-        else createSubscriptionMutation.mutate(paymentMethod);
+        else {
+            try {
+                if (paymentMethod === 'vnpay') {
+                    const preCheck = await preCheckMutation.mutateAsync();
+                    if (!preCheck.can_checkout) {
+                        toast.error(preCheck.message);
+                        navigate('/employer/subscription');
+                        return;
+                    }
+
+                    if (preCheck.mode === 'renew' || preCheck.mode === 'pending_reuse') {
+                        toast.info(preCheck.message);
+                    }
+                }
+
+                createSubscriptionMutation.mutate(paymentMethod);
+            } catch (err: any) {
+                const message = err?.response?.data?.error || err?.response?.data?.message || 'Không thể kiểm tra trạng thái đăng ký.';
+                toast.error(message);
+            }
+        }
     };
 
     const handleBack = () => {
@@ -209,6 +249,55 @@ const CheckoutPage: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {paymentMethod === 'vnpay' && (
+                                        <div className={cn(
+                                            "rounded-2xl border p-4 transition-colors",
+                                            preCheckMutation.isPending
+                                                ? "border-slate-200 bg-slate-50"
+                                                : preCheckMutation.data?.can_checkout === false
+                                                    ? "border-rose-200 bg-rose-50"
+                                                    : preCheckMutation.data?.mode === 'renew' || preCheckMutation.data?.mode === 'pending_reuse'
+                                                        ? "border-amber-200 bg-amber-50"
+                                                        : "border-emerald-200 bg-emerald-50"
+                                        )}>
+                                            <div className="flex items-start gap-3">
+                                                <div className={cn(
+                                                    "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5",
+                                                    preCheckMutation.isPending
+                                                        ? "bg-slate-200 text-slate-500"
+                                                        : preCheckMutation.data?.can_checkout === false
+                                                            ? "bg-rose-100 text-rose-600"
+                                                            : preCheckMutation.data?.mode === 'renew' || preCheckMutation.data?.mode === 'pending_reuse'
+                                                                ? "bg-amber-100 text-amber-600"
+                                                                : "bg-emerald-100 text-emerald-600"
+                                                )}>
+                                                    <ShieldCheck className="w-4 h-4" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <p className="font-black text-slate-900">
+                                                        {preCheckMutation.isPending
+                                                            ? 'Đang kiểm tra trạng thái đăng ký...'
+                                                            : preCheckMutation.data?.can_checkout === false
+                                                                ? 'Không thể tiếp tục thanh toán'
+                                                                : preCheckMutation.data?.mode === 'renew'
+                                                                    ? 'Thanh toán sẽ gia hạn gói hiện tại'
+                                                                    : preCheckMutation.data?.mode === 'pending_reuse'
+                                                                        ? 'Có giao dịch chờ thanh toán đang được tái sử dụng'
+                                                                        : 'Có thể tiếp tục thanh toán'}
+                                                    </p>
+                                                    <p className="text-sm text-slate-600 leading-relaxed">
+                                                        {preCheckMutation.data?.message || 'Hệ thống sẽ kiểm tra trạng thái đăng ký trước khi chuyển sang VNPay.'}
+                                                    </p>
+                                                    {preCheckMutation.data?.current_subscription && (
+                                                        <p className="text-xs text-slate-500 font-medium">
+                                                            Gói hiện tại: <span className="font-black text-slate-700">{preCheckMutation.data.current_subscription.plan_name}</span> · Hết hạn {preCheckMutation.data.current_subscription.end_date}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="pt-8 border-t border-slate-100 flex justify-between items-center">
                                         <div className="flex flex-col">

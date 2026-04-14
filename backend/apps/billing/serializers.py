@@ -20,11 +20,27 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     payment_method = PaymentMethodSerializer(read_only=True)
-    plan_name = serializers.CharField(source='company.subscription.plan.name', read_only=True)
+    plan_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Transaction
-        fields = ['id', 'company', 'payment_method', 'amount', 'currency', 'type', 'status', 'reference_code', 'description', 'created_at', 'plan_name']
+        fields = ['id', 'company', 'payment_method', 'amount', 'currency', 'type', 'status', 'reference_code', 'description', 'metadata', 'created_at', 'plan_name']
+
+    def get_plan_name(self, obj):
+        metadata = getattr(obj, 'metadata', None) or {}
+        if metadata.get('plan_name'):
+            return metadata.get('plan_name')
+
+        plan_id = metadata.get('plan_id')
+        if plan_id:
+            try:
+                subscription = obj.company.subscriptions.filter(plan_id=plan_id).select_related('plan').order_by('-created_at').first()
+                if subscription:
+                    return subscription.plan.name
+            except Exception:
+                pass
+
+        return None
 
 class SubscribeInputSerializer(serializers.Serializer):
     plan_id = serializers.IntegerField()

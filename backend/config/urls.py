@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+
+from apps.billing.views import CompanySubscriptionViewSet
 
 
 router = DefaultRouter()
@@ -138,5 +141,16 @@ urlpatterns = [
     
     # Media Types
     path('api/media-types/', include('apps.company.media_types.urls')),
+    
+    # VNPay Return friendly URL
+    path(
+        'billing/payment-return',
+        CompanySubscriptionViewSet.as_view(
+            {'get': 'payment_return'},
+            permission_classes=[AllowAny],
+            authentication_classes=[],
+        ),
+        name='vnpay-return-friendly',
+    ),
 ]
 

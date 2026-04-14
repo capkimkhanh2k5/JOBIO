@@ -2,7 +2,8 @@ import logging
 from celery import shared_task
 from django.utils import timezone
 from django.conf import settings
-from apps.billing.models import Transaction, CompanySubscription
+from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan
+from apps.billing.services.subscriptions import SubscriptionService
 from apps.email.services import EmailService
 from apps.recruitment.jobs.models import Job
 from datetime import timedelta
@@ -31,10 +32,20 @@ def send_payment_confirmation_email_task(transaction_id):
         plan_name = "N/A"
         end_date = "N/A"
         
-        if '|' in txn.description and 'SUB_ID:' in txn.description:
+        plan_id = SubscriptionService.get_transaction_plan_id(txn)
+        if plan_id:
             try:
-                sub_id = txn.description.split('|')[1].split(':')[1]
-                subscription = CompanySubscription.objects.select_related('plan').get(id=sub_id)
+                subscription = CompanySubscription.objects.select_related('plan').filter(
+                    company=txn.company,
+                    plan_id=plan_id,
+                    status=CompanySubscription.Status.ACTIVE,
+                ).order_by('-created_at').first()
+                if not subscription:
+                    subscription = CompanySubscription.objects.select_related('plan').filter(
+                        company=txn.company,
+                        plan_id=plan_id,
+                    ).order_by('-created_at').first()
+
                 plan_name = subscription.plan.name
                 end_date = subscription.end_date.strftime('%d/%m/%Y')
             except Exception as e:
@@ -144,12 +155,11 @@ def cleanup_expired_transactions():
                     txn.vnp_OrderInfo = result.get('vnp_OrderInfo') or txn.vnp_OrderInfo
                     txn.save()
 
-                    if '|' in txn.description and 'SUB_ID:' in txn.description:
+                    plan_id = SubscriptionService.get_transaction_plan_id(txn)
+                    if plan_id:
                         try:
-                            sub_id = txn.description.split('|')[1].split(':')[1]
-                            sub = CompanySubscription.objects.get(id=sub_id)
-                            sub.status = CompanySubscription.Status.ACTIVE
-                            sub.save()
+                            plan = SubscriptionPlan.objects.get(id=plan_id)
+                            SubscriptionService.activate_paid_subscription(txn.company, plan)
                         except Exception as e:
                             logger.error(f"Failed activating subscription from cleanup for txn {txn.reference_code}: {e}")
                 elif status in ['02', '03', '04', '06', '07', '09']:

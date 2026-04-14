@@ -6,9 +6,8 @@ class Command(BaseCommand):
     help = 'Seed initial subscription plans'
 
     def handle(self, *args, **options):
-        # Xoá tất cả các gói hiện có để đảm bảo dữ liệu sạch như yêu cầu
-        SubscriptionPlan.objects.all().delete()
-        self.stdout.write(self.style.WARNING('Deleted old subscription plans.'))
+        # SubscriptionPlan.objects.all().delete()
+        # self.stdout.write(self.style.WARNING('Deleted old subscription plans.'))
 
         plans_data = [
             # PLUS TIER
@@ -106,8 +105,8 @@ class Command(BaseCommand):
                 'price': 1890000,
                 'duration_days': 90,
                 'features': {
-                    'job_post_limit': 9999,
-                    'featured_job_limit': 10,
+                    'job_post_limit': 300,
+                    'featured_job_limit': 30,
                     'top_job': True,
                     'mass_email': True,
                     'priority_support': True,
@@ -120,7 +119,8 @@ class Command(BaseCommand):
                 'price': 3490000,
                 'duration_days': 180,
                 'features': {
-                    'job_post_limit': 120,
+                    'job_post_limit': 700,
+                    'featured_job_limit': 75,
                     'top_job': True,
                     'mass_email': True,
                     'priority_support': True,
@@ -133,7 +133,8 @@ class Command(BaseCommand):
                 'price': 5990000,
                 'duration_days': 365,
                 'features': {
-                    'job_post_limit': 9999, # Unlimited effectively
+                    'job_post_limit': 1500,
+                    'featured_job_limit': 200,
                     'top_job': True,
                     'mass_email': True,
                     'priority_support': True,

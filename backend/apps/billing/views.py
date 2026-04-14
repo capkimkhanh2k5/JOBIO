@@ -1,10 +1,12 @@
 import logging
+from datetime import timedelta
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.shortcuts import redirect
+from django.utils import timezone
 
 from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMethod, Transaction
 from apps.billing.serializers import (
@@ -57,7 +59,9 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
         input_ser.is_valid(raise_exception=True)
         
         company_profile = getattr(request.user, 'company_profile', None)
-        plan = SubscriptionPlan.objects.get(id=input_ser.validated_data['plan_id'])
+        plan = SubscriptionPlan.objects.filter(id=input_ser.validated_data['plan_id'], is_active=True).first()
+        if not plan:
+            return Response({"error": "Gói đăng ký không tồn tại hoặc đã ngừng hoạt động."}, status=status.HTTP_400_BAD_REQUEST)
         
         # Get IP Address
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -67,6 +71,19 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             ip = request.META.get('REMOTE_ADDR')
             
         try:
+            active_sub = SubscriptionService.get_active_subscription(company_profile.id)
+            is_same_family = active_sub and SubscriptionService.is_same_plan_family(active_sub.plan, plan)
+            if active_sub and not is_same_family:
+                return Response(
+                    {
+                        "error": "Bạn đang có gói hoạt động. Vui lòng gia hạn cùng gói hiện tại hoặc chờ hết hạn để đổi gói.",
+                        "code": "ACTIVE_SUBSCRIPTION_EXISTS",
+                        "current_plan": active_sub.plan.name,
+                        "current_end_date": str(active_sub.end_date),
+                    },
+                    status=status.HTTP_409_CONFLICT,
+                )
+
             # Default to VNPay, auto-create if missing (Robustness)
             pm, created = PaymentMethod.objects.get_or_create(
                 code='vnpay',
@@ -76,21 +93,54 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                     'config': {} 
                 }
             )
+
+            # Reuse pending transaction for same plan to avoid duplicate checkout creation.
+            pending_txn = Transaction.objects.filter(
+                company=company_profile,
+                status=Transaction.Status.PENDING,
+                type=Transaction.Type.SUBSCRIPTION,
+                metadata__plan_id=plan.id,
+                created_at__gte=timezone.now() - timedelta(minutes=15),
+            ).order_by('-created_at').first()
+            if pending_txn:
+                reused_payment_url = VNPayService.get_payment_url(
+                    order_id=pending_txn.reference_code,
+                    amount=pending_txn.amount,
+                    order_desc=f"Subscribe to {plan.name}",
+                    ip_addr=ip,
+                )
+                return Response(
+                    {
+                        "payment_url": reused_payment_url,
+                        "transaction_ref": pending_txn.reference_code,
+                        "reused": True,
+                    },
+                    status=status.HTTP_200_OK,
+                )
             
             # Calculate Amount (Check Plan Logic)
             amount = plan.price # Simplification
+            txn_metadata = {
+                "plan_id": plan.id,
+                "plan_slug": plan.slug,
+                "plan_name": plan.name,
+                "payment_method_code": pm.code,
+                "action": 'renew' if is_same_family else 'new',
+                "company_id": company_profile.id,
+            }
             
             txn, payment_url = PaymentService.process_payment(
                 company=company_profile,
                 amount=amount,
                 payment_method=pm, 
                 description=f"Subscribe to {plan.name}",
-                ip_addr=ip
+                ip_addr=ip,
+                metadata=txn_metadata,
             )
-            
-            sub = SubscriptionService.subscribe(company_profile, plan)
 
-            txn.description = f"PLAN_ID:{plan.id}|SUB_ID:{sub.id}"
+            action = txn_metadata['action']
+            txn.description = f"Subscribe to {plan.name}|PLAN_ID:{plan.id}|ACTION:{action}"
+            txn.metadata = txn_metadata
             txn.save()
 
             return Response({
@@ -100,6 +150,80 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='pre-check')
+    def pre_check(self, request):
+        """
+        Validate current subscription state before opening checkout.
+        Returns a machine-readable status for the frontend.
+        """
+        company_profile = getattr(request.user, 'company_profile', None)
+        if not company_profile:
+            return Response({"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN)
+
+        plan_id = request.query_params.get('plan_id')
+        if not plan_id:
+            return Response({"error": "plan_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        plan = SubscriptionPlan.objects.filter(id=plan_id, is_active=True).first()
+        if not plan:
+            return Response({"error": "Gói đăng ký không tồn tại hoặc đã ngừng hoạt động."}, status=status.HTTP_404_NOT_FOUND)
+
+        active_sub = SubscriptionService.get_active_subscription(company_profile.id)
+        pending_txn = Transaction.objects.filter(
+            company=company_profile,
+            status=Transaction.Status.PENDING,
+            type=Transaction.Type.SUBSCRIPTION,
+            metadata__plan_id=plan.id,
+        ).order_by('-created_at').first()
+
+        result = {
+            "can_checkout": True,
+            "mode": "new",
+            "plan": {
+                "id": plan.id,
+                "name": plan.name,
+                "slug": plan.slug,
+                "duration_days": plan.duration_days,
+                "price": str(plan.price),
+            },
+            "current_subscription": None,
+            "pending_transaction": None,
+        }
+
+        if active_sub:
+            is_same_family = SubscriptionService.is_same_plan_family(active_sub.plan, plan)
+            result["current_subscription"] = {
+                "id": active_sub.id,
+                "plan_id": active_sub.plan_id,
+                "plan_name": active_sub.plan.name,
+                "status": active_sub.status,
+                "end_date": str(active_sub.end_date),
+            }
+
+            if is_same_family:
+                result["mode"] = "renew"
+                result["message"] = "Bạn đang có gói cùng hạng. Thanh toán sẽ cộng dồn thêm thời gian và cập nhật chu kỳ mới."
+            else:
+                result["mode"] = "blocked"
+                result["can_checkout"] = False
+                result["message"] = "Bạn đang có gói hoạt động khác. Vui lòng gia hạn gói hiện tại trước khi đổi gói."
+                result["code"] = "ACTIVE_SUBSCRIPTION_EXISTS"
+                return Response(result, status=status.HTTP_200_OK)
+
+        if pending_txn:
+            result["mode"] = "pending_reuse"
+            result["pending_transaction"] = {
+                "id": pending_txn.id,
+                "reference_code": pending_txn.reference_code,
+                "created_at": pending_txn.created_at.isoformat(),
+            }
+            result["message"] = "Đã có giao dịch chờ thanh toán cho gói này, hệ thống sẽ tái sử dụng giao dịch đó."
+
+        if "message" not in result:
+            result["message"] = "Có thể tiếp tục thanh toán cho gói này."
+
+        return Response(result, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='payment-return', permission_classes=[AllowAny])
     def payment_return(self, request):
