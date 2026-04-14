@@ -1222,7 +1222,7 @@ export interface SavedPaymentMethod {
 
 export interface SubscriptionCreateRequest {
   plan_id: number;
-  payment_method: PaymentMethod;
+  payment_method_code?: string;
 }
 
 export interface SubscribeResponse {

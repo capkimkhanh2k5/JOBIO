@@ -49,12 +49,11 @@ media/
 Thumbs.db
 
 # ========================
-# Docs (generated)
-# ========================
-docs/*
-
-# ========================
 # Node (root level)
 # ========================
 node_modules/
 package-lock.json
+
+
+__logs__/
+**.log

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 import hmac, hashlib, urllib.parse
 from django.conf import settings
+from urllib.parse import parse_qs, urlparse
 
 from apps.billing.services.vnpay import VNPayService
 from apps.billing.models import Transaction, CompanySubscription, PaymentMethod, SubscriptionPlan
@@ -44,11 +45,17 @@ class TestVNPayIntegration(APITestCase):
         url = VNPayService.get_payment_url(
             order_id="TEST_REF",
             amount=Decimal("100000"),
-            order_desc="Test Order",
+            order_desc="Thanh toán gói Cơ bản! 100%",
             ip_addr="127.0.0.1"
         )
-        self.assertIn("vnp_SecureHash=", url)
-        self.assertIn("vnp_Amount=10000000", url) # x100 check
+        query = parse_qs(urlparse(url).query)
+        self.assertIn("vnp_SecureHash", query)
+        self.assertEqual(query["vnp_Amount"][0], "10000000")
+        self.assertEqual(query["vnp_OrderInfo"][0], "Thanh toan goi Co ban 100")
+        self.assertRegex(query["vnp_CreateDate"][0], r"^\d{14}$")
+        self.assertRegex(query["vnp_ExpireDate"][0], r"^\d{14}$")
+        self.assertEqual(query["vnp_IpAddr"][0], "127.0.0.1")
+        self.assertEqual(query["vnp_OrderType"][0], "other")
 
     def test_subscribe_api_auto_creates_payment_method(self):
         """Test that subscribe API auto-seeds 'vnpay' payment method"""
@@ -112,10 +119,10 @@ class TestVNPayIntegration(APITestCase):
         
         # 3. Call Return API
         return_url = reverse('company-subscriptions-payment-return')
-        response = self.client.get(return_url, params)
+        response = self.client.get(return_url, {**params, 'redirect': '0'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['message'], "Payment Successful")
+        self.assertEqual(response.data['message'], "Confirm success")
         
         # 4. Verify DB State
         txn = Transaction.objects.get(reference_code=txn_ref)
@@ -126,3 +133,81 @@ class TestVNPayIntegration(APITestCase):
         sub_id = txn.description.split('|')[1].split(':')[1]
         sub = CompanySubscription.objects.get(id=sub_id)
         self.assertEqual(sub.status, CompanySubscription.Status.ACTIVE)
+
+    def test_payment_return_redirects_to_frontend(self):
+        """Browser callback should redirect to the frontend result page."""
+        url = reverse('company-subscriptions-subscribe')
+        response = self.client.post(url, {'plan_id': self.plan.id})
+        txn_ref = response.data['transaction_ref']
+
+        params = {
+            'vnp_Amount': '10000000',
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_ResponseCode': '00',
+            'vnp_TmnCode': 'EMBIL7EU',
+            'vnp_TransactionNo': '12345678',
+            'vnp_TxnRef': txn_ref,
+        }
+
+        sorted_params = sorted(params.items())
+        query_str = urllib.parse.urlencode(sorted_params)
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+        secure_hash = hmac.new(
+            secret.encode('utf-8'),
+            query_str.encode('utf-8'),
+            hashlib.sha512
+        ).hexdigest()
+        params['vnp_SecureHash'] = secure_hash
+
+        return_url = reverse('company-subscriptions-payment-return')
+        browser_client = APIClient()
+        response = browser_client.get(return_url, params)
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertIn('/employer/payment-result', response['Location'])
+        self.assertIn('txnId=', response['Location'])
+        self.assertIn('status=success', response['Location'])
+
+    def test_vnpay_ipn_idempotent_response(self):
+        """IPN callback should return RspCode=02 for already processed transaction"""
+        # 1. Subscribe
+        url = reverse('company-subscriptions-subscribe')
+        response = self.client.post(url, {'plan_id': self.plan.id})
+        txn_ref = response.data['transaction_ref']
+
+        # 2. Prepare callback params
+        params = {
+            'vnp_Amount': '10000000',
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_ResponseCode': '00',
+            'vnp_TmnCode': 'EMBIL7EU',
+            'vnp_TransactionNo': '12345678',
+            'vnp_TxnRef': txn_ref,
+        }
+
+        sorted_params = sorted(params.items())
+        query_str = urllib.parse.urlencode(sorted_params)
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+        secure_hash = hmac.new(
+            secret.encode('utf-8'),
+            query_str.encode('utf-8'),
+            hashlib.sha512
+        ).hexdigest()
+        params['vnp_SecureHash'] = secure_hash
+
+        # 3. First process by return endpoint
+        return_url = reverse('company-subscriptions-payment-return')
+        self.client.get(return_url, params)
+
+        # 4. IPN should now report already confirmed
+        ipn_url = reverse('company-subscriptions-vnpay-ipn')
+        ipn_response = self.client.get(ipn_url, params)
+
+        self.assertEqual(ipn_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(ipn_response.data['RspCode'], '02')

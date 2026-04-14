@@ -27,13 +27,11 @@ class PaymentService:
             txn.save()
         
         # 2. Generate Payment URL (VNPay)
-        # TODO: Handle other gateways if needed
-        # TODO: Có thể thêm các cổng khác ngoài VN Pay
         
         payment_url = VNPayService.get_payment_url(
             order_id=txn.reference_code,
             amount=amount,
-            order_desc=f"{description[:50]}...",
+            order_desc=description,
             ip_addr=ip_addr
         )
         

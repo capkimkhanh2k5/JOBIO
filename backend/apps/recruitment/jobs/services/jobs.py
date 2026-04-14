@@ -11,6 +11,7 @@ from django.utils import timezone
 from apps.recruitment.jobs.models import Job
 from apps.company.companies.models import Company
 from apps.core.users.models import CustomUser
+from apps.billing.services.subscriptions import SubscriptionService
 
 
 class JobInput(BaseModel):
@@ -90,6 +91,17 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
     
     published_at = timezone.now() if status == 'published' else None
     
+    # Kiểm tra Quota nếu status là published
+    if status == 'published':
+        sub = SubscriptionService.get_active_subscription(company.id)
+        if not sub:
+            raise ValueError("You don't have an active subscription to publish jobs!")
+        
+        limit = sub.plan.features.get('job_post_limit', 0)
+        current_count = Job.objects.filter(company=company, status='published').count()
+        if current_count >= limit:
+            raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+
     # Tạo job
     job = Job.objects.create(
         company=company,
@@ -160,8 +172,17 @@ def change_job_status(job: Job, new_status: str) -> Job:
     if job.status == 'published' and new_status == 'draft':
         raise ValueError("You cannot change a published job to draft!")
     
-    # Set published_at nếu chuyển sang published
+    # Kiểm tra Quota nếu chuyển sang published
     if new_status == 'published' and job.status != 'published':
+        sub = SubscriptionService.get_active_subscription(job.company_id)
+        if not sub:
+            raise ValueError("You don't have an active subscription to publish jobs!")
+            
+        limit = sub.plan.features.get('job_post_limit', 0)
+        current_count = Job.objects.filter(company_id=job.company_id, status='published').count()
+        if current_count >= limit:
+            raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+        
         job.published_at = timezone.now()
     
     job.status = new_status
@@ -178,6 +199,16 @@ def publish_job(job: Job) -> Job:
     if job.status == 'published':
         raise ValueError("The job is already published!")
     
+    # Kiểm tra Quota
+    sub = SubscriptionService.get_active_subscription(job.company_id)
+    if not sub:
+        raise ValueError("You don't have an active subscription to publish jobs!")
+        
+    limit = sub.plan.features.get('job_post_limit', 0)
+    current_count = Job.objects.filter(company_id=job.company_id, status='published').count()
+    if current_count >= limit:
+        raise ValueError(f"You have reached your limit of {limit} published jobs. Please upgrade your plan.")
+
     job.status = 'published'
     job.published_at = timezone.now()
     job.save()
@@ -271,6 +302,24 @@ def set_job_featured(job: Job, featured: bool, featured_until=None) -> Job:
             featured: True để đánh dấu nổi bật, False để bỏ
             featured_until: Optional date kết thúc nổi bật
     """
+    if featured:
+        # Kiểm tra Quota Tin nổi bật
+        sub = SubscriptionService.get_active_subscription(job.company_id)
+        if not sub:
+            raise ValueError("You don't have an active subscription to feature jobs!")
+            
+        # Kiểm tra xem gói có cho phép featured không (boolean) VÀ số lượng (limit)
+        can_featured = sub.plan.features.get('top_job', False)
+        if not can_featured:
+            raise ValueError("Your current plan does not support featured jobs.")
+            
+        limit = sub.plan.features.get('featured_job_limit', 0)
+        current_featured = Job.objects.filter(company_id=job.company_id, featured=True).count()
+        
+        # Nếu job này CHƯA featured thì mới check limit
+        if not job.featured and current_featured >= limit:
+            raise ValueError(f"You have reached your limit of {limit} featured jobs.")
+
     job.featured = featured
     
     if featured and featured_until:

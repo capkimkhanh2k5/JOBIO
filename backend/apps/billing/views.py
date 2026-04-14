@@ -1,7 +1,10 @@
+import logging
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from django.shortcuts import redirect
 
 from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMethod, Transaction
 from apps.billing.serializers import (
@@ -16,6 +19,9 @@ from apps.billing.services.payments import PaymentService
 from apps.billing.services.plans import PlanService
 from apps.core.permissions import IsCompanyOwner
 from apps.billing.services.vnpay import VNPayService, VNPaySecurityError
+
+
+logger = logging.getLogger(__name__)
 
 
 class SubscriptionPlanViewSet(viewsets.ReadOnlyModelViewSet):
@@ -82,15 +88,8 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                 ip_addr=ip
             )
             
-            # Store Plan ID in Transaction for callback processing? 
-            # Or better: Create Inactive Subscription first?
-            # Creating Inactive Subscription is safer:
             sub = SubscriptionService.subscribe(company_profile, plan)
-            # Override to inactive
-            sub.status = CompanySubscription.Status.EXPIRED # Pending/Inactive
-            sub.save()
-            
-            # Link TXN to Sub? (Using description or Reference Code hack for now as Models don't have direct link)
+
             txn.description = f"PLAN_ID:{plan.id}|SUB_ID:{sub.id}"
             txn.save()
 
@@ -111,6 +110,11 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
         try:
             # Use secure callback processing
             result = VNPayService.process_callback_secure(request.GET)
+
+            # Browser redirect flow from VNPay should land on frontend result page.
+            frontend_redirect = request.query_params.get('redirect', '1') != '0'
+            if frontend_redirect:
+                return redirect(VNPayService.build_frontend_result_url(result))
             
             if result['success']:
                 return Response({
@@ -128,6 +132,43 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": f"Internal error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], url_path='vnpay-ipn', permission_classes=[AllowAny])
+    def vnpay_ipn(self, request):
+        """
+        Xử lý Instant Payment Notification (IPN) từ VNPay.
+        Đảm bảo cập nhật trạng thái ngay cả khi người dùng tắt trình duyệt.
+        """
+        try:
+            # Xử lý thông qua service chung
+            result = VNPayService.process_callback_secure(request.GET)
+
+            rsp_code = result.get('rsp_code', '99')
+            if result.get('success') and result.get('message') != 'Order already confirmed':
+                message = 'Confirm Success'
+            elif rsp_code == '02':
+                message = 'Order already confirmed'
+            elif rsp_code == '01':
+                message = 'Order not found'
+            elif rsp_code == '04':
+                message = 'Invalid amount'
+            elif rsp_code == '97':
+                message = 'Invalid Checksum'
+            else:
+                message = 'Confirm Success' if rsp_code == '00' else result.get('message', 'Unknown error')
+            
+            # Phản hồi JSON theo yêu cầu của VNPay
+            return Response({
+                "RspCode": rsp_code,
+                "Message": message
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.error(f"IPN Processing Error: {str(e)}")
+            return Response({
+                "RspCode": "99",
+                "Message": "Unknown error"
+            }, status=status.HTTP_200_OK) # Luôn trả về 200 cho VNPay IPN
 
     @action(detail=False, methods=['post'], url_path='cancel')
     def cancel(self, request):
