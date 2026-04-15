@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    LayoutDashboard, PlusSquare, Briefcase, Users, Megaphone,
+    LayoutDashboard, PlusSquare, Briefcase, Users,
     CalendarClock, MessageSquare, BarChart3, Building2, CreditCard,
-    Settings, LifeBuoy, UserPlus, Search, History, BookOpen
+    Settings, LifeBuoy, Search, History, BookOpen
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 
@@ -20,8 +20,6 @@ const navItems: NavItem[] = [
     { label: 'Quản lý tin', path: '/employer/jobs', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Ứng viên', path: '/employer/candidates', icon: <Users className="w-5 h-5" /> },
     { label: 'Tìm CV', path: '/employer/cv-search', icon: <Search className="w-5 h-5" /> },
-    { label: 'Giới thiệu', path: '/employer/referrals', icon: <UserPlus className="w-5 h-5" /> },
-    { label: 'Campaigns', path: '/employer/campaigns', icon: <Megaphone className="w-5 h-5" /> },
     { label: 'Phỏng vấn', path: '/employer/interviews', icon: <CalendarClock className="w-5 h-5" /> },
     { label: 'Tin nhắn', path: '/employer/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 3 },
     { label: 'Báo cáo', path: '/employer/analytics', icon: <BarChart3 className="w-5 h-5" /> },

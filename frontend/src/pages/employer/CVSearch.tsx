@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Download, UserPlus, Users } from 'lucide-react';
+import { Download, PlusSquare, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -29,7 +29,7 @@ export default function EmployerCVSearch() {
 
     const handleCandidateClick = (id: string) => setSelectedCandidateId(id);
     const handleExport = () => toast.info("Tính năng xuất báo cáo sẽ được cập nhật trong phiên bản tới!");
-    const handleCreateCampaign = () => navigate('/employer/campaigns');
+    const handleCreateJob = () => navigate('/employer/jobs/create');
 
     return (
         <div className="w-full mx-auto min-h-screen flex flex-col">
@@ -50,11 +50,11 @@ export default function EmployerCVSearch() {
                                 Xuất báo cáo
                             </Button>
                             <Button
-                                onClick={handleCreateCampaign}
+                                onClick={handleCreateJob}
                                 className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 h-10 rounded-xl font-semibold"
                             >
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                Tạo chiến dịch
+                                <PlusSquare className="w-4 h-4 mr-2" />
+                                Đăng tin tuyển dụng
                             </Button>
                         </div>
                     }

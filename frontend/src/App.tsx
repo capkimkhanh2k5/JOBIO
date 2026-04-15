@@ -43,10 +43,8 @@ import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
 import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
 import MessagesPage from '@/pages/Messages';
 import EmployerCVSearch from '@/pages/employer/CVSearch';
-import EmployerCampaigns from '@/pages/employer/Campaigns';
 import EmployerInterviewsPage from '@/pages/employer/Interviews';
 import CompanyProfile from '@/pages/employer/CompanyProfile';
-import EmployerReferrals from '@/pages/employer/Referrals';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -167,8 +165,6 @@ export default function App() {
                             <Route path="interviews" element={<EmployerInterviewsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="analytics" element={<EmployerAnalyticsPage />} />
-                            <Route path="campaigns" element={<EmployerCampaigns />} />
-                            <Route path="referrals" element={<EmployerReferrals />} />
                             <Route path="subscription" element={<PlansPage />} />
                             <Route path="billing" element={<BillingDashboard />} />
                             <Route path="checkout" element={<CheckoutPage />} />
