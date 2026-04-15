@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from django.db.models import Max
 
@@ -21,8 +21,7 @@ class CertificationInput(BaseModel):
     credential_url: Optional[str] = None
     does_not_expire: Optional[bool] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
@@ -38,7 +37,7 @@ def create_certification(recruiter: Recruiter, data: CertificationInput) -> Recr
     
     next_order = (max_order or 0) + 1
     
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     certification = RecruiterCertification.objects.create(
         recruiter=recruiter,
@@ -53,7 +52,7 @@ def update_certification(certification: RecruiterCertification, data: Certificat
     """
     Cập nhật thông tin chứng chỉ.
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     for field, value in fields.items():
         setattr(certification, field, value)

@@ -19,7 +19,7 @@ def user():
         password="password123",
         first_name="Test",
         last_name="Owner",
-        role='employer'
+        role='company'
     )
 
 @pytest.fixture

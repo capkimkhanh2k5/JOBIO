@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 
 from apps.candidate.recruiters.models import Recruiter
@@ -16,8 +16,7 @@ class SkillInput(BaseModel):
     years_of_experience: Optional[int] = None
     last_used_date: Optional[date] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
@@ -61,7 +60,7 @@ def update_skill(recruiter_skill: RecruiterSkill, data: SkillInput) -> Recruiter
     Returns:
         RecruiterSkill: Skill đã cập nhật
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     # xoá skill_id nếu có (không cho update)
     fields.pop('skill_id', None)

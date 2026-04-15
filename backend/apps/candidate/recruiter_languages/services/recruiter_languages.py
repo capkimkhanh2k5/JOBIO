@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 
 from apps.candidate.recruiter_languages.models import RecruiterLanguage
@@ -16,8 +16,7 @@ class LanguageInput(BaseModel):
     proficiency_level: Optional[str] = None
     is_native: Optional[bool] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
@@ -54,7 +53,7 @@ def update_language(recruiter_language: RecruiterLanguage, data: LanguageInput) 
     Cập nhật thông tin ngôn ngữ.
     Không cho phép update language_id.
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     # Không cho update language_id
     fields.pop('language_id', None)

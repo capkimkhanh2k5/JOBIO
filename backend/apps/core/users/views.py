@@ -18,7 +18,7 @@ from .services.auth import (
     verify_email, resend_verification, change_password, check_email,
     social_login, verify_2fa, get_2fa_status, enable_2fa, disable_2fa,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
-    VerifyEmailInput, ResendVerificationInput, 
+    ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
     AuthenticationError,
     send_registration_otp, SendRegistrationOtpInput,
@@ -314,7 +314,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 password=serializer.validated_data['password'],
                 full_name=serializer.validated_data['full_name'],
                 role=serializer.validated_data.get('role', 'candidate'),
-                otp=serializer.validated_data['otp']
+                otp=serializer.validated_data.get('otp')
             ))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -428,7 +428,9 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         try:
             result = social_login(
                 provider=provider,
-                access_token=serializer.validated_data['access_token']
+                access_token=serializer.validated_data['access_token'],
+                email=serializer.validated_data.get('email'),
+                full_name=serializer.validated_data.get('full_name')
             )
         except (AuthenticationError, SocialAuthError) as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

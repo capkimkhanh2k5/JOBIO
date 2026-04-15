@@ -1,8 +1,11 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from datetime import timedelta
+from django.utils import timezone
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
 from apps.recruitment.jobs.models import Job
+from apps.billing.models import SubscriptionPlan, CompanySubscription
 
 
 class JobViewTests(APITestCase):
@@ -26,6 +29,29 @@ class JobViewTests(APITestCase):
             user=self.user,
             company_name="Test Company",
             description="A test company"
+        )
+
+        # Tạo gói đăng ký active để các testcase workflow publish/feature chạy đúng business rule hiện tại.
+        self.plan = SubscriptionPlan.objects.create(
+            name="Test Plan",
+            slug="test-plan",
+            price=100000,
+            duration_days=30,
+            features={
+                "job_post_limit": 10,
+                "top_job": True,
+                "featured_job_limit": 5,
+            },
+            is_active=True,
+        )
+        today = timezone.now().date()
+        CompanySubscription.objects.create(
+            company=self.company,
+            plan=self.plan,
+            start_date=today - timedelta(days=1),
+            end_date=today + timedelta(days=29),
+            status=CompanySubscription.Status.ACTIVE,
+            auto_renew=True,
         )
         
         # Create sample job

@@ -57,13 +57,13 @@ class TestGetUserDetail(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
         self.target_user = CustomUser.objects.create_user(
             email="target@example.com",
             password="password123",
             full_name="Target User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_get_user_detail_as_admin(self):
@@ -115,7 +115,7 @@ class TestListUsersEdgeCases(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_list_users_without_authentication(self):
@@ -160,13 +160,13 @@ class TestUpdateUserEdgeCases(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
         self.target_user = CustomUser.objects.create_user(
             email="target@example.com",
             password="password123",
             full_name="Target User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_update_self_as_normal_user(self):
@@ -211,7 +211,7 @@ class TestUpdateStatusEdgeCases(APITestCase):
             email="target@example.com",
             password="password123",
             full_name="Target User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
     
@@ -257,7 +257,7 @@ class TestUpdateRoleEdgeCases(APITestCase):
             email="target@example.com",
             password="password123",
             full_name="Target User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_update_role_to_company(self):
@@ -287,13 +287,13 @@ class TestAvatarEdgeCases(APITestCase):
             email="avatar@example.com",
             password="password123",
             full_name="Avatar User",
-            role="recruiter"
+            role="candidate"
         )
         self.other_user = CustomUser.objects.create_user(
             email="other@example.com",
             password="password123",
             full_name="Other User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_upload_avatar_other_user(self):
@@ -364,7 +364,7 @@ class TestPermissionSecurityFix(APITestCase):
             email="target@example.com",
             password="password123",
             full_name="Target User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_admin_can_update_other_user(self):
@@ -416,7 +416,7 @@ class TestStatsEdgeCases(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_stats_as_normal_user(self):
@@ -443,7 +443,7 @@ class TestExportEdgeCases(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_export_as_normal_user(self):
@@ -474,7 +474,7 @@ class TestBulkActionEdgeCases(APITestCase):
             email="normal@example.com",
             password="password123",
             full_name="Normal User",
-            role="recruiter"
+            role="candidate"
         )
     
     def test_bulk_action_as_normal_user(self):

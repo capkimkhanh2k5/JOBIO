@@ -16,13 +16,13 @@ class RecruiterServiceTest(TestCase):
             email="test@example.com",
             password="password123",
             full_name="Test User",
-            role="recruiter"
+            role="candidate"
         )
         self.user2 = CustomUser.objects.create_user(
             email="test2@example.com",
             password="password123",
             full_name="Test User 2",
-            role="recruiter"
+            role="candidate"
         )
 
     def test_create_recruiter_profile_success(self):

@@ -10,7 +10,6 @@ from apps.core.users.models import CustomUser
 from apps.core.users.services.social_auth import (
     SocialAdapterFactory,
     GoogleAdapter,
-    LinkedInAdapter,
     SocialProfile
 )
 from apps.core.users.services.auth import social_login, verify_social_token
@@ -29,10 +28,6 @@ class SocialAdapterFactoryTest(TestCase):
         adapter = SocialAdapterFactory.get_adapter('google')
         self.assertIsInstance(adapter, GoogleAdapter)
     
-    def test_get_linkedin_adapter(self):
-        adapter = SocialAdapterFactory.get_adapter('linkedin')
-        self.assertIsInstance(adapter, LinkedInAdapter)
-    
     def test_unsupported_provider_raises_error(self):
         with self.assertRaises(UnsupportedProviderError):
             SocialAdapterFactory.get_adapter('twitter')
@@ -40,8 +35,7 @@ class SocialAdapterFactoryTest(TestCase):
     def test_supported_providers_list(self):
         providers = SocialAdapterFactory.supported_providers()
         self.assertIn('google', providers)
-        self.assertIn('facebook', providers)
-        self.assertIn('linkedin', providers)
+        self.assertEqual(providers, ['google'])
 
 
 class GoogleAdapterTest(TestCase):

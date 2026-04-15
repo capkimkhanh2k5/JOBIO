@@ -14,6 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,6 +26,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    'channels',
     # Core 
     'apps.core.users',
     # Blog Domain
@@ -51,9 +53,9 @@ INSTALLED_APPS = [
     'apps.system.system_settings',
     'apps.system.file_uploads',
     'apps.analytics',
-    # 'apps.system.analytics_reports',
+    'apps.system.analytics_reports',
     # 'apps.system.analytics_daily_statistics',
-    # 'apps.system.report_types',
+    'apps.system.report_types',
     # 'apps.system.reports',
     'apps.system.audit_logs',
     'apps.system.search_history',
@@ -82,8 +84,6 @@ INSTALLED_APPS = [
     'apps.recruitment.job_categories',
     'apps.recruitment.applications',
     'apps.recruitment.application_status_history',
-    'apps.recruitment.campaigns',
-    'apps.recruitment.referrals',
     'apps.billing',
     'apps.recruitment.job_skills',
     'apps.recruitment.job_locations',
@@ -134,6 +134,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    }
+}
 
 # Database - dùng SQLite cho local tests (không cần Docker)
 DATABASES = {
@@ -163,6 +170,24 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10000/hour',
+        'user': '10000/hour',
+        'login': '10000/hour',
+        'register': '10000/hour',
+        'password_reset': '10000/hour',
+        'email_verification': '10000/hour',
+        'social_auth': '10000/hour',
+        'burst': '10000/hour',
+        'sustained': '10000/hour',
+        'payment': '10000/hour',
+        'ai_matching': '10000/hour',
+        'file_upload': '10000/hour',
+    },
 }
 
 from datetime import timedelta

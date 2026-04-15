@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from django.utils.text import slugify
 from django.utils import timezone
@@ -40,8 +40,7 @@ class JobInput(BaseModel):
     application_deadline: Optional[date] = None
     status: Optional[str] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 def generate_slug(title: str, company_id: int) -> str:
@@ -82,7 +81,7 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
         slug = generate_slug(data.title, data.company_id)
     
     # Build fields
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     fields.pop('company_id', None)  # Handled separately
     
     # Lấy category
@@ -132,7 +131,7 @@ def update_job(job: Job, data: JobInput) -> Job:
         
         Note: Không cho phép thay đổi company
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     # Không cho update company_id
     fields.pop('company_id', None)

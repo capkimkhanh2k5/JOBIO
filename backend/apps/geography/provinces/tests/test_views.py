@@ -12,28 +12,24 @@ class ProvinceViewSetTests(TestCase):
         
         # Create provinces for testing
         self.province1 = Province.objects.create(
-            province_code='HN',
             province_name='Hà Nội',
             province_type='municipality',
             region='north',
             is_active=True
         )
         self.province2 = Province.objects.create(
-            province_code='HCM',
             province_name='Hồ Chí Minh',
             province_type='municipality',
             region='south',
             is_active=True
         )
         self.province3 = Province.objects.create(
-            province_code='DN',
             province_name='Đà Nẵng',
             province_type='municipality',
             region='central',
             is_active=True
         )
         self.province_inactive = Province.objects.create(
-            province_code='OLD',
             province_name='Old Province',
             province_type='province',
             region='north',
@@ -52,7 +48,6 @@ class ProvinceViewSetTests(TestCase):
         response = self.client.get(f'/api/provinces/{self.province1.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['province_name'], 'Hà Nội')
-        self.assertEqual(response.data['province_code'], 'HN')
     
     def test_by_region_north(self):
         """Test GET /api/provinces/by-region/north/ - Filter miền Bắc"""

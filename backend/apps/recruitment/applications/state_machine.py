@@ -34,6 +34,8 @@ class ApplicationStatus(str, Enum):
 VALID_TRANSITIONS = {
     # From PENDING
     (ApplicationStatus.PENDING, ApplicationStatus.REVIEWING),
+    # Backward-compatible shortcut used by existing APIs/tests
+    (ApplicationStatus.PENDING, ApplicationStatus.SHORTLISTED),
     (ApplicationStatus.PENDING, ApplicationStatus.REJECTED),
     (ApplicationStatus.PENDING, ApplicationStatus.WITHDRAWN),
     

@@ -29,7 +29,7 @@ class TestNewAuthAPIs(APITestCase):
             email="test@example.com",
             password="password123",
             full_name="Test User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
     

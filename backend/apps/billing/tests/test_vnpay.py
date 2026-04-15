@@ -23,7 +23,7 @@ class TestVNPayIntegration(APITestCase):
         self.user = User.objects.create_user(
             email="company@test.com",
             password="password123",
-            role='employer'
+            role='company'
         )
         self.industry = Industry.objects.create(name="Tech", slug="tech")
         self.company_profile = Company.objects.create(

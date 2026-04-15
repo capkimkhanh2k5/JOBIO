@@ -28,7 +28,6 @@ class AddressViewSetTests(TestCase):
         
         # Create province
         self.province = Province.objects.create(
-            province_code='HN',
             province_name='Hà Nội',
             province_type='municipality',
             region='north',

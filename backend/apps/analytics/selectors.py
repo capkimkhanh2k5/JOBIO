@@ -109,6 +109,7 @@ class DashboardSelector:
             'jobs': {
                 'total': company_jobs.count(),
                 'published': active_jobs,
+                'active': active_jobs,
                 'draft': draft_jobs,
                 'closed': closed_jobs + expired_jobs,
             },

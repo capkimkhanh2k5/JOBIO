@@ -37,7 +37,7 @@ class TestIntegratedAuthAPIs(APITestCase):
             email="test@example.com",
             password="password123",
             full_name="Test User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
     
@@ -47,7 +47,7 @@ class TestIntegratedAuthAPIs(APITestCase):
             'password': 'password123',
             'password_confirm': 'password123',
             'full_name': 'New User',
-            'role': 'recruiter'
+            'role': 'candidate'
         }
         response = self.client.post(AUTH_REGISTER, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -186,43 +186,23 @@ class TestIntegratedAuthAPIs(APITestCase):
         self.assertEqual(response.data['user']['email'], 'googleuser@example.com')
         self.assertTrue(CustomUser.objects.filter(email='googleuser@example.com').exists())
 
-    @patch('apps.core.users.services.auth.requests.get')
-    def test_social_login_facebook_success(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            'id': '123',
-            'name': 'FB User',
-            'email': 'fbuser@example.com'
-        }
-        
-        data = {
+    def test_social_login_facebook_rejected(self):
+        response = self.client.post(auth_social_login('facebook'), {
             'access_token': 'fake_fb_token',
             'provider': 'facebook',
             'email': 'fbuser@example.com',
             'full_name': 'FB User'
-        }
-        response = self.client.post(auth_social_login('facebook'), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['user']['email'], 'fbuser@example.com')
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('apps.core.users.services.auth.requests.get')
-    def test_social_login_linkedin_success(self, mock_get):
-        mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {
-            'localizedFirstName': 'LinkedIn',
-            'localizedLastName': 'User',
-            'id': 'linkedin123',
-        }
-        
-        data = {
+    def test_social_login_linkedin_rejected(self):
+        response = self.client.post(auth_social_login('linkedin'), {
             'access_token': 'fake_linkedin_token',
             'provider': 'linkedin',
             'email': 'linkedinuser@example.com',
             'full_name': 'LinkedIn User'
-        }
-        response = self.client.post(auth_social_login('linkedin'), data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['user']['email'], 'linkedinuser@example.com')
+        })
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # --- 4. 2FA Verification ---
 

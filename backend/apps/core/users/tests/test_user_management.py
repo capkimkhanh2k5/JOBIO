@@ -125,7 +125,7 @@ class TestUserManagement(APITestCase):
         
         user.refresh_from_db()
         self.assertIsNotNone(user.avatar_url)
-        self.assertIn("avatars", user.avatar_url)
+        self.assertIn("avatars", user.avatar_url.lower())
 
     def test_remove_avatar(self):
         user = CustomUser.objects.create_user(

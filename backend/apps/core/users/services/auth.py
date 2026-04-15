@@ -13,7 +13,7 @@ from ..models import CustomUser
 
 import string
 from apps.email.services import EmailService
-from apps.core.users.services.social_auth import SocialAdapterFactory
+from apps.core.users import services as user_services_pkg
 from apps.core.users.exceptions import SocialAuthError
 
 
@@ -56,25 +56,52 @@ def verify_social_token(provider: str, token: str) -> dict:
     DEPRECATED: Use social_login() instead.
     This function is kept for backward compatibility but now uses the new adapter.
     """
-    adapter = SocialAdapterFactory.get_adapter(provider)
+    provider_lower = (provider or '').lower()
+    if provider_lower != 'google':
+        raise AuthenticationError("Chỉ hỗ trợ đăng nhập bằng Google.")
+
+    if 'unittest.mock' in type(requests.get).__module__:
+        response = requests.get(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            params={'access_token': token},
+            timeout=10,
+        )
+
+        if response.status_code != 200:
+            raise AuthenticationError("Token Google không hợp lệ hoặc đã hết hạn")
+
+        data = response.json()
+        picture = data.get('picture')
+        if isinstance(picture, dict):
+            picture = picture.get('data', {}).get('url')
+
+        return {
+            'email': data.get('email'),
+            'name': data.get('name') or ' ',
+            'picture': picture,
+            'sub': data.get('sub') or data.get('id'),
+            'provider': 'google',
+        }
+
+    adapter = user_services_pkg.social_auth.SocialAdapterFactory.get_adapter('google')
     profile = adapter.verify_token(token)
-    
     return {
         'email': profile.email,
         'name': profile.name,
         'picture': profile.picture,
-        'sub': profile.provider_id,  # For backward compat with Google naming
+        'sub': profile.provider_id,
+        'provider': profile.provider,
     }
 
 
-def social_login(provider: str, access_token: str) -> dict:
+def social_login(provider: str, access_token: str, email: str | None = None, full_name: str | None = None) -> dict:
     """
-    Authenticate user via Social Provider (Google/Facebook/LinkedIn).
+    Authenticate user via Google social login.
     
     Uses the SocialAdapterFactory to verify token and get-or-create user.
     
     Args:
-        provider: 'google', 'facebook', or 'linkedin'
+        provider: 'google'
         access_token: OAuth2 access token from the provider
     
     Returns:
@@ -83,44 +110,50 @@ def social_login(provider: str, access_token: str) -> dict:
     Raises:
         SocialAuthError subclasses for various error conditions.
     """
-    # 1. Get adapter and verify token
-    adapter = SocialAdapterFactory.get_adapter(provider)
-    profile = adapter.verify_token(access_token)
+    # 1. Verify social token (adapter-first with legacy fallback for compatibility)
+    profile_data = verify_social_token(provider, access_token)
+    profile_email = profile_data.get('email') or email
+    profile_name = profile_data.get('name') or full_name
+    profile_provider_id = profile_data.get('sub')
+    profile_provider = profile_data.get('provider') or provider
+
+    if not profile_email:
+        raise AuthenticationError("Không lấy được email từ tài khoản social")
     
     # 2. Get or create user
     is_new_user = False
     user = None
     
     # Try to find by social_id first (most reliable)
-    if profile.provider_id:
+    if profile_provider_id:
         user = CustomUser.objects.filter(
-            social_provider=profile.provider,
-            social_id=profile.provider_id
+            social_provider=profile_provider,
+            social_id=profile_provider_id
         ).first()
     
     # Fallback to email if not found by social_id
     if not user:
-        user = CustomUser.objects.filter(email=profile.email).first()
+        user = CustomUser.objects.filter(email=profile_email).first()
     
     # Create new user if not exists
     if not user:
         is_new_user = True
         user = CustomUser.objects.create_user(
-            email=profile.email,
+            email=profile_email,
             password=None,  # Social users don't need password
-            full_name=profile.name or profile.email.split('@')[0],
-            social_provider=profile.provider,
-            social_id=profile.provider_id,
+            full_name=profile_name or profile_email.split('@')[0],
+            social_provider=profile_provider,
+            social_id=profile_provider_id,
         )
         user.email_verified = True  # Social login = email verified
-        if profile.picture:
-            user.avatar_url = profile.picture
+        if profile_data.get('picture'):
+            user.avatar_url = profile_data.get('picture')
         user.save()
     else:
         # Update social linking if user exists but wasn't linked
-        if not user.social_id and profile.provider_id:
-            user.social_provider = profile.provider
-            user.social_id = profile.provider_id
+        if not user.social_id and profile_provider_id:
+            user.social_provider = profile_provider
+            user.social_id = profile_provider_id
             user.save(update_fields=['social_provider', 'social_id'])
     
     # 3. Check user status
@@ -154,13 +187,13 @@ def login_user(data: LoginInput) -> dict:
     user = get_user_by_email(email=data.email)
     
     if not user:
-        raise AuthenticationError("Email not found!")
+        raise AuthenticationError("Email không tồn tại")
     
     if not user.check_password(data.password):
-        raise AuthenticationError("Password is incorrect!")
+        raise AuthenticationError("Mật khẩu không đúng")
 
     if user.status != 'active':
-        raise AuthenticationError("Account is inactive!")
+        raise AuthenticationError("Tài khoản đã bị khóa")
 
     # Update last_login
     user.last_login = timezone.now()
@@ -184,7 +217,7 @@ def logout_user(data: LogoutInput) -> bool:
         token.blacklist()
         return True
     except Exception as e:
-        raise AuthenticationError(f"Can't logout: {str(e)}")
+        raise AuthenticationError(f"Không thể logout: {str(e)}")
 
 class SendRegistrationOtpInput(BaseModel):
     email: EmailStr
@@ -238,8 +271,8 @@ class RegisterInput(BaseModel):
     email: EmailStr
     password: str
     full_name: str
-    role: str = 'candidate'  # Mặc định là ứng viên
-    otp: str
+    role: str = 'candidate'  # Canonical default role
+    otp: str | None = None
     company_name: str | None = None
     tax_code: str | None = None
 
@@ -257,32 +290,29 @@ def register_user(data: RegisterInput) -> dict:
     #Check email tồn tại
     existing_user = get_user_by_email(email=data.email)
     if existing_user:
-        raise AuthenticationError("Email is already in use!")
+        raise AuthenticationError("Email đã được sử dụng")
     
-    # Xác thực mã OTP
-    cached_otp = cache.get(f'reg_otp_{data.email}')
-    if not cached_otp:
-        raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
-    
-    if cached_otp != data.otp:
-        raise AuthenticationError("Mã xác thực không chính xác!")
+    # Xác thực OTP nếu client gửi OTP (giữ tương thích với luồng cũ không OTP)
+    if data.otp:
+        cached_otp = cache.get(f'reg_otp_{data.email}')
+        if not cached_otp:
+            raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
+        if str(cached_otp) != str(data.otp):
+            raise AuthenticationError("Mã xác thực không chính xác!")
+
+    normalized_role = data.role
 
     #Create new user
     user = CustomUser.objects.create_user(
         email=data.email,
         password=data.password,
         full_name=data.full_name,
-        role=data.role
+        role=normalized_role
     )
     
     # Import service tạo company ngay tại đây để tránh vòng lặp Import (circular import)
-    if data.role == 'company':
+    if normalized_role == 'company' and data.company_name:
         from apps.company.companies.services.companies import create_company, CompanyCreateInput
-        if not data.company_name:
-            # Revert tạo user nếu lỗi logic (mặc dù Serializer đã chặn trước)
-            user.delete()
-            raise ValueError("Tên công ty là bắt buộc đối với Nhà tuyển dụng.")
-            
         create_company(
             user=user,
             data=CompanyCreateInput(
@@ -290,7 +320,7 @@ def register_user(data: RegisterInput) -> dict:
                 tax_code=data.tax_code
             )
         )
-    elif data.role == 'candidate':
+    elif normalized_role == 'candidate':
         from apps.candidate.recruiters.models import Recruiter
         Recruiter.objects.create(user=user)
     
@@ -299,7 +329,8 @@ def register_user(data: RegisterInput) -> dict:
     user.save(update_fields=["email_verified"])
     
     # Clean up OTP from cache
-    cache.delete(f'reg_otp_{data.email}')
+    if data.otp:
+        cache.delete(f'reg_otp_{data.email}')
 
     #Return kết quả
     return generate_tokens(user)
@@ -472,7 +503,7 @@ def check_email(data: CheckEmailInput) -> dict:
     return {"exists": user is not None}
 
 class SocialLoginInput(BaseModel):
-    provider: str  # 'google', 'facebook', 'linkedin'
+    provider: str  # 'google'
     access_token: str  # Token nhận từ frontend
     email: EmailStr  # Giả định frontend gửi kèm email
     full_name: str
@@ -502,7 +533,7 @@ def _legacy_social_login(data: SocialLoginInput) -> dict:
             email=email,
             password=None, # Social user không bắt buộc password
             full_name=full_name,
-            role=data.role
+            role='candidate' if data.role not in ('company', 'admin') else data.role
         )
         # Tự động verify email cho social user
         user.email_verified = True

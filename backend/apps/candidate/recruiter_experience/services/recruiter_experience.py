@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from django.db.models import Max
 
@@ -21,8 +21,7 @@ class ExperienceInput(BaseModel):
     address_id: Optional[int] = None
     achievements: Optional[str] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
@@ -40,7 +39,7 @@ def create_experience_service(recruiter: Recruiter, data: ExperienceInput) -> Re
     
     next_order = (max_order or 0) + 1
     
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     # Handle FK fields
     industry_id = fields.pop('industry_id', None)
@@ -62,7 +61,7 @@ def update_experience_service(experience: RecruiterExperience, data: ExperienceI
     Cập nhật thông tin kinh nghiệm làm việc.
     Chỉ update các fields có trong data.
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     # Handle FK fields
     if 'industry_id' in fields:

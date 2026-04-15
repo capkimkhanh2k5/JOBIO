@@ -79,6 +79,7 @@ class RegisterSerializer(serializers.Serializer):
         write_only=True,
         max_length=6,
         min_length=6,
+        required=False,
         error_messages={
             'max_length': 'Mã OTP phải có đúng 6 ký tự',
             'min_length': 'Mã OTP phải có đúng 6 ký tự'
@@ -106,6 +107,7 @@ class RegisterSerializer(serializers.Serializer):
             })
             
         role = data.get('role', 'candidate')
+
         if role == 'company':
             # company_name is required when role is company
             company_name = data.get('company_name')
@@ -164,10 +166,10 @@ class CheckEmailSerializer(serializers.Serializer):
 
 class SocialAuthSerializer(serializers.Serializer):
     access_token = serializers.CharField()
-    provider = serializers.ChoiceField(choices=['google', 'facebook', 'linkedin'], required=False)
+    provider = serializers.ChoiceField(choices=['google'], required=False)
     email = serializers.EmailField(required=False)
     full_name = serializers.CharField(required=False)
-    role = serializers.CharField(default='candidate', required=False)
+    role = serializers.ChoiceField(choices=['candidate', 'company', 'admin'], default='candidate', required=False)
 
 class Verify2FASerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)

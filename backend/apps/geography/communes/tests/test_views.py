@@ -27,14 +27,12 @@ class CommuneViewSetTests(TestCase):
         
         # Create provinces
         self.province1 = Province.objects.create(
-            province_code='HN',
             province_name='Hà Nội',
             province_type='municipality',
             region='north',
             is_active=True
         )
         self.province2 = Province.objects.create(
-            province_code='HCM',
             province_name='Hồ Chí Minh',
             province_type='municipality',
             region='south',
@@ -154,7 +152,6 @@ class CommuneViewSetTests(TestCase):
         """Test GET /api/provinces/:id/communes/ - Tỉnh không có communes"""
         # Create new province without communes
         empty_province = Province.objects.create(
-            province_code='DN',
             province_name='Đà Nẵng',
             province_type='municipality',
             region='central',
