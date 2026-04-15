@@ -45,8 +45,8 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
         company_profile = getattr(request.user, 'company_profile', None)
         if not company_profile:
             return Response({"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN)
-            
-        sub = CompanySubscription.objects.filter(company=company_profile, status=CompanySubscription.Status.ACTIVE).first()
+
+        sub = SubscriptionService.get_active_subscription(company_profile.id)
         if not sub:
             return Response({"error": "Subscription not found"}, status=status.HTTP_404_NOT_FOUND)
             
@@ -175,6 +175,7 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             status=Transaction.Status.PENDING,
             type=Transaction.Type.SUBSCRIPTION,
             metadata__plan_id=plan.id,
+            created_at__gte=timezone.now() - timedelta(minutes=15),
         ).order_by('-created_at').first()
 
         result = {

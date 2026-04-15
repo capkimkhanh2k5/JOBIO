@@ -1,12 +1,15 @@
 """
 Billing Views Tests - Django TestCase Version
 """
+from datetime import timedelta
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-from apps.billing.models import SubscriptionPlan, CompanySubscription
+from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMethod, Transaction
 from apps.company.companies.models import Company
 from apps.company.industries.models import Industry
 
@@ -96,6 +99,39 @@ class TestCompanySubscriptionViewSet(APITestCase):
         # Verify auto_renew is False in DB
         sub.refresh_from_db()
         self.assertFalse(sub.auto_renew)
+
+    def test_get_current_subscription_ignores_expired_active(self):
+        """Current endpoint should not return ACTIVE subscriptions that are already out of date."""
+        CompanySubscription.objects.create(
+            company=self.company,
+            plan=self.plan,
+            start_date=timezone.now().date() - timedelta(days=31),
+            end_date=timezone.now().date() - timedelta(days=1),
+            status=CompanySubscription.Status.ACTIVE,
+        )
+
+        url = reverse('company-subscriptions-current')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_pre_check_ignores_stale_pending_transaction(self):
+        """Pre-check should only surface reusable pending transactions inside reuse window."""
+        payment_method = PaymentMethod.objects.create(name='VNPay', code='vnpay')
+        tx = Transaction.objects.create(
+            company=self.company,
+            payment_method=payment_method,
+            amount=self.plan.price,
+            type=Transaction.Type.SUBSCRIPTION,
+            status=Transaction.Status.PENDING,
+            reference_code='ORDER_STALE_1',
+            metadata={'plan_id': self.plan.id},
+        )
+        Transaction.objects.filter(id=tx.id).update(created_at=timezone.now() - timedelta(minutes=30))
+
+        url = reverse('company-subscriptions-pre-check')
+        response = self.client.get(url, {'plan_id': self.plan.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data.get('mode'), 'pending_reuse')
 
 
 class TestTransactionViewSet(APITestCase):

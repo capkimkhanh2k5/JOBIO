@@ -25,7 +25,7 @@ class SubscriptionService:
             status=CompanySubscription.Status.ACTIVE,
             start_date__lte=now,
             end_date__gte=now
-        ).select_related('plan').first()
+        ).select_related('plan').order_by('-end_date', '-created_at').first()
 
     @staticmethod
     def get_plan_limits(company_id: int):
@@ -50,22 +50,26 @@ class SubscriptionService:
         Creates a new subscription record for a company.
         Dates are calculated based on plan.duration_days.
         """
-        today = timezone.now().date()
-        existing_sub = CompanySubscription.objects.filter(
+        now = timezone.now()
+        today = now.date()
+        CompanySubscription.objects.filter(
             company=company,
             status=CompanySubscription.Status.ACTIVE,
-        ).order_by('-created_at').first()
-
-        if existing_sub:
-            existing_sub.status = CompanySubscription.Status.CANCELLED
-            existing_sub.auto_renew = False
-            existing_sub.save(update_fields=['status', 'auto_renew', 'updated_at'])
+        ).update(
+            status=CompanySubscription.Status.CANCELLED,
+            auto_renew=False,
+            updated_at=now,
+        )
 
         CompanySubscription.objects.filter(
             company=company,
             status=CompanySubscription.Status.PENDING,
             start_date__gte=today,
-        ).update(status=CompanySubscription.Status.CANCELLED, auto_renew=False)
+        ).update(
+            status=CompanySubscription.Status.CANCELLED,
+            auto_renew=False,
+            updated_at=now,
+        )
 
         start_date = timezone.now().date()
         end_date = start_date + timedelta(days=plan.duration_days)
@@ -98,8 +102,10 @@ class SubscriptionService:
         """
         sub = CompanySubscription.objects.filter(
             company=company,
-            status=CompanySubscription.Status.ACTIVE
-        ).first()
+            status=CompanySubscription.Status.ACTIVE,
+            start_date__lte=timezone.now().date(),
+            end_date__gte=timezone.now().date(),
+        ).order_by('-end_date', '-created_at').first()
 
         if not sub:
             sub = CompanySubscription.objects.filter(
@@ -138,16 +144,22 @@ class SubscriptionService:
     @staticmethod
     def change_subscription(company, plan):
         """Backward-compatible plan change helper used by older tests."""
+        now = timezone.now()
         current_sub = CompanySubscription.objects.filter(
             company=company,
             status=CompanySubscription.Status.ACTIVE,
-        ).order_by('-created_at').first()
+        ).order_by('-end_date', '-created_at').first()
 
-        today = timezone.now().date()
+        today = now.date()
         if current_sub and plan.price > current_sub.plan.price:
-            current_sub.status = CompanySubscription.Status.CANCELLED
-            current_sub.auto_renew = False
-            current_sub.save(update_fields=['status', 'auto_renew', 'updated_at'])
+            CompanySubscription.objects.filter(
+                company=company,
+                status=CompanySubscription.Status.ACTIVE,
+            ).update(
+                status=CompanySubscription.Status.CANCELLED,
+                auto_renew=False,
+                updated_at=now,
+            )
 
             new_sub = CompanySubscription.objects.create(
                 company=company,
@@ -238,12 +250,13 @@ class SubscriptionService:
         - If no active plan: create a new active subscription.
         """
         today = timezone.now().date()
+        now = timezone.now()
         active_sub = CompanySubscription.objects.filter(
             company=company,
             status=CompanySubscription.Status.ACTIVE,
             start_date__lte=today,
             end_date__gte=today,
-        ).select_related('plan').first()
+        ).select_related('plan').order_by('-end_date', '-created_at').first()
 
         if active_sub and SubscriptionService.is_same_plan_family(active_sub.plan, plan):
             base_end_date = active_sub.end_date if active_sub.end_date >= today else today
@@ -251,12 +264,25 @@ class SubscriptionService:
             active_sub.auto_renew = True
             active_sub.plan = plan
             active_sub.save(update_fields=['plan', 'end_date', 'auto_renew', 'updated_at'])
+
+            CompanySubscription.objects.filter(
+                company=company,
+                status=CompanySubscription.Status.ACTIVE,
+            ).exclude(id=active_sub.id).update(
+                status=CompanySubscription.Status.CANCELLED,
+                auto_renew=False,
+                updated_at=now,
+            )
             return active_sub
 
-        if active_sub and active_sub.plan_id != plan.id:
-            active_sub.status = CompanySubscription.Status.CANCELLED
-            active_sub.auto_renew = False
-            active_sub.save(update_fields=['status', 'auto_renew', 'updated_at'])
+        CompanySubscription.objects.filter(
+            company=company,
+            status=CompanySubscription.Status.ACTIVE,
+        ).update(
+            status=CompanySubscription.Status.CANCELLED,
+            auto_renew=False,
+            updated_at=now,
+        )
 
         return CompanySubscription.objects.create(
             company=company,

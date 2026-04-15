@@ -8,8 +8,10 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
+from unittest.mock import patch
 
 from apps.billing.services.vnpay import VNPayService
+from apps.billing.tasks import cleanup_expired_transactions
 from apps.billing.models import Transaction, CompanySubscription, PaymentMethod, SubscriptionPlan
 from apps.company.companies.models import Company
 from apps.company.industries.models import Industry
@@ -375,3 +377,108 @@ class TestVNPayIntegration(APITestCase):
 
         self.assertEqual(ipn_response.status_code, status.HTTP_200_OK)
         self.assertEqual(ipn_response.data['RspCode'], '02')
+
+    def test_payment_return_recovers_from_late_success_after_failed(self):
+        """A signed delayed success callback should recover txn from FAILED to COMPLETED."""
+        subscribe_resp = self.client.post(reverse('company-subscriptions-subscribe'), {'plan_id': self.plan.id})
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn_ref = subscribe_resp.data['transaction_ref']
+
+        base_params = {
+            'vnp_Amount': '10000000',
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
+            'vnp_TransactionNo': '12345670',
+            'vnp_TxnRef': txn_ref,
+        }
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+
+        # First callback marks transaction as failed.
+        failed_params = {**base_params, 'vnp_ResponseCode': '24'}
+        failed_query = urllib.parse.urlencode(sorted(failed_params.items()))
+        failed_params['vnp_SecureHash'] = hmac.new(
+            secret.encode('utf-8'),
+            failed_query.encode('utf-8'),
+            hashlib.sha512,
+        ).hexdigest()
+        failed_resp = self.client.get(reverse('company-subscriptions-payment-return'), {**failed_params, 'redirect': '0'})
+        self.assertEqual(failed_resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        txn = Transaction.objects.get(reference_code=txn_ref)
+        self.assertEqual(txn.status, Transaction.Status.FAILED)
+
+        # Delayed callback from VNPay with success should recover transaction.
+        success_params = {**base_params, 'vnp_ResponseCode': '00', 'vnp_TransactionNo': '12345671'}
+        success_query = urllib.parse.urlencode(sorted(success_params.items()))
+        success_params['vnp_SecureHash'] = hmac.new(
+            secret.encode('utf-8'),
+            success_query.encode('utf-8'),
+            hashlib.sha512,
+        ).hexdigest()
+        success_resp = self.client.get(reverse('company-subscriptions-payment-return'), {**success_params, 'redirect': '0'})
+
+        self.assertEqual(success_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(success_resp.data['message'], 'Confirm success')
+
+        txn.refresh_from_db()
+        self.assertEqual(txn.status, Transaction.Status.COMPLETED)
+
+        sub = CompanySubscription.objects.filter(
+            company=self.company_profile,
+            plan=self.plan,
+            status=CompanySubscription.Status.ACTIVE,
+        ).first()
+        self.assertIsNotNone(sub)
+
+    def test_cleanup_failed_then_late_success_callback_recovers(self):
+        """Cleanup marking txn as failed must not block a later valid success callback."""
+        subscribe_resp = self.client.post(reverse('company-subscriptions-subscribe'), {'plan_id': self.plan.id})
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn_ref = subscribe_resp.data['transaction_ref']
+
+        txn = Transaction.objects.get(reference_code=txn_ref)
+        Transaction.objects.filter(id=txn.id).update(created_at=timezone.now() - timedelta(minutes=10))
+
+        with patch(
+            'apps.billing.services.vnpay.VNPayService.query_vnpay_transaction',
+            return_value={'vnp_ResponseCode': '01'}
+        ):
+            cleanup_expired_transactions()
+
+        txn.refresh_from_db()
+        self.assertEqual(txn.status, Transaction.Status.FAILED)
+
+        params = {
+            'vnp_Amount': '10000000',
+            'vnp_BankCode': 'NCB',
+            'vnp_CardType': 'ATM',
+            'vnp_OrderInfo': 'Subscribe',
+            'vnp_PayDate': '20260101000000',
+            'vnp_ResponseCode': '00',
+            'vnp_TmnCode': getattr(settings, 'VNP_TMN_CODE', 'EMBIL7EU'),
+            'vnp_TransactionNo': '12345672',
+            'vnp_TxnRef': txn_ref,
+        }
+        secret = getattr(settings, 'VNP_HASH_SECRET', 'FP2480JF752TUW5PZWV8MSHCE4FAWB2V')
+        signed_query = urllib.parse.urlencode(sorted(params.items()))
+        params['vnp_SecureHash'] = hmac.new(
+            secret.encode('utf-8'),
+            signed_query.encode('utf-8'),
+            hashlib.sha512,
+        ).hexdigest()
+
+        response = self.client.get(reverse('company-subscriptions-payment-return'), {**params, 'redirect': '0'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        txn.refresh_from_db()
+        self.assertEqual(txn.status, Transaction.Status.COMPLETED)
+        self.assertTrue(
+            CompanySubscription.objects.filter(
+                company=self.company_profile,
+                plan=self.plan,
+                status=CompanySubscription.Status.ACTIVE,
+            ).exists()
+        )

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from apps.core.models import TimeStampedModel
 
@@ -52,6 +53,13 @@ class CompanySubscription(TimeStampedModel):
         db_table = 'company_subscriptions'
         verbose_name = 'Đăng ký công ty'
         verbose_name_plural = 'Đăng ký công ty'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['company'],
+                condition=Q(status='active'),
+                name='uniq_active_subscription_per_company',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.company} - {self.plan}"
