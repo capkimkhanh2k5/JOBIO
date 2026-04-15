@@ -1,16 +1,60 @@
-from django.db.models import Q
-from typing import List
+import re
 import logging
+from typing import List, Set
 
+from django.db.models import Prefetch, Q
+
+from apps.candidate.skills.models import Skill
 from apps.communication.job_alerts.models import JobAlert, JobAlertMatch
+from apps.geography.provinces.models import Province
 from apps.recruitment.jobs.models import Job
 
 
 logger = logging.getLogger(__name__)
 
+_TOKEN_PATTERN = re.compile(r"[a-z0-9]+")
+
+
+def _tokenize(text: str) -> Set[str]:
+    """Normalize text into a stable set of lowercase tokens."""
+    if not text:
+        return set()
+    return set(_TOKEN_PATTERN.findall(text.lower()))
+
+
+def _coverage_score(required: Set[str], available: Set[str]) -> float:
+    """Return how much of the required set is covered by the available set."""
+    if not required:
+        return 1.0
+    if not available:
+        return 0.0
+    return len(required & available) / len(required)
+
+
+def _salary_similarity_score(alert_salary_min, job_salary_min, job_salary_max, is_salary_negotiable: bool) -> float:
+    """Return a 0.0-1.0 salary similarity score."""
+    if alert_salary_min is None:
+        return 1.0
+
+    if is_salary_negotiable:
+        return 0.5
+
+    salary_candidates = [value for value in (job_salary_max, job_salary_min) if value is not None]
+    if not salary_candidates:
+        return 0.5
+
+    best_offer = max(salary_candidates)
+    if best_offer >= alert_salary_min:
+        return 1.0
+
+    try:
+        return max(0.0, float(best_offer) / float(alert_salary_min))
+    except (TypeError, ZeroDivisionError, ValueError):
+        return 0.0
+
 
 class JobMatchingService:
-    """Service xử lý logic so khớp Job và JobAlert sử dụng Django ORM Annotations"""
+    """Service xử lý logic so khớp Job và JobAlert sử dụng scoring nhiều tiêu chí."""
     
     # Scoring Weights (total = 100)
     KEYWORD_WEIGHT = 40
@@ -22,29 +66,43 @@ class JobMatchingService:
     @classmethod
     def find_alerts_for_job(cls, job: Job) -> List[JobAlert]:
         """
-        Tìm JobAlerts phù hợp sử dụng Django ORM Annotations.
+        Tìm JobAlerts phù hợp dựa trên độ tương đồng tổng hợp.
         
         Scoring Algorithm (Weighted):
-        - Keywords: 40% (keyword exists in job title/description)
-        - Skills: 30% (overlap between alert skills and job skills)
-        - Location: 20% (job location matches alert locations)
-        - Salary: 10% (job salary >= alert min salary)
+        - Keywords: 40% (độ phủ của keyword alert trên title/description/requirements)
+        - Skills: 30% (độ phủ kỹ năng alert trên kỹ năng của job)
+        - Location: 20% (tỉnh/thành match)
+        - Salary: 10% (độ tương thích mức lương)
         
         Threshold: >= 50%
         
         Returns:
             List of JobAlert objects ordered by score descending
         """
-        job_title = (job.title or '').lower()
-        job_description = (getattr(job, 'description', '') or '').lower()
         job_location_id = getattr(getattr(job, 'address', None), 'province_id', None)
+        job_salary_min = getattr(job, 'salary_min', None)
         job_salary_max = getattr(job, 'salary_max', None)
-        job_skill_ids = []
+        job_is_salary_negotiable = getattr(job, 'is_salary_negotiable', False)
+        job_text_tokens = _tokenize(
+            " ".join(
+                value for value in (
+                    getattr(job, 'title', '') or '',
+                    getattr(job, 'description', '') or '',
+                    getattr(job, 'requirements', '') or '',
+                    getattr(job, 'benefits', '') or '',
+                )
+                if value
+            )
+        )
+        job_skill_ids = set()
         if hasattr(job, 'required_skills'):
-            job_skill_ids = list(job.required_skills.values_list('skill_id', flat=True))
+            job_skill_ids = set(job.required_skills.values_list('skill_id', flat=True))
 
         alerts = []
-        query = JobAlert.objects.filter(is_active=True).prefetch_related('skills', 'locations')
+        query = JobAlert.objects.filter(is_active=True).prefetch_related(
+            Prefetch('skills', queryset=Skill.objects.only('id')),
+            Prefetch('locations', queryset=Province.objects.only('id')),
+        )
         if job.category:
             query = query.filter(Q(category=job.category) | Q(category__isnull=True))
         if job.job_type:
@@ -53,34 +111,27 @@ class JobMatchingService:
             query = query.filter(Q(level=job.level) | Q(level__isnull=True))
 
         for alert in query:
-            alert_keywords = (alert.keywords or '').lower().split()
-            keyword_score = cls.KEYWORD_WEIGHT if not alert_keywords else 0.0
-            if alert_keywords:
-                haystack = f"{job_title} {job_description}"
-                if all(keyword in haystack for keyword in alert_keywords):
-                    keyword_score = cls.KEYWORD_WEIGHT
-                elif any(keyword in haystack for keyword in alert_keywords):
-                    keyword_score = cls.KEYWORD_WEIGHT * 0.5
+            alert_keyword_tokens = _tokenize(alert.keywords or '')
+            keyword_score = cls.KEYWORD_WEIGHT * _coverage_score(alert_keyword_tokens, job_text_tokens)
 
-            alert_skill_ids = list(alert.skills.values_list('id', flat=True))
+            alert_skill_ids = {skill.id for skill in alert.skills.all()}
             if alert_skill_ids:
-                overlap = len(set(alert_skill_ids).intersection(job_skill_ids))
-                if overlap == 0:
-                    continue
-                skill_score = cls.SKILL_WEIGHT * (overlap / len(alert_skill_ids))
+                skill_score = cls.SKILL_WEIGHT * _coverage_score(alert_skill_ids, job_skill_ids)
             else:
                 skill_score = cls.SKILL_WEIGHT
 
-            alert_location_ids = list(alert.locations.values_list('id', flat=True))
-            if not alert_location_ids:
-                location_score = cls.LOCATION_WEIGHT
-            else:
+            alert_location_ids = {location.id for location in alert.locations.all()}
+            if alert_location_ids:
                 location_score = cls.LOCATION_WEIGHT if job_location_id in alert_location_ids else 0.0
-
-            if alert.salary_min is None:
-                salary_score = cls.SALARY_WEIGHT
             else:
-                salary_score = cls.SALARY_WEIGHT if job_salary_max is None or job_salary_max >= alert.salary_min else 0.0
+                location_score = cls.LOCATION_WEIGHT
+
+            salary_score = cls.SALARY_WEIGHT * _salary_similarity_score(
+                alert.salary_min,
+                job_salary_min,
+                job_salary_max,
+                job_is_salary_negotiable,
+            )
 
             total_score = keyword_score + skill_score + location_score + salary_score
             if total_score < cls.THRESHOLD:
