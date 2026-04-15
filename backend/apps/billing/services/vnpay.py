@@ -299,15 +299,28 @@ class VNPayService:
                 }
 
             # 4. Idempotency Check: Đã xử lý rồi?
-            if txn.status in [Transaction.Status.COMPLETED, Transaction.Status.FAILED]:
+            if txn.status == Transaction.Status.COMPLETED:
                 logger.info(f"VNPay Transaction already processed: {txn_ref} with status {txn.status}")
                 return {
-                    'success': txn.status == Transaction.Status.COMPLETED,
-                    'message': 'Order already confirmed' if txn.status == Transaction.Status.COMPLETED else 'Order already failed',
+                    'success': True,
+                    'message': 'Order already confirmed',
                     'rsp_code': '02',
                     'transaction': txn,
                     'subscription': None
                 }
+
+            # Allow delayed success callback to recover transactions that were marked failed earlier.
+            if txn.status == Transaction.Status.FAILED and response_code != '00':
+                logger.info(f"VNPay Transaction already failed: {txn_ref}")
+                return {
+                    'success': False,
+                    'message': 'Order already failed',
+                    'rsp_code': '02',
+                    'transaction': txn,
+                    'subscription': None
+                }
+            if txn.status == Transaction.Status.FAILED and response_code == '00':
+                logger.warning(f"VNPay delayed success received for previously failed txn: {txn_ref}. Attempting recovery.")
 
             # Cập nhật thông tin từ VNPay
             txn.vnp_TransactionNo = query_params.get('vnp_TransactionNo')
