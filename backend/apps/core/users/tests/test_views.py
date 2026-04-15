@@ -21,7 +21,7 @@ class TestLoginAPI(APITestCase):
             email="test@example.com",
             password="password123",
             full_name="Test User",
-            role="recruiter",
+                role="candidate",
             status="active"
         )
     
@@ -96,7 +96,7 @@ class TestRegisterAPI(APITestCase):
             'password': 'password123',
             'password_confirm': 'password123',
             'full_name': 'New User',
-            'role': 'recruiter'
+            'role': 'candidate'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -112,7 +112,8 @@ class TestRegisterAPI(APITestCase):
             'password': 'password123',
             'password_confirm': 'password123',
             'full_name': 'Company ABC',
-            'role': 'company'
+            'role': 'company',
+            'company_name': 'Company ABC'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -124,7 +125,7 @@ class TestRegisterAPI(APITestCase):
             email="existing@example.com",
             password="password123",
             full_name="Existing User",
-            role="recruiter"
+            role="candidate"
         )
         
         response = self.client.post('/api/users/auth/register/', {
@@ -132,7 +133,7 @@ class TestRegisterAPI(APITestCase):
             'password': 'password123',
             'password_confirm': 'password123',
             'full_name': 'Another User',
-            'role': 'recruiter'
+            'role': 'candidate'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -145,7 +146,7 @@ class TestRegisterAPI(APITestCase):
             'password': 'password123',
             'password_confirm': 'differentpassword',
             'full_name': 'Test User',
-            'role': 'recruiter'
+            'role': 'candidate'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -158,7 +159,7 @@ class TestRegisterAPI(APITestCase):
             'password': '1234567',
             'password_confirm': '1234567',
             'full_name': 'Test User',
-            'role': 'recruiter'
+            'role': 'candidate'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -181,7 +182,7 @@ class TestRegisterAPI(APITestCase):
             'email': 'test@example.com',
             'password': 'password123',
             'password_confirm': 'password123',
-            'role': 'recruiter'
+            'role': 'candidate'
         }, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -199,7 +200,7 @@ class TestLogoutAPI(APITestCase):
             email="logout@example.com",
             password="password123",
             full_name="Logout User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.refresh = RefreshToken.for_user(self.user)
@@ -250,7 +251,7 @@ class TestUserMeAPI(APITestCase):
             email="me@example.com",
             password="password123",
             full_name="Me User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         refresh = RefreshToken.for_user(self.user)
@@ -262,7 +263,7 @@ class TestUserMeAPI(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['email'], 'me@example.com')
-        self.assertEqual(response.data['role'], 'recruiter')
+        self.assertEqual(response.data['role'], 'candidate')
     
     def test_get_me_without_authentication(self):
         """Test getting user info without login"""

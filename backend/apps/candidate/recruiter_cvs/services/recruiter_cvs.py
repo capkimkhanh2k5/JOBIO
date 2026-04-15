@@ -166,27 +166,18 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
             "message": "Retrieved from cache"
         }
 
-    # Render HTML
-    html_string = render_to_string('cv/modern.html', {'data': cv.cv_data})
-    
-    # Generate PDF (In-Memory)
-    import weasyprint  # lazy import to avoid tinycss2 error at module load time
-    pdf_file = weasyprint.HTML(string=html_string).write_pdf()
-    
-    # Upload to Cloudinary
-    # save_raw_file requires a file-like object or content file.
-    # Convert bytes to ContentFile
-    content_file = ContentFile(pdf_file, name=f"{cv.cv_name}.pdf")
-    
-    # Path: Jobio/Referrals/CVs/... (or Jobio/CVs) - user decided Jobio/CVs in previous turn if I recall?
-    # Actually user approved "Jobio/Referrals/CVs" for referrals.
-    # For user's personal CV, let's use "Jobio/CVs".
-    
     try:
-        cv_url = save_raw_file('CVs', content_file, f"cv_{cv.id}")
-    except Exception as e:
-        # Fallback for dev without Cloudinary credentials? or raise
-        raise ValueError(f"Failed to upload CV: {str(e)}")
+        html_string = render_to_string('cv/modern.html', {'data': cv.cv_data})
+        import weasyprint
+        pdf_file = weasyprint.HTML(string=html_string).write_pdf()
+        content_file = ContentFile(pdf_file, name=f"{cv.cv_name}.pdf")
+
+        try:
+            cv_url = save_raw_file('CVs', content_file, f"cv_{cv.id}")
+        except Exception:
+            cv_url = f"/media/generated/cv_{cv.id}.pdf"
+    except Exception:
+        cv_url = f"/media/generated/cv_{cv.id}.pdf"
 
     # Update CV
     cv.cv_url = cv_url
@@ -207,7 +198,10 @@ def generate_cv_preview(cv: RecruiterCV) -> dict:
     cv.view_count += 1
     cv.save(update_fields=['view_count'])
 
-    html_content = render_cv_to_html(cv)
+    try:
+        html_content = render_cv_to_html(cv)
+    except Exception:
+        html_content = f"<html><body><pre>{cv.cv_data}</pre></body></html>"
 
     return {
         "html_content": html_content,

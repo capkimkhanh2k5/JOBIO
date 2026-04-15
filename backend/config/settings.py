@@ -77,8 +77,6 @@ INSTALLED_APPS = [
     # ===== Recruitment Domain =====
     'apps.recruitment.jobs',
     'apps.recruitment.job_categories',
-    'apps.recruitment.campaigns',
-    'apps.recruitment.referrals',
     
     # Billing Module
     'apps.billing',
@@ -91,9 +89,6 @@ INSTALLED_APPS = [
     'apps.recruitment.interview_interviewers',
     'apps.recruitment.saved_jobs',
     'apps.recruitment.job_views',
-    # 'apps.recruitment.recruitment_campaigns',
-    # 'apps.recruitment.campaign_jobs', 
-    
     # ===== Candidate Domain =====
     'apps.candidate.recruiters',
     'apps.candidate.recruiter_education',
@@ -116,8 +111,6 @@ INSTALLED_APPS = [
     'apps.social.recruiter_connections',
     'apps.social.skill_endorsements',
     'apps.social.company_followers',
-    'apps.social.referral_programs',
-    'apps.social.referrals',
     
     # ===== Communication Domain =====
     'apps.communication.notifications',
@@ -138,7 +131,6 @@ INSTALLED_APPS = [
     'apps.email',
     # 'apps.email.email_templates',
     # 'apps.email.email_template_categories', 
-    # 'apps.email.email_campaigns',
     # 'apps.email.email_logs',
     # 'apps.email.sent_emails',
     

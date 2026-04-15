@@ -45,7 +45,7 @@ class TestRefreshTokenEdgeCases(APITestCase):
             email="refresh@example.com",
             password="password123",
             full_name="Refresh User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.refresh = RefreshToken.for_user(self.user)
@@ -90,7 +90,7 @@ class TestVerifyEmailEdgeCases(APITestCase):
             email="unverified@example.com",
             password="password123",
             full_name="Unverified User",
-            role="recruiter"
+            role="candidate"
         )
         self.unverified_user.email_verified = False
         self.unverified_user.email_verification_token = "valid_verify_token_123"
@@ -141,7 +141,7 @@ class TestResendVerificationEdgeCases(APITestCase):
             email="verified@example.com",
             password="password123",
             full_name="Verified User",
-            role="recruiter"
+            role="candidate"
         )
         self.verified_user.email_verified = True
         self.verified_user.save()
@@ -199,7 +199,7 @@ class TestResetPasswordEdgeCases(APITestCase):
             email="reset@example.com",
             password="oldpassword123",
             full_name="Reset User",
-            role="recruiter"
+            role="candidate"
         )
         self.token = secrets.token_urlsafe(32)
         self.user.password_reset_token = self.token
@@ -211,7 +211,7 @@ class TestResetPasswordEdgeCases(APITestCase):
             email="expired@example.com",
             password="oldpassword123",
             full_name="Expired User",
-            role="recruiter"
+            role="candidate"
         )
         self.expired_token = secrets.token_urlsafe(32)
         self.expired_user.password_reset_token = self.expired_token
@@ -259,7 +259,7 @@ class TestChangePasswordEdgeCases(APITestCase):
             email="changepass@example.com",
             password="oldpassword123",
             full_name="Change Pass User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         refresh = RefreshToken.for_user(self.user)
@@ -308,11 +308,8 @@ class TestSocialLoginEdgeCases(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('detail', response.data)
     
-    @patch('apps.core.users.services.auth.requests.get')
-    def test_social_login_facebook_invalid_token(self, mock_get):
-        """Test Facebook login with invalid token → 400"""
-        mock_get.return_value.status_code = 401  # Facebook returns error
-        
+    def test_social_login_facebook_rejected(self):
+        """Test Facebook login is rejected → 400"""
         response = self.client.post(auth_social_login('facebook'), {
             'access_token': 'invalid_fb_token',
             'provider': 'facebook',
@@ -320,13 +317,10 @@ class TestSocialLoginEdgeCases(APITestCase):
             'full_name': 'Test User'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('detail', response.data)
+        self.assertIn('provider', response.data)
     
-    @patch('apps.core.users.services.auth.requests.get')
-    def test_social_login_linkedin_invalid_token(self, mock_get):
-        """Test LinkedIn login with invalid token → 400"""
-        mock_get.return_value.status_code = 401  # LinkedIn returns error
-        
+    def test_social_login_linkedin_rejected(self):
+        """Test LinkedIn login is rejected → 400"""
         response = self.client.post(auth_social_login('linkedin'), {
             'access_token': 'invalid_linkedin_token',
             'provider': 'linkedin',
@@ -334,7 +328,7 @@ class TestSocialLoginEdgeCases(APITestCase):
             'full_name': 'Test User'
         })
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('detail', response.data)
+        self.assertIn('provider', response.data)
     
     def test_social_login_unsupported_provider(self):
         """Test social login with unsupported provider → 400 or 404"""
@@ -355,7 +349,7 @@ class TestSocialLoginEdgeCases(APITestCase):
             email="existing@example.com",
             password="password123",
             full_name="Existing User",
-            role="recruiter"
+            role="candidate"
         )
         
         mock_get.return_value.status_code = 200
@@ -387,7 +381,7 @@ class TestVerify2FAEdgeCases(APITestCase):
             email="no2fa@example.com",
             password="password123",
             full_name="No 2FA User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.user_no_2fa.two_factor_enabled = False
@@ -398,7 +392,7 @@ class TestVerify2FAEdgeCases(APITestCase):
             email="with2fa@example.com",
             password="password123",
             full_name="With 2FA User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.secret = pyotp.random_base32()

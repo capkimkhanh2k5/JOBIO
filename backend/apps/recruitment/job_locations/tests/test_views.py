@@ -47,7 +47,6 @@ class JobLocationViewTests(APITestCase):
         
         # Create province and commune for address
         self.province = Province.objects.create(
-            province_code="HN01",
             province_name="Hà Nội",
             province_type="municipality",
             region="north"

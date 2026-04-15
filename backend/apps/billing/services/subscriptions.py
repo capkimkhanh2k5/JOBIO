@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 from apps.billing.models import CompanySubscription
 from datetime import timedelta
+from apps.billing.models import Transaction
 import re
 
 class SubscriptionService:
@@ -49,18 +50,46 @@ class SubscriptionService:
         Creates a new subscription record for a company.
         Dates are calculated based on plan.duration_days.
         """
-        
+        today = timezone.now().date()
+        existing_sub = CompanySubscription.objects.filter(
+            company=company,
+            status=CompanySubscription.Status.ACTIVE,
+        ).order_by('-created_at').first()
+
+        if existing_sub:
+            existing_sub.status = CompanySubscription.Status.CANCELLED
+            existing_sub.auto_renew = False
+            existing_sub.save(update_fields=['status', 'auto_renew', 'updated_at'])
+
+        CompanySubscription.objects.filter(
+            company=company,
+            status=CompanySubscription.Status.PENDING,
+            start_date__gte=today,
+        ).update(status=CompanySubscription.Status.CANCELLED, auto_renew=False)
+
         start_date = timezone.now().date()
         end_date = start_date + timedelta(days=plan.duration_days)
-        
-        return CompanySubscription.objects.create(
+
+        sub = CompanySubscription.objects.create(
             company=company,
             plan=plan,
             start_date=start_date,
             end_date=end_date,
-            status=CompanySubscription.Status.PENDING,
+            status=CompanySubscription.Status.ACTIVE,
             auto_renew=True
         )
+
+        Transaction.objects.create(
+            company=company,
+            amount=plan.price,
+            currency=getattr(plan, 'currency', 'VND'),
+            type=Transaction.Type.SUBSCRIPTION,
+            status=Transaction.Status.COMPLETED if plan.price == 0 else Transaction.Status.PENDING,
+            description=f'Subscription for {plan.name}',
+            metadata={'plan_id': plan.id, 'plan_slug': plan.slug},
+        )
+
+        return sub
 
     @staticmethod
     def cancel_subscription(company):
@@ -73,11 +102,87 @@ class SubscriptionService:
         ).first()
 
         if not sub:
+            sub = CompanySubscription.objects.filter(
+                company=company,
+                status=CompanySubscription.Status.PENDING
+            ).order_by('-created_at').first()
+
+        if not sub:
             raise ValidationError("No active subscription found.")
 
         sub.auto_renew = False
         sub.save(update_fields=['auto_renew', 'updated_at'])
         return sub
+
+    @staticmethod
+    def renew_subscription(subscription):
+        """Renew an existing subscription if auto_renew is enabled."""
+        if not subscription.auto_renew:
+            raise ValidationError("Auto-renew is disabled.")
+
+        subscription.end_date = subscription.end_date + timedelta(days=subscription.plan.duration_days)
+        subscription.save(update_fields=['end_date', 'updated_at'])
+
+        Transaction.objects.create(
+            company=subscription.company,
+            amount=subscription.plan.price,
+            currency=getattr(subscription.plan, 'currency', 'VND'),
+            type=Transaction.Type.SUBSCRIPTION,
+            status=Transaction.Status.PENDING,
+            description=f'Renew subscription for {subscription.plan.name}',
+            metadata={'plan_id': subscription.plan.id, 'plan_slug': subscription.plan.slug},
+        )
+
+        return subscription
+
+    @staticmethod
+    def change_subscription(company, plan):
+        """Backward-compatible plan change helper used by older tests."""
+        current_sub = CompanySubscription.objects.filter(
+            company=company,
+            status=CompanySubscription.Status.ACTIVE,
+        ).order_by('-created_at').first()
+
+        today = timezone.now().date()
+        if current_sub and plan.price > current_sub.plan.price:
+            current_sub.status = CompanySubscription.Status.CANCELLED
+            current_sub.auto_renew = False
+            current_sub.save(update_fields=['status', 'auto_renew', 'updated_at'])
+
+            new_sub = CompanySubscription.objects.create(
+                company=company,
+                plan=plan,
+                start_date=today,
+                end_date=today + timedelta(days=plan.duration_days),
+                status=CompanySubscription.Status.ACTIVE,
+                auto_renew=True,
+            )
+        else:
+            if current_sub:
+                current_sub.auto_renew = False
+                current_sub.save(update_fields=['auto_renew', 'updated_at'])
+
+            start_date = (current_sub.end_date + timedelta(days=1)) if current_sub else today
+            new_sub = CompanySubscription.objects.create(
+                company=company,
+                plan=plan,
+                start_date=start_date,
+                end_date=start_date + timedelta(days=plan.duration_days),
+                status=CompanySubscription.Status.PENDING,
+                auto_renew=True,
+            )
+
+        Transaction.objects.create(
+            company=company,
+            amount=plan.price,
+            currency=getattr(plan, 'currency', 'VND'),
+            type=Transaction.Type.SUBSCRIPTION,
+            status=Transaction.Status.PENDING,
+            description=f'Change subscription to {plan.name}',
+            metadata={'plan_id': plan.id, 'plan_slug': plan.slug},
+        )
+
+        return new_sub
 
     @staticmethod
     def parse_plan_id_from_transaction_description(description: str):

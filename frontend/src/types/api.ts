@@ -1115,28 +1115,6 @@ export interface BlogPost {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Campaigns
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface Campaign {
-  id: number;
-  title: string;
-  slug: string;
-  status: 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
-  start_date: string;
-  end_date: string;
-  budget: number | null;
-  job_count: number;
-  created_at: string;
-}
-
-export interface CampaignDetail extends Campaign {
-  description: string | null;
-  jobs: JobListItem[];
-  updated_at: string;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // File Upload
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1262,39 +1240,3 @@ export interface SubscribeResponse {
 
 
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Referrals
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface ReferralProgram {
-  id: number;
-  company: number;
-  program_name: string;
-  description: string | null;
-  bonus_amount: number;
-  bonus_currency: string;
-  terms_conditions: string | null;
-  is_active: boolean;
-  start_date: string | null;
-  end_date: string | null;
-  created_at: string;
-}
-
-export interface Referral {
-  id: number;
-  program: number | null;
-  program_detail: ReferralProgram | null;
-  job: number;
-  job_title: string;
-  referrer: number;
-  referrer_name: string;
-  referred_email: string | null;
-  referred_name: string | null;
-  referred_phone: string | null;
-  status: 'pending' | 'contacted' | 'applied' | 'interviewed' | 'hired' | 'rejected';
-  bonus_amount: number | null;
-  bonus_paid: boolean;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}

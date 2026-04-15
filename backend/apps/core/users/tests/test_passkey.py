@@ -48,7 +48,7 @@ def _create_user(email='passkey@example.com', password='testpass123', **kwargs):
     """Tạo user cho test."""
     defaults = {
         'full_name': 'Passkey User',
-        'role': 'recruiter',
+        'role': 'candidate',
         'status': 'active',
         'email_verified': True,
     }

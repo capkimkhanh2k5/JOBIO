@@ -46,7 +46,7 @@ class TestCompanySubscriptionViewSet(APITestCase):
             password="password123",
             first_name="Test",
             last_name="Owner",
-            role='employer'
+            role='company'
         )
         cls.company = Company.objects.create(
             user=cls.user,
@@ -109,7 +109,7 @@ class TestTransactionViewSet(APITestCase):
             password="password123",
             first_name="Trans",
             last_name="User",
-            role='employer'
+            role='company'
         )
         cls.company = Company.objects.create(
             user=cls.user,

@@ -109,7 +109,7 @@ export default function EmployerSupportPage() {
 
     return (
         <div className="min-h-screen overflow-hidden relative">
-            {/* Background elements - Consistent with Campaigns Page */}
+            {/* Background elements */}
             <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-overlay pointer-events-none"></div>

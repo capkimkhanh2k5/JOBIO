@@ -8,7 +8,7 @@ from django.db import transaction
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -28,8 +28,7 @@ class ThreadCreateInput(BaseModel):
     application_id: Optional[int] = None
     initial_message: Optional[str] = None
     
-    class Config:
-        extra = 'forbid'
+    model_config = ConfigDict(extra='forbid')
 
 
 class MessageCreateInput(BaseModel):
@@ -38,8 +37,7 @@ class MessageCreateInput(BaseModel):
     content: str
     attachment_url: Optional[str] = None
     
-    class Config:
-        extra = 'forbid'
+    model_config = ConfigDict(extra='forbid')
 
 
 @transaction.atomic

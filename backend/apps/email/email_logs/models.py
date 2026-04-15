@@ -13,15 +13,6 @@ class EmailLog(models.Model):
         BOUNCED = 'bounced', 'Bị trả lại'
         FAILED = 'failed', 'Thất bại'
     
-    campaign = models.ForeignKey(
-        'email_email_campaigns.EmailCampaign',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='logs',
-        db_index=True,
-        verbose_name='Chiến dịch'
-    )
     recipient_email = models.EmailField(
         db_index=True,
         verbose_name='Email người nhận'

@@ -26,13 +26,13 @@ class TestCreateUserService(TestCase):
             email="test@example.com",
             password="strongpassword123",
             full_name="Nguyễn Văn A",
-            role="recruiter"
+            role="candidate"
         )
         user = create_user(data=user_input)
         
         self.assertEqual(user.email, "test@example.com")
         self.assertEqual(user.full_name, "Nguyễn Văn A")
-        self.assertEqual(user.role, "recruiter")
+        self.assertEqual(user.role, "candidate")
         self.assertTrue(user.check_password("strongpassword123"))
         self.assertEqual(CustomUser.objects.count(), 1)
     
@@ -49,7 +49,7 @@ class TestCreateUserService(TestCase):
         self.assertEqual(user.role, "company")
     
     def test_create_user_default_role(self):
-        """Test user creation with default recruiter role"""
+        """Test user creation with default candidate role"""
         user_input = UserCreateInput(
             email="default@example.com",
             password="defaultpass123",
@@ -57,7 +57,7 @@ class TestCreateUserService(TestCase):
         )
         user = create_user(data=user_input)
         
-        self.assertEqual(user.role, "recruiter")
+        self.assertEqual(user.role, "candidate")
 
 
 # ============================================================================
@@ -72,14 +72,14 @@ class TestLoginUserService(TestCase):
             email="active@example.com",
             password="password123",
             full_name="Active User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.inactive_user = CustomUser.objects.create_user(
             email="inactive@example.com",
             password="password123",
             full_name="Inactive User",
-            role="recruiter",
+            role="candidate",
             status="inactive"
         )
     
@@ -159,7 +159,7 @@ class TestLogoutUserService(TestCase):
             email="logout@example.com",
             password="password123",
             full_name="Logout User",
-            role="recruiter",
+            role="candidate",
             status="active"
         )
         self.refresh = RefreshToken.for_user(self.user)
@@ -206,7 +206,7 @@ class TestRegisterUserService(TestCase):
             email="newuser@example.com",
             password="newpassword123",
             full_name="New User",
-            role="recruiter"
+            role="candidate"
         )
         result = register_user(data=register_input)
         
@@ -236,7 +236,7 @@ class TestRegisterUserService(TestCase):
             email="existing@example.com",
             password="password123",
             full_name="Existing User",
-            role="recruiter"
+            role="candidate"
         )
         
         # Register with same email
@@ -244,7 +244,7 @@ class TestRegisterUserService(TestCase):
             email="existing@example.com",
             password="newpassword123",
             full_name="Another User",
-            role="recruiter"
+            role="candidate"
         )
         
         with self.assertRaises(AuthenticationError) as ctx:
@@ -258,7 +258,7 @@ class TestRegisterUserService(TestCase):
             email="jwttest@example.com",
             password="jwtpassword123",
             full_name="JWT Test User",
-            role="recruiter"
+            role="candidate"
         )
         result = register_user(data=register_input)
         

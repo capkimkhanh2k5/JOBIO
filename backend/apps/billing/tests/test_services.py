@@ -24,7 +24,7 @@ class TestBillingServices(TestCase):
             password="password123",
             first_name="Service",
             last_name="Test",
-            role='employer'
+            role='company'
         )
         cls.company = Company.objects.create(
             user=cls.user,

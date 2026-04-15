@@ -1,6 +1,6 @@
 """
 Social Authentication Adapter Service.
-Zero-table approach using Factory Pattern for multi-provider support.
+Google-only authentication policy.
 """
 import logging
 import requests
@@ -118,97 +118,11 @@ class GoogleAdapter(BaseSocialAdapter):
         )
 
 
-class FacebookAdapter(BaseSocialAdapter):
-    """Adapter for Facebook OAuth2."""
-    
-    provider_name = "Facebook"
-    GRAPH_URL = "https://graph.facebook.com/me"
-    
-    def verify_token(self, access_token: str) -> SocialProfile:
-        try:
-            response = self.session.get(
-                self.GRAPH_URL,
-                params={
-                    'fields': 'id,name,email,picture',
-                    'access_token': access_token
-                },
-                timeout=REQUEST_TIMEOUT
-            )
-        except requests.RequestException as e:
-            logger.error(f"[Facebook] Network error: {e}")
-            raise ProviderUnavailableError(
-                message="Không thể kết nối đến Facebook. Vui lòng thử lại sau.",
-                provider=self.provider_name
-            )
-        
-        data = self._handle_response(response)
-        
-        email = data.get('email')
-        if not email:
-            raise EmailNotProvidedError(
-                message="Facebook không cung cấp email. Vui lòng xác minh email trên Facebook.",
-                provider=self.provider_name
-            )
-        
-        picture_data = data.get('picture', {}).get('data', {})
-        
-        return SocialProfile(
-            provider='facebook',
-            provider_id=data.get('id'),
-            email=email,
-            name=data.get('name', ''),
-            picture=picture_data.get('url')
-        )
-
-
-class LinkedInAdapter(BaseSocialAdapter):
-    """Adapter for LinkedIn OAuth2 (OpenID Connect)."""
-    
-    provider_name = "LinkedIn"
-    USERINFO_URL = "https://api.linkedin.com/v2/userinfo"
-    
-    def verify_token(self, access_token: str) -> SocialProfile:
-        self.session.headers.update({
-            'Authorization': f'Bearer {access_token}'
-        })
-        
-        try:
-            response = self.session.get(
-                self.USERINFO_URL,
-                timeout=REQUEST_TIMEOUT
-            )
-        except requests.RequestException as e:
-            logger.error(f"[LinkedIn] Network error: {e}")
-            raise ProviderUnavailableError(
-                message="Không thể kết nối đến LinkedIn. Vui lòng thử lại sau.",
-                provider=self.provider_name
-            )
-        
-        data = self._handle_response(response)
-        
-        email = data.get('email')
-        if not email:
-            raise EmailNotProvidedError(
-                message="LinkedIn không cung cấp email. Vui lòng kiểm tra quyền truy cập.",
-                provider=self.provider_name
-            )
-        
-        return SocialProfile(
-            provider='linkedin',
-            provider_id=data.get('sub'),
-            email=email,
-            name=data.get('name', ''),
-            picture=data.get('picture')
-        )
-
-
 class SocialAdapterFactory:
     """Factory to get the correct adapter based on provider name."""
     
     _adapters = {
         'google': GoogleAdapter,
-        'facebook': FacebookAdapter,
-        'linkedin': LinkedInAdapter,
     }
     
     @classmethod

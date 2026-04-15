@@ -7,8 +7,6 @@ import type {
   InterviewListItem,
   InterviewDetail,
   InterviewType,
-  Campaign,
-  CampaignDetail,
   MessageThread,
   Message,
   Review,
@@ -77,29 +75,6 @@ export const employerService = {
   listInterviewTypes() {
     return api.get<InterviewType[]>('/api/interview-types/');
   },
-
-  // ─── Campaigns ────────────────────────────────────────────────────────
-
-  listCampaigns(params?: { status?: string; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<Campaign>>('/api/campaigns/', { params });
-  },
-
-  getCampaign(id: number) {
-    return api.get<CampaignDetail>(`/api/campaigns/${id}/`);
-  },
-
-  createCampaign(data: Partial<CampaignDetail>) {
-    return api.post<CampaignDetail>('/api/campaigns/', data);
-  },
-
-  updateCampaign(id: number, data: Partial<CampaignDetail>) {
-    return api.patch<CampaignDetail>(`/api/campaigns/${id}/`, data);
-  },
-
-  deleteCampaign(id: number) {
-    return api.delete(`/api/campaigns/${id}/`);
-  },
-
 
   listNotifications(params?: { is_read?: boolean; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<Notification>>('/api/notifications/', { params });

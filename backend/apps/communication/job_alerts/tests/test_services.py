@@ -50,14 +50,12 @@ class JobMatchingServiceTests(TestCase):
         # 3. Create Master Data (Category, Province, Skills)
         cls.category = JobCategory.objects.create(name="IT Software", slug="it-software")
         cls.hanoi = Province.objects.create(
-            province_name="Ha Noi", 
-            province_code="HN", 
+            province_name="Ha Noi",  
             region="north",
             province_type="municipality"
         )
         cls.hcm = Province.objects.create(
-            province_name="Ho Chi Minh", 
-            province_code="HCM", 
+            province_name="Ho Chi Minh",  
             region="south",
             province_type="municipality"
         )

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from django.db import transaction
 from django.core.files.uploadedfile import UploadedFile
 
@@ -16,8 +16,7 @@ class CompanyMediaCreateInput(BaseModel):
     caption: Optional[str] = None
     display_order: int = 0
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class CompanyMediaUpdateInput(BaseModel):
@@ -39,8 +38,7 @@ class CompanyMediaBulkUploadInput(BaseModel):
     media_files: List[UploadedFile]
     media_type_id: int
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic

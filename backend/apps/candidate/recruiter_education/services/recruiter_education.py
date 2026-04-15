@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import date
 from decimal import Decimal
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from django.db.models import Max
 
@@ -21,8 +21,7 @@ class EducationInput(BaseModel):
     gpa: Optional[Decimal] = None
     description: Optional[str] = None
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
@@ -40,7 +39,7 @@ def create_education_service(recruiter: Recruiter, data: EducationInput) -> Recr
     
     next_order = (max_order or 0) + 1
     
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     education = RecruiterEducation.objects.create(
         recruiter=recruiter,
@@ -56,7 +55,7 @@ def update_education_service(education: RecruiterEducation, data: EducationInput
     Cập nhật thông tin học vấn.
     Chỉ update các fields có trong data.
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     
     for field, value in fields.items():
         setattr(education, field, value)

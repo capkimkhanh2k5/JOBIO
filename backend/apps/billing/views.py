@@ -48,7 +48,7 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             
         sub = CompanySubscription.objects.filter(company=company_profile, status=CompanySubscription.Status.ACTIVE).first()
         if not sub:
-            return Response(None, status=status.HTTP_200_OK)
+            return Response({"error": "Subscription not found"}, status=status.HTTP_404_NOT_FOUND)
             
         serializer = self.get_serializer(sub)
         return Response(serializer.data)

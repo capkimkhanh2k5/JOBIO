@@ -1,0 +1,165 @@
+FAILED apps/analytics/tests/test_dashboard.py::DashboardViewTest::test_company_stats_access_owner - KeyError: 'active'
+FAILED apps/billing/tests/test_services.py::TestBillingServices::test_cancel_subscription_service - django.core.exceptions.ValidationError: ['No active subscription found.']
+FAILED apps/billing/tests/test_services.py::TestBillingServices::test_subscribe_service - AssertionError: CompanySubscription.Status.PENDING != 'active'
+FAILED apps/billing/tests/test_services.py::TestBillingServices::test_upgrade_subscription - AssertionError: CompanySubscription.Status.PENDING != 'active'
+FAILED apps/billing/tests/test_subscription_change.py::SubscriptionChangeTest::test_downgrade_scheduled - AttributeError: type object 'SubscriptionService' has no attribute 'change_...
+FAILED apps/billing/tests/test_subscription_change.py::SubscriptionChangeTest::test_upgrade_immediate - AttributeError: type object 'SubscriptionService' has no attribute 'change_...
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_cancel_subscription_keeps_end_date - django.core.exceptions.ValidationError: ['No active subscription found.']
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_renew_subscription_creates_transaction - AttributeError: type object 'SubscriptionService' has no attribute 'renew_s...
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_renew_subscription_extends_end_date - AttributeError: type object 'SubscriptionService' has no attribute 'renew_s...
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_renew_subscription_fails_if_auto_renew_false - AttributeError: type object 'SubscriptionService' has no attribute 'renew_s...
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_subscribe_cancels_pending_downgrades - AssertionError: 'pending' != CompanySubscription.Status.CANCELLED
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_subscribe_free_plan_creates_completed_transaction - AttributeError: 'NoneType' object has no attribute 'amount'
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_subscribe_new_company - AssertionError: CompanySubscription.Status.PENDING != CompanySubscription.S...
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_subscribe_paid_plan_creates_pending_transaction - AttributeError: 'NoneType' object has no attribute 'amount'
+FAILED apps/billing/tests/test_subscription_hybrid.py::TestSubscriptionHybridLogic::test_subscribe_replaces_old_subscription - AssertionError: 'pending' != CompanySubscription.Status.CANCELLED
+FAILED apps/billing/tests/test_views.py::TestCompanySubscriptionViewSet::test_cancel_subscription - AssertionError: 400 != 200
+FAILED apps/billing/tests/test_views.py::TestCompanySubscriptionViewSet::test_get_current_subscription_none - AssertionError: 200 != 404
+FAILED apps/candidate/recruiter_cvs/tests/test_views.py::RecruiterCVViewSetTests::test_download_cv - AssertionError: 500 != 200
+FAILED apps/candidate/recruiter_cvs/tests/test_views.py::RecruiterCVViewSetTests::test_preview_cv - AssertionError: 500 != 200
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestResendVerificationEdgeCases::test_resend_verification_email_already_verified - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestResendVerificationEdgeCases::test_resend_verification_email_not_exist - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestForgotPasswordEdgeCases::test_forgot_password_email_not_exist - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestForgotPasswordEdgeCases::test_forgot_password_invalid_email_format - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestResetPasswordEdgeCases::test_reset_password_expired_token - NameError: name 'ResetPasswordInput' is not defined
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestResetPasswordEdgeCases::test_reset_password_invalid_token - NameError: name 'ResetPasswordInput' is not defined
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestSocialLoginEdgeCases::test_social_login_existing_user - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestSocialLoginEdgeCases::test_social_login_facebook_invalid_token - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestSocialLoginEdgeCases::test_social_login_google_invalid_token - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestSocialLoginEdgeCases::test_social_login_linkedin_invalid_token - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_auth_edge_cases.py::TestSocialLoginEdgeCases::test_social_login_unsupported_provider - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_forgot_password_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_login_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_logout_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_refresh_token_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_register_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_resend_verification_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_reset_password_success - NameError: name 'ResetPasswordInput' is not defined
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_social_login_facebook_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_social_login_google_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_integrated_auth.py::TestIntegratedAuthAPIs::test_social_login_linkedin_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_new_auth_endpoints.py::TestNewAuthAPIs::test_forgot_password_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_new_auth_endpoints.py::TestNewAuthAPIs::test_resend_verification_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_new_auth_endpoints.py::TestNewAuthAPIs::test_reset_password_success - NameError: name 'ResetPasswordInput' is not defined
+FAILED apps/core/users/tests/test_services.py::TestCreateUserService::test_create_user_default_role - AssertionError: 'candidate' != 'recruiter'
+FAILED apps/core/users/tests/test_services.py::TestLoginUserService::test_login_inactive_user - AssertionError: 'Tài khoản đã bị khóa' not found in 'Account is inactive!'
+FAILED apps/core/users/tests/test_services.py::TestLoginUserService::test_login_wrong_email - AssertionError: 'Email không tồn tại' not found in 'Email not found!'
+FAILED apps/core/users/tests/test_services.py::TestLoginUserService::test_login_wrong_password - AssertionError: 'Mật khẩu không đúng' not found in 'Password is incorrect!'
+FAILED apps/core/users/tests/test_services.py::TestLogoutUserService::test_logout_invalid_token - AssertionError: 'Không thể logout' not found in "Can't logout: Token is inv...
+FAILED apps/core/users/tests/test_services.py::TestRegisterUserService::test_register_duplicate_email - pydantic_core._pydantic_core.ValidationError: 1 validation error for Regist...
+FAILED apps/core/users/tests/test_services.py::TestRegisterUserService::test_register_returns_jwt_tokens - pydantic_core._pydantic_core.ValidationError: 1 validation error for Regist...
+FAILED apps/core/users/tests/test_services.py::TestRegisterUserService::test_register_success - pydantic_core._pydantic_core.ValidationError: 1 validation error for Regist...
+FAILED apps/core/users/tests/test_services.py::TestRegisterUserService::test_register_with_company_role - pydantic_core._pydantic_core.ValidationError: 1 validation error for Regist...
+FAILED apps/core/users/tests/test_social_auth.py::SocialLoginTest::test_social_login_creates_new_user - apps.core.users.exceptions.TokenInvalidError: Token Google không hợp lệ hoặ...
+FAILED apps/core/users/tests/test_social_auth.py::SocialLoginTest::test_social_login_links_existing_user - apps.core.users.exceptions.TokenInvalidError: Token Google không hợp lệ hoặ...
+FAILED apps/core/users/tests/test_user_management.py::TestUserManagement::test_upload_avatar - AssertionError: 'avatars' not found in 'https://res.cloudinary.com/dbkxwc5g...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_empty_body - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_invalid_email_format - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_missing_password - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_wrong_email - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestLoginAPI::test_login_wrong_password - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_duplicate_email - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_invalid_role - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_missing_full_name - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_password_mismatch - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_password_too_short - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_success - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/core/users/tests/test_views.py::TestRegisterAPI::test_register_with_company_role - django.core.exceptions.ImproperlyConfigured: No default throttle rate set f...
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_create_address_authenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_create_address_invalid_province - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_create_address_missing_required_field - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_create_address_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_create_address_without_commune - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_delete_address_admin - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_delete_address_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_delete_address_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_delete_address_user_forbidden - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_list_addresses - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_list_addresses_ordered_by_created - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_retrieve_address - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_retrieve_address_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_update_address_authenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_update_address_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_update_address_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_verify_address_admin - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_verify_address_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_verify_address_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_verify_address_user_forbidden - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/addresses/tests/test_views.py::AddressViewSetTests::test_verify_already_verified_address - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_by_province - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_by_province_empty - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_by_province_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_create_commune_admin - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_create_commune_invalid_province - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_create_commune_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_create_commune_unauthorized - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_filter_by_province_id - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_list_communes - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_list_communes_ordered - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_retrieve_commune - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_retrieve_commune_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_update_commune_admin - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_update_commune_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_update_commune_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/communes/tests/test_views.py::CommuneViewSetTests::test_update_commune_unauthorized - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_by_region_central - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_by_region_invalid - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_by_region_north - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_by_region_south - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_list_provinces - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_list_provinces_ordered - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_retrieve_province - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_retrieve_province_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_search_no_results - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_search_provinces - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/geography/provinces/tests/test_views.py::ProvinceViewSetTests::test_search_short_query - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/applications/tests/test_views.py::ApplicationViewTests::test_change_status_creates_history - AssertionError: 400 != 200
+FAILED apps/recruitment/applications/tests/test_views.py::ApplicationViewTests::test_shortlist_success - AssertionError: 400 != 200
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_address_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_job_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_not_owner - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_set_primary - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_success - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_create_job_location_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_delete_job_location_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_delete_job_location_not_owner - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_delete_job_location_success - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_delete_job_location_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_delete_job_location_wrong_job - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_list_job_locations_empty - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_list_job_locations_job_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_list_job_locations_success - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_multiple_locations_per_job - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_change_primary - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_not_found - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_not_owner - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_success - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_unauthenticated - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/job_locations/tests/test_views.py::JobLocationViewTests::test_update_job_location_wrong_job - TypeError: Province() got unexpected keyword arguments: 'province_code'
+FAILED apps/recruitment/jobs/tests/test_views.py::JobViewTests::test_change_status_success - AssertionError: 400 != 200
+FAILED apps/recruitment/jobs/tests/test_views.py::JobViewTests::test_publish_job_success - AssertionError: 400 != 200
+FAILED apps/recruitment/jobs/tests/test_views.py::JobViewTests::test_set_featured_success - ValueError: You don't have an active subscription to feature jobs!
+FAILED apps/system/analytics_reports/tests/test_policies.py::AnalyticsPolicyTest::test_admin_staff_scope - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/system/analytics_reports/tests/test_policies.py::AnalyticsPolicyTest::test_can_view_method - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/system/analytics_reports/tests/test_policies.py::AnalyticsPolicyTest::test_company_scope - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/system/analytics_reports/tests/test_policies.py::AnalyticsPolicyTest::test_recruiter_scope - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/system/analytics_reports/tests/test_views.py::AnalyticsReportViewSetTests::test_generate_report - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/system/analytics_reports/tests/test_views.py::AnalyticsReportViewSetTests::test_list_reports_company_scope - django.db.utils.OperationalError: no such table: report_types
+FAILED apps/communication/messages/tests/test_async_messages.py::ChatAsyncPersistenceTest::test_chat_message_triggers_task - AttributeError: 'NoneType' object has no attribute 'group_add'
+ERROR apps/communication/job_alerts/tests/test_services.py::JobMatchingServiceTests::test_find_matching_jobs_exact_match - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_services.py::JobMatchingServiceTests::test_location_mismatch - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_services.py::JobMatchingServiceTests::test_salary_mismatch - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_services.py::JobMatchingServiceTests::test_signal_integration - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_services.py::JobMatchingServiceTests::test_skill_mismatch - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_access_other_user_alert - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_create_alert - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_create_invalid_frequency - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_create_invalid_salary - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_delete_alert - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_get_detail - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_list_alerts - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_toggle_alert - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_unauthenticated_access - TypeError: Province() got unexpected keyword arguments: 'province_code'
+ERROR apps/communication/job_alerts/tests/test_views.py::JobAlertViewTests::test_update_alert - TypeError: Province() got unexpected keyword arguments: 'province_code'
+===== 149 failed, 1042 passed, 1 skipped, 32 warnings, 15 errors in 19.07s =====

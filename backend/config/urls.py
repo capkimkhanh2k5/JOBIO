@@ -48,8 +48,6 @@ urlpatterns = [
     # Languages public routes
     path('api/languages/', include('apps.candidate.languages.urls')),
     
-    # Jobs routes
-    path('api/', include('apps.recruitment.campaigns.urls')),
     path('api/applications/', include('apps.recruitment.applications.urls')),
     path('api/', include('apps.recruitment.application_status_history.urls')),
     
@@ -110,8 +108,6 @@ urlpatterns = [
     path('api/reviews/', include('apps.social.reviews.urls')),
     path('api/connections/', include('apps.social.recruiter_connections.urls')),
     path('api/recommendations/', include('apps.social.recommendations.urls')),
-    path('api/social/referrals/', include('apps.social.referrals.urls')),
-    path('api/social/referral-programs/', include('apps.social.referral_programs.urls')),
     
     # Notifications & Messages
     path('api/notifications/', include('apps.communication.notifications.urls')),
@@ -124,7 +120,6 @@ urlpatterns = [
     # JWT Token endpoints (built-in)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include('apps.recruitment.referrals.urls')),
     
     # System & Administration
     path('api/system-settings/', include('apps.system.system_settings.urls')),

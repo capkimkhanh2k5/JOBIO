@@ -1,7 +1,7 @@
 from typing import Optional
 from django.utils import timezone
 from django.db import transaction
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from apps.communication.notifications.models import Notification
 from apps.communication.notification_types.models import NotificationType
@@ -18,8 +18,7 @@ class NotificationCreateInput(BaseModel):
     entity_type: Optional[str] = None
     entity_id: Optional[int] = None
     
-    class Config:
-        extra = 'forbid'
+    model_config = ConfigDict(extra='forbid')
 
 
 def create_notification(

@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from apps.candidate.recruiters.models import Recruiter
 from apps.company.companies.models import Company
@@ -27,8 +27,7 @@ class RecruiterInput(BaseModel):
     highest_education_level: Optional[str] = None
     full_name: Optional[str] = None
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 @transaction.atomic
 def create_recruiter_service(user, data: RecruiterInput) -> Recruiter:
@@ -38,7 +37,7 @@ def create_recruiter_service(user, data: RecruiterInput) -> Recruiter:
     if hasattr(user, 'recruiter_profile'):
         raise ValueError("User already has a recruiter profile.")
 
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     recruiter = Recruiter.objects.create(user=user, **fields)
     return recruiter
 
@@ -47,7 +46,7 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
     """
     Cập nhật hồ sơ ứng viên.
     """
-    fields = data.dict(exclude_unset=True)
+    fields = data.model_dump(exclude_unset=True)
     for field, value in fields.items():
         if field == 'full_name':
             if recruiter.user:

@@ -26,7 +26,7 @@ class JobAlertViewTests(APITestCase):
         
         # Create categories and locations
         cls.category = JobCategory.objects.create(name="IT Software", slug="it-software")
-        cls.province = Province.objects.create(province_name="Ho Chi Minh", province_code="79")
+        cls.province = Province.objects.create(province_name="Ho Chi Minh")
         
         # Create Initial Alert
         cls.job_alert = JobAlert.objects.create(

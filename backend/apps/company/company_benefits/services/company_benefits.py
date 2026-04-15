@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 
 from ..models import CompanyBenefit
@@ -13,8 +13,7 @@ class BenefitCreateInput(BaseModel):
     description: Optional[str] = ''
     display_order: Optional[int] = None  # None = auto (max + 1)
 
-    class Config:
-        extra = 'forbid'
+    model_config = ConfigDict(extra='forbid')
 
 
 class BenefitUpdateInput(BaseModel):
@@ -23,8 +22,7 @@ class BenefitUpdateInput(BaseModel):
     description: Optional[str] = None
     display_order: Optional[int] = None
 
-    class Config:
-        extra = 'forbid'
+    model_config = ConfigDict(extra='forbid')
 
 
 def create_benefit(company: Company, data: BenefitCreateInput) -> CompanyBenefit:
