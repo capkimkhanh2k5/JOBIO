@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { billingService } from '@/services/billingService';
+import { authService } from '@/services/authService';
+import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { billingService } from '@/services/billingService';
 
 const PaymentResultPage: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -24,33 +26,44 @@ const PaymentResultPage: React.FC = () => {
         : txn?.status === 'failed'
             ? 'failed'
             : null;
-    
+
     const finalStatus = statusFromTransaction || queryStatus || 'failed';
+    const { updateUser } = useUserStore();
     const isSuccess = finalStatus === 'success';
 
     const upgradedPlanName = txn?.plan_name || txn?.subscription_name || (txn?.metadata as any)?.plan_name || '';
-    
+
     const defaultMessage = isSuccess
         ? upgradedPlanName
             ? `Thanh toán thành công. Gói ${upgradedPlanName} đã được kích hoạt.`
             : 'Thanh toán thành công. Gói dịch vụ của bạn đã được kích hoạt.'
         : 'Thanh toán thất bại. Vui lòng kiểm tra lại phương thức thanh toán hoặc thử lại sau.';
-    
+
     const displayMessage = queryMessage || defaultMessage;
 
     useEffect(() => {
+        const refreshUser = async () => {
+            try {
+                const res = await authService.getMe();
+                updateUser(res.data);
+            } catch (err) {
+                console.error("Failed to refresh user profile:", err);
+            }
+        };
+
         if (!isLoading) {
             if (isSuccess) {
                 toast.success(displayMessage);
+                refreshUser();
                 // Redirect to home page as requested
                 navigate('/');
             } else {
                 toast.error(displayMessage);
                 // Redirect to subscription page so they can try again if failed
-                navigate('/employer/subscription');
+                navigate('/pricing');
             }
         }
-    }, [isLoading, isSuccess, displayMessage, navigate]);
+    }, [isLoading, isSuccess, displayMessage, navigate, updateUser]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 space-y-6 text-center">
@@ -60,7 +73,7 @@ const PaymentResultPage: React.FC = () => {
                     <div className="w-10 h-10 rounded-full bg-violet-50 animate-pulse" />
                 </div>
             </div>
-            
+
             <div className="space-y-2">
                 <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                     Đang xử lý kết quả thanh toán

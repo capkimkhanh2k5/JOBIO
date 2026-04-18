@@ -37,8 +37,6 @@ import EmployerSupportPage from '@/pages/employer/Support/EmployerSupportPage';
 import { EmployerAnalyticsPage } from '@/pages/employer/EmployerAnalyticsPage';
 import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
 import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
-import PlansPage from '@/pages/employer/Billing/Plans';
-import CheckoutPage from '@/pages/employer/Billing/Checkout';
 import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
 import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
 import MessagesPage from '@/pages/Messages';
@@ -165,9 +163,8 @@ export default function App() {
                             <Route path="interviews" element={<EmployerInterviewsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
                             <Route path="analytics" element={<EmployerAnalyticsPage />} />
-                            <Route path="subscription" element={<PlansPage />} />
+                            <Route path="subscription" element={<Navigate to="/pricing" replace />} />
                             <Route path="billing" element={<BillingDashboard />} />
-                            <Route path="checkout" element={<CheckoutPage />} />
                             <Route path="payment-result" element={<PaymentResultPage />} />
                             <Route path="support" element={<EmployerSupportPage />} />
                             <Route path="blog" element={<UserBlogManagement />} />

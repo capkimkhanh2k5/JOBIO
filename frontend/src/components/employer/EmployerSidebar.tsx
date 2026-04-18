@@ -24,7 +24,6 @@ const navItems: NavItem[] = [
     { label: 'Tin nhắn', path: '/employer/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 3 },
     { label: 'Báo cáo', path: '/employer/analytics', icon: <BarChart3 className="w-5 h-5" /> },
     { label: 'Hồ sơ công ty', path: '/employer/company', icon: <Building2 className="w-5 h-5" /> },
-    { label: 'Gói dịch vụ', path: '/employer/subscription', icon: <CreditCard className="w-5 h-5" /> },
     { label: 'Lịch sử giao dịch', path: '/employer/billing', icon: <History className="w-5 h-5" /> },
     { label: 'Cài đặt', path: '/employer/settings', icon: <Settings className="w-5 h-5" /> },
     { label: 'Hỗ trợ', path: '/employer/support', icon: <LifeBuoy className="w-5 h-5" /> },
@@ -152,7 +151,7 @@ export function EmployerSidebar() {
                 <p className="text-xs font-bold text-slate-900 mb-1">🚀 Nâng cấp Pro</p>
                 <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-3">Tiếp cận nhiều CV hơn, tăng hiển thị tin tuyển dụng.</p>
                 <Link
-                    to="/employer/subscription"
+                    to="/pricing"
                     className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow transition-all"
                 >
                     Xem gói dịch vụ

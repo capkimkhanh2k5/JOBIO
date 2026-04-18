@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { NotificationBell } from '../shared/notifications/NotificationBell';
 import { Logo } from '@/components/shared/Logo';
+import { cn } from '@/lib/utils';
 
 interface NavItem {
     name: string;
@@ -37,17 +38,24 @@ const NAV_ITEMS: NavItem[] = [
 
 export const Header = () => {
     const toggleCommand = useUiStore((state) => state.toggleCommand);
+    const { user, isAuthenticated, clearAuth, updateUser } = useUserStore();
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { user, isAuthenticated, clearAuth } = useUserStore();
-
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
+
+        // Refresh user profile on mount to sync subscription plan
+        if (isAuthenticated && user?.role === 'company') {
+            authService.getMe()
+                .then(res => updateUser(res.data))
+                .catch(err => console.error("Failed to sync header plan:", err));
+        }
+
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [isAuthenticated, user?.role, updateUser]);
 
     const handleLogout = async () => {
         try {
@@ -162,8 +170,17 @@ export const Header = () => {
                                                     {user.role}
                                                 </div>
                                                 {user.role === 'company' && user.subscription_plan && (
-                                                    <div className="inline-flex items-center px-2 py-1 rounded-full bg-violet-500/10 text-violet-400 text-[10px] font-bold uppercase w-fit">
-                                                        Gói: {user.subscription_plan}
+                                                    <div className={cn(
+                                                        "inline-flex items-center px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest w-fit border shadow-sm",
+                                                        user.subscription_plan.toLowerCase().includes('plus')
+                                                            ? "bg-blue-50 text-blue-600 border-blue-100"
+                                                            : user.subscription_plan.toLowerCase().includes('pro')
+                                                                ? "bg-orange-50 text-orange-600 border-orange-100"
+                                                                : user.subscription_plan.toLowerCase().includes('max')
+                                                                    ? "bg-amber-50 text-amber-600 border-amber-100"
+                                                                    : "bg-violet-500/10 text-violet-400 border-transparent"
+                                                    )}>
+                                                        Gói: {user.subscription_plan.split(' (')[0]}
                                                     </div>
                                                 )}
                                             </div>

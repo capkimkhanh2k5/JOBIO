@@ -309,6 +309,22 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TransactionSerializer
     
     def get_queryset(self):
-        if hasattr(self.request.user, 'company_profile'):
-            return Transaction.objects.filter(company=self.request.user.company_profile).order_by('-created_at')
-        return Transaction.objects.none()
+        if not hasattr(self.request.user, 'company_profile'):
+            return Transaction.objects.none()
+            
+        queryset = Transaction.objects.filter(company=self.request.user.company_profile).order_by('-created_at')
+        
+        # Filtering
+        status = self.request.query_params.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # Search
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                models.Q(reference_code__icontains=search) | 
+                models.Q(description__icontains=search)
+            )
+            
+        return queryset

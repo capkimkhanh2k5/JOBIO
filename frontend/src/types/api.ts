@@ -1169,20 +1169,28 @@ export interface BillingSubscription {
   end_date: string;
   auto_renew: boolean;
   cancel_at_period_end: boolean;
+  usage?: {
+    jobs: { current: number; limit: number };
+    featured_jobs: { current: number; limit: number };
+    cv_views: { current: number; limit: number };
+    ai_matching: { enabled: boolean };
+  };
   created_at: string;
   updated_at: string;
 }
 
 export interface BillingTransaction {
-  id: string; // Transaction code
+  id: string;
+  reference_code: string;
   subscription: number;
   amount: number;
   currency: string;
-  payment_method: { id: number; name: string; code: string } | string;
+  payment_method: { id: number; name: string; code: string } | null;
   status: 'pending' | 'completed' | 'failed' | 'refunded';
   vnpay_txn_ref?: string;
   payment_url?: string;
   description?: string;
+  clean_description?: string;
   plan_name?: string;
   subscription_name?: string;
   metadata?: Record<string, unknown>;

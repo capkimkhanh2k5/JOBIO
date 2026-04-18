@@ -46,7 +46,14 @@ export const billingService = {
     },
 
     /** GET /api/billing/transactions/ */
-    listTransactions(params?: { status?: string; start_date?: string; end_date?: string; method?: string; page?: number }) {
+    listTransactions(params?: { 
+        status?: string; 
+        start_date?: string; 
+        end_date?: string; 
+        method?: string; 
+        search?: string;
+        page?: number 
+    }) {
         return api.get<PaginatedResponse<BillingTransaction>>('/api/billing/transactions/', { params });
     },
 
