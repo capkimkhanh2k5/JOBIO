@@ -1,9 +1,8 @@
 import { Connection } from '@/types/api';
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageSquare, UserMinus, Briefcase } from 'lucide-react';
+import { UserMinus, Briefcase } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { toast } from 'sonner';
@@ -18,7 +17,6 @@ interface ConnectionCardProps {
 
 export function ConnectionCard({ connection, currentUserId }: ConnectionCardProps) {
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
 
     // Determine which user is the connection (the other person)
     const isRequester = connection.requester.id === currentUserId;
@@ -63,15 +61,6 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 sm:flex-none bg-white"
-                        onClick={() => navigate(`/candidate/messages?userId=${connectedUser.id}`)}
-                    >
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Nhắn tin
-                    </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-9 w-9 data-[state=open]:bg-slate-100">

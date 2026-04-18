@@ -391,9 +391,6 @@ export interface ApplicationListItem {
   updated_at?: string;
   ai_score?: number;
   skills?: string[];
-  // Legacy / optional fields kept for compat
-  candidate_name?: string;
-  candidate_avatar?: string | null;
   position?: string;
 }
 
@@ -894,61 +891,6 @@ export interface ConnectionSuggestion {
   mutual_connections: number;
   common_skills: string[];
   score: number;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Messages
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export interface MessageParticipantUser {
-  id: number;
-  full_name: string;
-  email: string;
-  avatar_url: string | null;
-}
-
-export interface MessageParticipant {
-  id: number;
-  user: MessageParticipantUser;
-  joined_at: string;
-  last_read_at: string | null;
-  is_active: boolean;
-}
-
-/** List-level thread (no participants array, has participant_count) */
-export interface MessageThread {
-  id: number;
-  subject: string;
-  job: number | null;
-  application: number | null;
-  last_message: { content: string; created_at: string } | null;
-  participant_count: number;
-  unread_count: number;
-  created_at: string;
-  updated_at: string;
-}
-
-/** Detail-level thread (has participants array, no participant_count) */
-export interface MessageThreadDetail {
-  id: number;
-  subject: string;
-  job: number | null;
-  application: number | null;
-  participants: MessageParticipant[];
-  last_message: { content: string; created_at: string } | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Message {
-  id: number;
-  thread_id: number;
-  sender: { id: number; full_name: string; avatar_url: string | null };
-  content: string;
-  attachments: Record<string, unknown>[];
-  is_system_message: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

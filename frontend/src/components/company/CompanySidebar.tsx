@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, PlusSquare, Briefcase, Users,
-    CalendarClock, MessageSquare, BarChart3, Building2,
+    CalendarClock, BarChart3, Building2,
     Settings, LifeBuoy, Search, History, BookOpen
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
@@ -21,7 +21,7 @@ const navItems: NavItem[] = [
     { label: 'Ứng viên', path: '/company/candidates', icon: <Users className="w-5 h-5" /> },
     { label: 'Tìm CV', path: '/company/cv-search', icon: <Search className="w-5 h-5" /> },
     { label: 'Phỏng vấn', path: '/company/interviews', icon: <CalendarClock className="w-5 h-5" /> },
-    { label: 'Tin nhắn', path: '/company/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 3 },
+
     { label: 'Báo cáo', path: '/company/analytics', icon: <BarChart3 className="w-5 h-5" /> },
     { label: 'Hồ sơ công ty', path: '/company/profile', icon: <Building2 className="w-5 h-5" /> },
     { label: 'Lịch sử giao dịch', path: '/company/billing', icon: <History className="w-5 h-5" /> },

@@ -23,7 +23,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { PublicRoute } from '@/components/layout/RouteGuards';
+import { PublicRoute, ProtectedRoute, NotFoundRedirect } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
@@ -39,7 +39,7 @@ import { CompanySettingsPage } from '@/pages/company/CompanySettingsPage';
 import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
 import PaymentResultPage from '@/pages/company/Billing/PaymentResult';
 import BillingDashboard from '@/pages/company/Billing/BillingDashboard';
-import MessagesPage from '@/pages/Messages';
+
 import CompanyCVSearch from '@/pages/company/CompanyCVSearch';
 import CompanyInterviewsPage from '@/pages/company/CompanyInterviews';
 import CompanyProfile from '@/pages/company/CompanyProfile';
@@ -113,7 +113,7 @@ export default function App() {
                     <Toaster position="top-center" />
                     <Routes>
                         {/* ── Candidate area ── */}
-                        <Route path="/candidate" element={<CandidateLayout />}>
+                        <Route path="/candidate" element={<ProtectedRoute role="candidate"><CandidateLayout /></ProtectedRoute>}>
                             <Route index element={<Navigate to="/candidate/dashboard" replace />} />
                             <Route path="dashboard" element={<CandidateDashboard />} />
                             <Route path="profile" element={<CandidateProfile />} />
@@ -125,7 +125,7 @@ export default function App() {
                             <Route path="reviews" element={<MyReviews />} />
                             <Route path="interviews" element={<CandidateInterviews />} />
                             <Route path="connections" element={<ConnectionsPage />} />
-                            <Route path="messages" element={<MessagesPage />} />
+
                             <Route path="notifications" element={<NotificationsPage />} />
                             <Route path="settings" element={<CandidateSettingsPage />} />
                             <Route path="search-history" element={<SearchHistory />} />
@@ -135,7 +135,7 @@ export default function App() {
                         </Route>
 
                         {/* ── Admin area ── */}
-                        <Route path="/admin" element={<AdminLayout />}>
+                        <Route path="/admin" element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
                             <Route index element={<Navigate to="/admin/dashboard" replace />} />
                             <Route path="dashboard" element={<AdminDashboard />} />
                             <Route path="users" element={<UserManagement />} />
@@ -146,7 +146,7 @@ export default function App() {
                         </Route>
 
                         {/* ── Company area: own shell, no public header/footer ── */}
-                        <Route path="/company" element={<CompanyLayout />}>
+                        <Route path="/company" element={<ProtectedRoute role="company"><CompanyLayout /></ProtectedRoute>}>
                             <Route index element={<Navigate to="/company/dashboard" replace />} />
                             <Route path="dashboard" element={<CompanyDashboard />} />
                             <Route path="profile" element={<CompanyProfile />} />
@@ -161,7 +161,7 @@ export default function App() {
                             <Route path="candidates" element={<ManageCandidates />} />
                             <Route path="cv-search" element={<CompanyCVSearch />} />
                             <Route path="interviews" element={<CompanyInterviewsPage />} />
-                            <Route path="messages" element={<MessagesPage />} />
+
                             <Route path="analytics" element={<CompanyAnalyticsPage />} />
                             <Route path="subscription" element={<Navigate to="/pricing" replace />} />
                             <Route path="billing" element={<BillingDashboard />} />
@@ -208,6 +208,7 @@ export default function App() {
                                         <Route path="/terms" element={<Terms />} />
                                         <Route path="/privacy" element={<Privacy />} />
                                         <Route path="/cookie" element={<Cookie />} />
+                                        <Route path="*" element={<NotFoundRedirect />} />
                                     </Routes>
                                 </main>
                                 <Footer />

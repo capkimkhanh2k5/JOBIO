@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, MessageSquare, CalendarClock, Users, Settings, Star, BookOpen, Sparkles
+    Bell, CalendarClock, Users, Settings, Star, BookOpen, Sparkles
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 
@@ -28,7 +28,7 @@ export function CandidateSidebar() {
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
         { label: 'Job Alerts', path: '/candidate/alerts', icon: <Bell className="w-5 h-5" /> },
         { label: 'Đánh giá của tôi', path: '/candidate/reviews', icon: <Star className="w-5 h-5" /> },
-        { label: 'Tin nhắn', path: '/candidate/messages', icon: <MessageSquare className="w-5 h-5" />, badge: 2 },
+
         { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
         { label: 'Kết nối', path: '/candidate/connections', icon: <Users className="w-5 h-5" /> },
         { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
