@@ -429,6 +429,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             result = social_login(
                 provider=provider,
                 access_token=serializer.validated_data['access_token'],
+                role=serializer.validated_data.get('role', 'candidate'),
                 email=serializer.validated_data.get('email'),
                 full_name=serializer.validated_data.get('full_name')
             )

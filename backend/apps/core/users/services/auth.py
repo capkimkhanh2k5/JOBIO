@@ -7,13 +7,17 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from django.core.cache import cache
+from django.db import transaction
+
+from apps.candidate.recruiters.models import Recruiter
+from apps.company.companies.services.companies import create_company, CompanyCreateInput
 
 from ..selectors.users import get_user_by_email, get_user_by_reset_token, get_user_by_verification_token
 from ..models import CustomUser
 
 import string
 from apps.email.services import EmailService
-from apps.core.users import services as user_services_pkg
+from . import social_auth
 from apps.core.users.exceptions import SocialAuthError
 
 
@@ -83,7 +87,7 @@ def verify_social_token(provider: str, token: str) -> dict:
             'provider': 'google',
         }
 
-    adapter = user_services_pkg.social_auth.SocialAdapterFactory.get_adapter('google')
+    adapter = social_auth.SocialAdapterFactory.get_adapter('google')
     profile = adapter.verify_token(token)
     return {
         'email': profile.email,
@@ -94,7 +98,13 @@ def verify_social_token(provider: str, token: str) -> dict:
     }
 
 
-def social_login(provider: str, access_token: str, email: str | None = None, full_name: str | None = None) -> dict:
+def social_login(
+    provider: str, 
+    access_token: str, 
+    role: str = 'candidate', 
+    email: str | None = None, 
+    full_name: str | None = None
+) -> dict:
     """
     Authenticate user via Google social login.
     
@@ -110,65 +120,86 @@ def social_login(provider: str, access_token: str, email: str | None = None, ful
     Raises:
         SocialAuthError subclasses for various error conditions.
     """
-    # 1. Verify social token (adapter-first with legacy fallback for compatibility)
-    profile_data = verify_social_token(provider, access_token)
-    profile_email = profile_data.get('email') or email
-    profile_name = profile_data.get('name') or full_name
-    profile_provider_id = profile_data.get('sub')
-    profile_provider = profile_data.get('provider') or provider
+    with transaction.atomic():
+        # 1. Verify social token (adapter-first with legacy fallback for compatibility)
+        profile_data = verify_social_token(provider, access_token)
+        profile_email = profile_data.get('email') or email
+        profile_name = profile_data.get('name') or full_name
+        profile_provider_id = profile_data.get('sub')
+        profile_provider = profile_data.get('provider') or provider
 
-    if not profile_email:
-        raise AuthenticationError("Không lấy được email từ tài khoản social")
-    
-    # 2. Get or create user
-    is_new_user = False
-    user = None
-    
-    # Try to find by social_id first (most reliable)
-    if profile_provider_id:
-        user = CustomUser.objects.filter(
-            social_provider=profile_provider,
-            social_id=profile_provider_id
-        ).first()
-    
-    # Fallback to email if not found by social_id
-    if not user:
-        user = CustomUser.objects.filter(email=profile_email).first()
-    
-    # Create new user if not exists
-    if not user:
-        is_new_user = True
-        user = CustomUser.objects.create_user(
-            email=profile_email,
-            password=None,  # Social users don't need password
-            full_name=profile_name or profile_email.split('@')[0],
-            social_provider=profile_provider,
-            social_id=profile_provider_id,
-        )
-        user.email_verified = True  # Social login = email verified
-        if profile_data.get('picture'):
-            user.avatar_url = profile_data.get('picture')
-        user.save()
-    else:
-        # Update social linking if user exists but wasn't linked
-        if not user.social_id and profile_provider_id:
-            user.social_provider = profile_provider
-            user.social_id = profile_provider_id
-            user.save(update_fields=['social_provider', 'social_id'])
-    
-    # 3. Check user status
-    if user.status != 'active':
-        raise AuthenticationError("Tài khoản đã bị vô hiệu hóa.")
-    
-    # 4. Update last_login
-    user.last_login = timezone.now()
-    user.save(update_fields=['last_login'])
-    
-    # 5. Generate tokens
-    result = generate_tokens(user)
-    result['is_new_user'] = is_new_user
-    
-    return result
+        if not profile_email:
+            raise AuthenticationError("Không lấy được email từ tài khoản social")
+        
+        # 2. Get or create user
+        is_new_user = False
+        user = None
+        
+        # Try to find by social_id first (most reliable)
+        if profile_provider_id:
+            user = CustomUser.objects.filter(
+                social_provider=profile_provider,
+                social_id=profile_provider_id
+            ).first()
+        
+        # Fallback to email if not found by social_id
+        if not user:
+            user = CustomUser.objects.filter(email=profile_email).first()
+        
+        # Create new user if not exists
+        if not user:
+            is_new_user = True
+            user = CustomUser.objects.create_user(
+                email=profile_email,
+                password=None,  # Social users don't need password
+                full_name=profile_name or profile_email.split('@')[0],
+                social_provider=profile_provider,
+                social_id=profile_provider_id,
+                role=role  # Use the provided role
+            )
+            user.email_verified = True  # Social login = email verified
+            if profile_data.get('picture'):
+                user.avatar_url = profile_data.get('picture')
+            user.save()
+
+            # Create profiles for new social user
+            if role == 'company':
+                # Use full_name as placeholder company_name if none provided
+                create_company(
+                    user=user,
+                    data=CompanyCreateInput(
+                        company_name=profile_name or profile_email.split('@')[0]
+                    )
+                )
+            elif role == 'candidate':
+                Recruiter.objects.create(user=user)
+        else:
+            # Update social linking if user exists but wasn't linked
+            if not user.social_id and profile_provider_id:
+                user.social_provider = profile_provider
+                user.social_id = profile_provider_id
+                user.save(update_fields=['social_provider', 'social_id'])
+            
+            # Ensure profile exists if user was created before profile logic was added
+            if user.role == 'candidate' and not hasattr(user, 'recruiter_profile'):
+                 Recruiter.objects.create(user=user)
+            elif user.role == 'company' and (not hasattr(user, 'company_profile') or user.company_profile is None):
+                 # We can't easily create a company profile without a name, but at least we identify the issue
+                 pass
+        
+        # 3. Check user status
+        if user.status != 'active':
+            raise AuthenticationError("Tài khoản đã bị vô hiệu hóa.")
+        
+        # 4. Update last_login
+        user.last_login = timezone.now()
+        user.save(update_fields=['last_login'])
+        
+        # 5. Generate tokens
+        result = generate_tokens(user)
+        result['is_new_user'] = is_new_user
+        
+        return result
 
 
 # Service Functions
@@ -287,53 +318,54 @@ def register_user(data: RegisterInput) -> dict:
         AuthenticationError nếu email đã tồn tại
     """
     
-    #Check email tồn tại
-    existing_user = get_user_by_email(email=data.email)
-    if existing_user:
-        raise AuthenticationError("Email đã được sử dụng")
-    
-    # Xác thực OTP nếu client gửi OTP (giữ tương thích với luồng cũ không OTP)
-    if data.otp:
-        cached_otp = cache.get(f'reg_otp_{data.email}')
-        if not cached_otp:
-            raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
-        if str(cached_otp) != str(data.otp):
-            raise AuthenticationError("Mã xác thực không chính xác!")
+    with transaction.atomic():
+        #Check email tồn tại
+        existing_user = get_user_by_email(email=data.email)
+        if existing_user:
+            raise AuthenticationError("Email đã được sử dụng")
+        
+        # Xác thực OTP nếu client gửi OTP (giữ tương thích với luồng cũ không OTP)
+        if data.otp:
+            cached_otp = cache.get(f'reg_otp_{data.email}')
+            if not cached_otp:
+                raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
+            if str(cached_otp) != str(data.otp):
+                raise AuthenticationError("Mã xác thực không chính xác!")
 
-    normalized_role = data.role
+        normalized_role = data.role
 
-    #Create new user
-    user = CustomUser.objects.create_user(
-        email=data.email,
-        password=data.password,
-        full_name=data.full_name,
-        role=normalized_role
-    )
-    
-    # Import service tạo company ngay tại đây để tránh vòng lặp Import (circular import)
-    if normalized_role == 'company' and data.company_name:
-        from apps.company.companies.services.companies import create_company, CompanyCreateInput
-        create_company(
-            user=user,
-            data=CompanyCreateInput(
-                company_name=data.company_name,
-                tax_code=data.tax_code
-            )
+        #Create new user
+        user = CustomUser.objects.create_user(
+            email=data.email,
+            password=data.password,
+            full_name=data.full_name,
+            role=normalized_role
         )
-    elif normalized_role == 'candidate':
-        from apps.candidate.recruiters.models import Recruiter
-        Recruiter.objects.create(user=user)
-    
-    # Mark email as verified since OTP was correct
-    user.email_verified = True
-    user.save(update_fields=["email_verified"])
-    
-    # Clean up OTP from cache
-    if data.otp:
-        cache.delete(f'reg_otp_{data.email}')
+        
+        # Import service tạo company ngay tại đây để tránh vòng lặp Import (circular import)
+        if normalized_role == 'company' and data.company_name:
+            from apps.company.companies.services.companies import create_company, CompanyCreateInput
+            create_company(
+                user=user,
+                data=CompanyCreateInput(
+                    company_name=data.company_name,
+                    tax_code=data.tax_code
+                )
+            )
+        elif normalized_role == 'candidate':
+            from apps.candidate.recruiters.models import Recruiter
+            Recruiter.objects.create(user=user)
+        
+        # Mark email as verified since OTP was correct
+        user.email_verified = True
+        user.save(update_fields=["email_verified"])
+        
+        # Clean up OTP from cache
+        if data.otp:
+            cache.delete(f'reg_otp_{data.email}')
 
-    #Return kết quả
-    return generate_tokens(user)
+        #Return kết quả
+        return generate_tokens(user)
 
 class ForgotPasswordInput(BaseModel):
     email: EmailStr
