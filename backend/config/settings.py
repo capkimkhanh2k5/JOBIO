@@ -416,11 +416,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
-        },
     },
     'root': {
         'handlers': ['console'],
@@ -428,28 +423,23 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
             'propagate': False,
         },
         'apps': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
         },
         'apps.billing.services.vnpay': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
 
-# Create logs directory if it doesn't exist
-import os
-logs_dir = BASE_DIR / 'logs'
-if not os.path.exists(logs_dir):
-    os.makedirs(logs_dir, exist_ok=True)
 
 # Import local settings to override default settings
 try:
