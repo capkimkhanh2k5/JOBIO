@@ -96,7 +96,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                                         {(tx.reference_code || String(tx.id)).length > 12 && '...'}
                                     </TableCell>
                                     <TableCell className="max-w-[200px] truncate text-slate-900 font-bold">
-                                        {tx.description}
+                                        {tx.clean_description || tx.description}
                                     </TableCell>
                                     <TableCell className="font-black text-slate-900">
                                         {formatCurrency(Number(tx.amount), tx.currency)}
@@ -111,7 +111,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-slate-400 text-[11px] font-medium">
-                                        {formatDate(tx.date)}
+                                        {formatDate(tx.created_at || tx.date)}
                                     </TableCell>
                                     <TableCell className="text-right pr-6">
                                         <Button

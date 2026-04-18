@@ -1,12 +1,10 @@
 import React from 'react';
 import {
     Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+    DialogContent
 } from "@/components/ui/dialog";
 import { BillingTransaction } from "@/types/api";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, cn } from "@/lib/utils";
 import {
     CheckCircle2,
     Clock,
@@ -14,7 +12,10 @@ import {
     RefreshCcw,
     Receipt,
     Download,
-    ExternalLink
+    ExternalLink,
+    Briefcase,
+    Rocket,
+    Crown
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,86 +59,129 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
 
     const status = statusConfig[transaction.status];
     const StatusIcon = status.icon;
+    const transactionDate = transaction.created_at || transaction.date;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-md border-border bg-background/95 text-foreground backdrop-blur-xl glass-effect shadow-2xl">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                        <Receipt className="h-5 w-5 text-indigo-400" />
-                        Chi tiết giao dịch
-                    </DialogTitle>
-                </DialogHeader>
-
-                <div className="mt-4 space-y-6">
-                    {/* Status Badge */}
-                    <div className="flex flex-col items-center justify-center space-y-2 py-4">
-                        <div className={`rounded-full p-3 ${status.color.split(' ')[0]}`}>
-                            <StatusIcon className="h-8 w-8" />
-                        </div>
-                        <Badge variant="outline" className={`gap-1.5 px-3 py-1 text-sm font-medium ${status.color}`}>
-                            {status.label}
-                        </Badge>
-                        <h3 className="text-2xl font-bold">
-                            {formatCurrency(Number(transaction.amount), transaction.currency)}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">{transaction.id}</p>
-                    </div>
-
-                    <Separator className="bg-border" />
-
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 gap-y-4 text-sm">
-                        <div className="text-muted-foreground">Thời gian</div>
-                        <div className="text-right text-foreground font-medium">{formatDate(transaction.date)}</div>
-
-                        <div className="text-muted-foreground">Phương thức</div>
-                        <div className="text-right text-foreground font-medium capitalize">
-                            {(transaction.payment_method?.name || transaction.payment_method?.code || 'N/A').replace('_', ' ')}
+            <DialogContent className="max-w-md p-0 overflow-hidden border-none rounded-[32px] bg-white shadow-2xl transition-all duration-500">
+                <div className="p-8 space-y-8">
+                    {/* Minimalist Header*/}
+                    <div className="flex flex-col items-center text-center pt-2">
+                        <div className={cn(
+                            "mb-5 h-20 w-20 rounded-3xl flex items-center justify-center shadow-xl transition-transform hover:scale-105 duration-500",
+                            status.color.split(' ')[0],
+                        )}>
+                            <StatusIcon className={cn("h-10 w-10", status.color.split(' ')[1])} />
                         </div>
 
-                        {transaction.vnpay_txn_ref && (
-                            <>
-                                <div className="text-muted-foreground">Mã tham chiếu VNPay</div>
-                                <div className="text-right font-mono text-xs text-indigo-600 dark:text-indigo-400">
-                                    {transaction.vnpay_txn_ref}
-                                </div>
-                            </>
-                        )}
-
-                        <div className="text-muted-foreground">Nội dung</div>
-                        <div className="text-right text-foreground font-medium">{transaction.description}</div>
-
-                        {transaction.subscription_name && (
-                            <>
-                                <div className="text-muted-foreground">Gói dịch vụ</div>
-                                <div className="text-right text-foreground font-medium">{transaction.subscription_name}</div>
-                            </>
-                        )}
+                        <div className="space-y-1">
+                            <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] block mb-2">
+                                Receipt #{(transaction.reference_code || transaction.id).substring(0, 12)}
+                            </span>
+                            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">
+                                {formatCurrency(Number(transaction.amount), transaction.currency)}
+                            </h2>
+                            <div className="pt-3 flex justify-center">
+                                <Badge variant="outline" className={cn("px-4 py-1 font-black text-[10px] uppercase tracking-widest border-none shadow-sm", status.color)}>
+                                    {status.label}
+                                </Badge>
+                            </div>
+                        </div>
                     </div>
 
-                    {transaction.status === 'completed' && (
-                        <div className="pt-4">
-                            <Button className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700">
+                    <Separator className="bg-slate-100" />
+
+                    {/* Information Grid */}
+                    <div className="space-y-6 px-1">
+                        <section>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Chi tiết thanh toán</h4>
+                            <div className="space-y-4">
+                                <DetailRow label="Thời gian" value={formatDate(transactionDate)} />
+                                <DetailRow
+                                    label="Phương thức"
+                                    value={(transaction.payment_method?.name || 'Thanh toán trực tuyến').replace('_', ' ')}
+                                />
+                                <DetailRow
+                                    label="Mã đơn hàng"
+                                    value={transaction.reference_code || transaction.id}
+                                    isMono
+                                />
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Dịch vụ</h4>
+                            {(() => {
+                                const planName = (transaction.plan_name || '').toLowerCase();
+                                const planThemes = {
+                                    plus: { icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+                                    pro: { icon: Rocket, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-100" },
+                                    max: { icon: Crown, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+                                    default: { icon: Receipt, color: "text-violet-600", bg: "bg-slate-50", border: "border-slate-100" }
+                                };
+                                const theme = planThemes[planName.includes('plus') ? 'plus' : planName.includes('pro') ? 'pro' : planName.includes('max') ? 'max' : 'default'];
+                                const Icon = theme.icon;
+
+                                return (
+                                    <div className={cn("rounded-2xl p-5 border group transition-all hover:bg-white hover:shadow-sm", theme.bg, theme.border, "hover:border-slate-200")}>
+                                        <div className="flex items-start gap-4">
+                                            <div className={cn("h-12 w-12 rounded-xl bg-white border flex items-center justify-center shrink-0 shadow-sm group-hover:scale-110 transition-all duration-500", theme.border)}>
+                                                <Icon className={cn("h-6 w-6", theme.color)} />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-black text-slate-900 mb-1">
+                                                    {transaction.plan_name || 'Gói dịch vụ JOBIO'}
+                                                </div>
+                                                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                                                    {transaction.clean_description || transaction.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </section>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-3 pt-2">
+                        {transaction.status === 'completed' ? (
+                            <Button className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl gap-2 active:scale-95 duration-200">
                                 <Download className="h-4 w-4" />
-                                Tải hóa đơn (PDF)
+                                Tải hóa đơn PDF
                             </Button>
-                        </div>
-                    )}
-
-                    {transaction.status === 'pending' && transaction.payment_url && (
-                        <div className="pt-4">
+                        ) : transaction.status === 'pending' && transaction.payment_url ? (
                             <Button
                                 onClick={() => window.open(transaction.payment_url, '_blank')}
-                                className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700"
+                                className="w-full h-14 rounded-2xl bg-violet-600 text-white font-black hover:bg-violet-700 transition-all shadow-lg hover:shadow-xl gap-2 active:scale-95 duration-200"
                             >
                                 Tiếp tục thanh toán
                                 <ExternalLink className="h-4 w-4" />
                             </Button>
-                        </div>
-                    )}
+                        ) : null}
+
+                        <Button
+                            variant="ghost"
+                            onClick={onClose}
+                            className="w-full h-12 rounded-2xl text-slate-400 font-bold hover:text-slate-600 hover:bg-slate-50 transition-all"
+                        >
+                            Đóng cửa sổ
+                        </Button>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
     );
 };
+
+const DetailRow = ({ label, value, isMono = false }: { label: string; value: string; isMono?: boolean }) => (
+    <div className="flex items-center justify-between gap-4">
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">{label}</span>
+        <span className={cn(
+            "text-xs font-black text-slate-900 text-right truncate",
+            isMono && "font-mono text-[10px] text-violet-600"
+        )}>
+            {value}
+        </span>
+    </div>
+);

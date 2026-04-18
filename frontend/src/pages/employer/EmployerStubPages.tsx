@@ -33,12 +33,4 @@ export function EmployerMessagesPage() {
     return <StubPage title="Tin nhắn" desc="Giao tiếp trực tiếp với ứng viên qua tin nhắn. Coming soon." />;
 }
 
-export function EmployerAnalyticsPage() {
-    return <StubPage title="Báo cáo & Phân tích" desc="Báo cáo hiệu quả tuyển dụng chi tiết theo thời gian. Coming soon." />;
-}
-
-export function EmployerSubscriptionPage() {
-    return <StubPage title="Gói dịch vụ" desc="Nâng cấp gói để mở rộng khả năng tiếp cận ứng viên. Coming soon." />;
-}
-
 // Removed EmployerSupportPage as it is implemented
