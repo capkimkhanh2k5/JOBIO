@@ -6,6 +6,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
     recruiter_id = serializers.SerializerMethodField()
     company_id = serializers.SerializerMethodField()
     subscription_plan = serializers.SerializerMethodField()
+    application_count = serializers.SerializerMethodField()
+    cv_count = serializers.SerializerMethodField()
+    job_count = serializers.SerializerMethodField()
+    trust_score = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -13,11 +17,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'id', 'email', 'full_name', 'role', 'status', 
             'email_verified', 'password', 'last_login', 
             'phone', 'avatar_url', 'recruiter_id', 'company_id',
-            'subscription_plan'
+            'subscription_plan', 'application_count', 'cv_count',
+            'job_count', 'trust_score', 'created_at'
         ]
         extra_kwargs = {
             'password': {'write_only': True},
-            'last_login': {'read_only': True}
+            'last_login': {'read_only': True},
+            'created_at': {'read_only': True}
         }
 
     def get_recruiter_id(self, obj):
@@ -39,7 +45,34 @@ class CustomUserSerializer(serializers.ModelSerializer):
         sub = SubscriptionService.get_active_subscription(obj.company_profile.id)
         if sub:
             return sub.plan.name
-        return "Chưa đăng ký"
+        return "Free"
+
+    def get_application_count(self, obj):
+        if obj.role != 'candidate' or not hasattr(obj, 'recruiter_profile'):
+            return 0
+        return obj.recruiter_profile.applications.count()
+
+    def get_cv_count(self, obj):
+        if obj.role != 'candidate' or not hasattr(obj, 'recruiter_profile'):
+            return 0
+        return obj.recruiter_profile.cvs.count()
+
+    def get_job_count(self, obj):
+        if obj.role != 'company' or not hasattr(obj, 'company_profile'):
+            return 0
+        return obj.company_profile.jobs.count()
+
+    def get_trust_score(self, obj):
+        score = 0
+        if obj.email_verified:
+            score += 40
+        if obj.phone:
+            score += 20
+        if obj.role == 'candidate' and hasattr(obj, 'recruiter_profile'):
+            score += min(obj.recruiter_profile.profile_completeness_score, 40)
+        elif obj.role == 'company' and hasattr(obj, 'company_profile'):
+            score += 40 # Giả định công ty đã tạo profile là +40
+        return min(score, 100)
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

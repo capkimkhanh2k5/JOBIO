@@ -44,6 +44,7 @@ from .serializers import (
     PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
 )
 from django.http import HttpResponse
+from apps.core.pagination import SmallResultsSetPagination
 
 from apps.system.activity_logs.models import ActivityLog
 from apps.system.activity_logs.serializers import ActivityLogSerializer
@@ -55,6 +56,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     """
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
         return list_users(filters=self.request.query_params)

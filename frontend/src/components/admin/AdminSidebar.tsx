@@ -1,10 +1,16 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, FileText,
-    Mail, Settings, Shield
+    Settings, Shield, LogOut,
+    Wallet, Briefcase, AlertTriangle, BarChart
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
+import { useUserStore } from '@/store/userStore';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
 interface NavItem {
     label: string;
@@ -16,9 +22,12 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { label: 'Quản lý Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
-    { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" />, badge: 5 },
+    { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-5 h-5" /> },
+    { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
+    { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: 3 },
+    { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" /> },
+    { label: 'Phân tích dữ liệu', path: '/admin/analytics', icon: <BarChart className="w-5 h-5" /> },
     { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
-    { label: 'Email Templates', path: '/admin/email-templates', icon: <Mail className="w-5 h-5" /> },
 ];
 
 const bottomItems: NavItem[] = [
@@ -26,26 +35,49 @@ const bottomItems: NavItem[] = [
 ];
 
 const itemVariants = {
-    hidden: { opacity: 0, x: -12 },
-    visible: (i: number) => ({ opacity: 1, x: 0, transition: { delay: i * 0.04, duration: 0.3 } }),
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({ 
+        opacity: 1, 
+        y: 0, 
+        transition: { 
+            delay: i * 0.05, 
+            duration: 0.4,
+            ease: [0.215, 0.61, 0.355, 1] as any
+        } 
+    }),
 };
 
 export function AdminSidebar() {
+    const { user, clearAuth } = useUserStore();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+            clearAuth();
+            toast.success('Đã đăng xuất');
+            navigate('/');
+        } catch {
+            clearAuth();
+            navigate('/');
+        }
+    };
+
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-white/5 bg-white/2 backdrop-blur-lg"
+            className="hidden md:flex flex-col w-64 shrink-0 h-screen border-r border-slate-200 bg-white"
             aria-label="Admin Navigation"
         >
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
-                <div className="px-6 mb-4">
+                <div className="px-6 mb-8">
                     <Logo
                         to="/admin/dashboard"
                         imageClassName="h-10 w-auto object-contain drop-shadow"
                         textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
                     />
                 </div>
-                <div className="px-3 mb-2">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3">Admin Panel</p>
+                <div className="px-6 mb-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Admin Control</p>
                 </div>
                 {navItems.map((item, i) => (
                     <motion.div
@@ -123,10 +155,28 @@ export function AdminSidebar() {
                 ))}
             </div>
 
-            {/* Admin info box */}
-            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-slate-50/50 to-violet-50/50 border border-slate-100/50">
-                <p className="text-xs font-bold text-slate-900 mb-1">⚡ Admin Panel</p>
-                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Quản trị hệ thống JOBIO. Mọi thay đổi sẽ ảnh hưởng toàn bộ platform.</p>
+            {/* Admin Profile & Logout at Bottom */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3 px-2 mb-4">
+                    <Avatar className="h-9 w-9 border border-slate-200 shadow-sm">
+                        <AvatarImage src={user?.avatar_url ?? undefined} />
+                        <AvatarFallback className="bg-violet-600 text-white text-[10px] font-black">
+                            {user?.full_name?.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs font-black text-slate-900 truncate">{user?.full_name}</p>
+                        <p className="text-[10px] font-bold text-violet-600 uppercase truncate">Admin</p>
+                    </div>
+                </div>
+                <Button 
+                    variant="ghost" 
+                    className="w-full justify-start gap-3 h-10 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 font-bold text-xs px-3 transition-colors"
+                    onClick={handleLogout}
+                >
+                    <LogOut className="w-4 h-4" />
+                    Đăng xuất
+                </Button>
             </div>
         </aside>
     );
