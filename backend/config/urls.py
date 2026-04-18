@@ -119,8 +119,9 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
-    # System & Administration
-    path('api/system-settings/', include('apps.system.system_settings.urls')),
+    # System App routes
+    path('api/system/settings/', include('apps.system.system_settings.urls')),
+    path('api/system/reports/', include('apps.system.reports.urls')),
     path('api/activity-logs/', include('apps.system.activity_logs.urls')),
     path('api/file-uploads/', include('apps.system.file_uploads.urls')),
     path('api/contact/', include('apps.system.contact.urls')),

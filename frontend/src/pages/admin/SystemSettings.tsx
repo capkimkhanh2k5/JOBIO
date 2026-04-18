@@ -97,7 +97,7 @@ export default function SystemSettings() {
 
             {/* Tabs */}
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl">
+                <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
@@ -121,7 +121,7 @@ export default function SystemSettings() {
             {/* Settings Tab */}
             {activeTab === 'settings' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-slate-100/50 flex items-center justify-between">
                             <p className="text-sm font-bold text-slate-900">Cấu hình hệ thống</p>
                             <Button size="sm" className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white">
@@ -166,7 +166,7 @@ export default function SystemSettings() {
             {/* Activity Logs Tab */}
             {activeTab === 'logs' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-4 flex gap-3">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row gap-4">
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
@@ -174,41 +174,41 @@ export default function SystemSettings() {
                                 placeholder="Tìm trong logs..."
                                 value={logSearch}
                                 onChange={(e) => setLogSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all"
                             />
                         </div>
                         <Button variant="outline" className="rounded-xl font-semibold text-sm border-slate-200 text-slate-700 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200">
                             <RefreshCw className="w-4 h-4 mr-2" /> Làm mới
                         </Button>
                     </div>
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         {loadingLogs ? (
                             <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                         ) : (
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-slate-100">
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">User</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Action</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Entity</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Chi tiết</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">IP</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Thời gian</th>
+                                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">User</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Action</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Entity</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Chi tiết</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">IP</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thời gian</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {logs.map((log) => (
-                                        <tr key={log.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-3 px-4 font-medium text-slate-900">{log.user_email}</td>
-                                            <td className="py-3 px-4">
+                                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="py-4 px-6 font-medium text-slate-900">{log.user_email}</td>
+                                            <td className="py-4 px-6">
                                                 <Badge className={`${actionColors[log.action] || 'bg-slate-50 text-slate-600'} border text-[10px] font-bold`}>
                                                     {log.action}
                                                 </Badge>
                                             </td>
-                                            <td className="py-3 px-4 text-slate-600">{log.entity_type}</td>
-                                            <td className="py-3 px-4 text-slate-500 text-xs">{log.details}</td>
-                                            <td className="py-3 px-4 text-slate-400 text-xs font-mono">{log.ip_address}</td>
-                                            <td className="py-3 px-4 text-slate-500 text-xs">{new Date(log.created_at).toLocaleString('vi-VN')}</td>
+                                            <td className="py-4 px-6 text-slate-600">{log.entity_type}</td>
+                                            <td className="py-4 px-6 text-slate-500 text-xs">{log.details}</td>
+                                            <td className="py-4 px-6 text-slate-400 text-xs font-mono">{log.ip_address}</td>
+                                            <td className="py-4 px-6 text-slate-500 text-xs">{new Date(log.created_at).toLocaleString('vi-VN')}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -221,7 +221,7 @@ export default function SystemSettings() {
             {/* File Uploads Tab */}
             {activeTab === 'files' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-slate-100/50">
                             <p className="text-sm font-bold text-slate-900">Tệp tải lên gần đây</p>
                         </div>
@@ -230,28 +230,28 @@ export default function SystemSettings() {
                         ) : (
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-slate-100">
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Tên file</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Loại</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Kích thước</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Entity</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Public</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-slate-500">Ngày</th>
-                                        <th className="text-right py-3 px-4 font-semibold text-slate-500 w-20">Actions</th>
+                                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Tên file</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Loại</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Kích thước</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Entity</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Public</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày</th>
+                                        <th className="text-right py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500 w-20">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {files.map((file) => (
-                                        <tr key={file.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-3 px-4 font-medium text-slate-900 text-xs">{file.original_name}</td>
-                                            <td className="py-3 px-4 text-slate-500 text-xs">{file.mime_type}</td>
-                                            <td className="py-3 px-4 text-slate-600 text-xs font-medium">{file.file_size < 1024 * 1024 ? `${(file.file_size / 1024).toFixed(1)} KB` : `${(file.file_size / 1024 / 1024).toFixed(1)} MB`}</td>
-                                            <td className="py-3 px-4"><Badge className="bg-slate-50 text-slate-600 border-slate-200 text-[10px]">{file.entity_type}</Badge></td>
-                                            <td className="py-3 px-4">
+                                        <tr key={file.id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="py-4 px-6 font-medium text-slate-900 text-xs">{file.original_name}</td>
+                                            <td className="py-4 px-6 text-slate-500 text-xs">{file.mime_type}</td>
+                                            <td className="py-4 px-6 text-slate-600 text-xs font-medium">{file.file_size < 1024 * 1024 ? `${(file.file_size / 1024).toFixed(1)} KB` : `${(file.file_size / 1024 / 1024).toFixed(1)} MB`}</td>
+                                            <td className="py-4 px-6"><Badge className="bg-slate-50 text-slate-600 border-slate-200 text-[10px]">{file.entity_type}</Badge></td>
+                                            <td className="py-4 px-6">
                                                 {file.is_public ? <span className="text-emerald-600 text-xs font-semibold">Public</span> : <span className="text-slate-400 text-xs">Private</span>}
                                             </td>
-                                            <td className="py-3 px-4 text-slate-500 text-xs">{new Date(file.created_at).toLocaleDateString('vi-VN')}</td>
-                                            <td className="py-3 px-4 text-right">
+                                            <td className="py-4 px-6 text-slate-500 text-xs">{new Date(file.created_at).toLocaleDateString('vi-VN')}</td>
+                                            <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-violet-600 transition-colors cursor-pointer"><Eye className="w-4 h-4" /></button>
                                                     <button className="p-1.5 rounded-lg hover:bg-slate-100/50 text-slate-400 hover:text-red-600 transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>

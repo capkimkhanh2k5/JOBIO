@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
-    Users, Briefcase, Building2, FileCheck, TrendingUp,
-    TrendingDown, ArrowRight, ShieldCheck, Star, AlertTriangle, Loader2
+    Users, Briefcase, TrendingUp,
+    TrendingDown, ArrowRight, ShieldCheck, Star, AlertTriangle, Loader2, LayoutDashboard
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -69,12 +69,15 @@ export default function AdminDashboard() {
         { label: 'Người dùng', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-blue-500 to-blue-600', period: 'mới' },
     ] : [];
     return (
-        <div className="p-6 lg:p-8 space-y-8 w-full flex-1">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             {/* Welcome */}
             <motion.div {...fadeUp(0)}>
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
+                        <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                            <LayoutDashboard className="w-8 h-8 text-violet-600" />
+                            Admin Dashboard
+                        </h1>
                         <p className="text-sm text-slate-500 mt-1">Tổng quan hệ thống JOBIO</p>
                     </div>
                     <Badge className="bg-violet-50 text-violet-700 border border-violet-200 font-semibold px-3 py-1.5">
@@ -93,19 +96,20 @@ export default function AdminDashboard() {
                         {kpiData.map((kpi) => {
                             const Icon = kpi.icon;
                             return (
-                                <div key={kpi.label} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3 transition-all hover:border-violet-300 hover:shadow-md duration-300 group">
-                                    <div className="flex items-center justify-between">
-                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-sm`}>
-                                            <Icon className="w-5 h-5" />
+                                <div key={kpi.label} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-inner`}>
+                                                <Icon className="w-6 h-6" />
+                                            </div>
+                                            <div className={`flex items-center gap-1 text-xs font-bold ${kpi.deltaType === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
+                                                {kpi.deltaType === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                                                {kpi.delta}
+                                            </div>
                                         </div>
-                                        <div className={`flex items-center gap-1 text-xs font-bold ${kpi.deltaType === 'up' ? 'text-emerald-600' : 'text-red-500'}`}>
-                                            {kpi.deltaType === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                                            {kpi.delta}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-black text-slate-900">{kpi.value}</p>
-                                        <p className="text-xs font-medium text-slate-500 mt-0.5">{kpi.label} <span className="text-slate-400">• {kpi.period}</span></p>
+                                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{kpi.label} <span className="normal-case font-medium text-[10px] text-slate-400">({kpi.period})</span></p>
+                                        <h3 className="text-3xl font-black text-slate-900 tracking-tight">{kpi.value}</h3>
                                     </div>
                                 </div>
                             );
@@ -117,7 +121,7 @@ export default function AdminDashboard() {
             {/* Charts Row */}
             <motion.div {...fadeUp(0.16)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* User Growth Chart */}
-                <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="font-bold text-base text-slate-900">Tăng trưởng</h3>
@@ -141,7 +145,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Industry Pie Chart */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <h3 className="font-bold text-base text-slate-900 mb-1">Ngành nghề</h3>
                     <p className="text-xs text-slate-500 mb-4">Phân bổ theo ngành</p>
                     <ResponsiveContainer width="100%" height={180}>
@@ -169,7 +173,7 @@ export default function AdminDashboard() {
             {/* Monitoring & Compliance Row */}
             <motion.div {...fadeUp(0.24)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Financial Trend */}
-                <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="font-bold text-base text-slate-900">Doanh thu theo tuần</h3>
@@ -184,7 +188,7 @@ export default function AdminDashboard() {
                     <div className="h-[200px] w-full bg-slate-50/50 rounded-xl flex items-end justify-between px-4 pb-2 gap-2 border border-slate-100">
                         {revenueTrendData.map((d, i) => (
                             <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                                <div 
+                                <div
                                     className="w-full bg-emerald-500/80 rounded-t-lg transition-all duration-500 group-hover:bg-emerald-600"
                                     style={{ height: `${(d.revenue / 70000000) * 100}%` }}
                                 />
@@ -195,7 +199,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Violation Breakdown */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-bold text-base text-slate-900">Loại vi phạm</h3>
                         <Link to="/admin/reports">
@@ -229,7 +233,7 @@ export default function AdminDashboard() {
             {/* Quick Actions Row */}
             <motion.div {...fadeUp(0.32)} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Pending Company Verifications */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-violet-600" />
@@ -245,7 +249,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Pending Reviews */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                             <Star className="w-5 h-5 text-orange-500" />

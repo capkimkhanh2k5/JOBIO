@@ -150,7 +150,7 @@ INSTALLED_APPS = [
     'apps.system.analytics_reports',
     # 'apps.system.analytics_daily_statistics',
     'apps.system.report_types',
-    # 'apps.system.reports',
+    'apps.system.reports',
     'apps.system.audit_logs',
     'apps.system.search_history',
     'apps.system.faqs',

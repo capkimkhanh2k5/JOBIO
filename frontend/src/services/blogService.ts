@@ -47,4 +47,8 @@ export const blogService = {
   listTags() {
     return api.get<PaginatedResponse<BlogTag>>('/api/blog/tags/');
   },
+
+  getAdminStats() {
+    return api.get('/api/blog/posts/admin-stats/');
+  },
 };
