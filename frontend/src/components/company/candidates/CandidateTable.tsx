@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { useCandidateStore } from '@/store/candidateStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, MessageSquare, Calendar, MoreHorizontal, User, Star } from 'lucide-react';
+import { Eye, Calendar, MoreHorizontal, User, Star } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
@@ -177,9 +176,6 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                             <DropdownMenuContent align="end" className="w-48 bg-card">
                                                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setSelectedCandidateId(app.id)}>
                                                     <Eye className="w-4 h-4" /> Xem chi tiết
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="gap-2 cursor-pointer">
-                                                    <MessageSquare className="w-4 h-4" /> Gửi tin nhắn
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem className="gap-2 cursor-pointer">
                                                     <Calendar className="w-4 h-4" /> Lên lịch phỏng vấn

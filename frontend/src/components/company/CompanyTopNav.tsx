@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import {
-    MessageSquare, LogOut, Settings, ChevronDown,
+    LogOut, Settings, ChevronDown,
     Building2, ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
-import { companyService } from '@/services/companyService';
 import { toast } from 'sonner';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
 import { Logo } from '@/components/shared/Logo';
@@ -22,12 +20,6 @@ import { Logo } from '@/components/shared/Logo';
 export function CompanyTopNav() {
     const { user, clearAuth, refreshToken } = useUserStore();
     const navigate = useNavigate();
-    // Unread messages count
-    const { data: msgCount } = useQuery({
-        queryKey: ['company', 'messages', 'unread'],
-        queryFn: () => companyService.listThreads({ page_size: 1 }).then((r: any) => r.data.count),
-        staleTime: 30_000,
-    });
 
     const handleLogout = async () => {
         try {
@@ -56,19 +48,6 @@ export function CompanyTopNav() {
 
             {/* Right actions */}
             <div className="flex items-center gap-3">
-                {/* Messages */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative rounded-full w-10 h-10 hover:bg-slate-100 text-slate-600 transition-colors"
-                    onClick={() => navigate('/company/messages')}
-                    aria-label="Tin nhắn"
-                >
-                    <MessageSquare className="w-5 h-5" />
-                    {(msgCount ?? 0) > 0 && (
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-cyan-400 rounded-full border border-background" />
-                    )}
-                </Button>
 
                 {/* Notifications */}
                 <NotificationBell />

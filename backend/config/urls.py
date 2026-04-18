@@ -109,10 +109,8 @@ urlpatterns = [
     path('api/connections/', include('apps.social.recruiter_connections.urls')),
     path('api/recommendations/', include('apps.social.recommendations.urls')),
     
-    # Notifications & Messages
+    # Notifications
     path('api/notifications/', include('apps.communication.notifications.urls')),
-    path('api/messages/', include('apps.communication.message_threads.urls')),
-    path('api/messages/', include('apps.communication.messages.urls')),
     
     # Job Alerts
     path('api/', include('apps.communication.job_alerts.urls')),

@@ -115,9 +115,6 @@ INSTALLED_APPS = [
     # ===== Communication Domain =====
     'apps.communication.notifications',
     'apps.communication.notification_types',
-    'apps.communication.messages',
-    'apps.communication.message_threads',
-    'apps.communication.message_participants',
     'apps.communication.job_alerts',
     'apps.communication.job_alert_skills',
     

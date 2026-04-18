@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import {
     Briefcase, GraduationCap, MapPin, Mail, Phone, Calendar,
-    FileText, Download, Target, MessageSquare
+    FileText, Download, Target
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -60,7 +60,12 @@ export function CandidateDetailSheet() {
                 const appNumId = Number(selectedCandidateId);
                 const appRes = await applicationService.getById(appNumId);
                 const appData = appRes.data;
-                const candidateId = appData.candidate_id;
+                const candidateId = Number(appData.candidate_id);
+                if (!candidateId) {
+                    toast.error("Không tìm thấy thông tin ứng viên");
+                    setIsLoading(false);
+                    return;
+                }
 
                 const [prof, edu, exp, skls, hist] = await Promise.all([
                     candidateService.getById(candidateId).then(r => r.data),
@@ -146,9 +151,6 @@ export function CandidateDetailSheet() {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Button size="icon" variant="outline" className="h-9 w-9 border-border/50">
-                                        <MessageSquare className="w-4 h-4" />
-                                    </Button>
                                     <Button size="icon" variant="outline" className="h-9 w-9 border-border/50">
                                         <Calendar className="w-4 h-4" />
                                     </Button>

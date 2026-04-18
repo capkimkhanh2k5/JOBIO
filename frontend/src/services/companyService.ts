@@ -15,8 +15,6 @@ import type {
   InterviewListItem,
   InterviewDetail,
   InterviewType,
-  MessageThread,
-  Message,
   Review,
 } from '@/types/api';
 
@@ -198,28 +196,6 @@ export const companyService = {
   listMediaTypes() {
     return api.get<MediaType[]>('/api/media-types/');
   },
-  // ─── Messages ─────────────────────────────────────────────────────────
-
-  listThreads(params?: { page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<MessageThread>>('/api/messages/threads/', { params });
-  },
-
-  getThread(id: number) {
-    return api.get<MessageThread>(`/api/messages/threads/${id}/`);
-  },
-
-  createThread(data: { subject: string; participant_ids: number[]; job_id?: number; candidate_id?: number }) {
-    return api.post<MessageThread>('/api/messages/threads/', data);
-  },
-
-  listMessages(threadId: number, params?: { page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<Message>>(`/api/messages/threads/${threadId}/messages/`, { params });
-  },
-
-  sendMessage(threadId: number, data: { content: string }) {
-    return api.post<Message>(`/api/messages/threads/${threadId}/messages/`, data);
-  },
-
   // ─── Notifications ──────────────────────────────────────────────────
 
   listNotifications(params?: { is_read?: boolean; page?: number; page_size?: number }) {

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Briefcase, Mail, Phone, ExternalLink, MessageSquare, Send, Award, CheckCircle } from 'lucide-react';
+import { MapPin, Briefcase, Mail, Phone, ExternalLink, Send, Award, CheckCircle } from 'lucide-react';
 import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
 import { RecommendationsSection } from '@/components/candidate/recommendations/RecommendationsSection';
@@ -56,10 +56,6 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
 
     const handleInvite = () => {
         toast.success(`Đã gửi lời mời ứng tuyển đến ${profile?.name}`);
-    };
-
-    const handleMessage = () => {
-        toast.info(`Mở cửa sổ chat với ${profile?.name}`);
     };
 
     return (
@@ -114,10 +110,6 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
                             </div>
  
                             <div className="flex gap-3 mt-2">
-                                <Button onClick={handleMessage} variant="outline" className="flex-1 bg-background/50 backdrop-blur-md border-violet-600/20 hover:bg-violet-100 hover:text-violet-600">
-                                    <MessageSquare className="w-4 h-4 mr-2" />
-                                    Nhắn tin
-                                </Button>
                                 <Button onClick={handleInvite} className="flex-1 shadow-lg shadow-violet-600/20 bg-violet-600 hover:bg-violet-700 text-white">
                                     <Send className="w-4 h-4 mr-2" />
                                     Mời ứng tuyển

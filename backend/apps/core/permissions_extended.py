@@ -191,24 +191,6 @@ class IsReviewOwner(permissions.BasePermission):
         return False
 
 
-class IsMessageParticipant(permissions.BasePermission):
-    """
-    Cho phép truy cập nếu user là participant của message thread.
-    """
-    message = "Bạn không có quyền truy cập cuộc hội thoại này."
-    
-    def has_object_permission(self, request, view, obj):
-        # For MessageThread
-        if hasattr(obj, 'participants'):
-            return obj.participants.filter(user=request.user).exists()
-        
-        # For Message (check parent thread)
-        if hasattr(obj, 'thread'):
-            return obj.thread.participants.filter(user=request.user).exists()
-        
-        return False
-
-
 class IsNotificationOwner(permissions.BasePermission):
     """
     Cho phép truy cập nếu user là recipient của notification.
