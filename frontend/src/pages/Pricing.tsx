@@ -143,7 +143,7 @@ const FEATURE_ROWS: FeatureRow[] = [
     { icon: Megaphone, label: 'Đẩy top tin tuyển dụng', key: 'top_job', type: 'boolean' },
     { icon: Zap, label: 'Gửi email hàng loạt', key: 'mass_email', type: 'boolean' },
     { icon: Headphones, label: 'Hỗ trợ ưu tiên 24/7', key: 'priority_support', type: 'boolean' },
-    { icon: Palette, label: 'Employer Branding', key: 'employer_branding', type: 'boolean' },
+    { icon: Palette, label: 'Company Branding', key: 'company_branding', type: 'boolean' },
     { icon: Briefcase, label: 'Số tin đăng tuyển', key: 'job_post_limit', type: 'number' },
 ];
 
@@ -214,7 +214,7 @@ export default function Pricing() {
                 window.location.href = res.data.payment_url;
             } else {
                 toast.success('Đăng ký gói thành công!');
-                navigate('/employer/dashboard');
+                navigate('/company/dashboard');
             }
         },
         onError: (err: any) => {
@@ -429,7 +429,7 @@ export default function Pricing() {
                                                         { key: 'top_job', label: 'Đẩy top tin tuyển dụng' },
                                                         { key: 'mass_email', label: 'Gửi email hàng loạt' },
                                                         { key: 'priority_support', label: 'Hỗ trợ ưu tiên 24/7' },
-                                                        { key: 'employer_branding', label: 'Employer Branding' },
+                                                        { key: 'company_branding', label: 'Company Branding' },
                                                     ].map(feat => {
                                                         const ok = Boolean(features[feat.key]);
                                                         return (

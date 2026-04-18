@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 const FAQ_CATEGORIES = [
     { id: 'general', label: 'Chung' },
     { id: 'candidate', label: 'Dành cho Ứng viên' },
-    { id: 'employer', label: 'Dành cho Nhà tuyển dụng' },
+    { id: 'company', label: 'Dành cho Nhà tuyển dụng' },
 ];
 
 const FAQS = [
@@ -40,13 +40,13 @@ const FAQS = [
     },
     {
         id: 'q5',
-        category: 'employer',
+        category: 'company',
         q: 'Tôi muốn đăng tin tuyển dụng thì làm thế nào?',
         a: 'Ban có thể đăng ký tài khoản Nhà tuyển dụng, sau đó chọn Gói dịch vụ phù hợp trong trang Bảng giá. Gói Free cho phép bạn đăng tối đa 3 tin tuyển dụng miễn phí.'
     },
     {
         id: 'q6',
-        category: 'employer',
+        category: 'company',
         q: 'Tính năng AI Matching hoạt động như thế nào?',
         a: 'AI của chúng tôi sẽ phân tích mô tả công việc (JD) của bạn, sau đó quét qua hàng ngàn CV trên hệ thống để tìm ra các ứng viên có kỹ năng và kinh nghiệm khớp nhất, giúp bạn tiết kiệm 60% thời gian lọc CV.'
     },

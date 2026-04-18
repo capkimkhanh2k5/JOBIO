@@ -9,18 +9,18 @@ import { toast } from 'sonner';
 interface SendConnectionDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    recruiterId: number;
-    recruiterName: string;
+    candidateId: number;
+    candidateName: string;
 }
 
-export function SendConnectionDialog({ isOpen, onClose, recruiterId, recruiterName }: SendConnectionDialogProps) {
+export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateName }: SendConnectionDialogProps) {
     const [message, setMessage] = useState('');
     const queryClient = useQueryClient();
 
     const connectMutation = useMutation({
-        mutationFn: () => api.post(`/api/recruiters/${recruiterId}/connect/`, { message }),
+        mutationFn: () => api.post(`/api/candidates/${candidateId}/connect/`, { message }),
         onSuccess: () => {
-            toast.success(`Đã gửi lời mời kết nối đến ${recruiterName}`);
+            toast.success(`Đã gửi lời mời kết nối đến ${candidateName}`);
             queryClient.invalidateQueries({ queryKey: ['connectionSuggestions'] });
             queryClient.invalidateQueries({ queryKey: ['connections'] });
             onClose();
@@ -37,7 +37,7 @@ export function SendConnectionDialog({ isOpen, onClose, recruiterId, recruiterNa
                 <DialogHeader>
                     <DialogTitle>Gửi lời mời kết nối do JOBIO</DialogTitle>
                     <DialogDescription>
-                        Kết nối với {recruiterName} để mở rộng mạng lưới của bạn. Bạn có thể thêm một tin nhắn cá nhân hóa.
+                        Kết nối với {candidateName} để mở rộng mạng lưới của bạn. Bạn có thể thêm một tin nhắn cá nhân hóa.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4">

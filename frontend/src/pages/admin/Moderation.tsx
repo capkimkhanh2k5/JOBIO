@@ -197,7 +197,7 @@ export default function Moderation() {
                                         </div>
                                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                                             <span><strong className="text-slate-700">Công ty:</strong> {review.company?.company_name}</span>
-                                            <span><strong className="text-slate-700">Người đánh giá:</strong> {review.recruiter?.full_name ?? 'Ẩn danh'}</span>
+                                            <span><strong className="text-slate-700">Người đánh giá:</strong> {review.candidate?.full_name ?? 'Ẩn danh'}</span>
                                             <span><strong className="text-slate-700">Trạng thái:</strong> {(review.employment_status ?? (review as any).employment) === 'current' ? 'Đang làm việc' : 'Đã nghỉ'}</span>
                                             <span><strong className="text-slate-700">Ngày:</strong> {review.created_at ? new Date(review.created_at).toLocaleDateString('vi-VN') : (review as any).date}</span>
                                         </div>

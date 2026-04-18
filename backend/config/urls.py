@@ -30,20 +30,20 @@ urlpatterns = [
     # Jobs routes (Module 4 - CRITICAL)
     path('api/jobs/', include('apps.recruitment.jobs.urls')),
     
-    # Recruiter app routes
-    path('api/recruiters/', include('apps.candidate.recruiters.urls')),
-    # Recruiter Education nested routes
-    path('api/recruiters/<int:recruiter_id>/education/', include('apps.candidate.recruiter_education.urls')),
-    # Recruiter Experience nested routes
-    path('api/recruiters/<int:recruiter_id>/experience/', include('apps.candidate.recruiter_experience.urls')),
-    # Recruiter Skills nested routes
-    path('api/recruiters/<int:recruiter_id>/skills/', include('apps.candidate.recruiter_skills.urls')),
-    # Recruiter Certifications nested routes
-    path('api/recruiters/<int:recruiter_id>/certifications/', include('apps.candidate.recruiter_certifications.urls')),
-    # Recruiter Languages nested routes
-    path('api/recruiters/<int:recruiter_id>/languages/', include('apps.candidate.recruiter_languages.urls')),
-    # Recruiter Projects nested routes
-    path('api/recruiters/<int:recruiter_id>/projects/', include('apps.candidate.recruiter_projects.urls')),
+    # Candidate app routes
+    path('api/candidates/', include('apps.candidate.recruiters.urls')),
+    # Candidate Education nested routes
+    path('api/candidates/<int:recruiter_id>/education/', include('apps.candidate.recruiter_education.urls')),
+    # Candidate Experience nested routes
+    path('api/candidates/<int:recruiter_id>/experience/', include('apps.candidate.recruiter_experience.urls')),
+    # Candidate Skills nested routes
+    path('api/candidates/<int:recruiter_id>/skills/', include('apps.candidate.recruiter_skills.urls')),
+    # Candidate Certifications nested routes
+    path('api/candidates/<int:recruiter_id>/certifications/', include('apps.candidate.recruiter_certifications.urls')),
+    # Candidate Languages nested routes
+    path('api/candidates/<int:recruiter_id>/languages/', include('apps.candidate.recruiter_languages.urls')),
+    # Candidate Projects nested routes
+    path('api/candidates/<int:recruiter_id>/projects/', include('apps.candidate.recruiter_projects.urls')),
     
     # Languages public routes
     path('api/languages/', include('apps.candidate.languages.urls')),
@@ -71,8 +71,8 @@ urlpatterns = [
     
     # Saved Jobs routes
     path('api/saved-jobs/', include('apps.recruitment.saved_jobs.urls')),
-    # Recruiter Saved Jobs nested routes
-    path('api/recruiters/<int:recruiter_id>/saved-jobs/', 
+    # Candidate Saved Jobs nested routes
+    path('api/candidates/<int:recruiter_id>/saved-jobs/', 
          include('apps.recruitment.saved_jobs.urls_nested')),
     
     # Interviews routes
@@ -84,8 +84,8 @@ urlpatterns = [
     # CV Templates routes (CV Builder Module)
     path('api/cv-templates/', include('apps.candidate.cv_templates.urls')),
     
-    # Recruiter CVs nested routes
-    path('api/recruiters/<int:recruiter_id>/cvs/', include('apps.candidate.recruiter_cvs.urls')),
+    # Candidate CVs nested routes
+    path('api/candidates/<int:recruiter_id>/cvs/', include('apps.candidate.recruiter_cvs.urls')),
     
     # Industries routes (Taxonomy)
     path('api/industries/', include('apps.company.industries.urls')),

@@ -23,7 +23,7 @@ export const billingService = {
         return api.get<BillingPlan>(`/api/billing/subscription-plans/${slug}/`);
     },
 
-    /** GET /api/billing/company-subscriptions/current/ — employer only */
+    /** GET /api/billing/company-subscriptions/current/ — company only */
     getCurrentSubscription() {
         return api.get<BillingSubscription>('/api/billing/company-subscriptions/current/');
     },

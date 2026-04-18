@@ -1,7 +1,7 @@
 import api from './api';
 import type { PaginatedResponse, Notification, NotificationSettings } from '@/types/api';
 
-// ─── Unified Notification services (Shared by Candidate & Employer) ────────────
+// ─── Unified Notification services (Shared by Candidate & Company) ────────────
 
 export const notificationService = {
     listNotifications(params?: { is_read?: boolean; page?: number; page_size?: number }) {

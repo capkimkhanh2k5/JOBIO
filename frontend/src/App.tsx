@@ -27,22 +27,22 @@ import { PublicRoute } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
-// Employer area – own layout shell (no public Header/Footer)
-import { EmployerLayout } from '@/components/employer/EmployerLayout';
-import EmployerDashboard from '@/pages/employer/EmployerDashboard';
-import PostJob from '@/pages/employer/PostJob';
-import ManageJobs from '@/pages/employer/ManageJobs';
-import ManageCandidates from '@/pages/employer/ManageCandidates';
-import EmployerSupportPage from '@/pages/employer/Support/EmployerSupportPage';
-import { EmployerAnalyticsPage } from '@/pages/employer/EmployerAnalyticsPage';
-import { EmployerSettingsPage } from '@/pages/employer/EmployerSettingsPage';
+// Company area – own layout shell (no public Header/Footer)
+import { CompanyLayout } from '@/components/company/CompanyLayout';
+import CompanyDashboard from '@/pages/company/CompanyDashboard';
+import PostJob from '@/pages/company/PostJob';
+import ManageJobs from '@/pages/company/ManageJobs';
+import ManageCandidates from '@/pages/company/ManageCandidates';
+import CompanySupportPage from '@/pages/company/Support/CompanySupportPage';
+import { CompanyAnalyticsPage } from '@/pages/company/CompanyAnalyticsPage';
+import { CompanySettingsPage } from '@/pages/company/CompanySettingsPage';
 import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
-import PaymentResultPage from '@/pages/employer/Billing/PaymentResult';
-import BillingDashboard from '@/pages/employer/Billing/BillingDashboard';
+import PaymentResultPage from '@/pages/company/Billing/PaymentResult';
+import BillingDashboard from '@/pages/company/Billing/BillingDashboard';
 import MessagesPage from '@/pages/Messages';
-import EmployerCVSearch from '@/pages/employer/CVSearch';
-import EmployerInterviewsPage from '@/pages/employer/Interviews';
-import CompanyProfile from '@/pages/employer/CompanyProfile';
+import CompanyCVSearch from '@/pages/company/CompanyCVSearch';
+import CompanyInterviewsPage from '@/pages/company/CompanyInterviews';
+import CompanyProfile from '@/pages/company/CompanyProfile';
 
 // Candidate area
 import { CandidateLayout } from '@/components/candidate/CandidateLayout';
@@ -145,28 +145,28 @@ export default function App() {
                             <Route path="settings" element={<SystemSettings />} />
                         </Route>
 
-                        {/* ── Employer area: own shell, no public header/footer ── */}
-                        <Route path="/employer" element={<EmployerLayout />}>
-                            <Route index element={<Navigate to="/employer/dashboard" replace />} />
-                            <Route path="dashboard" element={<EmployerDashboard />} />
-                            <Route path="company" element={<CompanyProfile />} />
-                            <Route path="settings" element={<EmployerSettingsPage />} />
+                        {/* ── Company area: own shell, no public header/footer ── */}
+                        <Route path="/company" element={<CompanyLayout />}>
+                            <Route index element={<Navigate to="/company/dashboard" replace />} />
+                            <Route path="dashboard" element={<CompanyDashboard />} />
+                            <Route path="profile" element={<CompanyProfile />} />
+                            <Route path="settings" element={<CompanySettingsPage />} />
                             <Route path="jobs" element={<ManageJobs />} />
                             <Route path="jobs/create" element={<PostJob />} />
                             <Route path="jobs/:id/edit" element={<PostJob />} />
                             {/* Legacy route redirects */}
-                            <Route path="post-job" element={<Navigate to="/employer/jobs/create" replace />} />
-                            <Route path="manage-jobs" element={<Navigate to="/employer/jobs" replace />} />
+                            <Route path="post-job" element={<Navigate to="/company/jobs/create" replace />} />
+                            <Route path="manage-jobs" element={<Navigate to="/company/jobs" replace />} />
                             <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                             <Route path="candidates" element={<ManageCandidates />} />
-                            <Route path="cv-search" element={<EmployerCVSearch />} />
-                            <Route path="interviews" element={<EmployerInterviewsPage />} />
+                            <Route path="cv-search" element={<CompanyCVSearch />} />
+                            <Route path="interviews" element={<CompanyInterviewsPage />} />
                             <Route path="messages" element={<MessagesPage />} />
-                            <Route path="analytics" element={<EmployerAnalyticsPage />} />
+                            <Route path="analytics" element={<CompanyAnalyticsPage />} />
                             <Route path="subscription" element={<Navigate to="/pricing" replace />} />
                             <Route path="billing" element={<BillingDashboard />} />
                             <Route path="payment-result" element={<PaymentResultPage />} />
-                            <Route path="support" element={<EmployerSupportPage />} />
+                            <Route path="support" element={<CompanySupportPage />} />
                             <Route path="blog" element={<UserBlogManagement />} />
                             <Route path="blog/create" element={<CreateBlogPost />} />
                             <Route path="blog/edit/:slug" element={<CreateBlogPost />} />

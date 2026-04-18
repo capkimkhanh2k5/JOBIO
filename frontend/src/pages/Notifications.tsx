@@ -73,7 +73,7 @@ export default function NotificationsPage() {
 
     const handleClearAll = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tất cả thông báo?")) {
-            await employerService.clearAllNotifications();
+            await companyService.clearAllNotifications();
             refetch();
         }
     };
@@ -81,7 +81,7 @@ export default function NotificationsPage() {
     const handleDelete = async (_id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (window.confirm("Xóa thông báo này?")) {
-            await employerService.deleteNotification(Number(id));
+            await companyService.deleteNotification(Number(id));
             refetch();
         }
     }

@@ -31,7 +31,7 @@ const NAV_ITEMS: NavItem[] = [
     { name: 'Việc Làm', path: '/jobs' },
     { name: 'Công Ty', path: '/companies' },
     { name: 'Blog', path: '/blog' },
-    { name: 'Đăng Tuyển', path: '/employer/jobs/create', requiresAuth: true, requiresRole: 'company' },
+    { name: 'Đăng Tuyển', path: '/company/jobs/create', requiresAuth: true, requiresRole: 'company' },
     { name: 'Giá Dịch Vụ', path: '/pricing' },
     { name: 'Tạo CV', path: '/cv-builder', requiresAuth: true },
 ];
@@ -188,19 +188,19 @@ export const Header = () => {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator className="bg-white/5" />
                                     <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'admin' ? '/admin/dashboard' : user.role === 'company' ? '/employer/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
+                                        <Link to={user.role === 'admin' ? '/admin/dashboard' : user.role === 'company' ? '/company/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
                                             <LayoutDashboard className="mr-3 h-4 w-4" />
                                             <span>Dashboard</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'company' ? '/employer/company' : (user.recruiter_id ? `/profile/${user.recruiter_id}` : '/candidate/profile')} className="flex items-center w-full">
+                                        <Link to={user.role === 'company' ? '/company/profile' : (user.candidate_id ? `/profile/${user.candidate_id}` : '/candidate/profile')} className="flex items-center w-full">
                                             <User className="mr-3 h-4 w-4" />
                                             <span>Trang cá nhân</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'company' ? '/employer/settings' : '/candidate/settings'} className="flex items-center w-full">
+                                        <Link to={user.role === 'company' ? '/company/settings' : '/candidate/settings'} className="flex items-center w-full">
                                             <Settings className="mr-3 h-4 w-4" />
                                             <span>Cài đặt</span>
                                         </Link>

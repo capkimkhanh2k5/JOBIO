@@ -1,6 +1,6 @@
 import api from './api';
 
-// ─── Employer Analytics Types ────────────────────────────────────────────────
+// ─── Company Analytics Types ────────────────────────────────────────────────
 
 export interface AnalyticsSummary {
   total_jobs: number;
@@ -46,7 +46,7 @@ export interface TopJob {
   published_at: string | null;
 }
 
-export interface EmployerAnalyticsData {
+export interface CompanyAnalyticsData {
   summary: AnalyticsSummary;
   time_series: TimeSeriesPoint[];
   funnel: FunnelStage[];
@@ -57,8 +57,8 @@ export interface EmployerAnalyticsData {
 // ─── Analytics Service ───────────────────────────────────────────────────────
 
 export const analyticsService = {
-  /** GET /api/dashboard/stats/employer-analytics/ */
-  getEmployerAnalytics() {
-    return api.get<EmployerAnalyticsData>('/api/dashboard/stats/employer-analytics/');
+  /** GET /api/dashboard/stats/company-analytics/ */
+  getCompanyAnalytics() {
+    return api.get<CompanyAnalyticsData>('/api/dashboard/stats/company-analytics/');
   },
 };

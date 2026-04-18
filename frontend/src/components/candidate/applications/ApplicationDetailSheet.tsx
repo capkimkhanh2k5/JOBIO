@@ -64,7 +64,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
         }
         try {
             toast.loading("Đang tải dữ liệu CV...");
-            const res = await cvService.previewCv(app.recruiter_id, app.cv_id);
+            const res = await cvService.previewCv(app.candidate_id, app.cv_id);
             setPreviewHtml(res.data.html_content);
             setPreviewOpen(true);
             toast.dismiss();

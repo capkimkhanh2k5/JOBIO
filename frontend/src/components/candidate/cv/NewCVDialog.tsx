@@ -42,7 +42,7 @@ const TEMPLATE_ICONS: Record<string, string> = {
 
 export function NewCVDialog({ onClose, onCreated }: Props) {
     const user = useUserStore(s => s.user);
-    const recruiterId = user?.recruiter_id;  // recruiter profile ID, not user.id
+    const candidateId = user?.candidate_id;  // candidate profile ID, not user.id
 
     const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates-picker'],
@@ -70,7 +70,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
 
     const createMutation = useMutation({
         mutationFn: (data: FormValues) =>
-            cvService.create(recruiterId!, { cv_name: data.cv_name, template_id: Number(selectedTemplate) || undefined } as any).then(r => r.data),
+            cvService.create(candidateId!, { cv_name: data.cv_name, template_id: Number(selectedTemplate) || undefined } as any).then(r => r.data),
         onSuccess: (newCV) => onCreated(newCV),
     });
 
@@ -180,7 +180,7 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                             <Button
                                 type="submit"
                                 className="flex-1 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 cursor-pointer"
-                                disabled={createMutation.isPending || !recruiterId || !selectedTemplate}
+                                disabled={createMutation.isPending || !candidateId || !selectedTemplate}
                             >
                                 {createMutation.isPending ? 'Đang tạo...' : 'Tạo CV'}
                             </Button>

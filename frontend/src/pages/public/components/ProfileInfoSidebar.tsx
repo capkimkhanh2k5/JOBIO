@@ -1,9 +1,9 @@
 import React from 'react';
-import type { RecruiterDetail } from '@/types/api';
+import type { CandidateDetail } from '@/types/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Mail, Phone, Link as LinkIcon, Briefcase } from 'lucide-react';
 
-export const ProfileInfoSidebar = ({ profile }: { profile: RecruiterDetail }) => {
+export const ProfileInfoSidebar = ({ profile }: { profile: CandidateDetail }) => {
     return (
         <div className="space-y-6">
             {/* Giới thiệu */}

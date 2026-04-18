@@ -54,9 +54,9 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
 
     // Fetch user CVs
     const { data: cvs, isLoading: isLoadingCvs } = useQuery({
-        queryKey: ['candidate-cvs', user?.recruiter_id],
-        queryFn: () => cvService.list(user!.recruiter_id!).then(r => r.data),
-        enabled: isOpen && isAuthenticated && !!user && !!user.recruiter_id
+        queryKey: ['candidate-cvs', user?.candidate_id],
+        queryFn: () => cvService.list(user!.candidate_id!).then(r => r.data),
+        enabled: isOpen && isAuthenticated && !!user && !!user.candidate_id
     });
 
     const form = useForm<z.infer<typeof formSchema>>({

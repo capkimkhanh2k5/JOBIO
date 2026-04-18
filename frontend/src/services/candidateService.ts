@@ -1,39 +1,39 @@
 import api from './api';
 import type {
   PaginatedResponse,
-  RecruiterListItem,
-  RecruiterDetail,
-  RecruiterUpdateRequest,
-  RecruiterEducation,
-  RecruiterEducationRequest,
-  RecruiterExperience,
-  RecruiterExperienceRequest,
-  RecruiterSkill,
-  RecruiterSkillRequest,
-  RecruiterCertification,
-  RecruiterCertificationRequest,
-  RecruiterLanguage,
-  RecruiterLanguageRequest,
-  RecruiterProject,
-  RecruiterProjectRequest,
+  CandidateListItem,
+  CandidateDetail,
+  CandidateUpdateRequest,
+  CandidateEducation,
+  CandidateEducationRequest,
+  CandidateExperience,
+  CandidateExperienceRequest,
+  CandidateSkill,
+  CandidateSkillRequest,
+  CandidateCertification,
+  CandidateCertificationRequest,
+  CandidateLanguage,
+  CandidateLanguageRequest,
+  CandidateProject,
+  CandidateProjectRequest,
 } from '@/types/api';
 
-// ─── Candidate / Recruiter Profiles ──────────────────────────────────────────
+// ─── Candidate / Candidate Profiles ──────────────────────────────────────────
 
 export const candidateService = {
   // ─── Profile ──────────────────────────────────────────────────────────
 
   list(params?: { search?: string; job_search_status?: string; ordering?: string; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<RecruiterListItem>>('/api/recruiters/', { params });
+    return api.get<PaginatedResponse<CandidateListItem>>('/api/candidates/', { params });
   },
 
   getById(id: number) {
-    return api.get<RecruiterDetail>(`/api/recruiters/${id}/`);
+    return api.get<CandidateDetail>(`/api/candidates/${id}/`);
   },
 
-  /** Shortcut: get the current user's recruiter profile */
+  /** Shortcut: get the current user's candidate profile */
   getMyProfile() {
-    return api.get<RecruiterDetail>('/api/recruiters/me/');
+    return api.get<CandidateDetail>('/api/candidates/me/');
   },
 
   /** Dashboard stats for the current candidate */
@@ -47,119 +47,119 @@ export const candidateService = {
   },
   
   getProfileCompleteness(id: number) {
-    return api.get<{ score: number; checklist: any[] }>(`/api/recruiters/${id}/profile-completeness/`);
+    return api.get<{ score: number; checklist: any[] }>(`/api/candidates/${id}/profile-completeness/`);
   },
 
-  update(id: number, data: RecruiterUpdateRequest) {
-    return api.patch<RecruiterDetail>(`/api/recruiters/${id}/`, data);
+  update(id: number, data: CandidateUpdateRequest) {
+    return api.patch<CandidateDetail>(`/api/candidates/${id}/`, data);
   },
 
   // ─── Education ────────────────────────────────────────────────────────
 
-  listEducation(recruiterId: number) {
-    return api.get<RecruiterEducation[]>(`/api/recruiters/${recruiterId}/education/`);
+  listEducation(candidateId: number) {
+    return api.get<CandidateEducation[]>(`/api/candidates/${candidateId}/education/`);
   },
 
-  addEducation(recruiterId: number, data: RecruiterEducationRequest) {
-    return api.post<RecruiterEducation>(`/api/recruiters/${recruiterId}/education/`, data);
+  addEducation(candidateId: number, data: CandidateEducationRequest) {
+    return api.post<CandidateEducation>(`/api/candidates/${candidateId}/education/`, data);
   },
 
-  updateEducation(recruiterId: number, eduId: number, data: Partial<RecruiterEducationRequest>) {
-    return api.patch<RecruiterEducation>(`/api/recruiters/${recruiterId}/education/${eduId}/`, data);
+  updateEducation(candidateId: number, eduId: number, data: Partial<CandidateEducationRequest>) {
+    return api.patch<CandidateEducation>(`/api/candidates/${candidateId}/education/${eduId}/`, data);
   },
 
-  deleteEducation(recruiterId: number, eduId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/education/${eduId}/`);
+  deleteEducation(candidateId: number, eduId: number) {
+    return api.delete(`/api/candidates/${candidateId}/education/${eduId}/`);
   },
 
   // ─── Experience ───────────────────────────────────────────────────────
 
-  listExperience(recruiterId: number) {
-    return api.get<RecruiterExperience[]>(`/api/recruiters/${recruiterId}/experience/`);
+  listExperience(candidateId: number) {
+    return api.get<CandidateExperience[]>(`/api/candidates/${candidateId}/experience/`);
   },
 
-  addExperience(recruiterId: number, data: RecruiterExperienceRequest) {
-    return api.post<RecruiterExperience>(`/api/recruiters/${recruiterId}/experience/`, data);
+  addExperience(candidateId: number, data: CandidateExperienceRequest) {
+    return api.post<CandidateExperience>(`/api/candidates/${candidateId}/experience/`, data);
   },
 
-  updateExperience(recruiterId: number, expId: number, data: Partial<RecruiterExperienceRequest>) {
-    return api.patch<RecruiterExperience>(`/api/recruiters/${recruiterId}/experience/${expId}/`, data);
+  updateExperience(candidateId: number, expId: number, data: Partial<CandidateExperienceRequest>) {
+    return api.patch<CandidateExperience>(`/api/candidates/${candidateId}/experience/${expId}/`, data);
   },
 
-  deleteExperience(recruiterId: number, expId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/experience/${expId}/`);
+  deleteExperience(candidateId: number, expId: number) {
+    return api.delete(`/api/candidates/${candidateId}/experience/${expId}/`);
   },
 
   // ─── Skills ───────────────────────────────────────────────────────────
 
-  listSkills(recruiterId: number) {
-    return api.get<RecruiterSkill[]>(`/api/recruiters/${recruiterId}/skills/`);
+  listSkills(candidateId: number) {
+    return api.get<CandidateSkill[]>(`/api/candidates/${candidateId}/skills/`);
   },
 
-  addSkill(recruiterId: number, data: RecruiterSkillRequest) {
-    return api.post<RecruiterSkill>(`/api/recruiters/${recruiterId}/skills/`, data);
+  addSkill(candidateId: number, data: CandidateSkillRequest) {
+    return api.post<CandidateSkill>(`/api/candidates/${candidateId}/skills/`, data);
   },
 
-  updateSkill(recruiterId: number, skillId: number, data: Partial<RecruiterSkillRequest>) {
-    return api.patch<RecruiterSkill>(`/api/recruiters/${recruiterId}/skills/${skillId}/`, data);
+  updateSkill(candidateId: number, skillId: number, data: Partial<CandidateSkillRequest>) {
+    return api.patch<CandidateSkill>(`/api/candidates/${candidateId}/skills/${skillId}/`, data);
   },
 
-  deleteSkill(recruiterId: number, skillId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/skills/${skillId}/`);
+  deleteSkill(candidateId: number, skillId: number) {
+    return api.delete(`/api/candidates/${candidateId}/skills/${skillId}/`);
   },
 
   // ─── Certifications ──────────────────────────────────────────────────
 
-  listCertifications(recruiterId: number) {
-    return api.get<RecruiterCertification[]>(`/api/recruiters/${recruiterId}/certifications/`);
+  listCertifications(candidateId: number) {
+    return api.get<CandidateCertification[]>(`/api/candidates/${candidateId}/certifications/`);
   },
 
-  addCertification(recruiterId: number, data: RecruiterCertificationRequest) {
-    return api.post<RecruiterCertification>(`/api/recruiters/${recruiterId}/certifications/`, data);
+  addCertification(candidateId: number, data: CandidateCertificationRequest) {
+    return api.post<CandidateCertification>(`/api/candidates/${candidateId}/certifications/`, data);
   },
 
-  updateCertification(recruiterId: number, certId: number, data: Partial<RecruiterCertificationRequest>) {
-    return api.patch<RecruiterCertification>(`/api/recruiters/${recruiterId}/certifications/${certId}/`, data);
+  updateCertification(candidateId: number, certId: number, data: Partial<CandidateCertificationRequest>) {
+    return api.patch<CandidateCertification>(`/api/candidates/${candidateId}/certifications/${certId}/`, data);
   },
 
-  deleteCertification(recruiterId: number, certId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/certifications/${certId}/`);
+  deleteCertification(candidateId: number, certId: number) {
+    return api.delete(`/api/candidates/${candidateId}/certifications/${certId}/`);
   },
 
   // ─── Languages ────────────────────────────────────────────────────────
 
-  listLanguages(recruiterId: number) {
-    return api.get<RecruiterLanguage[]>(`/api/recruiters/${recruiterId}/languages/`);
+  listLanguages(candidateId: number) {
+    return api.get<CandidateLanguage[]>(`/api/candidates/${candidateId}/languages/`);
   },
 
-  addLanguage(recruiterId: number, data: RecruiterLanguageRequest) {
-    return api.post<RecruiterLanguage>(`/api/recruiters/${recruiterId}/languages/`, data);
+  addLanguage(candidateId: number, data: CandidateLanguageRequest) {
+    return api.post<CandidateLanguage>(`/api/candidates/${candidateId}/languages/`, data);
   },
 
-  updateLanguage(recruiterId: number, langId: number, data: Partial<RecruiterLanguageRequest>) {
-    return api.patch<RecruiterLanguage>(`/api/recruiters/${recruiterId}/languages/${langId}/`, data);
+  updateLanguage(candidateId: number, langId: number, data: Partial<CandidateLanguageRequest>) {
+    return api.patch<CandidateLanguage>(`/api/candidates/${candidateId}/languages/${langId}/`, data);
   },
 
-  deleteLanguage(recruiterId: number, langId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/languages/${langId}/`);
+  deleteLanguage(candidateId: number, langId: number) {
+    return api.delete(`/api/candidates/${candidateId}/languages/${langId}/`);
   },
 
   // ─── Projects ─────────────────────────────────────────────────────────
 
-  listProjects(recruiterId: number) {
-    return api.get<RecruiterProject[]>(`/api/recruiters/${recruiterId}/projects/`);
+  listProjects(candidateId: number) {
+    return api.get<CandidateProject[]>(`/api/candidates/${candidateId}/projects/`);
   },
 
-  addProject(recruiterId: number, data: RecruiterProjectRequest) {
-    return api.post<RecruiterProject>(`/api/recruiters/${recruiterId}/projects/`, data);
+  addProject(candidateId: number, data: CandidateProjectRequest) {
+    return api.post<CandidateProject>(`/api/candidates/${candidateId}/projects/`, data);
   },
 
-  updateProject(recruiterId: number, projId: number, data: Partial<RecruiterProjectRequest>) {
-    return api.patch<RecruiterProject>(`/api/recruiters/${recruiterId}/projects/${projId}/`, data);
+  updateProject(candidateId: number, projId: number, data: Partial<CandidateProjectRequest>) {
+    return api.patch<CandidateProject>(`/api/candidates/${candidateId}/projects/${projId}/`, data);
   },
 
-  deleteProject(recruiterId: number, projId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/projects/${projId}/`);
+  deleteProject(candidateId: number, projId: number) {
+    return api.delete(`/api/candidates/${candidateId}/projects/${projId}/`);
   },
 
   // ─── Interviews ────────────────────────────────────────────────────────
@@ -177,18 +177,18 @@ import type {
 } from '@/types/api';
 
 export interface RecommendationsResponse {
-  recruiter_id: number;
+  candidate_id: number;
   recommendations: Recommendation[];
   total: number;
 }
 
 export const recommendationService = {
-  getRecommendations(recruiterId: number) {
-    return api.get<RecommendationsResponse>(`/api/recruiters/${recruiterId}/recommendations/`).then(r => r.data);
+  getRecommendations(candidateId: number) {
+    return api.get<RecommendationsResponse>(`/api/candidates/${candidateId}/recommendations/`).then(r => r.data);
   },
 
-  writeRecommendation(recruiterId: number, data: RecommendationCreateRequest) {
-    return api.post<Recommendation>(`/api/recruiters/${recruiterId}/recommend/`, data);
+  writeRecommendation(candidateId: number, data: RecommendationCreateRequest) {
+    return api.post<Recommendation>(`/api/candidates/${candidateId}/recommend/`, data);
   },
 
   updateRecommendation(id: number, data: RecommendationUpdateRequest) {

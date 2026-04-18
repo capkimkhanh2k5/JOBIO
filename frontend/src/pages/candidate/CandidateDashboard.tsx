@@ -21,19 +21,19 @@ import { PageHeader } from '@/components/shared/PageHeader';
 export default function CandidateDashboard() {
     const navigate = useNavigate();
     const { user } = useUserStore();
-    const recruiterId = user?.recruiter_id;
+    const candidateId = user?.candidate_id;
 
     // Data fetching
     const { data: profileCompleteness, isLoading: loadingCompleteness } = useQuery({
-        queryKey: ['candidate', 'profile-completeness', recruiterId],
-        queryFn: () => candidateService.getProfileCompleteness(recruiterId!).then(r => r.data),
-        enabled: !!recruiterId,
+        queryKey: ['candidate', 'profile-completeness', candidateId],
+        queryFn: () => candidateService.getProfileCompleteness(candidateId!).then(r => r.data),
+        enabled: !!candidateId,
     });
 
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
         queryFn: () => candidateService.getMyStats().then(r => r.data),
-        enabled: !!recruiterId,
+        enabled: !!candidateId,
     });
 
     // AI Recommended Jobs
@@ -342,7 +342,7 @@ export default function CandidateDashboard() {
                                             </div>
                                             <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
                                                 <p className="font-medium text-sm">{interviews[0].application?.job_title || interviews[0].job_title || 'Phỏng vấn'}</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Với {interviews[0].application?.recruiter_name || 'Nhà tuyển dụng'}</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Với {interviews[0].application?.candidate_name || 'Nhà tuyển dụng'}</p>
                                             </div>
                                             {interviews[0].meeting_link && (
                                                 <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link as string, '_blank')}>

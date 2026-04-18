@@ -33,9 +33,9 @@ export default function BlogManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     
-    // Determine base path for redirects (employer or candidate)
-    const isEmployer = location.pathname.startsWith('/employer');
-    const basePath = isEmployer ? '/employer/blog' : '/candidate/blog';
+    // Determine base path for redirects (company or candidate)
+    const isCompany = location.pathname.startsWith('/company');
+    const basePath = isCompany ? '/company/blog' : '/candidate/blog';
 
     const fetchPosts = async () => {
         try {
