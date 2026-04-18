@@ -9,10 +9,13 @@ const fadeUp = (delay: number) => ({
 
 export default function AdvancedAnalytics() {
     return (
-        <div className="p-6 lg:p-8 space-y-8 w-full">
+        <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)} className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Phân tích Chuyên sâu</h1>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <PieChart className="w-6 h-6 text-violet-600" />
+                        Phân tích Chuyên sâu
+                    </h1>
                     <p className="text-slate-500 text-sm font-medium mt-1">Dữ liệu phân tích hành vi người dùng và hiệu quả nền tảng.</p>
                 </div>
             </motion.div>
@@ -20,7 +23,7 @@ export default function AdvancedAnalytics() {
             {/* Performance Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Recruitment Efficiency */}
-                <motion.div {...fadeUp(0.1)} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                <motion.div {...fadeUp(0.1)} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
                         <Target className="w-32 h-32" />
                     </div>
@@ -44,7 +47,7 @@ export default function AdvancedAnalytics() {
                 </motion.div>
 
                 {/* User Retention */}
-                <motion.div {...fadeUp(0.2)} className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                <motion.div {...fadeUp(0.2)} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
                         <Users className="w-32 h-32" />
                     </div>
@@ -69,7 +72,7 @@ export default function AdvancedAnalytics() {
             </div>
 
             {/* Placeholder for Data Charts */}
-            <motion.div {...fadeUp(0.3)} className="bg-white p-12 rounded-3xl border border-slate-200 shadow-sm text-center">
+            <motion.div {...fadeUp(0.3)} className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center">
                 <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                     <BarChart className="w-10 h-10 text-slate-300" />
                 </div>

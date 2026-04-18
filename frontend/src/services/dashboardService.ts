@@ -59,6 +59,11 @@ export const dashboardService = {
     return api.patch(`/api/reviews/${id}/approve/`, { action, reason });
   },
 
+  /** Admin: get moderation overview stats */
+  getModerationStats() {
+    return api.get('/api/companies/moderation-stats/');
+  },
+
   createReview(data: {
     company_id: number;
     rating: number;
@@ -163,5 +168,47 @@ export const dashboardService = {
 
   deleteSearchHistoryItem(id: number) {
     return api.delete(`/api/search-history/${id}/`);
+  },
+
+  // ─── Financial Management (Admin) ──────────────────────────────────────────
+
+  getFinancialStats() {
+    return api.get('/api/billing/admin-finance/stats/');
+  },
+
+  listAdminTransactions(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/billing/admin-finance/', { params });
+  },
+
+  exportTransactions(params?: { status?: string; search?: string }) {
+    return api.get('/api/billing/admin-finance/export/', { params, responseType: 'blob' });
+  },
+
+  getJobStats() {
+    return api.get('/api/jobs/admin-jobs/stats/');
+  },
+
+  listAdminJobs(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/jobs/admin-jobs/', { params });
+  },
+
+  exportAdminJobs(params?: { status?: string; search?: string }) {
+    return api.get('/api/jobs/admin-jobs/export/', { params, responseType: 'blob' });
+  },
+
+  getReportStats() {
+    return api.get('/api/system/reports/admin-reports/stats/');
+  },
+
+  listAdminReports(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/system/reports/admin-reports/', { params });
+  },
+
+  updateReportStatus(id: number, data: { status: string; resolution_notes?: string }) {
+    return api.patch(`/api/system/reports/admin-reports/${id}/update_status/`, data);
+  },
+
+  exportAdminReports(params?: { status?: string; search?: string }) {
+    return api.get('/api/system/reports/admin-reports/export/', { params, responseType: 'blob' });
   },
 };

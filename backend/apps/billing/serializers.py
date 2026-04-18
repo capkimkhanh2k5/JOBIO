@@ -83,6 +83,13 @@ class TransactionSerializer(serializers.ModelSerializer):
         desc = obj.description or ""
         return desc.split('|')[0].strip()
 
+class AdminTransactionSerializer(TransactionSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    user_email = serializers.CharField(source='company.user.email', read_only=True)
+
+    class Meta(TransactionSerializer.Meta):
+        fields = TransactionSerializer.Meta.fields + ['company_name', 'user_email']
+
 class SubscribeInputSerializer(serializers.Serializer):
     plan_id = serializers.IntegerField()
     payment_method_code = serializers.CharField(required=False, allow_null=True)

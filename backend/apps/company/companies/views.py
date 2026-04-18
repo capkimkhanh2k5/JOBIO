@@ -410,3 +410,22 @@ class CompanyViewSet(viewsets.GenericViewSet):
         company.save()
         
         return Response({"detail": "Company claimed successfully"}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='moderation-stats')
+    def moderation_stats(self, request):
+        """
+        GET /api/companies/moderation-stats/ - Thống kê kiểm duyệt cho Admin
+        """
+        from apps.social.reviews.models import Review
+        pending_companies = Company.objects.filter(verification_status='pending').count()
+        verified_companies = Company.objects.filter(verification_status='verified').count()
+        rejected_companies = Company.objects.filter(verification_status='rejected').count()
+        pending_reviews = Review.objects.filter(status=Review.Status.PENDING).count()
+        approved_reviews = Review.objects.filter(status=Review.Status.APPROVED).count()
+        return Response({
+            "pending_companies": pending_companies,
+            "verified_companies": verified_companies,
+            "rejected_companies": rejected_companies,
+            "pending_reviews": pending_reviews,
+            "approved_reviews": approved_reviews,
+        })

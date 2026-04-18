@@ -161,3 +161,13 @@ class JobStatusSerializer(serializers.Serializer):
         choices=['draft', 'published', 'closed', 'expired'],
         required=True
     )
+
+class AdminJobSerializer(JobListSerializer):
+    """
+    Serializer cho danh sách jobs phía Admin (thêm email)
+    """
+    user_email = serializers.CharField(source='company.user.email', read_only=True)
+    created_by_email = serializers.CharField(source='created_by.email', read_only=True)
+
+    class Meta(JobListSerializer.Meta):
+        fields = JobListSerializer.Meta.fields + ['user_email', 'created_by_email', 'created_at']

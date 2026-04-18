@@ -190,24 +190,25 @@ export default function UserManagement() {
             </motion.div>
 
             {/* Stats Cards */}
-            <motion.div {...fadeUp(0.05)}>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {stats.map((stat) => {
-                        const Icon = stat.icon;
-                        return (
-                            <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex items-center gap-4 transition-all hover:border-violet-200 hover:shadow-md duration-300">
-                                <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shrink-0`}>
-                                    <Icon className="w-5 h-5" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, i) => {
+                    const Icon = stat.icon;
+                    return (
+                        <motion.div key={stat.label} {...fadeUp(0.05 + i * 0.05)} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
+                            <div className="relative">
+                                <div className="mb-4">
+                                    <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center ${stat.iconColor} shadow-inner`}>
+                                        <Icon className="w-6 h-6" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">{stat.label}</p>
-                                    <p className={`text-xl font-black ${stat.color}`}>{stat.value}</p>
-                                </div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{stat.label}</p>
+                                <h3 className={`text-3xl font-black tracking-tight ${stat.color}`}>{stat.value}</h3>
                             </div>
-                        );
-                    })}
-                </div>
-            </motion.div>
+                        </motion.div>
+                    );
+                })}
+            </div>
 
             {/* User Detail Drawer */}
             <Sheet open={!!viewUser} onOpenChange={() => setViewUser(null)}>
@@ -398,14 +399,14 @@ export default function UserManagement() {
                             placeholder="Tìm kiếm theo tên hoặc email người dùng..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-300 transition-all bg-slate-50/30"
+                            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all bg-slate-50/50"
                         />
                     </div>
                     <div className="flex gap-3">
                         <select
                             value={roleFilter}
                             onChange={(e) => setRoleFilter(e.target.value)}
-                            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/10 cursor-pointer min-w-[140px]"
+                            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 cursor-pointer min-w-[140px]"
                         >
                             <option value="all">Tất cả Vai trò</option>
                             <option value="candidate">Ứng viên</option>
@@ -415,7 +416,7 @@ export default function UserManagement() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-violet-500/10 cursor-pointer min-w-[140px]"
+                            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 cursor-pointer min-w-[140px]"
                         >
                             <option value="all">Tất cả Trạng thái</option>
                             <option value="active">Hoạt động</option>
@@ -433,7 +434,7 @@ export default function UserManagement() {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thông tin User</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thông tin Khách hàng</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Vai trò</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Trạng thái</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Xác thực</th>
@@ -525,16 +526,20 @@ export default function UserManagement() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">
                         <p className="text-xs text-slate-500 font-medium">
-                            Hiển thị {users.length} / {totalCount} users
+                            Hiển thị <span className="font-bold text-slate-900">{users.length}</span> / <span className="font-bold text-slate-900">{totalCount}</span> người dùng
                         </p>
-                        <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+                        <div className="flex items-center gap-1.5 bg-slate-50/50 p-1 rounded-xl border border-slate-100">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <span className="px-2 text-xs font-bold text-slate-700">{page} / {totalPages}</span>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                            <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <span className="text-xs font-black text-violet-600">{page}</span>
+                                <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
+                                <span className="text-xs font-bold text-slate-500">{totalPages}</span>
+                            </div>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>

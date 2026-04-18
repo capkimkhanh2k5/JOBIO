@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, FileText,
     Settings, Shield, LogOut,
-    Wallet, Briefcase, AlertTriangle, BarChart
+    Wallet, Briefcase, AlertTriangle
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useUserStore } from '@/store/userStore';
@@ -26,7 +26,6 @@ const navItems: NavItem[] = [
     { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
     { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: 3 },
     { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" /> },
-    { label: 'Phân tích dữ liệu', path: '/admin/analytics', icon: <BarChart className="w-5 h-5" /> },
     { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
 ];
 

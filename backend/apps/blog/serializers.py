@@ -30,6 +30,6 @@ class PostSerializer(serializers.ModelSerializer):
             'category', 'category_id', 'tags', 'tag_ids', 
             'summary', 'content', 'thumbnail', 'is_featured',
             'meta_title', 'meta_description',
-            'status', 'published_at', 'view_count', 'created_at'
+            'status', 'published_at', 'updated_at', 'view_count', 'created_at'
         ]
-        read_only_fields = ['author', 'published_at', 'view_count', 'slug']
+        read_only_fields = ['author', 'published_at', 'view_count', 'slug', 'updated_at']

@@ -70,7 +70,6 @@ import BlogManagement from '@/pages/admin/BlogManagement';
 import FinancialManagement from '@/pages/admin/FinancialManagement';
 import JobMarketplace from '@/pages/admin/JobMarketplace';
 import ViolationReports from '@/pages/admin/ViolationReports';
-import AdvancedAnalytics from '@/pages/admin/AdvancedAnalytics';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -147,7 +146,6 @@ export default function App() {
                             <Route path="financial" element={<FinancialManagement />} />
                             <Route path="jobs" element={<JobMarketplace />} />
                             <Route path="reports" element={<ViolationReports />} />
-                            <Route path="analytics" element={<AdvancedAnalytics />} />
                             <Route path="settings" element={<SystemSettings />} />
                         </Route>
 

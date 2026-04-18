@@ -119,3 +119,21 @@ class PostViewSet(viewsets.ModelViewSet):
         post = self.get_object()
         new_count = BlogService.increment_view_count(post)
         return Response({'view_count': new_count})
+
+    @action(detail=False, methods=['get'], url_path='admin-stats')
+    def admin_stats(self, request):
+        """GET /api/blog/posts/admin-stats/ - Thống kê blog cho Admin"""
+        if not request.user.is_staff:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        from django.db.models import Sum
+        total = Post.objects.count()
+        published = Post.objects.filter(status=Post.Status.PUBLISHED).count()
+        draft = Post.objects.filter(status=Post.Status.DRAFT).count()
+        total_views = Post.objects.aggregate(total=Sum('view_count'))['total'] or 0
+        return Response({
+            'total_posts': total,
+            'published_posts': published,
+            'draft_posts': draft,
+            'total_views': total_views,
+        })
+
