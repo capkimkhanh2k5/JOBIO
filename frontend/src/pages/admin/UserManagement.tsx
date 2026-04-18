@@ -237,7 +237,7 @@ export default function UserManagement() {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                                 <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-400 border border-slate-200">
                                     <Mail className="w-4 h-4" />
@@ -254,6 +254,17 @@ export default function UserManagement() {
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Số điện thoại</p>
                                     <p className="text-xs font-bold text-slate-700">{viewUser?.phone ?? 'Chưa cập nhật'}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-400 border border-slate-200">
+                                    <History className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Ngày tham gia</p>
+                                    <p className="text-xs font-bold text-slate-700">
+                                        {viewUser?.created_at ? new Date(viewUser.created_at).toLocaleDateString('vi-VN') : 'N/A'}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -427,6 +438,7 @@ export default function UserManagement() {
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Trạng thái</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Xác thực</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Hoạt động cuối</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày tham gia</th>
                                     <th className="text-right py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500 w-24">Thao tác</th>
                                 </tr>
                             </thead>
@@ -479,6 +491,12 @@ export default function UserManagement() {
                                             <div className="flex flex-col">
                                                 <span className="text-slate-900 text-xs font-bold">{user.last_login ? new Date(user.last_login).toLocaleDateString('vi-VN') : '-'}</span>
                                                 <span className="text-[10px] text-slate-400 uppercase font-black">Truy cập</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex flex-col">
+                                                <span className="text-slate-900 text-xs font-bold">{user.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : '-'}</span>
+                                                <span className="text-[10px] text-slate-400 uppercase font-black">Tham gia</span>
                                             </div>
                                         </td>
                                         <td className="py-4 px-6 text-right">
