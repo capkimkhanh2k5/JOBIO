@@ -107,7 +107,7 @@ function CVFullscreenModal({ cvName, html, templateName, onClose }: {
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Props) {
     const { user } = useUserStore();
-    const recruiterId = user?.recruiter_id;
+    const candidateId = user?.candidate_id;
 
     const [html, setHtml] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -118,23 +118,23 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
     const [zoom, setZoom] = useState(0.58); // default zoom
 
     const fetchPreview = useCallback(async () => {
-        if (!cvId || !recruiterId) return;
+        if (!cvId || !candidateId) return;
         const cvIdNum = parseInt(cvId, 10);
-        const recruiterIdNum = recruiterId;
+        const candidateIdNum = candidateId;
         if (isNaN(cvIdNum)) return;
 
         setLoading(true);
         setError(null);
         try {
             // Use the CV-specific preview endpoint (uses cv_data!)
-            const res = await cvService.previewCv(recruiterIdNum, cvIdNum);
+            const res = await cvService.previewCv(candidateIdNum, cvIdNum);
             setHtml(res.data.html_content);
         } catch {
             setError('Không thể tải preview. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }
-    }, [cvId, recruiterId, refreshKey, previewKey]); // previewKey triggers on auto-save
+    }, [cvId, candidateId, refreshKey, previewKey]); // previewKey triggers on auto-save
 
     useEffect(() => { fetchPreview(); }, [fetchPreview]);
 

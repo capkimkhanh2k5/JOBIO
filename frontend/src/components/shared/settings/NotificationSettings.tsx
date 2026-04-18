@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Bell, Loader2 } from 'lucide-react';
-import { employerService } from '@/services/employerService';
+import { companyService } from '@/services/companyService';
 
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -23,7 +23,7 @@ export function NotificationSettings() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await employerService.getNotificationSettings();
+                const res = await companyService.getNotificationSettings();
                 if (res.data) setSettings(res.data);
             } catch (error) {
                 console.error("Lỗi khi tải cài đặt thông báo:", error);
@@ -40,7 +40,7 @@ export function NotificationSettings() {
         setIsSaving(true);
 
         try {
-            await employerService.updateNotificationSettings({ [key]: newValue });
+            await companyService.updateNotificationSettings({ [key]: newValue });
             toast.success("Đã cập nhật cài đặt thông báo");
         } catch (error: any) {
             // Rollback on fail

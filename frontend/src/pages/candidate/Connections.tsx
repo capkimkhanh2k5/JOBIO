@@ -20,9 +20,9 @@ export default function Connections() {
 
     // Fetch My Connections (Accepted)
     const { data: connectionsData, isLoading: isConnectionsLoading } = useQuery({
-        queryKey: ['connections', 'accepted', user?.recruiter_id],
-        queryFn: () => api.get(`/api/recruiters/${user?.recruiter_id}/connections/`).then(r => r.data),
-        enabled: !!user?.recruiter_id,
+        queryKey: ['connections', 'accepted', user?.candidate_id],
+        queryFn: () => api.get(`/api/candidates/${user?.candidate_id}/connections/`).then(r => r.data),
+        enabled: !!user?.candidate_id,
     });
 
     // Fetch Pending Requests
@@ -49,7 +49,7 @@ export default function Connections() {
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Mạng lưới kết nối"
-                    description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Recruiter."
+                    description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Candidate."
                     icon={Users}
                 />
             </div>
@@ -86,7 +86,7 @@ export default function Connections() {
                                     <EmptyState
                                         icon={<Users className="w-12 h-12 text-slate-300" />}
                                         title="Chưa có kết nối nào"
-                                        description="Bắt đầu kết nối với các Recruiter và ứng viên khác để mở rộng mạng lưới của bạn."
+                                        description="Bắt đầu kết nối với các Candidate và ứng viên khác để mở rộng mạng lưới của bạn."
                                         action={{ label: "Khám phá gợi ý", onClick: () => setActiveTab('suggestions') }}
                                     />
                                 ) : (
@@ -95,7 +95,7 @@ export default function Connections() {
                                             <ConnectionCard
                                                 key={connection.id}
                                                 connection={connection}
-                                                currentUserId={user?.recruiter_id ?? 0}
+                                                currentUserId={user?.candidate_id ?? 0}
                                             />
                                         ))}
                                     </div>

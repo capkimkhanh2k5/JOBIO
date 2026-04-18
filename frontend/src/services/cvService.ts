@@ -1,7 +1,7 @@
 import api from './api';
 import type {
   PaginatedResponse,
-  RecruiterCV,
+  CandidateCV,
   CVCreateRequest,
   CVUpdateRequest,
   CVTemplate,
@@ -11,46 +11,46 @@ import type {
 // ─── CV / Resume Service ─────────────────────────────────────────────────────
 
 export const cvService = {
-  // ─── Recruiter CVs (nested under recruiter) ───────────────────────────
+  // ─── Candidate CVs (nested under candidate) ───────────────────────────
 
-  list(recruiterId: number) {
-    return api.get<RecruiterCV[]>(`/api/recruiters/${recruiterId}/cvs/`);
+  list(candidateId: number) {
+    return api.get<CandidateCV[]>(`/api/candidates/${candidateId}/cvs/`);
   },
 
-  getById(recruiterId: number, cvId: number) {
-    return api.get<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/${cvId}/`);
+  getById(candidateId: number, cvId: number) {
+    return api.get<CandidateCV>(`/api/candidates/${candidateId}/cvs/${cvId}/`);
   },
 
-  create(recruiterId: number, data: CVCreateRequest) {
-    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/`, data);
+  create(candidateId: number, data: CVCreateRequest) {
+    return api.post<CandidateCV>(`/api/candidates/${candidateId}/cvs/`, data);
   },
 
-  update(recruiterId: number, cvId: number, data: CVUpdateRequest) {
-    return api.patch<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/${cvId}/`, data);
+  update(candidateId: number, cvId: number, data: CVUpdateRequest) {
+    return api.patch<CandidateCV>(`/api/candidates/${candidateId}/cvs/${cvId}/`, data);
   },
 
-  delete(recruiterId: number, cvId: number) {
-    return api.delete(`/api/recruiters/${recruiterId}/cvs/${cvId}/`);
+  delete(candidateId: number, cvId: number) {
+    return api.delete(`/api/candidates/${candidateId}/cvs/${cvId}/`);
   },
 
   /** Upload a PDF/DOCX CV file (backend: generate endpoint) */
-  uploadFile(recruiterId: number, file: File, cvName?: string) {
+  uploadFile(candidateId: number, file: File, cvName?: string) {
     const formData = new FormData();
     formData.append('file', file);
     if (cvName) formData.append('cv_name', cvName);
-    return api.post<RecruiterCV>(`/api/recruiters/${recruiterId}/cvs/generate/`, formData, {
+    return api.post<CandidateCV>(`/api/candidates/${candidateId}/cvs/generate/`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
   /** Set as default CV */
-  setDefault(recruiterId: number, cvId: number) {
-    return api.patch(`/api/recruiters/${recruiterId}/cvs/${cvId}/default/`);
+  setDefault(candidateId: number, cvId: number) {
+    return api.patch(`/api/candidates/${candidateId}/cvs/${cvId}/default/`);
   },
 
   /** Download / generate PDF */
-  downloadPdf(recruiterId: number, cvId: number) {
-    return api.post(`/api/recruiters/${recruiterId}/cvs/${cvId}/download/`, {}, {
+  downloadPdf(candidateId: number, cvId: number) {
+    return api.post(`/api/candidates/${candidateId}/cvs/${cvId}/download/`, {}, {
       responseType: 'blob',
     });
   },
@@ -70,12 +70,12 @@ export const cvService = {
   },
 
   /**
-   * Render a template with real recruiter data → returns { html: string }
+   * Render a template with real candidate data → returns { html: string }
    * Used for template picker preview (without a specific CV)
    */
-  renderTemplatePreview(templateId: number, recruiterId: number) {
+  renderTemplatePreview(templateId: number, candidateId: number) {
     return api.post<{ html: string }>(`/api/cv-templates/${templateId}/preview/`, {
-      recruiter_id: recruiterId,
+      candidate_id: candidateId,
     });
   },
 
@@ -83,9 +83,9 @@ export const cvService = {
    * Preview a specific CV using its stored cv_data → returns { html_content: string }
    * This uses the CV's actual cv_data (which the user has edited), plus its assigned template.
    */
-  previewCv(recruiterId: number, cvId: number) {
+  previewCv(candidateId: number, cvId: number) {
     return api.post<{ html_content: string; template_id: number }>(
-      `/api/recruiters/${recruiterId}/cvs/${cvId}/preview/`
+      `/api/candidates/${candidateId}/cvs/${cvId}/preview/`
     );
   },
 };

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarClock, Video, MapPin, Building2, Clock, ExternalLink, Calendar } from 'lucide-react';
-import { employerService } from '@/services/employerService';
+import { companyService } from '@/services/companyService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +24,7 @@ export default function Interviews() {
 
     const { data: interviews, isLoading } = useQuery({
         queryKey: ['candidate', 'interviews'],
-        queryFn: () => employerService.listInterviews().then(r => r.data.results),
+        queryFn: () => companyService.listInterviews().then(r => r.data.results),
     });
 
     const filteredInterviews = interviews?.filter((interview: any) => {
@@ -106,7 +106,7 @@ export default function Interviews() {
                                                             </h3>
                                                             <p className="font-semibold text-slate-600 flex items-center gap-1.5 uppercase tracking-wider text-xs">
                                                                 <Building2 className="w-3.5 h-3.5" />
-                                                                {interview.employer_name}
+                                                                {interview.company_name}
                                                             </p>
                                                         </div>
                                                     </div>

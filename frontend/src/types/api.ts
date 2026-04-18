@@ -28,7 +28,7 @@ export interface User {
   email_verified: boolean;
   date_joined: string;
   last_login: string | null;
-  recruiter_id?: number;
+  candidate_id?: number;
   company_id?: number;
   subscription_plan?: string;
 }
@@ -377,12 +377,12 @@ export interface ApplicationListItem {
   job_title?: string;
   company_name?: string;
   company_logo?: string | null;
-  recruiter_id?: number;
-  recruiter_name?: string;
-  recruiter_email?: string;
-  recruiter_avatar?: string | null;
+  candidate_id?: number;
+  candidate_name?: string;
+  candidate_email?: string;
+  candidate_avatar?: string | null;
   job: { id: number; title: string; company_name: string } | null;
-  recruiter: { id: number; full_name: string; avatar: string | null } | null;
+  candidate: { id: number; full_name: string; avatar: string | null } | null;
   cv: { id: number; file_name: string } | null;
   status: ApplicationStatus;
   rating: number | null;
@@ -430,7 +430,7 @@ export interface ApplicationStatusHistoryItem {
 export interface ApplicationFilters {
   status?: string | string[];
   job_id?: number;
-  recruiter_id?: number;
+  candidate_id?: number;
   rating_min?: number;
   date_from?: string;
   date_to?: string;
@@ -461,13 +461,13 @@ export interface SavedJobUpdateRequest {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Candidate / Recruiter Profile
+// Candidate / Candidate Profile
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export type JobSearchStatus = 'actively_looking' | 'open' | 'not_looking';
 export type Gender = 'male' | 'female' | 'other';
 
-export interface RecruiterListItem {
+export interface CandidateListItem {
   id: number;
   user: { id: number; email: string; full_name: string; avatar_url: string | null };
   current_position: string | null;
@@ -477,7 +477,7 @@ export interface RecruiterListItem {
   profile_completeness_score: number;
 }
 
-export interface RecruiterDetail extends RecruiterListItem {
+export interface CandidateDetail extends CandidateListItem {
   date_of_birth: string | null;
   gender: Gender | null;
   address: Address | null;
@@ -492,17 +492,17 @@ export interface RecruiterDetail extends RecruiterListItem {
   is_profile_public: boolean;
   score: number;
   checklist: Array<{ task: string; completed: boolean }>;
-  skills: RecruiterSkill[];
-  education: RecruiterEducation[];
-  experience: RecruiterExperience[];
-  certifications: RecruiterCertification[];
-  languages: RecruiterLanguage[];
-  projects: RecruiterProject[];
+  skills: CandidateSkill[];
+  education: CandidateEducation[];
+  experience: CandidateExperience[];
+  certifications: CandidateCertification[];
+  languages: CandidateLanguage[];
+  projects: CandidateProject[];
   created_at: string;
   updated_at: string;
 }
 
-export interface RecruiterUpdateRequest {
+export interface CandidateUpdateRequest {
   current_position?: string;
   current_company_id?: number;
   date_of_birth?: string;
@@ -522,7 +522,7 @@ export interface RecruiterUpdateRequest {
 
 // ─── Education ───────────────────────────────────────────────────────────────
 
-export interface RecruiterEducation {
+export interface CandidateEducation {
   id: number;
   school_name: string;
   degree: string | null;
@@ -535,7 +535,7 @@ export interface RecruiterEducation {
   display_order: number;
 }
 
-export interface RecruiterEducationRequest {
+export interface CandidateEducationRequest {
   school_name: string;
   degree?: string;
   field_of_study?: string;
@@ -545,7 +545,7 @@ export interface RecruiterEducationRequest {
   display_order?: number;
 }
 
-export interface RecruiterExperience {
+export interface CandidateExperience {
   id: number;
   company_name: string;
   job_title: string;
@@ -559,7 +559,7 @@ export interface RecruiterExperience {
   display_order: number;
 }
 
-export interface RecruiterExperienceRequest {
+export interface CandidateExperienceRequest {
   company_name: string;
   job_title: string;
   industry_id?: number | null;
@@ -573,7 +573,7 @@ export interface RecruiterExperienceRequest {
 
 // ─── Skills ──────────────────────────────────────────────────────────────────
 
-export interface RecruiterSkill {
+export interface CandidateSkill {
   id: number;
   skill: Skill;
   proficiency_level: string | null;
@@ -581,7 +581,7 @@ export interface RecruiterSkill {
   endorsement_count: number;
 }
 
-export interface RecruiterSkillRequest {
+export interface CandidateSkillRequest {
   skill_id: number;
   proficiency_level?: string;
   years_of_experience?: number;
@@ -589,7 +589,7 @@ export interface RecruiterSkillRequest {
 
 // ─── Certifications ──────────────────────────────────────────────────────────
 
-export interface RecruiterCertification {
+export interface CandidateCertification {
   id: number;
   certification_name: string;
   issuing_organization: string | null;
@@ -600,7 +600,7 @@ export interface RecruiterCertification {
   display_order: number;
 }
 
-export interface RecruiterCertificationRequest {
+export interface CandidateCertificationRequest {
   certification_name: string;
   issuing_organization?: string;
   issue_date?: string;
@@ -614,7 +614,7 @@ export interface RecruiterCertificationRequest {
 
 export type LanguageProficiency = 'basic' | 'intermediate' | 'advanced' | 'fluent' | 'native';
 
-export interface RecruiterLanguage {
+export interface CandidateLanguage {
   id: number;
   language_id: number;
   language_code: string;
@@ -624,7 +624,7 @@ export interface RecruiterLanguage {
   created_at: string;
 }
 
-export interface RecruiterLanguageRequest {
+export interface CandidateLanguageRequest {
   language_id: number;
   proficiency_level: LanguageProficiency;
   is_native?: boolean;
@@ -632,7 +632,7 @@ export interface RecruiterLanguageRequest {
 
 // ─── Projects ────────────────────────────────────────────────────────────────
 
-export interface RecruiterProject {
+export interface CandidateProject {
   id: number;
   project_name: string;
   description: string | null;
@@ -643,7 +643,7 @@ export interface RecruiterProject {
   display_order: number;
 }
 
-export interface RecruiterProjectRequest {
+export interface CandidateProjectRequest {
   project_name: string;
   description?: string;
   project_url?: string;
@@ -687,7 +687,7 @@ export interface RecommendationUpdateRequest {
 
 export type CVPrivacy = 'public' | 'private' | 'link_only';
 
-export interface RecruiterCV {
+export interface CandidateCV {
   id: number;
   template: number | null;
   cv_name: string;
@@ -871,7 +871,7 @@ export interface NotificationSettings {
 
 export type ConnectionStatus = 'pending' | 'accepted' | 'rejected' | 'withdrawn';
 
-export interface RecruiterBrief {
+export interface CandidateBrief {
   id: number;
   full_name: string;
   avatar_url: string | null;
@@ -881,8 +881,8 @@ export interface RecruiterBrief {
 
 export interface Connection {
   id: number;
-  requester: RecruiterBrief;
-  receiver: RecruiterBrief;
+  requester: CandidateBrief;
+  receiver: CandidateBrief;
   status: ConnectionStatus;
   message: string | null;
   created_at: string;
@@ -890,7 +890,7 @@ export interface Connection {
 }
 
 export interface ConnectionSuggestion {
-  recruiter: RecruiterBrief;
+  candidate: CandidateBrief;
   mutual_connections: number;
   common_skills: string[];
   score: number;
@@ -958,7 +958,7 @@ export interface Message {
 export interface Review {
   id: number;
   company: CompanyBrief;
-  recruiter: { id: number; full_name: string; avatar_url: string | null } | null;
+  candidate: { id: number; full_name: string; avatar_url: string | null } | null;
   rating: number;
   title: string;
   content: string;
@@ -982,7 +982,7 @@ export interface CompanyFollower {
   id: number;
   company: number;
   company_detail: CompanyBrief;
-  recruiter: number;
+  candidate: number;
   created_at: string;
 }
 

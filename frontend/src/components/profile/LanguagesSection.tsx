@@ -12,7 +12,7 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { toast } from 'sonner';
-import { RecruiterLanguage, LanguageRef, LanguageProficiency } from '@/types/api';
+import { CandidateLanguage, LanguageRef, LanguageProficiency } from '@/types/api';
 
 const PROFICIENCY_LEVELS = [
     { value: 'basic', label: 'Cơ bản' },
@@ -34,7 +34,7 @@ const LEVEL_COLORS: Record<string, string> = {
 interface LangFormProps {
     open: boolean;
     onClose: () => void;
-    entry?: RecruiterLanguage | null;
+    entry?: CandidateLanguage | null;
     userId: number;
     availableLanguages: LanguageRef[];
 }
@@ -121,7 +121,7 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
 export const LanguagesSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [editEntry, setEditEntry] = useState<RecruiterLanguage | null>(null);
+    const [editEntry, setEditEntry] = useState<CandidateLanguage | null>(null);
 
     const { data: userLangs = [], isLoading: langsLoading } = useQuery({
         queryKey: ['user-languages', userId],
@@ -155,7 +155,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <AnimatePresence>
-                        {(userLangs as RecruiterLanguage[]).map((lang) => {
+                        {(userLangs as CandidateLanguage[]).map((lang) => {
                             const levelInfo = PROFICIENCY_LEVELS.find(p => p.value === lang.proficiency_level) || PROFICIENCY_LEVELS[1];
                             const levelColor = LEVEL_COLORS[lang.proficiency_level] || LEVEL_COLORS.intermediate;
 

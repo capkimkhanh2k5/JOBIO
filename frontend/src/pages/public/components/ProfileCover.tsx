@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { RecruiterDetail } from '@/types/api';
+import type { CandidateDetail } from '@/types/api';
 import { User } from 'lucide-react';
 
-export const ProfileCover = ({ profile }: { profile: RecruiterDetail }) => {
+export const ProfileCover = ({ profile }: { profile: CandidateDetail }) => {
     // Default Facebook-style cover and avatar background
     const defaultCoverBg = 'bg-[#F0F2F5]'; // Typical FB light gray
 

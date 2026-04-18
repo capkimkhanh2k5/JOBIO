@@ -347,7 +347,7 @@ VNP_TMN_CODE = os.getenv('VNP_TMN_CODE', '')
 VNP_HASH_SECRET = os.getenv('VNP_HASH_SECRET', '')
 VNP_URL = os.getenv('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html')
 VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:8000/api/billing/company-subscriptions/payment-return/')
-VNP_FRONTEND_RETURN_URL = os.getenv('VNP_FRONTEND_RETURN_URL', 'http://localhost:4000/employer/payment-result')
+VNP_FRONTEND_RETURN_URL = os.getenv('VNP_FRONTEND_RETURN_URL', 'http://localhost:4000/company/payment-result')
 
 # ===== AI Configuration =====
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')

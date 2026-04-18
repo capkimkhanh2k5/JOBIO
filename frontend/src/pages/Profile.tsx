@@ -56,9 +56,9 @@ const Profile = () => {
         queryKey: ['profile', userId],
         queryFn: async () => {
             const res = await candidateService.getMyProfile();
-            // Update user recruiter_id in store if it's not set
-            if (res.data?.id && user && user.recruiter_id !== res.data.id) {
-                updateUser({ recruiter_id: res.data.id });
+            // Update user candidate_id in store if it's not set
+            if (res.data?.id && user && user.candidate_id !== res.data.id) {
+                updateUser({ candidate_id: res.data.id });
             }
             return res.data;
         },
@@ -73,10 +73,10 @@ const Profile = () => {
         enabled: !!userId,
     });
 
-    const recruiterId = profile?.id;
+    const candidateId = profile?.id;
 
     const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => candidateService.update(Number(recruiterId), { is_public: isPublic } as any).then(r => r.data),
+        mutationFn: (isPublic: boolean) => candidateService.update(Number(candidateId), { is_public: isPublic } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật cài đặt quyền riêng tư");
@@ -84,7 +84,7 @@ const Profile = () => {
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: (status: string) => candidateService.update(Number(recruiterId), { job_search_status: status } as any).then(r => r.data),
+        mutationFn: (status: string) => candidateService.update(Number(candidateId), { job_search_status: status } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật trạng thái tìm việc");
@@ -124,19 +124,19 @@ const Profile = () => {
                             <PersonalForm profile={profile} />
                         </SectionWrapper>
 
-                        <ExperienceSection userId={recruiterId as number} />
+                        <ExperienceSection userId={candidateId as number} />
 
-                        <EducationSection userId={recruiterId as number} />
+                        <EducationSection userId={candidateId as number} />
 
-                        <SkillsSection userId={recruiterId as number} />
+                        <SkillsSection userId={candidateId as number} />
 
-                        <CertificationsSection userId={recruiterId as number} />
+                        <CertificationsSection userId={candidateId as number} />
 
-                        <LanguagesSection userId={recruiterId as number} />
+                        <LanguagesSection userId={candidateId as number} />
 
-                        <ProjectsSection userId={recruiterId as number} />
+                        <ProjectsSection userId={candidateId as number} />
 
-                        <RecommendationsSection userId={recruiterId as number} isOwner={true} />
+                        <RecommendationsSection userId={candidateId as number} isOwner={true} />
                     </div>
 
                     {/* ── Sidebar ── */}

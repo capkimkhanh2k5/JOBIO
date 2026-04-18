@@ -32,7 +32,7 @@ export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
 
 export default function CVManager() {
     const { user } = useUserStore();
-    const recruiterId = user?.recruiter_id;
+    const candidateId = user?.candidate_id;
     const queryClient = useQueryClient();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [showNewDialog, setShowNewDialog] = useState(false);
@@ -45,10 +45,10 @@ export default function CVManager() {
 
     // ── Fetch CV list ────────────────────────────────────────────────────────
     const { data: cvList = [], isLoading: loadingCVs } = useQuery({
-        queryKey: ['candidate', 'cvs', recruiterId],
-        queryFn: () => cvService.list(Number(recruiterId)).then(r => r.data),
+        queryKey: ['candidate', 'cvs', candidateId],
+        queryFn: () => cvService.list(Number(candidateId)).then(r => r.data),
         staleTime: 30_000,
-        enabled: !!recruiterId,
+        enabled: !!candidateId,
     });
 
     // Select first CV by default when list loads
@@ -61,46 +61,46 @@ export default function CVManager() {
 
     // ── Mutations ─────────────────────────────────────────────────────────────
     const updateMutation = useMutation({
-        mutationFn: (data: any) => cvService.update(Number(recruiterId), Number(selectedCvId), data).then(r => r.data),
+        mutationFn: (data: any) => cvService.update(Number(candidateId), Number(selectedCvId), data).then(r => r.data),
         onSuccess: () => {
             setAutoSaveStatus('saved');
             setPreviewKey(k => k + 1); // trigger preview refresh with latest saved data
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
         },
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (cvId: string) => cvService.delete(Number(recruiterId), Number(cvId)),
+        mutationFn: (cvId: string) => cvService.delete(Number(candidateId), Number(cvId)),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
             setSelectedCvId(null);
             toast.success('CV đã được xóa.');
         },
     });
 
     const defaultMutation = useMutation({
-        mutationFn: (cvId: string) => cvService.setDefault(Number(recruiterId), Number(cvId)),
+        mutationFn: (cvId: string) => cvService.setDefault(Number(candidateId), Number(cvId)),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
             toast.success('Đã đặt làm CV mặc định.');
         },
     });
 
     const downloadMutation = useMutation({
-        mutationFn: (cvId: string) => cvService.downloadPdf(Number(recruiterId), Number(cvId)),
+        mutationFn: (cvId: string) => cvService.downloadPdf(Number(candidateId), Number(cvId)),
         onSuccess: () => toast.success('CV đang được tải xuống...'),
     });
 
     const privacyMutation = useMutation({
         mutationFn: ({ cvId, is_public }: { cvId: string; is_public: boolean }) =>
-            cvService.update(Number(recruiterId), Number(cvId), { is_public } as any).then(r => r.data),
+            cvService.update(Number(candidateId), Number(cvId), { is_public } as any).then(r => r.data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', recruiterId] });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
         },
     });
 
     const aiGenMutation = useMutation({
-        mutationFn: () => api.post(`/api/recruiters/${recruiterId}/cvs/ai-generate/`).then(r => r.data),
+        mutationFn: () => api.post(`/api/candidates/${candidateId}/cvs/ai-generate/`).then(r => r.data),
         onSuccess: (data) => {
             setCvData(data.cv_data);
             toast.success('AI đã tạo nội dung CV cho bạn!');
@@ -142,8 +142,8 @@ export default function CVManager() {
         setSelectedTemplateId(String(cv.template_id || cv.template || ''));
         setAutoSaveStatus('idle');
         // Load cv_data from CV detail
-        if (recruiterId) {
-            cvService.getById(Number(recruiterId), Number(cv.id)).then((res: any) => {
+        if (candidateId) {
+            cvService.getById(Number(candidateId), Number(cv.id)).then((res: any) => {
                 setCvData(res.data?.cv_data || {});
             }).catch(() => setCvData({}));
         }

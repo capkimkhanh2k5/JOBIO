@@ -28,9 +28,9 @@ export default function CreateBlogPost() {
     const location = useLocation();
     const isEdit = !!slug;
     
-    // Auth context (employer or candidate)
-    const isEmployer = location.pathname.startsWith('/employer');
-    const basePath = isEmployer ? '/employer/blog' : '/candidate/blog';
+    // Auth context (company or candidate)
+    const isCompany = location.pathname.startsWith('/company');
+    const basePath = isCompany ? '/company/blog' : '/candidate/blog';
 
     const [isLoading, setIsLoading] = useState(false);
     const [categories, setCategories] = useState<BlogCategory[]>([]);

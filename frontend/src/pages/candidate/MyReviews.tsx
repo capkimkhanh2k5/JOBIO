@@ -115,11 +115,11 @@ export function MyReviews() {
     const queryClient = useQueryClient();
     const [reviewToDelete, setReviewToDelete] = useState<number | null>(null);
     const { user } = useUserStore();
-    const candidateId = user?.recruiter_id;
+    const candidateId = user?.candidate_id;
 
     const { data, isLoading } = useQuery({
         queryKey: ['my-reviews', candidateId],
-        queryFn: () => api.get(`/api/recruiters/${candidateId}/reviews/`).then(r => ({
+        queryFn: () => api.get(`/api/candidates/${candidateId}/reviews/`).then(r => ({
             results: r.data.reviews,
             count: r.data.total,
         })),

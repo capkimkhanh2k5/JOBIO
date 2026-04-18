@@ -212,7 +212,7 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SuggestedJobs() {
     const { user } = useUserStore();
-    const recruiterId = user?.recruiter_id;
+    const candidateId = user?.candidate_id;
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(searchParams.get('cv_id'));
@@ -228,9 +228,9 @@ export default function SuggestedJobs() {
 
     // Load CV list
     const { data: cvList = [], isLoading: loadingCVs } = useQuery({
-        queryKey: ['candidate', 'cvs', recruiterId],
-        queryFn: () => cvService.list(recruiterId!).then((r: any) => r.data),
-        enabled: !!recruiterId,
+        queryKey: ['candidate', 'cvs', candidateId],
+        queryFn: () => cvService.list(candidateId!).then((r: any) => r.data),
+        enabled: !!candidateId,
         staleTime: 30_000,
     });
 

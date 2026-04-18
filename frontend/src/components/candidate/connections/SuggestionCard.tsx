@@ -14,7 +14,7 @@ interface SuggestionCardProps {
 
 export function SuggestionCard({ suggestion }: SuggestionCardProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const { recruiter, mutual_connections, common_skills } = suggestion;
+    const { candidate, mutual_connections, common_skills } = suggestion;
 
     return (
         <>
@@ -24,20 +24,20 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
                     <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-violet-50/80 to-transparent -z-10" />
 
                     <Avatar className="h-20 w-20 border-4 border-white shadow-sm ring-1 ring-slate-100 mb-4 mt-2">
-                        <AvatarImage src={recruiter.avatar_url || ''} alt={recruiter.full_name} />
+                        <AvatarImage src={candidate.avatar_url || ''} alt={candidate.full_name} />
                         <AvatarFallback className="bg-gradient-to-br from-violet-100 to-cyan-100 text-violet-700 font-bold text-2xl">
-                            {recruiter.full_name?.charAt(0) || 'U'}
+                            {candidate.full_name?.charAt(0) || 'U'}
                         </AvatarFallback>
                     </Avatar>
 
                     <h3 className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">
-                        {recruiter.full_name}
+                        {candidate.full_name}
                     </h3>
 
-                    {recruiter.headline && (
+                    {candidate.headline && (
                         <div className="flex items-center text-sm text-slate-500 mt-1 justify-center w-full truncate">
                             <Briefcase className="w-3.5 h-3.5 mr-1.5 opacity-70 flex-shrink-0" />
-                            <span className="truncate">{recruiter.headline}</span>
+                            <span className="truncate">{candidate.headline}</span>
                         </div>
                     )}
 
@@ -74,8 +74,8 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
             <SendConnectionDialog
                 isOpen={isDialogOpen}
                 onClose={() => setIsDialogOpen(false)}
-                recruiterId={recruiter.id}
-                recruiterName={recruiter.full_name}
+                candidateId={candidate.id}
+                candidateName={candidate.full_name}
             />
         </>
     );
