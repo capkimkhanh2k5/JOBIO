@@ -1,26 +1,25 @@
 import { Outlet } from 'react-router-dom';
-import { Header } from '@/components/layout/Header';
 import { AdminSidebar } from './AdminSidebar';
-import { ScrollProgress } from '@/components/shared/ScrollProgress';
-import { MiniFooter } from '@/components/layout/MiniFooter';
+import { AdminTopNav } from './AdminTopNav';
 
 /**
- * AdminLayout – wraps all /admin/* routes.
- * Uses the same Header as public site with Admin sidebar.
+ * AdminLayout – Re-architected Sidebar-First monitoring layout.
+ * Optimized for information density and professional system management.
  */
 export function AdminLayout() {
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50/30">
-            <ScrollProgress />
-            <Header />
-            <div className="flex flex-1 pt-[112px]">
-                <AdminSidebar />
-                <main className="flex-1 flex flex-col min-w-0 w-full">
-                    <div className="flex-1 w-full">
+        <div className="h-screen flex bg-slate-50 overflow-hidden font-sans">
+            {/* Sidebar-First: Full height on the left */}
+            <AdminSidebar />
+
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Internal TopNav: Acting as a contextual toolbar */}
+                <AdminTopNav />
+                
+                {/* Main Dashboard / Content Area */}
+                <main className="flex-1 overflow-y-auto bg-[#fcfcfd]">
+                    <div className="w-full pb-10">
                         <Outlet />
-                    </div>
-                    <div className="mt-auto shrink-0 w-full">
-                        <MiniFooter />
                     </div>
                 </main>
             </div>

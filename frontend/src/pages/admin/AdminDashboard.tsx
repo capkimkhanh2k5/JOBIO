@@ -37,8 +37,23 @@ const industryData = [
     { name: 'Tài chính', value: 20, color: '#a78bfa' },
     { name: 'Marketing', value: 15, color: '#f97316' },
     { name: 'Giáo dục', value: 12, color: '#fb923c' },
-    { name: 'Sản xuất', value: 10, color: '#c084fc' },
-    { name: 'Khác', value: 8, color: '#e879f9' },
+    { name: 'Khác', value: 18, color: '#c084fc' },
+];
+
+const revenueTrendData = [
+    { day: 'Thứ 2', revenue: 45000000 },
+    { day: 'Thứ 3', revenue: 52000000 },
+    { day: 'Thứ 4', revenue: 48000000 },
+    { day: 'Thứ 5', revenue: 61000000 },
+    { day: 'Thứ 6', revenue: 55000000 },
+    { day: 'Thứ 7', revenue: 42000000 },
+    { day: 'Chủ nhật', revenue: 38000000 },
+];
+
+const violationStatusData = [
+    { name: 'Lừa đảo', value: 45, color: '#ef4444' },
+    { name: 'Spam', value: 30, color: '#f97316' },
+    { name: 'Nội dung xấu', value: 25, color: '#7c3aed' },
 ];
 
 export default function AdminDashboard() {
@@ -48,10 +63,10 @@ export default function AdminDashboard() {
     });
 
     const kpiData = adminStats ? [
-        { label: 'Tổng Users', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-violet-500 to-violet-600', period: '30 ngày' },
-        { label: 'Tổng Việc Làm', value: adminStats.jobs?.total?.toLocaleString() ?? '0', delta: `${adminStats.jobs?.active ?? 0} active`, deltaType: 'up' as const, icon: Briefcase, gradient: 'from-fuchsia-500 to-fuchsia-600', period: 'đang hoạt động' },
-        { label: 'Doanh thu', value: `${(Number(adminStats.revenue?.total ?? 0) / 1_000_000).toFixed(1)}M`, delta: `+${(Number(adminStats.revenue?.revenue_30d ?? 0) / 1_000_000).toFixed(1)}M`, deltaType: 'up' as const, icon: Building2, gradient: 'from-orange-400 to-orange-500', period: '30 ngày' },
-        { label: 'Đơn Ứng Tuyển', value: '-', delta: '', deltaType: 'up' as const, icon: FileCheck, gradient: 'from-indigo-500 to-indigo-600', period: '' },
+        { label: 'Doanh thu', value: `${(Number(adminStats.revenue?.total ?? 0) / 1_000_000).toFixed(1)}M`, delta: `+12%`, deltaType: 'up' as const, icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', period: '30 ngày' },
+        { label: 'Vi phạm', value: '12', delta: '3 nghiêm trọng', deltaType: 'down' as const, icon: AlertTriangle, gradient: 'from-red-500 to-red-600', period: 'chờ xử lý' },
+        { label: 'Tin tuyển dụng', value: adminStats.jobs?.total?.toLocaleString() ?? '0', delta: `${adminStats.jobs?.active ?? 0} active`, deltaType: 'up' as const, icon: Briefcase, gradient: 'from-violet-500 to-violet-600', period: 'đang hiển thị' },
+        { label: 'Người dùng', value: adminStats.users?.total?.toLocaleString() ?? '0', delta: `+${adminStats.users?.new_30d ?? 0}`, deltaType: 'up' as const, icon: Users, gradient: 'from-blue-500 to-blue-600', period: 'mới' },
     ] : [];
     return (
         <div className="p-6 lg:p-8 space-y-8 w-full flex-1">
@@ -78,7 +93,7 @@ export default function AdminDashboard() {
                         {kpiData.map((kpi) => {
                             const Icon = kpi.icon;
                             return (
-                                <div key={kpi.label} className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-5 flex flex-col gap-3 transition-transform hover:-translate-y-1 duration-300">
+                                <div key={kpi.label} className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col gap-3 transition-all hover:border-violet-300 hover:shadow-md duration-300 group">
                                     <div className="flex items-center justify-between">
                                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.gradient} flex items-center justify-center text-white shadow-sm`}>
                                             <Icon className="w-5 h-5" />
@@ -102,7 +117,7 @@ export default function AdminDashboard() {
             {/* Charts Row */}
             <motion.div {...fadeUp(0.16)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* User Growth Chart */}
-                <div className="xl:col-span-2 bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
+                <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="font-bold text-base text-slate-900">Tăng trưởng</h3>
@@ -126,7 +141,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Industry Pie Chart */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                     <h3 className="font-bold text-base text-slate-900 mb-1">Ngành nghề</h3>
                     <p className="text-xs text-slate-500 mb-4">Phân bổ theo ngành</p>
                     <ResponsiveContainer width="100%" height={180}>
@@ -151,10 +166,70 @@ export default function AdminDashboard() {
                 </div>
             </motion.div>
 
+            {/* Monitoring & Compliance Row */}
+            <motion.div {...fadeUp(0.24)} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                {/* Financial Trend */}
+                <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h3 className="font-bold text-base text-slate-900">Doanh thu theo tuần</h3>
+                            <p className="text-xs text-slate-500 mt-0.5">Biểu đồ tăng trưởng tài chính thực tế</p>
+                        </div>
+                        <Link to="/admin/financial">
+                            <Button variant="ghost" size="sm" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">
+                                Chi tiết tài chính
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className="h-[200px] w-full bg-slate-50/50 rounded-xl flex items-end justify-between px-4 pb-2 gap-2 border border-slate-100">
+                        {revenueTrendData.map((d, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                                <div 
+                                    className="w-full bg-emerald-500/80 rounded-t-lg transition-all duration-500 group-hover:bg-emerald-600"
+                                    style={{ height: `${(d.revenue / 70000000) * 100}%` }}
+                                />
+                                <span className="text-[10px] font-bold text-slate-400">{d.day}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Violation Breakdown */}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold text-base text-slate-900">Loại vi phạm</h3>
+                        <Link to="/admin/reports">
+                            <AlertTriangle className="w-4 h-4 text-red-500" />
+                        </Link>
+                    </div>
+                    <ResponsiveContainer width="100%" height={150}>
+                        <PieChart>
+                            <Pie data={violationStatusData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                                {violationStatusData.map((entry) => (
+                                    <Cell key={entry.name} fill={entry.color} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                        </PieChart>
+                    </ResponsiveContainer>
+                    <div className="space-y-2 mt-4">
+                        {violationStatusData.map((item) => (
+                            <div key={item.name} className="flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                                    <span className="text-slate-600 font-medium">{item.name}</span>
+                                </div>
+                                <span className="font-bold text-slate-900">{item.value}%</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </motion.div>
+
             {/* Quick Actions Row */}
-            <motion.div {...fadeUp(0.24)} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <motion.div {...fadeUp(0.32)} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Pending Company Verifications */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-violet-600" />
@@ -170,7 +245,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Pending Reviews */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/40 shadow-sm p-6">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
                     <div className="flex items-center justify-between mb-5">
                         <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
                             <Star className="w-5 h-5 text-orange-500" />

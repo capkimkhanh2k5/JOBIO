@@ -23,7 +23,7 @@ import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
-import { PublicRoute, ProtectedRoute, NotFoundRedirect } from '@/components/layout/RouteGuards';
+import { ProtectedRoute, PublicRoute, NotFoundRedirect, RoleBasedRedirect } from '@/components/layout/RouteGuards';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
@@ -67,7 +67,10 @@ import UserManagement from '@/pages/admin/UserManagement';
 import SystemSettings from '@/pages/admin/SystemSettings';
 import Moderation from '@/pages/admin/Moderation';
 import BlogManagement from '@/pages/admin/BlogManagement';
-import EmailTemplates from '@/pages/admin/EmailTemplates';
+import FinancialManagement from '@/pages/admin/FinancialManagement';
+import JobMarketplace from '@/pages/admin/JobMarketplace';
+import ViolationReports from '@/pages/admin/ViolationReports';
+import AdvancedAnalytics from '@/pages/admin/AdvancedAnalytics';
 
 export default function App() {
     const theme = useUiStore((state: UiState) => state.theme);
@@ -141,7 +144,10 @@ export default function App() {
                             <Route path="users" element={<UserManagement />} />
                             <Route path="moderation" element={<Moderation />} />
                             <Route path="blog" element={<BlogManagement />} />
-                            <Route path="email-templates" element={<EmailTemplates />} />
+                            <Route path="financial" element={<FinancialManagement />} />
+                            <Route path="jobs" element={<JobMarketplace />} />
+                            <Route path="reports" element={<ViolationReports />} />
+                            <Route path="analytics" element={<AdvancedAnalytics />} />
                             <Route path="settings" element={<SystemSettings />} />
                         </Route>
 
@@ -176,43 +182,47 @@ export default function App() {
 
                         {/* ── Auth page: Standalone no footer ── */}
                         <Route path="/auth" element={
-                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
-                                <Header />
-                                <main className="flex-1 w-full relative z-10 flex flex-col">
-                                    <PublicRoute><Auth /></PublicRoute>
-                                </main>
-                            </div>
+                            <RoleBasedRedirect>
+                                <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                                    <Header />
+                                    <main className="flex-1 w-full relative z-10 flex flex-col">
+                                        <PublicRoute><Auth /></PublicRoute>
+                                    </main>
+                                </div>
+                            </RoleBasedRedirect>
                         } />
 
                         {/* ── Public site: header + footer ── */}
                         <Route path="*" element={
-                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
-                                <Header />
-                                <main className="flex-1 w-full relative z-10">
-                                    <Routes>
-                                        <Route path="/" element={<Home />} />
-                                        <Route path="/jobs" element={<Jobs />} />
-                                        <Route path="/jobs/:id" element={<JobDetail />} />
-                                        <Route path="/companies" element={<Companies />} />
-                                        <Route path="/companies/:id" element={<CompanyDetail />} />
-                                        <Route path="/profile/:id" element={<PublicProfile />} />
-                                        <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
-                                        {/* Profile is now under /candidate/profile */}
-                                        <Route path="/about" element={<About />} />
-                                        <Route path="/contact" element={<Contact />} />
-                                        <Route path="/pricing" element={<Pricing />} />
-                                        <Route path="/faq" element={<FAQ />} />
-                                        <Route path="/blog" element={<Blog />} />
-                                        <Route path="/blog/:slug" element={<BlogDetail />} />
-                                        <Route path="/hr-solutions" element={<HRSolutions />} />
-                                        <Route path="/terms" element={<Terms />} />
-                                        <Route path="/privacy" element={<Privacy />} />
-                                        <Route path="/cookie" element={<Cookie />} />
-                                        <Route path="*" element={<NotFoundRedirect />} />
-                                    </Routes>
-                                </main>
-                                <Footer />
-                            </div>
+                            <RoleBasedRedirect>
+                                <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                                    <Header />
+                                    <main className="flex-1 w-full relative z-10">
+                                        <Routes>
+                                            <Route path="/" element={<Home />} />
+                                            <Route path="/jobs" element={<Jobs />} />
+                                            <Route path="/jobs/:id" element={<JobDetail />} />
+                                            <Route path="/companies" element={<Companies />} />
+                                            <Route path="/companies/:id" element={<CompanyDetail />} />
+                                            <Route path="/profile/:id" element={<PublicProfile />} />
+                                            <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
+                                            {/* Profile is now under /candidate/profile */}
+                                            <Route path="/about" element={<About />} />
+                                            <Route path="/contact" element={<Contact />} />
+                                            <Route path="/pricing" element={<Pricing />} />
+                                            <Route path="/faq" element={<FAQ />} />
+                                            <Route path="/blog" element={<Blog />} />
+                                            <Route path="/blog/:slug" element={<BlogDetail />} />
+                                            <Route path="/hr-solutions" element={<HRSolutions />} />
+                                            <Route path="/terms" element={<Terms />} />
+                                            <Route path="/privacy" element={<Privacy />} />
+                                            <Route path="/cookie" element={<Cookie />} />
+                                            <Route path="*" element={<NotFoundRedirect />} />
+                                        </Routes>
+                                    </main>
+                                    <Footer />
+                                </div>
+                            </RoleBasedRedirect>
                         } />
                     </Routes>
                 </Suspense>

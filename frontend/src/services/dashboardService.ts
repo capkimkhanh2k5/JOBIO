@@ -95,6 +95,10 @@ export const dashboardService = {
     return api.post('/api/users/bulk-action/', { action, user_ids: userIds });
   },
 
+  exportUsers() {
+    return api.get('/api/users/export/', { responseType: 'blob' });
+  },
+
   // ─── System Settings ──────────────────────────────────────────────────
 
   listSystemSettings() {

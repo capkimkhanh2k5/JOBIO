@@ -10,16 +10,24 @@ from django.db.models import Count
 import csv
 import io
 
+from django.db.models import Q
+
 class UserFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(method='filter_search')
+
     class Meta:
         model = CustomUser
         fields = {
-            'email': ['exact', 'icontains'],
-            'full_name': ['icontains'],
             'role': ['exact'],
             'status': ['exact'],
             'is_active': ['exact'],
         }
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(
+            Q(email__icontains=value) | 
+            Q(full_name__icontains=value)
+        )
 
 def list_users(*, filters: dict = None) -> QuerySet[CustomUser]:
     """
