@@ -36,11 +36,6 @@ class Report(models.Model):
     description = models.TextField(
         verbose_name='Mô tả'
     )
-    evidence_urls = models.JSONField(
-        null=True,
-        blank=True,
-        verbose_name='URL bằng chứng'
-    )
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
