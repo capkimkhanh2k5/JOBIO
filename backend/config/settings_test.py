@@ -53,14 +53,8 @@ INSTALLED_APPS = [
     'apps.system.system_settings',
     'apps.system.file_uploads',
     'apps.analytics',
-    'apps.system.analytics_reports',
-    # 'apps.system.analytics_daily_statistics',
     'apps.system.report_types',
-    # 'apps.system.reports',
-    'apps.system.audit_logs',
-    'apps.system.search_history',
-    'apps.system.faqs',
-    'apps.system.job_search_history',
+    'apps.system.reports',
     # Candidate Domain (recruiters, education, experience, skills, certifications, languages, projects)
     'apps.candidate.recruiters',
     'apps.candidate.recruiter_education',
@@ -72,13 +66,8 @@ INSTALLED_APPS = [
     'apps.candidate.skill_categories',
     'apps.candidate.skills',
     'apps.candidate.languages',
-    # Social Domain (full - for Module 12)
+    # Social Domain
     'apps.social.company_followers',
-    'apps.social.skill_endorsements',
-    'apps.social.reviews',
-    'apps.social.review_reactions',
-    'apps.social.recruiter_connections',
-    'apps.social.recommendations',
     # Recruitment Domain (jobs)
     'apps.recruitment.jobs',
     'apps.recruitment.job_categories',
@@ -91,7 +80,6 @@ INSTALLED_APPS = [
     'apps.recruitment.job_views',
     'apps.recruitment.interviews',
     'apps.recruitment.interview_types',
-    'apps.recruitment.interview_interviewers',
     # Candidate Domain (CV Builder)
     'apps.candidate.cv_templates',
     'apps.candidate.cv_template_categories',

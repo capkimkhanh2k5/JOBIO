@@ -12,10 +12,28 @@ django.setup()
 
 import schema_django
 
-if len(sys.argv) > 1:
-    DATA_DIR = sys.argv[1]
-else:
-    DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "DataSet", "Data_Final")
+
+def resolve_data_dir():
+    if len(sys.argv) > 1:
+        return sys.argv[1]
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+
+    candidates = [
+        os.path.join(parent_dir, "DataSet", "Data_Final"),
+        os.path.join(current_dir, "Data_Final_To_Load"),
+        os.path.join(current_dir, "DataSet", "Data_Final"),
+    ]
+
+    for candidate in candidates:
+        if os.path.isdir(candidate):
+            return candidate
+
+    return candidates[0]
+
+
+DATA_DIR = resolve_data_dir()
 
 print(f"Bắt đầu nạp dữ liệu từ: {DATA_DIR}")
 
@@ -48,18 +66,17 @@ TABLES_ORDER = [
     
     # Cấp 4
     'jobs', 'recruiter_education', 'recruiter_experience', 'recruiter_skills',
-    'recruiter_languages', 'recruiter_connections', 'recruiter_projects',
-    'recruiter_certifications', 'recruiter_cvs', 'file_uploads', 'recommendations',
+    'recruiter_languages', 'recruiter_projects',
+    'recruiter_certifications', 'recruiter_cvs', 'file_uploads',
     
     # Cấp 5
     'applications', 'company_benefits', 'company_media', 'company_followers',
-    'company_subscriptions', 'saved_jobs', 'job_alerts', 'reports', 'reviews',
-    'email_sentemail', 'analytics_reports', 'analytics_generatedreport',
+    'company_subscriptions', 'saved_jobs', 'job_alerts', 'reports',
+    'email_sentemail',
     
     # Cấp 6
     'application_status_history', 'interviews', 'job_alerts_skills',
-    'job_search_history', 'search_history', 'job_skills', 'notifications',
-    'activity_logs', 'interview_interviewers'
+    'job_skills', 'notifications', 'activity_logs'
 ]
 
 def load_table(table_name, model_obj, json_file):
