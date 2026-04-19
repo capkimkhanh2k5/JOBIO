@@ -6,7 +6,7 @@ from django.db import transaction
 from django.db.models import Max
 
 from apps.candidate.recruiter_education.models import RecruiterEducation
-from apps.candidate.recruiters.models import Recruiter
+
 
 
 class EducationInput(BaseModel):
@@ -25,13 +25,14 @@ class EducationInput(BaseModel):
 
 
 @transaction.atomic
-def create_education_service(recruiter: Recruiter, data: EducationInput) -> RecruiterEducation:
+def create_education_service(recruiter: 'Recruiter', data: EducationInput) -> RecruiterEducation:
     """
     Tạo một học vấn mới cho ứng viên.
     
     Business rule:
     - Tự động set display_order = max hiện tại + 1
     """
+    from apps.candidate.recruiters.models import Recruiter
     # Get max display_order
     max_order = RecruiterEducation.objects.filter(
         recruiter=recruiter
@@ -82,6 +83,7 @@ def reorder_education_service(recruiter: Recruiter, order_data: list) -> None:
     Business rule:
     - Tất cả id phải thuộc về recruiter
     """
+    from apps.candidate.recruiters.models import Recruiter
     # Get all education ids belonging to recruiter
     valid_ids = set(
         RecruiterEducation.objects.filter(recruiter=recruiter).values_list('id', flat=True)

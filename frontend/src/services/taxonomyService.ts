@@ -14,55 +14,124 @@ import type {
 export const taxonomyService = {
   // ─── Geography ────────────────────────────────────────────────────────
 
-  listProvinces(params?: { region?: string; search?: string }) {
-    return api.get<PaginatedResponse<Province>>('/api/provinces/', { params });
+  async listProvinces(params?: { region?: string; search?: string }) {
+    try {
+      const response = await api.get<any>('/api/provinces/', { 
+        params: { ...params, page_size: 100 } 
+      });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listProvinces:', e);
+      return [];
+    }
   },
 
-  getProvince(id: number) {
+  async getProvince(id: number) {
     return api.get<Province>(`/api/provinces/${id}/`);
   },
 
-  listCommunes(params?: { province_id?: number; search?: string; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<Commune>>('/api/communes/', { params });
+  async listCommunes(params?: { province_id?: number; search?: string; page?: number; page_size?: number }) {
+    try {
+      const response = await api.get<any>('/api/communes/', { 
+        params: { page_size: 100, ...params } 
+      });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listCommunes:', e);
+      return [];
+    }
   },
 
-  getCommune(id: number) {
+  async getCommune(id: number) {
     return api.get<Commune>(`/api/communes/${id}/`);
   },
 
   // ─── Industries ───────────────────────────────────────────────────────
 
-  listIndustries(params?: { parent_id?: number; is_active?: boolean }) {
-    return api.get<PaginatedResponse<Industry>>('/api/industries/', { params });
+  async listIndustries(params?: { parent_id?: number; is_active?: boolean }) {
+    try {
+      const response = await api.get<any>('/api/industries/', { 
+        params: { page_size: 100, ...params } 
+      });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listIndustries:', e);
+      return [];
+    }
   },
 
-  getIndustry(id: number) {
+  async getIndustry(id: number) {
     return api.get<Industry>(`/api/industries/${id}/`);
   },
 
   // ─── Job Categories ───────────────────────────────────────────────────
 
-  listJobCategories(params?: { parent_id?: number; is_active?: boolean }) {
-    return api.get<PaginatedResponse<JobCategory>>('/api/job-categories/', { params });
+  async listJobCategories(params?: { parent_id?: number; is_active?: boolean }) {
+    try {
+      const response = await api.get<any>('/api/job-categories/', { params });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listJobCategories:', e);
+      return [];
+    }
   },
 
-  getJobCategory(id: number) {
+  async getJobCategory(id: number) {
     return api.get<JobCategory>(`/api/job-categories/${id}/`);
   },
 
   // ─── Skills ───────────────────────────────────────────────────────────
 
-  listSkills(params?: { search?: string; category_id?: number; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<Skill>>('/api/skills/', { params });
+  async listSkills(params?: { search?: string; q?: string; category_id?: number; page?: number; page_size?: number }) {
+    try {
+      const isSearch = !!(params?.search || params?.q);
+      const endpoint = isSearch ? '/api/skills/search/' : '/api/skills/';
+      const queryParams: any = { page_size: 100, ...params };
+      if (params?.search && !params?.q) {
+        queryParams.q = params.search;
+        delete queryParams.search;
+      }
+      
+      const response = await api.get<any>(endpoint, { params: queryParams });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listSkills:', e);
+      return [];
+    }
   },
 
-  getSkill(id: number) {
+  async getSkill(id: number) {
     return api.get<Skill>(`/api/skills/${id}/`);
+  },
+
+  async listPopularSkills() {
+    try {
+      const response = await api.get<any>('/api/skills/popular/');
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listPopularSkills:', e);
+      return [];
+    }
   },
 
   // ─── Languages ────────────────────────────────────────────────────────
 
-  listLanguages() {
-    return api.get<LanguageRef[]>('/api/languages/');
+  async listLanguages() {
+    try {
+      const response = await api.get<any>('/api/languages/', {
+        params: { page_size: 100 }
+      });
+      const data = response?.data;
+      return Array.isArray(data) ? data : (data?.results || []);
+    } catch (e) {
+      console.error('Error listLanguages:', e);
+      return [];
+    }
   },
 };

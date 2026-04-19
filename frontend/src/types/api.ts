@@ -551,6 +551,9 @@ export interface CandidateExperience {
   start_date: string | null;
   end_date: string | null;
   is_current: boolean;
+  address?: number;
+  province_id?: number;
+  province_name?: string;
   description: string | null;
   achievements?: string | null;
   display_order: number;
@@ -560,6 +563,7 @@ export interface CandidateExperienceRequest {
   company_name: string;
   job_title: string;
   industry_id?: number | null;
+  province_id?: number | null;
   start_date: string;
   end_date?: string | null;
   is_current?: boolean;

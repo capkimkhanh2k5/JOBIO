@@ -119,6 +119,15 @@ class RecruiterLanguageViewSet(viewsets.GenericViewSet):
         """
         PUT /api/recruiters/:recruiter_id/languages/:pk/
         """
+        return self._update(request, recruiter_id, pk, partial=False)
+
+    def partial_update(self, request, recruiter_id=None, pk=None):
+        """
+        PATCH /api/recruiters/:recruiter_id/languages/:pk/
+        """
+        return self._update(request, recruiter_id, pk, partial=True)
+
+    def _update(self, request, recruiter_id, pk, partial=False):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -140,11 +149,15 @@ class RecruiterLanguageViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
         
-        serializer = RecruiterLanguageUpdateSerializer(data=request.data)
+        serializer = RecruiterLanguageUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         try:
-            input_data = LanguageInput(**serializer.validated_data)
+            # For the service layer input, we merge current data with new data
+            actual_data = RecruiterLanguageSerializer(language).data
+            actual_data.update(serializer.validated_data)
+
+            input_data = LanguageInput(**actual_data)
             updated = update_language(language, input_data)
             return Response(RecruiterLanguageSerializer(updated).data)
         except ValueError as e:

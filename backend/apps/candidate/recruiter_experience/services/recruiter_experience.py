@@ -11,12 +11,12 @@ from apps.candidate.recruiters.models import Recruiter
 class ExperienceInput(BaseModel):
     """Pydantic input model cho create/update experience"""
     
-    company_name: Optional[str] = None
-    job_title: Optional[str] = None
+    company_name: str
+    job_title: str
     industry_id: Optional[int] = None
-    start_date: Optional[date] = None
+    start_date: date
     end_date: Optional[date] = None
-    is_current: Optional[bool] = None
+    is_current: bool = False
     description: Optional[str] = None
     address_id: Optional[int] = None
     achievements: Optional[str] = None
@@ -39,12 +39,10 @@ def create_experience_service(recruiter: Recruiter, data: ExperienceInput) -> Re
     
     next_order = (max_order or 0) + 1
     
-    fields = data.model_dump(exclude_unset=True)
-    
-    # Handle FK fields
+    fields = data.model_dump()
     industry_id = fields.pop('industry_id', None)
     address_id = fields.pop('address_id', None)
-    
+
     experience = RecruiterExperience.objects.create(
         recruiter=recruiter,
         display_order=next_order,
@@ -61,11 +59,12 @@ def update_experience_service(experience: RecruiterExperience, data: ExperienceI
     Cập nhật thông tin kinh nghiệm làm việc.
     Chỉ update các fields có trong data.
     """
-    fields = data.model_dump(exclude_unset=True)
+    fields = data.model_dump()
     
     # Handle FK fields
     if 'industry_id' in fields:
         experience.industry_id = fields.pop('industry_id')
+    
     if 'address_id' in fields:
         experience.address_id = fields.pop('address_id')
     
@@ -111,5 +110,5 @@ def reorder_experience_service(recruiter: Recruiter, order_data: list) -> None:
         experience.display_order = item['display_order']
         experience_updates.append(experience)
     
-    # Bulk update for performance
+    # Bulk update
     RecruiterExperience.objects.bulk_update(experience_updates, ['display_order'])

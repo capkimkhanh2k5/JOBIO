@@ -10,19 +10,6 @@ from .serializers import (
     ExperienceUpdateSerializer,
     ExperienceReorderSerializer
 )
-from .services.recruiter_experience import (
-    create_experience_service,
-    update_experience_service,
-    delete_experience_service,
-    reorder_experience_service,
-    ExperienceInput
-)
-from .selectors.recruiter_experience import (
-    list_experience_by_recruiter,
-    get_experience_by_id
-)
-from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
-
 
 class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     """
@@ -33,11 +20,13 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        from .selectors.recruiter_experience import list_experience_by_recruiter
         recruiter_id = self.kwargs.get('recruiter_id')
         return list_experience_by_recruiter(recruiter_id)
     
     def _get_recruiter_or_404(self, recruiter_id):
         """Helper: Get recruiter or return 404 response"""
+        from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
         recruiter = get_recruiter_by_id(recruiter_id)
         if not recruiter:
             return None, Response(
@@ -60,8 +49,9 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     def list(self, request, recruiter_id=None):
         """
         GET /api/recruiters/:recruiter_id/experience/
-        Danh sách kinh nghiệm làm việc của ứng viên
+        Danh sách kinh nghiệm của ứng viên
         """
+        from .selectors.recruiter_experience import list_experience_by_recruiter
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -73,12 +63,14 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     def create(self, request, recruiter_id=None):
         """
         POST /api/recruiters/:recruiter_id/experience/
-        Thêm kinh nghiệm làm việc mới
+        Thêm kinh nghiệm mới
         """
+        from .services.recruiter_experience import create_experience_service, ExperienceInput
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
         
+        # Only owner can create
         permission_error = self._check_owner_permission(request, recruiter)
         if permission_error:
             return permission_error
@@ -99,8 +91,9 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, recruiter_id=None, pk=None):
         """
         GET /api/recruiters/:recruiter_id/experience/:pk/
-        Chi tiết một kinh nghiệm
+        Chi tiết kinh nghiệm
         """
+        from .selectors.recruiter_experience import get_experience_by_id
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -123,12 +116,21 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     def update(self, request, recruiter_id=None, pk=None):
         """
         PUT /api/recruiters/:recruiter_id/experience/:pk/
-        Cập nhật kinh nghiệm làm việc
         """
+        return self._update(request, recruiter_id, pk, partial=False)
+
+    def partial_update(self, request, recruiter_id=None, pk=None):
+        """
+        PATCH /api/recruiters/:recruiter_id/experience/:pk/
+        """
+        return self._update(request, recruiter_id, pk, partial=True)
+
+    def _update(self, request, recruiter_id, pk, partial=False):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
         
+        from .selectors.recruiter_experience import get_experience_by_id
         experience = get_experience_by_id(pk)
         if not experience:
             return Response(
@@ -142,15 +144,21 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
+        # Only owner can update
         permission_error = self._check_owner_permission(request, recruiter)
         if permission_error:
             return permission_error
         
-        serializer = ExperienceUpdateSerializer(data=request.data)
+        serializer = ExperienceUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
+        from .services.recruiter_experience import update_experience_service, ExperienceInput
         try:
-            input_data = ExperienceInput(**serializer.validated_data)
+            # We need full data for the service layer input dataclass
+            actual_data = ExperienceSerializer(experience).data
+            actual_data.update(serializer.validated_data)
+
+            input_data = ExperienceInput(**actual_data)
             updated = update_experience_service(experience, input_data)
             return Response(ExperienceSerializer(updated).data)
         except ValueError as e:
@@ -159,12 +167,13 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
     def destroy(self, request, recruiter_id=None, pk=None):
         """
         DELETE /api/recruiters/:recruiter_id/experience/:pk/
-        Xóa kinh nghiệm làm việc
+        Xóa kinh nghiệm
         """
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
         
+        from .selectors.recruiter_experience import get_experience_by_id
         experience = get_experience_by_id(pk)
         if not experience:
             return Response(
@@ -178,10 +187,12 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
+        # Only owner can delete
         permission_error = self._check_owner_permission(request, recruiter)
         if permission_error:
             return permission_error
         
+        from .services.recruiter_experience import delete_experience_service
         delete_experience_service(experience)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -195,6 +206,7 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
         if error:
             return error
         
+        # Only owner can reorder
         permission_error = self._check_owner_permission(request, recruiter)
         if permission_error:
             return permission_error
@@ -202,8 +214,11 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
         serializer = ExperienceReorderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
+        from .services.recruiter_experience import reorder_experience_service
+        from .selectors.recruiter_experience import list_experience_by_recruiter
         try:
             reorder_experience_service(recruiter, serializer.validated_data['order'])
+            # Return updated list
             queryset = list_experience_by_recruiter(recruiter_id)
             return Response(ExperienceSerializer(queryset, many=True).data)
         except ValueError as e:

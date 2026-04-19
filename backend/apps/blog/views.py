@@ -137,3 +137,34 @@ class PostViewSet(viewsets.ModelViewSet):
             'total_views': total_views,
         })
 
+    @action(detail=True, methods=['post'], url_path='upload-thumbnail',
+            parser_classes=[__import__('rest_framework').parsers.MultiPartParser,
+                            __import__('rest_framework').parsers.FormParser])
+    def upload_thumbnail(self, request, slug=None):
+        """POST /api/blog/posts/:slug/upload-thumbnail/ - Upload thumbnail lên Cloudinary"""
+        post = self.get_object()
+        if request.user != post.author and not request.user.is_staff:
+            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+
+        file = request.FILES.get('thumbnail')
+        if not file:
+            return Response({'detail': 'Vui lòng cung cấp file thumbnail.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+        if file.content_type not in allowed_types:
+            return Response({'detail': 'Chỉ chấp nhận JPEG, PNG, WEBP, GIF.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if file.size > 5 * 1024 * 1024:
+            return Response({'detail': 'File quá lớn. Tối đa 5MB.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            import time
+            import cloudinary.uploader
+            public_id = f"Jobio/Blog/Thumbnails/{post.id}/thumbnail_{int(time.time())}"
+            result = cloudinary.uploader.upload(file, public_id=public_id, resource_type='image', overwrite=True)
+            post.thumbnail = result['secure_url']
+            post.save(update_fields=['thumbnail'])
+            return Response({'thumbnail_url': post.thumbnail})
+        except Exception as e:
+            return Response({'detail': f'Upload thất bại: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

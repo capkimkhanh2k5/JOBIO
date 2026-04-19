@@ -122,6 +122,15 @@ class RecruiterProjectViewSet(viewsets.GenericViewSet):
         """
         PUT /api/recruiters/:recruiter_id/projects/:pk/
         """
+        return self._update(request, recruiter_id, pk, partial=False)
+
+    def partial_update(self, request, recruiter_id=None, pk=None):
+        """
+        PATCH /api/recruiters/:recruiter_id/projects/:pk/
+        """
+        return self._update(request, recruiter_id, pk, partial=True)
+
+    def _update(self, request, recruiter_id, pk, partial=False):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -143,11 +152,14 @@ class RecruiterProjectViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
         
-        serializer = ProjectUpdateSerializer(data=request.data)
+        serializer = ProjectUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         try:
-            input_data = ProjectInput(**serializer.validated_data)
+            actual_data = ProjectSerializer(project).data
+            actual_data.update(serializer.validated_data)
+
+            input_data = ProjectInput(**actual_data)
             updated = update_project(project, input_data)
             return Response(ProjectSerializer(updated).data)
         except ValueError as e:

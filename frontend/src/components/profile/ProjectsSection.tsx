@@ -58,7 +58,7 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
                 start_date: entry.start_date || '',
                 end_date: entry.end_date || '',
                 is_ongoing: entry.is_ongoing || false,
-                technologies_raw: (entry.technologies_used || []).join(', '),
+                technologies_raw: Array.isArray(entry.technologies_used) ? entry.technologies_used.join(', ') : (typeof entry.technologies_used === 'string' ? entry.technologies_used : ''),
             });
         } else {
             setFormData({ project_name: '', description: '', project_url: '', github_url: '', start_date: '', end_date: '', is_ongoing: false, technologies_raw: '' });
@@ -264,13 +264,21 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                             <p className="text-sm text-muted-foreground/80 leading-relaxed line-clamp-2">{project.description}</p>
                                         )}
 
-                                        {project.technologies_used?.length > 0 && (
-                                            <div className="flex flex-wrap gap-1.5 pt-1">
-                                                {project.technologies_used.map(tech => (
-                                                    <Badge key={tech} variant="secondary" className="text-[10px] h-[18px] px-2 bg-background/50">{tech}</Badge>
-                                                ))}
-                                            </div>
-                                        )}
+                                        {(() => {
+                                            const techs = Array.isArray(project.technologies_used)
+                                                ? project.technologies_used
+                                                : (typeof project.technologies_used === 'string'
+                                                    ? project.technologies_used.split(',').map(t => t.trim()).filter(Boolean)
+                                                    : []);
+                                            
+                                            return techs.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                                    {techs.map((tech, idx) => (
+                                                        <Badge key={idx} variant="secondary" className="text-[10px] h-[18px] px-2 bg-background/50">{tech}</Badge>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })()}
 
                                         <div className="flex gap-4 pt-1">
                                             {project.project_url && (

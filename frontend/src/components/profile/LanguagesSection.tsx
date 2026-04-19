@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Languages as LangIcon, Pencil, Star } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -43,9 +43,17 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
     const queryClient = useQueryClient();
     const isEdit = !!entry;
 
-    const [selectedLangId, setSelectedLangId] = useState(entry?.language_id?.toString() || '');
-    const [proficiency, setProficiency] = useState<LanguageProficiency>((entry?.proficiency_level as LanguageProficiency) || 'intermediate');
-    const [isNative, setIsNative] = useState(entry?.is_native || false);
+    const [selectedLangId, setSelectedLangId] = useState('');
+    const [proficiency, setProficiency] = useState<LanguageProficiency>('intermediate');
+    const [isNative, setIsNative] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setSelectedLangId(entry?.language_id?.toString() || '');
+            setProficiency((entry?.proficiency_level as LanguageProficiency) || 'intermediate');
+            setIsNative(entry?.is_native || false);
+        }
+    }, [entry, open]);
 
     const mutation = useMutation({
         mutationFn: () => {
@@ -130,7 +138,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
 
     const { data: availableLanguages = [] } = useQuery({
         queryKey: ['languages'],
-        queryFn: () => taxonomyService.listLanguages().then(r => r.data),
+        queryFn: () => taxonomyService.listLanguages(),
         staleTime: Infinity,
     });
 

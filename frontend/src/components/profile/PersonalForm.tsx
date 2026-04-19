@@ -12,6 +12,9 @@ import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
 import { Linkedin, Github, Globe, Facebook, Banknote, CalendarDays, Link2 } from 'lucide-react';
 import { Separator } from '../ui/separator';
+import { useQuery } from '@tanstack/react-query';
+import { geographyService } from '@/services/geographyService';
+import { Combobox } from '../ui/combobox';
 
 const personalSchema = z.object({
     full_name: z.string().min(2, "Họ tên quá ngắn"),
@@ -19,8 +22,8 @@ const personalSchema = z.object({
     dob: z.string().optional(),
     gender: z.enum(['male', 'female', 'other']),
     address: z.object({
-        province: z.string().optional(),
-        commune: z.string().optional(),
+        province: z.union([z.string(), z.number()]).optional(),
+        commune: z.union([z.string(), z.number()]).optional(),
         address_line: z.string().optional(),
     }),
     social_links: z.object({
@@ -62,8 +65,8 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
             dob: profile?.date_of_birth || "",
             gender: profile?.gender || "other",
             address: {
-                province: (profile?.address as any)?.province_name || "",
-                commune: (profile?.address as any)?.commune_name || "",
+                province: (profile?.address as any)?.province || (profile?.address as any)?.province_name || "",
+                commune: (profile?.address as any)?.commune || (profile?.address as any)?.commune_name || "",
                 address_line: (profile?.address as any)?.address_line || "",
             },
             social_links: {
@@ -82,6 +85,37 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
             highest_education: profile?.highest_education_level || "dai_hoc",
         }
     });
+
+    const selectedProvinceId = form.watch('address.province');
+
+    // Fetch Provinces
+    const { data: provinces = [] } = useQuery({
+        queryKey: ['provinces'],
+        queryFn: geographyService.getProvinces,
+        staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    });
+
+    // Fetch Communes based on selected province
+    const { data: communes = [], isLoading: isLoadingCommunes } = useQuery({
+        queryKey: ['communes', selectedProvinceId],
+        queryFn: () => geographyService.getCommunes(selectedProvinceId),
+        enabled: !!selectedProvinceId,
+    });
+
+    const provinceOptions = provinces.map(p => ({
+        value: p.id,
+        label: p.province_name
+    }));
+
+    const communeOptions = communes.map(c => ({
+        value: c.id,
+        label: c.commune_name
+    }));
+
+    const handleProvinceChange = (val: string | number) => {
+        form.setValue('address.province', val);
+        form.setValue('address.commune', ''); // Reset commune when province changes
+    };
 
     const mutation = useMutation({
         mutationFn: (values: PersonalFormValues) => {
@@ -257,10 +291,16 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <FormField control={form.control} name="address.province"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col">
                                     <FormLabel>Tỉnh / Thành phố</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Hồ Chí Minh" {...field} className="" />
+                                        <Combobox 
+                                            options={provinceOptions}
+                                            value={field.value}
+                                            onChange={handleProvinceChange}
+                                            placeholder="Chọn Tỉnh / Thành phố"
+                                            searchPlaceholder="Tìm kiếm tỉnh..."
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -268,10 +308,17 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
 
                         <FormField control={form.control} name="address.commune"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-col">
                                     <FormLabel>Quận / Huyện</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Quận 1" {...field} className="" />
+                                        <Combobox 
+                                            options={communeOptions}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            placeholder={selectedProvinceId ? "Chọn Quận / Huyện" : "Chọn tỉnh trước"}
+                                            searchPlaceholder="Tìm kiếm quận/huyện..."
+                                            disabled={!selectedProvinceId || isLoadingCommunes}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

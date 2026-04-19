@@ -5,13 +5,16 @@ from .models import RecruiterExperience
 class ExperienceSerializer(serializers.ModelSerializer):
     """Serializer cho đọc dữ liệu (List/Detail)"""
     industry_name = serializers.CharField(source='industry.name', read_only=True, allow_null=True)
+    province_name = serializers.CharField(source='address.province.province_name', read_only=True, allow_null=True)
+    province_id = serializers.IntegerField(source='address.province.id', read_only=True, allow_null=True)
     
     class Meta:
         model = RecruiterExperience
         fields = [
             'id', 'company_name', 'job_title', 'industry', 'industry_name',
             'start_date', 'end_date', 'is_current', 'description',
-            'address', 'achievements', 'display_order', 'created_at', 'updated_at'
+            'address', 'province_id', 'province_name', 'achievements', 
+            'display_order', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
@@ -27,6 +30,7 @@ class ExperienceCreateSerializer(serializers.Serializer):
     is_current = serializers.BooleanField(required=False, default=False)
     description = serializers.CharField(required=False, allow_blank=True)
     address_id = serializers.IntegerField(required=False, allow_null=True)
+    province_id = serializers.IntegerField(required=False, allow_null=True)
     achievements = serializers.CharField(required=False, allow_blank=True)
     
     def validate(self, attrs):
@@ -58,6 +62,7 @@ class ExperienceUpdateSerializer(serializers.Serializer):
     is_current = serializers.BooleanField(required=False)
     description = serializers.CharField(required=False, allow_blank=True)
     address_id = serializers.IntegerField(required=False, allow_null=True)
+    province_id = serializers.IntegerField(required=False, allow_null=True)
     achievements = serializers.CharField(required=False, allow_blank=True)
     
     def validate(self, attrs):

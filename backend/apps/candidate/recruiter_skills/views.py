@@ -132,8 +132,16 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
     def update(self, request, recruiter_id=None, pk=None):
         """
         PUT /api/recruiters/:recruiter_id/skills/:pk/
-        Cập nhật kỹ năng
         """
+        return self._update(request, recruiter_id, pk, partial=False)
+
+    def partial_update(self, request, recruiter_id=None, pk=None):
+        """
+        PATCH /api/recruiters/:recruiter_id/skills/:pk/
+        """
+        return self._update(request, recruiter_id, pk, partial=True)
+
+    def _update(self, request, recruiter_id, pk, partial=False):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -155,11 +163,15 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
         
-        serializer = RecruiterSkillUpdateSerializer(data=request.data)
+        serializer = RecruiterSkillUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         try:
-            input_data = SkillInput(**serializer.validated_data)
+            # Service layer input needs full data
+            actual_data = RecruiterSkillSerializer(skill).data
+            actual_data.update(serializer.validated_data)
+
+            input_data = SkillInput(**actual_data)
             updated = update_skill(skill, input_data)
             return Response(RecruiterSkillSerializer(updated).data)
         except ValueError as e:

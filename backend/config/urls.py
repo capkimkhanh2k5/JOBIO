@@ -147,4 +147,3 @@ urlpatterns = [
         name='vnpay-return-friendly',
     ),
 ]
-

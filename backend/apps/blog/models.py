@@ -68,7 +68,7 @@ class Post(TimeStampedModel):
     )
     summary = models.TextField(blank=True)
     content = models.TextField() # Rich text
-    thumbnail = models.ImageField(upload_to='blog/thumbnails/', null=True, blank=True)
+    thumbnail = models.URLField(max_length=500, null=True, blank=True, verbose_name='Thumbnail URL')
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT, db_index=True)
     published_at = models.DateTimeField(null=True, blank=True, db_index=True)
     view_count = models.PositiveIntegerField(default=0)

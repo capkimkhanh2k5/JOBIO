@@ -8,6 +8,8 @@ services:
       - ./backend:/app
     ports:
       - "9000:9000"
+    env_file:
+      - ./backend/.env
     environment:
       - DEBUG=1
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 backend
