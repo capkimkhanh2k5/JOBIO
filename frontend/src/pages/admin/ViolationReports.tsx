@@ -101,10 +101,10 @@ export default function ViolationReports() {
     const totalPages = Math.ceil(totalCount / 10) || 1;
 
     const statCards = [
-        { label: 'Tổng báo cáo', value: statsData?.total || 0, icon: Flag, color: 'text-slate-600', bg: 'bg-slate-50' },
-        { label: 'Chờ xử lý', value: statsData?.pending || 0, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'Đã giải quyết', value: statsData?.resolved || 0, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'Đã từ chối', value: statsData?.rejected || 0, icon: X, color: 'text-red-600', bg: 'bg-red-50' },
+        { label: 'Tổng báo cáo', value: statsData?.total_reports || 0, icon: Flag, color: 'text-slate-600', bg: 'bg-slate-50' },
+        { label: 'Chờ xử lý', value: statsData?.pending_reports || 0, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
+        { label: 'Đã giải quyết', value: statsData?.resolved_reports || 0, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Đã từ chối', value: statsData?.rejected_reports || 0, icon: X, color: 'text-red-600', bg: 'bg-red-50' },
     ];
 
     return (
@@ -162,6 +162,7 @@ export default function ViolationReports() {
                 >
                     <option value="all">Tất cả trạng thái</option>
                     <option value="pending">Chờ xử lý</option>
+                    <option value="reviewing">Đang xem xét</option>
                     <option value="resolved">Đã giải quyết</option>
                     <option value="rejected">Bị từ chối</option>
                 </select>
@@ -191,7 +192,7 @@ export default function ViolationReports() {
                                     <td className="py-4 px-6">
                                         <div className="flex flex-col">
                                             <span className="font-bold text-slate-900 text-sm">{report.reporter_email}</span>
-                                            <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">ID: #{report.reporter_id || 'N/A'}</span>
+                                            <span className="text-[10px] text-slate-400 font-medium mt-0.5">{report.reporter_name || 'N/A'}</span>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">

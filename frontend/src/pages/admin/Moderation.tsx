@@ -322,8 +322,8 @@ export default function Moderation() {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="font-semibold text-slate-800 text-sm">{review.company?.company_name ?? '—'}</span>
-                                                    <span className="text-xs text-slate-400">{review.candidate?.full_name ?? 'Ẩn danh'}</span>
+                                                    <span className="font-semibold text-slate-800 text-sm">{review.company?.name ?? '—'}</span>
+                                                    <span className="text-xs text-slate-400">{review.recruiter?.full_name ?? 'Ẩn danh'}</span>
                                                     <span className="text-[10px] text-slate-400">{review.employment_status === 'current' ? 'Đang làm việc' : 'Đã nghỉ'}</span>
                                                 </div>
                                             </td>
