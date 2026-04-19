@@ -209,8 +209,8 @@ export default function BlogManagement() {
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden border border-slate-200">
-                                                        {post.thumbnail_url ? (
-                                                            <img src={post.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                                                        {post.thumbnail ? (
+                                                            <img src={post.thumbnail} alt="" className="w-full h-full object-cover" />
                                                         ) : <FileText className="w-5 h-5 text-slate-400" />}
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
