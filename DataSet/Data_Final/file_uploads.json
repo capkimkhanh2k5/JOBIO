@@ -10,7 +10,7 @@
         "entity_type": "Job",
         "entity_id": 1,
         "is_public": true,
-        "created_at": null,
+        "created_at": "2026-04-19T04:43:41.715640Z",
         "user_id": 5,
         "updated_at": "2026-04-19T03:35:28.759206Z"
     },
@@ -25,7 +25,7 @@
         "entity_type": "Job",
         "entity_id": 1,
         "is_public": true,
-        "created_at": null,
+        "created_at": "2026-04-19T04:43:41.715640Z",
         "user_id": 7,
         "updated_at": "2026-04-19T03:35:28.759206Z"
     },
@@ -40,7 +40,7 @@
         "entity_type": "Job",
         "entity_id": 1,
         "is_public": true,
-        "created_at": null,
+        "created_at": "2026-04-19T04:43:41.715640Z",
         "user_id": 12,
         "updated_at": "2026-04-19T03:35:28.759206Z"
     },
@@ -55,7 +55,7 @@
         "entity_type": "Job",
         "entity_id": 1,
         "is_public": true,
-        "created_at": null,
+        "created_at": "2026-04-19T04:43:41.715640Z",
         "user_id": 22,
         "updated_at": "2026-04-19T03:35:28.759206Z"
     },
@@ -70,7 +70,7 @@
         "entity_type": "Job",
         "entity_id": 1,
         "is_public": true,
-        "created_at": null,
+        "created_at": "2026-04-19T04:43:41.715640Z",
         "user_id": 3,
         "updated_at": "2026-04-19T03:35:28.759206Z"
     }
