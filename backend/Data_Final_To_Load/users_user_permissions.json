@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "customuser_id": 1,
+        "permission_id": 3
+    },
+    {
+        "id": 2,
+        "customuser_id": 2,
+        "permission_id": 1
+    },
+    {
+        "id": 3,
+        "customuser_id": 3,
+        "permission_id": 2
+    },
+    {
+        "id": 4,
+        "customuser_id": 4,
+        "permission_id": 3
+    },
+    {
+        "id": 5,
+        "customuser_id": 5,
+        "permission_id": 4
+    }
+]

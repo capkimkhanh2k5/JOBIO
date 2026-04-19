@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "category": "Tài khoản",
+        "question": "Làm sao để ứng tuyển?",
+        "answer": "Bạn vui lòng đăng nhập, tìm việc và nhấn nút Ứng tuyển ngay.",
+        "is_active": true,
+        "display_order": 1,
+        "view_count": 10,
+        "helpful_count": 5,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 2,
+        "category": "Tài khoản",
+        "question": "Chi phí đăng bài là bao nhiêu?",
+        "answer": "Bạn có thể tham khảo mục bảng giá để biết thêm chi tiết.",
+        "is_active": true,
+        "display_order": 2,
+        "view_count": 10,
+        "helpful_count": 5,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 3,
+        "category": "Tài khoản",
+        "question": "Website cung cấp những tính năng gì?",
+        "answer": "Website cung cấp đăng tin tuyển dụng, tìm việc, tạo CV.",
+        "is_active": true,
+        "display_order": 3,
+        "view_count": 10,
+        "helpful_count": 5,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 4,
+        "category": "Tài khoản",
+        "question": "Làm sao để đổi mật khẩu?",
+        "answer": "Vào phần Cài đặt tài khoản > Đổi mật khẩu.",
+        "is_active": true,
+        "display_order": 4,
+        "view_count": 10,
+        "helpful_count": 5,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 5,
+        "category": "Tài khoản",
+        "question": "Tôi có thể ẩn CV không?",
+        "answer": "Có, trong mục Quản lý CV, chọn Ẩn CV.",
+        "is_active": true,
+        "display_order": 5,
+        "view_count": 10,
+        "helpful_count": 5,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    }
+]

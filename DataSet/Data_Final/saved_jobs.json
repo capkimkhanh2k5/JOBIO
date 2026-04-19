@@ -3,7 +3,7 @@
         "id": 1,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 5,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -12,7 +12,7 @@
         "id": 2,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 12,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -21,7 +21,7 @@
         "id": 3,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 9,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -30,7 +30,7 @@
         "id": 4,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 12,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -39,7 +39,7 @@
         "id": 5,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 4,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -48,7 +48,7 @@
         "id": 6,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 12,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"
@@ -57,7 +57,7 @@
         "id": 7,
         "folder_name": "Yêu thích",
         "notes": "",
-        "created_at": null,
+        "created_at": "2026-04-19T04:48:37.481752Z",
         "job_id": 11,
         "recruiter_id": 1,
         "updated_at": "2026-04-19T03:57:33.759228Z"

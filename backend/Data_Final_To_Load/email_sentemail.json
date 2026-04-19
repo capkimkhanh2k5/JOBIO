@@ -1,0 +1,57 @@
+[
+    {
+        "id": 1,
+        "created_at": "2026-04-19T04:48:37.498658Z",
+        "updated_at": "2026-04-19T03:29:35.334240Z",
+        "recipient": "longquoc68@gmail.com",
+        "subject": "Có 5 việc làm IT mới phù hợp với bạn tuần này!",
+        "content": "<p>Chào Bùi Quốc Long,</p><p>JOBIO vừa lọc ra 5 vị trí đang tuyển dụng cực hot, có mức đãi ngộ hấp dẫn và phù hợp với kỹ năng có trong CV của bạn.</p><p>Đừng bỏ lỡ cơ hội thăng tiến, truy cập ngay hệ thống để <a href='https://jobio.vn/dashboard'>xem chi tiết</a>!</p><p>Cảm ơn bạn đã sử dụng nền tảng JOBIO.</p>",
+        "status": "SENT",
+        "error_message": "",
+        "template_id": 1
+    },
+    {
+        "id": 2,
+        "created_at": "2026-04-19T04:48:37.498658Z",
+        "updated_at": "2026-04-19T03:29:35.334240Z",
+        "recipient": "thaothai@vng.xyz",
+        "subject": "Lời mời tham gia phỏng vấn",
+        "content": "<p>Chào Đỗ Thái Thảo,</p><p>Chúc mừng bạn! Hồ sơ của bạn đã vượt qua vòng sơ loại cho vị trí <strong>Chuyên viên Phân tích dữ liệu</strong> tại FPT Software.</p><p>Chúng tôi trân trọng mời bạn tham gia buổi phỏng vấn trực tuyến qua Zoom vào lúc 09:30 sáng Thứ Tư tuần này.</p><p>Xin vui lòng xác nhận lại email này nếu bạn có thể tham gia tham gia.</p><p>Trân trọng.</p>",
+        "status": "SENT",
+        "error_message": "",
+        "template_id": 1
+    },
+    {
+        "id": 3,
+        "created_at": "2026-04-19T04:48:37.498658Z",
+        "updated_at": "2026-04-19T03:29:35.334240Z",
+        "recipient": "sonthe26@gmail.com",
+        "subject": "Lời mời tham gia phỏng vấn",
+        "content": "<p>Chào Lý Thế Sơn,</p><p>Chúc mừng bạn! Hồ sơ của bạn đã vượt qua vòng sơ loại cho vị trí <strong>Chuyên viên Phân tích dữ liệu</strong> tại FPT Software.</p><p>Chúng tôi trân trọng mời bạn tham gia buổi phỏng vấn trực tuyến qua Zoom vào lúc 09:30 sáng Thứ Tư tuần này.</p><p>Xin vui lòng xác nhận lại email này nếu bạn có thể tham gia tham gia.</p><p>Trân trọng.</p>",
+        "status": "SENT",
+        "error_message": "",
+        "template_id": 1
+    },
+    {
+        "id": 4,
+        "created_at": "2026-04-19T04:48:37.498658Z",
+        "updated_at": "2026-04-19T03:29:35.334240Z",
+        "recipient": "namthanh28@gmail.com",
+        "subject": "Xác thực tài khoản JOBIO",
+        "content": "<p>Chào Phan Thanh Nam,</p><p>Cảm ơn bạn đã đăng ký tài khoản trên nền tảng tuyển dụng JOBIO.</p><p>Vui lòng nhấn vào <a href='https://jobio.vn/verify?token=xyz'>đường link này</a> để hoàn tất việc kích hoạt tài khoản của bạn.</p><p>Trân trọng,<br>Đội ngũ JOBIO</p>",
+        "status": "SENT",
+        "error_message": "",
+        "template_id": 1
+    },
+    {
+        "id": 5,
+        "created_at": "2026-04-19T04:48:37.498658Z",
+        "updated_at": "2026-04-19T03:29:35.334240Z",
+        "recipient": "vinhthai71@gmail.com",
+        "subject": "Có 5 việc làm IT mới phù hợp với bạn tuần này!",
+        "content": "<p>Chào Đỗ Thái Vinh,</p><p>JOBIO vừa lọc ra 5 vị trí đang tuyển dụng cực hot, có mức đãi ngộ hấp dẫn và phù hợp với kỹ năng có trong CV của bạn.</p><p>Đừng bỏ lỡ cơ hội thăng tiến, truy cập ngay hệ thống để <a href='https://jobio.vn/dashboard'>xem chi tiết</a>!</p><p>Cảm ơn bạn đã sử dụng nền tảng JOBIO.</p>",
+        "status": "SENT",
+        "error_message": "",
+        "template_id": 1
+    }
+]
