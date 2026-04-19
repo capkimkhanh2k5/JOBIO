@@ -185,6 +185,7 @@ export const EducationSection = ({ userId }: { userId: number }) => {
     const { data: educations = [], isLoading } = useQuery({
         queryKey: ['education', userId],
         queryFn: () => candidateService.listEducation(Number(userId)).then(r => r.data),
+        enabled: !!userId && !isNaN(Number(userId)),
     });
 
     const [items, setItems] = useState<any[]>(educations as any[]);

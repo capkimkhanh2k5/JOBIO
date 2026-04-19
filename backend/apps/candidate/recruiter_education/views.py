@@ -10,19 +10,6 @@ from .serializers import (
     EducationUpdateSerializer,
     EducationReorderSerializer
 )
-from .services.recruiter_education import (
-    create_education_service,
-    update_education_service,
-    delete_education_service,
-    reorder_education_service,
-    EducationInput
-)
-from .selectors.recruiter_education import (
-    list_education_by_recruiter,
-    get_education_by_id
-)
-from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
-
 
 class RecruiterEducationViewSet(viewsets.GenericViewSet):
     """
@@ -33,13 +20,15 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
+        from .selectors.recruiter_education import list_education_by_recruiter
         recruiter_id = self.kwargs.get('recruiter_id')
         return list_education_by_recruiter(recruiter_id)
-    
+
     def _get_recruiter_or_404(self, recruiter_id):
         """
         Helper: Get recruiter or return 404 response
         """
+        from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
         recruiter = get_recruiter_by_id(recruiter_id)
         if not recruiter:
             return None, Response(
@@ -64,6 +53,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         GET /api/recruiters/:recruiter_id/education/
         Danh sách học vấn của ứng viên
         """
+        from .selectors.recruiter_education import list_education_by_recruiter
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -77,6 +67,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         POST /api/recruiters/:recruiter_id/education/
         Thêm học vấn mới
         """
+        from .services.recruiter_education import create_education_service, EducationInput
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -104,6 +95,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         GET /api/recruiters/:recruiter_id/education/:pk/
         Chi tiết một học vấn
         """
+        from .selectors.recruiter_education import get_education_by_id
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -114,7 +106,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
                 {"detail": "Education not found"}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-
+        
         if education.recruiter_id != int(recruiter_id):
             return Response(
                 {"detail": "Education not found"}, 
@@ -128,6 +120,19 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         PUT /api/recruiters/:recruiter_id/education/:pk/
         Cập nhật học vấn
         """
+        return self._update(request, recruiter_id, pk, partial=False)
+
+    def partial_update(self, request, recruiter_id=None, pk=None):
+        """
+        PATCH /api/recruiters/:recruiter_id/education/:pk/
+        Cập nhật một phần học vấn
+        """
+        return self._update(request, recruiter_id, pk, partial=True)
+
+    def _update(self, request, recruiter_id, pk, partial=False):
+        from .selectors.recruiter_education import get_education_by_id
+        from .services.recruiter_education import update_education_service, EducationInput
+        
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -150,7 +155,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
         
-        serializer = EducationUpdateSerializer(data=request.data)
+        serializer = EducationUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         
         try:
@@ -165,6 +170,9 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         DELETE /api/recruiters/:recruiter_id/education/:pk/
         Xóa học vấn
         """
+        from .selectors.recruiter_education import get_education_by_id
+        from .services.recruiter_education import delete_education_service
+        
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
@@ -196,6 +204,9 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         PATCH /api/recruiters/:recruiter_id/education/reorder/
         Sắp xếp lại thứ tự hiển thị
         """
+        from .services.recruiter_education import reorder_education_service
+        from .selectors.recruiter_education import list_education_by_recruiter
+        
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error

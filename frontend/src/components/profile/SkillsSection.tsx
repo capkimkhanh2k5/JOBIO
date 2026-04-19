@@ -23,7 +23,8 @@ const PROFICIENCY_LEVELS = [
 
 interface SkillEntry {
     id: string;
-    name: string;
+    name?: string;
+    skill_name?: string;
     proficiency_level: string;
     years_of_experience: number;
     endorsement_count: number;
@@ -49,7 +50,7 @@ const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: Sk
 
     useEffect(() => {
         if (open) {
-            setName(skill?.name || selectedSkillInfo?.name || '');
+            setName(skill?.skill_name || skill?.name || selectedSkillInfo?.name || '');
             setSkillId(selectedSkillInfo?.id || null);
             setLevel(skill?.proficiency_level || 'intermediate');
             setYearsExp(skill?.years_of_experience?.toString() || '1');
@@ -126,14 +127,23 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
     const { data: skills = [], isLoading } = useQuery({
         queryKey: ['skills', userId],
         queryFn: () => candidateService.listSkills(Number(userId)).then(r => r.data),
+        enabled: !!userId && !isNaN(Number(userId)),
     });
 
     const { data: searchResults = [] } = useQuery({
         queryKey: ['skills-search', searchValue],
-        queryFn: () => taxonomyService.listSkills({ search: searchValue }).then(r => r.data.results),
+        queryFn: () => taxonomyService.listSkills({ q: searchValue }),
         enabled: searchValue.length > 1,
         staleTime: 10_000,
     });
+
+    const { data: popularSkills = [] } = useQuery({
+        queryKey: ['skills-popular'],
+        queryFn: () => taxonomyService.listPopularSkills(),
+        staleTime: 60_000,
+    });
+
+    const displaySuggestions = searchValue.length > 1 ? searchResults : popularSkills;
 
     const deleteMutation = useMutation({
         mutationFn: (skillId: string) => candidateService.deleteSkill(Number(userId), Number(skillId)).then(r => r.data),
@@ -185,7 +195,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     )}
 
                                     <div className="min-w-0">
-                                        <h4 className="font-bold text-sm">{skill.name}</h4>
+                                        <h4 className="font-bold text-sm truncate">{skill.skill_name || skill.name}</h4>
                                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                                             <Badge variant="outline" className={`text-[9px] px-2 py-0 h-[18px] font-semibold ${profInfo.color}`}>
                                                 {profInfo.label}
@@ -227,15 +237,15 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[280px] p-0 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-lg" align="start">
-                            <Command className="bg-transparent">
+                            <Command className="bg-transparent" shouldFilter={false}>
                                 <CommandInput
                                     placeholder="Tìm kỹ năng (React, Python...)"
                                     onValueChange={setSearchValue}
                                 />
                                 <CommandList>
                                     <CommandEmpty>Không tìm thấy kỹ năng phù hợp.</CommandEmpty>
-                                    <CommandGroup heading="Gợi ý">
-                                        {(searchResults as any[]).map((s) => (
+                                    <CommandGroup heading={searchValue.length > 1 ? "Kết quả tìm kiếm" : "Kỹ năng phổ biến"}>
+                                        {(displaySuggestions as any[]).map((s) => (
                                             <CommandItem
                                                 key={s.id}
                                                 onSelect={() => handleSelectSearchResult(s)}

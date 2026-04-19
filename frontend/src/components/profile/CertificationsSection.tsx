@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Award, ExternalLink, Calendar, Pencil, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -34,9 +34,17 @@ const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
     const queryClient = useQueryClient();
     const isEdit = !!entry;
 
-    const [formData, setFormData] = useState<Partial<CertEntry>>(entry || {
+    const [formData, setFormData] = useState<Partial<CertEntry>>({
         certification_name: '', issuing_organization: '', issue_date: '', expiry_date: '', credential_id: '', credential_url: '', does_not_expire: false
     });
+
+    useEffect(() => {
+        if (open) {
+            setFormData(entry || {
+                certification_name: '', issuing_organization: '', issue_date: '', expiry_date: '', credential_id: '', credential_url: '', does_not_expire: false
+            });
+        }
+    }, [entry, open]);
 
     const mutation = useMutation({
         mutationFn: () => {
@@ -142,6 +150,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
     const { data: certifications = [], isLoading } = useQuery({
         queryKey: ['certifications', userId],
         queryFn: () => candidateService.listCertifications(Number(userId)).then(r => r.data),
+        enabled: !!userId && !isNaN(Number(userId)),
     });
 
     const deleteMutation = useMutation({

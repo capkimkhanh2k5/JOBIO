@@ -63,15 +63,21 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
             province_name = addr_data.pop('province', None)
             commune_name = addr_data.pop('commune', None)
             
-            # Find province by name
+            # Find province
             province = None
             if province_name:
-                province = Province.objects.filter(province_name__icontains=province_name).first()
+                if isinstance(province_name, int):
+                    province = Province.objects.filter(id=province_name).first()
+                else:
+                    province = Province.objects.filter(province_name__icontains=province_name).first()
             
-            # Find commune by name
+            # Find commune
             commune = None
-            if commune_name and province:
-                commune = Commune.objects.filter(commune_name__icontains=commune_name, province=province).first()
+            if commune_name:
+                if isinstance(commune_name, int):
+                    commune = Commune.objects.filter(id=commune_name).first()
+                else:
+                    commune = Commune.objects.filter(commune_name__icontains=commune_name, province=province).first()
             
             if recruiter.address:
                 for addr_key, addr_val in addr_data.items():
@@ -243,10 +249,14 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
 
 def upload_recruiter_avatar_service(recruiter: Recruiter, file_data: dict) -> Recruiter:
     """
-    Cập nhật ảnh đại diện cho hồ sơ ứng viên.
+    Cập nhật ảnh đại diện cho hồ sơ ứng viên sử dụng Cloudinary.
     """
-    recruiter.user.avatar_url = file_data.get('avatar')
-    recruiter.user.save()
+    from apps.core.users.services.users import upload_user_avatar
+    
+    avatar_file = file_data.get('avatar')
+    if avatar_file:
+        upload_user_avatar(recruiter.user, avatar_file)
+    
     return recruiter
 
 def update_recruiter_privacy_service(recruiter: Recruiter, is_public: bool) -> Recruiter:

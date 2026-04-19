@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authService } from '@/services/authService';
 import { toast } from 'sonner';
+import { useUserStore } from '@/store/userStore';
 
 interface ProfileHeaderProps {
     profile: any;
@@ -25,11 +26,15 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
     const fileInputRef = useRef<HTMLInputElement>(null);
     const queryClient = useQueryClient();
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
+    const updateUser = useUserStore((s) => s.updateUser);
 
     const avatarMutation = useMutation({
         mutationFn: (file: File) => authService.uploadAvatar(file).then(r => r.data),
         onSuccess: (data) => {
-            setLocalAvatarUrl(data.avatar_url);
+            const newUrl = data.avatar_url;
+            setLocalAvatarUrl(newUrl);
+            // Sync avatar into auth store → updates navbar avatar immediately
+            updateUser({ avatar_url: newUrl });
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             toast.success('Đã cập nhật ảnh đại diện!');
         },
@@ -70,9 +75,9 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                         className="relative"
                     >
                         <Avatar className="w-36 h-36 border-4 border-white shadow-2xl ring-2 ring-violet-200">
-                            <AvatarImage src={localAvatarUrl || profile?.avatar_url} />
+                            <AvatarImage src={localAvatarUrl || profile?.user?.avatar_url || profile?.avatar_url} />
                             <AvatarFallback className="text-3xl bg-gradient-to-br from-violet-200 to-cyan-400/20 text-violet-600 font-bold">
-                                {profile?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                                {(profile?.user?.full_name || profile?.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                             </AvatarFallback>
                         </Avatar>
 
@@ -123,29 +128,29 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                 {/* Name & Basic Info */}
                 <div className="flex-1 space-y-4 min-w-0">
                     <div>
-                        <h1 className="text-3xl lg:text-4xl font-black tracking-tight mb-1 truncate">{profile?.full_name}</h1>
+                        <h1 className="text-3xl lg:text-4xl font-black tracking-tight mb-1 truncate">{profile?.user?.full_name || profile?.full_name}</h1>
                         <p className="text-lg text-muted-foreground font-medium flex items-center gap-2 flex-wrap">
                             <span>{profile?.current_position}</span>
-                            {profile?.current_company && (
+                            {profile?.current_company_name && (
                                 <>
                                     <span className="text-violet-400 text-sm">@</span>
-                                    <span className="text-violet-600 font-semibold">{profile?.current_company}</span>
+                                    <span className="text-violet-600 font-semibold">{profile?.current_company_name}</span>
                                 </>
                             )}
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        {profile?.email && (
-                            <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
+                        {(profile?.user?.email || profile?.email) && (
+                            <a href={`mailto:${profile?.user?.email || profile?.email}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
                                 <Mail className="w-4 h-4" />
-                                {profile.email}
+                                {profile?.user?.email || profile?.email}
                             </a>
                         )}
-                        {profile?.phone && (
-                            <a href={`tel:${profile.phone}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
+                        {(profile?.user?.phone || profile?.phone) && (
+                            <a href={`tel:${profile?.user?.phone || profile?.phone}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
                                 <Phone className="w-4 h-4" />
-                                {profile.phone}
+                                {profile?.user?.phone || profile?.phone}
                             </a>
                         )}
                         {profile?.address?.province && (

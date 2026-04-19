@@ -12,18 +12,25 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { geographyService } from '@/services/geographyService';
+import { taxonomyService } from '@/services/taxonomyService';
+import { Combobox } from '@/components/ui/combobox';
 
 interface ExperienceEntry {
     id: string;
     company_name: string;
     job_title: string;
-    industry?: string;
+    industry_id?: number;
+    industry_name?: string;
+    industry?: string; 
     start_date: string;
     end_date?: string;
     is_current: boolean;
     description?: string;
     achievements?: string;
     location?: string;
+    province_id?: number;
+    province_name?: string;
 }
 
 interface ExperienceFormProps {
@@ -41,12 +48,14 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
         company_name: '',
         job_title: '',
         industry: '',
+        industry_id: 0 as number | string,
         start_date: '',
         end_date: '',
         is_current: false,
         description: '',
         achievements: '',
         location: '',
+        province_id: 0 as number | string,
     });
 
     useEffect(() => {
@@ -54,26 +63,30 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
             setFormData({
                 company_name: entry.company_name || '',
                 job_title: entry.job_title || '',
-                industry: entry.industry || '',
+                industry: entry.industry_name || '',
+                industry_id: entry.industry_id || '',
                 start_date: entry.start_date || '',
                 end_date: entry.end_date || '',
                 is_current: entry.is_current || false,
                 description: entry.description || '',
                 achievements: entry.achievements || '',
                 location: entry.location || '',
+                province_id: entry.province_id || '',
             });
         } else {
-            setFormData({ company_name: '', job_title: '', industry: '', start_date: '', end_date: '', is_current: false, description: '', achievements: '', location: '' });
+            setFormData({ company_name: '', job_title: '', industry: '', industry_id: '', start_date: '', end_date: '', is_current: false, description: '', achievements: '', location: '', province_id: '' });
         }
     }, [entry, open]);
 
     const mutation = useMutation({
         mutationFn: (data: typeof formData) => {
-            const { industry, location, start_date, end_date, is_current, ...rest } = data;
+            const { industry, industry_id, location, start_date, end_date, is_current, province_id, ...rest } = data;
             
             const payload = {
                 ...rest,
                 is_current,
+                industry_id: industry_id || null,
+                province_id: province_id || null,
                 start_date: start_date || null,
                 end_date: is_current ? null : (end_date || null)
             };
@@ -102,6 +115,29 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
         mutation.mutate(formData);
     };
 
+    const { data: industriesFull = { results: [] } } = useQuery({
+        queryKey: ['industries'],
+        queryFn: () => taxonomyService.listIndustries(),
+    });
+
+    const industries = Array.isArray(industriesFull) ? industriesFull : (industriesFull as any).results || [];
+
+    const industryOptions = industries.map(i => ({
+        value: i.id,
+        label: i.name
+    }));
+
+    const { data: provinces = [] } = useQuery({
+        queryKey: ['provinces'],
+        queryFn: () => geographyService.getProvinces(),
+        staleTime: 24 * 60 * 60 * 1000,
+    });
+
+    const provinceOptions = provinces.map(p => ({
+        value: p.id,
+        label: p.province_name
+    }));
+
     return (
         <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
             <DialogContent className="bg-white max-w-2xl rounded-[24px] border border-slate-200 shadow-xl">
@@ -126,13 +162,23 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Ngành nghề</Label>
-                            <Input className="" placeholder="Công nghệ thông tin"
-                                value={formData.industry} onChange={e => handleChange('industry', e.target.value)} />
+                            <Combobox 
+                                options={industryOptions}
+                                value={formData.industry_id}
+                                onChange={(val) => handleChange('industry_id', val)}
+                                placeholder="Chọn ngành nghề"
+                                searchPlaceholder="Tìm kiếm ngành nghề..."
+                            />
                         </div>
                         <div className="space-y-2">
-                            <Label>Địa điểm</Label>
-                            <Input className="" placeholder="Hồ Chí Minh"
-                                value={formData.location} onChange={e => handleChange('location', e.target.value)} />
+                            <Label>Thành phố</Label>
+                            <Combobox 
+                                options={provinceOptions}
+                                value={formData.province_id}
+                                onChange={(val) => handleChange('province_id', val)}
+                                placeholder="Chọn Thành phố"
+                                searchPlaceholder="Tìm kiếm thành phố..."
+                            />
                         </div>
                     </div>
 
@@ -191,6 +237,7 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
     const { data: experiences = [], isLoading } = useQuery({
         queryKey: ['experience', userId],
         queryFn: () => candidateService.listExperience(Number(userId)).then(r => r.data),
+        enabled: !!userId && !isNaN(Number(userId)),
     });
 
     const [items, setItems] = useState<any[]>(experiences as any[]);
@@ -251,7 +298,7 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                                 <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors">{exp.job_title}</h3>
                                                 <p className="text-sm text-violet-500 font-medium flex items-center gap-1.5">
                                                     <Building2 className="w-3.5 h-3.5" /> {exp.company_name}
-                                                    {exp.industry && <span className="text-muted-foreground">· {exp.industry}</span>}
+                                                    {exp.industry_name && <span className="text-muted-foreground">· {exp.industry_name}</span>}
                                                 </p>
                                             </div>
                                             <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -272,10 +319,10 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                                 <Calendar className="w-3 h-3" />
                                                 {formatDate(exp.start_date)} — {exp.is_current ? <span className="text-emerald-500 font-semibold">Hiện tại</span> : formatDate(exp.end_date || '')}
                                             </span>
-                                            {exp.location && (
+                                            {(exp.province_name || exp.location) && (
                                                 <span className="flex items-center gap-1">
                                                     <MapPin className="w-3 h-3" />
-                                                    {exp.location}
+                                                    {exp.province_name || exp.location}
                                                 </span>
                                             )}
                                         </div>

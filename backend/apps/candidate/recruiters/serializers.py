@@ -1,12 +1,7 @@
 from rest_framework import serializers
 from .models import Recruiter
 from apps.core.users.serializers import CustomUserSerializer
-from apps.candidate.recruiter_experience.serializers import ExperienceSerializer
-from apps.candidate.recruiter_education.serializers import EducationSerializer
-from apps.candidate.recruiter_skills.serializers import RecruiterSkillSerializer
-from apps.candidate.recruiter_certifications.serializers import CertificationSerializer
-from apps.candidate.recruiter_languages.serializers import RecruiterLanguageSerializer
-from apps.candidate.recruiter_projects.serializers import ProjectSerializer
+
 
 from .services.recruiters import calculate_profile_completeness_service
 
@@ -45,12 +40,37 @@ class RecruiterSerializer(serializers.ModelSerializer):
 class RecruiterDetailSerializer(RecruiterSerializer):
     """Serializer chi tiết cho Recruiter bao gồm đầy đủ các bảng liên quan"""
 
-    experiences = ExperienceSerializer(many=True, read_only=True)
-    education = EducationSerializer(many=True, read_only=True)
-    skills = RecruiterSkillSerializer(many=True, read_only=True)
-    certifications = CertificationSerializer(many=True, read_only=True)
-    languages = RecruiterLanguageSerializer(many=True, read_only=True)
-    projects = ProjectSerializer(many=True, read_only=True)
+    experiences = serializers.SerializerMethodField()
+    education = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
+    certifications = serializers.SerializerMethodField()
+    languages = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+    current_company_name = serializers.CharField(source='current_company.company_name', read_only=True)
+
+    def get_experiences(self, obj):
+        from apps.candidate.recruiter_experience.serializers import ExperienceSerializer
+        return ExperienceSerializer(obj.experiences.all(), many=True).data
+
+    def get_education(self, obj):
+        from apps.candidate.recruiter_education.serializers import EducationSerializer
+        return EducationSerializer(obj.education.all(), many=True).data
+
+    def get_skills(self, obj):
+        from apps.candidate.recruiter_skills.serializers import RecruiterSkillSerializer
+        return RecruiterSkillSerializer(obj.skills.all(), many=True).data
+
+    def get_certifications(self, obj):
+        from apps.candidate.recruiter_certifications.serializers import CertificationSerializer
+        return CertificationSerializer(obj.certifications.all(), many=True).data
+
+    def get_languages(self, obj):
+        from apps.candidate.recruiter_languages.serializers import RecruiterLanguageSerializer
+        return RecruiterLanguageSerializer(obj.languages.all(), many=True).data
+
+    def get_projects(self, obj):
+        from apps.candidate.recruiter_projects.serializers import ProjectSerializer
+        return ProjectSerializer(obj.projects.all(), many=True).data
 
     class Meta:
         model = Recruiter
@@ -63,7 +83,7 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             'profile_completeness_score', 'is_profile_public', 'profile_views_count',
             'created_at', 'updated_at', 'score', 'checklist',
             'experiences', 'education', 'skills', 
-            'certifications', 'languages', 'projects'
+            'certifications', 'languages', 'projects', 'current_company_name'
         ]
         read_only_fields = [
             'id', 'created_at', 'updated_at', 

@@ -155,10 +155,19 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     @action(detail=True, methods=['post', 'delete'], url_path='avatar', parser_classes=[MultiPartParser, FormParser])
     def manage_avatar(self, request, pk=None):
         """
-            POST/DELETE /api/users/:id/avatar - Quản lý avatar
+            POST/DELETE /api/users/:id/avatar - Quản lý avatar (Admin/Self)
         """
         user = self.get_object()
-        
+        return self._handle_avatar(request, user)
+
+    @action(detail=False, methods=['post', 'delete'], url_path='me/avatar', parser_classes=[MultiPartParser, FormParser])
+    def me_avatar(self, request):
+        """
+            POST/DELETE /api/users/me/avatar/ - Quản lý avatar cá nhân
+        """
+        return self._handle_avatar(request, request.user)
+
+    def _handle_avatar(self, request, user):
         # Permission check: chỉ chính user hoặc admin mới được quản lý avatar
         if request.user.id != user.id and request.user.role != CustomUser.Role.ADMIN:
             return Response(
