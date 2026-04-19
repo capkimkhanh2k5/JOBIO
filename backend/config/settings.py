@@ -438,8 +438,11 @@ LOGGING = {
 }
 
 
-# Import local settings to override default settings
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+# # Import local settings to override default settings
+# import os
+
+# if os.getenv("USE_LOCAL_SETTINGS") == "True":
+#     try:
+#         from .local_settings import *
+#     except ImportError:
+#         pass
