@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "followed_at": "2026-04-19T02:54:14.630671Z",
+        "company_id": 6,
+        "user_id": 15
+    },
+    {
+        "id": 2,
+        "followed_at": "2026-04-19T02:54:14.630671Z",
+        "company_id": 1,
+        "user_id": 2
+    },
+    {
+        "id": 3,
+        "followed_at": "2026-04-19T02:54:14.630671Z",
+        "company_id": 4,
+        "user_id": 14
+    },
+    {
+        "id": 4,
+        "followed_at": "2026-04-19T02:54:14.630671Z",
+        "company_id": 5,
+        "user_id": 16
+    },
+    {
+        "id": 5,
+        "followed_at": "2026-04-19T02:54:14.630671Z",
+        "company_id": 7,
+        "user_id": 7
+    }
+]

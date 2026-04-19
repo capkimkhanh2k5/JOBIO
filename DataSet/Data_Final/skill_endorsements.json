@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "relationship": "Colleague",
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "endorsed_by_id": 10,
+        "recruiter_skill_id": 1
+    },
+    {
+        "id": 2,
+        "relationship": "Colleague",
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "endorsed_by_id": 15,
+        "recruiter_skill_id": 1
+    },
+    {
+        "id": 3,
+        "relationship": "Colleague",
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "endorsed_by_id": 1,
+        "recruiter_skill_id": 1
+    },
+    {
+        "id": 4,
+        "relationship": "Colleague",
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "endorsed_by_id": 14,
+        "recruiter_skill_id": 1
+    },
+    {
+        "id": 5,
+        "relationship": "Colleague",
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "endorsed_by_id": 7,
+        "recruiter_skill_id": 1
+    }
+]
