@@ -40,17 +40,17 @@ class RecruiterExperienceViewTest(APITestCase):
     # ========== LIST Tests ==========
     
     def test_list_experience_success(self):
-        """Test GET /api/recruiters/:id/experience/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/'
+        """Test GET /api/candidates/:id/experience/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/experience/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['company_name'], "Google")
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['company_name'], "Google")
     
     def test_list_experience_recruiter_not_found(self):
         """Test GET with non-existent recruiter returns 404"""
-        url = '/api/recruiters/99999/experience/'
+        url = '/api/candidates/99999/experience/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -58,8 +58,8 @@ class RecruiterExperienceViewTest(APITestCase):
     # ========== CREATE Tests ==========
     
     def test_create_experience_success(self):
-        """Test POST /api/recruiters/:id/experience/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/'
+        """Test POST /api/candidates/:id/experience/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/experience/'
         data = {
             "company_name": "Microsoft",
             "job_title": "Senior Engineer",
@@ -75,7 +75,7 @@ class RecruiterExperienceViewTest(APITestCase):
     
     def test_create_experience_not_owner(self):
         """Test POST by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/experience/'
+        url = f'/api/candidates/{self.recruiter2.id}/experience/'
         data = {
             "company_name": "Hacker Corp", 
             "job_title": "Hacker",
@@ -87,7 +87,7 @@ class RecruiterExperienceViewTest(APITestCase):
     
     def test_create_experience_invalid_dates(self):
         """Test POST with end_date < start_date returns 400"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/'
+        url = f'/api/candidates/{self.recruiter.id}/experience/'
         data = {
             "company_name": "Test Company",
             "job_title": "Test",
@@ -101,7 +101,7 @@ class RecruiterExperienceViewTest(APITestCase):
     def test_create_experience_unauthenticated(self):
         """Test POST without auth returns 401"""
         self.client.logout()
-        url = f'/api/recruiters/{self.recruiter.id}/experience/'
+        url = f'/api/candidates/{self.recruiter.id}/experience/'
         data = {
             "company_name": "Test",
             "job_title": "Test",
@@ -114,8 +114,8 @@ class RecruiterExperienceViewTest(APITestCase):
     # ========== UPDATE Tests ==========
     
     def test_update_experience_success(self):
-        """Test PUT /api/recruiters/:id/experience/:expId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/{self.experience.id}/'
+        """Test PUT /api/candidates/:id/experience/:expId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/experience/{self.experience.id}/'
         data = {"company_name": "Updated Company", "job_title": "CTO"}
         response = self.client.put(url, data)
         
@@ -134,7 +134,7 @@ class RecruiterExperienceViewTest(APITestCase):
             job_title="Other",
             start_date="2020-01-01"
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/experience/{exp2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/experience/{exp2.id}/'
         data = {"company_name": "Hacked"}
         response = self.client.put(url, data)
         
@@ -142,7 +142,7 @@ class RecruiterExperienceViewTest(APITestCase):
     
     def test_update_experience_not_found(self):
         """Test PUT with non-existent experience returns 404"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/99999/'
+        url = f'/api/candidates/{self.recruiter.id}/experience/99999/'
         data = {"company_name": "Test"}
         response = self.client.put(url, data)
         
@@ -151,8 +151,8 @@ class RecruiterExperienceViewTest(APITestCase):
     # ========== DELETE Tests ==========
     
     def test_delete_experience_success(self):
-        """Test DELETE /api/recruiters/:id/experience/:expId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/experience/{self.experience.id}/'
+        """Test DELETE /api/candidates/:id/experience/:expId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/experience/{self.experience.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -166,7 +166,7 @@ class RecruiterExperienceViewTest(APITestCase):
             job_title="Other",
             start_date="2020-01-01"
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/experience/{exp2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/experience/{exp2.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -175,7 +175,7 @@ class RecruiterExperienceViewTest(APITestCase):
     # ========== REORDER Tests ==========
     
     def test_reorder_experience_success(self):
-        """Test PATCH /api/recruiters/:id/experience/reorder/ - success"""
+        """Test PATCH /api/candidates/:id/experience/reorder/ - success"""
         # Create more experience records
         exp2 = RecruiterExperience.objects.create(
             recruiter=self.recruiter,
@@ -192,7 +192,7 @@ class RecruiterExperienceViewTest(APITestCase):
             display_order=3
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/experience/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/experience/reorder/'
         data = {
             "order": [
                 {"id": exp3.id, "display_order": 1},
@@ -210,7 +210,7 @@ class RecruiterExperienceViewTest(APITestCase):
     
     def test_reorder_experience_not_owner(self):
         """Test PATCH reorder by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/experience/reorder/'
+        url = f'/api/candidates/{self.recruiter2.id}/experience/reorder/'
         data = {"order": []}
         response = self.client.patch(url, data, format='json')
         
@@ -225,7 +225,7 @@ class RecruiterExperienceViewTest(APITestCase):
             start_date="2020-01-01"
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/experience/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/experience/reorder/'
         data = {
             "order": [
                 {"id": exp_other.id, "display_order": 1}

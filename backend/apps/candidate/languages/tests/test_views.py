@@ -33,7 +33,7 @@ class LanguageViewTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Only active languages (2)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)
     
     def test_list_languages_no_auth_required(self):
         """Test GET /api/languages/ works without authentication"""

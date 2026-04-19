@@ -75,7 +75,7 @@ class JobViewTests(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_list_jobs_with_filters(self):
         """Test GET /api/jobs/?job_type=full-time"""
@@ -83,7 +83,7 @@ class JobViewTests(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for job in response.data:
+        for job in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             self.assertEqual(job['job_type'], 'full-time')
     
     # ========== RETRIEVE Tests ==========

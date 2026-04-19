@@ -29,8 +29,7 @@ def company_banner(pk):
 def company_jobs(pk):
     return f'/api/companies/{pk}/jobs/'
 
-def company_reviews(pk):
-    return f'/api/companies/{pk}/reviews/'
+
 
 def company_followers(pk):
     return f'/api/companies/{pk}/followers/'
@@ -322,8 +321,8 @@ class TestCompanySuggestions(TestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should contain at least our verified company
-        self.assertTrue(len(response.data) > 0)
-        found_ids = [c['id'] for c in response.data]
+        self.assertTrue(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data) > 0)
+        found_ids = [c['id'] for c in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)]
         self.assertIn(self.company.id, found_ids)
 
     def test_suggestions_by_skills(self):
@@ -335,7 +334,7 @@ class TestCompanySuggestions(TestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should find the company because user has Python skill and company hires for Python
-        found_ids = [c['id'] for c in response.data]
+        found_ids = [c['id'] for c in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)]
         self.assertIn(self.company.id, found_ids)
 
     def test_suggestions_fallback(self):
@@ -352,7 +351,7 @@ class TestCompanySuggestions(TestCase):
         # Should still return list (fallback)
         self.assertIsInstance(response.data, list)
         # And should include our popular company (fallback logic)
-        found_ids = [c['id'] for c in response.data]
+        found_ids = [c['id'] for c in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)]
         self.assertIn(self.company.id, found_ids)
 
 
@@ -398,5 +397,5 @@ class TestJobStatusFiltering(TestCase):
         response = self.client.get(company_jobs(self.company.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], "Public Job")
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['title'], "Public Job")

@@ -12,13 +12,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import {
     ChevronLeft, Globe, ExternalLink, CheckCircle2, Clock,
-    XCircle, Users, Briefcase, Star, Play, ThumbsUp,
-    Flag, Building2, MapPin, Hash, BarChart3, MessageSquare
+    XCircle, Users, Briefcase, Star, Play,
+    Building2, MapPin, Hash, BarChart3, MessageSquare
 } from 'lucide-react';
 import { CompanyJobsTab } from '@/components/companies/CompanyJobsTab';
 import { CompanyBenefitsTab } from '@/components/companies/CompanyBenefitsTab';
 import { CompanyMediaTab } from '@/components/companies/CompanyMediaTab';
-import { CompanyReviewsTab } from '@/components/companies/CompanyReviewsTab';
 import { CompanyFollowersTab } from '@/components/companies/CompanyFollowersTab';
 import { CompanyStatsSidebar } from '@/components/companies/CompanyStatsSidebar';
 
@@ -180,7 +179,7 @@ export default function CompanyDetailPage() {
                             {/* Logo */}
                             <div className="relative -mt-16 md:-mt-20 shrink-0 h-20 w-20 md:h-24 md:w-24 rounded-2xl bg-white border border-gray-100 p-2 shadow-lg">
                                 <img
-                                    src={company.logo_url}
+                                    src={company.logo_url || undefined}
                                     alt={company.company_name}
                                     className="w-full h-full object-contain"
                                 />
@@ -301,7 +300,6 @@ export default function CompanyDetailPage() {
                                     { value: 'jobs', label: 'Việc làm', icon: Briefcase },
                                     { value: 'benefits', label: 'Phúc lợi', icon: Star },
                                     { value: 'media', label: 'Media', icon: Play },
-                                    { value: 'reviews', label: 'Đánh giá', icon: ThumbsUp },
                                     { value: 'followers', label: 'Followers', icon: Users },
                                 ].map(({ value, label, icon: Icon }) => (
                                     <TabsTrigger
@@ -326,10 +324,6 @@ export default function CompanyDetailPage() {
 
                             <TabsContent value="media">
                                 <CompanyMediaTab companyId={id} />
-                            </TabsContent>
-
-                            <TabsContent value="reviews">
-                                <CompanyReviewsTab companyId={id} user={user} />
                             </TabsContent>
 
                             <TabsContent value="followers">

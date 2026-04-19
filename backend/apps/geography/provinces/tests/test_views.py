@@ -41,7 +41,7 @@ class ProvinceViewSetTests(TestCase):
         response = self.client.get('/api/provinces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Only active provinces
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)
     
     def test_retrieve_province(self):
         """Test GET /api/provinces/:id/ - Chi tiết tỉnh"""
@@ -53,22 +53,22 @@ class ProvinceViewSetTests(TestCase):
         """Test GET /api/provinces/by-region/north/ - Filter miền Bắc"""
         response = self.client.get('/api/provinces/by-region/north/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['province_name'], 'Hà Nội')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['province_name'], 'Hà Nội')
     
     def test_by_region_central(self):
         """Test GET /api/provinces/by-region/central/ - Filter miền Trung"""
         response = self.client.get('/api/provinces/by-region/central/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['province_name'], 'Đà Nẵng')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['province_name'], 'Đà Nẵng')
     
     def test_by_region_south(self):
         """Test GET /api/provinces/by-region/south/ - Filter miền Nam"""
         response = self.client.get('/api/provinces/by-region/south/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['province_name'], 'Hồ Chí Minh')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['province_name'], 'Hồ Chí Minh')
     
     def test_by_region_invalid(self):
         """Test GET /api/provinces/by-region/invalid/ - Region không hợp lệ"""
@@ -80,8 +80,8 @@ class ProvinceViewSetTests(TestCase):
         """Test GET /api/provinces/search/?q=hanoi - Tìm kiếm"""
         response = self.client.get('/api/provinces/search/?q=Hà')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['province_name'], 'Hà Nội')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['province_name'], 'Hà Nội')
     
     def test_search_short_query(self):
         """Test GET /api/provinces/search/?q=H - Query quá ngắn"""
@@ -104,6 +104,6 @@ class ProvinceViewSetTests(TestCase):
         """Test GET /api/provinces/ - Sắp xếp theo tên"""
         response = self.client.get('/api/provinces/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        names = [p['province_name'] for p in response.data]
+        names = [p['province_name'] for p in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)]
         self.assertEqual(names, sorted(names))
 

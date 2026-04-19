@@ -57,17 +57,17 @@ class RecruiterLanguageViewTest(APITestCase):
     # ========== LIST Tests ==========
     
     def test_list_languages_success(self):
-        """Test GET /api/recruiters/:id/languages/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/'
+        """Test GET /api/candidates/:id/languages/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/languages/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['language_name'], "English")
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['language_name'], "English")
     
     def test_list_languages_recruiter_not_found(self):
         """Test GET with non-existent recruiter returns 404"""
-        url = '/api/recruiters/99999/languages/'
+        url = '/api/candidates/99999/languages/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -75,8 +75,8 @@ class RecruiterLanguageViewTest(APITestCase):
     # ========== CREATE Tests ==========
     
     def test_create_language_success(self):
-        """Test POST /api/recruiters/:id/languages/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/'
+        """Test POST /api/candidates/:id/languages/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/languages/'
         data = {
             "language_id": self.lang_vi.id,
             "proficiency_level": "fluent",
@@ -90,7 +90,7 @@ class RecruiterLanguageViewTest(APITestCase):
     
     def test_create_language_not_owner(self):
         """Test POST by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/languages/'
+        url = f'/api/candidates/{self.recruiter2.id}/languages/'
         data = {
             "language_id": self.lang_vi.id,
             "proficiency_level": "basic"
@@ -101,7 +101,7 @@ class RecruiterLanguageViewTest(APITestCase):
     
     def test_create_language_duplicate(self):
         """Test POST with already added language returns 400"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/'
+        url = f'/api/candidates/{self.recruiter.id}/languages/'
         data = {
             "language_id": self.lang_en.id,  # Already added
             "proficiency_level": "native"
@@ -113,7 +113,7 @@ class RecruiterLanguageViewTest(APITestCase):
     def test_create_language_unauthenticated(self):
         """Test POST without auth returns 401"""
         self.client.logout()
-        url = f'/api/recruiters/{self.recruiter.id}/languages/'
+        url = f'/api/candidates/{self.recruiter.id}/languages/'
         data = {"language_id": self.lang_vi.id, "proficiency_level": "basic"}
         response = self.client.post(url, data)
         
@@ -122,8 +122,8 @@ class RecruiterLanguageViewTest(APITestCase):
     # ========== UPDATE Tests ==========
     
     def test_update_language_success(self):
-        """Test PUT /api/recruiters/:id/languages/:langId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/{self.recruiter_lang.id}/'
+        """Test PUT /api/candidates/:id/languages/:langId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/languages/{self.recruiter_lang.id}/'
         data = {"proficiency_level": "native", "is_native": True}
         response = self.client.put(url, data)
         
@@ -141,7 +141,7 @@ class RecruiterLanguageViewTest(APITestCase):
             language=self.lang_vi,
             proficiency_level='basic'
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/languages/{lang2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/languages/{lang2.id}/'
         data = {"proficiency_level": "hacked"}
         response = self.client.put(url, data)
         
@@ -149,7 +149,7 @@ class RecruiterLanguageViewTest(APITestCase):
     
     def test_update_language_not_found(self):
         """Test PUT with non-existent language returns 404"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/99999/'
+        url = f'/api/candidates/{self.recruiter.id}/languages/99999/'
         data = {"proficiency_level": "native"}
         response = self.client.put(url, data)
         
@@ -158,8 +158,8 @@ class RecruiterLanguageViewTest(APITestCase):
     # ========== DELETE Tests ==========
     
     def test_delete_language_success(self):
-        """Test DELETE /api/recruiters/:id/languages/:langId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/languages/{self.recruiter_lang.id}/'
+        """Test DELETE /api/candidates/:id/languages/:langId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/languages/{self.recruiter_lang.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -172,7 +172,7 @@ class RecruiterLanguageViewTest(APITestCase):
             language=self.lang_vi,
             proficiency_level='basic'
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/languages/{lang2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/languages/{lang2.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

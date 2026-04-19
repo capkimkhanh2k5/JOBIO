@@ -54,15 +54,15 @@ class MediaTypeViewSetTests(APITestCase):
         response = self.client.get(self.list_url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)
     
     def test_list_media_types_filter_active(self):
         """Should filter by is_active"""
         response = self.client.get(self.list_url, {'is_active': 'true'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
-        for item in response.data:
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             self.assertTrue(item['is_active'])
     
     def test_list_media_types_filter_inactive(self):
@@ -70,15 +70,15 @@ class MediaTypeViewSetTests(APITestCase):
         response = self.client.get(self.list_url, {'is_active': 'false'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertFalse(response.data[0]['is_active'])
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertFalse((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['is_active'])
     
     def test_list_media_types_returns_expected_fields(self):
         """Response should contain all expected fields"""
         response = self.client.get(self.list_url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        item = response.data[0]
+        item = (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]
         self.assertIn('id', item)
         self.assertIn('type_name', item)
         self.assertIn('description', item)

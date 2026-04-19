@@ -69,10 +69,10 @@ class SavedJobViewTests(APITestCase):
             bio="Another engineer"
         )
 
-    # ========== API #1: GET /api/recruiters/:id/saved-jobs/ ==========
+    # ========== API #1: GET /api/candidates/:id/saved-jobs/ ==========
     
     def test_list_saved_jobs_success(self):
-        """GET /api/recruiters/:id/saved-jobs/ - list saved jobs → 200"""
+        """GET /api/candidates/:id/saved-jobs/ - list saved jobs → 200"""
         # Save a job first
         SavedJob.objects.create(
             recruiter=self.recruiter,
@@ -81,40 +81,40 @@ class SavedJobViewTests(APITestCase):
         )
         
         self.client.force_authenticate(user=self.user)
-        url = f'/api/recruiters/{self.recruiter.id}/saved-jobs/'
+        url = f'/api/candidates/{self.recruiter.id}/saved-jobs/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_list_saved_jobs_empty(self):
-        """GET /api/recruiters/:id/saved-jobs/ - empty → 200 + []"""
+        """GET /api/candidates/:id/saved-jobs/ - empty → 200 + []"""
         self.client.force_authenticate(user=self.user)
-        url = f'/api/recruiters/{self.recruiter.id}/saved-jobs/'
+        url = f'/api/candidates/{self.recruiter.id}/saved-jobs/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
     
     def test_list_saved_jobs_unauthenticated(self):
-        """GET /api/recruiters/:id/saved-jobs/ - không login → 401"""
-        url = f'/api/recruiters/{self.recruiter.id}/saved-jobs/'
+        """GET /api/candidates/:id/saved-jobs/ - không login → 401"""
+        url = f'/api/candidates/{self.recruiter.id}/saved-jobs/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_list_saved_jobs_not_owner(self):
-        """GET /api/recruiters/:id/saved-jobs/ - xem của người khác → 403"""
+        """GET /api/candidates/:id/saved-jobs/ - xem của người khác → 403"""
         self.client.force_authenticate(user=self.other_user)
-        url = f'/api/recruiters/{self.recruiter.id}/saved-jobs/'
+        url = f'/api/candidates/{self.recruiter.id}/saved-jobs/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_list_saved_jobs_recruiter_not_found(self):
-        """GET /api/recruiters/:id/saved-jobs/ - recruiter không tồn tại → 404"""
+        """GET /api/candidates/:id/saved-jobs/ - recruiter không tồn tại → 404"""
         self.client.force_authenticate(user=self.user)
-        url = '/api/recruiters/99999/saved-jobs/'
+        url = '/api/candidates/99999/saved-jobs/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

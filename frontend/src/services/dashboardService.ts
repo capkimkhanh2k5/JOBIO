@@ -6,7 +6,6 @@ import type {
   BlogPost,
   BlogCategory,
   BlogTag,
-  Review,
   FileUpload,
 } from '@/types/api';
 
@@ -23,11 +22,7 @@ export const dashboardService = {
     return api.get<CompanyStats>('/api/dashboard/stats/company/');
   },
 
-  // ─── Analytics Reports ────────────────────────────────────────────────
 
-  getAnalyticsReports(params?: { report_type?: string; date_from?: string; date_to?: string }) {
-    return api.get('/api/analytics-reports/', { params });
-  },
 
   // ─── Blog ─────────────────────────────────────────────────────────────
 
@@ -47,40 +42,7 @@ export const dashboardService = {
     return api.get<BlogTag[]>('/api/blog/tags/');
   },
 
-  // ─── Reviews (write) ─────────────────────────────────────────────────
 
-  /** Admin: list reviews pending moderation */
-  listPendingReviews(params?: { page?: number; page_size?: number }) {
-    return api.get<{ reviews: Review[]; total: number }>('/api/reviews/pending/', { params });
-  },
-
-  /** Admin: approve or reject a review */
-  moderateReview(id: number, action: 'approve' | 'reject', reason?: string) {
-    return api.patch(`/api/reviews/${id}/approve/`, { action, reason });
-  },
-
-  /** Admin: get moderation overview stats */
-  getModerationStats() {
-    return api.get('/api/companies/moderation-stats/');
-  },
-
-  createReview(data: {
-    company_id: number;
-    rating: number;
-    title: string;
-    content: string;
-    pros?: string;
-    cons?: string;
-    work_environment_rating?: number;
-    salary_benefits_rating?: number;
-    management_rating?: number;
-    career_development_rating?: number;
-    employment_status?: string;
-    position?: string;
-    is_anonymous?: boolean;
-  }) {
-    return api.post<Review>('/api/reviews/', data);
-  },
 
   // ─── Users (Admin) ─────────────────────────────────────────────────────────
 
@@ -156,19 +118,7 @@ export const dashboardService = {
     });
   },
 
-  // ─── Search History ───────────────────────────────────────────────────
 
-  listSearchHistory(params?: { page?: number; page_size?: number }) {
-    return api.get('/api/search-history/', { params });
-  },
-
-  clearSearchHistory() {
-    return api.delete('/api/search-history/clear/');
-  },
-
-  deleteSearchHistoryItem(id: number) {
-    return api.delete(`/api/search-history/${id}/`);
-  },
 
   // ─── Financial Management (Admin) ──────────────────────────────────────────
 

@@ -13,7 +13,7 @@ from apps.company.companies.services.suggestions import CompanySuggestionService
 from .models import Company
 from .serializers import (
     CompanySerializer, CompanyCreateSerializer, CompanyUpdateSerializer,
-    JobListSerializer, ReviewListSerializer, CompanyFollowerSerializer, CompanyStatsSerializer
+    JobListSerializer, CompanyFollowerSerializer, CompanyStatsSerializer
 )
 from .services.companies import (
     create_company, update_company, delete_company,
@@ -50,7 +50,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
         public_actions = [
             'list', 'retrieve', 'retrieve_by_slug', 'search_companies',
             'featured_companies', 'company_suggestions', 'company_stats',
-            'company_jobs', 'company_reviews', 'company_followers',
+            'company_jobs', 'company_followers',
         ]
         if self.action in public_actions:
             return [AllowAny()]
@@ -228,20 +228,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
         serializer = JobListSerializer(jobs, many=True)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['get'], url_path='reviews')
-    def company_reviews(self, request, pk=None):
-        """
-        GET /api/companies/:id/reviews - Lấy danh sách review của công ty
-        """
-        
-        company = get_company_by_id(company_id=pk)
-        if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
-        reviews = company.reviews.filter(status='approved')
 
-        serializer = ReviewListSerializer(reviews, many=True)
-        return Response(serializer.data)
 
     @action(detail=True, methods=['get'], url_path='followers')
     def company_followers(self, request, pk=None):
@@ -270,15 +257,11 @@ class CompanyViewSet(viewsets.GenericViewSet):
         
         job_count = company.jobs.filter(status='published').count()
         follower_count = company.followers.count()
-        review_count = company.reviews.filter(status='approved').count()
-        avg_rating = company.reviews.filter(status='approved').aggregate(Avg('rating'))
         application_count = company.jobs.filter(status='published').aggregate(Count('applications'))
 
         stats = {
             'job_count': job_count,
             'follower_count': follower_count,
-            'review_count': review_count,
-            'avg_rating': avg_rating,
             'application_count': application_count
         }
 
@@ -416,16 +399,11 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         GET /api/companies/moderation-stats/ - Thống kê kiểm duyệt cho Admin
         """
-        from apps.social.reviews.models import Review
         pending_companies = Company.objects.filter(verification_status='pending').count()
         verified_companies = Company.objects.filter(verification_status='verified').count()
         rejected_companies = Company.objects.filter(verification_status='rejected').count()
-        pending_reviews = Review.objects.filter(status=Review.Status.PENDING).count()
-        approved_reviews = Review.objects.filter(status=Review.Status.APPROVED).count()
         return Response({
             "pending_companies": pending_companies,
             "verified_companies": verified_companies,
             "rejected_companies": rejected_companies,
-            "pending_reviews": pending_reviews,
-            "approved_reviews": approved_reviews,
         })

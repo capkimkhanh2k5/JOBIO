@@ -40,17 +40,17 @@ class RecruiterCertificationViewTest(APITestCase):
     # ========== LIST Tests ==========
     
     def test_list_certifications_success(self):
-        """Test GET /api/recruiters/:id/certifications/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/'
+        """Test GET /api/candidates/:id/certifications/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/certifications/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['certification_name'], "AWS Certified")
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['certification_name'], "AWS Certified")
     
     def test_list_certifications_recruiter_not_found(self):
         """Test GET with non-existent recruiter returns 404"""
-        url = '/api/recruiters/99999/certifications/'
+        url = '/api/candidates/99999/certifications/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -58,8 +58,8 @@ class RecruiterCertificationViewTest(APITestCase):
     # ========== CREATE Tests ==========
     
     def test_create_certification_success(self):
-        """Test POST /api/recruiters/:id/certifications/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/'
+        """Test POST /api/candidates/:id/certifications/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/certifications/'
         data = {
             "certification_name": "Google Cloud Professional",
             "issuing_organization": "Google",
@@ -75,7 +75,7 @@ class RecruiterCertificationViewTest(APITestCase):
     
     def test_create_certification_not_owner(self):
         """Test POST by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/certifications/'
+        url = f'/api/candidates/{self.recruiter2.id}/certifications/'
         data = {
             "certification_name": "Hacker Cert",
             "issuing_organization": "Hacker Corp"
@@ -86,7 +86,7 @@ class RecruiterCertificationViewTest(APITestCase):
     
     def test_create_certification_invalid_dates(self):
         """Test POST with expiry_date < issue_date returns 400"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/'
+        url = f'/api/candidates/{self.recruiter.id}/certifications/'
         data = {
             "certification_name": "Test Cert",
             "issue_date": "2024-01-01",
@@ -99,7 +99,7 @@ class RecruiterCertificationViewTest(APITestCase):
     def test_create_certification_unauthenticated(self):
         """Test POST without auth returns 401"""
         self.client.logout()
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/'
+        url = f'/api/candidates/{self.recruiter.id}/certifications/'
         data = {"certification_name": "Test"}
         response = self.client.post(url, data)
         
@@ -108,8 +108,8 @@ class RecruiterCertificationViewTest(APITestCase):
     # ========== UPDATE Tests ==========
     
     def test_update_certification_success(self):
-        """Test PUT /api/recruiters/:id/certifications/:certId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/{self.certification.id}/'
+        """Test PUT /api/candidates/:id/certifications/:certId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/certifications/{self.certification.id}/'
         data = {"certification_name": "AWS Solutions Architect"}
         response = self.client.put(url, data)
         
@@ -127,7 +127,7 @@ class RecruiterCertificationViewTest(APITestCase):
             certification_name="Other Cert",
             display_order=1
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/certifications/{cert2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/certifications/{cert2.id}/'
         data = {"certification_name": "Hacked"}
         response = self.client.put(url, data)
         
@@ -135,7 +135,7 @@ class RecruiterCertificationViewTest(APITestCase):
     
     def test_update_certification_not_found(self):
         """Test PUT with non-existent certification returns 404"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/99999/'
+        url = f'/api/candidates/{self.recruiter.id}/certifications/99999/'
         data = {"certification_name": "Test"}
         response = self.client.put(url, data)
         
@@ -144,8 +144,8 @@ class RecruiterCertificationViewTest(APITestCase):
     # ========== DELETE Tests ==========
     
     def test_delete_certification_success(self):
-        """Test DELETE /api/recruiters/:id/certifications/:certId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/{self.certification.id}/'
+        """Test DELETE /api/candidates/:id/certifications/:certId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/certifications/{self.certification.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -158,7 +158,7 @@ class RecruiterCertificationViewTest(APITestCase):
             certification_name="Other Cert",
             display_order=1
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/certifications/{cert2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/certifications/{cert2.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -167,7 +167,7 @@ class RecruiterCertificationViewTest(APITestCase):
     # ========== REORDER Tests ==========
     
     def test_reorder_certifications_success(self):
-        """Test PATCH /api/recruiters/:id/certifications/reorder/ - success"""
+        """Test PATCH /api/candidates/:id/certifications/reorder/ - success"""
         # Create more certifications
         cert2 = RecruiterCertification.objects.create(
             recruiter=self.recruiter,
@@ -180,7 +180,7 @@ class RecruiterCertificationViewTest(APITestCase):
             display_order=3
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/certifications/reorder/'
         data = {
             "order": [
                 {"id": cert3.id, "display_order": 1},
@@ -198,7 +198,7 @@ class RecruiterCertificationViewTest(APITestCase):
     
     def test_reorder_certifications_not_owner(self):
         """Test PATCH reorder by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/certifications/reorder/'
+        url = f'/api/candidates/{self.recruiter2.id}/certifications/reorder/'
         data = {"order": []}
         response = self.client.patch(url, data, format='json')
         
@@ -212,7 +212,7 @@ class RecruiterCertificationViewTest(APITestCase):
             display_order=1
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/certifications/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/certifications/reorder/'
         data = {
             "order": [
                 {"id": cert_other.id, "display_order": 1}

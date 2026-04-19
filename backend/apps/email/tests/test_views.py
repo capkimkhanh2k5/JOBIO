@@ -47,7 +47,7 @@ class TestEmailTemplateViewSet(APITestCase):
         url = reverse('emailtemplate-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_create_template_admin(self):
         """Admin users can create email templates"""

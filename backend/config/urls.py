@@ -104,10 +104,6 @@ urlpatterns = [
     path('api/communes/', include('apps.geography.communes.urls')),
     path('api/addresses/', include('apps.geography.addresses.urls')),
     
-    # Reviews, Connections, Recommendations
-    path('api/reviews/', include('apps.social.reviews.urls')),
-    path('api/connections/', include('apps.social.recruiter_connections.urls')),
-    path('api/recommendations/', include('apps.social.recommendations.urls')),
     
     # Notifications
     path('api/notifications/', include('apps.communication.notifications.urls')),
@@ -126,13 +122,8 @@ urlpatterns = [
     path('api/file-uploads/', include('apps.system.file_uploads.urls')),
     path('api/contact/', include('apps.system.contact.urls')),
     
-    # Advanced Features
-    path('api/search-history/', include('apps.system.job_search_history.urls')),
-    path('api/analytics-reports/', include('apps.system.analytics_reports.urls')),
     
-    # Analytics & Reporting
-    path('api/dashboard/', include('apps.analytics.urls')),
-    
+
     # Media Types
     path('api/media-types/', include('apps.company.media_types.urls')),
     

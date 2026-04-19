@@ -53,20 +53,20 @@ class RecruiterCVViewSetTests(TestCase):
         )
     
     def test_list_cvs(self):
-        """Test GET /api/recruiters/:id/cvs/ - List CVs"""
+        """Test GET /api/candidates/:id/cvs/ - List CVs"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(f'/api/recruiters/{self.recruiter.id}/cvs/')
+        response = self.client.get(f'/api/candidates/{self.recruiter.id}/cvs/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_list_cvs_forbidden(self):
-        """Test GET /api/recruiters/:id/cvs/ - Other user cannot access"""
+        """Test GET /api/candidates/:id/cvs/ - Other user cannot access"""
         self.client.force_authenticate(user=self.other_user)
-        response = self.client.get(f'/api/recruiters/{self.recruiter.id}/cvs/')
+        response = self.client.get(f'/api/candidates/{self.recruiter.id}/cvs/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_create_cv(self):
-        """Test POST /api/recruiters/:id/cvs/ - Create CV"""
+        """Test POST /api/candidates/:id/cvs/ - Create CV"""
         self.client.force_authenticate(user=self.user)
         data = {
             'cv_name': 'New CV',
@@ -75,21 +75,21 @@ class RecruiterCVViewSetTests(TestCase):
             'is_public': True
         }
         response = self.client.post(
-            f'/api/recruiters/{self.recruiter.id}/cvs/', 
+            f'/api/candidates/{self.recruiter.id}/cvs/', 
             data, 
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
     def test_retrieve_cv(self):
-        """Test GET /api/recruiters/:id/cvs/:cvId/ - Get CV detail"""
+        """Test GET /api/candidates/:id/cvs/:cvId/ - Get CV detail"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/')
+        response = self.client.get(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['cv_name'], 'My Main CV')
     
     def test_update_cv(self):
-        """Test PUT /api/recruiters/:id/cvs/:cvId/ - Update CV"""
+        """Test PUT /api/candidates/:id/cvs/:cvId/ - Update CV"""
         self.client.force_authenticate(user=self.user)
         data = {
             'cv_name': 'Updated CV Name',
@@ -97,7 +97,7 @@ class RecruiterCVViewSetTests(TestCase):
             'is_public': False
         }
         response = self.client.put(
-            f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/', 
+            f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/', 
             data, 
             format='json'
         )
@@ -105,13 +105,13 @@ class RecruiterCVViewSetTests(TestCase):
         self.assertEqual(response.data['cv_name'], 'Updated CV Name')
     
     def test_delete_cv(self):
-        """Test DELETE /api/recruiters/:id/cvs/:cvId/ - Delete CV"""
+        """Test DELETE /api/candidates/:id/cvs/:cvId/ - Delete CV"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.delete(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/')
+        response = self.client.delete(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
     def test_set_default_cv(self):
-        """Test PATCH /api/recruiters/:id/cvs/:cvId/default/ - Set default"""
+        """Test PATCH /api/candidates/:id/cvs/:cvId/default/ - Set default"""
         # Create another CV
         cv2 = RecruiterCV.objects.create(
             recruiter=self.recruiter,
@@ -121,18 +121,18 @@ class RecruiterCVViewSetTests(TestCase):
         )
         
         self.client.force_authenticate(user=self.user)
-        response = self.client.patch(f'/api/recruiters/{self.recruiter.id}/cvs/{cv2.id}/default/')
+        response = self.client.patch(f'/api/candidates/{self.recruiter.id}/cvs/{cv2.id}/default/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         cv2.refresh_from_db()
         self.assertTrue(cv2.is_default)
     
     def test_set_privacy(self):
-        """Test PATCH /api/recruiters/:id/cvs/:cvId/privacy/ - Set privacy"""
+        """Test PATCH /api/candidates/:id/cvs/:cvId/privacy/ - Set privacy"""
         self.client.force_authenticate(user=self.user)
         data = {'is_public': False}
         response = self.client.patch(
-            f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/privacy/', 
+            f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/privacy/', 
             data, 
             format='json'
         )
@@ -141,26 +141,26 @@ class RecruiterCVViewSetTests(TestCase):
         self.assertFalse(self.cv.is_public)
     
     def test_download_cv(self):
-        """Test POST /api/recruiters/:id/cvs/:cvId/download/ - Download CV"""
+        """Test POST /api/candidates/:id/cvs/:cvId/download/ - Download CV"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/download/')
+        response = self.client.post(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/download/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('download_url', response.data)
     
     def test_preview_cv(self):
-        """Test POST /api/recruiters/:id/cvs/:cvId/preview/ - Preview CV"""
+        """Test POST /api/candidates/:id/cvs/:cvId/preview/ - Preview CV"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/preview/')
+        response = self.client.post(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/preview/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # API returns html_content for preview rendering
         self.assertIn('html_content', response.data)
     
     def test_generate_cv(self):
-        """Test POST /api/recruiters/:id/cvs/generate/ - Auto-generate CV"""
+        """Test POST /api/candidates/:id/cvs/generate/ - Auto-generate CV"""
         self.client.force_authenticate(user=self.user)
         data = {'template_id': self.template.id}
         response = self.client.post(
-            f'/api/recruiters/{self.recruiter.id}/cvs/generate/', 
+            f'/api/candidates/{self.recruiter.id}/cvs/generate/', 
             data, 
             format='json'
         )
@@ -170,41 +170,41 @@ class RecruiterCVViewSetTests(TestCase):
     # ========== Tests bổ sung ==========
     
     def test_list_cvs_unauthenticated(self):
-        """Test GET /api/recruiters/:id/cvs/ - Unauthenticated → 401"""
-        response = self.client.get(f'/api/recruiters/{self.recruiter.id}/cvs/')
+        """Test GET /api/candidates/:id/cvs/ - Unauthenticated → 401"""
+        response = self.client.get(f'/api/candidates/{self.recruiter.id}/cvs/')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_create_cv_unauthenticated(self):
-        """Test POST /api/recruiters/:id/cvs/ - Unauthenticated → 401"""
+        """Test POST /api/candidates/:id/cvs/ - Unauthenticated → 401"""
         data = {'cv_name': 'Test', 'cv_data': {}}
-        response = self.client.post(f'/api/recruiters/{self.recruiter.id}/cvs/', data, format='json')
+        response = self.client.post(f'/api/candidates/{self.recruiter.id}/cvs/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     
     def test_retrieve_cv_not_found(self):
-        """Test GET /api/recruiters/:id/cvs/:cvId/ - CV not found → 404"""
+        """Test GET /api/candidates/:id/cvs/:cvId/ - CV not found → 404"""
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(f'/api/recruiters/{self.recruiter.id}/cvs/99999/')
+        response = self.client.get(f'/api/candidates/{self.recruiter.id}/cvs/99999/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_update_cv_forbidden(self):
-        """Test PUT /api/recruiters/:id/cvs/:cvId/ - Other user → 403"""
+        """Test PUT /api/candidates/:id/cvs/:cvId/ - Other user → 403"""
         self.client.force_authenticate(user=self.other_user)
         data = {'cv_name': 'Hacked', 'cv_data': {}}
         response = self.client.put(
-            f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/', 
+            f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/', 
             data, format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_delete_cv_forbidden(self):
-        """Test DELETE /api/recruiters/:id/cvs/:cvId/ - Other user → 403"""
+        """Test DELETE /api/candidates/:id/cvs/:cvId/ - Other user → 403"""
         self.client.force_authenticate(user=self.other_user)
-        response = self.client.delete(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/')
+        response = self.client.delete(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_download_cv_forbidden(self):
-        """Test POST /api/recruiters/:id/cvs/:cvId/download/ - Other user → 403"""
+        """Test POST /api/candidates/:id/cvs/:cvId/download/ - Other user → 403"""
         self.client.force_authenticate(user=self.other_user)
-        response = self.client.post(f'/api/recruiters/{self.recruiter.id}/cvs/{self.cv.id}/download/')
+        response = self.client.post(f'/api/candidates/{self.recruiter.id}/cvs/{self.cv.id}/download/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

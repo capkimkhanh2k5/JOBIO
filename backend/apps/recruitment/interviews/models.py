@@ -1,6 +1,5 @@
 from django.db import models
-
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 class Interview(models.Model):
     """Bảng Interviews - Lịch phỏng vấn"""
     
@@ -71,6 +70,26 @@ class Interview(models.Model):
         null=True,
         blank=True,
         verbose_name='Nhận xét'
+    )
+    rating = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name='Đánh giá'
+    )
+    interviewer = models.ForeignKey(
+        'core_users.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conducted_interviews',
+        verbose_name='Người phỏng vấn'
+    )
+    role = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name='Vai trò'
     )
     result = models.CharField(
         max_length=20,

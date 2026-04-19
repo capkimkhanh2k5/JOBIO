@@ -67,8 +67,8 @@ class TestCompanyBenefitsAPIs(APITestCase):
         """GET /api/companies/:id/benefits/ - Thành công"""
         response = self.client.get(benefits_list(self.company.id))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['benefit_name'], 'Bảo hiểm sức khỏe')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['benefit_name'], 'Bảo hiểm sức khỏe')
     
     def test_list_benefits_invalid_company(self):
         """GET /api/companies/9999/benefits/ - Company không tồn tại"""

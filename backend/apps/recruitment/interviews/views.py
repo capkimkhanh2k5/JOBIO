@@ -12,20 +12,7 @@ from .serializers import (
     InterviewCreateSerializer, InterviewUpdateSerializer,
     InterviewRescheduleSerializer, InterviewCancelSerializer
 )
-from apps.recruitment.interview_interviewers.services.interview_interviewers import (
-    save_interviewer_feedback,
-    add_interviewer,
-    remove_interviewer,
-)
-from apps.recruitment.interview_interviewers.serializers import (
-    InterviewerFeedbackSerializer,
-    InterviewerListSerializer,
-    InterviewerAddSerializer,
-)
-from apps.recruitment.interview_interviewers.selectors.interview_interviewers import (
-    get_interviewer,
-    list_interviewers,
-)
+
 
 from .services.interviews import (
     send_reminder,
@@ -303,7 +290,8 @@ class InterviewViewSet(viewsets.GenericViewSet):
             updated = complete_interview(
                 interview,
                 serializer.validated_data['result'],
-                serializer.validated_data.get('feedback')
+                serializer.validated_data.get('feedback'),
+                serializer.validated_data.get('rating')
             )
             return Response(InterviewDetailSerializer(updated).data)
         except ValueError as e:
@@ -397,117 +385,3 @@ class InterviewViewSet(viewsets.GenericViewSet):
         
         interviews = get_upcoming_interviews(request.user, days)
         return Response(InterviewListSerializer(interviews, many=True).data)
-    
-    def list_interviewers(self, request, pk=None):
-        """
-            GET /api/interviews/:id/interviewers/
-            Danh sách người phỏng vấn
-        """
-        
-        interview, error = self._get_interview_or_404(pk)
-        if error:
-            return error
-        
-        if not self._is_job_owner(request, interview):
-            return Response(
-                {"detail": "Permission denied"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        interviewers = list_interviewers(int(pk))
-        return Response(InterviewerListSerializer(interviewers, many=True).data)
-    
-    def add_interviewer(self, request, pk=None):
-        """
-            POST /api/interviews/:id/interviewers/
-            Thêm người phỏng vấn
-        """
-        
-        interview, error = self._get_interview_or_404(pk)
-        if error:
-            return error
-        
-        if not self._is_job_owner(request, interview):
-            return Response(
-                {"detail": "Permission denied"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        serializer = InterviewerAddSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        try:
-            interviewer = add_interviewer(
-                interview,
-                serializer.validated_data['user_id'],
-                serializer.validated_data.get('role')
-            )
-            return Response(
-                InterviewerListSerializer(interviewer).data,
-                status=status.HTTP_201_CREATED
-            )
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def remove_interviewer(self, request, pk=None, user_id=None):
-        """
-            DELETE /api/interviews/:id/interviewers/:userId/
-            Xóa người phỏng vấn
-        """
-
-        interview, error = self._get_interview_or_404(pk)
-        if error:
-            return error
-        
-        if not self._is_job_owner(request, interview):
-            return Response(
-                {"detail": "Permission denied"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        try:
-            remove_interviewer(interview, user_id)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def interviewer_feedback(self, request, pk=None, user_id=None):
-        """
-            POST /api/interviews/:id/interviewers/:userId/feedback/
-            Feedback của interviewer
-        """
-
-        interview, error = self._get_interview_or_404(pk)
-        if error:
-            return error
-        
-        # Check permission - người phỏng vấn có thể thêm feedback cho mình
-        interviewer_record = get_interviewer(int(pk), user_id)
-        if not interviewer_record:
-            return Response(
-                {"detail": "Interviewer not found"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        is_owner = self._is_job_owner(request, interview)
-        is_the_interviewer = (interviewer_record.interviewer_id == request.user.id)
-        
-        if not is_owner and not is_the_interviewer:
-            return Response(
-                {"detail": "Permission denied"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        serializer = InterviewerFeedbackSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        try:
-            updated = save_interviewer_feedback(
-                interview,
-                user_id,
-                serializer.validated_data.get('feedback'),
-                serializer.validated_data.get('rating')
-            )
-            return Response(InterviewerListSerializer(updated).data)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

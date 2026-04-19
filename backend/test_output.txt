@@ -1,0 +1,873 @@
+Using existing test database for alias 'default'...
+INFO 2026-04-19 07:39:18,144 signals Triggering async matching for Job 807
+WARNING 2026-04-19 07:39:18,155 log Not Found: /api/applications/99999/notes/
+.INFO 2026-04-19 07:39:18,405 signals Triggering async matching for Job 809
+WARNING 2026-04-19 07:39:18,413 log Forbidden: /api/applications/383/notes/
+.INFO 2026-04-19 07:39:18,663 signals Triggering async matching for Job 811
+.INFO 2026-04-19 07:39:18,932 signals Triggering async matching for Job 813
+WARNING 2026-04-19 07:39:18,934 log Unauthorized: /api/applications/385/notes/
+.INFO 2026-04-19 07:39:19,182 signals Triggering async matching for Job 815
+WARNING 2026-04-19 07:39:19,187 log Bad Request: /api/applications/bulk-action/
+.INFO 2026-04-19 07:39:19,433 signals Triggering async matching for Job 817
+WARNING 2026-04-19 07:39:19,435 log Bad Request: /api/applications/bulk-action/
+.INFO 2026-04-19 07:39:19,684 signals Triggering async matching for Job 819
+WARNING 2026-04-19 07:39:19,690 log Bad Request: /api/applications/bulk-action/
+.INFO 2026-04-19 07:39:19,939 signals Triggering async matching for Job 821
+.INFO 2026-04-19 07:39:20,195 signals Triggering async matching for Job 823
+WARNING 2026-04-19 07:39:20,198 log Unauthorized: /api/applications/bulk-action/
+.INFO 2026-04-19 07:39:20,446 signals Triggering async matching for Job 825
+INFO 2026-04-19 07:39:20,458 state_machine Application 390 transitioned: pending -> shortlisted
+.INFO 2026-04-19 07:39:20,717 signals Triggering async matching for Job 827
+WARNING 2026-04-19 07:39:20,725 log Bad Request: /api/applications/391/status/
+.INFO 2026-04-19 07:39:20,970 signals Triggering async matching for Job 829
+WARNING 2026-04-19 07:39:20,973 log Not Found: /api/applications/99999/status/
+.INFO 2026-04-19 07:39:21,219 signals Triggering async matching for Job 831
+WARNING 2026-04-19 07:39:21,226 log Forbidden: /api/applications/392/status/
+.INFO 2026-04-19 07:39:21,474 signals Triggering async matching for Job 833
+INFO 2026-04-19 07:39:21,485 state_machine Application 393 transitioned: pending -> reviewing
+.INFO 2026-04-19 07:39:21,739 signals Triggering async matching for Job 835
+WARNING 2026-04-19 07:39:21,742 log Unauthorized: /api/applications/394/status/
+.INFO 2026-04-19 07:39:21,987 signals Triggering async matching for Job 837
+WARNING 2026-04-19 07:39:21,993 log Bad Request: /api/applications/
+.INFO 2026-04-19 07:39:22,260 signals Triggering async matching for Job 839
+WARNING 2026-04-19 07:39:22,263 log Bad Request: /api/applications/
+.INFO 2026-04-19 07:39:22,511 signals Triggering async matching for Job 841
+WARNING 2026-04-19 07:39:22,514 log Bad Request: /api/applications/
+.INFO 2026-04-19 07:39:22,761 signals Triggering async matching for Job 843
+.INFO 2026-04-19 07:39:23,012 signals Triggering async matching for Job 845
+WARNING 2026-04-19 07:39:23,015 log Unauthorized: /api/applications/
+.INFO 2026-04-19 07:39:23,266 signals Triggering async matching for Job 847
+.INFO 2026-04-19 07:39:23,522 signals Triggering async matching for Job 849
+WARNING 2026-04-19 07:39:23,530 log Forbidden: /api/applications/398/
+.INFO 2026-04-19 07:39:23,780 signals Triggering async matching for Job 851
+WARNING 2026-04-19 07:39:23,785 log Not Found: /api/applications/99999/
+.INFO 2026-04-19 07:39:24,033 signals Triggering async matching for Job 853
+.INFO 2026-04-19 07:39:24,289 signals Triggering async matching for Job 855
+WARNING 2026-04-19 07:39:24,293 log Unauthorized: /api/applications/400/
+.INFO 2026-04-19 07:39:24,546 signals Triggering async matching for Job 857
+.INFO 2026-04-19 07:39:24,800 signals Triggering async matching for Job 859
+.INFO 2026-04-19 07:39:25,053 signals Triggering async matching for Job 861
+WARNING 2026-04-19 07:39:25,056 log Unauthorized: /api/applications/export/
+.INFO 2026-04-19 07:39:25,305 signals Triggering async matching for Job 863
+.INFO 2026-04-19 07:39:25,561 signals Triggering async matching for Job 865
+.INFO 2026-04-19 07:39:25,817 signals Triggering async matching for Job 867
+WARNING 2026-04-19 07:39:25,825 log Forbidden: /api/applications/405/history/
+.INFO 2026-04-19 07:39:26,074 signals Triggering async matching for Job 869
+WARNING 2026-04-19 07:39:26,080 log Not Found: /api/applications/99999/history/
+.INFO 2026-04-19 07:39:26,328 signals Triggering async matching for Job 871
+WARNING 2026-04-19 07:39:26,331 log Unauthorized: /api/applications/406/history/
+.INFO 2026-04-19 07:39:26,577 signals Triggering async matching for Job 873
+WARNING 2026-04-19 07:39:26,583 log Not Found: /api/applications/99999/offer/
+.INFO 2026-04-19 07:39:26,831 signals Triggering async matching for Job 875
+WARNING 2026-04-19 07:39:26,838 log Forbidden: /api/applications/407/offer/
+.INFO 2026-04-19 07:39:27,085 signals Triggering async matching for Job 877
+.INFO 2026-04-19 07:39:27,346 signals Triggering async matching for Job 879
+.INFO 2026-04-19 07:39:27,609 signals Triggering async matching for Job 881
+WARNING 2026-04-19 07:39:27,613 log Unauthorized: /api/applications/410/offer/
+.INFO 2026-04-19 07:39:27,861 signals Triggering async matching for Job 883
+WARNING 2026-04-19 07:39:27,869 log Bad Request: /api/applications/411/rating/
+.INFO 2026-04-19 07:39:28,117 signals Triggering async matching for Job 885
+WARNING 2026-04-19 07:39:28,122 log Not Found: /api/applications/99999/rating/
+.INFO 2026-04-19 07:39:28,370 signals Triggering async matching for Job 887
+WARNING 2026-04-19 07:39:28,378 log Forbidden: /api/applications/412/rating/
+.INFO 2026-04-19 07:39:28,625 signals Triggering async matching for Job 889
+.INFO 2026-04-19 07:39:28,879 signals Triggering async matching for Job 891
+WARNING 2026-04-19 07:39:28,882 log Unauthorized: /api/applications/414/rating/
+.INFO 2026-04-19 07:39:29,127 signals Triggering async matching for Job 893
+WARNING 2026-04-19 07:39:29,133 log Not Found: /api/applications/99999/reject/
+.INFO 2026-04-19 07:39:29,380 signals Triggering async matching for Job 895
+WARNING 2026-04-19 07:39:29,389 log Forbidden: /api/applications/415/reject/
+.INFO 2026-04-19 07:39:29,637 signals Triggering async matching for Job 897
+INFO 2026-04-19 07:39:29,649 state_machine Application 416 transitioned: pending -> rejected
+.INFO 2026-04-19 07:39:29,901 signals Triggering async matching for Job 899
+WARNING 2026-04-19 07:39:29,904 log Unauthorized: /api/applications/417/reject/
+.INFO 2026-04-19 07:39:30,151 signals Triggering async matching for Job 901
+INFO 2026-04-19 07:39:30,161 state_machine Application 418 transitioned: pending -> rejected
+.INFO 2026-04-19 07:39:30,431 signals Triggering async matching for Job 903
+.INFO 2026-04-19 07:39:30,688 signals Triggering async matching for Job 905
+.INFO 2026-04-19 07:39:30,945 signals Triggering async matching for Job 907
+WARNING 2026-04-19 07:39:30,954 log Forbidden: /api/applications/421/
+.INFO 2026-04-19 07:39:31,197 signals Triggering async matching for Job 909
+WARNING 2026-04-19 07:39:31,200 log Not Found: /api/applications/99999/
+.INFO 2026-04-19 07:39:31,445 signals Triggering async matching for Job 911
+WARNING 2026-04-19 07:39:31,449 log Unauthorized: /api/applications/422/
+.INFO 2026-04-19 07:39:31,696 signals Triggering async matching for Job 913
+WARNING 2026-04-19 07:39:31,705 log Bad Request: /api/applications/423/shortlist/
+.INFO 2026-04-19 07:39:31,953 signals Triggering async matching for Job 915
+WARNING 2026-04-19 07:39:31,959 log Not Found: /api/applications/99999/shortlist/
+.INFO 2026-04-19 07:39:32,205 signals Triggering async matching for Job 917
+WARNING 2026-04-19 07:39:32,209 log Forbidden: /api/applications/424/shortlist/
+.INFO 2026-04-19 07:39:32,458 signals Triggering async matching for Job 919
+INFO 2026-04-19 07:39:32,471 state_machine Application 425 transitioned: pending -> shortlisted
+.INFO 2026-04-19 07:39:32,723 signals Triggering async matching for Job 921
+WARNING 2026-04-19 07:39:32,728 log Unauthorized: /api/applications/426/shortlist/
+.INFO 2026-04-19 07:39:32,987 signals Triggering async matching for Job 923
+.INFO 2026-04-19 07:39:33,239 signals Triggering async matching for Job 925
+.INFO 2026-04-19 07:39:33,491 signals Triggering async matching for Job 927
+WARNING 2026-04-19 07:39:33,494 log Unauthorized: /api/applications/stats/
+.INFO 2026-04-19 07:39:33,743 signals Triggering async matching for Job 929
+WARNING 2026-04-19 07:39:33,750 log Bad Request: /api/applications/428/
+.INFO 2026-04-19 07:39:33,999 signals Triggering async matching for Job 931
+WARNING 2026-04-19 07:39:34,005 log Forbidden: /api/applications/429/
+.INFO 2026-04-19 07:39:34,250 signals Triggering async matching for Job 933
+WARNING 2026-04-19 07:39:34,254 log Not Found: /api/applications/99999/
+.INFO 2026-04-19 07:39:34,501 signals Triggering async matching for Job 935
+.INFO 2026-04-19 07:39:34,757 signals Triggering async matching for Job 937
+WARNING 2026-04-19 07:39:34,759 log Unauthorized: /api/applications/431/
+.INFO 2026-04-19 07:39:35,009 signals Triggering async matching for Job 939
+WARNING 2026-04-19 07:39:35,018 log Bad Request: /api/applications/432/withdraw/
+.INFO 2026-04-19 07:39:35,266 signals Triggering async matching for Job 941
+WARNING 2026-04-19 07:39:35,272 log Forbidden: /api/applications/433/withdraw/
+.INFO 2026-04-19 07:39:35,519 signals Triggering async matching for Job 943
+WARNING 2026-04-19 07:39:35,526 log Not Found: /api/applications/99999/withdraw/
+.INFO 2026-04-19 07:39:35,775 signals Triggering async matching for Job 945
+.INFO 2026-04-19 07:39:36,032 signals Triggering async matching for Job 947
+WARNING 2026-04-19 07:39:36,036 log Unauthorized: /api/applications/435/withdraw/
+.INFO 2026-04-19 07:39:36,217 signals Triggering async matching for Job 949
+.INFO 2026-04-19 07:39:36,653 signals Triggering async matching for Job 950
+WARNING 2026-04-19 07:39:36,906 log Not Found: /api/jobs/99999/applications/by-rating/
+.INFO 2026-04-19 07:39:37,075 signals Triggering async matching for Job 951
+.INFO 2026-04-19 07:39:37,497 signals Triggering async matching for Job 952
+WARNING 2026-04-19 07:39:37,752 log Forbidden: /api/jobs/952/applications/by-rating/
+.INFO 2026-04-19 07:39:37,922 signals Triggering async matching for Job 953
+.INFO 2026-04-19 07:39:38,349 signals Triggering async matching for Job 954
+WARNING 2026-04-19 07:39:38,599 log Unauthorized: /api/jobs/954/applications/by-rating/
+.INFO 2026-04-19 07:39:38,770 signals Triggering async matching for Job 955
+.INFO 2026-04-19 07:39:39,195 signals Triggering async matching for Job 956
+.INFO 2026-04-19 07:39:39,623 signals Triggering async matching for Job 957
+WARNING 2026-04-19 07:39:39,876 log Not Found: /api/jobs/99999/applications/pending/
+.INFO 2026-04-19 07:39:40,043 signals Triggering async matching for Job 958
+WARNING 2026-04-19 07:39:40,296 log Forbidden: /api/jobs/958/applications/pending/
+.INFO 2026-04-19 07:39:40,463 signals Triggering async matching for Job 959
+.INFO 2026-04-19 07:39:40,887 signals Triggering async matching for Job 960
+WARNING 2026-04-19 07:39:41,137 log Unauthorized: /api/jobs/960/applications/pending/
+.INFO 2026-04-19 07:39:41,305 signals Triggering async matching for Job 961
+.INFO 2026-04-19 07:39:41,731 signals Triggering async matching for Job 962
+WARNING 2026-04-19 07:39:41,985 log Not Found: /api/jobs/99999/applications/rejected/
+.INFO 2026-04-19 07:39:42,153 signals Triggering async matching for Job 963
+WARNING 2026-04-19 07:39:42,400 log Forbidden: /api/jobs/963/applications/rejected/
+.INFO 2026-04-19 07:39:42,568 signals Triggering async matching for Job 964
+.INFO 2026-04-19 07:39:42,983 signals Triggering async matching for Job 965
+WARNING 2026-04-19 07:39:43,231 log Unauthorized: /api/jobs/965/applications/rejected/
+.INFO 2026-04-19 07:39:43,397 signals Triggering async matching for Job 966
+.INFO 2026-04-19 07:39:43,816 signals Triggering async matching for Job 967
+WARNING 2026-04-19 07:39:44,066 log Not Found: /api/jobs/99999/applications/search/
+.INFO 2026-04-19 07:39:44,235 signals Triggering async matching for Job 968
+WARNING 2026-04-19 07:39:44,488 log Forbidden: /api/jobs/968/applications/search/
+.INFO 2026-04-19 07:39:44,654 signals Triggering async matching for Job 969
+.INFO 2026-04-19 07:39:45,082 signals Triggering async matching for Job 970
+WARNING 2026-04-19 07:39:45,348 log Unauthorized: /api/jobs/970/applications/search/
+.INFO 2026-04-19 07:39:45,512 signals Triggering async matching for Job 971
+.INFO 2026-04-19 07:39:45,939 signals Triggering async matching for Job 972
+WARNING 2026-04-19 07:39:46,193 log Not Found: /api/jobs/99999/applications/shortlisted/
+.INFO 2026-04-19 07:39:46,362 signals Triggering async matching for Job 973
+WARNING 2026-04-19 07:39:46,612 log Forbidden: /api/jobs/973/applications/shortlisted/
+.INFO 2026-04-19 07:39:46,792 signals Triggering async matching for Job 974
+.INFO 2026-04-19 07:39:47,219 signals Triggering async matching for Job 975
+WARNING 2026-04-19 07:39:47,466 log Unauthorized: /api/jobs/975/applications/shortlisted/
+..WARNING 2026-04-19 07:39:47,813 log Forbidden: /api/interview-types/
+..WARNING 2026-04-19 07:39:48,153 log Forbidden: /api/interview-types/139/
+..WARNING 2026-04-19 07:39:48,485 log Unauthorized: /api/interview-types/
+..WARNING 2026-04-19 07:39:48,822 log Not Found: /api/interview-types/99999/
+.WARNING 2026-04-19 07:39:48,988 log Unauthorized: /api/interview-types/144/
+..WARNING 2026-04-19 07:39:49,328 log Forbidden: /api/interview-types/146/
+.INFO 2026-04-19 07:39:49,587 signals Triggering async matching for Job 976
+WARNING 2026-04-19 07:39:49,594 log Not Found: /api/interviews/99999/feedback/
+.INFO 2026-04-19 07:39:49,845 signals Triggering async matching for Job 977
+WARNING 2026-04-19 07:39:49,854 log Forbidden: /api/interviews/118/feedback/
+.INFO 2026-04-19 07:39:50,101 signals Triggering async matching for Job 978
+.INFO 2026-04-19 07:39:50,357 signals Triggering async matching for Job 979
+WARNING 2026-04-19 07:39:50,359 log Unauthorized: /api/interviews/120/feedback/
+.INFO 2026-04-19 07:39:50,604 signals Triggering async matching for Job 980
+.INFO 2026-04-19 07:39:50,860 signals Triggering async matching for Job 981
+WARNING 2026-04-19 07:39:50,862 log Unauthorized: /api/interviews/calendar/
+.INFO 2026-04-19 07:39:51,112 signals Triggering async matching for Job 982
+.INFO 2026-04-19 07:39:51,369 signals Triggering async matching for Job 983
+WARNING 2026-04-19 07:39:51,375 log Not Found: /api/interviews/99999/cancel/
+.INFO 2026-04-19 07:39:51,620 signals Triggering async matching for Job 984
+WARNING 2026-04-19 07:39:51,625 log Forbidden: /api/interviews/125/cancel/
+.INFO 2026-04-19 07:39:51,874 signals Triggering async matching for Job 985
+.INFO 2026-04-19 07:39:52,131 signals Triggering async matching for Job 986
+WARNING 2026-04-19 07:39:52,133 log Unauthorized: /api/interviews/127/cancel/
+.INFO 2026-04-19 07:39:52,377 signals Triggering async matching for Job 987
+.INFO 2026-04-19 07:39:52,632 signals Triggering async matching for Job 988
+WARNING 2026-04-19 07:39:52,638 log Not Found: /api/interviews/99999/complete/
+.INFO 2026-04-19 07:39:52,885 signals Triggering async matching for Job 989
+WARNING 2026-04-19 07:39:52,893 log Forbidden: /api/interviews/131/complete/
+.INFO 2026-04-19 07:39:53,138 signals Triggering async matching for Job 990
+.INFO 2026-04-19 07:39:53,395 signals Triggering async matching for Job 991
+WARNING 2026-04-19 07:39:53,397 log Unauthorized: /api/interviews/133/complete/
+.INFO 2026-04-19 07:39:53,644 signals Triggering async matching for Job 992
+.INFO 2026-04-19 07:39:53,988 signals Triggering async matching for Job 993
+WARNING 2026-04-19 07:39:53,991 log Bad Request: /api/interviews/
+.INFO 2026-04-19 07:39:54,241 signals Triggering async matching for Job 994
+WARNING 2026-04-19 07:39:54,249 log Bad Request: /api/interviews/
+.INFO 2026-04-19 07:39:54,496 signals Triggering async matching for Job 995
+WARNING 2026-04-19 07:39:54,502 log Forbidden: /api/interviews/
+.INFO 2026-04-19 07:39:54,748 signals Triggering async matching for Job 996
+WARNING 2026-04-19 07:39:54,838 log Bad Request: /api/interviews/
+.INFO 2026-04-19 07:39:55,088 signals Triggering async matching for Job 997
+WARNING 2026-04-19 07:39:55,090 log Unauthorized: /api/interviews/
+.INFO 2026-04-19 07:39:55,340 signals Triggering async matching for Job 998
+WARNING 2026-04-19 07:39:55,347 log Not Found: /api/interviews/99999/
+.INFO 2026-04-19 07:39:55,598 signals Triggering async matching for Job 999
+WARNING 2026-04-19 07:39:55,606 log Forbidden: /api/interviews/142/
+.INFO 2026-04-19 07:39:55,854 signals Triggering async matching for Job 1000
+.INFO 2026-04-19 07:39:56,114 signals Triggering async matching for Job 1001
+WARNING 2026-04-19 07:39:56,117 log Unauthorized: /api/interviews/145/
+.INFO 2026-04-19 07:39:56,369 signals Triggering async matching for Job 1002
+WARNING 2026-04-19 07:39:56,379 log Bad Request: /api/interviews/146/reschedule/
+.INFO 2026-04-19 07:39:56,627 signals Triggering async matching for Job 1003
+WARNING 2026-04-19 07:39:56,634 log Not Found: /api/interviews/99999/reschedule/
+.INFO 2026-04-19 07:39:56,882 signals Triggering async matching for Job 1004
+WARNING 2026-04-19 07:39:56,887 log Forbidden: /api/interviews/148/reschedule/
+.INFO 2026-04-19 07:39:57,134 signals Triggering async matching for Job 1005
+.INFO 2026-04-19 07:39:57,391 signals Triggering async matching for Job 1006
+WARNING 2026-04-19 07:39:57,393 log Unauthorized: /api/interviews/150/reschedule/
+.INFO 2026-04-19 07:39:57,645 signals Triggering async matching for Job 1007
+.INFO 2026-04-19 07:39:57,910 signals Triggering async matching for Job 1008
+.INFO 2026-04-19 07:39:58,169 signals Triggering async matching for Job 1009
+WARNING 2026-04-19 07:39:58,176 log Forbidden: /api/interviews/153/
+.INFO 2026-04-19 07:39:58,426 signals Triggering async matching for Job 1010
+WARNING 2026-04-19 07:39:58,433 log Not Found: /api/interviews/99999/
+.INFO 2026-04-19 07:39:58,683 signals Triggering async matching for Job 1011
+WARNING 2026-04-19 07:39:58,685 log Unauthorized: /api/interviews/155/
+.INFO 2026-04-19 07:39:58,932 signals Triggering async matching for Job 1012
+WARNING 2026-04-19 07:39:58,940 log Not Found: /api/interviews/99999/send-reminder/
+.INFO 2026-04-19 07:39:59,188 signals Triggering async matching for Job 1013
+WARNING 2026-04-19 07:39:59,196 log Forbidden: /api/interviews/157/send-reminder/
+.INFO 2026-04-19 07:39:59,446 signals Triggering async matching for Job 1014
+.INFO 2026-04-19 07:39:59,706 signals Triggering async matching for Job 1015
+WARNING 2026-04-19 07:39:59,709 log Unauthorized: /api/interviews/159/send-reminder/
+.INFO 2026-04-19 07:39:59,961 signals Triggering async matching for Job 1016
+.INFO 2026-04-19 07:40:00,217 signals Triggering async matching for Job 1017
+WARNING 2026-04-19 07:40:00,220 log Unauthorized: /api/interviews/upcoming/
+.INFO 2026-04-19 07:40:00,469 signals Triggering async matching for Job 1018
+WARNING 2026-04-19 07:40:00,477 log Not Found: /api/interviews/99999/
+.INFO 2026-04-19 07:40:00,726 signals Triggering async matching for Job 1019
+WARNING 2026-04-19 07:40:00,734 log Forbidden: /api/interviews/163/
+.INFO 2026-04-19 07:40:00,993 signals Triggering async matching for Job 1020
+WARNING 2026-04-19 07:40:01,002 log Bad Request: /api/interviews/164/
+.INFO 2026-04-19 07:40:01,251 signals Triggering async matching for Job 1021
+WARNING 2026-04-19 07:40:01,254 log Unauthorized: /api/interviews/165/
+..WARNING 2026-04-19 07:40:01,600 log Forbidden: /api/job-categories/
+..WARNING 2026-04-19 07:40:01,941 log Forbidden: /api/job-categories/62/
+.....WARNING 2026-04-19 07:40:02,785 log Not Found: /api/job-categories/99999/
+..WARNING 2026-04-19 07:40:03,120 log Not Found: /api/job-categories/99999/
+.WARNING 2026-04-19 07:40:03,286 log Forbidden: /api/job-categories/78/
+.INFO 2026-04-19 07:40:03,467 signals Triggering async matching for Job 1022
+WARNING 2026-04-19 07:40:03,475 log Bad Request: /api/jobs/1022/locations/
+.INFO 2026-04-19 07:40:03,641 signals Triggering async matching for Job 1023
+WARNING 2026-04-19 07:40:03,647 log Not Found: /api/jobs/99999/locations/
+.INFO 2026-04-19 07:40:03,813 signals Triggering async matching for Job 1024
+WARNING 2026-04-19 07:40:03,819 log Forbidden: /api/jobs/1024/locations/
+.INFO 2026-04-19 07:40:03,985 signals Triggering async matching for Job 1025
+.INFO 2026-04-19 07:40:04,162 signals Triggering async matching for Job 1026
+.INFO 2026-04-19 07:40:04,343 signals Triggering async matching for Job 1027
+WARNING 2026-04-19 07:40:04,345 log Unauthorized: /api/jobs/1027/locations/
+.INFO 2026-04-19 07:40:04,511 signals Triggering async matching for Job 1028
+WARNING 2026-04-19 07:40:04,518 log Not Found: /api/jobs/1028/locations/99999/
+.INFO 2026-04-19 07:40:04,684 signals Triggering async matching for Job 1029
+WARNING 2026-04-19 07:40:04,690 log Forbidden: /api/jobs/1029/locations/31/
+.INFO 2026-04-19 07:40:04,856 signals Triggering async matching for Job 1030
+.INFO 2026-04-19 07:40:05,029 signals Triggering async matching for Job 1031
+WARNING 2026-04-19 07:40:05,033 log Unauthorized: /api/jobs/1031/locations/33/
+.INFO 2026-04-19 07:40:05,212 signals Triggering async matching for Job 1032
+INFO 2026-04-19 07:40:05,215 signals Triggering async matching for Job 1033
+WARNING 2026-04-19 07:40:05,222 log Not Found: /api/jobs/1032/locations/34/
+.INFO 2026-04-19 07:40:05,389 signals Triggering async matching for Job 1034
+.INFO 2026-04-19 07:40:05,562 signals Triggering async matching for Job 1035
+WARNING 2026-04-19 07:40:05,567 log Not Found: /api/jobs/99999/locations/
+.INFO 2026-04-19 07:40:05,733 signals Triggering async matching for Job 1036
+.INFO 2026-04-19 07:40:05,906 signals Triggering async matching for Job 1037
+.INFO 2026-04-19 07:40:06,090 signals Triggering async matching for Job 1038
+.INFO 2026-04-19 07:40:06,271 signals Triggering async matching for Job 1039
+WARNING 2026-04-19 07:40:06,279 log Not Found: /api/jobs/1039/locations/99999/
+.INFO 2026-04-19 07:40:06,447 signals Triggering async matching for Job 1040
+WARNING 2026-04-19 07:40:06,453 log Forbidden: /api/jobs/1040/locations/39/
+.INFO 2026-04-19 07:40:06,621 signals Triggering async matching for Job 1041
+.INFO 2026-04-19 07:40:06,795 signals Triggering async matching for Job 1042
+WARNING 2026-04-19 07:40:06,798 log Unauthorized: /api/jobs/1042/locations/41/
+.INFO 2026-04-19 07:40:06,964 signals Triggering async matching for Job 1043
+INFO 2026-04-19 07:40:06,966 signals Triggering async matching for Job 1044
+WARNING 2026-04-19 07:40:06,970 log Not Found: /api/jobs/1043/locations/42/
+.INFO 2026-04-19 07:40:07,148 signals Triggering async matching for Job 1045
+WARNING 2026-04-19 07:40:07,157 log Bad Request: /api/jobs/1045/skills/
+.INFO 2026-04-19 07:40:07,324 signals Triggering async matching for Job 1046
+WARNING 2026-04-19 07:40:07,331 log Bad Request: /api/jobs/1046/skills/
+.INFO 2026-04-19 07:40:07,497 signals Triggering async matching for Job 1047
+WARNING 2026-04-19 07:40:07,501 log Not Found: /api/jobs/99999/skills/
+.INFO 2026-04-19 07:40:07,667 signals Triggering async matching for Job 1048
+WARNING 2026-04-19 07:40:07,672 log Forbidden: /api/jobs/1048/skills/
+.INFO 2026-04-19 07:40:07,838 signals Triggering async matching for Job 1049
+WARNING 2026-04-19 07:40:07,845 log Bad Request: /api/jobs/1049/skills/
+.INFO 2026-04-19 07:40:08,011 signals Triggering async matching for Job 1050
+.INFO 2026-04-19 07:40:08,184 signals Triggering async matching for Job 1051
+WARNING 2026-04-19 07:40:08,186 log Unauthorized: /api/jobs/1051/skills/
+.INFO 2026-04-19 07:40:08,351 signals Triggering async matching for Job 1052
+WARNING 2026-04-19 07:40:08,357 log Not Found: /api/jobs/1052/skills/99999/
+.INFO 2026-04-19 07:40:08,524 signals Triggering async matching for Job 1053
+WARNING 2026-04-19 07:40:08,529 log Forbidden: /api/jobs/1053/skills/41/
+.INFO 2026-04-19 07:40:08,696 signals Triggering async matching for Job 1054
+.INFO 2026-04-19 07:40:08,872 signals Triggering async matching for Job 1055
+WARNING 2026-04-19 07:40:08,875 log Unauthorized: /api/jobs/1055/skills/43/
+.INFO 2026-04-19 07:40:09,040 signals Triggering async matching for Job 1056
+INFO 2026-04-19 07:40:09,043 signals Triggering async matching for Job 1057
+WARNING 2026-04-19 07:40:09,048 log Not Found: /api/jobs/1056/skills/44/
+.INFO 2026-04-19 07:40:09,214 signals Triggering async matching for Job 1058
+.INFO 2026-04-19 07:40:09,387 signals Triggering async matching for Job 1059
+WARNING 2026-04-19 07:40:09,391 log Not Found: /api/jobs/99999/skills/
+.INFO 2026-04-19 07:40:09,556 signals Triggering async matching for Job 1060
+.INFO 2026-04-19 07:40:09,729 signals Triggering async matching for Job 1061
+WARNING 2026-04-19 07:40:09,736 log Not Found: /api/jobs/1061/skills/99999/
+.INFO 2026-04-19 07:40:09,902 signals Triggering async matching for Job 1062
+WARNING 2026-04-19 07:40:09,908 log Forbidden: /api/jobs/1062/skills/46/
+.INFO 2026-04-19 07:40:10,075 signals Triggering async matching for Job 1063
+.INFO 2026-04-19 07:40:10,251 signals Triggering async matching for Job 1064
+WARNING 2026-04-19 07:40:10,254 log Unauthorized: /api/jobs/1064/skills/48/
+.INFO 2026-04-19 07:40:10,419 signals Triggering async matching for Job 1065
+INFO 2026-04-19 07:40:10,422 signals Triggering async matching for Job 1066
+WARNING 2026-04-19 07:40:10,428 log Not Found: /api/jobs/1065/skills/49/
+.INFO 2026-04-19 07:40:10,691 signals Triggering async matching for Job 1067
+.INFO 2026-04-19 07:40:10,949 signals Triggering async matching for Job 1068
+.INFO 2026-04-19 07:40:11,206 signals Triggering async matching for Job 1069
+.INFO 2026-04-19 07:40:11,464 signals Triggering async matching for Job 1070
+.INFO 2026-04-19 07:40:11,719 signals Triggering async matching for Job 1071
+.INFO 2026-04-19 07:40:11,975 signals Triggering async matching for Job 1072
+.INFO 2026-04-19 07:40:12,227 signals Triggering async matching for Job 1073
+WARNING 2026-04-19 07:40:12,230 log Not Found: /api/jobs/99999/views/
+.INFO 2026-04-19 07:40:12,477 signals Triggering async matching for Job 1074
+.INFO 2026-04-19 07:40:12,734 signals Triggering async matching for Job 1075
+.INFO 2026-04-19 07:40:12,992 signals Triggering async matching for Job 1076
+.INFO 2026-04-19 07:40:13,250 signals Triggering async matching for Job 1077
+.INFO 2026-04-19 07:40:13,505 signals Triggering async matching for Job 1078
+.INFO 2026-04-19 07:40:13,761 signals Triggering async matching for Job 1079
+.INFO 2026-04-19 07:40:14,015 signals Triggering async matching for Job 1080
+.INFO 2026-04-19 07:40:14,265 signals Triggering async matching for Job 1081
+.INFO 2026-04-19 07:40:14,512 signals Triggering async matching for Job 1082
+.INFO 2026-04-19 07:40:14,764 signals Triggering async matching for Job 1083
+.INFO 2026-04-19 07:40:15,020 signals Triggering async matching for Job 1084
+.INFO 2026-04-19 07:40:15,270 signals Triggering async matching for Job 1085
+.INFO 2026-04-19 07:40:15,461 signals Triggering async matching for Job 1086
+WARNING 2026-04-19 07:40:15,465 log Bad Request: /api/jobs/1086/status/
+.INFO 2026-04-19 07:40:15,629 signals Triggering async matching for Job 1087
+WARNING 2026-04-19 07:40:15,631 log Not Found: /api/jobs/99999/status/
+.INFO 2026-04-19 07:40:15,798 signals Triggering async matching for Job 1088
+WARNING 2026-04-19 07:40:15,801 log Forbidden: /api/jobs/1088/status/
+.INFO 2026-04-19 07:40:15,970 signals Triggering async matching for Job 1089
+INFO 2026-04-19 07:40:15,977 signals Triggering async matching for Job 1090
+.INFO 2026-04-19 07:40:16,143 signals Triggering async matching for Job 1091
+WARNING 2026-04-19 07:40:16,147 log Bad Request: /api/jobs/1092/close/
+.INFO 2026-04-19 07:40:16,313 signals Triggering async matching for Job 1093
+WARNING 2026-04-19 07:40:16,316 log Not Found: /api/jobs/99999/close/
+.INFO 2026-04-19 07:40:16,483 signals Triggering async matching for Job 1094
+WARNING 2026-04-19 07:40:16,486 log Forbidden: /api/jobs/1094/close/
+.INFO 2026-04-19 07:40:16,655 signals Triggering async matching for Job 1095
+.INFO 2026-04-19 07:40:16,826 signals Triggering async matching for Job 1096
+WARNING 2026-04-19 07:40:16,826 log Bad Request: /api/jobs/
+.INFO 2026-04-19 07:40:16,992 signals Triggering async matching for Job 1097
+WARNING 2026-04-19 07:40:16,995 log Bad Request: /api/jobs/
+.INFO 2026-04-19 07:40:17,159 signals Triggering async matching for Job 1098
+.INFO 2026-04-19 07:40:17,331 signals Triggering async matching for Job 1100
+WARNING 2026-04-19 07:40:17,331 log Unauthorized: /api/jobs/
+.INFO 2026-04-19 07:40:17,498 signals Triggering async matching for Job 1101
+WARNING 2026-04-19 07:40:17,501 log Not Found: /api/jobs/99999/
+.INFO 2026-04-19 07:40:17,669 signals Triggering async matching for Job 1102
+WARNING 2026-04-19 07:40:17,672 log Forbidden: /api/jobs/1102/
+.INFO 2026-04-19 07:40:17,840 signals Triggering async matching for Job 1103
+.INFO 2026-04-19 07:40:18,020 signals Triggering async matching for Job 1104
+WARNING 2026-04-19 07:40:18,023 log Not Found: /api/jobs/99999/duplicate/
+.INFO 2026-04-19 07:40:18,188 signals Triggering async matching for Job 1105
+WARNING 2026-04-19 07:40:18,190 log Forbidden: /api/jobs/1105/duplicate/
+.INFO 2026-04-19 07:40:18,358 signals Triggering async matching for Job 1106
+.INFO 2026-04-19 07:40:18,532 signals Triggering async matching for Job 1108
+WARNING 2026-04-19 07:40:18,534 log Not Found: /api/jobs/99999/feature/
+.INFO 2026-04-19 07:40:18,701 signals Triggering async matching for Job 1109
+WARNING 2026-04-19 07:40:18,705 log Forbidden: /api/jobs/1109/feature/
+.INFO 2026-04-19 07:40:18,874 signals Triggering async matching for Job 1110
+INFO 2026-04-19 07:40:18,875 signals Triggering async matching for Job 1110
+.INFO 2026-04-19 07:40:19,045 signals Triggering async matching for Job 1111
+.INFO 2026-04-19 07:40:19,212 signals Triggering async matching for Job 1112
+.INFO 2026-04-19 07:40:19,382 signals Triggering async matching for Job 1113
+WARNING 2026-04-19 07:40:19,385 log Not Found: /api/jobs/99999/
+.INFO 2026-04-19 07:40:19,556 signals Triggering async matching for Job 1114
+.INFO 2026-04-19 07:40:19,728 signals Triggering async matching for Job 1115
+WARNING 2026-04-19 07:40:19,731 log Not Found: /api/jobs/slug/non-existent-slug/
+.INFO 2026-04-19 07:40:19,900 signals Triggering async matching for Job 1116
+WARNING 2026-04-19 07:40:19,902 log Not Found: /api/jobs/99999/stats/
+.INFO 2026-04-19 07:40:20,070 signals Triggering async matching for Job 1117
+.INFO 2026-04-19 07:40:20,243 signals Triggering async matching for Job 1118
+.INFO 2026-04-19 07:40:20,413 signals Triggering async matching for Job 1119
+.INFO 2026-04-19 07:40:20,586 signals Triggering async matching for Job 1120
+.INFO 2026-04-19 07:40:20,756 signals Triggering async matching for Job 1121
+.INFO 2026-04-19 07:40:20,924 signals Triggering async matching for Job 1122
+.INFO 2026-04-19 07:40:21,097 signals Triggering async matching for Job 1123
+.INFO 2026-04-19 07:40:21,266 signals Triggering async matching for Job 1124
+EINFO 2026-04-19 07:40:21,437 signals Triggering async matching for Job 1125
+WARNING 2026-04-19 07:40:21,442 log Bad Request: /api/jobs/1125/publish/
+.INFO 2026-04-19 07:40:21,610 signals Triggering async matching for Job 1126
+WARNING 2026-04-19 07:40:21,613 log Not Found: /api/jobs/99999/publish/
+.INFO 2026-04-19 07:40:21,780 signals Triggering async matching for Job 1127
+WARNING 2026-04-19 07:40:21,784 log Forbidden: /api/jobs/1127/publish/
+.INFO 2026-04-19 07:40:21,953 signals Triggering async matching for Job 1128
+INFO 2026-04-19 07:40:21,959 signals Triggering async matching for Job 1129
+.INFO 2026-04-19 07:40:22,131 signals Triggering async matching for Job 1130
+WARNING 2026-04-19 07:40:22,132 log Unauthorized: /api/jobs/recommendations/
+.INFO 2026-04-19 07:40:22,299 signals Triggering async matching for Job 1131
+WARNING 2026-04-19 07:40:22,301 log Not Found: /api/jobs/99999/view/
+.INFO 2026-04-19 07:40:22,466 signals Triggering async matching for Job 1132
+.INFO 2026-04-19 07:40:22,638 signals Triggering async matching for Job 1133
+INFO 2026-04-19 07:40:22,644 signals Triggering async matching for Job 1133
+.INFO 2026-04-19 07:40:22,812 signals Triggering async matching for Job 1134
+.INFO 2026-04-19 07:40:22,985 signals Triggering async matching for Job 1135
+WARNING 2026-04-19 07:40:22,987 log Not Found: /api/jobs/99999/similar/
+.INFO 2026-04-19 07:40:23,156 signals Triggering async matching for Job 1136
+INFO 2026-04-19 07:40:23,157 signals Triggering async matching for Job 1136
+INFO 2026-04-19 07:40:23,162 signals Triggering async matching for Job 1136
+.INFO 2026-04-19 07:40:23,331 signals Triggering async matching for Job 1137
+WARNING 2026-04-19 07:40:23,334 log Not Found: /api/jobs/99999/
+.INFO 2026-04-19 07:40:23,500 signals Triggering async matching for Job 1138
+WARNING 2026-04-19 07:40:23,504 log Forbidden: /api/jobs/1138/
+.INFO 2026-04-19 07:40:23,674 signals Triggering async matching for Job 1139
+INFO 2026-04-19 07:40:23,679 signals Triggering async matching for Job 1139
+.INFO 2026-04-19 07:40:23,849 signals Triggering async matching for Job 1140
+WARNING 2026-04-19 07:40:23,849 log Unauthorized: /api/jobs/1140/
+.INFO 2026-04-19 07:40:24,016 signals Triggering async matching for Job 1141
+.INFO 2026-04-19 07:40:24,281 signals Triggering async matching for Job 1142
+INFO 2026-04-19 07:40:24,281 signals Triggering async matching for Job 1143
+.INFO 2026-04-19 07:40:24,540 signals Triggering async matching for Job 1144
+INFO 2026-04-19 07:40:24,541 signals Triggering async matching for Job 1145
+.INFO 2026-04-19 07:40:24,792 signals Triggering async matching for Job 1146
+INFO 2026-04-19 07:40:24,792 signals Triggering async matching for Job 1147
+WARNING 2026-04-19 07:40:24,795 log Not Found: /api/jobs/99999/is-saved/
+.INFO 2026-04-19 07:40:25,042 signals Triggering async matching for Job 1148
+INFO 2026-04-19 07:40:25,043 signals Triggering async matching for Job 1149
+.INFO 2026-04-19 07:40:25,296 signals Triggering async matching for Job 1150
+INFO 2026-04-19 07:40:25,297 signals Triggering async matching for Job 1151
+.INFO 2026-04-19 07:40:25,547 signals Triggering async matching for Job 1152
+INFO 2026-04-19 07:40:25,548 signals Triggering async matching for Job 1153
+WARNING 2026-04-19 07:40:25,566 log Not Found: /api/recruiters/1322/saved-jobs/
+FINFO 2026-04-19 07:40:25,814 signals Triggering async matching for Job 1154
+INFO 2026-04-19 07:40:25,815 signals Triggering async matching for Job 1155
+WARNING 2026-04-19 07:40:25,816 log Not Found: /api/recruiters/1324/saved-jobs/
+FINFO 2026-04-19 07:40:26,063 signals Triggering async matching for Job 1156
+INFO 2026-04-19 07:40:26,064 signals Triggering async matching for Job 1157
+WARNING 2026-04-19 07:40:26,066 log Not Found: /api/recruiters/99999/saved-jobs/
+.INFO 2026-04-19 07:40:26,310 signals Triggering async matching for Job 1158
+INFO 2026-04-19 07:40:26,311 signals Triggering async matching for Job 1159
+WARNING 2026-04-19 07:40:26,313 log Not Found: /api/recruiters/1328/saved-jobs/
+FINFO 2026-04-19 07:40:26,561 signals Triggering async matching for Job 1160
+INFO 2026-04-19 07:40:26,562 signals Triggering async matching for Job 1161
+WARNING 2026-04-19 07:40:26,564 log Not Found: /api/recruiters/1330/saved-jobs/
+FINFO 2026-04-19 07:40:26,808 signals Triggering async matching for Job 1162
+INFO 2026-04-19 07:40:26,809 signals Triggering async matching for Job 1163
+WARNING 2026-04-19 07:40:26,813 log Bad Request: /api/jobs/1162/save/
+.INFO 2026-04-19 07:40:27,061 signals Triggering async matching for Job 1164
+INFO 2026-04-19 07:40:27,062 signals Triggering async matching for Job 1165
+WARNING 2026-04-19 07:40:27,149 log Not Found: /api/jobs/1164/save/
+.INFO 2026-04-19 07:40:27,396 signals Triggering async matching for Job 1166
+INFO 2026-04-19 07:40:27,396 signals Triggering async matching for Job 1167
+WARNING 2026-04-19 07:40:27,399 log Not Found: /api/jobs/99999/save/
+.INFO 2026-04-19 07:40:27,644 signals Triggering async matching for Job 1168
+INFO 2026-04-19 07:40:27,645 signals Triggering async matching for Job 1169
+.INFO 2026-04-19 07:40:27,908 signals Triggering async matching for Job 1170
+INFO 2026-04-19 07:40:27,909 signals Triggering async matching for Job 1171
+WARNING 2026-04-19 07:40:27,910 log Unauthorized: /api/jobs/1170/save/
+.INFO 2026-04-19 07:40:28,158 signals Triggering async matching for Job 1172
+INFO 2026-04-19 07:40:28,159 signals Triggering async matching for Job 1173
+.INFO 2026-04-19 07:40:28,411 signals Triggering async matching for Job 1174
+INFO 2026-04-19 07:40:28,412 signals Triggering async matching for Job 1175
+.INFO 2026-04-19 07:40:28,669 signals Triggering async matching for Job 1176
+INFO 2026-04-19 07:40:28,670 signals Triggering async matching for Job 1177
+WARNING 2026-04-19 07:40:28,674 log Not Found: /api/jobs/99999/unsave/
+.INFO 2026-04-19 07:40:28,929 signals Triggering async matching for Job 1178
+INFO 2026-04-19 07:40:28,930 signals Triggering async matching for Job 1179
+WARNING 2026-04-19 07:40:28,936 log Bad Request: /api/jobs/1178/unsave/
+.INFO 2026-04-19 07:40:29,178 signals Triggering async matching for Job 1180
+INFO 2026-04-19 07:40:29,179 signals Triggering async matching for Job 1181
+.INFO 2026-04-19 07:40:29,430 signals Triggering async matching for Job 1182
+INFO 2026-04-19 07:40:29,430 signals Triggering async matching for Job 1183
+WARNING 2026-04-19 07:40:29,432 log Unauthorized: /api/jobs/1182/unsave/
+.INFO 2026-04-19 07:40:29,675 signals Triggering async matching for Job 1184
+INFO 2026-04-19 07:40:29,676 signals Triggering async matching for Job 1185
+WARNING 2026-04-19 07:40:29,681 log Not Found: /api/saved-jobs/99999/
+.INFO 2026-04-19 07:40:29,928 signals Triggering async matching for Job 1186
+INFO 2026-04-19 07:40:29,930 signals Triggering async matching for Job 1187
+WARNING 2026-04-19 07:40:29,936 log Forbidden: /api/saved-jobs/34/
+.INFO 2026-04-19 07:40:30,184 signals Triggering async matching for Job 1188
+INFO 2026-04-19 07:40:30,185 signals Triggering async matching for Job 1189
+.INFO 2026-04-19 07:40:30,437 signals Triggering async matching for Job 1190
+INFO 2026-04-19 07:40:30,437 signals Triggering async matching for Job 1191
+WARNING 2026-04-19 07:40:30,439 log Unauthorized: /api/saved-jobs/36/
+..WARNING 2026-04-19 07:40:30,795 log Unauthorized: /api/benefit-categories/
+.WARNING 2026-04-19 07:40:30,963 log Forbidden: /api/benefit-categories/
+..WARNING 2026-04-19 07:40:31,302 log Forbidden: /api/benefit-categories/124/
+....WARNING 2026-04-19 07:40:31,992 log Not Found: /api/benefit-categories/reorder/
+.WARNING 2026-04-19 07:40:32,160 log Forbidden: /api/benefit-categories/reorder/
+.WARNING 2026-04-19 07:40:32,328 log Not Found: /api/benefit-categories/99999/
+..WARNING 2026-04-19 07:40:32,660 log Forbidden: /api/benefit-categories/148/
+.WARNING 2026-04-19 07:40:32,841 log Bad Request: /api/companies/1011/claim/
+..WARNING 2026-04-19 07:40:33,197 log Not Found: /api/companies/99999/jobs/
+...INFO 2026-04-19 07:40:33,730 signals Triggering async matching for Job 1192
+..INFO 2026-04-19 07:40:34,084 signals Triggering async matching for Job 1194
+.WARNING 2026-04-19 07:40:34,270 log Not Found: /api/companies/99999/
+...WARNING 2026-04-19 07:40:34,795 log Forbidden: /api/companies/1029/banner/
+..WARNING 2026-04-19 07:40:36,589 log Not Found: /api/companies/99999/logo/
+.WARNING 2026-04-19 07:40:36,757 log Bad Request: /api/companies/1035/logo/
+.WARNING 2026-04-19 07:40:36,923 log Forbidden: /api/companies/1037/logo/
+..WARNING 2026-04-19 07:40:38,044 log Unauthorized: /api/companies/1041/logo/
+.WARNING 2026-04-19 07:40:38,162 log Forbidden: /api/companies/1043/verification/
+..WARNING 2026-04-19 07:40:38,505 log Bad Request: /api/companies/1045/claim/
+.s..WARNING 2026-04-19 07:40:38,682 log Bad Request: /api/companies/
+.....WARNING 2026-04-19 07:40:39,118 log Forbidden: /api/companies/1050/verify/
+....WARNING 2026-04-19 07:40:39,567 log Forbidden: /api/companies/1054/
+.WARNING 2026-04-19 07:40:39,749 log Bad Request: /api/companies/1055/benefits/
+.WARNING 2026-04-19 07:40:39,919 log Forbidden: /api/companies/1056/benefits/
+..WARNING 2026-04-19 07:40:40,265 log Unauthorized: /api/companies/1058/benefits/
+.WARNING 2026-04-19 07:40:40,434 log Forbidden: /api/companies/1059/benefits/42/
+..WARNING 2026-04-19 07:40:40,770 log Not Found: /api/companies/9999/benefits/
+..WARNING 2026-04-19 07:40:41,111 log Bad Request: /api/companies/1063/benefits/reorder/
+.WARNING 2026-04-19 07:40:41,281 log Forbidden: /api/companies/1064/benefits/reorder/
+..WARNING 2026-04-19 07:40:41,627 log Not Found: /api/companies/1066/benefits/9999/
+..WARNING 2026-04-19 07:40:41,966 log Forbidden: /api/companies/1068/benefits/53/
+...............WARNING 2026-04-19 07:40:43,586 log Forbidden: /api/industries/
+..WARNING 2026-04-19 07:40:43,918 log Forbidden: /api/industries/62/
+......WARNING 2026-04-19 07:40:44,930 log Not Found: /api/industries/99999/
+..WARNING 2026-04-19 07:40:45,269 log Not Found: /api/industries/99999/
+.WARNING 2026-04-19 07:40:45,437 log Forbidden: /api/industries/80/
+.......................WARNING 2026-04-19 07:40:45,863 log Bad Request: /api/media-types/
+.WARNING 2026-04-19 07:40:46,035 log Bad Request: /api/media-types/
+.WARNING 2026-04-19 07:40:46,203 log Forbidden: /api/media-types/
+.WARNING 2026-04-19 07:40:46,371 log Unauthorized: /api/media-types/
+..WARNING 2026-04-19 07:40:46,709 log Forbidden: /api/media-types/310/
+.WARNING 2026-04-19 07:40:46,876 log Not Found: /api/media-types/99999/
+.WARNING 2026-04-19 07:40:47,044 log Unauthorized: /api/media-types/316/
+......WARNING 2026-04-19 07:40:48,058 log Bad Request: /api/media-types/335/
+.WARNING 2026-04-19 07:40:48,225 log Forbidden: /api/media-types/337/
+.WARNING 2026-04-19 07:40:48,390 log Not Found: /api/media-types/99999/
+...WARNING 2026-04-19 07:40:48,914 log Forbidden: /api/cv-templates/
+..WARNING 2026-04-19 07:40:49,247 log Forbidden: /api/cv-templates/96/
+......WARNING 2026-04-19 07:40:50,266 log Not Found: /api/cv-templates/99999/
+..WARNING 2026-04-19 07:40:50,603 log Not Found: /api/cv-templates/99999/
+.WARNING 2026-04-19 07:40:50,767 log Forbidden: /api/cv-templates/114/
+...WARNING 2026-04-19 07:40:50,959 log Bad Request: /api/candidates/1366/certifications/
+.WARNING 2026-04-19 07:40:51,129 log Forbidden: /api/candidates/1369/certifications/
+..WARNING 2026-04-19 07:40:51,475 log Unauthorized: /api/candidates/1372/certifications/
+.WARNING 2026-04-19 07:40:51,647 log Forbidden: /api/candidates/1375/certifications/45/
+..WARNING 2026-04-19 07:40:51,989 log Not Found: /api/candidates/99999/certifications/
+..WARNING 2026-04-19 07:40:52,332 log Bad Request: /api/candidates/1382/certifications/reorder/
+.WARNING 2026-04-19 07:40:52,501 log Forbidden: /api/candidates/1385/certifications/reorder/
+..WARNING 2026-04-19 07:40:52,845 log Not Found: /api/candidates/1388/certifications/99999/
+.WARNING 2026-04-19 07:40:53,016 log Forbidden: /api/candidates/1391/certifications/57/
+....WARNING 2026-04-19 07:40:53,648 log Unauthorized: /api/candidates/1396/cvs/
+..WARNING 2026-04-19 07:40:53,992 log Forbidden: /api/candidates/1398/cvs/44/
+..WARNING 2026-04-19 07:40:54,958 log Forbidden: /api/candidates/1400/cvs/46/download/
+...WARNING 2026-04-19 07:40:55,477 log Forbidden: /api/candidates/1403/cvs/
+.WARNING 2026-04-19 07:40:55,645 log Unauthorized: /api/candidates/1404/cvs/
+...WARNING 2026-04-19 07:40:56,153 log Not Found: /api/candidates/1407/cvs/99999/
+....WARNING 2026-04-19 07:40:56,874 log Forbidden: /api/candidates/1411/cvs/59/
+.WARNING 2026-04-19 07:40:57,058 log Bad Request: /api/candidates/1412/education/
+.WARNING 2026-04-19 07:40:57,229 log Forbidden: /api/candidates/1415/education/
+..WARNING 2026-04-19 07:40:57,577 log Unauthorized: /api/candidates/1418/education/
+.WARNING 2026-04-19 07:40:57,747 log Forbidden: /api/candidates/1421/education/48/
+..WARNING 2026-04-19 07:40:58,086 log Not Found: /api/candidates/99999/education/
+..WARNING 2026-04-19 07:40:58,428 log Bad Request: /api/candidates/1428/education/reorder/
+.WARNING 2026-04-19 07:40:58,596 log Forbidden: /api/candidates/1431/education/reorder/
+..WARNING 2026-04-19 07:40:58,935 log Not Found: /api/candidates/1434/education/99999/
+.WARNING 2026-04-19 07:40:59,106 log Forbidden: /api/candidates/1437/education/60/
+..WARNING 2026-04-19 07:40:59,462 log Bad Request: /api/candidates/1440/experience/
+.WARNING 2026-04-19 07:40:59,632 log Forbidden: /api/candidates/1443/experience/
+..WARNING 2026-04-19 07:40:59,979 log Unauthorized: /api/candidates/1446/experience/
+.WARNING 2026-04-19 07:41:00,150 log Forbidden: /api/candidates/1449/experience/48/
+..WARNING 2026-04-19 07:41:00,490 log Not Found: /api/candidates/99999/experience/
+..WARNING 2026-04-19 07:41:00,832 log Bad Request: /api/candidates/1456/experience/reorder/
+.WARNING 2026-04-19 07:41:00,999 log Forbidden: /api/candidates/1459/experience/reorder/
+..WARNING 2026-04-19 07:41:01,345 log Not Found: /api/candidates/1462/experience/99999/
+.WARNING 2026-04-19 07:41:01,517 log Forbidden: /api/candidates/1465/experience/60/
+..WARNING 2026-04-19 07:41:01,874 log Bad Request: /api/candidates/1468/languages/
+.WARNING 2026-04-19 07:41:02,045 log Forbidden: /api/candidates/1471/languages/
+..WARNING 2026-04-19 07:41:02,395 log Unauthorized: /api/candidates/1474/languages/
+.WARNING 2026-04-19 07:41:02,565 log Forbidden: /api/candidates/1477/languages/33/
+..WARNING 2026-04-19 07:41:02,910 log Not Found: /api/candidates/99999/languages/
+..WARNING 2026-04-19 07:41:03,251 log Not Found: /api/candidates/1484/languages/99999/
+.WARNING 2026-04-19 07:41:03,428 log Forbidden: /api/candidates/1487/languages/39/
+..WARNING 2026-04-19 07:41:03,789 log Bad Request: /api/candidates/1490/projects/
+.WARNING 2026-04-19 07:41:03,959 log Forbidden: /api/candidates/1493/projects/
+..WARNING 2026-04-19 07:41:04,308 log Forbidden: /api/candidates/1497/projects/35/
+..WARNING 2026-04-19 07:41:04,679 log Not Found: /api/candidates/99999/projects/
+...WARNING 2026-04-19 07:41:05,186 log Forbidden: /api/candidates/1507/projects/42/
+..........WARNING 2026-04-19 07:41:06,938 log Forbidden: /api/candidates/1518/applications/
+.WARNING 2026-04-19 07:41:07,110 log Bad Request: /api/candidates/
+..WARNING 2026-04-19 07:41:07,463 log Unauthorized: /api/candidates/
+.WARNING 2026-04-19 07:41:07,630 log Forbidden: /api/candidates/1521/
+...WARNING 2026-04-19 07:41:08,151 log Forbidden: /api/candidates/1524/profile-completeness/
+..WARNING 2026-04-19 07:41:08,489 log Forbidden: /api/candidates/1526/stats/
+.WARNING 2026-04-19 07:41:08,656 log Forbidden: /api/candidates/1527/public_profile/
+....WARNING 2026-04-19 07:41:09,341 log Forbidden: /api/candidates/1531/saved-jobs/
+..WARNING 2026-04-19 07:41:09,761 log Forbidden: /api/candidates/search/
+..WARNING 2026-04-19 07:41:10,104 log Bad Request: /api/candidates/1534/job-search-status/
+..WARNING 2026-04-19 07:41:10,439 log Forbidden: /api/candidates/1536/privacy/
+.WARNING 2026-04-19 07:41:10,608 log Forbidden: /api/candidates/1537/
+..WARNING 2026-04-19 07:41:10,981 log Bad Request: /api/candidates/1539/avatar/
+.WARNING 2026-04-19 07:41:11,154 log Bad Request: /api/candidates/1540/avatar/
+.WARNING 2026-04-19 07:41:11,323 log Forbidden: /api/candidates/1541/avatar/
+.WARNING 2026-04-19 07:41:11,490 log Not Found: /api/candidates/99999/avatar/
+..WARNING 2026-04-19 07:41:11,841 log Unauthorized: /api/candidates/1543/avatar/
+..WARNING 2026-04-19 07:41:12,177 log Forbidden: /api/candidates/1545/verify-phone/
+...WARNING 2026-04-19 07:41:12,706 log Unauthorized: /api/skills/
+.WARNING 2026-04-19 07:41:12,875 log Forbidden: /api/skills/
+..WARNING 2026-04-19 07:41:13,215 log Forbidden: /api/skills/253/
+......WARNING 2026-04-19 07:41:14,243 log Not Found: /api/skills/99999/
+.....WARNING 2026-04-19 07:41:15,091 log Forbidden: /api/skills/286/
+.WARNING 2026-04-19 07:41:15,188 log Unauthorized: /api/users/auth/change-password/
+.WARNING 2026-04-19 07:41:15,354 log Bad Request: /api/users/auth/change-password/
+.WARNING 2026-04-19 07:41:15,381 log Bad Request: /api/users/auth/forgot-password/
+.WARNING 2026-04-19 07:41:15,382 log Bad Request: /api/users/auth/forgot-password/
+.WARNING 2026-04-19 07:41:15,484 log Unauthorized: /api/users/auth/refresh-token/
+.WARNING 2026-04-19 07:41:15,585 log Bad Request: /api/users/auth/refresh-token/
+.WARNING 2026-04-19 07:41:15,672 log Unauthorized: /api/users/auth/refresh-token/
+.WARNING 2026-04-19 07:41:15,760 log Bad Request: /api/users/auth/refresh-token/
+.WARNING 2026-04-19 07:41:15,861 log Bad Request: /api/users/auth/resend-verification/
+.WARNING 2026-04-19 07:41:15,951 log Bad Request: /api/users/auth/resend-verification/
+.WARNING 2026-04-19 07:41:16,136 log Bad Request: /api/users/auth/reset-password/
+.WARNING 2026-04-19 07:41:16,303 log Bad Request: /api/users/auth/reset-password/
+.WARNING 2026-04-19 07:41:16,469 log Bad Request: /api/users/auth/reset-password/
+..WARNING 2026-04-19 07:41:16,582 log Bad Request: /api/users/auth/social/facebook/
+.WARNING 2026-04-19 07:41:16,585 log Bad Request: /api/users/auth/social/google/
+.WARNING 2026-04-19 07:41:16,586 log Bad Request: /api/users/auth/social/linkedin/
+.WARNING 2026-04-19 07:41:16,588 log Bad Request: /api/users/auth/social/twitter/
+.WARNING 2026-04-19 07:41:16,764 log Bad Request: /api/users/auth/verify-2fa/
+.WARNING 2026-04-19 07:41:16,930 log Unauthorized: /api/users/auth/verify-2fa/
+.WARNING 2026-04-19 07:41:17,101 log Bad Request: /api/users/auth/verify-2fa/
+.WARNING 2026-04-19 07:41:17,202 log Bad Request: /api/users/auth/verify-email/
+.WARNING 2026-04-19 07:41:17,287 log Bad Request: /api/users/auth/verify-email/
+.WARNING 2026-04-19 07:41:17,374 log Bad Request: /api/users/auth/verify-email/
+.WARNING 2026-04-19 07:41:17,459 log Bad Request: /api/users/auth/verify-email/
+............WARNING 2026-04-19 07:41:19,582 log Bad Request: /api/users/auth/social/facebook/
+..WARNING 2026-04-19 07:41:19,760 log Bad Request: /api/users/auth/social/linkedin/
+.WARNING 2026-04-19 07:41:19,847 log Bad Request: /api/users/auth/verify-2fa/
+......WARNING 2026-04-19 07:41:20,698 log Too Many Requests: /api/users/auth/forgot-password/
+FWARNING 2026-04-19 07:41:20,783 log Too Many Requests: /api/users/auth/resend-verification/
+F..................WARNING 2026-04-19 07:41:23,533 log Bad Request: /api/users/auth/passkey/authenticate/options/
+...WARNING 2026-04-19 07:41:23,791 log Unauthorized: /api/users/auth/passkey/authenticate/verify/
+.WARNING 2026-04-19 07:41:23,880 log Bad Request: /api/users/auth/passkey/99999/delete/
+.WARNING 2026-04-19 07:41:24,054 log Bad Request: /api/users/auth/passkey/55/delete/
+.WARNING 2026-04-19 07:41:24,142 log Unauthorized: /api/users/auth/passkey/1/delete/
+....WARNING 2026-04-19 07:41:24,565 log Unauthorized: /api/users/auth/passkey/list/
+..WARNING 2026-04-19 07:41:24,833 log Bad Request: /api/users/auth/passkey/61/rename/
+.WARNING 2026-04-19 07:41:24,916 log Unauthorized: /api/users/auth/passkey/1/rename/
+..WARNING 2026-04-19 07:41:25,093 log Bad Request: /api/users/auth/passkey/63/rename/
+.WARNING 2026-04-19 07:41:25,179 log Unauthorized: /api/users/auth/passkey/register/options/
+..WARNING 2026-04-19 07:41:25,355 log Bad Request: /api/users/auth/passkey/register/verify/
+.WARNING 2026-04-19 07:41:25,441 log Unauthorized: /api/users/auth/passkey/register/verify/
+.WARNING 2026-04-19 07:41:25,528 log Bad Request: /api/users/auth/passkey/register/verify/
+........................................WARNING 2026-04-19 07:41:28,872 social_auth [Google] Token invalid or expired: {'error': 'invalid_token'}
+.........WARNING 2026-04-19 07:41:29,415 log Forbidden: /api/users/4642/
+......WARNING 2026-04-19 07:41:30,042 log Forbidden: /api/users/4649/role/
+.WARNING 2026-04-19 07:41:30,299 log Forbidden: /api/users/4652/status/
+...WARNING 2026-04-19 07:41:31,367 log Forbidden: /api/users/4658/avatar/
+..WARNING 2026-04-19 07:41:31,712 log Forbidden: /api/users/4662/avatar/
+..WARNING 2026-04-19 07:41:32,927 log Bad Request: /api/users/4665/avatar/
+.WARNING 2026-04-19 07:41:33,099 log Forbidden: /api/users/bulk-action/
+.WARNING 2026-04-19 07:41:33,349 log Bad Request: /api/users/bulk-action/
+.WARNING 2026-04-19 07:41:33,515 log Bad Request: /api/users/bulk-action/
+.WARNING 2026-04-19 07:41:33,681 log Bad Request: /api/users/bulk-action/
+.WARNING 2026-04-19 07:41:33,847 log Unauthorized: /api/users/bulk-action/
+.WARNING 2026-04-19 07:41:33,941 log Forbidden: /api/users/export/
+.WARNING 2026-04-19 07:41:34,026 log Unauthorized: /api/users/export/
+...WARNING 2026-04-19 07:41:34,780 log Not Found: /api/users/99999/
+..WARNING 2026-04-19 07:41:35,276 log Unauthorized: /api/users/4694/
+...WARNING 2026-04-19 07:41:37,022 log Unauthorized: /api/users/
+....WARNING 2026-04-19 07:41:38,502 log Forbidden: /api/users/stats/
+.WARNING 2026-04-19 07:41:38,585 log Unauthorized: /api/users/stats/
+.WARNING 2026-04-19 07:41:38,774 log Bad Request: /api/users/4725/role/
+..WARNING 2026-04-19 07:41:39,125 log Bad Request: /api/users/4729/status/
+...WARNING 2026-04-19 07:41:39,726 log Forbidden: /api/users/4736/
+..WARNING 2026-04-19 07:41:40,228 log Not Found: /api/users/99999/
+.WARNING 2026-04-19 07:41:40,323 log Bad Request: /api/users/auth/login/
+.WARNING 2026-04-19 07:41:40,326 log Bad Request: /api/users/auth/login/
+.WARNING 2026-04-19 07:41:40,327 log Too Many Requests: /api/users/auth/login/
+FWARNING 2026-04-19 07:41:40,331 log Too Many Requests: /api/users/auth/login/
+FWARNING 2026-04-19 07:41:40,332 log Too Many Requests: /api/users/auth/login/
+FWARNING 2026-04-19 07:41:40,334 log Too Many Requests: /api/users/auth/login/
+FWARNING 2026-04-19 07:41:40,425 log Bad Request: /api/users/auth/logout/
+.WARNING 2026-04-19 07:41:40,511 log Bad Request: /api/users/auth/logout/
+..WARNING 2026-04-19 07:41:40,692 log Unauthorized: /api/users/auth/logout/
+.WARNING 2026-04-19 07:41:40,788 log Bad Request: /api/users/auth/register/
+.WARNING 2026-04-19 07:41:40,789 log Bad Request: /api/users/auth/register/
+.WARNING 2026-04-19 07:41:40,791 log Bad Request: /api/users/auth/register/
+.WARNING 2026-04-19 07:41:40,793 log Bad Request: /api/users/auth/register/
+.WARNING 2026-04-19 07:41:40,794 log Bad Request: /api/users/auth/register/
+....WARNING 2026-04-19 07:41:41,161 log Unauthorized: /api/users/me/
+...WARNING 2026-04-19 07:41:41,695 log Forbidden: /api/activity-logs/
+./Users/capkimkhanh/Documents/DUT/JOBIO/backend/.venv/lib/python3.14/site-packages/rest_framework/pagination.py:198: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'apps.system.file_uploads.models.FileUpload'> QuerySet.
+  paginator = self.django_paginator_class(queryset, page_size)
+..........WARNING 2026-04-19 07:41:43,113 log Forbidden: /api/system/settings/56/
+.INFO 2026-04-19 07:41:43,305 signals Triggering async matching for Job 1195
+INFO 2026-04-19 07:41:43,309 matching Found 1 alerts matching job 1195 (ORM-based scoring)
+.INFO 2026-04-19 07:41:43,313 signals Triggering async matching for Job 1196
+INFO 2026-04-19 07:41:43,315 matching Found 1 alerts matching job 1196 (ORM-based scoring)
+.INFO 2026-04-19 07:41:43,317 signals Triggering async matching for Job 1197
+INFO 2026-04-19 07:41:43,320 matching Found 1 alerts matching job 1197 (ORM-based scoring)
+INFO 2026-04-19 07:41:43,320 signals Triggering async matching for Job 1198
+INFO 2026-04-19 07:41:43,322 matching Found 0 alerts matching job 1198 (ORM-based scoring)
+..INFO 2026-04-19 07:41:43,326 signals Triggering async matching for Job 1199
+INFO 2026-04-19 07:41:43,328 matching Found 0 alerts matching job 1199 (ORM-based scoring)
+.INFO 2026-04-19 07:41:43,433 signals Triggering async matching for Job 1200
+.WARNING 2026-04-19 07:41:43,617 log Not Found: /api/job-alerts/8/
+..WARNING 2026-04-19 07:41:43,632 log Bad Request: /api/job-alerts/
+.WARNING 2026-04-19 07:41:43,635 log Bad Request: /api/job-alerts/
+.....WARNING 2026-04-19 07:41:43,655 log Unauthorized: /api/job-alerts/
+..WARNING 2026-04-19 07:41:43,669 log Bad Request: /api/notifications/mark-read/
+..........................WARNING 2026-04-19 07:41:44,075 log Not Found: /api/notifications/104/
+......WARNING 2026-04-19 07:41:44,092 log Unauthorized: /api/notifications/
+.....WARNING 2026-04-19 07:41:44,104 log Not Found: /api/notifications/104/read/
+.WARNING 2026-04-19 07:41:44,106 log Not Found: /api/notifications/99999/
+..WARNING 2026-04-19 07:41:44,110 log Forbidden: /api/notifications/104/
+...........WARNING 2026-04-19 07:41:44,966 log Bad Request: /api/addresses/
+.WARNING 2026-04-19 07:41:45,137 log Bad Request: /api/addresses/
+.WARNING 2026-04-19 07:41:45,304 log Unauthorized: /api/addresses/
+...WARNING 2026-04-19 07:41:45,822 log Not Found: /api/addresses/99999/
+.WARNING 2026-04-19 07:41:45,989 log Unauthorized: /api/addresses/198/
+.WARNING 2026-04-19 07:41:46,159 log Forbidden: /api/addresses/200/
+....WARNING 2026-04-19 07:41:46,841 log Not Found: /api/addresses/99999/
+..WARNING 2026-04-19 07:41:47,179 log Not Found: /api/addresses/99999/
+.WARNING 2026-04-19 07:41:47,348 log Unauthorized: /api/addresses/214/
+..WARNING 2026-04-19 07:41:47,690 log Not Found: /api/addresses/99999/verify/
+.WARNING 2026-04-19 07:41:47,860 log Unauthorized: /api/addresses/220/verify/
+.WARNING 2026-04-19 07:41:48,028 log Forbidden: /api/addresses/222/verify/
+......WARNING 2026-04-19 07:41:49,051 log Bad Request: /api/communes/
+.WARNING 2026-04-19 07:41:49,221 log Unauthorized: /api/communes/
+.WARNING 2026-04-19 07:41:49,391 log Forbidden: /api/communes/
+.....WARNING 2026-04-19 07:41:50,237 log Not Found: /api/communes/99999/
+..WARNING 2026-04-19 07:41:50,578 log Not Found: /api/communes/99999/
+.WARNING 2026-04-19 07:41:50,748 log Unauthorized: /api/communes/230/
+.WARNING 2026-04-19 07:41:50,918 log Forbidden: /api/communes/234/
+........WARNING 2026-04-19 07:41:50,953 log Not Found: /api/provinces/99999/
+....
+======================================================================
+ERROR: test_list_jobs_with_filters (apps.recruitment.jobs.tests.test_views.JobViewTests.test_list_jobs_with_filters)
+Test GET /api/jobs/?job_type=full-time
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/recruitment/jobs/tests/test_views.py", line 87, in test_list_jobs_with_filters
+    self.assertEqual(job['job_type'], 'full-time')
+                     ~~~^^^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+
+======================================================================
+FAIL: test_list_saved_jobs_empty (apps.recruitment.saved_jobs.tests.test_views.SavedJobViewTests.test_list_saved_jobs_empty)
+GET /api/recruiters/:id/saved-jobs/ - empty → 200 + []
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/recruitment/saved_jobs/tests/test_views.py", line 96, in test_list_saved_jobs_empty
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 404 != 200
+
+======================================================================
+FAIL: test_list_saved_jobs_not_owner (apps.recruitment.saved_jobs.tests.test_views.SavedJobViewTests.test_list_saved_jobs_not_owner)
+GET /api/recruiters/:id/saved-jobs/ - xem của người khác → 403
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/recruitment/saved_jobs/tests/test_views.py", line 112, in test_list_saved_jobs_not_owner
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 404 != 403
+
+======================================================================
+FAIL: test_list_saved_jobs_success (apps.recruitment.saved_jobs.tests.test_views.SavedJobViewTests.test_list_saved_jobs_success)
+GET /api/recruiters/:id/saved-jobs/ - list saved jobs → 200
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/recruitment/saved_jobs/tests/test_views.py", line 87, in test_list_saved_jobs_success
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 404 != 200
+
+======================================================================
+FAIL: test_list_saved_jobs_unauthenticated (apps.recruitment.saved_jobs.tests.test_views.SavedJobViewTests.test_list_saved_jobs_unauthenticated)
+GET /api/recruiters/:id/saved-jobs/ - không login → 401
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/recruitment/saved_jobs/tests/test_views.py", line 104, in test_list_saved_jobs_unauthenticated
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 404 != 401
+
+======================================================================
+FAIL: test_forgot_password_success (apps.core.users.tests.test_new_auth_endpoints.TestNewAuthAPIs.test_forgot_password_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_new_auth_endpoints.py", line 48, in test_forgot_password_success
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 200
+
+======================================================================
+FAIL: test_resend_verification_success (apps.core.users.tests.test_new_auth_endpoints.TestNewAuthAPIs.test_resend_verification_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_new_auth_endpoints.py", line 83, in test_resend_verification_success
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 200
+
+======================================================================
+FAIL: test_login_missing_password (apps.core.users.tests.test_views.TestLoginAPI.test_login_missing_password)
+Test login without password
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_views.py", line 76, in test_login_missing_password
+    self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 400
+
+======================================================================
+FAIL: test_login_success (apps.core.users.tests.test_views.TestLoginAPI.test_login_success)
+Test successful login
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_views.py", line 35, in test_login_success
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 200
+
+======================================================================
+FAIL: test_login_wrong_email (apps.core.users.tests.test_views.TestLoginAPI.test_login_wrong_email)
+Test login with non-existent email
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_views.py", line 48, in test_login_wrong_email
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 401
+
+======================================================================
+FAIL: test_login_wrong_password (apps.core.users.tests.test_views.TestLoginAPI.test_login_wrong_password)
+Test login with wrong password
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/capkimkhanh/Documents/DUT/JOBIO/backend/apps/core/users/tests/test_views.py", line 58, in test_login_wrong_password
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 429 != 401
+
+----------------------------------------------------------------------
+Ran 905 tests in 153.075s
+
+FAILED (failures=10, errors=1, skipped=1)
+Preserving test database for alias 'default'...
+Found 905 test(s).
+System check identified no issues (0 silenced).
+
+✅ Test auto_generate_cv passed!
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+

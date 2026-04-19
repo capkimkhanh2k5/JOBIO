@@ -41,17 +41,17 @@ class RecruiterEducationViewTest(APITestCase):
     # ========== LIST Tests ==========
     
     def test_list_education_success(self):
-        """Test GET /api/recruiters/:id/education/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/'
+        """Test GET /api/candidates/:id/education/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/education/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['school_name'], "DUT")
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['school_name'], "DUT")
     
     def test_list_education_recruiter_not_found(self):
         """Test GET with non-existent recruiter returns 404"""
-        url = '/api/recruiters/99999/education/'
+        url = '/api/candidates/99999/education/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -59,8 +59,8 @@ class RecruiterEducationViewTest(APITestCase):
     # ========== CREATE Tests ==========
     
     def test_create_education_success(self):
-        """Test POST /api/recruiters/:id/education/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/'
+        """Test POST /api/candidates/:id/education/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/education/'
         data = {
             "school_name": "MIT",
             "degree": "Master",
@@ -76,7 +76,7 @@ class RecruiterEducationViewTest(APITestCase):
     
     def test_create_education_not_owner(self):
         """Test POST by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/education/'
+        url = f'/api/candidates/{self.recruiter2.id}/education/'
         data = {"school_name": "Hacker School"}
         response = self.client.post(url, data)
         
@@ -84,7 +84,7 @@ class RecruiterEducationViewTest(APITestCase):
     
     def test_create_education_invalid_dates(self):
         """Test POST with end_date < start_date returns 400"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/'
+        url = f'/api/candidates/{self.recruiter.id}/education/'
         data = {
             "school_name": "Test School",
             "start_date": "2024-01-01",
@@ -97,7 +97,7 @@ class RecruiterEducationViewTest(APITestCase):
     def test_create_education_unauthenticated(self):
         """Test POST without auth returns 401"""
         self.client.logout()
-        url = f'/api/recruiters/{self.recruiter.id}/education/'
+        url = f'/api/candidates/{self.recruiter.id}/education/'
         data = {"school_name": "Test"}
         response = self.client.post(url, data)
         
@@ -106,8 +106,8 @@ class RecruiterEducationViewTest(APITestCase):
     # ========== UPDATE Tests ==========
     
     def test_update_education_success(self):
-        """Test PUT /api/recruiters/:id/education/:eduId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/{self.education.id}/'
+        """Test PUT /api/candidates/:id/education/:eduId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/education/{self.education.id}/'
         data = {"school_name": "Updated School", "degree": "PhD"}
         response = self.client.put(url, data)
         
@@ -125,7 +125,7 @@ class RecruiterEducationViewTest(APITestCase):
             recruiter=self.recruiter2,
             school_name="Other School"
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/education/{edu2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/education/{edu2.id}/'
         data = {"school_name": "Hacked"}
         response = self.client.put(url, data)
         
@@ -133,7 +133,7 @@ class RecruiterEducationViewTest(APITestCase):
     
     def test_update_education_not_found(self):
         """Test PUT with non-existent education returns 404"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/99999/'
+        url = f'/api/candidates/{self.recruiter.id}/education/99999/'
         data = {"school_name": "Test"}
         response = self.client.put(url, data)
         
@@ -142,8 +142,8 @@ class RecruiterEducationViewTest(APITestCase):
     # ========== DELETE Tests ==========
     
     def test_delete_education_success(self):
-        """Test DELETE /api/recruiters/:id/education/:eduId/ - success"""
-        url = f'/api/recruiters/{self.recruiter.id}/education/{self.education.id}/'
+        """Test DELETE /api/candidates/:id/education/:eduId/ - success"""
+        url = f'/api/candidates/{self.recruiter.id}/education/{self.education.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -155,7 +155,7 @@ class RecruiterEducationViewTest(APITestCase):
             recruiter=self.recruiter2,
             school_name="Other School"
         )
-        url = f'/api/recruiters/{self.recruiter2.id}/education/{edu2.id}/'
+        url = f'/api/candidates/{self.recruiter2.id}/education/{edu2.id}/'
         response = self.client.delete(url)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -164,7 +164,7 @@ class RecruiterEducationViewTest(APITestCase):
     # ========== REORDER Tests ==========
     
     def test_reorder_education_success(self):
-        """Test PATCH /api/recruiters/:id/education/reorder/ - success"""
+        """Test PATCH /api/candidates/:id/education/reorder/ - success"""
         # Create more education records
         edu2 = RecruiterEducation.objects.create(
             recruiter=self.recruiter,
@@ -177,7 +177,7 @@ class RecruiterEducationViewTest(APITestCase):
             display_order=3
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/education/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/education/reorder/'
         data = {
             "order": [
                 {"id": edu3.id, "display_order": 1},
@@ -195,7 +195,7 @@ class RecruiterEducationViewTest(APITestCase):
     
     def test_reorder_education_not_owner(self):
         """Test PATCH reorder by non-owner returns 403"""
-        url = f'/api/recruiters/{self.recruiter2.id}/education/reorder/'
+        url = f'/api/candidates/{self.recruiter2.id}/education/reorder/'
         data = {"order": []}
         response = self.client.patch(url, data, format='json')
         
@@ -209,7 +209,7 @@ class RecruiterEducationViewTest(APITestCase):
             school_name="Other School"
         )
         
-        url = f'/api/recruiters/{self.recruiter.id}/education/reorder/'
+        url = f'/api/candidates/{self.recruiter.id}/education/reorder/'
         data = {
             "order": [
                 {"id": edu_other.id, "display_order": 1}  # Wrong recruiter

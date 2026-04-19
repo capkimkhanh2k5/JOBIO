@@ -69,7 +69,7 @@ class CommuneViewSetTests(TestCase):
         """Test GET /api/communes/ - Danh sách communes (chỉ active)"""
         response = self.client.get('/api/communes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)  # Only active
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)  # Only active
     
     def test_retrieve_commune(self):
         """Test GET /api/communes/:id/ - Chi tiết commune"""
@@ -146,7 +146,7 @@ class CommuneViewSetTests(TestCase):
         """Test GET /api/provinces/:id/communes/ - Danh sách communes theo tỉnh"""
         response = self.client.get(f'/api/provinces/{self.province1.id}/communes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Ba Đình, Hoàn Kiếm (not inactive)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)  # Ba Đình, Hoàn Kiếm (not inactive)
     
     def test_by_province_empty(self):
         """Test GET /api/provinces/:id/communes/ - Tỉnh không có communes"""
@@ -171,8 +171,8 @@ class CommuneViewSetTests(TestCase):
         """Test GET /api/communes/?province_id=X - Filter theo province"""
         response = self.client.get(f'/api/communes/?province_id={self.province2.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)  # Quận 1 only
-        self.assertEqual(response.data[0]['commune_name'], 'Quận 1')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)  # Quận 1 only
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['commune_name'], 'Quận 1')
     
     def test_update_commune_not_found(self):
         """Test PUT /api/communes/99999/ - Commune không tồn tại"""
@@ -200,7 +200,7 @@ class CommuneViewSetTests(TestCase):
         """Test GET /api/communes/ - Sắp xếp theo tên"""
         response = self.client.get('/api/communes/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        names = [c['commune_name'] for c in response.data]
+        names = [c['commune_name'] for c in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)]
         self.assertEqual(names, sorted(names))
     
     def test_create_commune_invalid_province(self):

@@ -20,7 +20,7 @@ class InterviewListSerializer(serializers.ModelSerializer):
             'id', 'application_id', 'job_title', 'applicant_name', 'applicant_avatar',
             'interview_type_name', 'round_number',
             'scheduled_at', 'duration_minutes', 'meeting_link',
-            'status', 'result'
+            'status', 'result', 'rating', 'interviewer'
         ]
 
 
@@ -44,7 +44,7 @@ class InterviewDetailSerializer(serializers.ModelSerializer):
             'interview_type_id', 'interview_type_name',
             'round_number', 'scheduled_at', 'duration_minutes',
             'address_id', 'meeting_link',
-            'status', 'notes', 'feedback', 'result',
+            'status', 'notes', 'feedback', 'result', 'rating', 'interviewer',
             'created_by_name', 'created_at', 'updated_at'
         ]
 
@@ -93,6 +93,8 @@ class InterviewUpdateSerializer(serializers.Serializer):
         choices=['pass', 'fail', 'pending'],
         required=False
     )
+    interviewer_id = serializers.IntegerField(required=False, allow_null=True)
+    rating = serializers.IntegerField(required=False, allow_null=True, min_value=1, max_value=5)
 
 
 class InterviewRescheduleSerializer(serializers.Serializer):
@@ -122,6 +124,7 @@ class InterviewCompleteSerializer(serializers.Serializer):
         required=True
     )
     feedback = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    rating = serializers.IntegerField(required=False, allow_null=True, min_value=1, max_value=5)
 
 
 class InterviewFeedbackSerializer(serializers.Serializer):

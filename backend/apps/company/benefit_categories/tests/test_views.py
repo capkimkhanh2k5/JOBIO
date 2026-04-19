@@ -50,14 +50,14 @@ class BenefitCategoryViewSetTests(TestCase):
         response = self.client.get('/api/benefit-categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Only active categories for non-staff
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)
     
     def test_list_categories_admin(self):
         """Test GET /api/benefit-categories/ - Admin thấy tất cả"""
         self.client.force_authenticate(user=self.admin)
         response = self.client.get('/api/benefit-categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)
     
     def test_create_category_admin(self):
         """Test POST /api/benefit-categories/ - Admin có thể tạo"""

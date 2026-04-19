@@ -34,6 +34,8 @@ class InterviewUpdateInput(BaseModel):
     feedback: Optional[str] = None
     status: Optional[str] = None
     result: Optional[str] = None
+    interviewer_id: Optional[int] = None
+    rating: Optional[int] = None
 
 
 @transaction.atomic
@@ -112,6 +114,12 @@ def update_interview(interview: Interview, data: InterviewUpdateInput) -> Interv
         if data.result in ['pass', 'fail']:
             interview.status = 'completed'
     
+    if data.interviewer_id is not None:
+        interview.interviewer_id = data.interviewer_id
+    
+    if data.rating is not None:
+        interview.rating = data.rating
+    
     interview.save()
     return interview
 
@@ -164,7 +172,7 @@ def cancel_interview(interview: Interview, reason: str = None) -> Interview:
 
 
 @transaction.atomic
-def complete_interview(interview: Interview, result: str, feedback: str = None) -> Interview:
+def complete_interview(interview: Interview, result: str, feedback: str = None, rating: int = None) -> Interview:
     """
         Hoàn thành phỏng vấn với kết quả.
     """
@@ -179,6 +187,9 @@ def complete_interview(interview: Interview, result: str, feedback: str = None) 
     
     if feedback:
         interview.feedback = feedback
+    
+    if rating:
+        interview.rating = rating
     
     interview.save()
 

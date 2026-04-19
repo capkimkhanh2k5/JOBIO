@@ -64,14 +64,14 @@ class AddressViewSetTests(TestCase):
         """Test GET /api/addresses/ - Danh sách địa chỉ (public)"""
         response = self.client.get('/api/addresses/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)
     
     def test_list_addresses_ordered_by_created(self):
         """Test GET /api/addresses/ - Sắp xếp theo created_at DESC"""
         response = self.client.get('/api/addresses/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # address2 created later, should be first
-        self.assertEqual(response.data[0]['id'], self.address2.id)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['id'], self.address2.id)
     
     # ==================== RETRIEVE TESTS ====================
     

@@ -62,8 +62,8 @@ class FileUploadViewSetTests(APITestCase):
         
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.url)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['original_name'], 'user_file.txt')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['original_name'], 'user_file.txt')
 
     def test_list_files_admin_scope(self):
         # Create a file for user
@@ -89,4 +89,4 @@ class FileUploadViewSetTests(APITestCase):
         
         response = self.client.get(self.url)
         # Admin sees all (2 files)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)

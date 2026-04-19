@@ -32,7 +32,7 @@ class InterviewTypeViewSetTests(TestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get('/api/interview-types/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_retrieve_interview_type(self):
         """Test GET /api/interview-types/:id/ - Get interview type detail"""
