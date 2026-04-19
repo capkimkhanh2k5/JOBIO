@@ -19,10 +19,6 @@ from .services.recruiter_skills import (
     bulk_add_skills,
     SkillInput
 )
-from .services.skill_endorsements import (
-    endorse_skill_service,
-    remove_endorsement_service
-)
 from .selectors.recruiter_skills import (
     list_skills_by_recruiter,
     get_skill_by_id
@@ -223,60 +219,3 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['post', 'delete'], url_path='endorse')
-    def endorse(self, request, recruiter_id=None, pk=None):
-        """
-        POST /api/recruiters/:recruiter_id/skills/:pk/endorse/ - Xác nhận kỹ năng
-        DELETE /api/recruiters/:recruiter_id/skills/:pk/endorse/ - Xóa xác nhận
-        """
-        recruiter, error = self._get_recruiter_or_404(recruiter_id)
-        if error:
-            return error
-        
-        skill = get_skill_by_id(pk)
-        if not skill:
-            return Response(
-                {"detail": "Skill not found"}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        if skill.recruiter_id != int(recruiter_id):
-            return Response(
-                {"detail": "Skill not found"}, 
-                status=status.HTTP_404_NOT_FOUND
-            )
-        
-        # Get current user's recruiter profile
-        try:
-            current_recruiter = get_recruiter_by_id(request.user.recruiter_profile.id)
-        except (AttributeError, Recruiter.DoesNotExist):
-            current_recruiter = None
-            
-        if not current_recruiter:
-            return Response(
-                {"detail": "You need a recruiter profile to endorse skills"}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        if request.method == 'POST':
-            # Endorse skill
-            serializer = EndorseSkillSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            
-            try:
-                relationship = serializer.validated_data.get('relationship', '')
-                endorsement = endorse_skill_service(skill, current_recruiter, relationship)
-                return Response(
-                    {"detail": "Skill endorsed successfully"}, 
-                    status=status.HTTP_201_CREATED
-                )
-            except ValueError as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif request.method == 'DELETE':
-            # Remove endorsement
-            try:
-                remove_endorsement_service(skill, current_recruiter)
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            except ValueError as e:
-                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

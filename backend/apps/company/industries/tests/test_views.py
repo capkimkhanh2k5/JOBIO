@@ -40,7 +40,7 @@ class IndustryViewSetTests(TestCase):
         """Test GET /api/industries/ - Public access"""
         response = self.client.get('/api/industries/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_retrieve_industry(self):
         """Test GET /api/industries/:id/ - Get industry detail"""
@@ -53,7 +53,7 @@ class IndustryViewSetTests(TestCase):
         response = self.client.get('/api/industries/tree/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should only return root nodes
-        for item in response.data:
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             if item['id'] == self.parent.id:
                 self.assertIn('children', item)
     
@@ -61,14 +61,14 @@ class IndustryViewSetTests(TestCase):
         """Test GET /api/industries/?parent_id= - Filter by parent"""
         response = self.client.get(f'/api/industries/?parent_id={self.parent.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for item in response.data:
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             self.assertEqual(item['parent'], self.parent.id)
     
     def test_filter_root_industries(self):
         """Test GET /api/industries/?parent_id=null - Root only"""
         response = self.client.get('/api/industries/?parent_id=null')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for item in response.data:
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             self.assertIsNone(item['parent'])
     
     def test_create_industry_admin(self):

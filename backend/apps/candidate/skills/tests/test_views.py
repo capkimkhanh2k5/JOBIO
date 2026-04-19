@@ -64,7 +64,7 @@ class SkillViewSetTests(TestCase):
         """Test GET /api/skills/ - Danh sách kỹ năng (public)"""
         response = self.client.get('/api/skills/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)
     
     def test_retrieve_skill(self):
         """Test GET /api/skills/:id/ - Chi tiết kỹ năng (public)"""
@@ -123,8 +123,8 @@ class SkillViewSetTests(TestCase):
         """Test GET /api/skills/search/?q=python - Tìm kiếm kỹ năng"""
         response = self.client.get('/api/skills/search/?q=python')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['name'], 'Python')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['name'], 'Python')
     
     def test_search_skills_short_query(self):
         """Test GET /api/skills/search/?q=p - Query quá ngắn trả empty"""
@@ -136,29 +136,29 @@ class SkillViewSetTests(TestCase):
         """Test GET /api/skills/popular/ - Top kỹ năng phổ biến"""
         response = self.client.get('/api/skills/popular/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 3)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 3)
         # Should be sorted by usage_count DESC
-        self.assertEqual(response.data[0]['name'], 'JavaScript')  # 150
-        self.assertEqual(response.data[1]['name'], 'Python')      # 100
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['name'], 'JavaScript')  # 150
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[1]['name'], 'Python')      # 100
         self.assertEqual(response.data[2]['name'], 'Figma')       # 50
     
     def test_categories(self):
         """Test GET /api/skills/categories/ - Danh mục kỹ năng"""
         response = self.client.get('/api/skills/categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Programming, Design
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)  # Programming, Design
     
     def test_filter_by_category(self):
         """Test GET /api/skills/?category_id=X - Filter theo category"""
         response = self.client.get(f'/api/skills/?category_id={self.category.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Python, JavaScript
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)  # Python, JavaScript
     
     def test_filter_by_verified(self):
         """Test GET /api/skills/?is_verified=true - Filter theo verified"""
         response = self.client.get('/api/skills/?is_verified=true')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Python, JavaScript
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)  # Python, JavaScript
     
     def test_retrieve_skill_not_found(self):
         """Test GET /api/skills/99999/ - Skill không tồn tại"""

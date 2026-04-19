@@ -50,7 +50,7 @@ class CVTemplateViewSetTests(TestCase):
         """Test GET /api/cv-templates/ - Public access"""
         response = self.client.get('/api/cv-templates/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_retrieve_template(self):
         """Test GET /api/cv-templates/:id/ - Get template detail"""
@@ -62,7 +62,7 @@ class CVTemplateViewSetTests(TestCase):
         """Test GET /api/cv-templates/categories/ - List categories"""
         response = self.client.get('/api/cv-templates/categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_list_premium_templates(self):
         """Test GET /api/cv-templates/premium/ - Premium templates"""

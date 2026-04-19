@@ -975,7 +975,7 @@ class JobApplicationFilterViewTests(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 0)
     
     def test_pending_applications_filters_correctly(self):
         """GET /api/jobs/:id/applications/pending - chỉ status='pending'"""

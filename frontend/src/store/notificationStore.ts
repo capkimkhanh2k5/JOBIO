@@ -7,7 +7,7 @@ export interface NotificationItem {
     message: string;
     is_read: boolean;
     created_at: string;
-    type: 'application' | 'interview' | 'view' | 'warning' | 'review' | 'system';
+    type: 'application' | 'interview' | 'view' | 'warning' | 'system';
     link?: string;
 }
 

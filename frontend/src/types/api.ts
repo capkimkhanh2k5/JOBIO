@@ -197,6 +197,7 @@ export interface CompanyDetail extends CompanyListItem {
   phone: string | null;
   tax_code: string | null;
   address: Address | null;
+  headquarters: string | null;
   founded_year: number | null;
   benefits: CompanyBenefit[];
   media: CompanyMedia[];

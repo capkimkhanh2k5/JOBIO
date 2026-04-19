@@ -60,8 +60,8 @@ class TestBlogViews(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Public user sees only published posts
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], self.published_post.title)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['title'], self.published_post.title)
     
     def test_admin_list_posts(self):
         """Admin users see all posts (published and draft)"""
@@ -69,7 +69,7 @@ class TestBlogViews(APITestCase):
         url = reverse('posts-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)  # Admin sees all
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)  # Admin sees all
     
     def test_create_post_admin(self):
         """Admin can create posts"""

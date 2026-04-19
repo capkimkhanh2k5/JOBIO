@@ -42,7 +42,7 @@ class SystemSettingViewSetTests(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Admin sees all (implementation detail might vary, but assuming admin sees all)
-        self.assertTrue(len(response.data) >= 2)
+        self.assertTrue(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data) >= 2)
 
     def test_list_settings_user(self):
         self.client.force_authenticate(user=self.user)
@@ -51,8 +51,8 @@ class SystemSettingViewSetTests(APITestCase):
         # Assuming user sees filtered list or we have a policy. 
         # Based on view implementation: `if not request.user.is_staff: filters['is_public'] = True`
         # So user should see public only
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['setting_key'], 'site_name')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['setting_key'], 'site_name')
 
     def test_update_setting_admin(self):
         self.client.force_authenticate(user=self.admin)
@@ -74,5 +74,5 @@ class SystemSettingViewSetTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.public_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['setting_key'], 'site_name')
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['setting_key'], 'site_name')

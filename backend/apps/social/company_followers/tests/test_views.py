@@ -63,7 +63,7 @@ class CompanyFollowerViewTest(TestCase):
         
         response = self.client.get('/api/companies/following/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 2)
         
         # Verify specific content
         names = {item['company_name'] for item in response.data}

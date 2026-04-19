@@ -40,7 +40,7 @@ class JobCategoryViewSetTests(TestCase):
         """Test GET /api/job-categories/ - Public access"""
         response = self.client.get('/api/job-categories/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
     
     def test_retrieve_category(self):
         """Test GET /api/job-categories/:id/ - Get category detail"""
@@ -52,7 +52,7 @@ class JobCategoryViewSetTests(TestCase):
         """Test GET /api/job-categories/tree/ - Hierarchical tree"""
         response = self.client.get('/api/job-categories/tree/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for item in response.data:
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             if item['id'] == self.parent.id:
                 self.assertIn('children', item)
     
@@ -60,7 +60,7 @@ class JobCategoryViewSetTests(TestCase):
         """Test GET /api/job-categories/?parent_id= - Filter by parent"""
         response = self.client.get(f'/api/job-categories/?parent_id={self.parent.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for item in response.data:
+        for item in (response.data.get('results', response.data) if isinstance(response.data, dict) else response.data):
             self.assertEqual(item['parent'], self.parent.id)
     
     def test_create_category_admin(self):

@@ -28,7 +28,7 @@ class CompanyMediaViewTest(TestCase):
         response = self.client.get(f'/api/companies/{self.company.id}/media')
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
 
     @patch('apps.company.company_media.services.company_media.save_company_file')
     def test_create_media(self, mock_save):

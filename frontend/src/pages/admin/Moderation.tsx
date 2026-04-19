@@ -20,7 +20,6 @@ const fadeUp = (delay: number) => ({
 
 const tabs = [
     { id: 'companies', label: 'Duyệt công ty', icon: Building2 },
-    { id: 'reviews', label: 'Kiểm duyệt đánh giá', icon: Star },
 ] as const;
 
 type TabId = (typeof tabs)[number]['id'];
@@ -28,22 +27,14 @@ type TabId = (typeof tabs)[number]['id'];
 export default function Moderation() {
     const [activeTab, setActiveTab] = useState<TabId>('companies');
     const [companyPage, setCompanyPage] = useState(1);
-    const [reviewPage, setReviewPage] = useState(1);
     const [companySearch, setCompanySearch] = useState('');
-    const [reviewSearch, setReviewSearch] = useState('');
     const [debouncedCompanySearch, setDebouncedCompanySearch] = useState('');
-    const [debouncedReviewSearch, setDebouncedReviewSearch] = useState('');
     const queryClient = useQueryClient();
 
     useEffect(() => {
         const h = setTimeout(() => { setDebouncedCompanySearch(companySearch); setCompanyPage(1); }, 300);
         return () => clearTimeout(h);
     }, [companySearch]);
-
-    useEffect(() => {
-        const h = setTimeout(() => { setDebouncedReviewSearch(reviewSearch); setReviewPage(1); }, 300);
-        return () => clearTimeout(h);
-    }, [reviewSearch]);
 
     // Stats
     const { data: statsData } = useQuery({
@@ -60,14 +51,6 @@ export default function Moderation() {
     const companyTotal = companiesRes?.count ?? 0;
     const companyTotalPages = Math.ceil(companyTotal / 10) || 1;
 
-    // Reviews
-    const { data: reviewsRes, isLoading: loadingReviews } = useQuery({
-        queryKey: ['pending-reviews', reviewPage, debouncedReviewSearch],
-        queryFn: () => dashboardService.listPendingReviews({ page: reviewPage, page_size: 10 }).then(r => r.data),
-    });
-    const reviewsData = (reviewsRes as any)?.results ?? reviewsRes?.reviews ?? [];
-    const reviewTotal = (reviewsRes as any)?.count ?? reviewsRes?.total ?? 0;
-    const reviewTotalPages = Math.ceil(reviewTotal / 10) || 1;
 
     // Mutations
     const verifyCompanyMut = useMutation({
@@ -81,22 +64,10 @@ export default function Moderation() {
         onError: () => toast.error('Có lỗi xảy ra khi xử lý yêu cầu.'),
     });
 
-    const moderateReviewMut = useMutation({
-        mutationFn: ({ id, action }: { id: number; action: 'approve' | 'reject' }) =>
-            dashboardService.moderateReview(id, action),
-        onSuccess: (_, vars) => {
-            queryClient.invalidateQueries({ queryKey: ['pending-reviews'] });
-            queryClient.invalidateQueries({ queryKey: ['moderation-stats'] });
-            toast.success(vars.action === 'approve' ? 'Đã duyệt đánh giá thành công!' : 'Đã từ chối đánh giá.');
-        },
-        onError: () => toast.error('Có lỗi xảy ra khi xử lý yêu cầu.'),
-    });
 
     const statCards = [
         { label: 'Công ty chờ duyệt', value: statsData?.pending_companies ?? 0, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
         { label: 'Công ty đã xác minh', value: statsData?.verified_companies ?? 0, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'Đánh giá chờ duyệt', value: statsData?.pending_reviews ?? 0, icon: Star, color: 'text-amber-600', bg: 'bg-amber-50' },
-        { label: 'Đánh giá đã duyệt', value: statsData?.approved_reviews ?? 0, icon: Shield, color: 'text-violet-600', bg: 'bg-violet-50' },
     ];
 
     return (
@@ -135,7 +106,7 @@ export default function Moderation() {
                 <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
-                        const count = tab.id === 'companies' ? (statsData?.pending_companies ?? 0) : (statsData?.pending_reviews ?? 0);
+                        const count = (statsData?.pending_companies ?? 0);
                         return (
                             <button
                                 key={tab.id}
@@ -269,117 +240,7 @@ export default function Moderation() {
                 </motion.div>
             )}
 
-            {/* Reviews Tab */}
-            {activeTab === 'reviews' && (
-                <motion.div {...fadeUp(0.2)} className="space-y-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm đánh giá theo tiêu đề, nội dung..."
-                                value={reviewSearch}
-                                onChange={(e) => setReviewSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 bg-slate-50/50 text-sm font-medium transition-all"
-                            />
-                        </div>
-                    </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Đánh giá</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Công ty</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ưu / Nhược điểm</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {loadingReviews ? (
-                                        <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
-                                    ) : reviewsData.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-20 text-center">
-                                                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-                                                <p className="text-sm font-bold text-slate-700">Không có đánh giá chờ duyệt!</p>
-                                            </td>
-                                        </tr>
-                                    ) : reviewsData.map((review: any) => (
-                                        <tr key={review.id} className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-4 px-6">
-                                                <div className="flex flex-col gap-1 max-w-[220px]">
-                                                    <span className="font-bold text-slate-900 text-sm truncate">{review.title}</span>
-                                                    <div className="flex gap-0.5">
-                                                        {Array.from({ length: 5 }).map((_, i) => (
-                                                            <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
-                                                        ))}
-                                                    </div>
-                                                    <span className="text-xs text-slate-500 line-clamp-2">{review.content}</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="font-semibold text-slate-800 text-sm">{review.company?.name ?? '—'}</span>
-                                                    <span className="text-xs text-slate-400">{review.recruiter?.full_name ?? 'Ẩn danh'}</span>
-                                                    <span className="text-[10px] text-slate-400">{review.employment_status === 'current' ? 'Đang làm việc' : 'Đã nghỉ'}</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex flex-col gap-2 max-w-[200px]">
-                                                    <div className="bg-emerald-50 rounded-lg px-2 py-1.5 border border-emerald-100">
-                                                        <p className="text-[9px] font-bold text-emerald-700 uppercase tracking-wider mb-0.5"><ThumbsUp className="w-2.5 h-2.5 inline mr-0.5" />Ưu điểm</p>
-                                                        <p className="text-xs text-slate-700 line-clamp-2">{review.pros}</p>
-                                                    </div>
-                                                    <div className="bg-red-50 rounded-lg px-2 py-1.5 border border-red-100">
-                                                        <p className="text-[9px] font-bold text-red-700 uppercase tracking-wider mb-0.5"><Flag className="w-2.5 h-2.5 inline mr-0.5" />Nhược điểm</p>
-                                                        <p className="text-xs text-slate-700 line-clamp-2">{review.cons}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <span className="text-xs font-bold text-slate-700">
-                                                    {review.created_at ? new Date(review.created_at).toLocaleDateString('vi-VN') : '—'}
-                                                </span>
-                                            </td>
-                                            <td className="py-4 px-6">
-                                                <div className="flex gap-2">
-                                                    <Button size="sm" onClick={() => moderateReviewMut.mutate({ id: review.id, action: 'approve' })} disabled={moderateReviewMut.isPending} className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-xs font-semibold shadow-sm h-8">
-                                                        <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Duyệt
-                                                    </Button>
-                                                    <Button size="sm" variant="outline" onClick={() => moderateReviewMut.mutate({ id: review.id, action: 'reject' })} disabled={moderateReviewMut.isPending} className="rounded-lg text-xs font-semibold border-red-200 text-red-600 hover:bg-red-50 h-8">
-                                                        <XCircle className="w-3.5 h-3.5 mr-1" /> Từ chối
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">
-                            <p className="text-xs text-slate-500 font-medium">
-                                Hiển thị <span className="font-bold text-slate-900">{reviewsData.length}</span> / <span className="font-bold text-slate-900">{reviewTotal}</span> đánh giá
-                            </p>
-                            <div className="flex items-center gap-1.5 bg-slate-50/50 p-1 rounded-xl border border-slate-100">
-                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={reviewPage <= 1} onClick={() => setReviewPage(p => Math.max(1, p - 1))}>
-                                    <ChevronLeft className="w-4 h-4" />
-                                </Button>
-                                <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
-                                    <span className="text-xs font-black text-violet-600">{reviewPage}</span>
-                                    <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
-                                    <span className="text-xs font-bold text-slate-500">{reviewTotalPages}</span>
-                                </div>
-                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={reviewPage >= reviewTotalPages} onClick={() => setReviewPage(p => Math.min(reviewTotalPages, p + 1))}>
-                                    <ChevronRight className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            )}
         </div>
     );
 }

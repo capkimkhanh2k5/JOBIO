@@ -34,8 +34,8 @@ class TestSubscriptionPlanViewSet(APITestCase):
         url = reverse('subscription-plans-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['slug'], self.plan.slug)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['slug'], self.plan.slug)
 
 
 class TestCompanySubscriptionViewSet(APITestCase):
@@ -175,4 +175,4 @@ class TestTransactionViewSet(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # At least 1 transaction should exist
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)

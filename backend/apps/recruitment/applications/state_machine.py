@@ -14,6 +14,7 @@ import logging
 from apps.system.activity_logs.models import ActivityLog
 from apps.recruitment.applications.models import Application
 from apps.recruitment.application_status_history.models import ApplicationStatusHistory
+from apps.system.activity_log_types.models import ActivityLogType
 
 logger = logging.getLogger(__name__)
 
@@ -217,16 +218,25 @@ class ApplicationStateMachine:
     ):
         """Log transition to activity logs."""
         try:
+            
+            log_type, _ = ActivityLogType.objects.get_or_create(
+                type_name='application_status_change',
+                defaults={'description': 'Application status changed'}
+            )
+            
             ActivityLog.objects.create(
                 user=performed_by,
+                log_type=log_type,
                 action='application_status_change',
-                description=f"Application {self.application.id}: {from_state.value} -> {to_state.value}",
-                metadata={
+                entity_type='Application',
+                entity_id=self.application.id,
+                details={
                     'application_id': str(self.application.id),
-                    'from_status': from_state.value,
-                    'to_status': to_state.value,
+                    'old_status': from_state.value,
+                    'new_status': to_state.value,
                     'job_id': str(self.application.job_id),
-                    'recruiter_id': str(self.application.recruiter_id)
+                    'recruiter_id': str(self.application.recruiter_id),
+                    'description': f"Application {self.application.id}: {from_state.value} -> {to_state.value}"
                 }
             )
         except Exception as e:
@@ -244,8 +254,8 @@ class ApplicationStateMachine:
             
             ApplicationStatusHistory.objects.create(
                 application=self.application,
-                from_status=from_state.value,
-                to_status=to_state.value,
+                old_status=from_state.value,
+                new_status=to_state.value,
                 changed_by=performed_by,
                 notes=notes
             )

@@ -24,7 +24,6 @@ const getIcon = (type: string) => {
         case 'interview': return <Calendar className="w-5 h-5 text-violet-400" />;
         case 'view': return <Eye className="w-5 h-5 text-cyan-400" />;
         case 'warning': return <AlertTriangle className="w-5 h-5 text-amber-400" />;
-        case 'review': return <Star className="w-5 h-5 text-yellow-400" />;
         case 'system': return <Bell className="w-5 h-5 text-slate-400" />;
         default: return <Bell className="w-5 h-5 text-slate-400" />;
     }

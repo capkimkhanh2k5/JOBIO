@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
     Briefcase, Eye, FileText, CheckCircle2,
     Search, Loader2, Download,
-    Building2, Mail, MapPin,
+    Building2, Mail,
     ChevronLeft, ChevronRight, XCircle, AlertCircle
 } from 'lucide-react';
 import { dashboardService } from '@/services/dashboardService';

@@ -76,8 +76,8 @@ class JobSkillViewTests(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['skill_id'], self.skill.id)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+        self.assertEqual((response.data.get('results', response.data) if isinstance(response.data, dict) else response.data)[0]['skill_id'], self.skill.id)
     
     def test_list_job_skills_empty(self):
         """GET /api/jobs/:job_id/skills/ - empty list → 200 + []"""

@@ -93,17 +93,7 @@ class JobListSerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(read_only=True)
 
 
-class ReviewListSerializer(serializers.Serializer):
-    """Serializer danh sách Reviews của Company"""
-    id = serializers.IntegerField(read_only=True)
-    rating = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(read_only=True)
-    content = serializers.CharField(read_only=True)
-    pros = serializers.CharField(read_only=True)
-    cons = serializers.CharField(read_only=True)
-    is_anonymous = serializers.BooleanField(read_only=True)
-    helpful_count = serializers.IntegerField(read_only=True)
-    created_at = serializers.DateTimeField(read_only=True)
+
 
 
 class CompanyFollowerSerializer(serializers.Serializer):
@@ -118,6 +108,4 @@ class CompanyStatsSerializer(serializers.Serializer):
     """Serializer thống kê Company"""
     job_count = serializers.IntegerField()
     follower_count = serializers.IntegerField()
-    review_count = serializers.IntegerField()
-    avg_rating = serializers.DictField()
     application_count = serializers.DictField()

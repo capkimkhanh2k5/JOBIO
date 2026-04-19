@@ -41,7 +41,7 @@ class ActivityLogViewSetTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should see the log
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
 
     def test_list_logs_user_forbidden(self):
         self.client.force_authenticate(user=self.user)
@@ -52,8 +52,8 @@ class ActivityLogViewSetTests(APITestCase):
         self.client.force_authenticate(user=self.admin)
         # Filter by the specific user id
         response = self.client.get(self.url, {'user_id': self.user.id})
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
         
         # Filter by non-existent user id
         response = self.client.get(self.url, {'user_id': 9999})
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 0)

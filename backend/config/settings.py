@@ -86,7 +86,6 @@ INSTALLED_APPS = [
     'apps.recruitment.application_status_history',
     'apps.recruitment.interviews',
     'apps.recruitment.interview_types',
-    'apps.recruitment.interview_interviewers',
     'apps.recruitment.saved_jobs',
     'apps.recruitment.job_views',
     # ===== Candidate Domain =====
@@ -105,11 +104,6 @@ INSTALLED_APPS = [
     'apps.candidate.languages',
     
     # ===== Social Domain =====
-    'apps.social.reviews',
-    'apps.social.review_reactions',
-    'apps.social.recommendations',
-    'apps.social.recruiter_connections',
-    'apps.social.skill_endorsements',
     'apps.social.company_followers',
     
     # ===== Communication Domain =====
@@ -146,15 +140,8 @@ INSTALLED_APPS = [
     'apps.system.file_uploads',
     
     # ===== Analytics Domain =====
-    'apps.analytics',
-    'apps.system.analytics_reports',
-    # 'apps.system.analytics_daily_statistics',
     'apps.system.report_types',
     'apps.system.reports',
-    'apps.system.audit_logs',
-    'apps.system.search_history',
-    'apps.system.faqs',
-    'apps.system.job_search_history',
 ]
 
 MIDDLEWARE = [
