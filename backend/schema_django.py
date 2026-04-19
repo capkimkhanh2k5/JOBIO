@@ -1218,6 +1218,10 @@ class Interviews(models.Model):
 
     feedback = models.TextField(blank=True, null=True)
 
+    rating = models.IntegerField(blank=True, null=True)
+
+    role = models.CharField(max_length=100, blank=True, null=True)
+
     result = models.CharField(max_length=20)
 
     created_at = models.DateTimeField()
@@ -1229,6 +1233,8 @@ class Interviews(models.Model):
     application = models.ForeignKey(Applications, models.DO_NOTHING)
 
     created_by = models.ForeignKey('Users', models.DO_NOTHING)
+
+    interviewer = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True, related_name='interviews_interviewer_set')
 
     interview_type = models.ForeignKey(InterviewTypes, models.DO_NOTHING)
 
