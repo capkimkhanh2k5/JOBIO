@@ -5,3 +5,7 @@ class ApplicationsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.recruitment.applications'
     label = 'recruitment_applications'
+
+    def ready(self):
+        import apps.recruitment.applications.signals
+

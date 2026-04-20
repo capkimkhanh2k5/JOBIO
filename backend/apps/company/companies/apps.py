@@ -5,3 +5,7 @@ class CompaniesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apps.company.companies'
     label = 'company_companies'
+
+    def ready(self):
+        import apps.company.companies.signals
+
