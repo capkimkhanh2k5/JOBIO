@@ -149,8 +149,18 @@ export default function BlogManagement() {
                 ))}
             </div>
 
-            {/* Tabs & Search */}
             <motion.div {...fadeUp(0.2)} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                        type="text"
+                        placeholder={`Tìm kiếm ${activeTab === 'posts' ? 'bài viết' : activeTab === 'categories' ? 'danh mục' : 'tag'}...`}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 bg-slate-50/50 text-sm font-medium transition-all"
+                    />
+                </div>
+
                 <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
@@ -170,18 +180,8 @@ export default function BlogManagement() {
                         );
                     })}
                 </div>
-
-                <div className="relative w-full lg:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder={`Tìm kiếm ${activeTab === 'posts' ? 'bài viết' : activeTab === 'categories' ? 'danh mục' : 'tag'}...`}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 bg-slate-50/50 text-sm font-medium transition-all"
-                    />
-                </div>
             </motion.div>
+
 
             {/* Main Content */}
             <motion.div {...fadeUp(0.25)} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

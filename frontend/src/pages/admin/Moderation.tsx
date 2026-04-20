@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-    Shield, Star, CheckCircle2, XCircle,
-    Building2, AlertTriangle, ThumbsUp, Flag, Loader2,
+    Shield, CheckCircle2, XCircle,
+    Building2, AlertTriangle, Loader2,
     Search, Clock, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]['id'];
 
 export default function Moderation() {
-    const [activeTab, setActiveTab] = useState<TabId>('companies');
+    const [activeTab,] = useState<TabId>('companies');
     const [companyPage, setCompanyPage] = useState(1);
     const [companySearch, setCompanySearch] = useState('');
     const [debouncedCompanySearch, setDebouncedCompanySearch] = useState('');
@@ -100,35 +100,6 @@ export default function Moderation() {
                     </motion.div>
                 ))}
             </div>
-
-            {/* Tabs */}
-            <motion.div {...fadeUp(0.15)}>
-                <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl">
-                    {tabs.map((tab) => {
-                        const Icon = tab.icon;
-                        const count = (statsData?.pending_companies ?? 0);
-                        return (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer
-                                    ${activeTab === tab.id
-                                        ? 'bg-violet-600 text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                                    }`}
-                            >
-                                <Icon className="w-4 h-4" />
-                                {tab.label}
-                                {count > 0 && (
-                                    <span className={`min-w-[20px] h-5 text-[10px] font-bold rounded-full flex items-center justify-center px-1.5 ${activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-700'}`}>
-                                        {count}
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </motion.div>
 
             {/* Companies Tab */}
             {activeTab === 'companies' && (

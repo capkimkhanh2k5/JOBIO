@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, FileText,
     Settings, Shield, LogOut,
-    Wallet, Briefcase, AlertTriangle
+    Wallet, Briefcase, AlertTriangle, BarChart3, Database, Bell
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useUserStore } from '@/store/userStore';
@@ -11,44 +11,56 @@ import { authService } from '@/services/authService';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { dashboardService } from '@/services/dashboardService';
+import { useNotificationStore } from '@/store/notificationStore';
 
-interface NavItem {
-    label: string;
-    path: string;
-    icon: React.ReactNode;
-    badge?: number;
-}
-
-const navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { label: 'Quản lý Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
-    { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-5 h-5" /> },
-    { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
-    { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: 3 },
-    { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" /> },
-    { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
-];
-
-const bottomItems: NavItem[] = [
+const bottomItems = [
     { label: 'Cài đặt hệ thống', path: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
 ];
 
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({ 
-        opacity: 1, 
-        y: 0, 
-        transition: { 
-            delay: i * 0.05, 
+    visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+            delay: i * 0.05,
             duration: 0.4,
             ease: [0.215, 0.61, 0.355, 1] as any
-        } 
+        }
     }),
 };
 
 export function AdminSidebar() {
     const { user, clearAuth } = useUserStore();
     const navigate = useNavigate();
+
+    // ── Fetch badge counts from real API ─────────────────────────────────
+    const { data: overview } = useQuery({
+        queryKey: ['sidebar-badges'],
+        queryFn: () => dashboardService.getSidebarBadges().then(r => r.data),
+        staleTime: 60_000,       // cache 1 phút
+        refetchInterval: 120_000, // tự refresh mỗi 2 phút
+    });
+
+    const pendingReports = overview?.reports?.pending ?? 0;
+    const pendingCompanies = overview?.companies?.pending_verification ?? 0;
+
+    const { unreadCount } = useNotificationStore();
+
+    const navItems = [
+        { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { label: 'Thông báo', path: '/admin/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
+        { label: 'Quản lý Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
+        { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-5 h-5" /> },
+        { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
+        { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: pendingReports },
+        { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" />, badge: pendingCompanies },
+        { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
+        { label: 'Phân tích nâng cao', path: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" /> },
+        { label: 'Dữ liệu danh mục', path: '/admin/master-data', icon: <Database className="w-5 h-5" /> },
+    ];
 
     const handleLogout = async () => {
         try {
@@ -110,9 +122,9 @@ export function AdminSidebar() {
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
-                                    {item.badge && (
+                                    {item.badge !== undefined && item.badge > 0 && (
                                         <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
-                                            {item.badge}
+                                            {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
                                 </>
@@ -168,8 +180,8 @@ export function AdminSidebar() {
                         <p className="text-[10px] font-bold text-violet-600 uppercase truncate">Admin</p>
                     </div>
                 </div>
-                <Button 
-                    variant="ghost" 
+                <Button
+                    variant="ghost"
                     className="w-full justify-start gap-3 h-10 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 font-bold text-xs px-3 transition-colors"
                     onClick={handleLogout}
                 >

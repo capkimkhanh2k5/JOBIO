@@ -255,3 +255,34 @@ def send_bulk_notifications(
     ]
     
     return Notification.objects.bulk_create(notifications)
+
+
+def notify_admins(
+    notification_type_name: str,
+    title: str,
+    content: str,
+    link: Optional[str] = None,
+    entity_type: Optional[str] = None,
+    entity_id: Optional[int] = None
+) -> list[Notification]:
+    """
+    Send notification to all active administrators.
+    """
+    admin_ids = list(CustomUser.objects.filter(
+        role='admin',
+        is_active=True
+    ).values_list('id', flat=True))
+    
+    if not admin_ids:
+        return []
+        
+    return send_bulk_notifications(
+        user_ids=admin_ids,
+        notification_type_name=notification_type_name,
+        title=title,
+        content=content,
+        link=link,
+        entity_type=entity_type,
+        entity_id=entity_id
+    )
+

@@ -4,7 +4,7 @@ import { notificationService } from '@/services/notificationService';
 import { useNotificationStore } from '@/store/notificationStore';
 import {
     Bell, CheckCheck, Trash2, Settings, Loader2,
-    FileText, Calendar, Eye, AlertTriangle, Star
+    FileText, Calendar, Eye, AlertTriangle, Star, ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,12 +20,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const getIcon = (type: string) => {
     switch (type) {
-        case 'application': return <FileText className="w-5 h-5 text-blue-400" />;
-        case 'interview': return <Calendar className="w-5 h-5 text-violet-400" />;
-        case 'view': return <Eye className="w-5 h-5 text-cyan-400" />;
-        case 'warning': return <AlertTriangle className="w-5 h-5 text-amber-400" />;
-        case 'system': return <Bell className="w-5 h-5 text-slate-400" />;
-        default: return <Bell className="w-5 h-5 text-slate-400" />;
+        case 'application':  return <FileText className="w-5 h-5 text-blue-500" />;
+        case 'interview':    return <Calendar className="w-5 h-5 text-violet-500" />;
+        case 'view':         return <Eye className="w-5 h-5 text-cyan-500" />;
+        case 'warning':
+        case 'report':       return <AlertTriangle className="w-5 h-5 text-amber-500" />;
+        case 'verification': return <ShieldCheck className="w-5 h-5 text-emerald-500" />;
+        case 'review':       return <Star className="w-5 h-5 text-yellow-500" />;
+        case 'system':
+        default:             return <Bell className="w-5 h-5 text-slate-400" />;
     }
 };
 
@@ -72,18 +75,19 @@ export default function NotificationsPage() {
 
     const handleClearAll = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tất cả thông báo?")) {
-            await companyService.clearAllNotifications();
+            await notificationService.clearAllNotifications();
             refetch();
         }
     };
 
-    const handleDelete = async (_id: string, e: React.MouseEvent) => {
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         if (window.confirm("Xóa thông báo này?")) {
-            await companyService.deleteNotification(Number(id));
+            await notificationService.deleteNotification(Number(id));
             refetch();
         }
     }
+
 
     const handleSettingChange = (key: string, checked: boolean) => {
         const newSettings = { ...localSettings, [key]: checked };
@@ -231,7 +235,8 @@ export default function NotificationsPage() {
                                                 )}
                                             </div>
                                             <p className="text-sm text-foreground/70 leading-relaxed">
-                                                {notif.message}
+                                                {notif.content ?? notif.message}
+
                                             </p>
                                             <span className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2">
                                                 <Bell className="w-3 h-3" />

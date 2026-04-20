@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Settings, Activity, FileUp, Save, Search,
-    Eye, Trash2, ToggleLeft, ToggleRight, RefreshCw, Loader2
+    Eye, Trash2, ToggleLeft, ToggleRight,
+    Mail, Send, Bell, RefreshCw, Loader2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { dashboardService } from '@/services/dashboardService';
+import { toast } from 'sonner';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -19,6 +21,9 @@ const tabs = [
     { id: 'settings', label: 'Cài đặt', icon: Settings },
     { id: 'logs', label: 'Activity Logs', icon: Activity },
     { id: 'files', label: 'File Uploads', icon: FileUp },
+    { id: 'email-templates', label: 'Email Templates', icon: Mail },
+    { id: 'sent-emails', label: 'Lịch sử Email', icon: Send },
+    { id: 'notifications', label: 'Thông báo', icon: Bell },
 ] as const;
 
 type TabId = (typeof tabs)[number]['id'];
@@ -265,6 +270,197 @@ export default function SystemSettings() {
                     </div>
                 </motion.div>
             )}
+
+            {/* Email Templates Tab */}
+            {activeTab === 'email-templates' && (
+                <motion.div {...fadeUp(0.1)}>
+                    <EmailTemplatesTab />
+                </motion.div>
+            )}
+
+            {/* Sent Emails Tab */}
+            {activeTab === 'sent-emails' && (
+                <motion.div {...fadeUp(0.1)}>
+                    <SentEmailsTab />
+                </motion.div>
+            )}
+
+            {/* Notification Broadcast Tab */}
+            {activeTab === 'notifications' && (
+                <motion.div {...fadeUp(0.1)}>
+                    <NotificationBroadcastTab />
+                </motion.div>
+            )}
+        </div>
+    );
+}
+
+// ─── Email Templates Sub-component ───────────────────────────────────────────
+
+function EmailTemplatesTab() {
+    const { data: raw, isLoading } = useQuery({
+        queryKey: ['email-templates'],
+        queryFn: () => dashboardService.listEmailTemplates().then(r => r.data),
+    });
+    const templates: any[] = Array.isArray(raw) ? raw : (raw as any)?.results ?? [];
+
+    return (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-4 border-b border-slate-100/50 flex items-center justify-between">
+                <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-violet-600" /> Email Templates
+                </p>
+                <Badge className="bg-violet-50 text-violet-700 border-violet-200 text-[10px]">{templates.length} templates</Badge>
+            </div>
+            {isLoading ? (
+                <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
+            ) : templates.length === 0 ? (
+                <div className="py-16 text-center text-slate-400 font-medium text-sm">Chưa có email templates</div>
+            ) : (
+                <table className="w-full text-sm">
+                    <thead>
+                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                            <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Tên template</th>
+                            <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Danh mục</th>
+                            <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Subject</th>
+                            <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {templates.map((t: any) => (
+                            <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                                <td className="py-4 px-6 font-bold text-slate-900">{t.name}</td>
+                                <td className="py-4 px-6">
+                                    <Badge className="bg-slate-50 text-slate-600 border-slate-200 text-[10px]">{t.category?.name ?? '—'}</Badge>
+                                </td>
+                                <td className="py-4 px-6 text-slate-600 text-xs">{t.subject}</td>
+                                <td className="py-4 px-6 text-slate-400 text-xs">{t.created_at ? new Date(t.created_at).toLocaleDateString('vi-VN') : '—'}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    );
+}
+
+// ─── Sent Emails Sub-component ────────────────────────────────────────────────
+
+function SentEmailsTab() {
+    const [statusFilter, setStatusFilter] = useState('all');
+    const { data: raw, isLoading } = useQuery({
+        queryKey: ['sent-emails', statusFilter],
+        queryFn: () => dashboardService.listSentEmails({ status: statusFilter !== 'all' ? statusFilter : undefined }).then(r => r.data),
+    });
+    const emails: any[] = Array.isArray(raw) ? raw : (raw as any)?.results ?? [];
+
+    const statusCls: Record<string, string> = {
+        sent: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        failed: 'bg-red-50 text-red-700 border-red-200',
+        pending: 'bg-amber-50 text-amber-700 border-amber-200',
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex gap-2 flex-wrap">
+                {['all', 'sent', 'pending', 'failed'].map(s => (
+                    <button key={s} onClick={() => setStatusFilter(s)}
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border
+                            ${statusFilter === s ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300'}`}>
+                        {s === 'all' ? 'Tất cả' : s === 'sent' ? 'Đã gửi' : s === 'pending' ? 'Đang xử lý' : 'Thất bại'}
+                    </button>
+                ))}
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                {isLoading ? (
+                    <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
+                ) : emails.length === 0 ? (
+                    <div className="py-16 text-center text-slate-400 font-medium text-sm">Không có email nào</div>
+                ) : (
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="bg-slate-50/50 border-b border-slate-100">
+                                <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Người nhận</th>
+                                <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Subject</th>
+                                <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Trạng thái</th>
+                                <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {emails.map((e: any) => (
+                                <tr key={e.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="py-4 px-6 font-medium text-slate-900 text-xs">{e.recipient_email ?? e.to_email ?? '—'}</td>
+                                    <td className="py-4 px-6 text-slate-600 text-xs">{e.subject}</td>
+                                    <td className="py-4 px-6">
+                                        <Badge className={`${statusCls[e.status] ?? 'bg-slate-50 text-slate-600'} border text-[10px] font-bold`}>{e.status}</Badge>
+                                    </td>
+                                    <td className="py-4 px-6 text-slate-400 text-xs">{e.sent_at ? new Date(e.sent_at).toLocaleString('vi-VN') : '—'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ─── Notification Broadcast Sub-component ────────────────────────────────────
+
+function NotificationBroadcastTab() {
+    const [form, setForm] = useState({ title: '', message: '', target: 'all' as 'all' | 'candidate' | 'company' });
+
+    const mut = useMutation({
+        mutationFn: () => dashboardService.broadcastNotification(form),
+        onSuccess: () => {
+            toast.success('Đã gửi thông báo thành công!');
+            setForm({ title: '', message: '', target: 'all' });
+        },
+        onError: () => toast.error('Gửi thất bại — kiểm tra lại API endpoint broadcast'),
+    });
+
+    return (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 w-full">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-violet-600" />
+                </div>
+                <div>
+                    <h3 className="font-black text-slate-900">Gửi thông báo hàng loạt</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Gửi push notification đến nhóm users theo vai trò</p>
+                </div>
+            </div>
+            <div className="space-y-4">
+                <div>
+                    <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Đối tượng nhận</label>
+                    <div className="flex gap-2 flex-wrap">
+                        {[{ value: 'all', label: 'Tất cả' }, { value: 'candidate', label: 'Ứng viên' }, { value: 'company', label: 'Nhà tuyển dụng' }].map(opt => (
+                            <button key={opt.value} onClick={() => setForm(f => ({ ...f, target: opt.value as any }))}
+                                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer border
+                                    ${form.target === opt.value ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-600 border-slate-200 hover:border-violet-300'}`}>
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div>
+                    <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Tiêu đề *</label>
+                    <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                        placeholder="Tiêu đề thông báo..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400" />
+                </div>
+                <div>
+                    <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Nội dung *</label>
+                    <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
+                        rows={4} placeholder="Nội dung thông báo..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 resize-none" />
+                </div>
+                <Button onClick={() => mut.mutate()} disabled={mut.isPending || !form.title || !form.message}
+                    className="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold h-11">
+                    {mut.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+                    Gửi thông báo
+                </Button>
+            </div>
         </div>
     );
 }

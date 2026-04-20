@@ -124,6 +124,9 @@ urlpatterns = [
     
     
 
+    # Admin Analytics (time-series charts, funnel, top jobs, etc.)
+    path('api/analytics/', include('apps.system.analytics_reports.analytics_urls')),
+
     # Media Types
     path('api/media-types/', include('apps.company.media_types.urls')),
     
