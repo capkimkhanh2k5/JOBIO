@@ -27,31 +27,42 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/shared/PageHeader';
 
 const STATUS_FILTERS = [
-    { id: 'Tất cả', label: 'Tất cả', count: 0 },
-    { id: 'Mới gửi', label: 'Mới gửi', count: 0 },
-    { id: 'Đang xét', label: 'Đang xét', count: 0 },
-    { id: 'Shortlisted', label: 'Shortlisted', count: 0 },
-    { id: 'Phỏng vấn', label: 'Phỏng vấn', count: 0 },
-    { id: 'Đề nghị', label: 'Đề nghị', count: 0 },
-    { id: 'Đã tuyển', label: 'Đã tuyển', count: 0 },
-    { id: 'Từ chối', label: 'Từ chối', count: 0 },
-    { id: 'Rút đơn', label: 'Rút đơn', count: 0 },
+    { id: 'all', label: 'Tất cả' },
+    { id: 'pending', label: 'Mới gửi' },
+    { id: 'reviewing', label: 'Đang xét' },
+    { id: 'shortlisted', label: 'Vào vòng tiếp' },
+    { id: 'interview', label: 'Phỏng vấn' },
+    { id: 'offered', label: 'Đề nghị' },
+    { id: 'accepted', label: 'Đã nhận việc' },
+    { id: 'rejected', label: 'Từ chối' },
+    { id: 'withdrawn', label: 'Rút đơn' },
 ];
 
+const STATUS_LABEL_MAP: Record<string, string> = {
+    pending: 'Mới gửi',
+    reviewing: 'Đang xét',
+    shortlisted: 'Vào vòng tiếp',
+    interview: 'Phỏng vấn',
+    offered: 'Đề nghị',
+    accepted: 'Đã nhận việc',
+    rejected: 'Từ chối',
+    withdrawn: 'Rút đơn',
+};
+
 const statusColorMap: Record<string, string> = {
-    'Mới gửi': 'bg-slate-100 text-slate-700 border-slate-200',
-    'Đang xét': 'bg-blue-100 text-blue-700 border-blue-200',
-    'Shortlisted': 'bg-purple-100 text-purple-700 border-purple-200',
-    'Phỏng vấn': 'bg-amber-100 text-amber-700 border-amber-200',
-    'Đề nghị': 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    'Đã tuyển': 'bg-green-100 text-green-700 border-green-200',
-    'Từ chối': 'bg-red-100 text-red-700 border-red-200',
-    'Rút đơn': 'bg-gray-100 text-gray-500 border-gray-200',
+    pending: 'bg-slate-100 text-slate-700 border-slate-200',
+    reviewing: 'bg-blue-100 text-blue-700 border-blue-200',
+    shortlisted: 'bg-purple-100 text-purple-700 border-purple-200',
+    interview: 'bg-amber-100 text-amber-700 border-amber-200',
+    offered: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    accepted: 'bg-green-100 text-green-700 border-green-200',
+    rejected: 'bg-red-100 text-red-700 border-red-200',
+    withdrawn: 'bg-gray-100 text-gray-500 border-gray-200',
 };
 
 export default function MyApplications() {
     const queryClient = useQueryClient();
-    const [activeTab, setActiveTab] = useState('Tất cả');
+    const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedApp, setSelectedApp] = useState<string | null>(null);
     const [appToWithdraw, setAppToWithdraw] = useState<string | null>(null);
@@ -80,30 +91,40 @@ export default function MyApplications() {
     const { filteredApps, stats } = useMemo(() => {
         if (!applications) return { filteredApps: [], stats: { total: 0 } as any };
 
-        const searchableApps = applications.filter((app: any) =>
-            app.job_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            app.company.toLowerCase().includes(searchQuery.toLowerCase())
+        const normalizedApplications = applications.map((app: any) => ({
+            ...app,
+            company: app.company_name || app.company || '',
+            logo_url: app.company_logo || app.logo_url || '',
+            statusLabel: STATUS_LABEL_MAP[app.status] || app.status,
+        }));
+
+        const searchableApps = normalizedApplications.filter((app: any) =>
+            (app.job_title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (app.company || '').toLowerCase().includes(searchQuery.toLowerCase())
         );
 
-        const counts = applications.reduce((acc: any, app: any) => {
+        const counts = normalizedApplications.reduce((acc: any, app: any) => {
             acc[app.status] = (acc[app.status] || 0) + 1;
-            acc['Tất cả'] = (acc['Tất cả'] || 0) + 1;
+            acc.all = (acc.all || 0) + 1;
             return acc;
-        }, { 'Tất cả': 0 });
+        }, { all: 0 });
 
-        const filtered = activeTab === 'Tất cả'
+        const filtered = activeTab === 'all'
             ? searchableApps
             : searchableApps.filter((app: any) => app.status === activeTab);
 
-        // Calculate breakdown for pie chart/progress bar equivalent
-        const activeCount = counts['Mới gửi'] || 0 + counts['Đang xét'] || 0 + counts['Shortlisted'] || 0 + counts['Phỏng vấn'] || 0;
-        const successCount = counts['Đề nghị'] || 0 + counts['Đã tuyển'] || 0;
-        const failedCount = counts['Từ chối'] || 0 + counts['Rút đơn'] || 0;
+        const activeCount =
+            (counts.pending || 0) +
+            (counts.reviewing || 0) +
+            (counts.shortlisted || 0) +
+            (counts.interview || 0);
+        const successCount = (counts.offered || 0) + (counts.accepted || 0);
+        const failedCount = (counts.rejected || 0) + (counts.withdrawn || 0);
 
         return {
             filteredApps: filtered,
             stats: {
-                total: counts['Tất cả'],
+                total: counts.all,
                 counts,
                 active: activeCount,
                 success: successCount,
@@ -229,7 +250,7 @@ export default function MyApplications() {
                                     <p className="text-slate-500 text-sm max-w-sm">
                                         {searchQuery ? "Không có kết quả nào phù hợp với tìm kiếm của bạn." : "Bạn chưa có đơn ứng tuyển nào ở trạng thái này."}
                                     </p>
-                                    {!searchQuery && activeTab === 'Tất cả' && (
+                                    {!searchQuery && activeTab === 'all' && (
                                         <Button className="mt-6 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20" asChild>
                                             <Link to="/jobs">Tìm việc ngay</Link>
                                         </Button>
@@ -254,7 +275,7 @@ export default function MyApplications() {
                                                         <img src={app.logo_url} alt={app.company} className="w-full h-full object-contain" />
                                                     </div>
                                                     <Badge className={`${statusColorMap[app.status]} font-medium border hidden sm:inline-flex`}>
-                                                        {app.status}
+                                                        {app.statusLabel}
                                                     </Badge>
                                                 </div>
 
@@ -265,7 +286,7 @@ export default function MyApplications() {
                                                             {app.job_title}
                                                         </h3>
                                                         <Badge className={`${statusColorMap[app.status]} sm:hidden`}>
-                                                            {app.status}
+                                                            {app.statusLabel}
                                                         </Badge>
                                                     </div>
 
@@ -298,7 +319,7 @@ export default function MyApplications() {
                                                     <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
                                                         Chi tiết
                                                     </Button>
-                                                    {['Mới gửi', 'Đang xét'].includes(app.status) && (
+                                                    {['pending', 'reviewing'].includes(app.status) && (
                                                         <Button
                                                             variant="ghost" size="sm"
                                                             className="text-red-500 hover:text-red-600 hover:bg-red-50"

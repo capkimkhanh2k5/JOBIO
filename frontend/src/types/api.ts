@@ -368,7 +368,7 @@ export type ApplicationStatus =
   | 'shortlisted'
   | 'interview'
   | 'offered'
-  | 'hired'
+  | 'accepted'
   | 'rejected'
   | 'withdrawn';
 

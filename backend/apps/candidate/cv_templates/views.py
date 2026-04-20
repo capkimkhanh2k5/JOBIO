@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,6 +12,108 @@ from .serializers import (
     CVTemplateCategorySerializer,
     CVTemplateCreateSerializer
 )
+
+
+TEMPLATE_LIBRARY = {
+    "modern.html": {
+        "name": "Modern Classic",
+        "category": "professional",
+        "description": "Layout 2 cot co dien, thanh lich voi sidebar thong tin lien he va ky nang.",
+        "tags": ["modern", "classic", "sidebar"],
+    },
+    "ATS_Prime.html": {
+        "name": "ATS Prime",
+        "category": "professional",
+        "description": "Toi uu cho he thong ATS, don cot, chuyen nghiep.",
+        "tags": ["ats", "professional", "single-column"],
+    },
+    "editorialBold.html": {
+        "name": "Editorial Bold",
+        "category": "creative",
+        "description": "Phong cach editorial voi typography dam net va noi bat.",
+        "tags": ["editorial", "bold", "creative"],
+    },
+    "modernHybird.html": {
+        "name": "Modern Hybrid",
+        "category": "professional",
+        "description": "Bo cuc hien dai ket hop sidebar mau sac.",
+        "tags": ["hybrid", "modern", "colorful"],
+    },
+    "modernHybird2.html": {
+        "name": "Modern Hybrid Pro",
+        "category": "professional",
+        "description": "Phien ban nang cao cua Modern Hybrid voi bo cuc chi tiet hon.",
+        "tags": ["hybrid", "pro", "detailed"],
+    },
+    "modernLuxury.html": {
+        "name": "Modern Luxury",
+        "category": "professional",
+        "description": "Phong cach sang trong, phu hop vai tro cap cao.",
+        "tags": ["luxury", "premium", "elegant"],
+    },
+}
+
+DEFAULT_CATEGORIES = [
+    {"name": "Tat ca", "slug": "all", "display_order": 0},
+    {"name": "Chuyen nghiep", "slug": "professional", "display_order": 1},
+    {"name": "Sang tao", "slug": "creative", "display_order": 2},
+    {"name": "Toi gian", "slug": "minimal", "display_order": 3},
+]
+
+
+def ensure_cv_templates_seeded():
+    from apps.candidate.cv_template_categories.models import CVTemplateCategory
+
+    templates_dir = Path(__file__).resolve().parents[3] / "templates" / "cv"
+    if not templates_dir.exists():
+        return
+
+    category_map = {}
+    for category_data in DEFAULT_CATEGORIES:
+        category, _ = CVTemplateCategory.objects.get_or_create(
+            slug=category_data["slug"],
+            defaults={
+                "name": category_data["name"],
+                "display_order": category_data["display_order"],
+                "is_active": True,
+            },
+        )
+        if not category.is_active:
+            category.is_active = True
+            category.save(update_fields=["is_active"])
+        category_map[category.slug] = category
+
+    html_files = sorted(file.name for file in templates_dir.glob("*.html"))
+    if not html_files:
+        return
+
+    CVTemplate.objects.exclude(file_name__in=html_files).update(is_active=False)
+
+    for file_name in html_files:
+        meta = TEMPLATE_LIBRARY.get(
+            file_name,
+            {
+                "name": Path(file_name).stem.replace("_", " ").replace("-", " ").title(),
+                "category": "professional",
+                "description": f"Template HTML dong bo tu file {file_name}.",
+                "tags": ["html"],
+            },
+        )
+        category = category_map.get(meta["category"], category_map["professional"])
+        CVTemplate.objects.update_or_create(
+            file_name=file_name,
+            defaults={
+                "name": meta["name"],
+                "category": category,
+                "is_premium": False,
+                "price": 0,
+                "is_active": True,
+                "template_data": {
+                    "tags": meta["tags"],
+                    "description": meta["description"],
+                },
+            },
+        )
 
 
 class CVTemplateViewSet(viewsets.ModelViewSet):
@@ -29,6 +133,7 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
     """
     
     def get_queryset(self):
+        ensure_cv_templates_seeded()
         queryset = CVTemplate.objects.select_related('category')
         
         # Admin thấy tất cả, user chỉ thấy active

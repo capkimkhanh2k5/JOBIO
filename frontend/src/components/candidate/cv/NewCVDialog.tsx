@@ -48,7 +48,8 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
         queryKey: ['cv-templates-picker'],
         queryFn: () => cvService.listTemplates({ page_size: 12 }).then(r => r.data),
     });
-    const templates = (templatesRaw?.results ?? []).map((t) => ({
+    const templateItems = Array.isArray(templatesRaw) ? templatesRaw : (templatesRaw?.results ?? []);
+    const templates = templateItems.map((t) => ({
         id: String(t.id),
         name: t.name,
         file_name: (t as any).file_name || '',

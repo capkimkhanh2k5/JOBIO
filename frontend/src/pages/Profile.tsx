@@ -76,8 +76,9 @@ const Profile = () => {
     const candidateId = profile?.id;
 
     const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => candidateService.update(Number(candidateId), { is_public: isPublic } as any).then(r => r.data),
-        onSuccess: () => {
+        mutationFn: (isPublic: boolean) => candidateService.update(Number(candidateId), { is_profile_public: isPublic }).then(r => r.data),
+        onSuccess: (updatedProfile) => {
+            queryClient.setQueryData(['profile', userId], updatedProfile);
             queryClient.invalidateQueries({ queryKey: ['profile', userId] });
             toast.success("Đã cập nhật cài đặt quyền riêng tư");
         }
