@@ -70,6 +70,9 @@ import BlogManagement from '@/pages/admin/BlogManagement';
 import FinancialManagement from '@/pages/admin/FinancialManagement';
 import JobMarketplace from '@/pages/admin/JobMarketplace';
 import ViolationReports from '@/pages/admin/ViolationReports';
+import AdvancedAnalytics from '@/pages/admin/AdvancedAnalytics';
+import MasterData from '@/pages/admin/MasterData';
+import AdminNotificationsPage from '@/pages/admin/AdminNotifications';
 
 // Inner component – must live inside <BrowserRouter> to access router hooks
 function AppInner() {
@@ -157,6 +160,9 @@ function AppInner() {
                         <Route path="jobs" element={<JobMarketplace />} />
                         <Route path="reports" element={<ViolationReports />} />
                         <Route path="settings" element={<SystemSettings />} />
+                        <Route path="notifications" element={<AdminNotificationsPage />} />
+                        <Route path="analytics" element={<AdvancedAnalytics />} />
+                        <Route path="master-data" element={<MasterData />} />
                     </Route>
 
                     {/* ── Company area: own shell, no public header/footer ── */}
@@ -177,6 +183,7 @@ function AppInner() {
                         <Route path="interviews" element={<CompanyInterviewsPage />} />
 
                         <Route path="analytics" element={<CompanyAnalyticsPage />} />
+                        <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="subscription" element={<Navigate to="/pricing" replace />} />
                         <Route path="billing" element={<BillingDashboard />} />
                         <Route path="payment-result" element={<PaymentResultPage />} />

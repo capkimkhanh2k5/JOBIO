@@ -17,28 +17,22 @@ export const NotificationBell = () => {
 
     const {
         unreadCount,
-        fetchUnreadCount,
         fetchRecentNotifications,
         startSimulation,
-        stopSimulation
+        stopSimulation,
     } = useNotificationStore();
 
     useEffect(() => {
-        // Only fetch notifications when authenticated
         if (!isAuthenticated) return;
 
-        // Init fetch
-        fetchUnreadCount();
-        fetchRecentNotifications();
-
-        // Start simulated SSE connection
+        // startSimulation internally fetches count + notifications, then starts polling
         startSimulation();
 
-        // Listen for internal simulation events
+        // Toast on new notification event (dispatched by SSE or future push)
         const handleNewNotification = (e: any) => {
             const notif = e.detail;
             toast(notif.title, {
-                description: notif.message,
+                description: notif.message ?? notif.content,
                 icon: <Bell className="w-4 h-4 text-primary" />,
             });
         };
@@ -51,10 +45,10 @@ export const NotificationBell = () => {
         };
     }, [isAuthenticated]);
 
-    // Also handle regular polling or refresh when popover is opened
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
         if (open) {
+            // Refresh list when user opens the dropdown
             fetchRecentNotifications();
         }
     };
@@ -65,17 +59,20 @@ export const NotificationBell = () => {
                 <Button
                     variant="ghost"
                     size="icon"
+                    aria-label={`Thông báo${unreadCount > 0 ? ` (${unreadCount} chưa đọc)` : ''}`}
                     className="relative rounded-full w-10 h-10 lg:w-12 lg:h-12 hover:bg-primary/10 transition-colors magnetic-button"
                 >
                     <Bell className="w-5 h-5 lg:w-6 lg:h-6 text-foreground/80" />
+
+                    {/* Red dot — only visible when there are unread notifications */}
                     {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 lg:top-3 lg:right-3 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background animate-pulse" />
+                        <span className="absolute top-1.5 right-1.5 lg:top-2 lg:right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background animate-pulse" />
                     )}
                 </Button>
             </PopoverTrigger>
             <PopoverContent
                 align="end"
-                className="w-80 md:w-96 p-0 border border-slate-200 bg-white shadow-2xl rounded-2xl overflow-hidden"
+                className="w-80 md:w-[500px] p-0 border border-slate-200 bg-white shadow-2xl rounded-2xl overflow-hidden"
                 sideOffset={8}
             >
                 <NotificationDropdown onClose={() => setIsOpen(false)} />

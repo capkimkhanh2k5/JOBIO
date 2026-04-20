@@ -22,7 +22,56 @@ export const dashboardService = {
     return api.get<CompanyStats>('/api/dashboard/stats/company/');
   },
 
+  getModerationStats() {
+    return api.get('/api/companies/admin/pending-stats/');
+  },
 
+  // ─── Admin Analytics (real data endpoints) ────────────────────────────
+
+  /** GET /api/analytics/overview/ — Tổng quan đầy đủ cho Dashboard */
+  getAnalyticsOverview() {
+    return api.get('/api/analytics/overview/');
+  },
+
+  /** GET /api/analytics/user-growth/?months=7 */
+  getUserGrowth(months = 7) {
+    return api.get<{ month: string; users: number; jobs: number }[]>(
+      '/api/analytics/user-growth/',
+      { params: { months } }
+    );
+  },
+
+  /** GET /api/analytics/industry-distribution/ */
+  getIndustryDistribution() {
+    return api.get<{ name: string; value: number; count: number; color: string }[]>(
+      '/api/analytics/industry-distribution/'
+    );
+  },
+
+  /** GET /api/analytics/revenue-trend/?days=7 */
+  getRevenueTrend(days = 7) {
+    return api.get<{ day: string; revenue: number }[]>(
+      '/api/analytics/revenue-trend/',
+      { params: { days } }
+    );
+  },
+
+  /** GET /api/analytics/application-stats/ */
+  getApplicationStats() {
+    return api.get('/api/analytics/application-stats/');
+  },
+
+  /** GET /api/analytics/top-jobs/?limit=10 */
+  getTopJobs(limit = 10) {
+    return api.get('/api/analytics/top-jobs/', { params: { limit } });
+  },
+
+  /** GET /api/analytics/violation-breakdown/ */
+  getViolationBreakdown() {
+    return api.get<{ name: string; value: number; count: number; color: string }[]>(
+      '/api/analytics/violation-breakdown/'
+    );
+  },
 
   // ─── Blog ─────────────────────────────────────────────────────────────
 
@@ -41,8 +90,6 @@ export const dashboardService = {
   listBlogTags() {
     return api.get<BlogTag[]>('/api/blog/tags/');
   },
-
-
 
   // ─── Users (Admin) ─────────────────────────────────────────────────────────
 
@@ -69,11 +116,11 @@ export const dashboardService = {
   // ─── System Settings ──────────────────────────────────────────────────
 
   listSystemSettings() {
-    return api.get('/api/system-settings/');
+    return api.get('/api/system/settings/');
   },
 
   updateSystemSetting(id: number, data: { setting_value?: string; is_public?: boolean; description?: string }) {
-    return api.patch(`/api/system-settings/${id}/`, data);
+    return api.patch(`/api/system/settings/${id}/`, data);
   },
 
   // ─── Activity Logs ────────────────────────────────────────────────────
@@ -118,8 +165,6 @@ export const dashboardService = {
     });
   },
 
-
-
   // ─── Financial Management (Admin) ──────────────────────────────────────────
 
   getFinancialStats() {
@@ -161,4 +206,70 @@ export const dashboardService = {
   exportAdminReports(params?: { status?: string; search?: string }) {
     return api.get('/api/system/reports/admin-reports/export/', { params, responseType: 'blob' });
   },
+
+  // ─── Master Data (Admin CRUD) ──────────────────────────────────────────────
+
+  listSkillCategories() { return api.get('/api/skills/categories/'); },
+  listSkills(params?: { category?: number; search?: string; page?: number }) {
+    return api.get('/api/skills/', { params });
+  },
+  createSkill(data: { name: string; category: number; description?: string }) {
+    return api.post('/api/skills/', data);
+  },
+  updateSkill(id: number, data: Partial<{ name: string; description: string; is_active: boolean }>) {
+    return api.patch(`/api/skills/${id}/`, data);
+  },
+  deleteSkill(id: number) { return api.delete(`/api/skills/${id}/`); },
+
+  listIndustries(params?: { search?: string; page?: number }) {
+    return api.get('/api/industries/', { params });
+  },
+  createIndustry(data: { name: string; description?: string; icon?: string }) {
+    return api.post('/api/industries/', data);
+  },
+  updateIndustry(id: number, data: Partial<{ name: string; description: string; icon: string }>) {
+    return api.patch(`/api/industries/${id}/`, data);
+  },
+  deleteIndustry(id: number) { return api.delete(`/api/industries/${id}/`); },
+
+  listJobCategories(params?: { search?: string; page?: number }) {
+    return api.get('/api/job-categories/', { params });
+  },
+  createJobCategory(data: { name: string; parent?: number; icon?: string; description?: string }) {
+    return api.post('/api/job-categories/', data);
+  },
+  updateJobCategory(id: number, data: Partial<{ name: string; parent: number; icon: string }>) {
+    return api.patch(`/api/job-categories/${id}/`, data);
+  },
+  deleteJobCategory(id: number) { return api.delete(`/api/job-categories/${id}/`); },
+
+  listBenefitCategories(params?: { search?: string }) {
+    return api.get('/api/benefit-categories/', { params });
+  },
+  createBenefitCategory(data: { name: string; icon?: string; description?: string }) {
+    return api.post('/api/benefit-categories/', data);
+  },
+  updateBenefitCategory(id: number, data: Partial<{ name: string; icon: string; description: string }>) {
+    return api.patch(`/api/benefit-categories/${id}/`, data);
+  },
+  deleteBenefitCategory(id: number) { return api.delete(`/api/benefit-categories/${id}/`); },
+
+  // ─── Notifications (Admin Broadcast) ──────────────────────────────────────
+
+  broadcastNotification(data: { title: string; message: string; target: 'all' | 'candidate' | 'company'; notification_type_id?: number }) {
+    return api.post('/api/notifications/broadcast/', data);
+  },
+
+  listNotificationTypes() {
+    return api.get('/api/notification-types/');
+  },
+  /** GET /api/analytics/overview/ — dùng để lấy badge counts cho sidebar */
+  getSidebarBadges() {
+    return api.get<{
+      reports: { pending: number };
+      companies: { pending_verification: number };
+    }>('/api/analytics/overview/');
+  },
 };
+
+

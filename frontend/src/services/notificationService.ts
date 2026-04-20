@@ -23,4 +23,13 @@ export const notificationService = {
     updateNotificationSettings(data: Partial<NotificationSettings>) {
         return api.patch<NotificationSettings>('/api/notifications/settings/', data);
     },
+
+    deleteNotification(id: number) {
+        return api.delete(`/api/notifications/${id}/`);
+    },
+
+    clearAllNotifications() {
+        return api.delete('/api/notifications/clear-all/');
+    },
 };
+
