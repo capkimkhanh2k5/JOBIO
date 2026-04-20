@@ -44,7 +44,7 @@ interface JobDetailHeaderProps {
         featured: boolean;
         published_at: string | null;
     };
-    locations: { address: { province_name?: string } }[];
+    locations: { address?: { province_name?: string }; province_name?: string | null }[];
     onApply: () => void;
 }
 
@@ -184,7 +184,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 <div className="min-w-0">
                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Địa điểm</p>
                                     <p className="text-sm font-bold text-slate-900 truncate">
-                                        {locations.map(l => l.address.province_name).filter(Boolean).join(", ") || "Toàn quốc"}
+                                        {locations.map(l => l.address?.province_name || l.province_name).filter(Boolean).join(", ") || "Toàn quốc"}
                                     </p>
                                 </div>
                             </div>

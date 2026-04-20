@@ -18,7 +18,8 @@ interface CompanySidebarProps {
     company: {
         id: number;
         company_name: string;
-        industry?: { name: string } | null;
+        industry?: { name: string } | string | null;
+        industry_name?: string | null;
         logo_url: string | null;
         company_size: string;
         founded_year: number | null;
@@ -34,6 +35,10 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
     const { isAuthenticated } = useUserStore();
     const [isFollowing, setIsFollowing] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const industryLabel =
+        company.industry_name ||
+        (typeof company.industry === 'string' ? company.industry : company.industry?.name) ||
+        'Ngành nghề chưa cập nhật';
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -86,7 +91,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                                 <CheckCircle2 size={16} className="text-sky-600 fill-sky-50 shrink-0" />
                             )}
                         </h4>
-                        <p className="text-sm text-slate-500 truncate">{company.industry?.name || 'Ngành nghề chưa cập nhật'}</p>
+                        <p className="text-sm text-slate-500 truncate">{industryLabel}</p>
                     </div>
                 </div>
 

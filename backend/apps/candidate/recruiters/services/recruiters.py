@@ -25,6 +25,7 @@ class RecruiterInput(BaseModel):
     available_from_date: Optional[date] = None
     years_of_experience: Optional[int] = None
     highest_education_level: Optional[str] = None
+    is_profile_public: Optional[bool] = None
     full_name: Optional[str] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

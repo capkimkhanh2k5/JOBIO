@@ -41,9 +41,9 @@ export default function JobDetailPage() {
 
     // Fetch Company Info
     const { data: company } = useQuery({
-        queryKey: ['company', job?.company?.id],
-        queryFn: () => companyService.getById(Number(job?.company?.id)).then(r => r.data),
-        enabled: !!job?.company?.id
+        queryKey: ['company', (job as any)?.company?.id ?? (job as any)?.company_id],
+        queryFn: () => companyService.getById(Number((job as any)?.company?.id ?? (job as any)?.company_id)).then(r => r.data),
+        enabled: !!((job as any)?.company?.id ?? (job as any)?.company_id)
     });
 
     // Fetch Related Jobs
@@ -55,6 +55,17 @@ export default function JobDetailPage() {
 
     if (isLoadingJob) return <JobDetailSkeleton />;
     if (isJobError || !job) return <JobNotFoundError />;
+
+    const normalizedJob = {
+        ...job,
+        salary_negotiable: (job as any).salary_negotiable ?? (job as any).is_salary_negotiable ?? false,
+        company: (job as any).company ?? {
+            id: (job as any).company_id,
+            company_name: (job as any).company_name,
+            logo_url: (job as any).company_logo ?? (job as any).logo_url ?? null,
+            verification_status: (job as any).verification_status,
+        },
+    };
 
     return (
         <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl relative z-10">
@@ -78,7 +89,7 @@ export default function JobDetailPage() {
                         className="flex flex-col gap-10"
                     >
                         <JobDetailHeader
-                            job={job as any}
+                            job={normalizedJob as any}
                             locations={locations || []}
                             onApply={() => setIsApplyModalOpen(true)}
                         />

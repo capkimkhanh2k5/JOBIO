@@ -292,7 +292,7 @@ export default function SuggestedJobs() {
                             <Button
                                 variant="outline"
                                 className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 h-10 px-4 rounded-xl font-bold shadow-sm"
-                                onClick={() => navigate('/candidate/cv-manager')}
+                                onClick={() => navigate('/candidate/cv')}
                             >
                                 <FileText className="w-4 h-4" /> Quản lý CV
                             </Button>

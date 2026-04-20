@@ -5,10 +5,11 @@ import { cn } from '@/lib/utils';
 
 interface Skill {
     id: number;
-    skill: {
+    skill?: {
         id: number;
         name: string;
-    };
+    } | string | null;
+    skill_name?: string;
     is_required: boolean;
     proficiency_level: string | null;
 }
@@ -38,9 +39,15 @@ export const JobSkillsList = ({ skills }: JobSkillsListProps) => {
                         viewport={{ once: true }}
                         transition={{ delay: index * 0.05 }}
                     >
+                        {/*
+                          Job detail currently mixes two backend shapes:
+                          nested skill object and flat skill_name from /jobs/:id/skills/.
+                        */}
                         <div className="flex flex-col gap-2 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-blue-200 hover:bg-white transition-all cursor-default min-w-[140px]">
                             <div className="flex items-center justify-between gap-3">
-                                <span className="font-bold text-gray-900">{s.skill.name}</span>
+                                <span className="font-bold text-gray-900">
+                                    {s.skill_name || (typeof s.skill === 'string' ? s.skill : s.skill?.name) || 'Kỹ năng'}
+                                </span>
                                 {s.is_required && (
                                     <Badge variant="destructive" className="h-5 text-[10px] uppercase px-1.5 py-0 bg-red-50 text-red-600 border-red-100 hover:bg-red-50">
                                         Bắt buộc

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Plus, Search, Trash2, Edit2, Clock, MapPin, Briefcase, Mail } from 'lucide-react';
 import { alertService } from '@/services/alertService';
-import { taxonomyService } from '@/services/taxonomyService';
+import { geographyService } from '@/services/geographyService';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,11 +42,10 @@ export default function JobAlerts() {
     });
 
     // Fetch provinces
-    const { data: provincesRaw } = useQuery({
+    const { data: provinces = [], isLoading: isLoadingProvinces } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => taxonomyService.listProvinces({ page_size: 100 } as any).then(r => (r as any).data),
+        queryFn: geographyService.getProvinces,
     });
-    const provinces = (provincesRaw as any)?.results || [];
 
     // Reset form when dialog opens/closes or editing changes
     useEffect(() => {
@@ -54,7 +53,10 @@ export default function JobAlerts() {
             setFormData({
                 alert_name: editingAlert.alert_name || '',
                 keywords: editingAlert.keywords || '',
-                location_ids: editingAlert.locations?.map((l: any) => l.id) || [],
+                location_ids:
+                    editingAlert.location_ids ||
+                    editingAlert.locations_detail?.map((l: any) => l.id) ||
+                    [],
                 frequency: editingAlert.frequency || 'daily'
             });
         } else {
@@ -302,12 +304,13 @@ export default function JobAlerts() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="location" className="font-bold text-slate-700">Địa điểm</Label>
-                                    <Select 
+                                    <Select
                                         value={formData.location_ids[0]?.toString() || ""}
                                         onValueChange={(val) => setFormData({ ...formData, location_ids: [parseInt(val)] })}
+                                        disabled={isLoadingProvinces}
                                     >
                                         <SelectTrigger className="rounded-xl border-slate-200 h-11 focus:ring-violet-600 py-6 text-base">
-                                            <SelectValue placeholder="Chọn tỉnh thành" />
+                                            <SelectValue placeholder={isLoadingProvinces ? "Đang tải tỉnh thành..." : "Chọn tỉnh thành"} />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-xl bg-white max-h-[300px]">
                                             {provinces.map((province: any) => (

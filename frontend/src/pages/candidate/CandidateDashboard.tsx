@@ -57,7 +57,7 @@ export default function CandidateDashboard() {
         total: stats?.applied_jobs_count || 1,
         reviewing: allApplications?.filter((a: any) => ['reviewing', 'shortlisted'].includes(a.status)).length || 0,
         interview: allApplications?.filter((a: any) => a.status === 'interview').length || 0,
-        offered: allApplications?.filter((a: any) => ['offered', 'hired'].includes(a.status)).length || 0,
+        offered: allApplications?.filter((a: any) => ['offered', 'accepted'].includes(a.status)).length || 0,
     };
 
     const { data: savedJobs, isLoading: loadingSaved } = useQuery({
@@ -190,7 +190,7 @@ export default function CandidateDashboard() {
                                     </div>
 
                                     <div className="flex-shrink-0">
-                                        <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25 transition-all">
+                                        <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25 transition-all" onClick={() => navigate('/candidate/profile')}>
                                             Cập nhật ngay
                                         </Button>
                                     </div>
