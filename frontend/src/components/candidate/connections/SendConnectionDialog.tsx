@@ -11,9 +11,10 @@ interface SendConnectionDialogProps {
     onClose: () => void;
     candidateId: number;
     candidateName: string;
+    canConnect?: boolean;
 }
 
-export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateName }: SendConnectionDialogProps) {
+export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateName, canConnect = true }: SendConnectionDialogProps) {
     const [message, setMessage] = useState('');
     const queryClient = useQueryClient();
 
@@ -31,6 +32,15 @@ export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateNa
         }
     });
 
+    const handleSend = () => {
+        if (!canConnect) {
+            toast.error('Backend kết nối hiện chưa được triển khai nên chưa thể gửi lời mời.');
+            return;
+        }
+
+        connectMutation.mutate();
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
@@ -40,12 +50,18 @@ export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateNa
                         Kết nối với {candidateName} để mở rộng mạng lưới của bạn. Bạn có thể thêm một tin nhắn cá nhân hóa.
                     </DialogDescription>
                 </DialogHeader>
+                {!canConnect && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                        Chức năng gửi lời mời kết nối chưa hoạt động vì backend chưa có API tương ứng.
+                    </div>
+                )}
                 <div className="py-4">
                     <Textarea
                         placeholder="Thêm lời nhắn... (Tùy chọn)"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         className="resize-none min-h-[100px] border-slate-200 focus-visible:ring-violet-500"
+                        disabled={!canConnect || connectMutation.isPending}
                     />
                 </div>
                 <DialogFooter>
@@ -53,11 +69,11 @@ export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateNa
                         Hủy
                     </Button>
                     <Button
-                        onClick={() => connectMutation.mutate()}
-                        disabled={connectMutation.isPending}
+                        onClick={handleSend}
+                        disabled={!canConnect || connectMutation.isPending}
                         className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white"
                     >
-                        {connectMutation.isPending ? 'Đang gửi...' : 'Gửi lời mời'}
+                        {!canConnect ? 'Chưa khả dụng' : connectMutation.isPending ? 'Đang gửi...' : 'Gửi lời mời'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

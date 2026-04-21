@@ -85,7 +85,13 @@ class Post(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base_slug = slugify(self.title) or 'blog-post'
+            unique_slug = base_slug
+            suffix = 1
+            while Post.objects.filter(slug=unique_slug).exclude(pk=self.pk).exists():
+                unique_slug = f'{base_slug}-{suffix}'
+                suffix += 1
+            self.slug = unique_slug
         super().save(*args, **kwargs)
 
     def __str__(self):

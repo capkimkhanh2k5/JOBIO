@@ -54,6 +54,14 @@ def create_application(recruiter: Recruiter, data: ApplicationCreateInput) -> Ap
         cover_letter=data.cover_letter,
         status='pending'
     )
+
+    log_status_history(
+        application,
+        None,
+        'pending',
+        recruiter.user,
+        'Ứng viên đã gửi đơn ứng tuyển'
+    )
     
     # Cập nhật số lượng ứng tuyển
     Job.objects.filter(id=data.job_id).update(

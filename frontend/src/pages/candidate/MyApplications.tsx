@@ -137,6 +137,15 @@ export default function MyApplications() {
         setAppToWithdraw(appId);
     };
 
+    const selectedApplication = applications
+        ?.map((app: any) => ({
+            ...app,
+            company: app.company_name || app.company || '',
+            logo_url: app.company_logo || app.logo_url || '',
+            statusLabel: STATUS_LABEL_MAP[app.status] || app.status,
+        }))
+        .find((app: any) => String(app.id) === String(selectedApp));
+
     const confirmWithdraw = () => {
         if (appToWithdraw) {
             withdrawMutation.mutate(appToWithdraw);
@@ -347,6 +356,7 @@ export default function MyApplications() {
                     open={!!selectedApp}
                     onOpenChange={(open) => !open && setSelectedApp(null)}
                     onWithdraw={() => handleWithdrawRequest(selectedApp)}
+                    applicationPreview={selectedApplication}
                 />
             )}
 

@@ -54,8 +54,6 @@ import SavedJobs from '@/pages/candidate/SavedJobs';
 import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
-import MyReviews from '@/pages/candidate/MyReviews';
-import ConnectionsPage from '@/pages/candidate/Connections';
 import SearchHistory from '@/pages/candidate/SearchHistory';
 import UserBlogManagement from '@/pages/shared/BlogManagement';
 import CreateBlogPost from '@/pages/shared/CreateBlogPost';
@@ -137,9 +135,7 @@ function AppInner() {
                         <Route path="applications" element={<MyApplications />} />
                         <Route path="saved" element={<SavedJobs />} />
                         <Route path="alerts" element={<JobAlerts />} />
-                        <Route path="reviews" element={<MyReviews />} />
                         <Route path="interviews" element={<CandidateInterviews />} />
-                        <Route path="connections" element={<ConnectionsPage />} />
 
                         <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="settings" element={<CandidateSettingsPage />} />
