@@ -10,9 +10,10 @@ import { Badge } from '@/components/ui/badge';
 
 interface SuggestionCardProps {
     suggestion: ConnectionSuggestion;
+    canConnect?: boolean;
 }
 
-export function SuggestionCard({ suggestion }: SuggestionCardProps) {
+export function SuggestionCard({ suggestion, canConnect = true }: SuggestionCardProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { candidate, mutual_connections, common_skills } = suggestion;
 
@@ -63,9 +64,10 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
                             variant="outline"
                             className="w-full bg-white hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-colors"
                             onClick={() => setIsDialogOpen(true)}
+                            disabled={!canConnect}
                         >
                             <UserPlus className="w-4 h-4 mr-2" />
-                            Kết nối
+                            {canConnect ? 'Kết nối' : 'Chưa khả dụng'}
                         </Button>
                     </div>
                 </Card>
@@ -76,6 +78,7 @@ export function SuggestionCard({ suggestion }: SuggestionCardProps) {
                 onClose={() => setIsDialogOpen(false)}
                 candidateId={candidate.id}
                 candidateName={candidate.full_name}
+                canConnect={canConnect}
             />
         </>
     );

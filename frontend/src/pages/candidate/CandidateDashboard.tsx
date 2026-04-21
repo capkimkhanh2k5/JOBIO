@@ -18,6 +18,17 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 
+const STATUS_LABEL_MAP: Record<string, string> = {
+    pending: 'Mới gửi',
+    reviewing: 'Đang xem xét',
+    shortlisted: 'Đang xem xét',
+    interview: 'Phỏng vấn',
+    offered: 'Trúng tuyển',
+    accepted: 'Trúng tuyển',
+    rejected: 'Từ chối',
+    withdrawn: 'Rút đơn',
+};
+
 export default function CandidateDashboard() {
     const navigate = useNavigate();
     const { user } = useUserStore();
@@ -33,6 +44,13 @@ export default function CandidateDashboard() {
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
         queryFn: () => candidateService.getMyStats().then(r => r.data),
+        enabled: !!candidateId,
+        retry: false,
+    });
+
+    const { data: profileData } = useQuery({
+        queryKey: ['candidate', 'my-profile', candidateId],
+        queryFn: () => candidateService.getMyProfile().then(r => r.data),
         enabled: !!candidateId,
     });
 
@@ -52,14 +70,6 @@ export default function CandidateDashboard() {
         queryFn: () => applicationService.list({ page_size: 100 }).then(r => r.data.results),
     });
 
-    // Thống kê dựa trên danh sách lớn nhất
-    const appStats = {
-        total: stats?.applied_jobs_count || 1,
-        reviewing: allApplications?.filter((a: any) => ['reviewing', 'shortlisted'].includes(a.status)).length || 0,
-        interview: allApplications?.filter((a: any) => a.status === 'interview').length || 0,
-        offered: allApplications?.filter((a: any) => ['offered', 'accepted'].includes(a.status)).length || 0,
-    };
-
     const { data: savedJobs, isLoading: loadingSaved } = useQuery({
         queryKey: ['candidate', 'saved-jobs', 'preview'],
         queryFn: () => savedJobService.list({ page_size: 5 }).then(r => r.data.results),
@@ -69,6 +79,40 @@ export default function CandidateDashboard() {
         queryKey: ['candidate', 'interviews', 'upcoming'],
         queryFn: () => candidateService.listInterviews({ status: 'scheduled', page_size: 3 }).then(r => r.data.results),
     });
+
+    const normalizedApplications = (allApplications || []).map((app: any) => ({
+        ...app,
+        company: app.company_name || app.company || '',
+        logo_url: app.company_logo || app.logo_url || '/company-placeholder.png',
+        statusLabel: STATUS_LABEL_MAP[app.status] || app.status,
+    }));
+
+    const recentApplications = (applications || []).map((app: any) => ({
+        ...app,
+        company: app.company_name || app.company || '',
+        logo_url: app.company_logo || app.logo_url || '/company-placeholder.png',
+        statusLabel: STATUS_LABEL_MAP[app.status] || app.status,
+    }));
+
+    const normalizedSavedJobs = (savedJobs || []).map((job: any) => ({
+        ...job,
+        jobId: job.job_id,
+        title: job.job_title || job.title || '',
+        company: job.company_name || '',
+        logo_url: job.logo_url || '/company-placeholder.png',
+    }));
+
+    const totalApplications = normalizedApplications.length || stats?.applied_jobs_count || 0;
+    const upcomingInterviewsCount = interviews?.length || stats?.upcoming_interviews_count || 0;
+    const profileViewsCount = profileData?.profile_views_count ?? stats?.profile_views_count ?? 0;
+
+    // Thống kê dựa trên danh sách ứng tuyển thực tế
+    const appStats = {
+        total: totalApplications,
+        reviewing: normalizedApplications.filter((a: any) => ['reviewing', 'shortlisted'].includes(a.status)).length,
+        interview: normalizedApplications.filter((a: any) => a.status === 'interview').length,
+        offered: normalizedApplications.filter((a: any) => ['offered', 'accepted'].includes(a.status)).length,
+    };
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -110,10 +154,10 @@ export default function CandidateDashboard() {
 
                         {/* KPI Stats */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            {[
-                                { title: "Việc đã ứng tuyển", value: stats?.applied_jobs_count, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats },
-                                { title: "Phỏng vấn sắp tới", value: stats?.upcoming_interviews_count, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats },
-                                { title: "Lượt xem hồ sơ", value: stats?.profile_views_count, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats },
+                            {[ 
+                                { title: "Việc đã ứng tuyển", value: totalApplications, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats && !allApplications },
+                                { title: "Phỏng vấn sắp tới", value: upcomingInterviewsCount, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats && loadingInterviews },
+                                { title: "Lượt xem hồ sơ", value: profileViewsCount, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats && !profileData },
                             ].map((stat, i) => (
                                 <motion.div key={i} variants={itemVariants}>
                                     <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-3xl hover:shadow-md">
@@ -213,7 +257,7 @@ export default function CandidateDashboard() {
                                 <div className="p-5 p-0">
                                     <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 overflow-x-auto p-4 border-b border-slate-100">
                                         {[
-                                            { label: `Đã gửi (${stats?.applied_jobs_count || 0})`, value: stats?.applied_jobs_count || 0, col: 'bg-slate-500' },
+                                            { label: `Đã gửi (${appStats.total})`, value: appStats.total, col: 'bg-slate-500' },
                                             { label: `Đang xem xét (${appStats.reviewing})`, value: appStats.reviewing, col: 'bg-blue-500' },
                                             { label: `Phỏng vấn (${appStats.interview})`, value: appStats.interview, col: 'bg-amber-500' },
                                             { label: `Trúng tuyển (${appStats.offered})`, value: appStats.offered, col: 'bg-emerald-500' },
@@ -224,10 +268,10 @@ export default function CandidateDashboard() {
                                                     <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{s.label}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                                    <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(stats?.applied_jobs_count || 1, 1)) * 100}%` }} />
-                                                </div>
+                                                <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(appStats.total || 1, 1)) * 100}%` }} />
                                             </div>
-                                        ))}
+                                        </div>
+                                    ))}
                                     </div>
 
                                     <div className="divide-y divide-slate-100">
@@ -236,8 +280,8 @@ export default function CandidateDashboard() {
                                                 <div key={i} className="p-4 flex gap-4"><Skeleton className="w-12 h-12 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-1/3" /><Skeleton className="h-3 w-1/4" /></div></div>
                                             ))
                                         ) : (
-                                            applications?.map((app: any) => (
-                                                <div key={app.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/candidate/applications/${app.id}`)}>
+                                            recentApplications.map((app: any) => (
+                                                <div key={app.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate('/candidate/applications')}>
                                                     <img src={app.logo_url} alt={app.company} className="w-12 h-12 rounded-xl border border-white/10" />
                                                     <div className="flex-1 min-w-0">
                                                         <h4 className="font-semibold text-foreground truncate">{app.job_title}</h4>
@@ -245,13 +289,13 @@ export default function CandidateDashboard() {
                                                     </div>
                                                     <div className="text-right shrink-0">
                                                         <Badge variant="outline" className={
-                                                            app.status === 'Reviewing' ? 'border-blue-500/30 text-blue-400 bg-blue-500/10' :
-                                                                app.status === 'Interview' ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' :
-                                                                    app.status === 'Offered' ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' :
-                                                                        app.status === 'Rejected' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
+                                                            ['reviewing', 'shortlisted'].includes(app.status) ? 'border-blue-500/30 text-blue-400 bg-blue-500/10' :
+                                                                app.status === 'interview' ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' :
+                                                                    ['offered', 'accepted'].includes(app.status) ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' :
+                                                                        app.status === 'rejected' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
                                                                             'border-slate-500/30 text-slate-400 bg-slate-500/10'
                                                         }>
-                                                            {app.status}
+                                                            {app.statusLabel}
                                                         </Badge>
                                                         <p className="text-[11px] text-muted-foreground mt-1 text-right">{app.applied_at ? formatDistanceToNow(new Date(app.applied_at), { addSuffix: true, locale: vi }) : ''}</p>
                                                     </div>
@@ -376,9 +420,13 @@ export default function CandidateDashboard() {
                                 <div className="divide-y divide-slate-100">
                                     {loadingSaved ? (
                                         [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full" /></div>)
+                                    ) : normalizedSavedJobs.length === 0 ? (
+                                        <div className="p-5 text-center text-sm text-slate-500">
+                                            Chưa có việc làm đã lưu.
+                                        </div>
                                     ) : (
-                                        savedJobs?.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/jobs/${job.id}`)}>
+                                        normalizedSavedJobs.slice(0, 3).map((job: any) => (
+                                            <div key={job.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/jobs/${job.jobId}`)}>
                                                 <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded border border-white/10" />
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="font-medium text-sm truncate">{job.title}</h4>

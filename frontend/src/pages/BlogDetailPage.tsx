@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { blogService } from '@/services/blogService';
+import { useUserStore } from '@/store/userStore';
 import { motion } from 'framer-motion';
 import { 
     Calendar, Eye, ChevronLeft, Share2, 
@@ -18,6 +19,7 @@ const fadeUp = (delay: number) => ({
 
 export default function BlogDetailPage() {
     const { slug } = useParams<{ slug: string }>();
+    const { user } = useUserStore();
 
     // Fetch Post Detail
     const { data: post, isLoading, isError } = useQuery({
@@ -86,6 +88,9 @@ export default function BlogDetailPage() {
         ? new Date(post.published_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'Chưa xuất bản';
 
+    const resolvedAuthorName = post.author_name?.trim() || (post.author === user?.id ? user.full_name : '') || 'Tác giả JOBIO';
+    const authorInitial = resolvedAuthorName.charAt(0).toUpperCase();
+
     return (
         <div className="min-h-screen bg-white">
             <article className="w-full max-w-4xl mx-auto px-6 pt-32 md:pt-40 pb-12 md:pb-20">
@@ -119,15 +124,15 @@ export default function BlogDetailPage() {
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
                             {post.author_avatar ? (
-                                <img src={post.author_avatar} alt={post.author_name} className="w-full h-full object-cover" />
+                                <img src={post.author_avatar} alt={resolvedAuthorName} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-lg">
-                                    {post.author_name.charAt(0)}
+                                    {authorInitial}
                                 </div>
                             )}
                         </div>
                         <div>
-                            <p className="font-bold text-slate-900 text-base">{post.author_name}</p>
+                            <p className="font-bold text-slate-900 text-base">{resolvedAuthorName}</p>
                             <p className="text-sm text-slate-500 font-medium">Tác giả</p>
                         </div>
                     </div>
