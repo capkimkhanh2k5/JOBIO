@@ -27,7 +27,7 @@ const STATUS_LABELS: Record<string, string> = {
     'shortlisted': 'Shortlisted',
     'interview': 'Interview',
     'offered': 'Offered',
-    'hired': 'Hired',
+    'accepted': 'Accepted',
     'rejected': 'Rejected',
     'withdrawn': 'Withdrawn'
 };
@@ -40,7 +40,7 @@ const getScoreColor = (score: number) => {
 
 const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-        case 'hired': return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+        case 'accepted': return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
         case 'offered': return "bg-blue-500/10 text-blue-500 border-blue-500/20";
         case 'interview': return "bg-violet-500/10 text-violet-500 border-violet-500/20";
         case 'rejected': return "bg-red-500/10 text-red-500 border-red-500/20";

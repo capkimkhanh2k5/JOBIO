@@ -3,33 +3,41 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Shield, KeyRound, Loader2 } from 'lucide-react';
+import { Shield, KeyRound, Loader2, Info } from 'lucide-react';
 import { authService } from '@/services/authService';
+import { useUserStore } from '@/store/userStore';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-
 
 const securitySchema = z.object({
     oldPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
     newPassword: z.string().min(8, 'Mật khẩu mới phải có ít nhất 8 ký tự'),
     confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới'),
 }).refine(data => data.newPassword === data.confirmPassword, {
-    message: "Mật khẩu xác nhận không khớp",
+    message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword']
 });
 
 type SecurityFormValues = z.infer<typeof securitySchema>;
 
 export function SecuritySettings() {
+    const { user } = useUserStore();
     const [isLoading, setIsLoading] = useState(false);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<SecurityFormValues>({
         resolver: zodResolver(securitySchema)
     });
 
+    const isGoogleOnlyAccount = user?.social_provider === 'google' && !user?.has_usable_password;
+
     const onSubmit = async (data: SecurityFormValues) => {
+        if (isGoogleOnlyAccount) {
+            toast.info('Tài khoản Google này chưa có mật khẩu nội bộ để đổi trực tiếp.');
+            return;
+        }
+
         setIsLoading(true);
         try {
             await authService.changePassword({
@@ -37,11 +45,11 @@ export function SecuritySettings() {
                 new_password: data.newPassword,
                 new_password_confirm: data.confirmPassword
             });
-            toast.success("Thay đổi mật khẩu thành công!");
+            toast.success('Thay đổi mật khẩu thành công!');
             reset();
         } catch (error: any) {
             const resData = error.response?.data;
-            let msg = "Đã có lỗi xảy ra khi đổi mật khẩu";
+            let msg = 'Đã có lỗi xảy ra khi đổi mật khẩu';
             if (resData) {
                 if (resData.detail) msg = resData.detail;
                 else if (typeof resData.message === 'string') msg = resData.message;
@@ -79,6 +87,17 @@ export function SecuritySettings() {
                 </p>
             </div>
 
+            {isGoogleOnlyAccount && (
+                <div className="mb-8 p-4 rounded-lg border border-cyan-200 bg-cyan-50 flex items-start gap-3 max-w-2xl">
+                    <Info className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
+                    <div className="text-sm text-cyan-900 space-y-1">
+                        <p className="font-semibold">Tài khoản này đang đăng nhập bằng Google.</p>
+                        <p>Bạn hiện chưa có mật khẩu nội bộ để đổi trực tiếp tại đây.</p>
+                        <p>Đăng nhập bằng Google sẽ không bị ảnh hưởng. Nếu muốn dùng thêm đăng nhập bằng email và mật khẩu, hãy dùng chức năng quên mật khẩu để thiết lập mật khẩu mới.</p>
+                    </div>
+                </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-md">
                 <div className="space-y-2">
                     <Label htmlFor="oldPassword">Mật khẩu hiện tại</Label>
@@ -87,6 +106,7 @@ export function SecuritySettings() {
                         type="password"
                         {...register('oldPassword')}
                         className="bg-slate-50 focus:bg-white"
+                        disabled={isGoogleOnlyAccount}
                     />
                     {errors.oldPassword && <p className="text-[11px] text-red-500">{errors.oldPassword.message}</p>}
                 </div>
@@ -98,6 +118,7 @@ export function SecuritySettings() {
                         type="password"
                         {...register('newPassword')}
                         className="bg-slate-50 focus:bg-white"
+                        disabled={isGoogleOnlyAccount}
                     />
                     {errors.newPassword && <p className="text-[11px] text-red-500">{errors.newPassword.message}</p>}
                 </div>
@@ -109,12 +130,17 @@ export function SecuritySettings() {
                         type="password"
                         {...register('confirmPassword')}
                         className="bg-slate-50 focus:bg-white"
+                        disabled={isGoogleOnlyAccount}
                     />
                     {errors.confirmPassword && <p className="text-[11px] text-red-500">{errors.confirmPassword.message}</p>}
                 </div>
 
                 <div className="pt-4">
-                    <Button type="submit" disabled={isLoading} className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 px-8">
+                    <Button
+                        type="submit"
+                        disabled={isLoading || isGoogleOnlyAccount}
+                        className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 px-8"
+                    >
                         {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         Cập nhật mật khẩu
                     </Button>

@@ -88,7 +88,8 @@ export default function BlogDetailPage() {
         ? new Date(post.published_at).toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'Chưa xuất bản';
 
-    const resolvedAuthorName = post.author_name?.trim() || (post.author === user?.id ? user.full_name : '') || 'Tác giả JOBIO';
+    const resolvedAuthorName = post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'Tác giả JOBIO';
+    const resolvedAuthorAvatar = post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
     const authorInitial = resolvedAuthorName.charAt(0).toUpperCase();
 
     return (
@@ -123,8 +124,8 @@ export default function BlogDetailPage() {
                 <motion.div {...fadeUp(0.2)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 py-6 border-y border-slate-100">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                            {post.author_avatar ? (
-                                <img src={post.author_avatar} alt={resolvedAuthorName} className="w-full h-full object-cover" />
+                            {resolvedAuthorAvatar ? (
+                                <img src={resolvedAuthorAvatar} alt={resolvedAuthorName} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full bg-violet-50 text-violet-600 flex items-center justify-center font-bold text-lg">
                                     {authorInitial}

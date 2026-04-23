@@ -44,6 +44,14 @@ class PostViewSet(viewsets.ModelViewSet):
             is_featured_bool = is_featured.lower() == 'true'
             qs = qs.filter(is_featured=is_featured_bool)
 
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            qs = qs.filter(category_id=category_id)
+
+        tag_id = self.request.query_params.get('tag_id')
+        if tag_id:
+            qs = qs.filter(tags__id=tag_id).distinct()
+
         if user.is_authenticated:
             # Staff sees all (with optional feature filter)
             if user.is_staff:

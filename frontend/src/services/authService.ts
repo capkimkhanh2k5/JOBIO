@@ -55,8 +55,8 @@ export const authService = {
     return api.get<User>('/api/users/auth/me/');
   },
 
-  updateProfile(data: Partial<User>) {
-    return api.patch<User>('/api/users/me/', data);
+  updateProfile(userId: number, data: Partial<User>) {
+    return api.put<User>(`/api/users/${userId}/`, data);
   },
 
   uploadAvatar(file: File) {

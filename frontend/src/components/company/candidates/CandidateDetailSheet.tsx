@@ -16,7 +16,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const STATUSES = ['Submitted', 'Reviewing', 'Shortlisted', 'Interview', 'Offered', 'Hired', 'Rejected', 'Withdrawn'];
+const STATUSES = [
+    { value: 'pending', label: 'Submitted' },
+    { value: 'reviewing', label: 'Reviewing' },
+    { value: 'shortlisted', label: 'Shortlisted' },
+    { value: 'interview', label: 'Interview' },
+    { value: 'offered', label: 'Offered' },
+    { value: 'accepted', label: 'Accepted' },
+    { value: 'rejected', label: 'Rejected' },
+    { value: 'withdrawn', label: 'Withdrawn' },
+];
 
 export function CandidateDetailSheet() {
     const { selectedCandidateId, setSelectedCandidateId } = useCandidateStore();
@@ -60,7 +69,7 @@ export function CandidateDetailSheet() {
                 const appNumId = Number(selectedCandidateId);
                 const appRes = await applicationService.getById(appNumId);
                 const appData = appRes.data;
-                const candidateId = Number(appData.candidate_id);
+                const candidateId = Number(appData.recruiter_id);
                 if (!candidateId) {
                     toast.error("Không tìm thấy thông tin ứng viên");
                     setIsLoading(false);
@@ -75,7 +84,15 @@ export function CandidateDetailSheet() {
                     applicationService.getStatusHistory(appNumId).then(r => r.data),
                 ]);
                 if (!isMtd) return;
-                setDetails({ ...prof, ...appData });
+                setDetails({
+                    ...prof,
+                    ...appData,
+                    candidate_id: appData.recruiter_id,
+                    candidate_name: appData.recruiter_name,
+                    candidate_avatar: appData.recruiter_avatar,
+                    candidate_email: appData.recruiter_email,
+                    candidate_phone: appData.recruiter_phone,
+                });
                 setEducation(edu);
                 setExperience(exp);
                 setSkills(skls);
@@ -163,7 +180,7 @@ export function CandidateDetailSheet() {
                             <div className="flex gap-4 items-center">
                                 <div className="flex-1">
                                     <Select
-                                        defaultValue={history[0]?.status || 'Submitted'}
+                                        defaultValue={details.status || history[0]?.status || 'pending'}
                                         onValueChange={handleStatusChange}
                                         disabled={updatingStatus}
                                     >
@@ -172,7 +189,7 @@ export function CandidateDetailSheet() {
                                         </SelectTrigger>
                                         <SelectContent>
                                             {STATUSES.map(s => (
-                                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                                                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>

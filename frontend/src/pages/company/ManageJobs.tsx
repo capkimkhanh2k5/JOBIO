@@ -20,11 +20,13 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { useUserStore } from '@/store/userStore';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 export default function ManageJobs() {
     const queryClient = useQueryClient();
+    const { user } = useUserStore();
 
     // Filters & pagination state
     const [viewMode, setViewMode] = useState<ViewMode>('table');
@@ -39,7 +41,7 @@ export default function ManageJobs() {
 
     // ── Fetch company jobs ────────────────────────────────────────────────
     const { data, isLoading } = useQuery({
-        queryKey: ['company-jobs', statusFilter, sortOption, search, page, pageSize],
+        queryKey: ['company-jobs', user?.company_id, statusFilter, sortOption, search, page, pageSize],
         queryFn: () =>
             companyService.listMyJobs({
                 status: statusFilter === 'all' ? undefined : statusFilter,
@@ -50,6 +52,7 @@ export default function ManageJobs() {
             }).then(r => r.data),
         placeholderData: prev => prev,
         staleTime: 30_000,
+        enabled: !!user?.company_id,
     });
 
     const jobs = data?.results ?? [];
@@ -57,17 +60,24 @@ export default function ManageJobs() {
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     // ── Fetch company stats for job counts ──────────────────────────────────
-    const { data: statsResponse } = useQuery({
-        queryKey: ['company-stats'],
-        queryFn: () => companyService.getStats().then(r => r.data),
+    const { data: allJobsResponse } = useQuery({
+        queryKey: ['company-jobs-all', user?.company_id],
+        queryFn: () =>
+            companyService.listMyJobs({
+                ordering: '-posted_at',
+                page: 1,
+                page_size: 1000,
+            }).then(r => r.data),
         staleTime: 30_000,
+        enabled: !!user?.company_id,
     });
 
-    const statsJobs = statsResponse?.jobs || {
-        total: 0,
-        published: 0,
-        draft: 0,
-        closed: 0,
+    const allJobs = allJobsResponse?.results ?? [];
+    const statsJobs = {
+        total: allJobsResponse?.count ?? 0,
+        published: allJobs.filter(job => job.status === 'published').length,
+        draft: allJobs.filter(job => job.status === 'draft').length,
+        closed: allJobs.filter(job => job.status === 'closed' || job.status === 'expired').length,
     };
 
     // Reset page when filter/search changes

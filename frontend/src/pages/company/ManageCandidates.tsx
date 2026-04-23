@@ -17,15 +17,45 @@ export default function ManageCandidates() {
     const { data: applicationsRes, isLoading, refetch } = useQuery({
         queryKey: ['company-candidates', filters],
         queryFn: () => applicationService.list({
-            status: filters.statuses,
-            job_id: filters.jobId || undefined,
-            search: filters.searchQuery || undefined,
-            ai_score_min: filters.aiScoreRange[0],
-            ai_score_max: filters.aiScoreRange[1],
-            skills: filters.skills
+            ordering: '-applied_at',
+            page_size: 1000,
         } as any).then(r => r.data),
     });
-    const applications = applicationsRes?.results ?? [];
+    const rawApplications = applicationsRes?.results ?? [];
+    const applications = rawApplications
+        .map((app: any) => ({
+            ...app,
+            candidate_id: String(app.recruiter_id),
+            candidate_name: app.recruiter_name,
+            candidate_avatar: app.recruiter_avatar,
+            candidate_email: app.recruiter_email,
+            status: app.status === 'accepted' ? 'accepted' : app.status,
+            ai_score: app.ai_score ?? 0,
+            skills: app.skills ?? [],
+            rating: app.rating ?? 0,
+        }))
+        .filter((app: any) => {
+            if (filters.jobId && String(app.job_id) !== String(filters.jobId)) return false;
+            if (filters.statuses.length > 0 && !filters.statuses.includes(app.status)) return false;
+            if (app.ai_score < filters.aiScoreRange[0] || app.ai_score > filters.aiScoreRange[1]) return false;
+            if (filters.skills.length > 0 && !filters.skills.every(skill => (app.skills || []).includes(skill))) return false;
+
+            const search = filters.searchQuery.trim().toLowerCase();
+            if (search) {
+                const haystack = [
+                    app.candidate_name,
+                    app.candidate_email,
+                    app.job_title,
+                    ...(app.skills || []),
+                ]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase();
+                if (!haystack.includes(search)) return false;
+            }
+
+            return true;
+        });
 
     const BULK_ACTION_STATUS: Record<string, string> = {
         'reject': 'rejected',
