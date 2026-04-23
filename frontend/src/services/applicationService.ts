@@ -59,7 +59,14 @@ export const applicationService = {
   // ─── Bulk actions ─────────────────────────────────────────────────────
 
   bulkUpdateStatus(ids: number[], status: string) {
-    return api.post('/api/applications/bulk-action/', { ids, status });
+    const action =
+      status === 'shortlisted' ? 'shortlist' :
+      status === 'rejected' ? 'reject' :
+      status;
+    return api.post('/api/applications/bulk-action/', {
+      application_ids: ids,
+      action,
+    });
   },
 
   // ─── Actions ──────────────────────────────────────────────────────────

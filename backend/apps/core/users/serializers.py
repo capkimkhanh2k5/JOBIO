@@ -10,6 +10,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     cv_count = serializers.SerializerMethodField()
     job_count = serializers.SerializerMethodField()
     trust_score = serializers.SerializerMethodField()
+    has_usable_password = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
@@ -17,6 +18,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'id', 'email', 'full_name', 'role', 'status', 
             'email_verified', 'password', 'last_login', 
             'phone', 'avatar_url', 'recruiter_id', 'company_id',
+            'social_provider', 'has_usable_password',
             'subscription_plan', 'application_count', 'cv_count',
             'job_count', 'trust_score', 'created_at'
         ]
@@ -73,6 +75,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
         elif obj.role == 'company' and hasattr(obj, 'company_profile'):
             score += 40 # Giả định công ty đã tạo profile là +40
         return min(score, 100)
+
+    def get_has_usable_password(self, obj):
+        return obj.has_usable_password()
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

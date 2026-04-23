@@ -58,8 +58,14 @@ export const companyService = {
     return api.get<CompanyStats>('/api/dashboard/stats/company/');
   },
 
-  listMyJobs(params?: { status?: string; search?: string; ordering?: string; page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<JobListItem>>('/api/jobs/', { params });
+  async listMyJobs(params?: { status?: string; search?: string; ordering?: string; page?: number; page_size?: number }) {
+    const company = await api.get<CompanyDetail>('/api/companies/me/');
+    return api.get<PaginatedResponse<JobListItem>>('/api/jobs/', {
+      params: {
+        ...params,
+        company_id: company.data.id,
+      },
+    });
   },
 
   listJobApplications(jobId: number, params?: { status?: string; ordering?: string; page?: number; page_size?: number }) {

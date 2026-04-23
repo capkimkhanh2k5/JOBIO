@@ -95,6 +95,22 @@ class JobViewSet(viewsets.GenericViewSet):
         
         if params.get('search'):
             filters['search'] = params['search']
+
+        if params.get('ordering'):
+            filters['ordering'] = params['ordering']
+
+        if (
+            getattr(self.request.user, 'is_authenticated', False)
+            and getattr(self.request.user, 'role', None) == 'company'
+            and params.get('company_id')
+        ):
+            try:
+                company_id = int(params['company_id'])
+                company_profile = getattr(self.request.user, 'company_profile', None)
+                if company_profile and company_profile.id == company_id:
+                    filters['include_all_statuses'] = True
+            except (TypeError, ValueError):
+                pass
         
         return filters
     

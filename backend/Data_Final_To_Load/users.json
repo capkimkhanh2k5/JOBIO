@@ -13,7 +13,7 @@
         "full_name": "Đỗ Thái Thảo",
         "phone": "0912345001",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -24,7 +24,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 2,
@@ -40,7 +41,7 @@
         "full_name": "Phan Thanh Vinh",
         "phone": "0912345002",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -51,7 +52,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 3,
@@ -67,7 +69,7 @@
         "full_name": "Dương Thu Phương",
         "phone": "0912345003",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -78,7 +80,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 4,
@@ -94,7 +97,7 @@
         "full_name": "Vũ Xuân Hoa",
         "phone": "0912345004",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -105,7 +108,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 5,
@@ -121,7 +125,7 @@
         "full_name": "Ngô Khắc Phương",
         "phone": "0912345005",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -132,7 +136,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 6,
@@ -148,7 +153,7 @@
         "full_name": "Tập Bảo Vinh",
         "phone": "0912345006",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -159,7 +164,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 7,
@@ -175,7 +181,7 @@
         "full_name": "Tập Bảo An",
         "phone": "0912345007",
         "avatar_url": null,
-        "role": "employer",
+        "role": "company",
         "status": "active",
         "email_verified": true,
         "email_verification_token": "",
@@ -186,7 +192,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 8,
@@ -213,7 +220,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 9,
@@ -240,7 +248,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 10,
@@ -267,7 +276,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 11,
@@ -294,7 +304,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 12,
@@ -321,7 +332,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 13,
@@ -348,7 +360,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 14,
@@ -375,7 +388,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 15,
@@ -402,7 +416,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 16,
@@ -429,7 +444,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 17,
@@ -456,7 +472,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 18,
@@ -483,7 +500,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 19,
@@ -510,7 +528,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 20,
@@ -537,7 +556,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 21,
@@ -564,7 +584,8 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     },
     {
         "id": 22,
@@ -591,6 +612,7 @@
         "two_factor_enabled": false,
         "two_factor_secret": "",
         "social_id": null,
-        "social_provider": ""
+        "social_provider": "",
+        "plain_password": "Password@123"
     }
 ]

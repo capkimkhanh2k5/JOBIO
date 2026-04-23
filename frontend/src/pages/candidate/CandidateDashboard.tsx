@@ -31,28 +31,38 @@ const STATUS_LABEL_MAP: Record<string, string> = {
 
 export default function CandidateDashboard() {
     const navigate = useNavigate();
-    const { user } = useUserStore();
-    const candidateId = user?.candidate_id;
+    const { user, updateUser } = useUserStore();
+    const isCandidate = user?.role === 'candidate';
 
     // Data fetching
-    const { data: profileCompleteness, isLoading: loadingCompleteness } = useQuery({
-        queryKey: ['candidate', 'profile-completeness', candidateId],
-        queryFn: () => candidateService.getProfileCompleteness(candidateId!).then(r => r.data),
-        enabled: !!candidateId,
-    });
-
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
         queryFn: () => candidateService.getMyStats().then(r => r.data),
-        enabled: !!candidateId,
+        enabled: isCandidate,
         retry: false,
     });
 
-    const { data: profileData } = useQuery({
-        queryKey: ['candidate', 'my-profile', candidateId],
-        queryFn: () => candidateService.getMyProfile().then(r => r.data),
-        enabled: !!candidateId,
+    const { data: profileData, isLoading: loadingProfile } = useQuery({
+        queryKey: ['candidate', 'my-profile', user?.id],
+        queryFn: async () => {
+            const response = await candidateService.getMyProfile();
+
+            if (response.data?.id && user && user.candidate_id !== response.data.id) {
+                updateUser({ candidate_id: response.data.id });
+            }
+
+            return response.data;
+        },
+        enabled: isCandidate,
     });
+
+    const profileCompleteness = profileData
+        ? {
+            score: profileData.score ?? profileData.profile_completeness_score ?? 0,
+            checklist: profileData.checklist ?? [],
+        }
+        : undefined;
+    const loadingCompleteness = loadingProfile;
 
     // AI Recommended Jobs
     const { data: recommendedJobs, isLoading: loadingRecommended } = useQuery({

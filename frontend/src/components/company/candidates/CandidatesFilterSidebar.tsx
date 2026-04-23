@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { companyService } from '@/services/companyService';
 import { taxonomyService } from '@/services/taxonomyService';
 
-const STATUSES = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'hired', 'rejected', 'withdrawn'];
+const STATUSES = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'accepted', 'rejected', 'withdrawn'];
 
 const STATUS_LABELS: Record<string, string> = {
     'pending': 'Submitted',
@@ -18,7 +18,7 @@ const STATUS_LABELS: Record<string, string> = {
     'shortlisted': 'Shortlisted',
     'interview': 'Interview',
     'offered': 'Offered',
-    'hired': 'Hired',
+    'accepted': 'Accepted',
     'rejected': 'Rejected',
     'withdrawn': 'Withdrawn'
 };

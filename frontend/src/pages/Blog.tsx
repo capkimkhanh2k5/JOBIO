@@ -6,6 +6,7 @@ import { BookOpen, Calendar, ArrowRight, UserCircle, Loader2, Tag as TagIcon, Ch
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { blogService } from '@/services/blogService';
+import { useUserStore } from '@/store/userStore';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -15,6 +16,7 @@ const fadeUp = (delay: number) => ({
 
 export default function Blog() {
     const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
+    const { user } = useUserStore();
 
     // ── Queries ──
     const { data: featuredResp } = useQuery({
@@ -42,6 +44,12 @@ export default function Blog() {
         queryFn: () => blogService.listTags().then(r => r.data.results),
         staleTime: 1000 * 60 * 60,
     });
+
+    const resolveAuthorName = (post: { author_name?: string | null; author?: number }) =>
+        post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'Tác giả JOBIO';
+
+    const resolveAuthorAvatar = (post: { author_avatar?: string | null; author?: number }) =>
+        post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-24">
@@ -94,9 +102,13 @@ export default function Blog() {
                                     </p>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 overflow-hidden">
-                                            {featuredPost.author_avatar ? <img src={featuredPost.author_avatar} alt="" /> : <UserCircle className="w-6 h-6" />}
+                                            {resolveAuthorAvatar(featuredPost) ? (
+                                                <img src={resolveAuthorAvatar(featuredPost) || ''} alt={resolveAuthorName(featuredPost)} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <UserCircle className="w-6 h-6" />
+                                            )}
                                         </div>
-                                        <span className="font-semibold text-slate-900">{featuredPost.author_name}</span>
+                                        <span className="font-semibold text-slate-900">{resolveAuthorName(featuredPost)}</span>
                                     </div>
                                 </div>
                             </Link>
@@ -152,9 +164,13 @@ export default function Blog() {
                                                     <div className="pt-4 border-t border-slate-50 flex items-center justify-between mt-auto">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden">
-                                                                {post.author_avatar ? <img src={post.author_avatar} alt="" /> : <UserCircle className="w-4 h-4" />}
+                                                                {resolveAuthorAvatar(post) ? (
+                                                                    <img src={resolveAuthorAvatar(post) || ''} alt={resolveAuthorName(post)} className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <UserCircle className="w-4 h-4" />
+                                                                )}
                                                             </div>
-                                                            <span className="text-xs font-semibold text-slate-700">{post.author_name}</span>
+                                                            <span className="text-xs font-semibold text-slate-700">{resolveAuthorName(post)}</span>
                                                         </div>
                                                         <span className="text-violet-600 text-xs font-bold flex items-center gap-1 opacity-0 -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all">
                                                             Đọc tiếp <ArrowRight className="w-3 h-3" />

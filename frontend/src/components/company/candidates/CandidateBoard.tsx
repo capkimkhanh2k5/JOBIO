@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCandidateStore } from '@/store/candidateStore';
 import { applicationService } from '@/services/applicationService';
@@ -22,7 +22,7 @@ interface Application {
     skills: string[];
 }
 
-const COLUMNS = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'hired', 'rejected', 'withdrawn'];
+const COLUMNS = ['pending', 'reviewing', 'shortlisted', 'interview', 'offered', 'accepted', 'rejected', 'withdrawn'];
 
 const STATUS_LABELS: Record<string, string> = {
     'pending': 'Submitted',
@@ -30,7 +30,7 @@ const STATUS_LABELS: Record<string, string> = {
     'shortlisted': 'Shortlisted',
     'interview': 'Interview',
     'offered': 'Offered',
-    'hired': 'Hired',
+    'accepted': 'Accepted',
     'rejected': 'Rejected',
     'withdrawn': 'Withdrawn'
 };

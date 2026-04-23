@@ -51,7 +51,7 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     # Filter by status
     if filters.get('status'):
         queryset = queryset.filter(status=filters['status'])
-    else:
+    elif not filters.get('include_all_statuses'):
         # Default: only show published jobs for public
         queryset = queryset.filter(status='published')
     
@@ -74,7 +74,16 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     if filters.get('search'):
         queryset = queryset.filter(title__icontains=filters['search'])
     
-    return queryset.order_by('-featured', '-published_at', '-created_at')
+    ordering_map = {
+        '-posted_at': ['-published_at', '-created_at'],
+        'posted_at': ['published_at', 'created_at'],
+        'deadline': ['application_deadline', '-published_at', '-created_at'],
+        '-views_count': ['-view_count', '-published_at', '-created_at'],
+        '-applications_count': ['-application_count', '-published_at', '-created_at'],
+    }
+    ordering = ordering_map.get(filters.get('ordering'), ['-featured', '-published_at', '-created_at'])
+
+    return queryset.order_by(*ordering)
 
 
 def get_job_by_id(job_id: int) -> Optional[Job]:

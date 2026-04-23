@@ -16,6 +16,7 @@ export interface PaginatedResponse<T> {
 
 export type UserRole = 'candidate' | 'company' | 'admin';
 export type UserStatus = 'active' | 'inactive' | 'banned';
+export type SocialProvider = '' | 'google' | 'facebook' | 'linkedin';
 
 export interface User {
   id: number;
@@ -28,6 +29,8 @@ export interface User {
   email_verified: boolean;
   date_joined: string;
   last_login: string | null;
+  social_provider?: SocialProvider;
+  has_usable_password?: boolean;
   candidate_id?: number;
   company_id?: number;
   subscription_plan?: string;
