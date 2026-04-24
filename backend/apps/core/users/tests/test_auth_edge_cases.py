@@ -1,11 +1,9 @@
 """
 Authentication Edge Cases Tests - Django TestCase Version
 """
-import secrets
 import pyotp
 from datetime import timedelta
 from unittest.mock import patch
-from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -201,7 +199,7 @@ class TestResetPasswordEdgeCases(APITestCase):
             full_name="Reset User",
             role="candidate"
         )
-        self.token = secrets.token_urlsafe(32)
+        self.token = '123456'
         self.user.password_reset_token = self.token
         self.user.password_reset_expires = timezone.now() + timedelta(minutes=5)
         self.user.save()
@@ -213,7 +211,7 @@ class TestResetPasswordEdgeCases(APITestCase):
             full_name="Expired User",
             role="candidate"
         )
-        self.expired_token = secrets.token_urlsafe(32)
+        self.expired_token = '654321'
         self.expired_user.password_reset_token = self.expired_token
         self.expired_user.password_reset_expires = timezone.now() - timedelta(minutes=1)
         self.expired_user.save()
@@ -221,7 +219,8 @@ class TestResetPasswordEdgeCases(APITestCase):
     def test_reset_password_invalid_token(self):
         """Test reset with invalid token → 400"""
         response = self.client.post(AUTH_RESET_PASSWORD, {
-            'token': 'invalid_token_not_exist',
+            'email': self.user.email,
+            'otp': '000000',
             'new_password': 'newpassword123',
             'new_password_confirm': 'newpassword123'
         })
@@ -231,7 +230,8 @@ class TestResetPasswordEdgeCases(APITestCase):
     def test_reset_password_expired_token(self):
         """Test reset with expired token → 400"""
         response = self.client.post(AUTH_RESET_PASSWORD, {
-            'token': self.expired_token,
+            'email': self.expired_user.email,
+            'otp': self.expired_token,
             'new_password': 'newpassword123',
             'new_password_confirm': 'newpassword123'
         })
@@ -241,6 +241,7 @@ class TestResetPasswordEdgeCases(APITestCase):
     def test_reset_password_missing_token(self):
         """Test reset without token → 400"""
         response = self.client.post(AUTH_RESET_PASSWORD, {
+            'email': self.user.email,
             'new_password': 'newpassword123',
             'new_password_confirm': 'newpassword123'
         })
@@ -355,7 +356,8 @@ class TestSocialLoginEdgeCases(APITestCase):
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {
             'email': 'existing@example.com',
-            'name': 'Existing User'
+            'name': 'Existing User',
+            'sub': 'google-123'
         }
         
         response = self.client.post(auth_social_login('google'), {

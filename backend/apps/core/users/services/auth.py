@@ -3,6 +3,7 @@ import requests
 from datetime import timedelta
 
 from pydantic import BaseModel, EmailStr
+from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
@@ -12,7 +13,7 @@ from django.db import transaction
 from apps.candidate.recruiters.models import Recruiter
 from apps.company.companies.services.companies import create_company, CompanyCreateInput
 
-from ..selectors.users import get_user_by_email, get_user_by_reset_token, get_user_by_verification_token
+from ..selectors.users import get_user_by_email, get_user_by_verification_token
 from ..models import CustomUser
 
 import string
@@ -130,6 +131,9 @@ def social_login(
 
         if not profile_email:
             raise AuthenticationError("Không lấy được email từ tài khoản social")
+
+        if not profile_provider_id:
+            raise AuthenticationError("Không lấy được mã định danh từ tài khoản social")
         
         # 2. Get or create user
         is_new_user = False
@@ -141,6 +145,33 @@ def social_login(
                 social_provider=profile_provider,
                 social_id=profile_provider_id
             ).first()
+
+        # If user completed email verification flow for linking, bind this social identity.
+        if not user:
+            normalized_email = profile_email.strip().lower()
+            link_key = f'social_link_verified_{profile_provider}_{normalized_email}'
+            linked_user_id = cache.get(link_key)
+
+            if linked_user_id:
+                linked_user = CustomUser.objects.select_for_update().filter(id=linked_user_id).first()
+                if linked_user:
+                    conflict = CustomUser.objects.filter(
+                        social_provider=profile_provider,
+                        social_id=profile_provider_id
+                    ).exclude(id=linked_user.id).exists()
+                    if conflict:
+                        raise AuthenticationError("Tài khoản social này đã được liên kết với user khác.")
+
+                    linked_user.social_provider = profile_provider
+                    linked_user.social_id = profile_provider_id
+                    linked_user.email_verified = True
+                    if profile_data.get('picture') and not linked_user.avatar_url:
+                        linked_user.avatar_url = profile_data.get('picture')
+
+                    linked_user.save(update_fields=['social_provider', 'social_id', 'email_verified', 'avatar_url'])
+                    user = linked_user
+
+                cache.delete(link_key)
         
         # Fallback to email if not found by social_id
         if not user:
@@ -356,8 +387,8 @@ def register_user(data: RegisterInput) -> dict:
             from apps.candidate.recruiters.models import Recruiter
             Recruiter.objects.create(user=user)
         
-        # Mark email as verified since OTP was correct
-        user.email_verified = True
+        # Mark email as verified only when OTP was provided and verified.
+        user.email_verified = bool(data.otp)
         user.save(update_fields=["email_verified"])
         
         # Clean up OTP from cache
@@ -371,7 +402,8 @@ class ForgotPasswordInput(BaseModel):
     email: EmailStr
 
 class ResetPasswordInput(BaseModel):
-    reset_token: str
+    email: EmailStr
+    otp: str
     new_password: str
 
 def forgot_password(data: ForgotPasswordInput) -> bool:
@@ -395,7 +427,7 @@ def forgot_password(data: ForgotPasswordInput) -> bool:
     user.save(update_fields=["password_reset_token", "password_reset_expires"])
     
     # Send OTP Email
-    EmailService.send_email(
+    send_ok = EmailService.send_email(
         recipient=user.email,
         subject="[JobPortal] Mã xác thực đặt lại mật khẩu",
         template_path="emails/auth/otp.html",
@@ -405,6 +437,9 @@ def forgot_password(data: ForgotPasswordInput) -> bool:
             "expiry_minutes": 10
         }
     )
+
+    if not send_ok:
+        raise AuthenticationError("Không thể gửi email OTP. Vui lòng thử lại sau.")
     
     return True
     
@@ -419,12 +454,18 @@ def reset_password(data: ResetPasswordInput) -> bool:
         AuthenticationError nếu token không hợp lệ hoặc hết hạn
     """
 
-    user = get_user_by_reset_token(reset_token=data.reset_token)
+    user = get_user_by_email(email=data.email)
     if not user:
-        raise AuthenticationError("Token is invalid!")
+        raise AuthenticationError("Email không tồn tại!")
+
+    if str(user.password_reset_token or "") != str(data.otp):
+        raise AuthenticationError("Mã OTP không chính xác!")
+
+    if not user.password_reset_expires:
+        raise AuthenticationError("Mã OTP không hợp lệ!")
     
     if user.password_reset_expires < timezone.now():
-        raise AuthenticationError("Token has expired!")
+        raise AuthenticationError("Mã OTP đã hết hạn!")
     
     user.set_password(data.new_password)
     user.password_reset_token = None
@@ -482,7 +523,8 @@ def resend_verification(data: ResendVerificationInput) -> bool:
     user.save(update_fields=["email_verification_token"])
 
     # Send Verification Email
-    verification_link = f"http://localhost:3000/auth/verify-email?token={user.email_verification_token}"
+    frontend_base_url = settings.FRONTEND_URL.rstrip('/')
+    verification_link = f"{frontend_base_url}/auth/verify-email?token={user.email_verification_token}"
     
     EmailService.send_email(
         recipient=user.email,
@@ -644,5 +686,88 @@ def disable_2fa(user: CustomUser, code: str) -> dict:
     return {
         "is_enabled": False,
         "has_secret": False,
+    }
+
+class InitiateSocialLinkInput(BaseModel):
+    email: EmailStr
+    provider: str
+
+def initiate_social_link(user_id: int, data: InitiateSocialLinkInput) -> bool:
+    """
+    Khởi tạo liên kết tài khoản social bằng cách gửi email xác thực.
+    """
+    user = CustomUser.objects.get(id=user_id)
+    
+    # Tạo token ngẫu nhiên và lưu vào cache trong 10 phút
+    token = secrets.token_urlsafe(32)
+    cache_key = f"social_link_token_{token}"
+    cache_data = {
+        "user_id": user.id,
+        "email": data.email,
+        "provider": data.provider
+    }
+    cache.set(cache_key, cache_data, timeout=600)
+
+    # Gửi email chứa link xác thực
+    frontend_base_url = settings.FRONTEND_URL.rstrip('/')
+    verification_link = f"{frontend_base_url}/auth/verify-social-link?token={token}"
+    
+    send_ok = EmailService.send_email(
+        recipient=data.email,
+        subject=f"[JobPortal] Xác nhận liên kết tài khoản {data.provider.capitalize()}",
+        template_path="emails/auth/social_link.html",
+        context={
+            "user_name": user.full_name,
+            "provider": data.provider.capitalize(),
+            "verification_link": verification_link,
+            "expiry_minutes": 10
+        }
+    )
+
+    if not send_ok:
+        raise AuthenticationError("Không thể gửi email xác thực liên kết. Vui lòng thử lại.")
+
+    return True
+
+def verify_social_link(token: str) -> dict:
+    """
+    Xác thực token từ email và thực hiện liên kết.
+    """
+    cache_key = f"social_link_token_{token}"
+    data = cache.get(cache_key)
+    
+    if not data:
+        raise AuthenticationError("Liên kết xác thực không hợp lệ hoặc đã hết hạn.")
+        
+    user_id = data["user_id"]
+    email = data["email"]
+    provider = data["provider"]
+
+    with transaction.atomic():
+        user = CustomUser.objects.get(id=user_id)
+
+        if user.social_provider == provider and user.social_id:
+            cache.delete(cache_key)
+            return {
+                "detail": f"Tài khoản {provider.capitalize()} đã được liên kết trước đó.",
+                "provider": provider,
+            }
+
+        # Kiểm tra xem email này đã được liên kết với tài khoản nào khác chưa
+        existing_social = CustomUser.objects.filter(email=email).exclude(id=user.id).first()
+        if existing_social and existing_social.social_provider == provider:
+             raise AuthenticationError(f"Email này đã được liên kết với một tài khoản {provider} khác.")
+
+        # Mark verified linking intent. Actual link finalizes at next Google login.
+        normalized_email = email.strip().lower()
+        link_key = f'social_link_verified_{provider}_{normalized_email}'
+        cache.set(link_key, user.id, timeout=600)
+        
+        # Xóa cache sau khi dùng
+        cache.delete(cache_key)
+
+    return {
+        "detail": f"Email đã được xác thực. Vui lòng đăng nhập bằng {provider.capitalize()} để hoàn tất liên kết.",
+        "provider": provider,
     }
         

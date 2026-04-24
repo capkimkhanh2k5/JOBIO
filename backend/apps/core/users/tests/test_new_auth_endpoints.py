@@ -1,9 +1,7 @@
 """
 New Auth Endpoints Tests - Django TestCase Version
 """
-import secrets
 from datetime import timedelta
-from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
@@ -50,13 +48,14 @@ class TestNewAuthAPIs(APITestCase):
         self.assertIsNotNone(self.user.password_reset_token)
     
     def test_reset_password_success(self):
-        token = secrets.token_urlsafe(32)
+        token = '123456'
         self.user.password_reset_token = token
         self.user.password_reset_expires = timezone.now() + timedelta(minutes=5)
         self.user.save()
         
         data = {
-            'token': token,
+            'email': self.user.email,
+            'otp': token,
             'new_password': 'newpass123',
             'new_password_confirm': 'newpass123'
         }

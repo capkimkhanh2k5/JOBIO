@@ -334,6 +334,7 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:4000')
 
 # ===== VN Pay Configuration =====
 VNP_TMN_CODE = os.getenv('VNP_TMN_CODE', '')

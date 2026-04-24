@@ -22,7 +22,9 @@ from .services.auth import (
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
     AuthenticationError,
     send_registration_otp, SendRegistrationOtpInput,
-    verify_registration_otp, VerifyRegistrationOtpInput
+    verify_registration_otp, VerifyRegistrationOtpInput,
+    initiate_social_link, InitiateSocialLinkInput,
+    verify_social_link,
 )
 from .services.passkey import (
     generate_registration_options, verify_registration,
@@ -42,6 +44,7 @@ from .serializers import (
     UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
     PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
     PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
+    InitiateSocialLinkSerializer, VerifySocialLinkSerializer,
 )
 from django.http import HttpResponse
 from apps.core.pagination import SmallResultsSetPagination
@@ -67,7 +70,8 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             'auth_reset_password', 'auth_verify_email', 'auth_resend_verification',
             'auth_check_email', 'auth_social_login',
             'passkey_auth_options', 'passkey_auth_verify',
-            'auth_send_registration_otp', 'auth_verify_registration_otp'
+            'auth_send_registration_otp', 'auth_verify_registration_otp',
+            'auth_verify_social_link'
         ]
         if self.action in public_actions:
             return [AllowAny()]
@@ -298,7 +302,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='auth/verify-registration-otp')
+    @action(detail=False, methods=['post'], url_path='auth/verify-registration-otp', throttle_classes=[EmailVerificationRateThrottle])
     def auth_verify_registration_otp(self, request):
         """POST /api/users/auth/verify-registration-otp/ - Xác thực OTP 6 số"""
         serializer = VerifyRegistrationOtpSerializer(data=request.data)
@@ -348,7 +352,7 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         
         return Response({"detail": "Email has been sent"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/reset-password')
+    @action(detail=False, methods=['post'], url_path='auth/reset-password', throttle_classes=[PasswordResetRateThrottle])
     def auth_reset_password(self, request):
         """POST /api/users/auth/reset-password/ - Reset mật khẩu"""
         serializer = ResetPasswordSerializer(data=request.data)
@@ -356,7 +360,8 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         
         try:
             reset_password(data=ResetPasswordInput(
-                reset_token=serializer.validated_data['token'],
+                email=serializer.validated_data['email'],
+                otp=serializer.validated_data['otp'],
                 new_password=serializer.validated_data['new_password']
             ))
         except AuthenticationError as e:
@@ -620,3 +625,30 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/initiate-social-link')
+    def auth_initiate_social_link(self, request):
+        """POST /api/users/auth/initiate-social-link/ - Gửi mail liên kết social"""
+        serializer = InitiateSocialLinkSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            initiate_social_link(
+                user_id=request.user.id,
+                data=InitiateSocialLinkInput(**serializer.validated_data)
+            )
+            return Response({"detail": "Liên kết xác thực đã được gửi đến email của bạn."}, status=status.HTTP_200_OK)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], url_path='auth/verify-social-link')
+    def auth_verify_social_link(self, request):
+        """POST /api/users/auth/verify-social-link/ - Xác thực liên kết social"""
+        serializer = VerifySocialLinkSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        try:
+            result = verify_social_link(token=serializer.validated_data['token'])
+            return Response(result, status=status.HTTP_200_OK)
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
