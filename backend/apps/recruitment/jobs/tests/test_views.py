@@ -3,7 +3,13 @@ from rest_framework import status
 from datetime import timedelta
 from django.utils import timezone
 from apps.core.users.models import CustomUser
+from apps.candidate.skill_categories.models import SkillCategory
+from apps.candidate.skills.models import Skill
 from apps.company.companies.models import Company
+from apps.geography.addresses.models import Address
+from apps.geography.provinces.models import Province
+from apps.recruitment.job_locations.models import JobLocation
+from apps.recruitment.job_skills.models import JobSkill
 from apps.recruitment.jobs.models import Job
 from apps.billing.models import SubscriptionPlan, CompanySubscription
 
@@ -29,6 +35,25 @@ class JobViewTests(APITestCase):
             user=self.user,
             company_name="Test Company",
             description="A test company"
+        )
+
+        self.skill_category = SkillCategory.objects.create(
+            name="Engineering",
+            slug="engineering",
+        )
+        self.skill = Skill.objects.create(
+            name="Python",
+            slug="python",
+            category=self.skill_category,
+        )
+        self.province = Province.objects.create(
+            province_name="Ho Chi Minh",
+            province_type=Province.ProvinceType.MUNICIPALITY,
+            region=Province.Region.SOUTH,
+        )
+        self.address = Address.objects.create(
+            address_line="123 Nguyen Hue",
+            province=self.province,
         )
 
         # Tạo gói đăng ký active để các testcase workflow publish/feature chạy đúng business rule hiện tại.
@@ -63,8 +88,21 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Job description",
             requirements="Job requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
             status="published",
             created_by=self.user
+        )
+        JobSkill.objects.create(
+            job=self.job,
+            skill=self.skill,
+            is_required=True,
+            proficiency_level=JobSkill.ProficiencyLevel.ADVANCED,
+            years_required=3,
+        )
+        JobLocation.objects.create(
+            job=self.job,
+            address=self.address,
+            is_primary=True,
         )
     
     # ========== LIST Tests ==========
@@ -168,6 +206,15 @@ class JobViewTests(APITestCase):
         response = self.client.put(url, data)
         
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_job_cannot_change_published_to_draft(self):
+        """Test PUT /api/jobs/:id/ - published job cannot be changed back to draft"""
+        self.client.force_authenticate(user=self.user)
+
+        url = f'/api/jobs/{self.job.id}/'
+        response = self.client.put(url, {"status": "draft"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     # ========== DELETE Tests ==========
     
@@ -268,6 +315,15 @@ class JobViewTests(APITestCase):
         self.assertIn("(Copy)", response.data['title'])
         self.assertEqual(response.data['status'], "draft")
         self.assertNotEqual(response.data['slug'], self.job.slug)
+        self.assertIsNone(response.data['application_deadline'])
+
+        duplicated_job = Job.objects.get(id=response.data['id'])
+        self.assertEqual(duplicated_job.required_skills.count(), 1)
+        self.assertEqual(duplicated_job.required_skills.first().skill_id, self.skill.id)
+        self.assertEqual(duplicated_job.required_skills.first().proficiency_level, JobSkill.ProficiencyLevel.ADVANCED)
+        self.assertEqual(duplicated_job.locations.count(), 1)
+        self.assertEqual(duplicated_job.locations.first().address_id, self.address.id)
+        self.assertTrue(duplicated_job.locations.first().is_primary)
 
     # ========== NHÓM 1: CRUD Error Cases (7 tests) ==========
     

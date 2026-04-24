@@ -19,6 +19,16 @@ import { ManageJobsGrid } from '@/components/company/ManageJobsGrid';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { useUserStore } from '@/store/userStore';
 
@@ -35,6 +45,7 @@ export default function ManageJobs() {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     // Bulk selection
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -154,11 +165,16 @@ export default function ManageJobs() {
     }, []);
 
     // ── Per-row action handlers ────────────────────────────────────────────
-    const handleDelete = (id: string) => deleteMutation.mutate(id);
+    const handleDelete = (id: string) => setDeleteTargetId(id);
     const handleDuplicate = (id: string) => duplicateMutation.mutate(id);
     const handleToggleStatus = (id: string, currentStatus: string) => {
         const newStatus = currentStatus === 'published' ? 'closed' : 'published';
         statusMutation.mutate({ id, status: newStatus });
+    };
+    const confirmDelete = () => {
+        if (!deleteTargetId) return;
+        deleteMutation.mutate(deleteTargetId);
+        setDeleteTargetId(null);
     };
 
     // ── Bulk handlers ──────────────────────────────────────────────────────
@@ -188,7 +204,7 @@ export default function ManageJobs() {
                     icon={Briefcase}
                     action={
                         <Link to="/company/jobs/create">
-                            <button className="flex items-center gap-2 h-11 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition-all">
+                            <button className="flex items-center gap-2 h-11 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer">
                                 <PlusSquare className="w-4 h-4" />
                                 Đăng tin mới
                             </button>
@@ -365,6 +381,31 @@ export default function ManageJobs() {
                     </motion.div>
                 )}
             </div>
+
+            <AlertDialog open={!!deleteTargetId} onOpenChange={(open) => !open && setDeleteTargetId(null)}>
+                <AlertDialogContent className="rounded-3xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa tin tuyển dụng</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tin tuyển dụng này sẽ bị xóa khỏi hệ thống và không thể khôi phục. Bạn có chắc chắn muốn tiếp tục?
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            className="rounded-xl border-slate-200"
+                            onClick={() => setDeleteTargetId(null)}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDelete}
+                            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm"
+                        >
+                            Xóa tin
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

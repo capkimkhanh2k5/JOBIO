@@ -140,7 +140,7 @@ export function ManageJobsList({
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button
-                                    className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                                    className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors shrink-0 cursor-pointer"
                                     aria-label="Job actions"
                                 >
                                     <MoreHorizontal className="w-4 h-4" />

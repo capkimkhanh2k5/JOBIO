@@ -9,6 +9,8 @@ from django.utils.text import slugify
 from django.utils import timezone
 
 from apps.recruitment.jobs.models import Job
+from apps.recruitment.job_locations.models import JobLocation
+from apps.recruitment.job_skills.models import JobSkill
 from apps.company.companies.models import Company
 from apps.core.users.models import CustomUser
 from apps.billing.services.subscriptions import SubscriptionService
@@ -146,6 +148,8 @@ def update_job(job: Job, data: JobInput) -> Job:
     # Cập nhật status
     if 'status' in fields:
         new_status = fields.pop('status')
+        if job.status == 'published' and new_status == 'draft':
+            raise ValueError("You cannot change a published job to draft!")
         if new_status == 'published' and job.status != 'published':
             job.published_at = timezone.now()
         job.status = new_status
@@ -296,7 +300,7 @@ def duplicate_job(user: CustomUser, job: Job) -> Job:
         seo_keywords=job.seo_keywords,
         address=job.address,
         is_remote=job.is_remote,
-        application_deadline=None,  # Reset deadline
+        application_deadline=None,
         status='draft',  # Always draft for copies
         view_count=0,
         application_count=0,
@@ -306,6 +310,26 @@ def duplicate_job(user: CustomUser, job: Job) -> Job:
         created_by=user
     )
     
+    JobSkill.objects.bulk_create([
+        JobSkill(
+            job=new_job,
+            skill=job_skill.skill,
+            is_required=job_skill.is_required,
+            proficiency_level=job_skill.proficiency_level,
+            years_required=job_skill.years_required,
+        )
+        for job_skill in job.required_skills.all()
+    ])
+
+    JobLocation.objects.bulk_create([
+        JobLocation(
+            job=new_job,
+            address=job_location.address,
+            is_primary=job_location.is_primary,
+        )
+        for job_location in job.locations.all()
+    ])
+
     return new_job
 
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,6 +32,7 @@ import { Loader2, FileText, Send, CheckCircle2, UserPlus, LogIn, Sparkles } from
 import { cvService } from '@/services/cvService';
 import { applicationService } from '@/services/applicationService';
 import { useUserStore } from '@/store/userStore';
+import { candidateService } from '@/services/candidateService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -50,13 +51,28 @@ interface ApplyFormProps {
 export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const { user, isAuthenticated } = useUserStore();
+    const { user, isAuthenticated, updateUser } = useUserStore();
+
+    const { data: candidateProfile } = useQuery({
+        queryKey: ['candidate-profile-me', user?.id],
+        queryFn: () => candidateService.getMyProfile().then((r) => r.data),
+        enabled: isOpen && isAuthenticated && user?.role === 'candidate' && !user?.candidate_id,
+        staleTime: 60_000,
+    });
+
+    const candidateId = user?.candidate_id ?? candidateProfile?.id;
+
+    useEffect(() => {
+        if (candidateProfile?.id && user?.candidate_id !== candidateProfile.id) {
+            updateUser({ candidate_id: candidateProfile.id });
+        }
+    }, [candidateProfile?.id, updateUser, user?.candidate_id]);
 
     // Fetch user CVs
     const { data: cvs, isLoading: isLoadingCvs } = useQuery({
-        queryKey: ['candidate-cvs', user?.candidate_id],
-        queryFn: () => cvService.list(user!.candidate_id!).then(r => r.data),
-        enabled: isOpen && isAuthenticated && !!user && !!user.candidate_id
+        queryKey: ['candidate-cvs', candidateId],
+        queryFn: () => cvService.list(candidateId!).then(r => r.data),
+        enabled: isOpen && isAuthenticated && !!user && !!candidateId
     });
 
     const form = useForm<z.infer<typeof formSchema>>({

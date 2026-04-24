@@ -38,7 +38,7 @@ function GridSkeleton({ count }: { count: number }) {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array(count).fill(0).map((_, i) => (
-                <div key={i} className="p-4 rounded-2xl border border-white/8 bg-white/[0.03] space-y-3">
+                <div key={i} className="p-4 rounded-2xl border border-slate-200 bg-white/[0.08] shadow-sm space-y-3">
                     <Skeleton className="h-5 w-3/4 rounded" />
                     <Skeleton className="h-5 w-16 rounded-full" />
                     <div className="space-y-2 pt-2">
@@ -81,7 +81,7 @@ function JobGridCard({
             className={`relative flex flex-col p-4 rounded-2xl border transition-all duration-200 group
                 ${isSelected
                     ? 'bg-cyan-500/8 border-cyan-500/25 shadow-lg shadow-cyan-500/10'
-                    : 'bg-white/[0.03] border-white/8 hover:bg-white/[0.06] hover:border-white/14 hover:shadow-lg hover:shadow-black/20'
+                    : 'bg-white/[0.08] border-slate-200 shadow-sm hover:bg-slate-50/80 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-300/30'
                 }`}
         >
             {/* Featured ribbon */}
@@ -149,20 +149,20 @@ function JobGridCard({
             <div className="flex gap-2">
                 <button
                     onClick={() => navigate(`/company/jobs/${job.id}/edit`)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground border border-white/8 hover:border-white/14 transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground border border-white/8 hover:border-white/14 transition-all cursor-pointer"
                 >
                     <Edit3 className="w-3.5 h-3.5" /> Sửa
                 </button>
                 <button
                     onClick={() => navigate(`/company/jobs/${job.id}/candidates`)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/15 hover:border-cyan-400/30 transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/15 hover:border-cyan-400/30 transition-all cursor-pointer"
                 >
                     <Users className="w-3.5 h-3.5" /> Ứng viên
                 </button>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button
-                            className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground border border-white/8 hover:border-white/14 transition-all"
+                            className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground border border-white/8 hover:border-white/14 transition-all cursor-pointer"
                             aria-label="More actions"
                         >
                             <MoreHorizontal className="w-4 h-4" />
