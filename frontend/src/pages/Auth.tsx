@@ -45,7 +45,14 @@ const Auth: React.FC = () => {
                     onEmailSent={(email: string) => { setEmail(email); setView('reset-password'); }}
                 />;
             case 'reset-password':
-                return <ResetPasswordForm email={email} onSuccess={() => setView('login')} />;
+                return <ResetPasswordForm
+                    email={email}
+                    onSuccess={() => setView('login')}
+                    onBackToForgot={() => {
+                        setEmail('');
+                        setView('forgot-password');
+                    }}
+                />;
             case 'verify-email':
                 return <VerifyEmailView email={email} onVerified={() => setView('login')} />;
             case '2fa':

@@ -118,4 +118,12 @@ export const authService = {
   socialAuth(data: SocialAuthRequest) {
     return api.post<LoginResponse>(`/api/users/auth/social/${data.provider}/`, data);
   },
+
+  initiateSocialLink(data: { email: string; provider: string }) {
+    return api.post('/api/users/auth/initiate-social-link/', data);
+  },
+
+  verifySocialLink(token: string) {
+    return api.post<{ detail: string; provider: string }>('/api/users/auth/verify-social-link/', { token });
+  },
 };

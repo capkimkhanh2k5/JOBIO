@@ -8,10 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { PasswordStrength } from './PasswordStrength';
 import { authService } from '@/services/authService';
 import { toast } from 'sonner';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, ShieldCheck } from 'lucide-react';
 
 const resetSchema = z.object({
-    token: z.string().min(4, { message: "Mã xác thực không hợp lệ" }),
+    otp: z.string().regex(/^\d{6}$/, { message: "Mã OTP phải gồm đúng 6 chữ số" }),
     new_password: z.string().min(8, { message: "Mật khẩu phải từ 8 ký tự" }),
     new_password_confirm: z.string(),
 }).refine((data) => data.new_password === data.new_password_confirm, {
@@ -24,25 +24,32 @@ type ResetFormValues = z.infer<typeof resetSchema>;
 interface ResetPasswordFormProps {
     email: string;
     onSuccess: () => void;
+    onBackToForgot: () => void;
 }
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
-    email: _email,
-    onSuccess
+    email,
+    onSuccess,
+    onBackToForgot,
 }) => {
     const form = useForm<ResetFormValues>({
         resolver: zodResolver(resetSchema),
         defaultValues: {
-            token: '',
+            otp: '',
             new_password: '',
             new_password_confirm: '',
         },
     });
 
     const onSubmit = async (values: ResetFormValues) => {
+        if (!email) {
+            toast.error('Thiếu email khôi phục. Vui lòng quay lại bước nhập email.');
+            return;
+        }
         try {
             await authService.resetPassword({
-                token: values.token,
+                email,
+                otp: values.otp,
                 new_password: values.new_password,
                 new_password_confirm: values.new_password_confirm,
             });
@@ -75,14 +82,20 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                 </div>
             </div>
 
+            {email && (
+                <p className="text-center text-sm text-slate-500">
+                    Mã OTP đã được gửi tới <span className="font-semibold text-slate-700">{email}</span>
+                </p>
+            )}
+
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={form.control}
-                        name="token"
+                        name="otp"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Mã xác thực từ Email</FormLabel>
+                                <FormLabel>Mã OTP từ Email</FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder="Nhập mã 6 số"
@@ -141,6 +154,16 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Đặt lại mật khẩu
+                    </Button>
+
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full h-11 text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium transition-colors"
+                        onClick={onBackToForgot}
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Đổi email nhận OTP
                     </Button>
                 </form>
             </Form>

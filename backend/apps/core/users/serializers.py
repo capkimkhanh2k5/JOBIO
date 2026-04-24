@@ -164,7 +164,11 @@ class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    email = serializers.EmailField()
+    otp = serializers.RegexField(
+        regex=r'^\d{6}$',
+        error_messages={'invalid': 'Mã OTP phải gồm đúng 6 chữ số'}
+    )
     new_password = serializers.CharField(
         write_only=True,
         min_length=8,
@@ -331,3 +335,10 @@ class PasskeyUpdateNameSerializer(serializers.Serializer):
         max_length=255,
         help_text='Tên mới cho passkey'
     )
+
+class InitiateSocialLinkSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    provider = serializers.ChoiceField(choices=['google'])
+
+class VerifySocialLinkSerializer(serializers.Serializer):
+    token = serializers.CharField()

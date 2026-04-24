@@ -87,9 +87,6 @@ INSTALLED_APPS = [
     'apps.email',
     'apps.communication.notifications',
     'apps.communication.notification_types',
-    'apps.communication.messages',
-    'apps.communication.message_threads',
-    'apps.communication.message_participants',
     'apps.communication.job_alerts',
 ]
 
@@ -109,7 +106,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -184,6 +181,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+FRONTEND_URL = 'http://localhost:4000'
 
 # Tắt password hashers nặng để test nhanh hơn
 PASSWORD_HASHERS = [

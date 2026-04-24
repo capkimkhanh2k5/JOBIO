@@ -1,11 +1,9 @@
 """
 Integrated Auth APIs Tests - Django TestCase Version
 """
-import secrets
 import pyotp
 from unittest.mock import patch
 from datetime import timedelta
-from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
@@ -115,13 +113,14 @@ class TestIntegratedAuthAPIs(APITestCase):
         self.assertIsNotNone(self.user.password_reset_token)
 
     def test_reset_password_success(self):
-        token = secrets.token_urlsafe(32)
+        token = '123456'
         self.user.password_reset_token = token
         self.user.password_reset_expires = timezone.now() + timedelta(minutes=5)
         self.user.save()
 
         data = {
-            'token': token,
+            'email': self.user.email,
+            'otp': token,
             'new_password': 'newpass123',
             'new_password_confirm': 'newpass123'
         }
@@ -172,7 +171,8 @@ class TestIntegratedAuthAPIs(APITestCase):
         mock_get.return_value.json.return_value = {
             'email': 'googleuser@example.com',
             'name': 'Google User',
-            'picture': 'http://avatar.url'
+            'picture': 'http://avatar.url',
+            'sub': 'google-123'
         }
         
         data = {
