@@ -149,34 +149,3 @@ class SocialLoginTest(TestCase):
             self.assertEqual(existing_user.social_provider, 'google')
             self.assertEqual(existing_user.social_id, 'google-link-id')
 
-    def test_social_login_consumes_verified_link_intent(self):
-        """Test that social_login binds Google identity to user after verify-social-link intent."""
-        existing_user = CustomUser.objects.create_user(
-            email='owner@example.com',
-            password='password123',
-            full_name='Owner User'
-        )
-
-        link_key = 'social_link_verified_google_linked@gmail.com'
-        cache.set(link_key, existing_user.id, timeout=600)
-
-        with patch('apps.core.users.services.social_auth.SocialAdapterFactory') as MockFactory:
-            mock_adapter = MagicMock()
-            mock_adapter.verify_token.return_value = SocialProfile(
-                provider='google',
-                provider_id='google-intent-id',
-                email='linked@gmail.com',
-                name='Linked Gmail',
-                picture=None
-            )
-            MockFactory.get_adapter.return_value = mock_adapter
-
-            result = social_login('google', 'valid_token')
-
-        self.assertFalse(result['is_new_user'])
-        self.assertEqual(result['user'].id, existing_user.id)
-
-        existing_user.refresh_from_db()
-        self.assertEqual(existing_user.social_provider, 'google')
-        self.assertEqual(existing_user.social_id, 'google-intent-id')
-        self.assertIsNone(cache.get(link_key))

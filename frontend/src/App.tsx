@@ -57,7 +57,6 @@ import NotificationsPage from '@/pages/Notifications';
 import SearchHistory from '@/pages/candidate/SearchHistory';
 import UserBlogManagement from '@/pages/shared/BlogManagement';
 import CreateBlogPost from '@/pages/shared/CreateBlogPost';
-import VerifySocialLink from '@/pages/shared/VerifySocialLink';
 
 // Admin area
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -212,7 +211,6 @@ function AppInner() {
                                 <main className="flex-1 w-full relative z-10">
                                     <Routes>
                                         <Route path="/" element={<Home />} />
-                                        <Route path="/auth/verify-social-link" element={<VerifySocialLink />} />
                                         <Route path="/jobs" element={<Jobs />} />
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
