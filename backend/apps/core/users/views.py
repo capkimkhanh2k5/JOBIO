@@ -23,8 +23,6 @@ from .services.auth import (
     AuthenticationError,
     send_registration_otp, SendRegistrationOtpInput,
     verify_registration_otp, VerifyRegistrationOtpInput,
-    initiate_social_link, InitiateSocialLinkInput,
-    verify_social_link,
 )
 from .services.passkey import (
     generate_registration_options, verify_registration,
@@ -44,7 +42,6 @@ from .serializers import (
     UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
     PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
     PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
-    InitiateSocialLinkSerializer, VerifySocialLinkSerializer,
 )
 from django.http import HttpResponse
 from apps.core.pagination import SmallResultsSetPagination
@@ -71,7 +68,6 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             'auth_check_email', 'auth_social_login',
             'passkey_auth_options', 'passkey_auth_verify',
             'auth_send_registration_otp', 'auth_verify_registration_otp',
-            'auth_verify_social_link'
         ]
         if self.action in public_actions:
             return [AllowAny()]
@@ -621,34 +617,6 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 passkey_id=int(passkey_id),
                 device_name=serializer.validated_data['device_name'],
             )
-        except AuthenticationError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(result, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['post'], url_path='auth/initiate-social-link')
-    def auth_initiate_social_link(self, request):
-        """POST /api/users/auth/initiate-social-link/ - Gửi mail liên kết social"""
-        serializer = InitiateSocialLinkSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        try:
-            initiate_social_link(
-                user_id=request.user.id,
-                data=InitiateSocialLinkInput(**serializer.validated_data)
-            )
-            return Response({"detail": "Liên kết xác thực đã được gửi đến email của bạn."}, status=status.HTTP_200_OK)
-        except AuthenticationError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'], url_path='auth/verify-social-link')
-    def auth_verify_social_link(self, request):
-        """POST /api/users/auth/verify-social-link/ - Xác thực liên kết social"""
-        serializer = VerifySocialLinkSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        try:
-            result = verify_social_link(token=serializer.validated_data['token'])
             return Response(result, status=status.HTTP_200_OK)
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -336,9 +336,3 @@ class PasskeyUpdateNameSerializer(serializers.Serializer):
         help_text='Tên mới cho passkey'
     )
 
-class InitiateSocialLinkSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    provider = serializers.ChoiceField(choices=['google'])
-
-class VerifySocialLinkSerializer(serializers.Serializer):
-    token = serializers.CharField()
