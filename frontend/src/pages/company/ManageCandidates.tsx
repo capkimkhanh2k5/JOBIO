@@ -149,13 +149,13 @@ export default function ManageCandidates() {
             )}
 
             {/* Main Content Area with Sidebar */}
-            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6 flex-1 w-full flex relative gap-6">
-                <div className="w-[300px] hidden md:block">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 flex-1 w-full min-w-0 flex relative gap-6 overflow-hidden">
+                <div className="w-[300px] shrink-0 hidden md:block">
                     <CandidatesFilterSidebar />
                 </div>
 
-                <main className="flex-1">
-                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm">
+                <main className="flex-1 min-w-0 overflow-hidden">
+                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm h-full">
                         {viewMode === 'kanban' ? (
                             <CandidateBoard
                                 applications={applications as any}
