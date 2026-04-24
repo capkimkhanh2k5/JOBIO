@@ -57,6 +57,7 @@ class JobDetailSerializer(serializers.ModelSerializer):
             'experience_years_min', 'experience_years_max',
             'salary_min', 'salary_max', 'salary_currency', 'salary_type', 'is_salary_negotiable',
             'number_of_positions', 'description', 'requirements', 'benefits',
+            'seo_title', 'seo_description', 'seo_keywords',
             'is_remote', 'application_deadline',
             'status', 'view_count', 'application_count',
             'featured', 'featured_until',
@@ -95,6 +96,13 @@ class JobCreateSerializer(serializers.Serializer):
     is_salary_negotiable = serializers.BooleanField(required=False, default=False)
     number_of_positions = serializers.IntegerField(required=False, default=1)
     benefits = serializers.CharField(required=False, allow_blank=True)
+    seo_title = serializers.CharField(max_length=70, required=False, allow_blank=True, default='')
+    seo_description = serializers.CharField(max_length=160, required=False, allow_blank=True, default='')
+    seo_keywords = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        default=list
+    )
     is_remote = serializers.BooleanField(required=False, default=False)
     application_deadline = serializers.DateField(required=False, allow_null=True)
     
@@ -138,6 +146,12 @@ class JobUpdateSerializer(serializers.Serializer):
     description = serializers.CharField(required=False)
     requirements = serializers.CharField(required=False)
     benefits = serializers.CharField(required=False, allow_blank=True)
+    seo_title = serializers.CharField(max_length=70, required=False, allow_blank=True)
+    seo_description = serializers.CharField(max_length=160, required=False, allow_blank=True)
+    seo_keywords = serializers.ListField(
+        child=serializers.CharField(),
+        required=False
+    )
     is_remote = serializers.BooleanField(required=False)
     application_deadline = serializers.DateField(required=False, allow_null=True)
     status = serializers.ChoiceField(choices=['draft', 'published', 'closed', 'expired'], required=False)

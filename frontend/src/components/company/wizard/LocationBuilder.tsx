@@ -1,17 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { taxonomyService } from '@/services/taxonomyService';
 import { Plus, Trash2, MapPin, Star } from 'lucide-react';
+import { taxonomyService } from '@/services/taxonomyService';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Combobox } from '@/components/ui/combobox';
 import { cn } from '@/lib/utils';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 
 export interface LocationRow {
     id: string;
@@ -43,19 +37,19 @@ function LocationRowItem({
 }) {
     const { data: provinces = [], isLoading: provinceLoading } = useQuery({
         queryKey: ['provinces-detailed'],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results ?? r.data),
+        queryFn: () => taxonomyService.listProvinces(),
         staleTime: 60_000,
     });
 
     const { data: communes = [], isLoading: communeLoading } = useQuery({
         queryKey: ['communes', row.province_id],
-        queryFn: () => taxonomyService.listCommunes({ province_id: Number(row.province_id) }).then(r => r.data.results ?? r.data),
+        queryFn: () => taxonomyService.listCommunes({ province_id: Number(row.province_id) }),
         enabled: !!row.province_id,
         staleTime: 60_000,
     });
 
     const handleProvinceChange = useCallback((provinceId: string) => {
-        const province = provinces.find(p => p.id.toString() === provinceId);
+        const province = provinces.find((p) => p.id.toString() === provinceId);
         onUpdate({
             province_id: provinceId,
             province_name: province?.province_name ?? '',
@@ -65,42 +59,48 @@ function LocationRowItem({
     }, [provinces, onUpdate]);
 
     const handleCommuneChange = useCallback((communeId: string) => {
-        const commune = communes.find(c => c.id.toString() === communeId);
-        onUpdate({ commune_id: communeId, commune_name: commune?.commune_name ?? '' });
+        const commune = communes.find((c) => c.id.toString() === communeId);
+        onUpdate({
+            commune_id: communeId,
+            commune_name: commune?.commune_name ?? '',
+        });
     }, [communes, onUpdate]);
 
     const triggerClass = cn(
-        'w-full py-2.5 rounded-xl text-sm h-10',
-        'bg-white border border-slate-200 text-slate-900 px-3',
-        'focus:ring-4 focus:ring-violet-500/5 focus:border-violet-500/40 outline-none',
-        'transition-all duration-200 shadow-sm'
+        'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm',
+        'outline-none transition-all duration-200 focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5'
     );
 
+    const provinceOptions = provinces.map((province) => ({
+        value: province.id.toString(),
+        label: province.province_name,
+    }));
+
+    const communeOptions = communes.map((commune) => ({
+        value: commune.id.toString(),
+        label: commune.commune_name,
+    }));
+
     return (
-        <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3 shadow-sm">
-            {/* Header */}
+        <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100">
                         <MapPin size={12} className="text-violet-600" />
                     </div>
                     <span className="text-xs font-bold text-slate-500">Địa điểm #{index + 1}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* is_primary toggle */}
-                    <label className="flex items-center gap-1.5 cursor-pointer group">
-                        <Star size={12} className={row.is_primary ? 'text-amber-500 fill-amber-500' : 'text-slate-300 group-hover:text-slate-400'} />
-                        <span className="text-xs text-slate-500 font-medium">Chính</span>
-                        <Switch
-                            checked={row.is_primary}
-                            onCheckedChange={v => onUpdate({ is_primary: v })}
-                        />
+                    <label className="group flex cursor-pointer items-center gap-1.5">
+                        <Star size={12} className={row.is_primary ? 'fill-amber-500 text-amber-500' : 'text-slate-300 group-hover:text-slate-400'} />
+                        <span className="text-xs font-medium text-slate-500">Chính</span>
+                        <Switch checked={row.is_primary} onCheckedChange={(checked) => onUpdate({ is_primary: checked })} />
                     </label>
                     {canRemove && (
                         <button
                             type="button"
                             onClick={onRemove}
-                            className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                            className="p-1 text-slate-300 transition-colors hover:text-red-500"
                         >
                             <Trash2 size={14} />
                         </button>
@@ -108,73 +108,57 @@ function LocationRowItem({
                 </div>
             </div>
 
-            {/* Province */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                    <label className="text-xs text-slate-500 mb-1 block font-medium">Tỉnh / Thành phố <span className="text-red-500">*</span></label>
+                    <label className="mb-1 block text-xs font-medium text-slate-500">
+                        Tỉnh / Thành phố <span className="text-red-500">*</span>
+                    </label>
                     {provinceLoading ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
-                        <Select value={row.province_id} onValueChange={handleProvinceChange}>
-                            <SelectTrigger className={triggerClass}>
-                                <SelectValue placeholder="-- Chọn tỉnh/thành phố --" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white border-slate-200">
-                                {provinces.map(p => (
-                                    <SelectItem 
-                                        key={p.id} 
-                                        value={p.id.toString()} 
-                                        className="text-[#0f172a] focus:bg-slate-50 focus:text-[#0f172a] bg-white"
-                                        style={{ color: '#0f172a' }}
-                                    >
-                                        {p.province_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Combobox
+                            options={provinceOptions}
+                            value={row.province_id}
+                            onChange={(value) => handleProvinceChange(String(value))}
+                            placeholder="-- Chọn tỉnh/thành phố --"
+                            searchPlaceholder="Tìm tỉnh/thành phố..."
+                            emptyMessage="Không tìm thấy tỉnh/thành phố phù hợp."
+                            className={cn(triggerClass, 'justify-between font-normal')}
+                        />
                     )}
                 </div>
 
-                {/* Commune */}
                 <div>
-                    <label className="text-xs text-slate-500 mb-1 block font-medium">Quận / Huyện</label>
+                    <label className="mb-1 block text-xs font-medium text-slate-500">Quận / Huyện</label>
                     {communeLoading && row.province_id ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
-                        <Select
+                        <Combobox
+                            options={communeOptions}
                             value={row.commune_id}
-                            onValueChange={handleCommuneChange}
+                            onChange={(value) => handleCommuneChange(String(value))}
                             disabled={!row.province_id}
-                        >
-                            <SelectTrigger className={cn(triggerClass, !row.province_id && 'opacity-40 cursor-not-allowed')}>
-                                <SelectValue placeholder="-- Chọn quận/huyện --" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white border-slate-200">
-                                {communes.map(c => (
-                                    <SelectItem 
-                                        key={c.id} 
-                                        value={c.id.toString()} 
-                                        className="text-[#0f172a] focus:bg-slate-50 focus:text-[#0f172a] bg-white"
-                                        style={{ color: '#0f172a' }}
-                                    >
-                                        {c.commune_name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            placeholder="-- Chọn quận/huyện --"
+                            searchPlaceholder="Tìm quận/huyện..."
+                            emptyMessage="Không tìm thấy quận/huyện phù hợp."
+                            className={cn(
+                                triggerClass,
+                                'justify-between font-normal',
+                                !row.province_id && 'cursor-not-allowed opacity-40'
+                            )}
+                        />
                     )}
                 </div>
             </div>
 
-            {/* Address line */}
             <div>
-                <label className="text-xs text-slate-500 mb-1 block font-medium">Địa chỉ cụ thể</label>
+                <label className="mb-1 block text-xs font-medium text-slate-500">Địa chỉ cụ thể</label>
                 <input
                     type="text"
                     value={row.address_line}
-                    onChange={e => onUpdate({ address_line: e.target.value })}
+                    onChange={(e) => onUpdate({ address_line: e.target.value })}
                     placeholder="Số nhà, tên đường..."
-                    className={cn(triggerClass, 'w-full placeholder:text-slate-400')}
+                    className={cn(triggerClass, 'placeholder:text-slate-400')}
                 />
             </div>
         </div>
@@ -186,7 +170,7 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
         onChange([
             ...value,
             {
-                id: 'loc_' + Math.random().toString(36).substring(2, 7),
+                id: `loc_${Math.random().toString(36).substring(2, 7)}`,
                 province_id: '',
                 province_name: '',
                 commune_id: '',
@@ -198,26 +182,25 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
     };
 
     const removeRow = (id: string) => {
-        const newRows = value.filter(r => r.id !== id);
-        // Ensure first row is primary
-        if (newRows.length > 0 && !newRows.some(r => r.is_primary)) {
+        const newRows = value.filter((row) => row.id !== id);
+        if (newRows.length > 0 && !newRows.some((row) => row.is_primary)) {
             newRows[0].is_primary = true;
         }
         onChange(newRows);
     };
 
     const updateRow = (id: string, patch: Partial<LocationRow>) => {
-        let updated = value.map(r => r.id === id ? { ...r, ...patch } : r);
-        // If setting is_primary, unset others
+        let updated = value.map((row) => (row.id === id ? { ...row, ...patch } : row));
         if (patch.is_primary) {
-            updated = updated.map(r => r.id === id ? r : { ...r, is_primary: false });
+            updated = updated.map((row) => (row.id === id ? row : { ...row, is_primary: false }));
         }
         onChange(updated);
     };
 
-    // Init with one empty row
     useEffect(() => {
-        if (value.length === 0) addRow();
+        if (value.length === 0) {
+            addRow();
+        }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
@@ -227,7 +210,7 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
                     key={row.id}
                     row={row}
                     index={idx}
-                    onUpdate={patch => updateRow(row.id, patch)}
+                    onUpdate={(patch) => updateRow(row.id, patch)}
                     onRemove={() => removeRow(row.id)}
                     canRemove={value.length > 1}
                 />
@@ -237,13 +220,11 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
                 type="button"
                 onClick={addRow}
                 className={cn(
-                    'w-full py-3 rounded-xl border border-dashed border-slate-300',
-                    'flex items-center justify-center gap-2 text-sm text-slate-400 font-medium',
-                    'hover:border-violet-500/40 hover:text-violet-600 hover:bg-violet-50/30 transition-all duration-200',
-                    'group'
+                    'group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-3 text-sm font-medium text-slate-400',
+                    'transition-all duration-200 hover:border-violet-500/40 hover:bg-violet-50/30 hover:text-violet-600'
                 )}
             >
-                <Plus size={15} className="group-hover:rotate-90 transition-transform duration-200" />
+                <Plus size={15} className="transition-transform duration-200 group-hover:rotate-90" />
                 Thêm địa điểm làm việc
             </button>
         </div>

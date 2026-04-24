@@ -295,6 +295,9 @@ export interface JobDetail extends JobListItem {
   description: string;
   requirements: string;
   benefits: string | null;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string[];
   address: Address | null;
   experience_years_min: number | null;
   experience_years_max: number | null;
@@ -306,6 +309,8 @@ export interface JobDetail extends JobListItem {
 export interface JobSkill {
   id: number;
   skill: Skill;
+  skill_id?: number;
+  skill_name?: string;
   is_required: boolean;
   proficiency_level: string | null;
   years_required: number | null;
@@ -313,7 +318,11 @@ export interface JobSkill {
 
 export interface JobLocation {
   id: number;
-  address: Address;
+  address?: Address;
+  address_id?: number;
+  street?: string | null;
+  province_name?: string | null;
+  commune_name?: string | null;
   is_primary: boolean;
 }
 
@@ -331,6 +340,9 @@ export interface JobCreateRequest {
   description: string;
   requirements: string;
   benefits?: string;
+  seo_title?: string;
+  seo_description?: string;
+  seo_keywords?: string[];
   address_id?: number;
   is_remote?: boolean;
   application_deadline?: string;
@@ -385,6 +397,11 @@ export interface ApplicationListItem {
   candidate_name?: string;
   candidate_email?: string;
   candidate_avatar?: string | null;
+  recruiter_id?: number;
+  recruiter_name?: string;
+  recruiter_email?: string;
+  recruiter_avatar?: string | null;
+  recruiter_phone?: string | null;
   job: { id: number; title: string; company_name: string } | null;
   candidate: { id: number; full_name: string; avatar: string | null } | null;
   cv: { id: number; file_name: string } | null;

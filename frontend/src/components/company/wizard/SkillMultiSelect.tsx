@@ -2,7 +2,14 @@ import { useState, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { taxonomyService } from '@/services/taxonomyService';
 import { Badge } from '@/components/ui/badge';
-import { X, Search, ChevronDown } from 'lucide-react';
+import { X, Search } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 type ProficiencyLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
@@ -40,7 +47,7 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
 
     const { data: suggestions = [] } = useQuery({
         queryKey: ['job-skills-search', query],
-        queryFn: () => taxonomyService.listSkills({ search: query }).then(r => r.data.results ?? r.data),
+        queryFn: () => taxonomyService.listSkills({ search: query }),
         staleTime: 30_000,
     });
 
@@ -133,23 +140,27 @@ export function SkillMultiSelect({ value, onChange }: SkillMultiSelectProps) {
                             </label>
 
                             {/* Proficiency select */}
-                            <div className="relative flex-shrink-0">
-                                <select
+                            <div className="flex-shrink-0">
+                                <Select
                                     value={skill.proficiency_level}
-                                    onChange={e => updateSkill(skill.skill_id, { proficiency_level: e.target.value as ProficiencyLevel })}
-                                    className={cn(
-                                        'appearance-none text-xs px-2.5 py-1 pr-6 rounded-lg border cursor-pointer',
-                                        'bg-transparent transition-colors',
-                                        PROFICIENCY_COLORS[skill.proficiency_level]
-                                    )}
+                                    onValueChange={(value) => updateSkill(skill.skill_id, { proficiency_level: value as ProficiencyLevel })}
                                 >
-                                    {(Object.keys(PROFICIENCY_LABELS) as ProficiencyLevel[]).map(lvl => (
-                                        <option key={lvl} value={lvl} className="text-slate-900 bg-white">
-                                            {PROFICIENCY_LABELS[lvl]}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+                                    <SelectTrigger
+                                        className={cn(
+                                            'h-8 min-w-[120px] rounded-lg border px-2.5 py-1 text-xs shadow-none',
+                                            PROFICIENCY_COLORS[skill.proficiency_level]
+                                        )}
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="border-slate-200 bg-white">
+                                        {(Object.keys(PROFICIENCY_LABELS) as ProficiencyLevel[]).map((lvl) => (
+                                            <SelectItem key={lvl} value={lvl} className="text-slate-900">
+                                                {PROFICIENCY_LABELS[lvl]}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             {/* Remove */}

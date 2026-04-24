@@ -35,4 +35,5 @@ class AddressCreateUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Address
-        fields = ['address_line', 'commune', 'province', 'latitude', 'longitude']
+        fields = ['id', 'address_line', 'commune', 'province', 'latitude', 'longitude']
+        read_only_fields = ['id']

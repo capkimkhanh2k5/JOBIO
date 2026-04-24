@@ -8,6 +8,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { jobService } from '@/services/jobService';
+import { geographyService } from '@/services/geographyService';
 import { WizardProgress } from '@/components/company/wizard/WizardProgress';
 import { Step1BasicInfo } from '@/components/company/wizard/Step1BasicInfo';
 import { Step2Description } from '@/components/company/wizard/Step2Description';
@@ -85,6 +86,125 @@ const slideVariants = {
     exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 };
 
+const SEO_DRAFT_STORAGE_KEY = 'jobio-job-seo-drafts';
+const JOB_EDITOR_UI_DRAFT_STORAGE_KEY = 'jobio-job-editor-ui-drafts';
+
+function normalizeDateForApi(value?: string | null) {
+    if (!value) return null;
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return value;
+    }
+
+    const dmyMatch = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (dmyMatch) {
+        const [, day, month, year] = dmyMatch;
+        return `${year}-${month}-${day}`;
+    }
+
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+        return parsed.toISOString().split('T')[0];
+    }
+
+    return value;
+}
+
+function toBackendProficiency(level: string | null | undefined) {
+    if (!level) return null;
+    if (level === 'beginner') return 'basic';
+    return level;
+}
+
+function toFrontendProficiency(level: string | null | undefined) {
+    if (!level) return 'intermediate' as const;
+    if (level === 'basic') return 'beginner' as const;
+    if (level === 'intermediate' || level === 'advanced' || level === 'expert') return level;
+    return 'intermediate' as const;
+}
+
+function readSeoDraft(jobId?: string | number | null) {
+    if (!jobId) return null;
+
+    try {
+        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed?.[String(jobId)] ?? null;
+    } catch {
+        return null;
+    }
+}
+
+function writeSeoDraft(
+    jobId: string | number,
+    data: Pick<PostJobFormData, 'seo_title' | 'seo_description' | 'seo_keywords'>
+) {
+    try {
+        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        parsed[String(jobId)] = data;
+        localStorage.setItem(SEO_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+        // ignore local storage errors
+    }
+}
+
+function clearSeoDraft(jobId?: string | number | null) {
+    if (!jobId) return;
+
+    try {
+        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        delete parsed[String(jobId)];
+        localStorage.setItem(SEO_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+        // ignore local storage errors
+    }
+}
+
+function readEditorUiDraft(jobId?: string | number | null) {
+    if (!jobId) return null;
+
+    try {
+        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed?.[String(jobId)] ?? null;
+    } catch {
+        return null;
+    }
+}
+
+function writeEditorUiDraft(
+    jobId: string | number,
+    data: Pick<PostJobFormData, 'is_remote'>
+) {
+    try {
+        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : {};
+        parsed[String(jobId)] = data;
+        localStorage.setItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+        // ignore local storage errors
+    }
+}
+
+function clearEditorUiDraft(jobId?: string | number | null) {
+    if (!jobId) return;
+
+    try {
+        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        delete parsed[String(jobId)];
+        localStorage.setItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
+    } catch {
+        // ignore local storage errors
+    }
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function PostJob() {
     const navigate = useNavigate();
@@ -95,6 +215,56 @@ export default function PostJob() {
     const { id } = useParams<{ id: string }>();
     const [draftId, setDraftId] = useState<string | null>(id || null);
     const lastSavedRef = useRef<Date | null>(null);
+    const seoDraftInitializedRef = useRef(false);
+
+    const syncNestedData = useCallback(async (jobId: number, data: PostJobFormData) => {
+        const existingSkills = await jobService.listSkills(jobId).then((res) => res.data);
+        const nextSkillsById = new Map(data.skills.map((skill) => [String(skill.skill_id), skill]));
+
+        await Promise.all(
+            existingSkills
+                .filter((skill) => !nextSkillsById.has(String(skill.skill_id)))
+                .map((skill) => jobService.removeSkill(jobId, skill.id))
+        );
+
+        await Promise.all(
+            data.skills.map(async (skill) => {
+                const existingSkill = existingSkills.find((item) => String(item.skill_id) === String(skill.skill_id));
+                const payload = {
+                    skill_id: Number(skill.skill_id),
+                    is_required: skill.is_required,
+                    proficiency_level: toBackendProficiency(skill.proficiency_level),
+                };
+
+                if (existingSkill) {
+                    await jobService.removeSkill(jobId, existingSkill.id);
+                }
+
+                await jobService.addSkill(jobId, payload);
+            })
+        );
+
+        const existingLocations = await jobService.listLocations(jobId).then((res) => res.data);
+
+        await Promise.all(existingLocations.map((location) => jobService.removeLocation(jobId, location.id)));
+
+        await Promise.all(
+            data.locations
+                .filter((location) => location.province_id)
+                .map(async (location) => {
+                    const address = await geographyService.createAddress({
+                        address_line: location.address_line || 'Chưa cập nhật',
+                        province: Number(location.province_id),
+                        commune: location.commune_id ? Number(location.commune_id) : null,
+                    });
+
+                    await jobService.addLocation(jobId, {
+                        address_id: address.id,
+                        is_primary: location.is_primary,
+                    });
+                })
+        );
+    }, []);
 
     // Helper to transform frontend data to backend format
     const transformToBackend = useCallback((data: PostJobFormData) => {
@@ -103,7 +273,7 @@ export default function PostJob() {
             company_id: user?.company_id,
             job_type: data.job_type.replace('_', '-'),
             number_of_positions: data.quantity,
-            application_deadline: data.deadline,
+            application_deadline: normalizeDateForApi(data.deadline),
             experience_years_min: data.experience_min ?? 0,
             experience_years_max: data.experience_max,
             category_id: data.category_id ? Number(data.category_id) : null,
@@ -112,7 +282,7 @@ export default function PostJob() {
     }, [user?.company_id]);
 
     const {
-        control, handleSubmit, trigger, getValues, reset, formState: { errors, isDirty },
+        control, handleSubmit, trigger, getValues, reset, watch, formState: { errors, isDirty },
     } = useForm<PostJobFormData>({
         resolver: zodResolver(fullSchema) as any,
         defaultValues: {
@@ -142,13 +312,43 @@ export default function PostJob() {
     });
 
     const { data: existingJob } = useQuery({
-        queryKey: ['job', id],
-        queryFn: () => jobService.getById(Number(id)).then(res => res.data),
+        queryKey: ['job', id, 'editor'],
+        queryFn: async () => {
+            const jobId = Number(id);
+            const [job, skills, locations] = await Promise.all([
+                jobService.getById(jobId).then((res) => res.data),
+                jobService.listSkills(jobId).then((res) => res.data),
+                jobService.listLocations(jobId).then((res) => res.data),
+            ]);
+
+            const hydratedLocations = await Promise.all(
+                locations.map(async (location) => {
+                    const address = await geographyService.getAddress(location.address_id);
+                    return {
+                        id: `loc_${location.id}`,
+                        province_id: address.province ? String(address.province) : '',
+                        province_name: address.province_name || location.province_name || '',
+                        commune_id: address.commune ? String(address.commune) : '',
+                        commune_name: address.commune_name || location.commune_name || '',
+                        address_line: address.address_line || '',
+                        is_primary: location.is_primary,
+                    };
+                })
+            );
+
+            return {
+                ...job,
+                editor_skills: skills,
+                editor_locations: hydratedLocations,
+            };
+        },
         enabled: !!id,
     });
 
     useEffect(() => {
         if (existingJob) {
+            const seoDraft = readSeoDraft(existingJob.id || id);
+            const editorUiDraft = readEditorUiDraft(existingJob.id || id);
             reset({
                 title: existingJob.title || '',
                 category_id: existingJob.category_id ? String(existingJob.category_id) : '',
@@ -161,32 +361,88 @@ export default function PostJob() {
                 is_salary_visible: !existingJob.is_salary_negotiable,
                 experience_min: existingJob.experience_years_min || null,
                 experience_max: existingJob.experience_years_max || null,
-                deadline: existingJob.application_deadline || '',
-                is_remote: existingJob.is_remote || false,
+                deadline: normalizeDateForApi(existingJob.application_deadline) || '',
+                is_remote: editorUiDraft?.is_remote ?? Boolean(existingJob.is_remote),
                 description: existingJob.description || '',
                 requirements: existingJob.requirements || '',
                 benefits: existingJob.benefits || '',
-                skills: [], // Default to empty, will implement if required
-                locations: [], // Default to empty, will implement if required
-                seo_title: '',
-                seo_description: '',
-                seo_keywords: [],
+                skills: (existingJob.editor_skills || []).map((skill: any) => ({
+                    skill_id: String(skill.skill_id),
+                    skill_name: skill.skill_name,
+                    is_required: skill.is_required,
+                    proficiency_level: toFrontendProficiency(skill.proficiency_level),
+                })),
+                locations: existingJob.editor_locations || [],
+                seo_title: existingJob.seo_title || seoDraft?.seo_title || '',
+                seo_description: existingJob.seo_description || seoDraft?.seo_description || '',
+                seo_keywords: existingJob.seo_keywords || seoDraft?.seo_keywords || [],
             });
+            seoDraftInitializedRef.current = true;
         }
     }, [existingJob, reset]);
+
+    useEffect(() => {
+        if (!id) {
+            seoDraftInitializedRef.current = true;
+        }
+    }, [id]);
+
+    const seoTitle = watch('seo_title');
+    const seoDescription = watch('seo_description');
+    const seoKeywords = watch('seo_keywords');
+    const isRemote = watch('is_remote');
+
+    useEffect(() => {
+        const targetId = draftId || id;
+        if (!targetId || !seoDraftInitializedRef.current) return;
+
+        writeSeoDraft(targetId, {
+            seo_title: seoTitle || '',
+            seo_description: seoDescription || '',
+            seo_keywords: seoKeywords || [],
+        });
+    }, [draftId, id, seoTitle, seoDescription, seoKeywords]);
+
+    useEffect(() => {
+        const targetId = draftId || id;
+        if (!targetId || !seoDraftInitializedRef.current) return;
+
+        writeEditorUiDraft(targetId, {
+            is_remote: Boolean(isRemote),
+        });
+    }, [draftId, id, isRemote]);
 
     // ── Auto-save draft every 30s ──────────────────────────────────────────────
     const autoSaveMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
             if (draftId) {
-                return jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
+                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
+                await syncNestedData(updatedJob.id, data);
+                return updatedJob;
             }
-            const res = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
-            return res;
+            const createdJob = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
+            await syncNestedData(createdJob.id, data);
+            return createdJob;
         },
         onSuccess: (res: any) => {
             if (!draftId && res?.id) setDraftId(res.id);
+            writeSeoDraft(res?.id || draftId || id || 'new', {
+                seo_title: getValues('seo_title') || '',
+                seo_description: getValues('seo_description') || '',
+                seo_keywords: getValues('seo_keywords') || [],
+            });
+            writeEditorUiDraft(res?.id || draftId || id || 'new', {
+                is_remote: Boolean(getValues('is_remote')),
+            });
+            writeSeoDraft(res?.id || draftId || id || 'new', {
+                seo_title: getValues('seo_title') || '',
+                seo_description: getValues('seo_description') || '',
+                seo_keywords: getValues('seo_keywords') || [],
+            });
+            writeEditorUiDraft(res?.id || draftId || id || 'new', {
+                is_remote: Boolean(getValues('is_remote')),
+            });
             lastSavedRef.current = new Date();
             toast.success('Đã tự động lưu nháp', {
                 description: `Lúc ${new Date().toLocaleTimeString('vi-VN')}`,
@@ -208,8 +464,14 @@ export default function PostJob() {
     const saveDraftMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
-            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
-            return jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
+            if (draftId) {
+                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
+                await syncNestedData(updatedJob.id, data);
+                return updatedJob;
+            }
+            const createdJob = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
+            await syncNestedData(createdJob.id, data);
+            return createdJob;
         },
         onSuccess: (res: any) => {
             if (!draftId && res?.id) setDraftId(res.id);
@@ -220,8 +482,14 @@ export default function PostJob() {
     const publishMutation = useMutation({
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
-            if (draftId) return jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
-            return jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
+            if (draftId) {
+                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
+                await syncNestedData(updatedJob.id, data);
+                return updatedJob;
+            }
+            const createdJob = await jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
+            await syncNestedData(createdJob.id, data);
+            return createdJob;
         },
         onSuccess: () => {
             toast.success('Đăng tin thành công!', {
@@ -231,6 +499,12 @@ export default function PostJob() {
             setTimeout(() => navigate('/company/jobs'), 1500);
         },
     });
+
+    useEffect(() => {
+        if (!publishMutation.isSuccess) return;
+        clearSeoDraft(draftId || id);
+        clearEditorUiDraft(draftId || id);
+    }, [publishMutation.isSuccess, draftId, id]);
 
     // ── Navigation ─────────────────────────────────────────────────────────────
     const goNext = useCallback(async () => {
