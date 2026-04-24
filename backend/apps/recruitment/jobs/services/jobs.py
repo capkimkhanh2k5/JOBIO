@@ -36,6 +36,9 @@ class JobInput(BaseModel):
     is_salary_negotiable: Optional[bool] = None
     number_of_positions: Optional[int] = None
     benefits: Optional[str] = None
+    seo_title: Optional[str] = None
+    seo_description: Optional[str] = None
+    seo_keywords: Optional[list[str]] = None
     is_remote: Optional[bool] = None
     application_deadline: Optional[date] = None
     status: Optional[str] = None
@@ -288,6 +291,9 @@ def duplicate_job(user: CustomUser, job: Job) -> Job:
         description=job.description,
         requirements=job.requirements,
         benefits=job.benefits,
+        seo_title=job.seo_title,
+        seo_description=job.seo_description,
+        seo_keywords=job.seo_keywords,
         address=job.address,
         is_remote=job.is_remote,
         application_deadline=None,  # Reset deadline

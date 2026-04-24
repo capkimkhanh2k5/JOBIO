@@ -125,6 +125,23 @@ class Job(models.Model):
         blank=True,
         verbose_name='Quyền lợi'
     )
+    seo_title = models.CharField(
+        max_length=70,
+        blank=True,
+        default='',
+        verbose_name='SEO title'
+    )
+    seo_description = models.CharField(
+        max_length=160,
+        blank=True,
+        default='',
+        verbose_name='SEO description'
+    )
+    seo_keywords = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='SEO keywords'
+    )
     address = models.ForeignKey(
         'geography_addresses.Address',
         on_delete=models.SET_NULL,
