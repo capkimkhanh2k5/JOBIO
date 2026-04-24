@@ -205,7 +205,7 @@ export function ManageJobsTable({
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <button
-                                                        className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors"
+                                                        className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                         aria-label="Job actions"
                                                         onClick={e => e.stopPropagation()}
                                                     >

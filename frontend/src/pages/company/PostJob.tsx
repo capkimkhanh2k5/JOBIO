@@ -4,7 +4,7 @@ import { useUserStore } from '@/store/userStore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { jobService } from '@/services/jobService';
@@ -87,8 +87,6 @@ const slideVariants = {
 };
 
 const SEO_DRAFT_STORAGE_KEY = 'jobio-job-seo-drafts';
-const JOB_EDITOR_UI_DRAFT_STORAGE_KEY = 'jobio-job-editor-ui-drafts';
-
 function normalizeDateForApi(value?: string | null) {
     if (!value) return null;
 
@@ -164,54 +162,16 @@ function clearSeoDraft(jobId?: string | number | null) {
     }
 }
 
-function readEditorUiDraft(jobId?: string | number | null) {
-    if (!jobId) return null;
-
-    try {
-        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        return parsed?.[String(jobId)] ?? null;
-    } catch {
-        return null;
-    }
-}
-
-function writeEditorUiDraft(
-    jobId: string | number,
-    data: Pick<PostJobFormData, 'is_remote'>
-) {
-    try {
-        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : {};
-        parsed[String(jobId)] = data;
-        localStorage.setItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
-    } catch {
-        // ignore local storage errors
-    }
-}
-
-function clearEditorUiDraft(jobId?: string | number | null) {
-    if (!jobId) return;
-
-    try {
-        const raw = localStorage.getItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        delete parsed[String(jobId)];
-        localStorage.setItem(JOB_EDITOR_UI_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
-    } catch {
-        // ignore local storage errors
-    }
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function PostJob() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { user } = useUserStore();
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [discardOpen, setDiscardOpen] = useState(false);
+    const [isPublishingFlow, setIsPublishingFlow] = useState(false);
     const { id } = useParams<{ id: string }>();
     const [draftId, setDraftId] = useState<string | null>(id || null);
     const lastSavedRef = useRef<Date | null>(null);
@@ -348,7 +308,6 @@ export default function PostJob() {
     useEffect(() => {
         if (existingJob) {
             const seoDraft = readSeoDraft(existingJob.id || id);
-            const editorUiDraft = readEditorUiDraft(existingJob.id || id);
             reset({
                 title: existingJob.title || '',
                 category_id: existingJob.category_id ? String(existingJob.category_id) : '',
@@ -362,7 +321,7 @@ export default function PostJob() {
                 experience_min: existingJob.experience_years_min || null,
                 experience_max: existingJob.experience_years_max || null,
                 deadline: normalizeDateForApi(existingJob.application_deadline) || '',
-                is_remote: editorUiDraft?.is_remote ?? Boolean(existingJob.is_remote),
+                is_remote: Boolean(existingJob.is_remote),
                 description: existingJob.description || '',
                 requirements: existingJob.requirements || '',
                 benefits: existingJob.benefits || '',
@@ -390,7 +349,6 @@ export default function PostJob() {
     const seoTitle = watch('seo_title');
     const seoDescription = watch('seo_description');
     const seoKeywords = watch('seo_keywords');
-    const isRemote = watch('is_remote');
 
     useEffect(() => {
         const targetId = draftId || id;
@@ -403,14 +361,6 @@ export default function PostJob() {
         });
     }, [draftId, id, seoTitle, seoDescription, seoKeywords]);
 
-    useEffect(() => {
-        const targetId = draftId || id;
-        if (!targetId || !seoDraftInitializedRef.current) return;
-
-        writeEditorUiDraft(targetId, {
-            is_remote: Boolean(isRemote),
-        });
-    }, [draftId, id, isRemote]);
 
     // ── Auto-save draft every 30s ──────────────────────────────────────────────
     const autoSaveMutation = useMutation({
@@ -432,16 +382,10 @@ export default function PostJob() {
                 seo_description: getValues('seo_description') || '',
                 seo_keywords: getValues('seo_keywords') || [],
             });
-            writeEditorUiDraft(res?.id || draftId || id || 'new', {
-                is_remote: Boolean(getValues('is_remote')),
-            });
             writeSeoDraft(res?.id || draftId || id || 'new', {
                 seo_title: getValues('seo_title') || '',
                 seo_description: getValues('seo_description') || '',
                 seo_keywords: getValues('seo_keywords') || [],
-            });
-            writeEditorUiDraft(res?.id || draftId || id || 'new', {
-                is_remote: Boolean(getValues('is_remote')),
             });
             lastSavedRef.current = new Date();
             toast.success('Đã tự động lưu nháp', {
@@ -453,12 +397,12 @@ export default function PostJob() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isDirty) {
+            if (isDirty && !isPublishingFlow) {
                 autoSaveMutation.mutate(getValues());
             }
         }, 30_000);
         return () => clearInterval(interval);
-    }, [isDirty, getValues, autoSaveMutation]);
+    }, [isDirty, getValues, autoSaveMutation, isPublishingFlow]);
 
     // ── Submit mutations ───────────────────────────────────────────────────────
     const saveDraftMutation = useMutation({
@@ -480,6 +424,9 @@ export default function PostJob() {
     });
 
     const publishMutation = useMutation({
+        onMutate: () => {
+            setIsPublishingFlow(true);
+        },
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
             if (draftId) {
@@ -491,19 +438,26 @@ export default function PostJob() {
             await syncNestedData(createdJob.id, data);
             return createdJob;
         },
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('Đăng tin thành công!', {
                 description: 'Tin tuyển dụng của bạn đã được xuất bản.',
                 duration: 5000,
             });
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['company-jobs'] }),
+                queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] }),
+                queryClient.invalidateQueries({ queryKey: ['job', id, 'editor'] }),
+            ]);
             setTimeout(() => navigate('/company/jobs'), 1500);
+        },
+        onError: () => {
+            setIsPublishingFlow(false);
         },
     });
 
     useEffect(() => {
         if (!publishMutation.isSuccess) return;
         clearSeoDraft(draftId || id);
-        clearEditorUiDraft(draftId || id);
     }, [publishMutation.isSuccess, draftId, id]);
 
     // ── Navigation ─────────────────────────────────────────────────────────────
