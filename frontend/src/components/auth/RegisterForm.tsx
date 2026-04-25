@@ -63,6 +63,13 @@ const registerSchema = z.object({
                 path: ["company_name"],
             });
         }
+        if (!data.tax_code || !/^\d{10}$/.test(data.tax_code)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Mã số thuế là bắt buộc và phải có đúng 10 chữ số",
+                path: ["tax_code"],
+            });
+        }
     }
 });
 
@@ -95,6 +102,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
     const form = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
+        mode: 'onChange',
         defaultValues: {
             full_name: '',
             email: '',
@@ -232,38 +240,60 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                         control={form.control}
                         name="role"
                         render={({ field }) => (
-                            <FormItem className="space-y-3">
-                                <FormLabel>Tôi muốn...</FormLabel>
-                                <div className="grid grid-cols-2 gap-4">
+                            <FormItem className="space-y-0">
+                                <div className="grid grid-cols-2 gap-3 mb-4">
                                     <button
                                         type="button"
                                         onClick={() => field.onChange('candidate')}
                                         className={cn(
-                                            "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 gap-3 w-full group",
+                                            "relative flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group overflow-hidden",
                                             field.value === 'candidate'
-                                                ? "border-blue-500 bg-blue-50 shadow-sm shadow-blue-500/10"
-                                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                                                ? "border-blue-600 bg-blue-50/50 shadow-md shadow-blue-500/10"
+                                                : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-white"
                                         )}
                                     >
-                                        <div className={cn("p-2 rounded-full", field.value === 'candidate' ? "bg-blue-100/50" : "bg-slate-100 group-hover:bg-slate-200/50")}>
-                                            <User className={cn("w-5 h-5", field.value === 'candidate' ? "text-blue-600" : "text-slate-400")} />
+                                        <div className={cn(
+                                            "p-2 rounded-xl transition-all duration-300",
+                                            field.value === 'candidate' ? "bg-blue-600 text-white" : "bg-white text-slate-400 shadow-sm"
+                                        )}>
+                                            <User className="w-5 h-5" />
                                         </div>
-                                        <span className={cn("text-[13px] font-bold", field.value === 'candidate' ? "text-blue-700" : "text-slate-500")}>Tìm việc làm</span>
+                                        <div className="flex flex-col items-start">
+                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'candidate' ? "text-blue-900" : "text-slate-600")}>Tìm việc làm</span>
+                                            <span className="text-[10px] text-slate-400 font-medium">Ứng viên</span>
+                                        </div>
+                                        {field.value === 'candidate' && (
+                                            <div className="absolute top-0 right-0 w-6 h-6 bg-blue-600 flex items-center justify-center rounded-bl-lg">
+                                                <CheckCircle2 className="w-3 h-3 text-white" />
+                                            </div>
+                                        )}
                                     </button>
+
                                     <button
                                         type="button"
                                         onClick={() => field.onChange('company')}
                                         className={cn(
-                                            "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 gap-3 w-full group",
+                                            "relative flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group overflow-hidden",
                                             field.value === 'company'
-                                                ? "border-indigo-500 bg-indigo-50 shadow-sm shadow-indigo-500/10"
-                                                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                                                ? "border-indigo-600 bg-indigo-50/50 shadow-md shadow-indigo-500/10"
+                                                : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-white"
                                         )}
                                     >
-                                        <div className={cn("p-2 rounded-full", field.value === 'company' ? "bg-indigo-100/50" : "bg-slate-100 group-hover:bg-slate-200/50")}>
-                                            <Briefcase className={cn("w-5 h-5", field.value === 'company' ? "text-indigo-600" : "text-slate-400")} />
+                                        <div className={cn(
+                                            "p-2 rounded-xl transition-all duration-300",
+                                            field.value === 'company' ? "bg-indigo-600 text-white" : "bg-white text-slate-400 shadow-sm"
+                                        )}>
+                                            <Briefcase className="w-5 h-5" />
                                         </div>
-                                        <span className={cn("text-[13px] font-bold", field.value === 'company' ? "text-indigo-700" : "text-slate-500")}>Nhà tuyển dụng</span>
+                                        <div className="flex flex-col items-start">
+                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'company' ? "text-indigo-900" : "text-slate-600")}>Tuyển dụng</span>
+                                            <span className="text-[10px] text-slate-400 font-medium">Công ty</span>
+                                        </div>
+                                        {field.value === 'company' && (
+                                            <div className="absolute top-0 right-0 w-6 h-6 bg-indigo-600 flex items-center justify-center rounded-bl-lg">
+                                                <CheckCircle2 className="w-3 h-3 text-white" />
+                                            </div>
+                                        )}
                                     </button>
                                 </div>
                                 <FormMessage />
@@ -316,7 +346,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                 name="tax_code"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Mã số thuế <span className="text-xs text-gray-400 font-normal">(Tuỳ chọn)</span></FormLabel>
+                                        <FormLabel>Mã số thuế <span className="text-red-500">*</span></FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="0101234567"
@@ -501,7 +531,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                     tabIndex={-1}
                                 />
                                 <Label htmlFor="agreeTerms" className="text-xs font-normal text-muted-foreground leading-relaxed">
-                                    Tôi đã đọc và đồng ý với <Link to="/terms" target="_blank" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Điều khoản dịch vụ</Link> và <Link to="/privacy" target="_blank" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Chính sách bảo mật</Link> của JOBIO.
+                                    Tôi đã đọc và đồng ý với <Link to="/terms" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Điều khoản dịch vụ</Link> và <Link to="/privacy" className="font-medium text-primary hover:underline transition-colors" tabIndex={-1}>Chính sách bảo mật</Link> của JOBIO.
                                 </Label>
                             </div>
                         )}
@@ -509,8 +539,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-md shadow-blue-500/20 hover:-translate-y-[1px]"
-                        disabled={form.formState.isSubmitting}
+                        className={cn(
+                            "w-full h-11 font-semibold transition-all shadow-md hover:-translate-y-[1px]",
+                            (isOtpVerified && form.formState.isValid)
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
+                                : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200"
+                        )}
+                        disabled={form.formState.isSubmitting || !isOtpVerified || !form.formState.isValid}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Đăng ký tài khoản
@@ -532,7 +567,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 Đã có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-700 font-bold"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-500 hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToLogin}
                 >
                     Đăng nhập ngay

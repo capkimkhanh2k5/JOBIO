@@ -23,9 +23,11 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = Transaction.objects.select_related('company', 'company__user', 'payment_method').all().order_by('-created_at')
         
-        status = self.request.query_params.get('status')
-        if status and status != 'all':
-            queryset = queryset.filter(status=status)
+        status_param = self.request.query_params.get('status')
+        if status_param and status_param != 'all':
+            valid_statuses = [s[0] for s in Transaction.Status.choices]
+            if status_param in valid_statuses:
+                queryset = queryset.filter(status=status_param)
             
         search = self.request.query_params.get('search')
         if search:

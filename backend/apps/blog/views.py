@@ -7,6 +7,7 @@ from django.db import models
 from apps.blog.models import Post, Category, Tag
 from apps.blog.serializers import PostSerializer, CategorySerializer, TagSerializer
 from apps.core.permissions import IsAdminOrReadOnly
+from apps.core.permissions_extended import IsVerifiedCompanyForWrite
 from apps.blog.services import BlogService
 from apps.blog.selectors import BlogSelector
 
@@ -32,7 +33,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'view_count']:
             return [AllowAny()]
-        return [IsAuthenticated()]
+        return [IsAuthenticated(), IsVerifiedCompanyForWrite()]
 
     def get_queryset(self):
         user = self.request.user

@@ -325,7 +325,9 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
                 password=serializer.validated_data['password'],
                 full_name=serializer.validated_data['full_name'],
                 role=serializer.validated_data.get('role', 'candidate'),
-                otp=serializer.validated_data.get('otp')
+                otp=serializer.validated_data.get('otp'),
+                company_name=serializer.validated_data.get('company_name'),
+                tax_code=serializer.validated_data.get('tax_code')
             ))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

@@ -78,14 +78,14 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Gửi hướng dẫn
+                        Gửi OTP
                     </Button>
                 </form>
             </Form>
 
             <Button
-                variant="ghost"
-                className="w-full h-11 text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium transition-colors"
+                variant="outline"
+                className="w-full h-11 border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 font-medium transition-all group shadow-sm"
                 onClick={onBackToLogin}
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />

@@ -58,7 +58,7 @@ export default function AdminNotificationsPage() {
     // ── Data fetching ────────────────────────────────────────────────────────
     const { data, isLoading } = useQuery({
         queryKey: ['admin-notifications', activeTab, page],
-        queryFn: () => notificationService.listNotifications(queryParams).then(r => r.data),
+        queryFn: () => notificationService.listAdminNotifications(queryParams).then(r => r.data),
         staleTime: 30_000,
     });
 
@@ -71,7 +71,7 @@ export default function AdminNotificationsPage() {
 
     // ── Mutations ─────────────────────────────────────────────────────────────
     const markReadMut = useMutation({
-        mutationFn: (id: number) => notificationService.markNotificationRead(id),
+        mutationFn: (id: number) => notificationService.markAdminNotificationRead(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
             fetchUnreadCount();
@@ -79,7 +79,11 @@ export default function AdminNotificationsPage() {
     });
 
     const markAllMut = useMutation({
-        mutationFn: () => notificationService.markAllNotificationsRead(),
+        mutationFn: () => {
+            const ids = notifications.filter(n => !n.is_read).map(n => n.id);
+            if (ids.length === 0) return Promise.resolve();
+            return notificationService.bulkMarkAdminNotificationsRead(ids);
+        },
         onSuccess: () => {
             markAllStore();
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });

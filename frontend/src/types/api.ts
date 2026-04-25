@@ -1006,19 +1006,77 @@ export interface PaymentMethod {
 // Dashboard / Analytics
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export interface AdminStats {
+export interface AdminOverviewStats {
   users: {
     total: number;
     new_30d: number;
+    by_role: {
+      candidate: number;
+      company: number;
+    };
   };
   jobs: {
     total: number;
     active: number;
   };
+  applications: {
+    total: number;
+    new_30d: number;
+    pending: number;
+    accepted: number;
+  };
+  interviews: {
+    total: number;
+    scheduled: number;
+    completed: number;
+  };
   revenue: {
     total: number;
-    revenue_30d: number;
+    monthly: number;
   };
+  reports: {
+    total: number;
+    pending: number;
+  };
+  companies: {
+    total: number;
+    pending_verification: number;
+  };
+}
+
+export interface UserGrowthData {
+  month: string;
+  users: number;
+  jobs: number;
+}
+
+export interface IndustryDistributionData {
+  name: string;
+  value: number;
+  count: number;
+  color: string;
+}
+
+export interface RevenueTrendData {
+  day: string;
+  revenue: number;
+}
+
+export interface ViolationBreakdownData {
+  name: string;
+  value: number;
+  count: number;
+  color: string;
+}
+
+export interface TopJobAnalytics {
+  id: number;
+  title: string;
+  company: string;
+  status: string;
+  views: number;
+  saves: number;
+  applications: number;
 }
 
 export interface CompanyStats {

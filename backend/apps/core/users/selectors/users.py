@@ -86,7 +86,7 @@ def export_users_csv() -> any:
     writer = csv.writer(output)
     
     # Header
-    writer.writerow(['ID', 'Email', 'Full Name', 'Role', 'Status', 'Date Joined', 'Last Login'])
+    writer.writerow(['ID', 'Email', 'Full Name', 'Phone', 'Role', 'Status', 'Date Joined', 'Last Login'])
     
     users = CustomUser.objects.all().iterator()
     for user in users:
@@ -94,10 +94,11 @@ def export_users_csv() -> any:
             user.id,
             user.email,
             user.full_name,
+            user.phone or '',
             user.role,
             user.status,
-            user.date_joined,
-            user.last_login
+            user.date_joined.strftime("%d/%m/%Y %H:%M") if user.date_joined else '',
+            user.last_login.strftime("%d/%m/%Y %H:%M") if user.last_login else ''
         ])
         
     return output.getvalue()

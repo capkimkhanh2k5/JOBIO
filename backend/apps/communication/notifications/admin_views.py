@@ -117,18 +117,30 @@ def admin_notification_stats(request):
 @permission_classes([IsAdmin])
 def admin_notification_list(request):
     """
-    GET /api/notifications/admin-list/?page=1&page_size=20&search=&type_id=
+    GET /api/notifications/admin-list/?page=1&page_size=20&search=&type=&type_id=&is_read=
     Danh sách tất cả thông báo đã gửi — phân trang.
     """
     page = max(1, int(request.query_params.get('page', 1)))
     page_size = min(50, int(request.query_params.get('page_size', 20)))
     search = request.query_params.get('search', '').strip()
+    notif_type = request.query_params.get('type', '').strip()
     type_id = request.query_params.get('type_id', '')
+    is_read = request.query_params.get('is_read', None)
 
     qs = Notification.objects.select_related('user', 'notification_type').order_by('-created_at')
 
     if search:
         qs = qs.filter(Q(title__icontains=search) | Q(content__icontains=search) | Q(user__email__icontains=search))
+    if is_read is not None:
+        is_read_value = str(is_read).strip().lower()
+        if is_read_value in ('1', 'true', 'yes'):
+            qs = qs.filter(is_read=True)
+        elif is_read_value in ('0', 'false', 'no'):
+            qs = qs.filter(is_read=False)
+        else:
+            return Response({'detail': 'is_read phải là true/false.'}, status=status.HTTP_400_BAD_REQUEST)
+    if notif_type:
+        qs = qs.filter(notification_type__type_name__iexact=notif_type)
     if type_id:
         qs = qs.filter(notification_type_id=type_id)
 
@@ -157,3 +169,33 @@ def admin_notification_list(request):
         'results': results,
     })
 
+@api_view(['PATCH'])
+@permission_classes([IsAdmin])
+def admin_mark_as_read(request, pk):
+    """
+    PATCH /api/notifications/admin-list/:id/mark-as-read/
+    Đánh dấu 1 thông báo là đã đọc.
+    """
+    try:
+        notification = Notification.objects.get(pk=pk)
+    except Notification.DoesNotExist:
+        return Response({'detail': 'Thông báo không tồn tại.'}, status=status.HTTP_404_NOT_FOUND)
+
+    notification.is_read = True
+    notification.save()
+    return Response({'detail': 'Đã đánh dấu là đã đọc.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAdmin])
+def admin_bulk_mark_as_read(request):
+    """
+    POST /api/notifications/admin-list/bulk-mark-as-read/
+    Đánh dấu nhiều thông báo là đã đọc.
+    """
+    ids = request.data.get('ids', [])
+    if not isinstance(ids, list):
+        return Response({'detail': 'ids phải là danh sách.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    count = Notification.objects.filter(id__in=ids).update(is_read=True)
+    return Response({'detail': f'Đã đánh dấu {count} thông báo là đã đọc.'})

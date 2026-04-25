@@ -15,7 +15,8 @@ class ApplicationViewTests(APITestCase):
         self.job_owner = CustomUser.objects.create_user(
             email="owner@example.com",
             password="password123",
-            full_name="Job Owner"
+            full_name="Job Owner",
+            role="company"
         )
         # Applicant user
         self.applicant_user = CustomUser.objects.create_user(
@@ -34,7 +35,8 @@ class ApplicationViewTests(APITestCase):
         self.company = Company.objects.create(
             user=self.job_owner,
             company_name="Test Company",
-            description="A test company"
+            description="A test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
         self.job = Job.objects.create(
             company=self.company,
@@ -145,6 +147,54 @@ class ApplicationViewTests(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['cover_letter'], 'This is my cover letter')
+
+    def test_change_status_pending_company_forbidden(self):
+        """PATCH /api/applications/:id/status - company chưa verified → 403"""
+        pending_owner = CustomUser.objects.create_user(
+            email="pending-owner@example.com",
+            password="password123",
+            full_name="Pending Owner",
+            role="company"
+        )
+        pending_company = Company.objects.create(
+            user=pending_owner,
+            company_name="Pending Company",
+            slug="pending-company-applications-test",
+            description="Pending company"
+        )
+        pending_job = Job.objects.create(
+            company=pending_company,
+            title="Pending Job",
+            slug="pending-job-application",
+            job_type="full-time",
+            level="junior",
+            description="Job description",
+            requirements="Job requirements",
+            status="published",
+            created_by=pending_owner,
+        )
+        pending_recruiter = Recruiter.objects.create(
+            user=CustomUser.objects.create_user(
+                email="pending-applicant@example.com",
+                password="password123",
+                full_name="Pending Applicant"
+            ),
+            bio="A software engineer"
+        )
+        pending_application = Application.objects.create(
+            job=pending_job,
+            recruiter=pending_recruiter,
+            status='pending'
+        )
+
+        self.client.force_authenticate(user=pending_owner)
+        response = self.client.patch(
+            f'/api/applications/{pending_application.id}/status/',
+            {'status': 'shortlisted'},
+            format='json'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     # ========== API #2: GET /api/applications/:id (Chi tiết đơn) ==========
     

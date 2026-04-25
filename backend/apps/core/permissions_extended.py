@@ -4,6 +4,7 @@ Chuẩn hóa Permission Classes cho toàn bộ API.
 Tập trung hóa tất cả permission logic để tránh inline checks trong views.
 """
 from rest_framework import permissions
+from rest_framework.permissions import SAFE_METHODS
 
 
 class IsCompanyOwner(permissions.BasePermission):
@@ -245,3 +246,34 @@ class IsAuthenticatedOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return bool(request.user and request.user.is_authenticated)
+
+
+class IsVerifiedCompanyForWrite(permissions.BasePermission):
+    """
+    Chỉ chặn request ghi dữ liệu của role company khi công ty chưa được verified.
+    - SAFE_METHODS: luôn cho phép
+    - Non-company users: không bị ảnh hưởng
+    - Admin: luôn cho phép
+    """
+    message = "Công ty của bạn chưa được xác thực. Vui lòng chờ duyệt trước khi đăng nội dung."
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.is_staff:
+            return True
+
+        if getattr(user, 'role', None) != 'company':
+            return True
+
+        company_profile = getattr(user, 'company_profile', None)
+        if not company_profile:
+            self.message = "Tài khoản công ty chưa có hồ sơ công ty."
+            return False
+
+        return company_profile.verification_status == 'verified'

@@ -15,7 +15,7 @@ import { Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
     email: z.string().email({ message: "Email không hợp lệ" }),
-    password: z.string().min(6, { message: "Mật khẩu phải từ 6 ký tự" }),
+    password: z.string().min(8, { message: "Mật khẩu phải từ 8 ký tự" }),
     rememberMe: z.boolean(),
 });
 
@@ -103,7 +103,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <FormLabel>Mật khẩu</FormLabel>
                                     <Button
                                         variant="link"
-                                        className="p-0 h-auto text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                                        className="p-0 h-auto text-sm text-blue-600 hover:text-blue-500 hover:no-underline font-semibold transition-colors"
                                         onClick={onForgotPassword}
                                         type="button"
                                         tabIndex={-1}
@@ -170,7 +170,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 Chưa có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-700 font-bold"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-500 hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToRegister}
                 >
                     Đăng ký ngay

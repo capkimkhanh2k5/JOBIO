@@ -20,11 +20,14 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        queryset = Job.objects.select_related('company', 'company__user', 'created_by').all().order_by('-created_at')
+        queryset = Job.objects.select_related('company', 'category', 'created_by').all().order_by('-created_at')
         
-        status = self.request.query_params.get('status')
-        if status and status != 'all':
-            queryset = queryset.filter(status=status)
+        status_param = self.request.query_params.get('status')
+        if status_param and status_param != 'all':
+            # Kiểm tra xem status_param có phải là một trong các status hợp lệ của Job model
+            valid_statuses = [s[0] for s in Job.Status.choices]
+            if status_param in valid_statuses:
+                queryset = queryset.filter(status=status_param)
             
         search = self.request.query_params.get('search')
         if search:
