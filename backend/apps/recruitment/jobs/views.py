@@ -57,6 +57,26 @@ class JobViewSet(viewsets.GenericViewSet):
     - PUT    /api/jobs/:id/           → update (authenticated + owner)
     """
     permission_classes = [IsJobOwnerOrReadOnly]
+
+    def _ensure_verified_company(self, request, job=None):
+        if getattr(request.user, 'role', None) != 'company':
+            return None
+
+        company_profile = getattr(request.user, 'company_profile', None)
+        if not company_profile:
+            return Response(
+                {"detail": "Tài khoản công ty chưa có hồ sơ công ty."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        target_company = job.company if job is not None else company_profile
+        if target_company.verification_status != 'verified':
+            return Response(
+                {"detail": "Công ty chưa được xác thực. Bạn chưa thể đăng nội dung tuyển dụng."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return None
     
     def get_queryset(self):
         filters = self._build_filters()
@@ -135,6 +155,10 @@ class JobViewSet(viewsets.GenericViewSet):
         """
         serializer = JobCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        permission_error = self._ensure_verified_company(request)
+        if permission_error:
+            return permission_error
         
         try:
             input_data = JobInput(**serializer.validated_data)
@@ -189,6 +213,10 @@ class JobViewSet(viewsets.GenericViewSet):
         
         # Check object permission
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         serializer = JobUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -220,6 +248,11 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
+
         delete_job(job)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -237,6 +270,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         serializer = JobStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -261,6 +298,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         try:
             updated = publish_job(job)
@@ -282,6 +323,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         try:
             updated = close_job(job)
@@ -303,6 +348,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         try:
             new_job = duplicate_job(request.user, job)
@@ -444,6 +493,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
         
         self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
         
         if request.method == 'POST':
             featured_until = request.data.get('featured_until')

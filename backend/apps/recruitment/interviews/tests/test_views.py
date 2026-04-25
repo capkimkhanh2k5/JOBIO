@@ -22,7 +22,8 @@ class InterviewViewSetTests(APITestCase):
         self.employer = CustomUser.objects.create_user(
             email='employer@example.com',
             password='testpass123',
-            full_name='Employer User'
+            full_name='Employer User',
+            role='company'
         )
         # Applicant
         self.applicant_user = CustomUser.objects.create_user(
@@ -47,7 +48,8 @@ class InterviewViewSetTests(APITestCase):
         self.company = Company.objects.create(
             user=self.employer,
             company_name='Test Company',
-            description='Test'
+            description='Test',
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
         
         # Create job
@@ -127,6 +129,54 @@ class InterviewViewSetTests(APITestCase):
             'scheduled_at': (timezone.now() + timedelta(days=5)).isoformat(),
         }
         response = self.client.post('/api/interviews/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_interview_pending_company_forbidden(self):
+        """POST /api/interviews - company chưa verified → 403"""
+        pending_owner = CustomUser.objects.create_user(
+            email='pending-company@example.com',
+            password='testpass123',
+            full_name='Pending Company',
+            role='company'
+        )
+        pending_company = Company.objects.create(
+            user=pending_owner,
+            company_name='Pending Company',
+            slug='pending-company-interviews-test',
+            description='Pending'
+        )
+        pending_job = Job.objects.create(
+            company=pending_company,
+            title='Pending Job',
+            slug='pending-job-interview',
+            job_type='full-time',
+            level='senior',
+            description='Desc',
+            requirements='Req',
+            status='published',
+            created_by=pending_owner,
+        )
+        pending_recruiter = Recruiter.objects.create(
+            user=CustomUser.objects.create_user(
+                email='pending-applicant@example.com',
+                password='testpass123',
+                full_name='Pending Applicant'
+            ),
+            bio='Tester'
+        )
+        pending_application = Application.objects.create(
+            job=pending_job,
+            recruiter=pending_recruiter,
+            status='reviewing'
+        )
+
+        self.client.force_authenticate(user=pending_owner)
+        response = self.client.post('/api/interviews/', {
+            'application_id': pending_application.id,
+            'interview_type_id': self.interview_type.id,
+            'scheduled_at': (timezone.now() + timedelta(days=5)).isoformat(),
+        }, format='json')
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_create_interview_application_not_found(self):

@@ -10,8 +10,13 @@ class CompanyBlogTest(TestCase):
         self.client = APIClient()
         
         # 1. Company Owner
-        self.owner = CustomUser.objects.create(email='owner@test.com', full_name='Owner')
-        self.company = Company.objects.create(user=self.owner, company_name='Owner Co', slug='owner-co')
+        self.owner = CustomUser.objects.create(email='owner@test.com', full_name='Owner', role='company')
+        self.company = Company.objects.create(
+            user=self.owner,
+            company_name='Owner Co',
+            slug='owner-co',
+            verification_status=Company.VerificationStatus.VERIFIED,
+        )
         
         # 2. Regular User (Freelancer)
         self.freelancer = CustomUser.objects.create(email='free@test.com', full_name='Free')
@@ -64,3 +69,26 @@ class CompanyBlogTest(TestCase):
         
         post = Post.objects.get(id=response.data['id'])
         self.assertEqual(post.status, Post.Status.PUBLISHED)
+
+    def test_create_post_pending_company_forbidden(self):
+        """Pending company cannot create blog posts"""
+        pending_owner = CustomUser.objects.create_user(
+            email='pending@test.com',
+            password='pwd',
+            full_name='Pending Owner',
+            role='company',
+        )
+        Company.objects.create(
+            user=pending_owner,
+            company_name='Pending Co',
+            slug='pending-co-blog-test',
+        )
+
+        self.client.force_authenticate(user=pending_owner)
+        response = self.client.post('/api/blog/posts/', {
+            'title': 'Blocked Post',
+            'content': 'Should not be allowed',
+            'summary': 'Blocked'
+        })
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

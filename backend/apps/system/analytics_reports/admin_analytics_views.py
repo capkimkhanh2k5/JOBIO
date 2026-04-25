@@ -212,19 +212,14 @@ def application_stats(request):
 def top_jobs(request):
     """
     GET /api/analytics/top-jobs/?limit=10
-    Top jobs theo lượt xem + save.
+    Top jobs theo lượt xem + ứng tuyển (sử dụng trường cache trên model Job).
     """
     limit = min(int(request.query_params.get('limit', 10)), 50)
 
     jobs = (
         Job.objects
-        .annotate(
-            total_views=Count('views', distinct=True),
-            total_saves=Count('saved_by', distinct=True),
-            total_apps=Count('applications', distinct=True),
-        )
         .select_related('company')
-        .order_by('-total_views')[:limit]
+        .order_by('-view_count', '-application_count')[:limit]
     )
 
     result = []
@@ -234,9 +229,9 @@ def top_jobs(request):
             'title': job.title,
             'company': job.company.company_name if job.company else '—',
             'status': job.status,
-            'views': job.total_views,
-            'saves': job.total_saves,
-            'applications': job.total_apps,
+            'views': job.view_count,
+            'saves': 0, # Tạm thời để 0 hoặc query thêm nếu cần
+            'applications': job.application_count,
         })
     return Response(result)
 

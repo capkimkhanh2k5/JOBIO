@@ -187,8 +187,6 @@ function AppInner() {
                         <Route path="blog" element={<UserBlogManagement />} />
                         <Route path="blog/create" element={<CreateBlogPost />} />
                         <Route path="blog/edit/:slug" element={<CreateBlogPost />} />
-
-                        <Route path="notifications" element={<NotificationsPage />} />
                     </Route>
 
                     {/* ── Auth page: Standalone no footer ── */}

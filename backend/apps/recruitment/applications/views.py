@@ -214,6 +214,18 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         URL: /api/applications/
     """
     permission_classes = [IsAuthenticated]
+
+    def _ensure_verified_company(self, request, company):
+        if getattr(request.user, 'role', None) != 'company':
+            return None
+
+        if company.verification_status != 'verified':
+            return Response(
+                {"detail": "Công ty chưa được xác thực. Bạn chưa thể đăng hoặc xử lý nội dung tuyển dụng."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return None
     
     def list(self, request):
         """
@@ -383,6 +395,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = ApplicationStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -413,6 +429,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = ApplicationRatingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -442,6 +462,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = ApplicationNotesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -497,6 +521,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         try:
             old_status = application.status
@@ -535,6 +563,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = ApplicationRejectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -578,6 +610,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = ApplicationOfferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -652,6 +688,17 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         
         serializer = ApplicationBulkActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        if getattr(request.user, 'role', None) == 'company':
+            company_profile = getattr(request.user, 'company_profile', None)
+            if not company_profile:
+                return Response(
+                    {"detail": "Tài khoản công ty chưa có hồ sơ công ty."},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            permission_error = self._ensure_verified_company(request, company_profile)
+            if permission_error:
+                return permission_error
         
         try:
             result = bulk_action(

@@ -6,7 +6,7 @@ import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
 import { ResetPasswordForm } from '../components/auth/ResetPasswordForm';
 import { VerifyEmailView } from '../components/auth/VerifyEmailView';
 import { TwoFactorView } from '../components/auth/TwoFactorView';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Logo } from '@/components/shared/Logo';
 
 type AuthView = 'login' | 'register' | 'forgot-password' | 'reset-password' | 'verify-email' | '2fa';
@@ -203,9 +203,9 @@ const Auth: React.FC = () => {
                     {['login', 'register'].includes(view) && (
                         <div className="mt-8 text-center text-[13px] font-medium text-slate-400 sm:whitespace-nowrap">
                             Bằng cách tiếp tục, bạn đồng ý với{' '}
-                            <a href="#" className="text-slate-600 hover:text-slate-900 transition-colors underline underline-offset-2">Điều khoản dịch vụ</a>
+                            <Link to="/terms" className="text-slate-600 hover:text-slate-900 transition-colors underline underline-offset-2">Điều khoản dịch vụ</Link>
                             {' '}và{' '}
-                            <a href="#" className="text-slate-600 hover:text-slate-900 transition-colors underline underline-offset-2">Chính sách bảo mật</a> của chúng tôi.
+                            <Link to="/privacy" className="text-slate-600 hover:text-slate-900 transition-colors underline underline-offset-2">Chính sách bảo mật</Link> của chúng tôi.
                         </div>
                     )}
                 </motion.div>

@@ -44,6 +44,18 @@ class InterviewViewSet(viewsets.GenericViewSet):
         URL: /api/interviews/
     """
     permission_classes = [IsAuthenticated]
+
+    def _ensure_verified_company(self, request, company):
+        if getattr(request.user, 'role', None) != 'company':
+            return None
+
+        if company.verification_status != 'verified':
+            return Response(
+                {"detail": "Công ty chưa được xác thực. Bạn chưa thể đăng hoặc quản lý nội dung tuyển dụng."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return None
     
     def list(self, request):
         """
@@ -125,6 +137,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, application.job.company)
+        if permission_error:
+            return permission_error
         
         try:
             input_data = InterviewCreateInput(**serializer.validated_data)
@@ -169,6 +185,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -202,6 +222,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         try:
             delete_interview(interview)
@@ -224,6 +248,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewRescheduleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -254,6 +282,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewCancelSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -282,6 +314,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewCompleteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -312,6 +348,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewFeedbackSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -334,6 +374,10 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        permission_error = self._ensure_verified_company(request, interview.application.job.company)
+        if permission_error:
+            return permission_error
         
         serializer = InterviewReminderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

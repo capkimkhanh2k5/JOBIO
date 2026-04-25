@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "jobalert_id": 1,
+        "skill_id": 7
+    },
+    {
+        "id": 2,
+        "jobalert_id": 2,
+        "skill_id": 8
+    },
+    {
+        "id": 3,
+        "jobalert_id": 3,
+        "skill_id": 3
+    },
+    {
+        "id": 4,
+        "jobalert_id": 4,
+        "skill_id": 7
+    },
+    {
+        "id": 5,
+        "jobalert_id": 5,
+        "skill_id": 5
+    }
+]

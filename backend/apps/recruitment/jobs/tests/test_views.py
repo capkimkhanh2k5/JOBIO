@@ -22,7 +22,8 @@ class JobViewTests(APITestCase):
         self.user = CustomUser.objects.create_user(
             email="employer@example.com",
             password="password123",
-            full_name="Employer User"
+            full_name="Employer User",
+            role="company"
         )
         self.user2 = CustomUser.objects.create_user(
             email="other@example.com",
@@ -34,7 +35,8 @@ class JobViewTests(APITestCase):
         self.company = Company.objects.create(
             user=self.user,
             company_name="Test Company",
-            description="A test company"
+            description="A test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
 
         self.skill_category = SkillCategory.objects.create(
@@ -369,6 +371,36 @@ class JobViewTests(APITestCase):
         response = self.client.post(url, data)
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_job_pending_company_forbidden(self):
+        """Test POST /api/jobs/ - company chưa verified → 403"""
+        pending_user = CustomUser.objects.create_user(
+            email="pending-employer@example.com",
+            password="password123",
+            full_name="Pending Employer",
+            role="company"
+        )
+        pending_company = Company.objects.create(
+            user=pending_user,
+            company_name="Pending Company",
+            slug="pending-company-jobs-test",
+            description="Pending company"
+        )
+
+        self.client.force_authenticate(user=pending_user)
+
+        url = '/api/jobs/'
+        data = {
+            "company_id": pending_company.id,
+            "title": "Blocked Job",
+            "job_type": "full-time",
+            "level": "junior",
+            "description": "Description",
+            "requirements": "Requirements"
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_update_job_not_found(self):
         """Test PUT /api/jobs/:id/ - job không tồn tại → 404"""

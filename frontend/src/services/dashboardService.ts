@@ -1,6 +1,11 @@
 import api from './api';
 import type {
-  AdminStats,
+  AdminOverviewStats,
+  UserGrowthData,
+  IndustryDistributionData,
+  RevenueTrendData,
+  ViolationBreakdownData,
+  TopJobAnalytics,
   CompanyStats,
   PaginatedResponse,
   BlogPost,
@@ -15,7 +20,7 @@ export const dashboardService = {
   // ─── Stats endpoints ──────────────────────────────────────────────────
 
   getAdminStats() {
-    return api.get<AdminStats>('/api/dashboard/stats/admin/');
+    return api.get<AdminOverviewStats>('/api/dashboard/stats/admin/');
   },
 
   getCompanyStats() {
@@ -23,19 +28,19 @@ export const dashboardService = {
   },
 
   getModerationStats() {
-    return api.get('/api/companies/admin/pending-stats/');
+    return api.get('/api/companies/moderation-stats/');
   },
 
   // ─── Admin Analytics (real data endpoints) ────────────────────────────
 
   /** GET /api/analytics/overview/ — Tổng quan đầy đủ cho Dashboard */
   getAnalyticsOverview() {
-    return api.get('/api/analytics/overview/');
+    return api.get<AdminOverviewStats>('/api/analytics/overview/');
   },
 
   /** GET /api/analytics/user-growth/?months=7 */
   getUserGrowth(months = 7) {
-    return api.get<{ month: string; users: number; jobs: number }[]>(
+    return api.get<UserGrowthData[]>(
       '/api/analytics/user-growth/',
       { params: { months } }
     );
@@ -43,14 +48,14 @@ export const dashboardService = {
 
   /** GET /api/analytics/industry-distribution/ */
   getIndustryDistribution() {
-    return api.get<{ name: string; value: number; count: number; color: string }[]>(
+    return api.get<IndustryDistributionData[]>(
       '/api/analytics/industry-distribution/'
     );
   },
 
   /** GET /api/analytics/revenue-trend/?days=7 */
   getRevenueTrend(days = 7) {
-    return api.get<{ day: string; revenue: number }[]>(
+    return api.get<RevenueTrendData[]>(
       '/api/analytics/revenue-trend/',
       { params: { days } }
     );
@@ -63,12 +68,12 @@ export const dashboardService = {
 
   /** GET /api/analytics/top-jobs/?limit=10 */
   getTopJobs(limit = 10) {
-    return api.get('/api/analytics/top-jobs/', { params: { limit } });
+    return api.get<TopJobAnalytics[]>('/api/analytics/top-jobs/', { params: { limit } });
   },
 
   /** GET /api/analytics/violation-breakdown/ */
   getViolationBreakdown() {
-    return api.get<{ name: string; value: number; count: number; color: string }[]>(
+    return api.get<ViolationBreakdownData[]>(
       '/api/analytics/violation-breakdown/'
     );
   },
@@ -179,32 +184,24 @@ export const dashboardService = {
     return api.get('/api/billing/admin-finance/export/', { params, responseType: 'blob' });
   },
 
-  getJobStats() {
-    return api.get('/api/jobs/admin-jobs/stats/');
-  },
-
-  listAdminJobs(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
-    return api.get('/api/jobs/admin-jobs/', { params });
-  },
-
   exportAdminJobs(params?: { status?: string; search?: string }) {
     return api.get('/api/jobs/admin-jobs/export/', { params, responseType: 'blob' });
   },
 
   getReportStats() {
-    return api.get('/api/system/reports/admin-reports/stats/');
+    return api.get('/api/reports/admin-reports/stats/');
   },
 
   listAdminReports(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
-    return api.get('/api/system/reports/admin-reports/', { params });
+    return api.get('/api/reports/admin-reports/', { params });
   },
 
   updateReportStatus(id: number, data: { status: string; resolution_notes?: string }) {
-    return api.patch(`/api/system/reports/admin-reports/${id}/update_status/`, data);
+    return api.patch(`/api/reports/admin-reports/${id}/update_status/`, data);
   },
 
   exportAdminReports(params?: { status?: string; search?: string }) {
-    return api.get('/api/system/reports/admin-reports/export/', { params, responseType: 'blob' });
+    return api.get('/api/reports/admin-reports/export/', { params, responseType: 'blob' });
   },
 
   // ─── Master Data (Admin CRUD) ──────────────────────────────────────────────
