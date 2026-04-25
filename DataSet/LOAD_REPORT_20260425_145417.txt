@@ -1,0 +1,16 @@
+==========================================
+JOBIO DATABASE IMPORT REPORT
+==========================================
+
+Timestamp: Sat Apr 25 14:54:17 +07 2026
+Backend Directory: /Users/capkimkhanh/Documents/DUT/JOBIO/backend
+Data Directory: /Users/capkimkhanh/Documents/DUT/JOBIO/DataSet/Data_Final
+
+Options Used:
+  - Dry Run: YES
+  - Backup Skipped: YES
+  - Verbose: NO
+
+Status: DRY-RUN (no changes made)
+
+==========================================
