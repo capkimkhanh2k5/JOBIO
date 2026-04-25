@@ -41,10 +41,19 @@ fi
 BACKUP_DIR="$PROJECT_ROOT/database_backups"
 
 # Database config (from Django settings)
-DB_NAME="jobio_db"
+DB_NAME="jobportal_db"
 DB_USER="postgres"
 DB_HOST="localhost"
-DB_PORT="5432"
+DB_PORT="5433"
+
+# Detect Python command (prefer venv)
+if [ -f "$BACKEND_DIR/.venv/bin/python3" ]; then
+    PYTHON_CMD="$BACKEND_DIR/.venv/bin/python3"
+elif [ -f "$PROJECT_ROOT/.venv/bin/python3" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python3"
+else
+    PYTHON_CMD="python3"
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -175,11 +184,11 @@ check_prerequisites() {
     verbose_log "✓ manage.py found"
     
     # Check if Python is available
-    if ! command -v python3 &> /dev/null; then
-        log_error "Python3 not found"
+    if ! command -v $PYTHON_CMD &> /dev/null; then
+        log_error "Python command not found: $PYTHON_CMD"
         exit 1
     fi
-    verbose_log "✓ Python3 available"
+    verbose_log "✓ Python available: $PYTHON_CMD"
     
     # Check if postgres is available (for backup)
     if [ $SKIP_BACKUP -eq 0 ] && ! command -v pg_dump &> /dev/null; then
@@ -252,13 +261,13 @@ flush_database() {
         
         cd "$BACKEND_DIR"
         
-        verbose_log "Running: python manage.py flush --no-input"
+        verbose_log "Running: DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME $PYTHON_CMD manage.py flush --no-input"
         
-        if python3 manage.py flush --no-input 2>&1 | grep -q "Flushed"; then
+        if DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME $PYTHON_CMD manage.py flush --no-input 2>&1 | grep -q "Flushed"; then
             log_success "Database flushed successfully"
         else
-            log_error "Failed to flush database"
-            exit 1
+            log_warn "Failed to flush database (tables might be empty or have complex constraints)"
+            log_info "Proceeding with incremental import (custom loader will update existing records)"
         fi
     else
         log_info "(DRY-RUN) Would flush database after confirmation"
@@ -270,71 +279,34 @@ import_data() {
     
     cd "$BACKEND_DIR"
     
-    # Array of files in correct order (to avoid FK errors)
-    declare -a files=(
-        "users.json"
-        "addresses.json"
-        "industries.json"
-        "provinces.json"
-        "companies.json"
-        "recruiters.json"
-        "skills.json"
-        "skill_categories.json"
-        "job_categories.json"
-        "jobs.json"
-        "job_locations.json"
-        "job_skills.json"
-        "job_views.json"
-        "interview_types.json"
-        "application_status_history.json"
-        "applications.json"
-        "interviews.json"
-        "saved_jobs.json"
-        "job_alerts.json"
-        "transactions.json"
-        "payment_methods.json"
-        "subscription_plans.json"
-        "company_subscriptions.json"
-        "notifications.json"
-        "notification_types.json"
-        "reports.json"
-        "report_types.json"
-        "activity_logs.json"
-        "activity_log_types.json"
-    )
-    
-    total_files=${#files[@]}
-    current=0
-    
-    for file in "${files[@]}"; do
-        current=$((current + 1))
+    if [ $DRY_RUN -eq 0 ]; then
+        log_info "Running custom loader: load_seed_data.py"
         
-        DATA_FILE="$DATA_FIXED_DIR/$file"
+        # Run the custom loader script
+        # We pass the data directory as an argument
+        OUTPUT=$(DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME $PYTHON_CMD scripts/load_seed_data.py "$DATA_FIXED_DIR" 2>&1)
+        EXIT_CODE=$?
         
-        # Skip if file doesn't exist
-        if [ ! -f "$DATA_FILE" ]; then
-            verbose_log "⊘ $file (not found, skipping)"
-            continue
+        # Show output in verbose mode
+        if [ $VERBOSE -eq 1 ]; then
+            echo -e "$OUTPUT"
         fi
         
-        echo -n "[$current/$total_files] Loading $file... "
-        
-        if [ $DRY_RUN -eq 0 ]; then
-            if python3 manage.py loaddata \
-                --exclude auth.permission \
-                --exclude contenttypes \
-                "$DATA_FILE" 2>&1 | grep -q "Installed"; then
-                echo -e "${GREEN}✓${NC}"
-            else
-                echo -e "${YELLOW}⊘${NC}"
-                verbose_log "  (File may be empty or already loaded)"
+        # Check for [ERROR] in output or non-zero exit code
+        if echo "$OUTPUT" | grep -q "\[ERROR\]" || [ $EXIT_CODE -ne 0 ]; then
+            echo -e "${RED}FAILED${NC}"
+            log_error "Import failed with [ERROR] from loader"
+            if [ $VERBOSE -eq 0 ]; then
+                # Show errors even if not verbose
+                echo -e "$OUTPUT" | grep "\[ERROR\]"
             fi
-        else
-            echo -e "${BLUE}(DRY-RUN)${NC}"
+            exit 1
         fi
-    done
-    
-    log_success "Data import completed"
+        
+        log_success "Custom loader completed successfully"
+    else
+        log_info "(DRY-RUN) Would run load_seed_data.py on $DATA_FIXED_DIR"
+    fi
 }
 
 verify_data() {
@@ -347,9 +319,13 @@ verify_data() {
         return 0
     fi
     
-    python3 << 'EOF'
+    DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME $PYTHON_CMD << 'EOF'
 import os
+import sys
 import django
+
+# Add current directory to sys.path to ensure apps are discoverable
+sys.path.append(os.getcwd())
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
