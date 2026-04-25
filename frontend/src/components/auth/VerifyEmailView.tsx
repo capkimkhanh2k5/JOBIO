@@ -38,7 +38,7 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
     const handleResend = async () => {
         setIsResending(true);
         try {
-            await authService.resendVerification();
+            await authService.resendVerification(email);
             toast.success("Đã gửi lại mã xác thực.");
         } catch (error: any) {
             toast.error("Không thể gửi lại mã lúc này.");

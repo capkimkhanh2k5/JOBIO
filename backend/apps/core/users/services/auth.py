@@ -139,20 +139,27 @@ def social_login(
         is_new_user = False
         user = None
         
-        # Try to find by social_id first (most reliable)
+        # Try to find by social_id only (most reliable and secure)
         if profile_provider_id:
             user = CustomUser.objects.filter(
                 social_provider=profile_provider,
                 social_id=profile_provider_id
             ).first()
-
-        # Fallback to email if not found by social_id
-        if not user:
-            user = CustomUser.objects.filter(email=profile_email).first()
         
         # Create new user if not exists
         if not user:
             is_new_user = True
+            
+            # SECURITY FIX: Check if email already exists (different user)
+            # If email exists with different social_id, prevent account takeover
+            existing_email_user = CustomUser.objects.filter(email=profile_email).first()
+            if existing_email_user:
+                # Email already registered with different auth method
+                raise AuthenticationError(
+                    f"Email '{profile_email}' is already registered. "
+                    "Please login with your existing account or verify account linkage."
+                )
+            
             user = CustomUser.objects.create_user(
                 email=profile_email,
                 password=None,  # Social users don't need password
@@ -177,19 +184,6 @@ def social_login(
                 )
             elif role == 'candidate':
                 Recruiter.objects.create(user=user)
-        else:
-            # Update social linking if user exists but wasn't linked
-            if not user.social_id and profile_provider_id:
-                user.social_provider = profile_provider
-                user.social_id = profile_provider_id
-                user.save(update_fields=['social_provider', 'social_id'])
-            
-            # Ensure profile exists if user was created before profile logic was added
-            if user.role == 'candidate' and not hasattr(user, 'recruiter_profile'):
-                 Recruiter.objects.create(user=user)
-            elif user.role == 'company' and (not hasattr(user, 'company_profile') or user.company_profile is None):
-                 # We can't easily create a company profile without a name, but at least we identify the issue
-                 pass
         
         # 3. Check user status
         if user.status != 'active':
