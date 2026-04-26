@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
     application: { label: 'Ứng tuyển', icon: <FileText className="w-5 h-5" />, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-100' },
-    interview: { label: 'Phỏng vấn', icon: <Calendar className="w-5 h-5" />, color: 'text-violet-600', bg: 'bg-violet-50 border-violet-100' },
+    interview: { label: 'Phỏng vấn', icon: <Calendar className="w-5 h-5" />, color: 'text-sky-600', bg: 'bg-sky-50 border-sky-100' },
     report: { label: 'Vi phạm', icon: <AlertTriangle className="w-5 h-5" />, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
     warning: { label: 'Cảnh báo', icon: <AlertTriangle className="w-5 h-5" />, color: 'text-red-600', bg: 'bg-red-50 border-red-100' },
     verification: { label: 'Xác minh', icon: <ShieldCheck className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
@@ -47,9 +47,15 @@ export default function AdminNotificationsPage() {
     const navigate = useNavigate();
     const { markAllAsRead: markAllStore, fetchUnreadCount } = useNotificationStore();
 
+    const { data: stats } = useQuery({
+        queryKey: ['admin-notification-stats'],
+        queryFn: () => notificationService.getAdminNotificationStats().then(r => r.data),
+        staleTime: 30_000,
+    });
+
     // ── Build query params ──────────────────────────────────────────────────
     const queryParams = (() => {
-        const p: Record<string, any> = { page_size: 15, page };
+        const p: Record<string, any> = { page_size: 10, page };
         if (activeTab === 'unread') p.is_read = false;
         if (['report', 'verification', 'system'].includes(activeTab)) p.type = activeTab;
         return p;
@@ -62,11 +68,11 @@ export default function AdminNotificationsPage() {
         staleTime: 30_000,
     });
 
-    const notifications: any[] = data?.results ?? [];
+    const notifications = data?.results ?? [];
     const totalCount = data?.count ?? 0;
-    const totalPages = Math.ceil(totalCount / 15) || 1;
+    const totalPages = data?.total_pages ?? 1;
     const unreadCount = activeTab === 'all'
-        ? notifications.filter(n => !n.is_read).length
+        ? (stats?.total_unread ?? 0)
         : totalCount;
 
     // ── Mutations ─────────────────────────────────────────────────────────────
@@ -74,27 +80,28 @@ export default function AdminNotificationsPage() {
         mutationFn: (id: number) => notificationService.markAdminNotificationRead(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
             fetchUnreadCount();
         },
     });
 
     const markAllMut = useMutation({
         mutationFn: () => {
-            const ids = notifications.filter(n => !n.is_read).map(n => n.id);
-            if (ids.length === 0) return Promise.resolve();
-            return notificationService.bulkMarkAdminNotificationsRead(ids);
+            return notificationService.bulkMarkAdminNotificationsRead([]);
         },
         onSuccess: () => {
             markAllStore();
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
             toast.success('Hộp thư đã được cập nhật');
         },
     });
 
     const deleteMut = useMutation({
-        mutationFn: (id: number) => notificationService.deleteNotification(id),
+        mutationFn: (id: number) => notificationService.deleteAdminNotification(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
             toast.success('Đã xóa thông báo');
         },
     });
@@ -122,7 +129,7 @@ export default function AdminNotificationsPage() {
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <Bell className="w-6 h-6 text-violet-600" />
+                        <Bell className="w-6 h-6 text-blue-600" />
                         Quản lý Thông báo
                     </h1>
                     <p className="text-sm text-slate-500 mt-1 font-medium">Hệ thống giám sát và quản lý thông báo toàn nền tảng.</p>
@@ -151,7 +158,7 @@ export default function AdminNotificationsPage() {
                                 className={cn(
                                     'flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-2',
                                     isActive
-                                        ? 'bg-violet-600 text-white shadow-md'
+                                        ? 'bg-blue-600 text-white shadow-md'
                                         : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                                 )}
                             >
@@ -166,7 +173,7 @@ export default function AdminNotificationsPage() {
                     <Button
                         size="sm"
                         className={cn(
-                            "h-11 px-6 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-sm transition-all active:scale-95 gap-2",
+                            "h-11 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition-all active:scale-95 gap-2",
                             unreadCount === 0 && "opacity-50 grayscale cursor-not-allowed"
                         )}
                         onClick={() => unreadCount > 0 && markAllMut.mutate()}
@@ -208,9 +215,9 @@ export default function AdminNotificationsPage() {
                         </div>
                     ) : (
                         <AnimatePresence mode="popLayout" initial={false}>
-                            <div className="divide-y divide-slate-50">
+                            <div className="p-4 sm:p-6 space-y-4 bg-slate-50/50">
                                 {notifications.map((notif: any, i: number) => {
-                                    const typeName = notif.notification_type?.type_name ?? notif.type ?? 'system';
+                                    const typeName = notif.notification_type_name ?? notif.notification_type?.type_name ?? notif.type ?? 'system';
                                     const meta = getMeta(typeName);
                                     const isUnread = !notif.is_read;
 
@@ -220,80 +227,86 @@ export default function AdminNotificationsPage() {
                                             layout
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, x: 20 }}
-                                            transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.5) }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            transition={{ duration: 0.3, delay: Math.min(i * 0.05, 0.3) }}
                                             className={cn(
-                                                'group flex items-start gap-8 px-10 py-8 cursor-pointer transition-all duration-300 relative border-l-[6px] border-transparent',
-                                                isUnread ? 'bg-violet-50/20 border-l-violet-600' : 'hover:bg-slate-50/40'
+                                                'group flex items-start gap-4 sm:gap-6 p-5 sm:p-6 cursor-pointer transition-all duration-300 relative rounded-2xl border',
+                                                isUnread
+                                                    ? 'bg-white border-blue-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-300'
+                                                    : 'bg-white/60 border-slate-200 hover:shadow-sm hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white'
                                             )}
                                             onClick={() => handleItemClick(notif)}
                                         >
+                                            {/* Icon */}
                                             <div className={cn(
-                                                'flex-shrink-0 w-16 h-16 rounded-2xl border-2 flex items-center justify-center shadow-sm transition-all duration-500',
+                                                'flex-shrink-0 w-12 h-12 rounded-xl border flex items-center justify-center shadow-sm transition-all',
                                                 meta.bg,
-                                                isUnread ? 'border-violet-100 shadow-violet-100' : 'border-white opacity-50 grayscale'
+                                                isUnread ? 'border-blue-100 shadow-blue-100/50' : 'border-slate-100 opacity-70 grayscale'
                                             )}>
-                                                <div className={cn('scale-110', meta.color)}>{meta.icon}</div>
+                                                <div className={cn(meta.color)}>{meta.icon}</div>
                                             </div>
 
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between gap-6 mb-3">
-                                                    <div className="flex items-center gap-4 flex-wrap">
+                                            {/* Content */}
+                                            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div className="flex items-center gap-3 flex-wrap">
                                                         <span className={cn(
-                                                            'text-lg tracking-tight transition-colors duration-300',
-                                                            isUnread ? 'font-black text-slate-900' : 'font-bold text-slate-500'
+                                                            'text-base tracking-tight transition-colors line-clamp-1',
+                                                            isUnread ? 'font-bold text-slate-900' : 'font-semibold text-slate-600'
                                                         )}>
                                                             {notif.title}
                                                         </span>
-                                                        <Badge className={cn(
-                                                            'px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 shadow-none',
-                                                            meta.bg, meta.color,
-                                                            isUnread ? 'border-violet-100' : 'border-transparent opacity-50'
-                                                        )}>
-                                                            {meta.label}
-                                                        </Badge>
+                                                        {isUnread && (
+                                                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                                        )}
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-xs font-black text-slate-400 whitespace-nowrap bg-white px-4 py-1.5 rounded-full border border-slate-100 shadow-sm">
-                                                        <Calendar className="w-3.5 h-3.5" />
+                                                    <div className="flex-shrink-0 text-xs font-semibold text-slate-400 whitespace-nowrap mt-1">
                                                         {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: vi })}
                                                     </div>
                                                 </div>
 
                                                 <p className={cn(
-                                                    'text-base leading-relaxed line-clamp-2 mb-5 transition-colors duration-300',
-                                                    isUnread ? 'text-slate-700 font-bold' : 'text-slate-400 font-medium'
+                                                    'text-sm leading-relaxed line-clamp-2 transition-colors',
+                                                    isUnread ? 'text-slate-600' : 'text-slate-400'
                                                 )}>
                                                     {notif.content ?? notif.message}
                                                 </p>
 
-                                                <div className="flex items-center gap-6">
-                                                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-lg border border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                        #{notif.id}
-                                                    </div>
-                                                    <div className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">
-                                                        {format(new Date(notif.created_at), 'HH:mm · dd LMMM yyyy', { locale: vi })}
+                                                <div className="flex items-center gap-3 mt-2">
+                                                    <Badge className={cn(
+                                                        'px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border shadow-none',
+                                                        meta.bg, meta.color,
+                                                        isUnread ? 'border-blue-100' : 'border-transparent opacity-60 bg-slate-100 text-slate-500'
+                                                    )}>
+                                                        {meta.label}
+                                                    </Badge>
+                                                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                                                        <span>#{notif.id}</span>
+                                                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                        <span>{format(new Date(notif.created_at), 'HH:mm · dd/MM/yyyy')}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-6 group-hover:translate-x-0">
+                                            {/* Actions */}
+                                            <div className="flex-shrink-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0 ml-2">
                                                 {isUnread && (
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
+                                                        className="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all"
                                                         onClick={(e) => { e.stopPropagation(); markReadMut.mutate(notif.id); }}
                                                     >
-                                                        <CheckCheck className="w-6 h-6" />
+                                                        <CheckCheck className="w-5 h-5" />
                                                     </Button>
                                                 )}
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                                                    className="w-10 h-10 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all"
                                                     onClick={(e) => { e.stopPropagation(); deleteMut.mutate(notif.id); }}
                                                 >
-                                                    <Trash2 className="w-6 h-6" />
+                                                    <Trash2 className="w-5 h-5" />
                                                 </Button>
                                             </div>
                                         </motion.div>
@@ -306,52 +319,21 @@ export default function AdminNotificationsPage() {
 
                 {/* ── Pagination ── */}
                 {totalPages > 1 && (
-                    <div className="px-10 py-8 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-3 h-3 rounded-full bg-violet-600 shadow-lg shadow-violet-200" />
-                            <p className="text-sm font-black text-slate-500 uppercase tracking-widest">
-                                Trang {page} / {totalPages}
-                            </p>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                disabled={page === 1 || isLoading}
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                className="h-12 px-6 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-black gap-3 shadow-sm transition-all"
-                            >
-                                <ChevronLeft className="w-5 h-5" />
-                                Trước
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                        <p className="text-xs text-slate-500 font-medium">
+                            Hiển thị <span className="font-bold text-slate-900">{notifications.length}</span> / <span className="font-bold text-slate-900">{totalCount}</span> thông báo
+                        </p>
+                        <div className="flex items-center gap-1.5 bg-slate-100/50 p-1 rounded-xl border border-slate-200">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+                                <ChevronLeft className="w-4 h-4" />
                             </Button>
-
-                            <div className="flex items-center gap-2">
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button
-                                        key={i + 1}
-                                        onClick={() => setPage(i + 1)}
-                                        className={cn(
-                                            'w-12 h-12 rounded-2xl text-sm font-black transition-all duration-300',
-                                            page === i + 1
-                                                ? 'bg-violet-600 text-white shadow-2xl shadow-violet-300 scale-110'
-                                                : 'bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 border border-slate-200'
-                                        )}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
+                            <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <span className="text-xs font-black text-blue-600">{page}</span>
+                                <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
+                                <span className="text-xs font-bold text-slate-500">{totalPages}</span>
                             </div>
-
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                disabled={page === totalPages || isLoading}
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                className="h-12 px-6 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-black gap-3 shadow-sm transition-all"
-                            >
-                                Sau
-                                <ChevronRight className="w-5 h-5" />
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                                <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
                     </div>

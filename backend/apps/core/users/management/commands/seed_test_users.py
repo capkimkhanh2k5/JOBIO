@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
-from django.utils.text import slugify
+from apps.core.utils import slugify_vietnamese as slugify
 
 class Command(BaseCommand):
     help = 'Seed test accounts for different roles: admin, company, candidate'

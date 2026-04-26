@@ -107,9 +107,9 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
         staleTime: 5 * 60_000,
     });
 
-    const flatCats = categories.flatMap((cat) => [
+    const flatCats = categories.flatMap((cat: any) => [
         { id: cat.id, name: cat.name, depth: 0 },
-        ...(cat.children ?? []).map((child) => ({
+        ...(cat.children ?? []).map((child: any) => ({
             id: child.id,
             name: child.name,
             depth: 1,
@@ -134,7 +134,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
             </Field>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Field label="Ngành nghề / Lĩnh vực" required error={errors.category_id?.message}>
+                <Field label="Lĩnh vực / IT Domain" required error={errors.category_id?.message}>
                     <Controller
                         name="category_id"
                         control={control}
@@ -147,7 +147,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                         <SelectValue placeholder="-- Chọn lĩnh vực --" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border-slate-200">
-                                        {flatCats.map((cat) => (
+                                        {flatCats.map((cat: any) => (
                                             <SelectItem
                                                 key={cat.id}
                                                 value={cat.id.toString()}

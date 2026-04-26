@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Tat ca",
-        "slug": "all",
+        "slug": "tat-ca",
         "description": "Tat ca mau CV",
         "is_active": true,
         "display_order": 0,
@@ -12,7 +12,7 @@
     {
         "id": 2,
         "name": "Chuyen nghiep",
-        "slug": "professional",
+        "slug": "chuyen-nghiep",
         "description": "Mau CV chuyen nghiep cho da so nganh nghe",
         "is_active": true,
         "display_order": 1,
@@ -22,7 +22,7 @@
     {
         "id": 3,
         "name": "Sang tao",
-        "slug": "creative",
+        "slug": "sang-tao",
         "description": "Mau CV danh cho cac vai tro can tinh sang tao",
         "is_active": true,
         "display_order": 2,
@@ -32,7 +32,7 @@
     {
         "id": 4,
         "name": "Toi gian",
-        "slug": "minimal",
+        "slug": "toi-gian",
         "description": "Mau CV toi gian, de doc va gon gang",
         "is_active": true,
         "display_order": 3,

@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Phát triển sự nghiệp",
-        "slug": "phát-triển-sự-nghiệp",
+        "slug": "phat-trien-su-nghiep",
         "description": "Chuyên mục Phát triển sự nghiệp",
         "created_at": "2026-04-19T02:39:43.866408Z",
         "updated_at": "2026-04-19T02:39:43.866408Z"
@@ -10,7 +10,7 @@
     {
         "id": 2,
         "name": "Kỹ năng phỏng vấn",
-        "slug": "kỹ-năng-phỏng-vấn",
+        "slug": "ky-nang-phong-van",
         "description": "Chuyên mục Kỹ năng phỏng vấn",
         "created_at": "2026-04-19T02:39:43.866408Z",
         "updated_at": "2026-04-19T02:39:43.866408Z"
@@ -18,7 +18,7 @@
     {
         "id": 3,
         "name": "Thị trường công nghệ",
-        "slug": "thị-trường-công-nghệ",
+        "slug": "thi-truong-cong-nghe",
         "description": "Chuyên mục Thị trường công nghệ",
         "created_at": "2026-04-19T02:39:43.866408Z",
         "updated_at": "2026-04-19T02:39:43.866408Z"
@@ -26,7 +26,7 @@
     {
         "id": 4,
         "name": "Góc nhà tuyển dụng",
-        "slug": "góc-nhà-tuyển-dụng",
+        "slug": "goc-nha-tuyen-dung",
         "description": "Chuyên mục Góc nhà tuyển dụng",
         "created_at": "2026-04-19T02:39:43.866408Z",
         "updated_at": "2026-04-19T02:39:43.866408Z"
@@ -34,7 +34,7 @@
     {
         "id": 5,
         "name": "Công nghệ lập trình",
-        "slug": "công-nghệ-lập-trình",
+        "slug": "cong-nghe-lap-trinh",
         "description": "Chuyên mục Công nghệ lập trình",
         "created_at": "2026-04-19T02:39:43.866408Z",
         "updated_at": "2026-04-19T02:39:43.866408Z"

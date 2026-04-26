@@ -121,7 +121,7 @@ export const companyService = {
     return api.post(`/api/companies/${id}/verify/`);
   },
 
-  listPending(params?: { page?: number; page_size?: number }) {
+  listPending(params?: { search?: string; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<CompanyDetail>>('/api/companies/', { params: { verification_status: 'pending', ...params } });
   },
 

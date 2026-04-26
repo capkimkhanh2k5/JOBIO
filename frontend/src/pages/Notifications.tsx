@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const getIcon = (type: string) => {
     switch (type) {
         case 'application':  return <FileText className="w-5 h-5 text-blue-500" />;
-        case 'interview':    return <Calendar className="w-5 h-5 text-violet-500" />;
+        case 'interview':    return <Calendar className="w-5 h-5 text-sky-500" />;
         case 'view':         return <Eye className="w-5 h-5 text-cyan-500" />;
         case 'warning':
         case 'report':       return <AlertTriangle className="w-5 h-5 text-amber-500" />;
@@ -215,33 +215,39 @@ export default function NotificationsPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.2, delay: i * 0.05 }}
-                                    className={`group flex flex-col sm:flex-row items-start gap-4 p-5 rounded-2xl border transition-all hover:shadow-md cursor-pointer ${!notif.is_read
-                                        ? 'bg-primary/5 border-primary/20 hover:border-primary/40'
-                                        : 'bg-card/40 border-border/40 hover:border-border/80 glass-effect'
+                                    className={`group flex flex-col sm:flex-row items-start gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl border transition-all cursor-pointer ${!notif.is_read
+                                        ? 'bg-white border-blue-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-300'
+                                        : 'bg-white/60 border-slate-200 hover:shadow-sm hover:-translate-y-0.5 hover:border-slate-300 glass-effect'
                                         }`}
                                 >
-                                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center mt-1 bg-background/50 shadow-sm border border-border/30`}>
+                                    {/* Icon */}
+                                    <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center mt-1 bg-white shadow-sm border ${!notif.is_read ? 'border-blue-100 shadow-blue-100/50' : 'border-slate-100 opacity-70 grayscale'}`}>
                                         {getIcon(notif.type)}
                                     </div>
 
                                     <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
                                         <div className="space-y-1.5 flex-1">
                                             <div className="flex items-center gap-3">
-                                                <h3 className={`text-base font-semibold leading-none ${!notif.is_read ? 'text-foreground' : 'text-foreground/80'}`}>
+                                                <h3 className={`text-base font-semibold leading-none ${!notif.is_read ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>
                                                     {notif.title}
                                                 </h3>
                                                 {!notif.is_read && (
-                                                    <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-none font-bold text-[10px] px-2 uppercase tracking-wide">Mới</Badge>
+                                                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                                                 )}
                                             </div>
-                                            <p className="text-sm text-foreground/70 leading-relaxed">
+                                            <p className={`text-sm leading-relaxed ${!notif.is_read ? 'text-slate-600' : 'text-slate-400'}`}>
                                                 {notif.content ?? notif.message}
-
                                             </p>
-                                            <span className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2">
-                                                <Bell className="w-3 h-3" />
-                                                {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: vi })}
-                                            </span>
+                                            
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <Badge className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border shadow-none ${!notif.is_read ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-500 border-transparent'}`}>
+                                                    {notif.type === 'system' ? 'Hệ thống' : notif.type}
+                                                </Badge>
+                                                <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                                                    <Calendar className="w-3 h-3" />
+                                                    <span>{formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: vi })}</span>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div className="flex items-center gap-2 opacity-50 sm:opacity-0 group-hover:opacity-100 transition-opacity justify-end sm:justify-start">

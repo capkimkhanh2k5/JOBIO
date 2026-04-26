@@ -18,6 +18,19 @@ export const notificationService = {
         return api.get<PaginatedResponse<Notification>>('/api/notifications/admin-list/', { params });
     },
 
+    getAdminNotificationStats() {
+        return api.get<{
+            total: number;
+            total_read: number;
+            total_unread: number;
+            sent_today: number;
+            sent_this_week: number;
+            candidate_count: number;
+            company_count: number;
+            read_rate: number;
+        }>('/api/notifications/admin-stats/');
+    },
+
     markNotificationRead(id: number) {
         return api.patch(`/api/notifications/${id}/read/`);
     },
@@ -44,6 +57,10 @@ export const notificationService = {
 
     deleteNotification(id: number) {
         return api.delete(`/api/notifications/${id}/`);
+    },
+
+    deleteAdminNotification(id: number) {
+        return api.delete(`/api/notifications/admin-list/${id}/delete/`);
     },
 
     clearAllNotifications() {

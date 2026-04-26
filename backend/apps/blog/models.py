@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.text import slugify
+from apps.core.utils import slugify_vietnamese as slugify
 from apps.core.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
 

@@ -2,14 +2,24 @@ from rest_framework import serializers
 from apps.blog.models import Post, Category, Tag
 
 class CategorySerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'description', 'post_count']
+
+    def get_post_count(self, obj):
+        return obj.posts.count()
 
 class TagSerializer(serializers.ModelSerializer):
+    post_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'post_count']
+
+    def get_post_count(self, obj):
+        return obj.posts.count()
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.IntegerField(source='author_id', read_only=True)

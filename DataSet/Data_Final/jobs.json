@@ -2,7 +2,7 @@
     {
         "id": 1,
         "title": "QA Engineer",
-        "slug": "qa-engineer-1",
+        "slug": "qa-engineer",
         "job_type": "full-time",
         "level": "junior",
         "experience_years_min": 3,
@@ -34,7 +34,7 @@
     {
         "id": 2,
         "title": "Mobile App Developer",
-        "slug": "mobile-app-developer-2",
+        "slug": "mobile-app-developer",
         "job_type": "full-time",
         "level": "junior",
         "experience_years_min": 2,
@@ -66,7 +66,7 @@
     {
         "id": 3,
         "title": "DevOps Engineer",
-        "slug": "devops-engineer-3",
+        "slug": "devops-engineer",
         "job_type": "full-time",
         "level": "senior",
         "experience_years_min": 2,
@@ -98,7 +98,7 @@
     {
         "id": 4,
         "title": "Frontend Developer",
-        "slug": "frontend-developer-4",
+        "slug": "frontend-developer",
         "job_type": "full-time",
         "level": "junior",
         "experience_years_min": 3,
@@ -130,7 +130,7 @@
     {
         "id": 5,
         "title": "AI/ML Engineer",
-        "slug": "ai/ml-engineer-5",
+        "slug": "ai-ml-engineer",
         "job_type": "full-time",
         "level": "middle",
         "experience_years_min": 2,
@@ -162,7 +162,7 @@
     {
         "id": 6,
         "title": "Mobile App Developer",
-        "slug": "mobile-app-developer-6",
+        "slug": "mobile-app-developer",
         "job_type": "full-time",
         "level": "middle",
         "experience_years_min": 2,
@@ -194,7 +194,7 @@
     {
         "id": 7,
         "title": "Frontend Developer",
-        "slug": "frontend-developer-7",
+        "slug": "frontend-developer",
         "job_type": "full-time",
         "level": "junior",
         "experience_years_min": 1,
@@ -226,7 +226,7 @@
     {
         "id": 8,
         "title": "UI/UX Designer",
-        "slug": "ui/ux-designer-8",
+        "slug": "ui-ux-designer",
         "job_type": "full-time",
         "level": "senior",
         "experience_years_min": 1,
@@ -258,7 +258,7 @@
     {
         "id": 9,
         "title": "QA Engineer",
-        "slug": "qa-engineer-9",
+        "slug": "qa-engineer",
         "job_type": "full-time",
         "level": "junior",
         "experience_years_min": 3,
@@ -290,7 +290,7 @@
     {
         "id": 10,
         "title": "UI/UX Designer",
-        "slug": "ui/ux-designer-10",
+        "slug": "ui-ux-designer",
         "job_type": "full-time",
         "level": "senior",
         "experience_years_min": 3,
@@ -322,7 +322,7 @@
     {
         "id": 11,
         "title": "QA Engineer",
-        "slug": "qa-engineer-11",
+        "slug": "qa-engineer",
         "job_type": "full-time",
         "level": "middle",
         "experience_years_min": 2,
@@ -354,7 +354,7 @@
     {
         "id": 12,
         "title": "Frontend Developer",
-        "slug": "frontend-developer-12",
+        "slug": "frontend-developer",
         "job_type": "full-time",
         "level": "senior",
         "experience_years_min": 1,

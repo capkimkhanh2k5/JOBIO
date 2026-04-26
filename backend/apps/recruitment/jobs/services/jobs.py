@@ -5,7 +5,7 @@ import uuid
 
 from pydantic import BaseModel, ConfigDict
 from django.db import transaction
-from django.utils.text import slugify
+from apps.core.utils import slugify_vietnamese as slugify
 from django.utils import timezone
 
 from apps.recruitment.jobs.models import Job

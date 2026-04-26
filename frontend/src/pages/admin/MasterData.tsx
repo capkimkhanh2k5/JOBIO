@@ -18,7 +18,7 @@ const fadeUp = (delay: number) => ({
 
 const tabs = [
     { id: 'skills', label: 'Kỹ năng', icon: Tag },
-    { id: 'industries', label: 'Ngành nghề', icon: Building2 },
+    { id: 'industries', label: 'Lĩnh vực CNTT', icon: Building2 },
     { id: 'job-categories', label: 'Danh mục việc làm', icon: Briefcase },
     { id: 'benefits', label: 'Phúc lợi', icon: Gift },
 ] as const;
@@ -30,6 +30,24 @@ interface EditModal {
     mode: 'create' | 'edit';
     tab: TabId;
     item?: any;
+}
+
+// ─── Utils ───────────────────────────────────────────────────────────────────
+
+function generateSlug(text: string) {
+    return text.toString().toLowerCase()
+        .replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a')
+        .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e')
+        .replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i')
+        .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o')
+        .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u')
+        .replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y')
+        .replace(/đ/gi, 'd')
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
 }
 
 // ─── Generic List Table ──────────────────────────────────────────────────────
@@ -117,7 +135,14 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
     const qc = useQueryClient();
     const [name, setName] = useState(modal.item?.name ?? '');
     const [desc, setDesc] = useState(modal.item?.description ?? '');
-    const [icon, setIcon] = useState(modal.item?.icon ?? '');
+    const [iconUrl, setIconUrl] = useState(modal.item?.icon_url ?? '');
+    const [categoryId, setCategoryId] = useState<number | ''>(modal.item?.category ?? '');
+
+    const { data: skillCategories } = useQuery({
+        queryKey: ['skill-categories'],
+        queryFn: () => dashboardService.listSkillCategories().then(r => r.data),
+        enabled: modal.tab === 'skills',
+    });
 
     const svc = dashboardService as any;
     const createKey = modal.tab === 'skills' ? 'createSkill' : modal.tab === 'industries' ? 'createIndustry' : modal.tab === 'job-categories' ? 'createJobCategory' : 'createBenefitCategory';
@@ -133,20 +158,39 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
             toast.success(modal.mode === 'create' ? 'Đã tạo thành công!' : 'Đã cập nhật!');
             onClose();
         },
-        onError: () => toast.error('Có lỗi xảy ra'),
+        onError: () => toast.error('Có lỗi xảy ra (kiểm tra lại kết nối hoặc dữ liệu URL)'),
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const payload: any = { name };
+        
+        const payload: any = { 
+            name,
+            slug: generateSlug(name)
+        };
+        
         if (desc) payload.description = desc;
-        if (icon) payload.icon = icon;
+        
+        // Handle icons for models except skills
+        if (modal.tab !== 'skills' && iconUrl) {
+            payload.icon_url = iconUrl;
+        }
+
+        // Handle category validation for skills
+        if (modal.tab === 'skills') {
+            if (!categoryId) {
+                toast.error('Vui lòng chọn danh mục kỹ năng');
+                return;
+            }
+            payload.category = Number(categoryId);
+        }
+
         mut.mutate(payload);
     };
 
     const tabLabels: Record<TabId, string> = {
         'skills': 'Kỹ năng',
-        'industries': 'Ngành nghề',
+        'industries': 'Lĩnh vực CNTT',
         'job-categories': 'Danh mục việc làm',
         'benefits': 'Phúc lợi',
     };
@@ -178,13 +222,32 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
                             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
                         />
                     </div>
+                    
+                    {modal.tab === 'skills' && (
+                        <div>
+                            <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Danh mục *</label>
+                            <select
+                                value={categoryId}
+                                onChange={e => setCategoryId(e.target.value ? Number(e.target.value) : '')}
+                                required
+                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 bg-white"
+                            >
+                                <option value="" disabled>Chọn danh mục</option>
+                                {skillCategories?.map((cat: any) => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     {modal.tab !== 'skills' && (
                         <div>
-                            <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Icon (emoji / class)</label>
+                            <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">URL Icon (Tùy chọn)</label>
                             <input
-                                value={icon}
-                                onChange={e => setIcon(e.target.value)}
-                                placeholder="Ví dụ: 💻 hoặc fa-code"
+                                value={iconUrl}
+                                onChange={e => setIconUrl(e.target.value)}
+                                placeholder="https://example.com/icon.png"
+                                type="url"
                                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
                             />
                         </div>
@@ -283,33 +346,24 @@ export default function MasterData() {
         switch (activeTab) {
             case 'skills': return [
                 { key: 'name', label: 'Tên kỹ năng', render: (r: any) => <span className="font-bold text-slate-900">{r.name}</span> },
-                { key: 'category', label: 'Danh mục', render: (r: any) => <Badge className="bg-violet-50 text-violet-700 border-violet-200 text-[10px] font-bold">{r.category?.name ?? r.category ?? '—'}</Badge> },
+                { key: 'category', label: 'Danh mục', render: (r: any) => <Badge className="bg-violet-50 text-violet-700 border-violet-200 text-[10px] font-bold">{r.category_name ?? r.category ?? '—'}</Badge> },
                 { key: 'usage_count', label: 'Lượt dùng', render: (r: any) => <span className="font-bold text-slate-600">{r.usage_count ?? 0}</span> },
             ];
             case 'industries': return [
-                { key: 'name', label: 'Ngành nghề', render: (r: any) => <div className="flex items-center gap-2"><span className="text-xl">{r.icon || '🏢'}</span><span className="font-bold text-slate-900">{r.name}</span></div> },
+                { key: 'name', label: 'Lĩnh vực CNTT', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-slate-900">{r.name}</span></div> },
                 { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-slate-100 px-2 py-0.5 rounded font-mono">{r.slug}</code> },
                 { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-slate-500 text-xs line-clamp-1">{r.description || '—'}</span> },
             ];
             case 'job-categories': return [
-                { key: 'name', label: 'Danh mục', render: (r: any) => <div className="flex items-center gap-2"><span className="text-xl">{r.icon || '📁'}</span><div><p className="font-bold text-slate-900">{r.name}</p>{r.parent && <p className="text-xs text-slate-400">{r.parent?.name}</p>}</div></div> },
+                { key: 'name', label: 'Danh mục', render: (r: any) => <div className="flex items-center gap-2"><div><p className="font-bold text-slate-900">{r.name}</p>{r.parent_name && <p className="text-xs text-slate-400">{r.parent_name}</p>}</div></div> },
                 { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-slate-100 px-2 py-0.5 rounded font-mono">{r.slug}</code> },
             ];
             case 'benefits': return [
-                { key: 'name', label: 'Phúc lợi', render: (r: any) => <div className="flex items-center gap-2"><span className="text-xl">{r.icon || '🎁'}</span><span className="font-bold text-slate-900">{r.name}</span></div> },
+                { key: 'name', label: 'Phúc lợi', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-slate-900">{r.name}</span></div> },
                 { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-slate-500 text-xs line-clamp-1">{r.description || '—'}</span> },
             ];
         }
     };
-
-    // ── Stats ─────────────────────────────────────────────────────────────
-
-    const statCards = [
-        { label: 'Kỹ năng', icon: Tag, color: 'text-violet-600', bg: 'bg-violet-50' },
-        { label: 'Ngành nghề', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Danh mục việc làm', icon: Briefcase, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'Phúc lợi', icon: Gift, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    ];
 
     return (
         <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
@@ -320,7 +374,7 @@ export default function MasterData() {
                         <Database className="w-6 h-6 text-violet-600" />
                         Dữ liệu danh mục
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">Quản lý kỹ năng, ngành nghề, danh mục và phúc lợi toàn hệ thống</p>
+                    <p className="text-sm text-slate-500 mt-1">Quản lý kỹ năng, lĩnh vực CNTT, danh mục và phúc lợi toàn hệ thống</p>
                 </div>
                 <Button
                     onClick={() => setModal({ open: true, mode: 'create', tab: activeTab })}

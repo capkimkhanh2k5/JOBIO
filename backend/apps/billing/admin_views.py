@@ -93,7 +93,7 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="transactions.csv"'
         
         writer = csv.writer(response)
-        writer.writerow(['Mã GD', 'Công ty', 'Email', 'Loại', 'Trạng thái', 'Số tiền', 'Ngày tạo'])
+        writer.writerow(['Mã GD', 'Công ty', 'Email', 'Loại', 'Phương thức', 'Trạng thái', 'Số tiền', 'Ngày tạo'])
         
         for txn in queryset:
             writer.writerow([
@@ -101,6 +101,7 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
                 txn.company.company_name if txn.company else "N/A",
                 txn.company.user.email if txn.company and txn.company.user else "N/A",
                 txn.get_type_display(),
+                txn.payment_method.name if txn.payment_method else "N/A",
                 txn.get_status_display(),
                 f"{txn.amount} {txn.currency}",
                 txn.created_at.strftime('%Y-%m-%d %H:%M:%S')

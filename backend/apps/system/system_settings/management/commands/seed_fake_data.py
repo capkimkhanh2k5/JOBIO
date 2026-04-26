@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.utils.text import slugify
+from apps.core.utils import slugify_vietnamese as slugify
 
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company

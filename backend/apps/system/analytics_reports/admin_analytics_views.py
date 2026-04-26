@@ -4,7 +4,7 @@ Dựa trực tiếp trên dữ liệu thực từ DB (không dùng bảng analyt
 """
 from datetime import timedelta
 
-from django.db.models import Count, Sum, Q
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth, TruncDate
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
@@ -15,8 +15,6 @@ from apps.core.users.models import CustomUser
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
 from apps.recruitment.interviews.models import Interview
-from apps.recruitment.job_views.models import JobView
-from apps.recruitment.saved_jobs.models import SavedJob
 from apps.billing.models import Transaction
 from apps.company.companies.models import Company
 from apps.system.reports.models import Report
@@ -33,6 +31,28 @@ INDUSTRY_COLORS = [
 ]
 
 
+def _parse_limited_int(raw_value, default: int, min_value: int, max_value: int) -> int:
+    try:
+        parsed = int(raw_value)
+    except (TypeError, ValueError):
+        return default
+    return max(min_value, min(parsed, max_value))
+
+
+def _month_sequence(now, months: int):
+    base_year = now.year
+    base_month = now.month
+    sequence = []
+    for offset in range(months - 1, -1, -1):
+        month = base_month - offset
+        year = base_year
+        while month <= 0:
+            month += 12
+            year -= 1
+        sequence.append((year, month))
+    return sequence
+
+
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
@@ -42,9 +62,11 @@ def user_growth(request):
     GET /api/analytics/user-growth/?months=7
     Trả về số lượng users + jobs mới theo từng tháng.
     """
-    months = min(int(request.query_params.get('months', 7)), 12)
+    months = _parse_limited_int(request.query_params.get('months', 7), default=7, min_value=1, max_value=12)
     now = timezone.now()
-    start = (now - timedelta(days=30 * months)).replace(day=1)
+    months_seq = _month_sequence(now, months)
+    start_year, start_month = months_seq[0]
+    start = now.replace(year=start_year, month=start_month, day=1, hour=0, minute=0, second=0, microsecond=0)
 
     # Users per month
     users_qs = (
@@ -70,11 +92,10 @@ def user_growth(request):
 
     # Build result for last N months
     result = []
-    for i in range(months):
-        dt = (now - timedelta(days=30 * (months - 1 - i))).replace(day=1)
-        key = dt.strftime('%Y-%m')
+    for year, month in months_seq:
+        key = f'{year:04d}-{month:02d}'
         result.append({
-            'month': MONTH_VI[dt.month - 1],
+            'month': MONTH_VI[month - 1],
             'users': users_map.get(key, 0),
             'jobs': jobs_map.get(key, 0),
         })
@@ -96,7 +117,7 @@ def industry_distribution(request):
         .annotate(count=Count('id'))
         .order_by('-count')[:10]
     )
-    total = Company.objects.filter(industry__isnull=False).count() or 1
+    total = sum(item['count'] for item in qs) or 1
     result = []
     for i, item in enumerate(qs):
         pct = round(item['count'] / total * 100, 1)
@@ -116,9 +137,9 @@ def revenue_trend(request):
     GET /api/analytics/revenue-trend/?days=7
     Doanh thu theo ngày trong N ngày gần nhất.
     """
-    days = min(int(request.query_params.get('days', 7)), 30)
+    days = _parse_limited_int(request.query_params.get('days', 7), default=7, min_value=1, max_value=30)
     now = timezone.now()
-    start = now - timedelta(days=days)
+    start = now - timedelta(days=days - 1)
 
     qs = (
         Transaction.objects
@@ -173,7 +194,7 @@ def application_stats(request):
     funnel = [
         {'stage': 'Ứng tuyển', 'count': total_apps, 'color': '#7c3aed'},
         {'stage': 'Xem xét', 'count': reviewing_apps + shortlisted_apps, 'color': '#a78bfa'},
-        {'stage': 'Phỏng vấn', 'count': interview_apps + total_interviews, 'color': '#f97316'},
+        {'stage': 'Phỏng vấn', 'count': interview_apps, 'color': '#f97316'},
         {'stage': 'Offer', 'count': offered_apps, 'color': '#10b981'},
         {'stage': 'Nhận việc', 'count': accepted_apps, 'color': '#06b6d4'},
     ]
@@ -214,12 +235,17 @@ def top_jobs(request):
     GET /api/analytics/top-jobs/?limit=10
     Top jobs theo lượt xem + ứng tuyển (sử dụng trường cache trên model Job).
     """
-    limit = min(int(request.query_params.get('limit', 10)), 50)
+    limit = _parse_limited_int(request.query_params.get('limit', 10), default=10, min_value=1, max_value=50)
 
     jobs = (
         Job.objects
         .select_related('company')
-        .order_by('-view_count', '-application_count')[:limit]
+        .annotate(
+            real_views=Count('views', distinct=True),
+            real_saves=Count('saved_by', distinct=True),
+            real_applications=Count('applications', distinct=True),
+        )
+        .order_by('-real_views', '-real_applications', '-real_saves', '-created_at')[:limit]
     )
 
     result = []
@@ -229,9 +255,9 @@ def top_jobs(request):
             'title': job.title,
             'company': job.company.company_name if job.company else '—',
             'status': job.status,
-            'views': job.view_count,
-            'saves': 0, # Tạm thời để 0 hoặc query thêm nếu cần
-            'applications': job.application_count,
+            'views': job.real_views,
+            'saves': job.real_saves,
+            'applications': job.real_applications,
         })
     return Response(result)
 
@@ -251,7 +277,7 @@ def violation_breakdown(request):
         .annotate(count=Count('id'))
         .order_by('-count')[:6]
     )
-    total = Report.objects.count() or 1
+    total = sum(item['count'] for item in qs) or 1
     result = []
     for i, item in enumerate(qs):
         result.append({
@@ -284,18 +310,18 @@ def admin_overview_stats(request):
         },
         'jobs': {
             'total': Job.objects.count(),
-            'active': Job.objects.filter(status='published').count(),
+            'active': Job.objects.filter(status=Job.Status.PUBLISHED).count(),
         },
         'applications': {
             'total': Application.objects.count(),
             'new_30d': Application.objects.filter(applied_at__gte=thirty_ago).count(),
-            'pending': Application.objects.filter(status='pending').count(),
-            'accepted': Application.objects.filter(status='accepted').count(),
+            'pending': Application.objects.filter(status=Application.Status.PENDING).count(),
+            'accepted': Application.objects.filter(status=Application.Status.ACCEPTED).count(),
         },
         'interviews': {
             'total': Interview.objects.count(),
-            'scheduled': Interview.objects.filter(status='scheduled').count(),
-            'completed': Interview.objects.filter(status='completed').count(),
+            'scheduled': Interview.objects.filter(status=Interview.Status.SCHEDULED).count(),
+            'completed': Interview.objects.filter(status=Interview.Status.COMPLETED).count(),
         },
         'revenue': {
             'total': float(Transaction.objects.filter(
@@ -308,10 +334,12 @@ def admin_overview_stats(request):
         },
         'reports': {
             'total': Report.objects.count(),
-            'pending': Report.objects.filter(status='pending').count(),
+            'pending': Report.objects.filter(status=Report.Status.PENDING).count(),
         },
         'companies': {
             'total': Company.objects.count(),
-            'pending_verification': Company.objects.filter(verification_status='pending').count(),
+            'pending_verification': Company.objects.filter(
+                verification_status=Company.VerificationStatus.PENDING
+            ).count(),
         },
     })

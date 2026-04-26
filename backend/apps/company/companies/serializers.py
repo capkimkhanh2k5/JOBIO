@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.utils.text import slugify
 from .models import Company
 from apps.company.industries.models import Industry
 

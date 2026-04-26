@@ -5,6 +5,9 @@
 /** DRF paginated response wrapper */
 export interface PaginatedResponse<T> {
   count: number;
+  total_pages?: number;
+  current_page?: number;
+  page_size?: number;
   next: string | null;
   previous: string | null;
   results: T[];
@@ -1110,12 +1113,14 @@ export interface BlogCategory {
   name: string;
   slug: string;
   description: string | null;
+  post_count: number;
 }
 
 export interface BlogTag {
   id: number;
   name: string;
   slug: string;
+  post_count: number;
 }
 
 export interface BlogPost {

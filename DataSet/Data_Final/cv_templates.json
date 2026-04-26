@@ -6,7 +6,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["modern", "classic", "sidebar"],
+            "tags": [
+                "modern",
+                "classic",
+                "sidebar"
+            ],
             "description": "Layout 2 cot co dien, thanh lich voi sidebar thong tin lien he va ky nang."
         },
         "is_premium": false,
@@ -25,7 +29,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["ats", "professional", "single-column"],
+            "tags": [
+                "ats",
+                "professional",
+                "single-column"
+            ],
             "description": "Toi uu cho he thong ATS, don cot, chuyen nghiep."
         },
         "is_premium": false,
@@ -44,7 +52,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["editorial", "bold", "creative"],
+            "tags": [
+                "editorial",
+                "bold",
+                "creative"
+            ],
             "description": "Phong cach editorial voi typography dam net va noi bat."
         },
         "is_premium": false,
@@ -63,7 +75,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["hybrid", "modern", "colorful"],
+            "tags": [
+                "hybrid",
+                "modern",
+                "colorful"
+            ],
             "description": "Bo cuc hien dai ket hop sidebar mau sac."
         },
         "is_premium": false,
@@ -82,7 +98,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["hybrid", "pro", "detailed"],
+            "tags": [
+                "hybrid",
+                "pro",
+                "detailed"
+            ],
             "description": "Phien ban nang cao cua Modern Hybrid voi bo cuc chi tiet hon."
         },
         "is_premium": false,
@@ -101,7 +121,11 @@
         "thumbnail_url": "",
         "preview_url": "",
         "template_data": {
-            "tags": ["luxury", "premium", "elegant"],
+            "tags": [
+                "luxury",
+                "premium",
+                "elegant"
+            ],
             "description": "Phong cach sang trong, phu hop vai tro cap cao."
         },
         "is_premium": false,

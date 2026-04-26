@@ -31,6 +31,16 @@ const statusLabels: Record<string, string> = {
     rejected: 'Từ chối',
 };
 
+const entityTypeMeta = (entityType: string) => {
+    if (entityType === 'company') {
+        return { label: 'CÔNG TY', icon: Building2 };
+    }
+    if (entityType === 'user' || entityType === 'candidate' || entityType === 'recruiter') {
+        return { label: 'NGƯỜI DÙNG', icon: User };
+    }
+    return { label: entityType?.toUpperCase?.() || 'ĐỐI TƯỢNG', icon: Flag };
+};
+
 export default function ViolationReports() {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
@@ -60,7 +70,7 @@ export default function ViolationReports() {
         queryKey: ['admin-reports', page, debouncedSearch, statusFilter],
         queryFn: () => dashboardService.listAdminReports({
             page,
-            search: debouncedSearch,
+            search: debouncedSearch || undefined,
             status: statusFilter !== 'all' ? statusFilter : undefined
         }).then(r => r.data),
     });
@@ -88,7 +98,10 @@ export default function ViolationReports() {
             const link = document.createElement('a');
             link.setAttribute('href', url);
             link.setAttribute('download', `bao_cao_vi_pham_${new Date().getTime()}.csv`);
+            document.body.appendChild(link);
             link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
             toast.dismiss(toastId);
             toast.success('Xuất CSV thành công!');
         } catch (error) {
@@ -187,7 +200,10 @@ export default function ViolationReports() {
                                 <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="w-8 h-8 animate-spin text-violet-500 mx-auto" /></td></tr>
                             ) : reports.length === 0 ? (
                                 <tr><td colSpan={6} className="py-20 text-center text-slate-400 font-medium">Không tìm thấy báo cáo nào</td></tr>
-                            ) : reports.map((report: any) => (
+                            ) : reports.map((report: any) => {
+                                const meta = entityTypeMeta(report.entity_type);
+                                const EntityIcon = meta.icon;
+                                return (
                                 <tr key={report.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="py-4 px-6">
                                         <div className="flex flex-col">
@@ -198,8 +214,8 @@ export default function ViolationReports() {
                                     <td className="py-4 px-6">
                                         <div className="flex flex-col gap-1">
                                             <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200 text-[9px] font-black px-1.5 py-0 w-fit">
-                                                {report.entity_type === 'company' ? <Building2 className="w-3 h-3 mr-1" /> : <User className="w-3 h-3 mr-1" />}
-                                                {report.entity_type === 'company' ? 'CÔNG TY' : 'NGƯỜI DÙNG'}
+                                                <EntityIcon className="w-3 h-3 mr-1" />
+                                                {meta.label}
                                             </Badge>
                                             <span className="text-xs font-bold text-slate-700">ID: #{report.entity_id}</span>
                                         </div>
@@ -246,7 +262,8 @@ export default function ViolationReports() {
                                         )}
                                     </td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                     <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">

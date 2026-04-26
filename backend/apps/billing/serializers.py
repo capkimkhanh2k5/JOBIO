@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMethod, Transaction
 from apps.recruitment.jobs.models import Job
+import json
 
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,7 +71,13 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def get_plan_name(self, obj):
         metadata = obj.metadata or {}
-        if metadata.get('plan_name'):
+        if isinstance(metadata, str):
+            try:
+                metadata = json.loads(metadata)
+            except Exception:
+                metadata = {}
+                
+        if isinstance(metadata, dict) and metadata.get('plan_name'):
             return metadata.get('plan_name')
         
         # Fallback to description parsing

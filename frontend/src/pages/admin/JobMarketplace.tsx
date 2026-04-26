@@ -25,6 +25,13 @@ const statusColors: Record<string, string> = {
     expired: 'bg-orange-50 text-orange-600 border-orange-200',
 };
 
+const statusLabels: Record<string, string> = {
+    published: 'Đang hiển thị',
+    draft: 'Bản nháp',
+    closed: 'Đã đóng',
+    expired: 'Hết hạn',
+};
+
 const StatusIcon = ({ status, className }: { status: string, className?: string }) => {
     switch (status) {
         case 'published': return <CheckCircle2 className={className} />;
@@ -59,22 +66,26 @@ export default function JobMarketplace() {
     // Fetch Stats
     const { data: statsData } = useQuery({
         queryKey: ['admin-job-stats'],
-        queryFn: () => dashboardService.getJobStats().then(r => r.data),
+        queryFn: () => {
+            return dashboardService.getJobStats().then((r: { data: any; }) => r.data);
+        },
     });
 
     // Fetch Jobs
     const { data: jobsData, isLoading: loadingJobs } = useQuery({
         queryKey: ['admin-jobs', page, debouncedSearch, statusFilter],
-        queryFn: () => dashboardService.listAdminJobs({
-            page,
-            search: debouncedSearch,
-            status: statusFilter !== 'all' ? statusFilter : undefined
-        }).then(r => r.data),
+        queryFn: () => {
+            return dashboardService.listAdminJobs({
+                page,
+                search: debouncedSearch || undefined,
+                status: statusFilter !== 'all' ? statusFilter : undefined
+            }).then(r => r.data);
+        },
     });
 
     const jobs = jobsData?.results ?? [];
     const totalCount = jobsData?.count ?? 0;
-    const totalPages = Math.ceil(totalCount / 10) || 1;
+    const totalPages = jobsData?.total_pages ?? 1;
 
     // Handle Export CSV
     const handleExportCSV = async () => {
@@ -88,14 +99,15 @@ export default function JobMarketplace() {
             const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            
+
             link.setAttribute('href', url);
             link.setAttribute('download', `Viec_Lam_${new Date().toISOString().split('T')[0]}.csv`);
             link.style.visibility = 'hidden';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
 
             toast.success('Đã xuất báo cáo CSV thành công!', { id: toastId });
         } catch (error) {
@@ -122,7 +134,7 @@ export default function JobMarketplace() {
                     </h1>
                     <p className="text-slate-500 text-sm font-medium mt-1">Giám sát và kiểm duyệt toàn bộ tin tuyển dụng trên hệ thống.</p>
                 </div>
-                <Button 
+                <Button
                     variant="outline"
                     onClick={handleExportCSV}
                     className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
@@ -168,7 +180,7 @@ export default function JobMarketplace() {
                         />
                     </div>
                     <div className="flex gap-3">
-                        <select 
+                        <select
                             value={statusFilter}
                             onChange={handleStatusChange}
                             className="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 cursor-pointer"
@@ -251,7 +263,7 @@ export default function JobMarketplace() {
                                             <td className="py-4 px-6">
                                                 <Badge variant="outline" className={`${statusColors[job.status] ?? statusColors.draft} flex w-fit items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md`}>
                                                     <StatusIcon status={job.status} className="w-3.5 h-3.5" />
-                                                    {job.status}
+                                                    {statusLabels[job.status] ?? job.status}
                                                 </Badge>
                                             </td>
                                             <td className="py-4 px-6">

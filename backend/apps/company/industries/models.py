@@ -1,4 +1,5 @@
 from django.db import models
+from apps.core.utils import slugify_vietnamese as slugify
 
 
 class Industry(models.Model):
@@ -50,6 +51,15 @@ class Industry(models.Model):
         auto_now=True,
         verbose_name='Ngày cập nhật'
     )
+
+    def save(self, *args, **kwargs):
+        # Luôn đảm bảo slug sạch dấu
+        if not self.slug:
+            self.slug = slugify(self.name)
+        else:
+            # Nếu slug được truyền lên có dấu, ta cũng làm sạch nó
+            self.slug = slugify(self.slug)
+        super().save(*args, **kwargs)
     
     class Meta:
         db_table = 'industries'

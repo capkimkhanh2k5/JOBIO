@@ -87,7 +87,7 @@ export default function CompaniesPage() {
                                 value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={handleSearch}
-                                placeholder="Nhập tên công ty hoặc ngành nghề..."
+                                placeholder="Nhập tên công ty hoặc lĩnh vực..."
                                 className="border-0 bg-transparent h-12 px-0 focus-visible:ring-0 text-base"
                             />
                         </div>
@@ -193,7 +193,7 @@ export default function CompaniesPage() {
 }
 
 function CompanyCard({ company }: { company: any }) {
-    const industryName = typeof company.industry === 'object' ? company.industry?.name : (company.industry_name || 'Đa ngành nghề');
+    const industryName = typeof company.industry === 'object' ? company.industry?.name : (company.industry_name || 'Đa lĩnh vực');
     return (
         <motion.div
             layout

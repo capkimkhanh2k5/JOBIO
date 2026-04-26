@@ -1,10 +1,9 @@
 import csv
 from django.http import HttpResponse
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Count, Q
-from django.utils import timezone
+from django.db.models import Sum, Q
 
 from apps.core.users.permissions import IsAdmin
 from apps.recruitment.jobs.models import Job
@@ -20,7 +19,7 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        queryset = Job.objects.select_related('company', 'category', 'created_by').all().order_by('-created_at')
+        queryset = Job.objects.select_related('company', 'company__user', 'category', 'created_by').all().order_by('-created_at')
         
         status_param = self.request.query_params.get('status')
         if status_param and status_param != 'all':
@@ -31,12 +30,15 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
             
         search = self.request.query_params.get('search')
         if search:
-            queryset = queryset.filter(
-                Q(title__icontains=search) | 
+            search_filter = (
+                Q(title__icontains=search) |
                 Q(company__company_name__icontains=search) |
                 Q(company__user__email__icontains=search) |
                 Q(slug__icontains=search)
             )
+            if search.isdigit():
+                search_filter |= Q(id=int(search))
+            queryset = queryset.filter(search_filter)
             
         return queryset
 

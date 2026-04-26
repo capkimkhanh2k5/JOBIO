@@ -13,7 +13,7 @@ class AdminReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = [
-            'id', 'entity_type', 'entity_id', 'description', 'evidence_urls',
+            'id', 'entity_type', 'entity_id', 'description',
             'status', 'resolution_notes', 'created_at', 'resolved_at',
             'reporter_email', 'reporter_name', 'report_type_name', 'resolved_by_email'
         ]

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
     Users, Briefcase, TrendingUp,
-    TrendingDown, ArrowRight, ShieldCheck, AlertTriangle, Loader2,
+    ArrowRight, ShieldCheck, AlertTriangle, Loader2,
     LayoutDashboard, FileCheck, CalendarCheck, BarChart3
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -197,8 +197,8 @@ export default function AdminDashboard() {
 
                 {/* Industry Pie Chart */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-                    <h3 className="font-bold text-base text-slate-900 mb-1">Ngành nghề</h3>
-                    <p className="text-xs text-slate-500 mb-4">Phân bổ công ty theo ngành</p>
+                    <h3 className="font-bold text-base text-slate-900 mb-1">Mô hình / Lĩnh vực CNTT</h3>
+                    <p className="text-xs text-slate-500 mb-4">Phân bổ công ty theo lĩnh vực</p>
                     {industryData.length > 0 ? (
                         <>
                             <ResponsiveContainer width="100%" height={160}>
