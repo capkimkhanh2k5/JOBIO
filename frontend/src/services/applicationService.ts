@@ -56,6 +56,10 @@ export const applicationService = {
     );
   },
 
+  addNotes(id: number, notes: string) {
+    return api.post<ApplicationDetail>(`/api/applications/${id}/notes/`, { notes });
+  },
+
   // ─── Bulk actions ─────────────────────────────────────────────────────
 
   bulkUpdateStatus(ids: number[], status: string) {

@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "proficiency_level": "NATIVE",
+        "is_native": false,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "language_id": 4,
+        "recruiter_id": 12,
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 2,
+        "proficiency_level": "NATIVE",
+        "is_native": false,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "language_id": 3,
+        "recruiter_id": 6,
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 4,
+        "proficiency_level": "NATIVE",
+        "is_native": false,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "language_id": 1,
+        "recruiter_id": 1,
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 5,
+        "proficiency_level": "NATIVE",
+        "is_native": false,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "language_id": 2,
+        "recruiter_id": 4,
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    }
+]

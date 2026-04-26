@@ -1,0 +1,110 @@
+[
+    {
+        "id": 1,
+        "name": "Python",
+        "slug": "python",
+        "description": "Kỹ năng Python",
+        "is_verified": true,
+        "usage_count": 95,
+        "is_active": true,
+        "category_id": 1,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 2,
+        "name": "JavaScript",
+        "slug": "javascript",
+        "description": "Kỹ năng JavaScript",
+        "is_verified": true,
+        "usage_count": 53,
+        "is_active": true,
+        "category_id": 1,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 3,
+        "name": "Java",
+        "slug": "java",
+        "description": "Kỹ năng Java",
+        "is_verified": true,
+        "usage_count": 77,
+        "is_active": true,
+        "category_id": 1,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 4,
+        "name": "MySQL",
+        "slug": "mysql",
+        "description": "Kỹ năng MySQL",
+        "is_verified": true,
+        "usage_count": 54,
+        "is_active": true,
+        "category_id": 2,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 5,
+        "name": "MongoDB",
+        "slug": "mongodb",
+        "description": "Kỹ năng MongoDB",
+        "is_verified": true,
+        "usage_count": 28,
+        "is_active": true,
+        "category_id": 2,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 6,
+        "name": "Làm việc nhóm",
+        "slug": "lam-viec-nhom",
+        "description": "Kỹ năng Làm việc nhóm",
+        "is_verified": true,
+        "usage_count": 79,
+        "is_active": true,
+        "category_id": 3,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 7,
+        "name": "Giao tiếp",
+        "slug": "giao-tiep",
+        "description": "Kỹ năng Giao tiếp",
+        "is_verified": true,
+        "usage_count": 76,
+        "is_active": true,
+        "category_id": 3,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 8,
+        "name": "Figma",
+        "slug": "figma",
+        "description": "Kỹ năng Figma",
+        "is_verified": true,
+        "usage_count": 85,
+        "is_active": true,
+        "category_id": 4,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    },
+    {
+        "id": 9,
+        "name": "Photoshop",
+        "slug": "photoshop",
+        "description": "Kỹ năng Photoshop",
+        "is_verified": true,
+        "usage_count": 88,
+        "is_active": true,
+        "category_id": 4,
+        "created_at": "2026-04-19T02:39:43.867937Z",
+        "updated_at": "2026-04-19T02:39:43.867937Z"
+    }
+]

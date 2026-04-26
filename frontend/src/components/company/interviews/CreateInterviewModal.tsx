@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { CalendarIcon, Clock, Link as LinkIcon, MapPin, Loader2 } from 'lucide-react';
 import { companyService } from '@/services/companyService';
 import { applicationService } from '@/services/applicationService';
@@ -44,6 +45,52 @@ interface CreateInterviewModalProps {
     onOpenChange: (open: boolean) => void;
 }
 
+const toArray = <T,>(value: T[] | { results?: T[] } | undefined | null): T[] => {
+    if (Array.isArray(value)) return value;
+    if (Array.isArray((value as { results?: T[] } | undefined)?.results)) {
+        return (value as { results: T[] }).results;
+    }
+    return [];
+};
+
+const inferInterviewMode = (interviewType: any) => {
+    const typeName = String(interviewType?.name || '').toLowerCase();
+    if (typeName.includes('trực tiếp') || typeName.includes('onsite') || typeName.includes('tại công ty')) {
+        return 'onsite';
+    }
+    if (typeName.includes('điện thoại') || typeName.includes('phone') || typeName.includes('gọi')) {
+        return 'phone';
+    }
+    return 'video';
+};
+
+const getApplicationCandidateName = (application: any) => {
+    return (
+        application?.candidate_name ||
+        application?.recruiter_name ||
+        application?.candidate?.full_name ||
+        application?.recruiter?.user?.full_name ||
+        'Ứng viên'
+    );
+};
+
+const getApiErrorMessage = (error: unknown) => {
+    if (error instanceof AxiosError) {
+        const detail = error.response?.data?.detail;
+        if (typeof detail === 'string' && detail.trim()) return detail;
+
+        const firstError = Object.values(error.response?.data || {}).find((value) => {
+            if (typeof value === 'string') return value.trim().length > 0;
+            return Array.isArray(value) && value.length > 0;
+        });
+
+        if (Array.isArray(firstError) && typeof firstError[0] === 'string') return firstError[0];
+        if (typeof firstError === 'string') return firstError;
+    }
+
+    return 'Có lỗi xảy ra khi tạo lịch.';
+};
+
 export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModalProps) {
     const queryClient = useQueryClient();
 
@@ -58,6 +105,9 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
         queryFn: () => companyService.listInterviewTypes().then(r => r.data),
         enabled: open
     });
+
+    const candidateOptions = toArray<any>(candidates);
+    const interviewTypeOptions = toArray<any>(types);
 
     const form = useForm<InterviewFormValues>({
         resolver: zodResolver(interviewSchema),
@@ -74,6 +124,8 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
     });
 
     const watchType = form.watch('type');
+    const selectedInterviewType = interviewTypeOptions.find((type: any) => String(type.id) === watchType);
+    const interviewMode = inferInterviewMode(selectedInterviewType);
 
     const mutation = useMutation({
         mutationFn: (data: any) => companyService.createInterview(data).then(r => r.data),
@@ -83,8 +135,8 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
             form.reset();
             onOpenChange(false);
         },
-        onError: () => {
-            toast.error('Có lỗi xảy ra khi tạo lịch.');
+        onError: (error) => {
+            toast.error(getApiErrorMessage(error));
         }
     });
 
@@ -98,15 +150,20 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
             return;
         }
 
-        // Find selected candidate to get job info
-        const candidate = candidates?.find((c: any) => c.id === values.candidate_id);
+        const normalizedNotes = [
+            interviewMode === 'onsite' && values.location ? `Địa điểm phỏng vấn: ${values.location}` : null,
+            values.notes?.trim() || null,
+        ]
+            .filter(Boolean)
+            .join('\n\n');
 
         const payload = {
-            ...values,
             scheduled_at,
-            candidate_name: candidate?.name || 'Unknown',
-            job_title: candidate?.job_title || 'Unknown Position',
-            job_id: candidate?.job_id || '',
+            application_id: Number(values.candidate_id),
+            interview_type_id: Number(values.type),
+            duration_minutes: values.duration_minutes,
+            notes: normalizedNotes || undefined,
+            meeting_link: values.meeting_link || undefined,
         };
 
         mutation.mutate(payload);
@@ -114,10 +171,10 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-2xl shadow-slate-200/70">
                 <DialogHeader>
-                    <DialogTitle className="text-xl">Xếp lịch phỏng vấn</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-xl text-slate-900">Xếp lịch phỏng vấn</DialogTitle>
+                    <DialogDescription className="text-slate-600">
                         Lên lịch phỏng vấn mới với ứng viên. Thông báo sẽ được gửi tự động.
                     </DialogDescription>
                 </DialogHeader>
@@ -130,18 +187,22 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                 onValueChange={(value) => form.setValue('candidate_id', value)}
                                 value={form.watch('candidate_id')}
                             >
-                                <SelectTrigger className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                <SelectTrigger className="w-full min-h-[56px] h-auto items-start bg-slate-50 border-slate-200 text-slate-900 py-2">
                                     <SelectValue placeholder="Chọn ứng viên..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                <SelectContent className="bg-white border-slate-200">
                                     {isLoadingCandidates ? (
                                         <div className="p-2 text-sm text-center text-slate-500">Đang tải...</div>
                                     ) : (
-                                        candidates?.map((cand: any) => (
-                                            <SelectItem key={cand.id} value={cand.id}>
+                                        candidateOptions.map((cand: any) => (
+                                            <SelectItem key={cand.id} value={String(cand.id)}>
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium text-slate-900 dark:text-white">{cand.name}</span>
-                                                    <span className="text-xs text-slate-500">{cand.job_title}</span>
+                                                    <span className="font-medium text-slate-900">
+                                                        {getApplicationCandidateName(cand)}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500">
+                                                        {cand.job_title || cand.job?.title || 'Chưa có vị trí'}
+                                                    </span>
                                                 </div>
                                             </SelectItem>
                                         ))
@@ -159,15 +220,15 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                 onValueChange={(value) => form.setValue('type', value)}
                                 value={form.watch('type')}
                             >
-                                <SelectTrigger className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                <SelectTrigger className="w-full bg-slate-50 border-slate-200 text-slate-900">
                                     <SelectValue placeholder="Chọn hình thức..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                                <SelectContent className="bg-white border-slate-200">
                                     {isLoadingTypes ? (
                                         <div className="p-2 text-sm text-center text-slate-500">Đang tải...</div>
                                     ) : (
-                                        types?.map((type: any) => (
-                                            <SelectItem key={type.id} value={type.id}>
+                                        interviewTypeOptions.map((type: any) => (
+                                            <SelectItem key={type.id} value={String(type.id)}>
                                                 {type.name}
                                             </SelectItem>
                                         ))
@@ -186,7 +247,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                 type="number"
                                 min="15"
                                 step="15"
-                                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                className="bg-slate-50 border-slate-200 text-slate-900"
                                 {...form.register('duration_minutes', { valueAsNumber: true })}
                             />
                         </div>
@@ -198,7 +259,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                 <Input
                                     id="scheduled_date"
                                     type="date"
-                                    className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
                                     {...form.register('scheduled_date')}
                                 />
                             </div>
@@ -214,7 +275,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                 <Input
                                     id="scheduled_time"
                                     type="time"
-                                    className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
                                     {...form.register('scheduled_time')}
                                 />
                             </div>
@@ -223,7 +284,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                             )}
                         </div>
 
-                        {watchType === 'onsite' && (
+                        {interviewMode === 'onsite' && (
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="location">Địa điểm phỏng vấn <span className="text-red-500">*</span></Label>
                                 <div className="relative">
@@ -231,22 +292,22 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                                     <Textarea
                                         id="location"
                                         placeholder="Nhập địa chỉ chi tiết hoặc phòng họp..."
-                                        className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[60px]"
+                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900 min-h-[60px]"
                                         {...form.register('location')}
                                     />
                                 </div>
                             </div>
                         )}
 
-                        {(watchType === 'video' || watchType === 'phone') && (
+                        {(interviewMode === 'video' || interviewMode === 'phone') && (
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="meeting_link">Link meeting / Số điện thoại <span className="text-red-500">*</span></Label>
                                 <div className="relative">
                                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                     <Input
                                         id="meeting_link"
-                                        placeholder={watchType === 'video' ? "https://meet.google.com/..." : "Nhập số điện thoại..."}
-                                        className="pl-10 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                        placeholder={interviewMode === 'video' ? "https://meet.google.com/..." : "Nhập số điện thoại..."}
+                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
                                         {...form.register('meeting_link')}
                                     />
                                 </div>
@@ -258,7 +319,7 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
                             <Textarea
                                 id="notes"
                                 placeholder="Yêu cầu ứng viên chuẩn bị, nội dung phỏng vấn..."
-                                className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 min-h-[80px]"
+                                className="bg-slate-50 border-slate-200 text-slate-900 min-h-[80px]"
                                 {...form.register('notes')}
                             />
                         </div>

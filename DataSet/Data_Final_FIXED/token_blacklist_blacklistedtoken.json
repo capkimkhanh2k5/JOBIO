@@ -1,0 +1,17 @@
+[
+    {
+        "id": 1,
+        "blacklisted_at": "2026-04-19T02:54:14.630671Z",
+        "token_id": 1
+    },
+    {
+        "id": 2,
+        "blacklisted_at": "2026-04-19T02:54:14.630671Z",
+        "token_id": 2
+    },
+    {
+        "id": 3,
+        "blacklisted_at": "2026-04-19T02:54:14.630671Z",
+        "token_id": 3
+    }
+]

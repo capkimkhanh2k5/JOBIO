@@ -1,0 +1,47 @@
+[
+    {
+        "id": 1,
+        "language_code": "vi",
+        "language_name": "Vietnamese",
+        "native_name": "Vietnamese",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 2,
+        "language_code": "en",
+        "language_name": "English",
+        "native_name": "English",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 3,
+        "language_code": "ja",
+        "language_name": "Japanese",
+        "native_name": "Japanese",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 4,
+        "language_code": "ko",
+        "language_name": "Korean",
+        "native_name": "Korean",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    },
+    {
+        "id": 5,
+        "language_code": "zh",
+        "language_name": "Chinese",
+        "native_name": "Chinese",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.632188Z",
+        "updated_at": "2026-04-19T02:54:14.632188Z"
+    }
+]

@@ -1,0 +1,140 @@
+[
+    {
+        "id": 1,
+        "name": "Modern Classic",
+        "file_name": "modern.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "modern",
+                "classic",
+                "sidebar"
+            ],
+            "description": "Layout 2 cot co dien, thanh lich voi sidebar thong tin lien he va ky nang."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.80",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 2
+    },
+    {
+        "id": 2,
+        "name": "ATS Prime",
+        "file_name": "ATS_Prime.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "ats",
+                "professional",
+                "single-column"
+            ],
+            "description": "Toi uu cho he thong ATS, don cot, chuyen nghiep."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.90",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 2
+    },
+    {
+        "id": 3,
+        "name": "Editorial Bold",
+        "file_name": "editorialBold.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "editorial",
+                "bold",
+                "creative"
+            ],
+            "description": "Phong cach editorial voi typography dam net va noi bat."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.70",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 3
+    },
+    {
+        "id": 4,
+        "name": "Modern Hybrid",
+        "file_name": "modernHybird.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "hybrid",
+                "modern",
+                "colorful"
+            ],
+            "description": "Bo cuc hien dai ket hop sidebar mau sac."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.75",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 2
+    },
+    {
+        "id": 5,
+        "name": "Modern Hybrid Pro",
+        "file_name": "modernHybird2.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "hybrid",
+                "pro",
+                "detailed"
+            ],
+            "description": "Phien ban nang cao cua Modern Hybrid voi bo cuc chi tiet hon."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.85",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 2
+    },
+    {
+        "id": 6,
+        "name": "Modern Luxury",
+        "file_name": "modernLuxury.html",
+        "thumbnail_url": "",
+        "preview_url": "",
+        "template_data": {
+            "tags": [
+                "luxury",
+                "premium",
+                "elegant"
+            ],
+            "description": "Phong cach sang trong, phu hop vai tro cap cao."
+        },
+        "is_premium": false,
+        "price": "0.00",
+        "usage_count": 0,
+        "rating": "4.95",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "category_id": 2
+    }
+]

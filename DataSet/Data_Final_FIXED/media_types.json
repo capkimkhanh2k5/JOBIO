@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "type_name": "IMAGE",
+        "description": "",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z"
+    },
+    {
+        "id": 2,
+        "type_name": "VIDEO",
+        "description": "",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z"
+    },
+    {
+        "id": 3,
+        "type_name": "DOCUMENT",
+        "description": "",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z"
+    },
+    {
+        "id": 4,
+        "type_name": "LINK",
+        "description": "",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z"
+    },
+    {
+        "id": 5,
+        "type_name": "PDF",
+        "description": "",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z"
+    }
+]
