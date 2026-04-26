@@ -1,0 +1,137 @@
+[
+    {
+        "name": "Plus (3 tháng)",
+        "slug": "plus-3-thang",
+        "price": 299000,
+        "currency": "VND",
+        "duration_days": 90,
+        "features": {
+            "job_post_limit": 5,
+            "top_job": false,
+            "mass_email": false,
+            "priority_support": false,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Plus (6 tháng)",
+        "slug": "plus-6-thang",
+        "price": 499000,
+        "currency": "VND",
+        "duration_days": 180,
+        "features": {
+            "job_post_limit": 12,
+            "top_job": false,
+            "mass_email": false,
+            "priority_support": false,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Plus (1 năm)",
+        "slug": "plus-1-nam",
+        "price": 899000,
+        "currency": "VND",
+        "duration_days": 365,
+        "features": {
+            "job_post_limit": 30,
+            "top_job": false,
+            "mass_email": false,
+            "priority_support": false,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Pro (3 tháng)",
+        "slug": "pro-3-thang",
+        "price": 690000,
+        "currency": "VND",
+        "duration_days": 90,
+        "features": {
+            "job_post_limit": 15,
+            "top_job": true,
+            "mass_email": false,
+            "priority_support": true,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Pro (6 tháng)",
+        "slug": "pro-6-thang",
+        "price": 1190000,
+        "currency": "VND",
+        "duration_days": 180,
+        "features": {
+            "job_post_limit": 40,
+            "top_job": true,
+            "mass_email": false,
+            "priority_support": true,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Pro (1 năm)",
+        "slug": "pro-1-nam",
+        "price": 1990000,
+        "currency": "VND",
+        "duration_days": 365,
+        "features": {
+            "job_post_limit": 100,
+            "top_job": true,
+            "mass_email": false,
+            "priority_support": true,
+            "employer_branding": false
+        },
+        "is_active": true
+    },
+    {
+        "name": "Max (3 tháng)",
+        "slug": "max-3-thang",
+        "price": 1890000,
+        "currency": "VND",
+        "duration_days": 90,
+        "features": {
+            "job_post_limit": 50,
+            "top_job": true,
+            "mass_email": true,
+            "priority_support": true,
+            "employer_branding": true
+        },
+        "is_active": true
+    },
+    {
+        "name": "Max (6 tháng)",
+        "slug": "max-6-thang",
+        "price": 3490000,
+        "currency": "VND",
+        "duration_days": 180,
+        "features": {
+            "job_post_limit": 120,
+            "top_job": true,
+            "mass_email": true,
+            "priority_support": true,
+            "employer_branding": true
+        },
+        "is_active": true
+    },
+    {
+        "name": "Max (1 năm)",
+        "slug": "max-1-nam",
+        "price": 5990000,
+        "currency": "VND",
+        "duration_days": 365,
+        "features": {
+            "job_post_limit": 9999,
+            "top_job": true,
+            "mass_email": true,
+            "priority_support": true,
+            "employer_branding": true
+        },
+        "is_active": true
+    }
+]

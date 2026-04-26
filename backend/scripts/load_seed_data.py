@@ -6,12 +6,40 @@ import inspect
 import django
 from django.apps import apps
 from django.db import models, transaction
+from django.db.models.signals import post_save
 from django.contrib.auth.hashers import identify_hasher, make_password
 
 # --- CONFIGURATION CHUẨN BỊ MÔI TRƯỜNG ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
+
+
+def disable_import_side_effects():
+    """Disable post-save side effects that should not run during seed imports."""
+    try:
+        from apps.communication.job_alerts.signals import trigger_job_matching
+        from apps.recruitment.jobs.models import Job
+        post_save.disconnect(trigger_job_matching, sender=Job)
+    except Exception as exc:
+        print(f'[WARN] Could not disable job matching signal: {exc}')
+
+    try:
+        from apps.system.reports.signals import notify_admin_on_new_report
+        from apps.system.reports.models import Report
+        post_save.disconnect(notify_admin_on_new_report, sender=Report)
+    except Exception as exc:
+        print(f'[WARN] Could not disable report notification signal: {exc}')
+
+    try:
+        from apps.recruitment.interviews.signals import notify_candidate_on_interview_scheduled
+        from apps.recruitment.interviews.models import Interview
+        post_save.disconnect(notify_candidate_on_interview_scheduled, sender=Interview)
+    except Exception as exc:
+        print(f'[WARN] Could not disable interview notification signal: {exc}')
+
+
+disable_import_side_effects()
 
 
 def resolve_data_dir():
@@ -62,7 +90,8 @@ TABLES_ORDER = [
     'company_subscriptions', 'saved_jobs', 'job_alerts', 'reports',
     'email_sentemail',
     'application_status_history', 'interviews', 'job_alerts_skills',
-    'job_skills', 'notifications', 'activity_logs'
+    'job_skills', 'notifications', 'activity_logs',
+    'token_blacklist_outstandingtoken', 'token_blacklist_blacklistedtoken'
 ]
 
 
