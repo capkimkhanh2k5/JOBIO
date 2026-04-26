@@ -1,0 +1,62 @@
+[
+    {
+        "id": 1,
+        "setting_key": "site_name",
+        "setting_value": "config",
+        "setting_type": "string",
+        "category": "general",
+        "description": "Cấu hình hệ thống",
+        "is_public": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "updated_by_id": 14
+    },
+    {
+        "id": 2,
+        "setting_key": "maintenance_mode",
+        "setting_value": "config",
+        "setting_type": "string",
+        "category": "general",
+        "description": "Cấu hình hệ thống",
+        "is_public": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "updated_by_id": 7
+    },
+    {
+        "id": 3,
+        "setting_key": "max_upload_size",
+        "setting_value": "config",
+        "setting_type": "string",
+        "category": "general",
+        "description": "Cấu hình hệ thống",
+        "is_public": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "updated_by_id": 9
+    },
+    {
+        "id": 4,
+        "setting_key": "allow_registration",
+        "setting_value": "1",
+        "setting_type": "string",
+        "category": "general",
+        "description": "Cấu hình hệ thống",
+        "is_public": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "updated_by_id": 2
+    },
+    {
+        "id": 5,
+        "setting_key": "contact_email",
+        "setting_value": "config",
+        "setting_type": "string",
+        "category": "general",
+        "description": "Cấu hình hệ thống",
+        "is_public": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-19T02:54:14.630671Z",
+        "updated_by_id": 4
+    }
+]

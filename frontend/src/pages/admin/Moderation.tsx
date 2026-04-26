@@ -45,7 +45,11 @@ export default function Moderation() {
     // Companies
     const { data: companiesRes, isLoading: loadingCompanies } = useQuery({
         queryKey: ['pending-companies', companyPage, debouncedCompanySearch],
-        queryFn: () => companyService.listPending({ page: companyPage, page_size: 10 }).then(r => r.data),
+        queryFn: () => companyService.listPending({
+            page: companyPage,
+            page_size: 10,
+            search: debouncedCompanySearch || undefined,
+        }).then(r => r.data),
     });
     const companiesData = companiesRes?.results ?? [];
     const companyTotal = companiesRes?.count ?? 0;
@@ -79,7 +83,7 @@ export default function Moderation() {
                         <Shield className="w-6 h-6 text-violet-600" />
                         Duyệt &amp; Kiểm duyệt
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">Duyệt hồ sơ công ty và kiểm duyệt đánh giá từ người dùng.</p>
+                    <p className="text-sm text-slate-500 mt-1">Duyệt hồ sơ công ty đang chờ xác minh.</p>
                 </div>
             </motion.div>
 

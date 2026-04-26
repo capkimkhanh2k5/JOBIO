@@ -495,7 +495,7 @@ const FeaturedCompaniesSection = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">Công Ty Nổi Bật</h2>
-                    <p className="text-gray-500 mt-1">Đối tác tuyển dụng uy tín từ khắp mọi ngành nghề</p>
+                    <p className="text-gray-500 mt-1">Đối tác tuyển dụng uy tín từ khắp mọi lĩnh vực</p>
                 </div>
                 <Link to="/companies">
                     <Button variant="outline" className="rounded-xl border-gray-300 font-semibold text-gray-700 hover:border-primary hover:text-primary group transition-colors">
@@ -554,9 +554,9 @@ const IndustriesSection = () => {
             <div className="container mx-auto">
                 <div className="flex flex-col lg:flex-row gap-12 items-center">
                     <div className="lg:w-1/3 text-center lg:text-left">
-                        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-3">Ngành Nghề Đa Dạng</h2>
+                        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-3">Lĩnh Vực Đa Dạng</h2>
                         <p className="text-gray-500 leading-relaxed mb-6">
-                            Trên 30 lĩnh vực nghề nghiệp với hàng nghìn cơ hội từ công nghệ đến tài chính, y tế và nhiều hơn nữa.
+                            Khám phá đa dạng các mô hình công ty IT như Product, Outsourcing, Fintech, Edtech và AI/Blockchain.
                         </p>
                         <Link to="/jobs">
                             <Button className="rounded-xl px-6 h-11 bg-gradient-to-r from-primary to-primary/80 text-white font-semibold shadow-md shadow-primary/30 hover:opacity-90 transition-opacity">

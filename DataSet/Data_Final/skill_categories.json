@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Ngôn ngữ lập trình",
-        "slug": "ngôn-ngữ-lập-trình",
+        "slug": "ngon-ngu-lap-trinh",
         "description": "Danh mục về Ngôn ngữ lập trình",
         "is_active": true,
         "display_order": 1,
@@ -13,7 +13,7 @@
     {
         "id": 2,
         "name": "Cơ sở dữ liệu",
-        "slug": "cơ-sở-dữ-liệu",
+        "slug": "co-so-du-lieu",
         "description": "Danh mục về Cơ sở dữ liệu",
         "is_active": true,
         "display_order": 2,
@@ -24,7 +24,7 @@
     {
         "id": 3,
         "name": "Kỹ năng mềm",
-        "slug": "kỹ-năng-mềm",
+        "slug": "ky-nang-mem",
         "description": "Danh mục về Kỹ năng mềm",
         "is_active": true,
         "display_order": 3,
@@ -35,7 +35,7 @@
     {
         "id": 4,
         "name": "Thiết kế",
-        "slug": "thiết-kế",
+        "slug": "thiet-ke",
         "description": "Danh mục về Thiết kế",
         "is_active": true,
         "display_order": 4,

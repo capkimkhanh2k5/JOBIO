@@ -73,7 +73,17 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             return [AllowAny()]
         
         # Admin only endpoints
-        admin_actions = ['destroy', 'update_status_action', 'update_role_action']
+        admin_actions = [
+            'list',
+            'retrieve',
+            'activity_logs',
+            'destroy',
+            'update_status_action',
+            'update_role_action',
+            'stats',
+            'export',
+            'bulk_action',
+        ]
         if self.action in admin_actions:
             return [IsAuthenticated(), IsAdmin()]
             
@@ -213,18 +223,12 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     @action(detail=False, methods=['get'], url_path='stats')
     def stats(self, request):
         """GET /api/users/stats/ - Thống kê users (admin only)"""
-        if not request.user.role == CustomUser.Role.ADMIN:
-             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-             
         data = get_user_stats()
         return Response(data)
 
     @action(detail=False, methods=['get'], url_path='export')
     def export(self, request):
         """GET /api/users/export/ - Export users CSV (admin only)"""
-        if not request.user.role == CustomUser.Role.ADMIN:
-             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-             
         try:
             csv_content = export_users_csv()
             response = HttpResponse(csv_content, content_type='text/csv')
@@ -236,9 +240,6 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     @action(detail=False, methods=['post'], url_path='bulk-action')
     def bulk_action(self, request):
         """POST /api/users/bulk-action/ - Bulk actions (admin only)"""
-        if not request.user.role == CustomUser.Role.ADMIN:
-             return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-             
         ids = request.data.get('ids', [])
         action_type = request.data.get('action')
         value = request.data.get('value')

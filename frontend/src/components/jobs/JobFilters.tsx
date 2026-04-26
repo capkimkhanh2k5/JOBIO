@@ -4,7 +4,6 @@ import { taxonomyService } from "@/services/taxonomyService";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { X, Search, RotateCcw, Wifi } from "lucide-react";
@@ -121,8 +120,8 @@ export function JobFilters() {
 
             <div className="h-px bg-gray-100" />
 
-            {/* Ngành nghề */}
-            <FilterSection title="Ngành nghề">
+            {/* Lĩnh vực */}
+            <FilterSection title="Lĩnh vực">
                 <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger className="w-full bg-gray-50 border-gray-200 text-sm h-9 rounded-lg focus:ring-primary/20">
                         <SelectValue placeholder="Tất cả ngành" />

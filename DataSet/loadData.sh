@@ -309,6 +309,41 @@ import_data() {
     fi
 }
 
+sync_sequences() {
+    log_section "🔄 SYNCHRONIZING DATABASE SEQUENCES"
+    
+    cd "$BACKEND_DIR"
+    
+    if [ $DRY_RUN -eq 1 ]; then
+        log_info "(DRY-RUN) Skipping sequence synchronization"
+        return 0
+    fi
+    
+    DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME $PYTHON_CMD << 'EOF'
+import os
+import sys
+import django
+from django.core.management.color import no_style
+
+sys.path.append(os.getcwd())
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+
+from django.db import connection
+from django.apps import apps
+
+statements_executed = 0
+with connection.cursor() as cursor:
+    for app_config in apps.get_app_configs():
+        if app_config.models_module is not None:
+            statements = connection.ops.sequence_reset_sql(no_style(), app_config.get_models())
+            for statement in statements:
+                cursor.execute(statement)
+                statements_executed += 1
+print(f"\n✅ Synchronized PostgreSQL sequences. Executed {statements_executed} statements.\n")
+EOF
+}
+
 verify_data() {
     log_section "✅ VERIFYING IMPORTED DATA"
     
@@ -404,6 +439,7 @@ main() {
     backup_database
     flush_database
     import_data
+    sync_sequences
     verify_data
     generate_report
     

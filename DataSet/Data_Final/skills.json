@@ -62,7 +62,7 @@
     {
         "id": 6,
         "name": "Làm việc nhóm",
-        "slug": "làm-việc-nhóm",
+        "slug": "lam-viec-nhom",
         "description": "Kỹ năng Làm việc nhóm",
         "is_verified": true,
         "usage_count": 79,
@@ -74,7 +74,7 @@
     {
         "id": 7,
         "name": "Giao tiếp",
-        "slug": "giao-tiếp",
+        "slug": "giao-tiep",
         "description": "Kỹ năng Giao tiếp",
         "is_verified": true,
         "usage_count": 76,

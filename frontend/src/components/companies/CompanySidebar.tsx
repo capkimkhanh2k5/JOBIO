@@ -38,7 +38,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
     const industryLabel =
         company.industry_name ||
         (typeof company.industry === 'string' ? company.industry : company.industry?.name) ||
-        'Ngành nghề chưa cập nhật';
+        'Lĩnh vực chưa cập nhật';
 
     useEffect(() => {
         if (isAuthenticated) {

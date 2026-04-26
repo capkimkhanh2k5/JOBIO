@@ -1,4 +1,5 @@
 from django.db import models
+from apps.core.utils import slugify_vietnamese as slugify
 
 
 class Skill(models.Model):
@@ -47,6 +48,13 @@ class Skill(models.Model):
         auto_now=True,
         verbose_name='Ngày cập nhật'
     )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        else:
+            self.slug = slugify(self.slug)
+        super().save(*args, **kwargs)
     
     class Meta:
         db_table = 'skills'

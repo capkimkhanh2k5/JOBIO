@@ -11,6 +11,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { dashboardService } from '@/services/dashboardService';
 import { toast } from 'sonner';
 
+type DetailType = Record<string, any> | string | null;
+
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -44,7 +46,7 @@ interface ActivityLog {
     user_email: string;
     action: string;
     entity_type: string;
-    details: string;
+    details: DetailType;
     ip_address: string;
     created_at: string;
 }
@@ -90,6 +92,21 @@ export default function SystemSettings() {
     });
     const files: FileUploadItem[] = Array.isArray(filesRaw) ? filesRaw : filesRaw?.results ?? [];
 
+    const [editedSettings, setEditedSettings] = useState<Record<number, string>>({});
+    const updateSettingsMut = useMutation({
+        mutationFn: async () => {
+            const promises = Object.entries(editedSettings).map(([id, val]) =>
+                dashboardService.updateSystemSetting(Number(id), { setting_value: val })
+            );
+            return Promise.all(promises);
+        },
+        onSuccess: () => {
+            toast.success('Đã lưu cấu hình hệ thống!');
+            setEditedSettings({});
+        },
+        onError: () => toast.error('Có lỗi xảy ra khi lưu cấu hình.'),
+    });
+
     return (
         <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)}>
@@ -129,8 +146,8 @@ export default function SystemSettings() {
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-slate-100/50 flex items-center justify-between">
                             <p className="text-sm font-bold text-slate-900">Cấu hình hệ thống</p>
-                            <Button size="sm" className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white">
-                                <Save className="w-3.5 h-3.5 mr-1.5" /> Lưu thay đổi
+                            <Button size="sm" onClick={() => updateSettingsMut.mutate()} disabled={Object.keys(editedSettings).length === 0 || updateSettingsMut.isPending} className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white">
+                                {updateSettingsMut.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />} Lưu thay đổi
                             </Button>
                         </div>
                         {loadingSettings ? (
@@ -147,15 +164,20 @@ export default function SystemSettings() {
                                             <p className="text-xs text-slate-500 mt-1">{setting.description}</p>
                                         </div>
                                         <div className="ml-4 min-w-[200px]">
-                                            {setting.setting_type === 'boolean' ? (
-                                                <button className={`flex items-center gap-2 cursor-pointer ${setting.setting_value === 'true' ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                                    {setting.setting_value === 'true' ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7" />}
-                                                    <span className="text-xs font-semibold">{setting.setting_value === 'true' ? 'Bật' : 'Tắt'}</span>
-                                                </button>
-                                            ) : (
+                                            {setting.setting_type === 'boolean' ? (() => {
+                                                const currentVal = editedSettings[setting.id] !== undefined ? editedSettings[setting.id] : setting.setting_value;
+                                                const isTrue = currentVal === 'true';
+                                                return (
+                                                    <button onClick={() => setEditedSettings(prev => ({ ...prev, [setting.id]: isTrue ? 'false' : 'true' }))} className={`flex items-center gap-2 cursor-pointer ${isTrue ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                                        {isTrue ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7" />}
+                                                        <span className="text-xs font-semibold">{isTrue ? 'Bật' : 'Tắt'}</span>
+                                                    </button>
+                                                );
+                                            })() : (
                                                 <input
                                                     type={setting.setting_type === 'number' ? 'number' : 'text'}
-                                                    defaultValue={setting.setting_value}
+                                                    value={editedSettings[setting.id] !== undefined ? editedSettings[setting.id] : setting.setting_value}
+                                                    onChange={e => setEditedSettings(prev => ({ ...prev, [setting.id]: e.target.value }))}
                                                     className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-900 bg-white/50 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300"
                                                 />
                                             )}
@@ -211,7 +233,11 @@ export default function SystemSettings() {
                                                 </Badge>
                                             </td>
                                             <td className="py-4 px-6 text-slate-600">{log.entity_type}</td>
-                                            <td className="py-4 px-6 text-slate-500 text-xs">{log.details}</td>
+                                            <td className="py-4 px-6 text-slate-500 text-xs">
+                                                {typeof log.details === 'object' && log.details !== null ? (
+                                                    <pre className="whitespace-pre-wrap max-w-xs truncate font-sans text-[11px]">{JSON.stringify(log.details)}</pre>
+                                                ) : (log.details || '—')}
+                                            </td>
                                             <td className="py-4 px-6 text-slate-400 text-xs font-mono">{log.ip_address}</td>
                                             <td className="py-4 px-6 text-slate-500 text-xs">{new Date(log.created_at).toLocaleString('vi-VN')}</td>
                                         </tr>
@@ -389,7 +415,7 @@ function SentEmailsTab() {
                         <tbody className="divide-y divide-slate-100">
                             {emails.map((e: any) => (
                                 <tr key={e.id} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="py-4 px-6 font-medium text-slate-900 text-xs">{e.recipient_email ?? e.to_email ?? '—'}</td>
+                                    <td className="py-4 px-6 font-medium text-slate-900 text-xs">{e.recipient ?? e.recipient_email ?? e.to_email ?? '—'}</td>
                                     <td className="py-4 px-6 text-slate-600 text-xs">{e.subject}</td>
                                     <td className="py-4 px-6">
                                         <Badge className={`${statusCls[e.status] ?? 'bg-slate-50 text-slate-600'} border text-[10px] font-bold`}>{e.status}</Badge>

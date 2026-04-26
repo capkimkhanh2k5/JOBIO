@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Bảo hiểm",
-        "slug": "bảo-hiểm",
+        "slug": "bao-hiem",
         "icon_url": "",
         "is_active": true,
         "display_order": 1,
@@ -13,7 +13,7 @@
     {
         "id": 2,
         "name": "Ngày nghỉ",
-        "slug": "ngày-nghỉ",
+        "slug": "ngay-nghi",
         "icon_url": "",
         "is_active": true,
         "display_order": 1,
@@ -24,7 +24,7 @@
     {
         "id": 3,
         "name": "Thưởng",
-        "slug": "thưởng",
+        "slug": "thuong",
         "icon_url": "",
         "is_active": true,
         "display_order": 1,
@@ -35,7 +35,7 @@
     {
         "id": 4,
         "name": "Sức khỏe",
-        "slug": "sức-khỏe",
+        "slug": "suc-khoe",
         "icon_url": "",
         "is_active": true,
         "display_order": 1,
@@ -46,7 +46,7 @@
     {
         "id": 5,
         "name": "Đào tạo",
-        "slug": "đào-tạo",
+        "slug": "dao-tao",
         "icon_url": "",
         "is_active": true,
         "display_order": 1,

@@ -37,7 +37,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Post.objects.all()
+        qs = Post.objects.select_related('author', 'category', 'company').prefetch_related('tags')
         
         # Apply is_featured filter if provided
         is_featured = self.request.query_params.get('is_featured')
@@ -52,6 +52,12 @@ class PostViewSet(viewsets.ModelViewSet):
         tag_id = self.request.query_params.get('tag_id')
         if tag_id:
             qs = qs.filter(tags__id=tag_id).distinct()
+
+        # Status filter - admin only
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            if user.is_authenticated and user.is_staff:
+                qs = qs.filter(status=status_filter)
 
         if user.is_authenticated:
             # Staff sees all (with optional feature filter)

@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import {
     Search, Ban,
     Download, Eye, ChevronLeft, ChevronRight, UserCog, Loader2,
-    Users, Building2, ShieldAlert, UserCheck, Mail, Phone,
-    History, Zap, ShieldCheck
+    Users, ShieldAlert, UserCheck, Mail, Phone,
+    History, Zap, ShieldCheck, Building2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,7 +63,6 @@ const statusColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
     active: 'Hoạt động',
-
     banned: 'Bị khóa',
 };
 
@@ -89,6 +88,10 @@ export default function UserManagement() {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [roleFilter, statusFilter]);
+
     const { data: usersData, isLoading: loadingUsers } = useQuery({
         queryKey: ['admin-users', debouncedSearch, roleFilter, statusFilter, page],
         queryFn: () => dashboardService.listUsers({
@@ -110,13 +113,13 @@ export default function UserManagement() {
     const updateStatusMutation = useMutation({
         mutationFn: ({ userId, status }: { userId: number, status: string }) =>
             dashboardService.updateUserStatus(userId, status),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['admin-users'] });
             queryClient.invalidateQueries({ queryKey: ['admin-user-stats'] });
             toast.success('Cập nhật trạng thái thành công');
             if (viewUser) {
                 // Update local viewUser state if drawer is open
-                setViewUser(prev => prev ? { ...prev, status: updateStatusMutation.variables?.status ?? prev.status } : null);
+                setViewUser(prev => prev ? { ...prev, status: variables.status ?? prev.status } : null);
             }
         },
         onError: () => {
@@ -155,9 +158,9 @@ export default function UserManagement() {
         window.open(gmailUrl, '_blank');
     };
 
-    const users: User[] = usersData?.results ?? (Array.isArray(usersData) ? usersData : []);
-    const totalCount = usersData?.count ?? users.length;
-    const totalPages = Math.ceil(totalCount / 10) || 1;
+    const users = usersData?.results ?? [];
+    const totalCount = usersData?.count ?? 0;
+    const totalPages = usersData?.total_pages ?? 1;
 
 
     const stats = [
@@ -445,10 +448,10 @@ export default function UserManagement() {
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {loadingUsers ? (
-                                    <tr><td colSpan={6} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                                    <tr><td colSpan={7} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
                                 ) : users.length === 0 ? (
-                                    <tr><td colSpan={6} className="py-20 text-center text-slate-400 font-medium">Không tìm thấy người dùng nào</td></tr>
-                                ) : users.map((user) => (
+                                    <tr><td colSpan={7} className="py-20 text-center text-slate-400 font-medium">Không tìm thấy người dùng nào</td></tr>
+                                ) : users.map((user: any) => (
                                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">

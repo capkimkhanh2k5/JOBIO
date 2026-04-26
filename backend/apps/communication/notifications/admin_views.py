@@ -4,6 +4,7 @@ Admin-only notification views — broadcast notifications to user groups.
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
+from re import sub
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -13,6 +14,18 @@ from apps.core.users.permissions import IsAdmin
 from apps.core.users.models import CustomUser
 from .models import Notification
 from apps.communication.notification_types.models import NotificationType
+
+
+def _parse_int_param(raw_value, default: int, min_value: int, max_value: int) -> int:
+    try:
+        parsed = int(raw_value)
+    except (TypeError, ValueError):
+        return default
+    return max(min_value, min(parsed, max_value))
+
+
+def _normalize_type_name(value: str) -> str:
+    return sub(r'[^a-z0-9]+', '_', (value or '').strip().lower()).strip('_')
 
 
 @api_view(['POST'])
@@ -120,8 +133,8 @@ def admin_notification_list(request):
     GET /api/notifications/admin-list/?page=1&page_size=20&search=&type=&type_id=&is_read=
     Danh sách tất cả thông báo đã gửi — phân trang.
     """
-    page = max(1, int(request.query_params.get('page', 1)))
-    page_size = min(50, int(request.query_params.get('page_size', 20)))
+    page = _parse_int_param(request.query_params.get('page', 1), default=1, min_value=1, max_value=100000)
+    page_size = _parse_int_param(request.query_params.get('page_size', 20), default=20, min_value=1, max_value=50)
     search = request.query_params.get('search', '').strip()
     notif_type = request.query_params.get('type', '').strip()
     type_id = request.query_params.get('type_id', '')
@@ -140,9 +153,22 @@ def admin_notification_list(request):
         else:
             return Response({'detail': 'is_read phải là true/false.'}, status=status.HTTP_400_BAD_REQUEST)
     if notif_type:
-        qs = qs.filter(notification_type__type_name__iexact=notif_type)
+        notif_type_normalized = _normalize_type_name(notif_type)
+        matched_type_ids = [
+            t.id
+            for t in NotificationType.objects.filter(is_active=True).only('id', 'type_name')
+            if _normalize_type_name(t.type_name) == notif_type_normalized
+        ]
+        if matched_type_ids:
+            qs = qs.filter(notification_type_id__in=matched_type_ids)
+        else:
+            qs = qs.none()
+
     if type_id:
-        qs = qs.filter(notification_type_id=type_id)
+        try:
+            qs = qs.filter(notification_type_id=int(type_id))
+        except (TypeError, ValueError):
+            return Response({'detail': 'type_id phải là số nguyên.'}, status=status.HTTP_400_BAD_REQUEST)
 
     total = qs.count()
     offset = (page - 1) * page_size
@@ -156,10 +182,18 @@ def admin_notification_list(request):
             'content': n.content,
             'is_read': n.is_read,
             'created_at': n.created_at.isoformat(),
+            'read_at': n.read_at.isoformat() if n.read_at else None,
+            'link': n.link,
+            'entity_type': n.entity_type,
+            'entity_id': n.entity_id,
             'user_email': n.user.email if n.user else None,
             'user_name': n.user.full_name if n.user else None,
             'user_role': n.user.role if n.user else None,
-            'notification_type': n.notification_type.type_name if n.notification_type else None,
+            'notification_type': {
+                'id': n.notification_type.id,
+                'type_name': n.notification_type.type_name,
+            } if n.notification_type else None,
+            'notification_type_name': n.notification_type.type_name if n.notification_type else None,
         })
 
     return Response({
@@ -197,5 +231,21 @@ def admin_bulk_mark_as_read(request):
     if not isinstance(ids, list):
         return Response({'detail': 'ids phải là danh sách.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    count = Notification.objects.filter(id__in=ids).update(is_read=True)
+    if ids:
+        count = Notification.objects.filter(id__in=ids, is_read=False).update(is_read=True)
+    else:
+        count = Notification.objects.filter(is_read=False).update(is_read=True)
     return Response({'detail': f'Đã đánh dấu {count} thông báo là đã đọc.'})
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdmin])
+def admin_delete_notification(request, pk):
+    """
+    DELETE /api/notifications/admin-list/:id/delete/
+    Xóa 1 thông báo bất kỳ trong danh sách admin.
+    """
+    deleted, _ = Notification.objects.filter(pk=pk).delete()
+    if deleted == 0:
+        return Response({'detail': 'Thông báo không tồn tại.'}, status=status.HTTP_404_NOT_FOUND)
+    return Response(status=status.HTTP_204_NO_CONTENT)

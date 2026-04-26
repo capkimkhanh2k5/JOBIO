@@ -111,7 +111,7 @@ export const dashboardService = {
   },
 
   bulkUserAction(action: string, userIds: number[]) {
-    return api.post('/api/users/bulk-action/', { action, user_ids: userIds });
+    return api.post('/api/users/bulk-action/', { action, ids: userIds });
   },
 
   exportUsers() {
@@ -188,6 +188,16 @@ export const dashboardService = {
     return api.get('/api/jobs/admin-jobs/export/', { params, responseType: 'blob' });
   },
 
+  // ─── Job Marketplace (Admin) ──────────────────────────────────────────────
+
+  getJobStats() {
+    return api.get('/api/jobs/admin-jobs/stats/');
+  },
+
+  listAdminJobs(params?: { page?: number; search?: string; status?: string }) {
+    return api.get('/api/jobs/admin-jobs/', { params });
+  },
+
   getReportStats() {
     return api.get('/api/reports/admin-reports/stats/');
   },
@@ -210,10 +220,10 @@ export const dashboardService = {
   listSkills(params?: { category?: number; search?: string; page?: number }) {
     return api.get('/api/skills/', { params });
   },
-  createSkill(data: { name: string; category: number; description?: string }) {
+  createSkill(data: { name: string; slug: string; category: number; description?: string }) {
     return api.post('/api/skills/', data);
   },
-  updateSkill(id: number, data: Partial<{ name: string; description: string; is_active: boolean }>) {
+  updateSkill(id: number, data: Partial<{ name: string; slug: string; description: string; is_active: boolean; category: number }>) {
     return api.patch(`/api/skills/${id}/`, data);
   },
   deleteSkill(id: number) { return api.delete(`/api/skills/${id}/`); },
@@ -221,10 +231,10 @@ export const dashboardService = {
   listIndustries(params?: { search?: string; page?: number }) {
     return api.get('/api/industries/', { params });
   },
-  createIndustry(data: { name: string; description?: string; icon?: string }) {
+  createIndustry(data: { name: string; slug: string; description?: string; icon_url?: string }) {
     return api.post('/api/industries/', data);
   },
-  updateIndustry(id: number, data: Partial<{ name: string; description: string; icon: string }>) {
+  updateIndustry(id: number, data: Partial<{ name: string; slug: string; description: string; icon_url: string }>) {
     return api.patch(`/api/industries/${id}/`, data);
   },
   deleteIndustry(id: number) { return api.delete(`/api/industries/${id}/`); },
@@ -232,10 +242,10 @@ export const dashboardService = {
   listJobCategories(params?: { search?: string; page?: number }) {
     return api.get('/api/job-categories/', { params });
   },
-  createJobCategory(data: { name: string; parent?: number; icon?: string; description?: string }) {
+  createJobCategory(data: { name: string; slug: string; parent?: number; icon_url?: string; description?: string }) {
     return api.post('/api/job-categories/', data);
   },
-  updateJobCategory(id: number, data: Partial<{ name: string; parent: number; icon: string }>) {
+  updateJobCategory(id: number, data: Partial<{ name: string; slug: string; parent: number; icon_url: string }>) {
     return api.patch(`/api/job-categories/${id}/`, data);
   },
   deleteJobCategory(id: number) { return api.delete(`/api/job-categories/${id}/`); },
@@ -243,10 +253,10 @@ export const dashboardService = {
   listBenefitCategories(params?: { search?: string }) {
     return api.get('/api/benefit-categories/', { params });
   },
-  createBenefitCategory(data: { name: string; icon?: string; description?: string }) {
+  createBenefitCategory(data: { name: string; slug: string; icon_url?: string; description?: string }) {
     return api.post('/api/benefit-categories/', data);
   },
-  updateBenefitCategory(id: number, data: Partial<{ name: string; icon: string; description: string }>) {
+  updateBenefitCategory(id: number, data: Partial<{ name: string; slug: string; icon_url: string; description: string }>) {
     return api.patch(`/api/benefit-categories/${id}/`, data);
   },
   deleteBenefitCategory(id: number) { return api.delete(`/api/benefit-categories/${id}/`); },

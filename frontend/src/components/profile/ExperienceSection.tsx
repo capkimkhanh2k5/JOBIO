@@ -104,7 +104,7 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
         onError: () => toast.error('Không thể lưu. Hãy thử lại.')
     });
 
-    const handleChange = (key: string, value: string | boolean) => setFormData(prev => ({ ...prev, [key]: value }));
+    const handleChange = (key: string, value: any) => setFormData(prev => ({ ...prev, [key]: value }));
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -122,7 +122,7 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
 
     const industries = Array.isArray(industriesFull) ? industriesFull : (industriesFull as any).results || [];
 
-    const industryOptions = industries.map(i => ({
+    const industryOptions = industries.map((i: any) => ({
         value: i.id,
         label: i.name
     }));
@@ -133,7 +133,7 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
         staleTime: 24 * 60 * 60 * 1000,
     });
 
-    const provinceOptions = provinces.map(p => ({
+    const provinceOptions = provinces.map((p: any) => ({
         value: p.id,
         label: p.province_name
     }));
@@ -161,13 +161,13 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Ngành nghề</Label>
+                            <Label>Lĩnh vực</Label>
                             <Combobox 
                                 options={industryOptions}
                                 value={formData.industry_id}
                                 onChange={(val) => handleChange('industry_id', val)}
-                                placeholder="Chọn ngành nghề"
-                                searchPlaceholder="Tìm kiếm ngành nghề..."
+                                placeholder="Chọn lĩnh vực"
+                                searchPlaceholder="Tìm kiếm lĩnh vực..."
                             />
                         </div>
                         <div className="space-y-2">

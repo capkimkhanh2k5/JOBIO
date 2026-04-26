@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
     Wallet, TrendingUp, DollarSign, CreditCard,
     Search, Loader2, Download,
-    Building2, Mail,
+    Mail,
     ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle
 } from 'lucide-react';
 import { dashboardService } from '@/services/dashboardService';
@@ -30,6 +30,13 @@ const statusColors: Record<string, string> = {
     refunded: 'bg-slate-50 text-slate-600 border-slate-200',
 };
 
+const statusLabels: Record<string, string> = {
+    completed: 'Thành công',
+    pending: 'Đang xử lý',
+    failed: 'Thất bại',
+    refunded: 'Đã hoàn tiền',
+};
+
 const statusIcons: Record<string, any> = {
     completed: CheckCircle2,
     pending: Loader2,
@@ -53,6 +60,10 @@ export default function FinancialManagement() {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [statusFilter]);
+
     // Fetch Stats
     const { data: stats } = useQuery({
         queryKey: ['admin-finance-stats'],
@@ -64,14 +75,14 @@ export default function FinancialManagement() {
         queryKey: ['admin-transactions', page, debouncedSearch, statusFilter],
         queryFn: () => dashboardService.listAdminTransactions({
             page,
-            search: debouncedSearch,
+            search: debouncedSearch || undefined,
             status: statusFilter !== 'all' ? statusFilter : undefined
         }).then(r => r.data),
     });
 
     const transactions = transactionsData?.results ?? [];
     const totalCount = transactionsData?.count ?? 0;
-    const totalPages = Math.ceil(totalCount / 10) || 1;
+    const totalPages = transactionsData?.total_pages ?? 1;
 
     // Handle Export CSV
     const handleExportCSV = async () => {
@@ -86,11 +97,11 @@ export default function FinancialManagement() {
             const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            
+
             link.setAttribute('href', url);
             link.setAttribute('download', `Giao_Dich_${new Date().toISOString().split('T')[0]}.csv`);
             link.style.visibility = 'hidden';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -120,7 +131,7 @@ export default function FinancialManagement() {
                     </h1>
                     <p className="text-slate-500 text-sm font-medium mt-1">Theo dõi doanh thu, giao dịch và các gói dịch vụ toàn hệ thống.</p>
                 </div>
-                <Button 
+                <Button
                     variant="outline"
                     onClick={handleExportCSV}
                     className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
@@ -187,6 +198,7 @@ export default function FinancialManagement() {
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Mã giao dịch</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Khách hàng</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Số tiền</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Phương thức</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Trạng thái</th>
                                     <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thời gian</th>
                                 </tr>
@@ -208,9 +220,6 @@ export default function FinancialManagement() {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                                                        <Building2 className="w-4 h-4 text-slate-400" />
-                                                    </div>
                                                     <div className="flex flex-col">
                                                         <span className="font-bold text-slate-900 text-sm truncate max-w-[150px]">{txn.company_name}</span>
                                                         <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
@@ -223,9 +232,14 @@ export default function FinancialManagement() {
                                                 <span className="font-black text-slate-900">{formatCurrency(txn.amount)}</span>
                                             </td>
                                             <td className="py-4 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-slate-700 text-xs">{txn.payment_method?.name || 'N/A'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6">
                                                 <Badge variant="outline" className={`${statusColors[txn.status] ?? statusColors.pending} flex w-fit items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md`}>
                                                     <StatusIcon className={`w-3.5 h-3.5 ${txn.status === 'pending' ? 'animate-spin' : ''}`} />
-                                                    {txn.status}
+                                                    {statusLabels[txn.status] ?? txn.status}
                                                 </Badge>
                                             </td>
                                             <td className="py-4 px-6">

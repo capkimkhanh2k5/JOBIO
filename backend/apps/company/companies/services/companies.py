@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.utils.text import slugify
+from apps.core.utils import slugify_vietnamese as slugify
 from django.core.files.uploadedfile import UploadedFile
 
 from pydantic import BaseModel

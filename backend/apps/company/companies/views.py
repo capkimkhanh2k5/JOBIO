@@ -60,6 +60,10 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         GET /api/companies/ - Danh sách công ty (công khai)
         """
+        verification_status = request.query_params.get('verification_status')
+        if verification_status == 'pending' and not request.user.is_staff:
+            return Response({"detail": "You don't have permission to view pending companies"}, status=status.HTTP_403_FORBIDDEN)
+
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -402,6 +406,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         GET /api/companies/moderation-stats/ - Thống kê kiểm duyệt cho Admin
         """
+        if not request.user.is_staff:
+            return Response({"detail": "You don't have permission to view moderation stats"}, status=status.HTTP_403_FORBIDDEN)
+
         pending_companies = Company.objects.filter(verification_status='pending').count()
         verified_companies = Company.objects.filter(verification_status='verified').count()
         rejected_companies = Company.objects.filter(verification_status='rejected').count()

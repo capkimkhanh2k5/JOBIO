@@ -5,15 +5,37 @@ export interface BlogPostPayload {
   title: string;
   summary?: string;
   content: string;
-  category_id?: string | number;
-  status?: string;
+  category_id?: string | number | null;
+  tag_ids?: number[];
+  status?: 'draft' | 'published' | 'archived';
   thumbnail?: string;
+  is_featured?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+}
+
+export interface BlogCategoryPayload {
+  name: string;
+  description?: string;
+}
+
+export interface BlogTagPayload {
+  name: string;
 }
 
 export const blogService = {
   // ─── Posts ────────────────────────────────────────────────────────────
 
-  listPosts(params?: { category_id?: number; tag_id?: number; status?: string; search?: string; is_featured?: boolean; page?: number; page_size?: number; ordering?: string }) {
+  listPosts(params?: {
+    category_id?: number;
+    tag_id?: number;
+    status?: string;
+    search?: string;
+    is_featured?: boolean;
+    page?: number;
+    page_size?: number;
+    ordering?: string;
+  }) {
     return api.get<PaginatedResponse<BlogPost>>('/api/blog/posts/', { params });
   },
 
@@ -43,6 +65,10 @@ export const blogService = {
     return api.delete(`/api/blog/posts/${slug}/`);
   },
 
+  publishPost(slug: string) {
+    return api.post<{ status: string; published_at: string }>(`/api/blog/posts/${slug}/publish/`);
+  },
+
   uploadImage(file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -62,17 +88,58 @@ export const blogService = {
     });
   },
 
-  // ─── Categories & Tags ────────────────────────────────────────────────
+  // ─── Categories ────────────────────────────────────────────────────
 
-  listCategories() {
-    return api.get<PaginatedResponse<BlogCategory>>('/api/blog/categories/');
+  listCategories(params?: { search?: string; page?: number }) {
+    return api.get<PaginatedResponse<BlogCategory>>('/api/blog/categories/', { params });
   },
 
-  listTags() {
-    return api.get<PaginatedResponse<BlogTag>>('/api/blog/tags/');
+  getCategory(slug: string) {
+    return api.get<BlogCategory>(`/api/blog/categories/${slug}/`);
   },
+
+  createCategory(data: BlogCategoryPayload) {
+    return api.post<BlogCategory>('/api/blog/categories/', data);
+  },
+
+  updateCategory(slug: string, data: Partial<BlogCategoryPayload>) {
+    return api.patch<BlogCategory>(`/api/blog/categories/${slug}/`, data);
+  },
+
+  deleteCategory(slug: string) {
+    return api.delete(`/api/blog/categories/${slug}/`);
+  },
+
+  // ─── Tags ──────────────────────────────────────────────────────────
+
+  listTags(params?: { search?: string; page?: number }) {
+    return api.get<PaginatedResponse<BlogTag>>('/api/blog/tags/', { params });
+  },
+
+  getTag(slug: string) {
+    return api.get<BlogTag>(`/api/blog/tags/${slug}/`);
+  },
+
+  createTag(data: BlogTagPayload) {
+    return api.post<BlogTag>('/api/blog/tags/', data);
+  },
+
+  updateTag(slug: string, data: Partial<BlogTagPayload>) {
+    return api.patch<BlogTag>(`/api/blog/tags/${slug}/`, data);
+  },
+
+  deleteTag(slug: string) {
+    return api.delete(`/api/blog/tags/${slug}/`);
+  },
+
+  // ─── Admin ────────────────────────────────────────────────────────
 
   getAdminStats() {
-    return api.get('/api/blog/posts/admin-stats/');
+    return api.get<{
+      total_posts: number;
+      published_posts: number;
+      draft_posts: number;
+      total_views: number;
+    }>('/api/blog/posts/admin-stats/');
   },
 };
