@@ -16,7 +16,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useFilterStore, CVSearchFilters as Filters } from '@/store/filterStore';
 import { taxonomyService } from '@/services/taxonomyService';
 
+const getSkillName = (skill: any) => {
+    if (typeof skill === 'string') return skill;
+    return skill?.name || skill?.skill_name || '';
+};
 
+const getProvinceName = (province: any) => {
+    if (typeof province === 'string') return province;
+    return province?.province_name || province?.name || '';
+};
 
 export const CVSearchFiltersPanel = () => {
     const filters = useFilterStore((state: any) => state.cvFilters);
@@ -27,15 +35,19 @@ export const CVSearchFiltersPanel = () => {
 
     const { data: skillsRaw } = useQuery({
         queryKey: ['skills-suggestions'],
-        queryFn: () => taxonomyService.listSkills({ page_size: 20 }).then(r => r.data),
+        queryFn: () => taxonomyService.listSkills({ page_size: 20 }),
     });
-    const SKILLS_SUGGESTIONS: string[] = ((skillsRaw as any)?.results ?? []).map((s: any) => s.name);
+    const SKILLS_SUGGESTIONS: string[] = (Array.isArray(skillsRaw) ? skillsRaw : [])
+        .map(getSkillName)
+        .filter(Boolean);
 
     const { data: provincesRaw } = useQuery({
         queryKey: ['provinces-locations'],
-        queryFn: () => taxonomyService.listProvinces({ page_size: 100 }).then(r => r.data),
+        queryFn: () => taxonomyService.listProvinces(),
     });
-    const LOCATIONS: string[] = ((provincesRaw as any)?.results ?? []).map((p: any) => p.province_name);
+    const LOCATIONS: string[] = (Array.isArray(provincesRaw) ? provincesRaw : [])
+        .map(getProvinceName)
+        .filter(Boolean);
 
     // Custom expand/collapse for sections
     const [sections, setSections] = useState({

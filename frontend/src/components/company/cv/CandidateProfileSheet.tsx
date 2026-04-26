@@ -11,7 +11,6 @@ import { Separator } from "@/components/ui/separator";
 import { MapPin, Briefcase, Mail, Phone, ExternalLink, Send, Award, CheckCircle } from 'lucide-react';
 import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
-import { RecommendationsSection } from '@/components/candidate/recommendations/RecommendationsSection';
 
 interface CandidateProfileSheetProps {
     candidateId: string | null;
@@ -22,7 +21,6 @@ interface CandidateProfileSheetProps {
 
 export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelectCandidate }: CandidateProfileSheetProps) => {
     const [profile, setProfile] = useState<any>(null);
-    const [recommendations, setRecommendations] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -30,23 +28,14 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
             fetchProfile(candidateId);
         } else {
             setProfile(null);
-            setRecommendations([]);
         }
     }, [open, candidateId]);
 
     const fetchProfile = async (id: string) => {
         setLoading(true);
         try {
-            // We only need to fetch the profile data here. Recommendations are handled inside the RecommendationsSection component.
             const profRes = await candidateService.getById(Number(id)).then(r => r.data);
             setProfile(profRes);
-
-            // Note: The previous "recommendations" state was actually "Similar Candidates". 
-            // We simulate it here just so the "Ứng viên tương tự" section doesn't break.
-            setRecommendations([
-                { id: '102', name: 'Trần Thị B', avatar_url: 'https://i.pravatar.cc/150?u=102', current_position: 'UX/UI Designer', match_score: 85 },
-                { id: '103', name: 'Lê Hoàng C', avatar_url: 'https://i.pravatar.cc/150?u=103', current_position: 'Backend Developer', match_score: 78 }
-            ]);
         } catch (error) {
             toast.error("Không thể tải thông tin ứng viên");
         } finally {
@@ -55,7 +44,8 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
     };
 
     const handleInvite = () => {
-        toast.success(`Đã gửi lời mời ứng tuyển đến ${profile?.name}`);
+        const candidateName = profile?.name || profile?.user?.full_name || 'ứng viên';
+        toast.success(`Đã gửi lời mời ứng tuyển đến ${candidateName}`);
     };
 
     return (
@@ -232,44 +222,6 @@ export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelec
                                     </a>
                                 </div>
                             </section>
-
-                            {/* Recommendations (Real) */}
-                            {profile.id && (
-                                <>
-                                    <Separator className="bg-border/50" />
-                                    <div className="-mx-8"> {/* Negative margin to offset padding if needed, or simply render it. The SectionWrapper has its own padding */}
-                                        <RecommendationsSection userId={profile.id} userName={profile.name} isOwner={false} />
-                                    </div>
-                                </>
-                            )}
-
-                            {/* Similar Candidates (previously named Recommendations) */}
-                            {recommendations.length > 0 && (
-                                <>
-                                    <Separator className="bg-border/50" />
-                                    <section>
-                                        <h3 className="text-lg font-semibold mb-4">Ứng viên tương tự</h3>
-                                        <div className="grid gap-4">
-                                            {recommendations.map(rec => (
-                                                <div key={rec.id} onClick={() => onSelectCandidate && onSelectCandidate(rec.id)} className="flex items-center gap-4 p-3 rounded-xl border border-border/40 bg-card/50 hover:bg-card transition-colors cursor-pointer group">
-                                                    <Avatar className="h-12 w-12 border border-border">
-                                                        <AvatarImage src={rec.avatar_url} />
-                                                        <AvatarFallback>{rec.name?.substring(0, 2)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-semibold text-sm group-hover:text-violet-600 truncate">{rec.name}</h4>
-                                                        <p className="text-xs text-muted-foreground truncate">{rec.current_position}</p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <div className="text-sm font-bold text-violet-600">{rec.match_score}%</div>
-                                                        <div className="text-[10px] text-muted-foreground uppercase">Độ phù hợp</div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-                                </>
-                            )}
 
                         </div>
                     ) : null}

@@ -72,6 +72,8 @@ export function CandidateDetailSheet() {
     const [updatingStatus, setUpdatingStatus] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+    const [activityNote, setActivityNote] = useState('');
+    const [savingNote, setSavingNote] = useState(false);
 
     const currentStatus = details?.status || history[0]?.new_status || history[0]?.status || 'pending';
     const statusOptions = useMemo(
@@ -84,21 +86,27 @@ export function CandidateDetailSheet() {
             (a, b) => new Date(b.changed_at || b.created_at).getTime() - new Date(a.changed_at || a.created_at).getTime()
         );
 
-        if (sortedHistory.length > 0) return sortedHistory;
-
         if (!details?.applied_at) return [];
 
-        return [
-            {
-                id: `submitted-${details.id}`,
-                status: 'pending',
-                new_status: 'pending',
-                changed_at: details.applied_at,
-                created_at: details.applied_at,
-                changed_by: null,
-                notes: 'Đơn ứng tuyển đã được gửi thành công.',
-            },
-        ];
+        const submittedItem = {
+            id: `submitted-${details.id}`,
+            status: 'pending',
+            new_status: 'pending',
+            changed_at: details.applied_at,
+            created_at: details.applied_at,
+            changed_by: null,
+            notes: 'Đơn ứng tuyển đã được gửi thành công.',
+        };
+
+        const hasSubmitted = sortedHistory.some(
+            (item) => (item.new_status || item.status) === 'pending'
+        );
+
+        if (hasSubmitted) return sortedHistory;
+
+        return [...sortedHistory, submittedItem].sort(
+            (a, b) => new Date(b.changed_at || b.created_at).getTime() - new Date(a.changed_at || a.created_at).getTime()
+        );
     }, [details?.applied_at, details?.id, history]);
 
     const handlePreviewCv = async () => {
@@ -217,11 +225,40 @@ export function CandidateDetailSheet() {
         }
     };
 
+    const handleSaveNote = async () => {
+        if (!selectedCandidateId || !activityNote.trim()) return;
+
+        setSavingNote(true);
+        try {
+            const response = await applicationService.addNotes(Number(selectedCandidateId), activityNote.trim());
+            setDetails((prev: any) => (prev ? { ...prev, notes: response.data.notes } : prev));
+            setHistory((prev) => [
+                {
+                    id: `note-${Date.now()}`,
+                    status: currentStatus,
+                    new_status: currentStatus,
+                    changed_at: new Date().toISOString(),
+                    created_at: new Date().toISOString(),
+                    changed_by: 'You',
+                    notes: `Ghi chú: ${activityNote.trim()}`,
+                },
+                ...prev,
+            ]);
+            setActivityNote('');
+            queryClient.invalidateQueries({ queryKey: ['company-candidates'] });
+            toast.success('Đã lưu ghi chú');
+        } catch (_error) {
+            toast.error('Lưu ghi chú thất bại');
+        } finally {
+            setSavingNote(false);
+        }
+    };
+
     if (!selectedCandidateId) return null;
 
     return (
         <Sheet open={!!selectedCandidateId} onOpenChange={(open) => !open && setSelectedCandidateId(null)}>
-            <SheetContent className="w-full sm:max-w-2xl bg-background border-l border-border/50 p-0 flex flex-col hide-scrollbar overflow-y-auto z-[200] shadow-2xl">
+            <SheetContent className="w-full sm:max-w-2xl bg-background border-l border-border/50 p-0 flex flex-col hide-scrollbar overflow-hidden z-[200] shadow-2xl">
                 {isLoading ? (
                     <div className="p-8 flex flex-col gap-6 w-full animate-pulse">
                         <div className="flex gap-4 items-center">
@@ -303,7 +340,7 @@ export function CandidateDetailSheet() {
                             </div>
                         </div>
 
-                        <div className="p-6 pt-0 flex-1">
+                        <div className="p-6 pt-0 flex-1 overflow-y-auto hide-scrollbar">
                             <Tabs defaultValue="cv" className="w-full mt-4">
                                 <TabsList className="w-full grid grid-cols-3 bg-slate-100/80 p-1 rounded-xl border border-slate-200 shadow-inner mb-6">
                                     <TabsTrigger value="cv" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">
@@ -511,10 +548,17 @@ export function CandidateDetailSheet() {
                                         <div className="bg-secondary/30 border border-border/50 rounded-xl p-4">
                                             <Textarea
                                                 placeholder="Thêm ghi chú nội bộ (chỉ team tuyển dụng xem được)..."
+                                                value={activityNote}
+                                                onChange={(e) => setActivityNote(e.target.value)}
                                                 className="resize-none bg-secondary/20 border-border/50 focus-visible:ring-1 focus-visible:ring-primary h-20"
                                             />
                                             <div className="flex justify-end mt-3">
-                                                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20">
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20"
+                                                    onClick={handleSaveNote}
+                                                    disabled={savingNote || !activityNote.trim()}
+                                                >
                                                     Lưu ghi chú
                                                 </Button>
                                             </div>

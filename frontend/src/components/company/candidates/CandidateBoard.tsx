@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCandidateStore } from '@/store/candidateStore';
 import { applicationService } from '@/services/applicationService';
@@ -54,6 +55,40 @@ export function CandidateBoard({
     onStatusChange: () => void;
 }) {
     const { draggedCandidateId, setDraggedCandidateId, setSelectedCandidateId } = useCandidateStore();
+    const scrollViewportRef = useRef<HTMLDivElement | null>(null);
+    const autoScrollFrameRef = useRef<number | null>(null);
+    const autoScrollDirectionRef = useRef<-1 | 0 | 1>(0);
+
+    useEffect(() => {
+        if (!draggedCandidateId) {
+            autoScrollDirectionRef.current = 0;
+            if (autoScrollFrameRef.current !== null) {
+                cancelAnimationFrame(autoScrollFrameRef.current);
+                autoScrollFrameRef.current = null;
+            }
+            return;
+        }
+
+        const tick = () => {
+            const viewport = scrollViewportRef.current;
+            const direction = autoScrollDirectionRef.current;
+
+            if (viewport && direction !== 0) {
+                viewport.scrollLeft += direction * 14;
+            }
+
+            autoScrollFrameRef.current = requestAnimationFrame(tick);
+        };
+
+        autoScrollFrameRef.current = requestAnimationFrame(tick);
+
+        return () => {
+            if (autoScrollFrameRef.current !== null) {
+                cancelAnimationFrame(autoScrollFrameRef.current);
+                autoScrollFrameRef.current = null;
+            }
+        };
+    }, [draggedCandidateId]);
 
     const handleDragStart = (e: React.DragEvent, id: string) => {
         setDraggedCandidateId(id);
@@ -66,6 +101,7 @@ export function CandidateBoard({
 
     const handleDragEnd = (_e: React.DragEvent, id: string) => {
         setDraggedCandidateId(null);
+        autoScrollDirectionRef.current = 0;
         const el = document.getElementById(`card-${id}`);
         if (el) el.style.opacity = '1';
     };
@@ -73,6 +109,20 @@ export function CandidateBoard({
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
+
+        const viewport = scrollViewportRef.current;
+        if (!viewport) return;
+
+        const rect = viewport.getBoundingClientRect();
+        const edgeThreshold = 96;
+
+        if (e.clientX >= rect.right - edgeThreshold) {
+            autoScrollDirectionRef.current = 1;
+        } else if (e.clientX <= rect.left + edgeThreshold) {
+            autoScrollDirectionRef.current = -1;
+        } else {
+            autoScrollDirectionRef.current = 0;
+        }
     };
 
     const handleDrop = async (e: React.DragEvent, newStatus: string) => {
@@ -107,10 +157,10 @@ export function CandidateBoard({
         return 'text-red-500 bg-red-500/10 border-red-500/20';
     };
 
-    if (isLoading) {
+        if (isLoading) {
         return (
             <div className="h-[calc(100vh-280px)] overflow-hidden">
-                <div className="h-full overflow-x-auto overflow-y-hidden">
+                <div ref={scrollViewportRef} className="h-full overflow-x-auto overflow-y-hidden">
                     <div className="flex min-w-max gap-4 pb-4 h-full items-start">
                         {COLUMNS.map((column) => (
                             <div
@@ -133,7 +183,7 @@ export function CandidateBoard({
 
     return (
         <div className="h-[calc(100vh-250px)] overflow-hidden">
-            <div className="h-full overflow-x-auto overflow-y-hidden">
+            <div ref={scrollViewportRef} className="h-full overflow-x-auto overflow-y-hidden">
                 <div className="flex min-w-max gap-4 pb-6 h-full items-start">
                     {COLUMNS.map((status) => {
                         const columnApps = applications.filter((candidate) => candidate.status === status);

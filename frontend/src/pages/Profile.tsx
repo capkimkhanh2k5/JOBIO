@@ -19,7 +19,6 @@ import { LanguagesSection } from '@/components/profile/LanguagesSection';
 import { ProjectsSection } from '@/components/profile/ProjectsSection';
 import { SectionWrapper } from '@/components/profile/SectionWrapper';
 import { toast } from 'sonner';
-import { RecommendationsSection } from '@/components/candidate/recommendations/RecommendationsSection';
 
 const SECTION_NAV = [
     { id: 'header', label: 'Tổng quan', icon: User },
@@ -137,7 +136,6 @@ const Profile = () => {
 
                         <ProjectsSection userId={candidateId as number} />
 
-                        <RecommendationsSection userId={candidateId as number} isOwner={true} />
                     </div>
 
                     {/* ── Sidebar ── */}
