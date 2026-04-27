@@ -1,5 +1,6 @@
 import time
 import re
+import uuid
 
 import cloudinary
 import cloudinary.uploader
@@ -41,7 +42,7 @@ def save_company_file(company_id: int, file: UploadedFile, file_type: str, resou
         URL của file đã upload
     """
     # Updated path to use Jobio root folder
-    public_id = f"Jobio/Companies/{company_id}/{file_type}_{company_id}_{int(time.time())}"
+    public_id = f"Jobio/Companies/{company_id}/{file_type}_{company_id}_{int(time.time())}_{uuid.uuid4().hex[:8]}"
     try: 
         result = cloudinary.uploader.upload(
             file, 

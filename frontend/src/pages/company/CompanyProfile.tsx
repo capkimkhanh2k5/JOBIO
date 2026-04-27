@@ -20,9 +20,10 @@ export default function CompanyProfile() {
         retry: (failureCount, err: any) => err?.response?.status === 404 ? false : failureCount < 2,
     });
 
-    const { data: industries } = useQuery({
+    const { data: industries = [] } = useQuery({
         queryKey: ['industries'],
-        queryFn: () => taxonomyService.listIndustries().then(r => r.data.results),
+        queryFn: () => taxonomyService.listIndustries({ is_active: true }),
+        staleTime: 10 * 60_000,
     });
 
     if (isLoading) {
@@ -121,7 +122,7 @@ export default function CompanyProfile() {
 
                     <div className="mt-6">
                         <TabsContent value="info" className="m-0 focus-visible:outline-none focus-visible:ring-0">
-                            <CompanyInfoForm company={company} industries={industries || []} />
+                            <CompanyInfoForm company={company} industries={industries} />
                         </TabsContent>
 
                         <TabsContent value="benefits" className="m-0 focus-visible:outline-none focus-visible:ring-0">

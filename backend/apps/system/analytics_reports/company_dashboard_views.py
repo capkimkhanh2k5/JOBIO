@@ -14,6 +14,31 @@ from apps.recruitment.jobs.models import Job
 from apps.recruitment.job_views.models import JobView
 
 
+APPLICATION_FUNNEL_STAGES = [
+    ('Ứng tuyển', None, '#2563eb'),
+    ('Đang xem xét', Application.Status.REVIEWING, '#7c3aed'),
+    ('Vào vòng tiếp', Application.Status.SHORTLISTED, '#a78bfa'),
+    ('Phỏng vấn', Application.Status.INTERVIEW, '#f97316'),
+    ('Offer', Application.Status.OFFERED, '#0ea5e9'),
+    ('Nhận việc', Application.Status.ACCEPTED, '#10b981'),
+]
+
+APPLICATION_STATUS_BREAKDOWN = [
+    (Application.Status.PENDING, 'Chờ xử lý', '#f59e0b'),
+    (Application.Status.REVIEWING, 'Đang xem xét', '#6366f1'),
+    (Application.Status.SHORTLISTED, 'Vào vòng tiếp', '#a78bfa'),
+    (Application.Status.INTERVIEW, 'Phỏng vấn', '#f97316'),
+    (Application.Status.OFFERED, 'Đề xuất offer', '#0ea5e9'),
+    (Application.Status.ACCEPTED, 'Đã nhận việc', '#10b981'),
+    (Application.Status.REJECTED, 'Từ chối', '#ef4444'),
+    (Application.Status.WITHDRAWN, 'Đã rút', '#64748b'),
+]
+
+
+def _status_value(status):
+    return status.value if hasattr(status, 'value') else status
+
+
 def _get_company_for_user(user):
     if getattr(user, 'role', None) != 'company':
         return None
@@ -121,7 +146,15 @@ def company_dashboard_analytics(request):
         applied_at__gte=previous_start,
     ).count()
     total_views = views_qs.count()
-    hired_count = apps_qs.filter(status=Application.Status.ACCEPTED).count()
+    status_counts = {
+        item['status']: item['count']
+        for item in apps_qs.values('status').annotate(count=Count('id'))
+    }
+
+    def _status_count(status):
+        return status_counts.get(_status_value(status), 0)
+
+    hired_count = _status_count(Application.Status.ACCEPTED)
     interview_count = interviews_qs.filter(status=Interview.Status.SCHEDULED).count()
 
     hire_rate = round((hired_count / total_applications) * 100) if total_applications else 0
@@ -152,20 +185,22 @@ def company_dashboard_analytics(request):
         })
 
     funnel = [
-        {'stage': 'Ứng tuyển', 'count': total_applications, 'color': '#2563eb'},
-        {'stage': 'Đang xem', 'count': apps_qs.filter(status=Application.Status.REVIEWING).count(), 'color': '#7c3aed'},
-        {'stage': 'Phỏng vấn', 'count': apps_qs.filter(status=Application.Status.INTERVIEW).count(), 'color': '#f97316'},
-        {'stage': 'Offer', 'count': apps_qs.filter(status=Application.Status.OFFERED).count(), 'color': '#10b981'},
-        {'stage': 'Nhận việc', 'count': hired_count, 'color': '#06b6d4'},
+        {
+            'stage': stage,
+            'count': total_applications if status is None else _status_count(status),
+            'color': color,
+        }
+        for stage, status, color in APPLICATION_FUNNEL_STAGES
     ]
 
     status_breakdown = [
-        {'status': 'pending', 'label': 'Chờ xử lý', 'count': apps_qs.filter(status=Application.Status.PENDING).count(), 'color': '#f59e0b'},
-        {'status': 'reviewing', 'label': 'Đang xem xét', 'count': apps_qs.filter(status=Application.Status.REVIEWING).count(), 'color': '#6366f1'},
-        {'status': 'shortlisted', 'label': 'Vòng tiếp', 'count': apps_qs.filter(status=Application.Status.SHORTLISTED).count(), 'color': '#a78bfa'},
-        {'status': 'interview', 'label': 'Phỏng vấn', 'count': apps_qs.filter(status=Application.Status.INTERVIEW).count(), 'color': '#f97316'},
-        {'status': 'accepted', 'label': 'Nhận việc', 'count': hired_count, 'color': '#10b981'},
-        {'status': 'rejected', 'label': 'Từ chối', 'count': apps_qs.filter(status=Application.Status.REJECTED).count(), 'color': '#ef4444'},
+        {
+            'status': _status_value(status),
+            'label': label,
+            'count': _status_count(status),
+            'color': color,
+        }
+        for status, label, color in APPLICATION_STATUS_BREAKDOWN
     ]
 
     top_jobs = []

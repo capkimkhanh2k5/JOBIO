@@ -5,11 +5,14 @@ import {
 } from 'lucide-react';
 
 interface Benefit {
-    id: string;
-    category: string;
-    name: string;
-    description: string;
-    icon_url: string;
+    id: string | number;
+    category?: string | number | { id: number; name: string };
+    category_name?: string;
+    benefit_name?: string;
+    name?: string;
+    description?: string | null;
+    icon_url?: string | null;
+    category_icon?: string | null;
 }
 
 interface Props {
@@ -31,21 +34,21 @@ const iconMap: Record<string, React.ElementType> = {
     Beer: Coffee, // fallback
 };
 
-// Group benefits by category
-function groupBy<T>(arr: T[], key: keyof T): Record<string, T[]> {
-    return arr.reduce((acc, item) => {
-        const k = String(item[key]);
-        (acc[k] = acc[k] || []).push(item);
-        return acc;
-    }, {} as Record<string, T[]>);
-}
-
 const CATEGORY_COLORS: Record<number, string> = {
     0: 'from-cyan-50 to-white border-cyan-100 text-cyan-600 bg-cyan-100', // colorCls structure: gradient_from gradient_to border_col block_col
     1: 'from-violet-50 to-white border-violet-100 text-violet-600 bg-violet-100',
     2: 'from-emerald-50 to-white border-emerald-100 text-emerald-600 bg-emerald-100',
     3: 'from-amber-50 to-white border-amber-100 text-amber-600 bg-amber-100',
 };
+
+const getBenefitName = (benefit: Benefit) => benefit.benefit_name || benefit.name || 'Phúc lợi';
+
+const getBenefitCategoryName = (benefit: Benefit) => (
+    benefit.category_name
+    || (typeof benefit.category === 'object' ? benefit.category.name : undefined)
+    || (benefit.category ? String(benefit.category) : undefined)
+    || 'Chưa phân loại'
+);
 
 export function CompanyBenefitsTab({ benefits }: Props) {
     if (!benefits || benefits.length === 0) {
@@ -59,7 +62,11 @@ export function CompanyBenefitsTab({ benefits }: Props) {
         );
     }
 
-    const grouped = groupBy(benefits, 'category');
+    const grouped = benefits.reduce<Record<string, Benefit[]>>((acc, benefit) => {
+        const category = getBenefitCategoryName(benefit);
+        (acc[category] = acc[category] || []).push(benefit);
+        return acc;
+    }, {});
 
     return (
         <div className="space-y-8">
@@ -76,7 +83,7 @@ export function CompanyBenefitsTab({ benefits }: Props) {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {items.map((benefit, bIdx) => {
-                            const Icon = iconMap[benefit.icon_url] || Gift;
+                            const Icon = iconMap[benefit.icon_url || benefit.category_icon || ''] || Gift;
                             const colorCls = CATEGORY_COLORS[catIdx % 4];
                             return (
                                 <motion.div
@@ -90,7 +97,7 @@ export function CompanyBenefitsTab({ benefits }: Props) {
                                         <Icon size={20} />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-gray-900 text-sm mb-1">{benefit.name}</p>
+                                        <p className="font-semibold text-gray-900 text-sm mb-1">{getBenefitName(benefit)}</p>
                                         <p className="text-xs text-gray-600 leading-relaxed">{benefit.description}</p>
                                     </div>
                                 </motion.div>

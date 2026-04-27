@@ -231,7 +231,9 @@ export type CompanyUpdateRequest = Partial<CompanyCreateRequest>;
 
 export interface CompanyBenefit {
   id: number;
-  category: { id: number; name: string };
+  category: number | { id: number; name: string };
+  category_name?: string;
+  category_icon?: string | null;
   benefit_name: string;
   description: string | null;
   display_order: number;
@@ -239,7 +241,8 @@ export interface CompanyBenefit {
 
 export interface CompanyMedia {
   id: number;
-  media_type: { id: number; type_name: string };
+  media_type: number | { id: number; type_name: string };
+  media_type_name?: string;
   media_url: string;
   thumbnail_url: string | null;
   title: string | null;
