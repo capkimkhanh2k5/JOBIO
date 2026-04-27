@@ -32,7 +32,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 BACKEND_DIR="$PROJECT_ROOT/backend"
 DATA_DIR="$PROJECT_ROOT/DataSet"
-BACKUP_DIR="$PROJECT_ROOT/database_backups"
+BACKUP_DIR="$DATA_DIR/database_backups"
 
 # Tự động phát hiện thư mục dữ liệu (ưu tiên Data_Final_FIXED)
 if [ -d "$DATA_DIR/Data_Final_FIXED" ]; then
@@ -252,6 +252,7 @@ backup_database() {
     BACKUP_FILE="$BACKUP_DIR/jobio_db_$(date +%Y%m%d_%H%M%S).sql"
     
     if [ $DRY_RUN -eq 0 ]; then
+        mkdir -p "$BACKUP_DIR"
         if PGPASSWORD="$DB_PASSWORD" pg_dump -U "$DB_USER" -h "$DB_HOST" -p "$DB_PORT" "$DB_NAME" > "$BACKUP_FILE"; then
             log_success "Đã lưu backup tại: $BACKUP_FILE"
         else
