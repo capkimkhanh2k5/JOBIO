@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -43,7 +44,19 @@ type InterviewFormValues = z.infer<typeof interviewSchema>;
 interface CreateInterviewModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    initialApplicationId?: string | null;
 }
+
+const DEFAULT_FORM_VALUES: InterviewFormValues = {
+    candidate_id: '',
+    type: '',
+    scheduled_date: '',
+    scheduled_time: '09:00',
+    duration_minutes: 60,
+    location: '',
+    meeting_link: '',
+    notes: '',
+};
 
 const toArray = <T,>(value: T[] | { results?: T[] } | undefined | null): T[] => {
     if (Array.isArray(value)) return value;
@@ -91,7 +104,7 @@ const getApiErrorMessage = (error: unknown) => {
     return 'Có lỗi xảy ra khi tạo lịch.';
 };
 
-export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModalProps) {
+export function CreateInterviewModal({ open, onOpenChange, initialApplicationId }: CreateInterviewModalProps) {
     const queryClient = useQueryClient();
 
     const { data: candidates, isLoading: isLoadingCandidates } = useQuery({
@@ -111,28 +124,40 @@ export function CreateInterviewModal({ open, onOpenChange }: CreateInterviewModa
 
     const form = useForm<InterviewFormValues>({
         resolver: zodResolver(interviewSchema),
-        defaultValues: {
-            candidate_id: '',
-            type: '',
-            scheduled_date: '',
-            scheduled_time: '09:00',
-            duration_minutes: 60,
-            location: '',
-            meeting_link: '',
-            notes: '',
-        },
+        defaultValues: DEFAULT_FORM_VALUES,
     });
 
     const watchType = form.watch('type');
     const selectedInterviewType = interviewTypeOptions.find((type: any) => String(type.id) === watchType);
     const interviewMode = inferInterviewMode(selectedInterviewType);
 
+    useEffect(() => {
+        if (!open) {
+            form.reset(DEFAULT_FORM_VALUES);
+            return;
+        }
+
+        if (!initialApplicationId) return;
+
+        const matchedApplication = candidateOptions.find(
+            (candidate: any) => String(candidate.id) === String(initialApplicationId)
+        );
+
+        if (matchedApplication) {
+            form.setValue('candidate_id', String(initialApplicationId), {
+                shouldDirty: false,
+                shouldTouch: false,
+                shouldValidate: true,
+            });
+        }
+    }, [open, initialApplicationId, candidateOptions, form]);
+
     const mutation = useMutation({
         mutationFn: (data: any) => companyService.createInterview(data).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['companyInterviews'] });
             toast.success('Đã tạo lịch phỏng vấn thành công!');
-            form.reset();
+            form.reset(DEFAULT_FORM_VALUES);
             onOpenChange(false);
         },
         onError: (error) => {

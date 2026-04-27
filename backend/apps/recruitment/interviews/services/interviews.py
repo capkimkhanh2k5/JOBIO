@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 from django.db import transaction
@@ -14,7 +15,7 @@ class InterviewCreateInput(BaseModel):
     """
     application_id: int
     interview_type_id: int
-    scheduled_at: str  # ISO format datetime
+    scheduled_at: datetime
     duration_minutes: int = 60
     address_id: Optional[int] = None
     meeting_link: Optional[str] = None
@@ -26,7 +27,7 @@ class InterviewUpdateInput(BaseModel):
         Pydantic input model cho cập nhật interview
     """
     interview_type_id: Optional[int] = None
-    scheduled_at: Optional[str] = None
+    scheduled_at: Optional[datetime] = None
     duration_minutes: Optional[int] = None
     address_id: Optional[int] = None
     meeting_link: Optional[str] = None

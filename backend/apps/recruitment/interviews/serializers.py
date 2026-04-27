@@ -59,7 +59,7 @@ class InterviewCreateSerializer(serializers.Serializer):
     scheduled_at = serializers.DateTimeField(required=True)
     duration_minutes = serializers.IntegerField(required=False, default=60)
     address_id = serializers.IntegerField(required=False, allow_null=True)
-    meeting_link = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+    meeting_link = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     
     def validate_application_id(self, value):
@@ -82,7 +82,7 @@ class InterviewUpdateSerializer(serializers.Serializer):
     scheduled_at = serializers.DateTimeField(required=False)
     duration_minutes = serializers.IntegerField(required=False)
     address_id = serializers.IntegerField(required=False, allow_null=True)
-    meeting_link = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+    meeting_link = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     feedback = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     status = serializers.ChoiceField(
