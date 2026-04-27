@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Image as ImageIcon } from 'lucide-react';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react';
 
 const formSchema = z.object({
     company_name: z.string().min(2, 'Tên công ty phải có ít nhất 2 ký tự.'),
@@ -34,33 +36,60 @@ interface CompanyInfoFormProps {
     industries: any[];
 }
 
+const getIndustryId = (company: any) => {
+    if (!company?.industry) return '';
+    return String(typeof company.industry === 'object' ? company.industry.id : company.industry);
+};
+
+const getDefaultValues = (company: any): FormValues => ({
+    company_name: company?.company_name || '',
+    tax_code: company?.tax_code || '',
+    industry_id: getIndustryId(company),
+    company_size: company?.company_size || '',
+    website: company?.website || '',
+    founded_year: company?.founded_year || new Date().getFullYear(),
+    description: company?.description || '',
+    headquarters: company?.headquarters || '',
+});
+
 export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     const queryClient = useQueryClient();
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
+    const [localLogoUrl, setLocalLogoUrl] = useState<string | null>(null);
+    const [localBannerUrl, setLocalBannerUrl] = useState<string | null>(null);
+    const [isFoundedYearOpen, setIsFoundedYearOpen] = useState(false);
+    const foundedYearOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        return Array.from({ length: currentYear - 1800 + 1 }, (_, index) => currentYear - index);
+    }, []);
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            company_name: company?.company_name || '',
-            tax_code: company?.tax_code || '',
-            industry_id: company?.industry?.toString() || '',
-            company_size: company?.company_size || '',
-            website: company?.website || '',
-            founded_year: company?.founded_year || new Date().getFullYear(),
-            description: company?.description || '',
-            headquarters: company?.headquarters || '',
-        },
+        defaultValues: getDefaultValues(company),
     });
+
+    useEffect(() => {
+        form.reset(getDefaultValues(company));
+    }, [company?.id, company?.updated_at, form]);
+
+    useEffect(() => {
+        return () => {
+            if (localLogoUrl?.startsWith('blob:')) URL.revokeObjectURL(localLogoUrl);
+            if (localBannerUrl?.startsWith('blob:')) URL.revokeObjectURL(localBannerUrl);
+        };
+    }, [localLogoUrl, localBannerUrl]);
 
     const updateMutation = useMutation({
         mutationFn: (data: FormValues) => companyService.update(Number(company.id), {
             ...data,
-            industry_id: Number(data.industry_id)
+            industry_id: Number(data.industry_id),
         } as any).then(r => r.data),
-        onSuccess: () => {
+        onSuccess: (updatedCompany) => {
+            queryClient.setQueryData(['companyProfile'], updatedCompany);
+            form.reset(getDefaultValues(updatedCompany));
             toast.success('Đã cập nhật thông tin công ty.');
-            queryClient.invalidateQueries({ queryKey: ['companyCompany'] });
+            queryClient.invalidateQueries({ queryKey: ['companyProfile'] });
         },
         onError: () => {
             toast.error('Lỗi khi cập nhật thông tin công ty.');
@@ -68,27 +97,37 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     });
 
     const logoMutation = useMutation({
-        mutationFn: (_file: File) => Promise.resolve({}) as any,  // TODO: no specific logo upload endpoint
-        onSuccess: () => {
+        mutationFn: (file: File) => companyService.uploadLogo(Number(company.id), file).then(r => r.data),
+        onSuccess: (data) => {
+            setLocalLogoUrl(data.logo_url);
+            queryClient.setQueryData(['companyProfile'], (current: any) => (
+                current ? { ...current, logo_url: data.logo_url } : current
+            ));
             toast.success('Đã cập nhật logo.');
-            queryClient.invalidateQueries({ queryKey: ['companyCompany'] });
+            queryClient.invalidateQueries({ queryKey: ['companyProfile'] });
             setIsUploadingLogo(false);
         },
         onError: () => {
             toast.error('Lỗi khi tải lên logo.');
+            setLocalLogoUrl(null);
             setIsUploadingLogo(false);
         },
     });
 
     const bannerMutation = useMutation({
-        mutationFn: (_file: File) => Promise.resolve({}) as any,  // TODO: no specific banner upload endpoint
-        onSuccess: () => {
+        mutationFn: (file: File) => companyService.uploadBanner(Number(company.id), file).then(r => r.data),
+        onSuccess: (data) => {
+            setLocalBannerUrl(data.banner_url);
+            queryClient.setQueryData(['companyProfile'], (current: any) => (
+                current ? { ...current, banner_url: data.banner_url } : current
+            ));
             toast.success('Đã cập nhật ảnh bìa.');
-            queryClient.invalidateQueries({ queryKey: ['companyCompany'] });
+            queryClient.invalidateQueries({ queryKey: ['companyProfile'] });
             setIsUploadingBanner(false);
         },
         onError: () => {
             toast.error('Lỗi khi tải lên ảnh bìa.');
+            setLocalBannerUrl(null);
             setIsUploadingBanner(false);
         },
     });
@@ -101,7 +140,9 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
         const file = e.target.files?.[0];
         if (file) {
             setIsUploadingLogo(true);
+            setLocalLogoUrl(URL.createObjectURL(file));
             logoMutation.mutate(file);
+            e.target.value = '';
         }
     };
 
@@ -109,9 +150,14 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
         const file = e.target.files?.[0];
         if (file) {
             setIsUploadingBanner(true);
+            setLocalBannerUrl(URL.createObjectURL(file));
             bannerMutation.mutate(file);
+            e.target.value = '';
         }
     };
+
+    const bannerImageUrl = localBannerUrl || company?.banner_url;
+    const logoImageUrl = localLogoUrl || company?.logo_url;
 
     return (
         <div className="space-y-8">
@@ -129,42 +175,67 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                     {/* Banner Section */}
                     <div className="space-y-3">
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400">Ảnh bìa hồ sơ (Banner)</p>
-                        <div className="relative group w-full h-56 rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all hover:border-violet-400/50">
-                            {company?.banner_url ? (
-                                <img src={company.banner_url} alt="Banner" className="w-full h-full object-cover" />
+                        <div className="relative group w-full h-56 rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all hover:border-violet-400/50" aria-busy={isUploadingBanner}>
+                            {bannerImageUrl ? (
+                                <img
+                                    src={bannerImageUrl}
+                                    alt="Banner"
+                                    className={`h-full w-full object-cover object-center transition-all duration-300 ${isUploadingBanner ? 'scale-[1.01] opacity-60 blur-[1px]' : ''}`}
+                                />
                             ) : (
-                                <div className="text-slate-400 flex flex-col items-center">
+                                <div className={`text-slate-400 flex flex-col items-center transition-all duration-300 ${isUploadingBanner ? 'opacity-50 blur-[1px]' : ''}`}>
                                     <div className="p-4 rounded-full bg-slate-100 mb-3 shadow-inner">
                                         <ImageIcon className="w-8 h-8 opacity-40" />
                                     </div>
                                     <span className="text-xs font-black uppercase tracking-wider opacity-60">Click để tải lên ảnh bìa</span>
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] flex items-center justify-center">
-                                <label className="cursor-pointer bg-white px-5 py-2.5 rounded-xl text-slate-900 flex items-center gap-3 text-sm font-black shadow-xl transition-all hover:scale-105 active:scale-95">
-                                    {isUploadingBanner ? <Loader2 className="w-4 h-4 animate-spin text-violet-500" /> : <UploadCloud className="w-4 h-4 text-violet-500" />}
-                                    Thay đổi ảnh bìa
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} disabled={isUploadingBanner} />
-                                </label>
+                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity backdrop-blur-[2px] ${isUploadingBanner ? 'bg-black/30 opacity-100' : 'bg-slate-900/60 opacity-0 group-hover:opacity-100'}`}>
+                                {isUploadingBanner ? (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
+                                            <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
+                                        </div>
+                                        <div className="rounded-full border border-white/20 bg-white/20 px-3 py-1 text-xs font-black text-white shadow-sm backdrop-blur-md">
+                                            Đang tải ảnh...
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer bg-white px-5 py-2.5 rounded-xl text-slate-900 flex items-center gap-3 text-sm font-black shadow-xl transition-all hover:scale-105 active:scale-95">
+                                        <UploadCloud className="w-4 h-4 text-violet-500" />
+                                        Thay đổi ảnh bìa
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} />
+                                    </label>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     {/* Logo Section */}
                     <div className="flex gap-8 items-center bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-inner">
-                        <div className="relative group w-28 h-28 rounded-[24px] overflow-hidden bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm transition-all group-hover:shadow-md">
-                            {company?.logo_url ? (
-                                <img src={company.logo_url} alt="Logo" className="w-full h-full object-contain p-3" />
+                        <div className="relative group w-28 h-28 rounded-[24px] overflow-hidden bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm transition-all group-hover:shadow-md" aria-busy={isUploadingLogo}>
+                            {logoImageUrl ? (
+                                <img
+                                    src={logoImageUrl}
+                                    alt="Logo"
+                                    className={`w-full h-full object-contain p-3 transition-all duration-300 ${isUploadingLogo ? 'scale-[1.01] opacity-55 blur-[1px]' : ''}`}
+                                />
                             ) : (
-                                <div className="p-3 bg-slate-50 rounded-2xl shadow-inner">
+                                <div className={`p-3 bg-slate-50 rounded-2xl shadow-inner transition-all duration-300 ${isUploadingLogo ? 'opacity-50 blur-[1px]' : ''}`}>
                                     <Building2 className="w-10 h-10 text-slate-300" />
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-all backdrop-blur-[2px] flex items-center justify-center">
-                                <label className="cursor-pointer p-3 rounded-full bg-white text-slate-900 shadow-xl transition-all hover:scale-110 active:scale-90">
-                                    {isUploadingLogo ? <Loader2 className="w-5 h-5 animate-spin text-violet-500" /> : <UploadCloud className="w-5 h-5 text-violet-500" />}
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={isUploadingLogo} />
-                                </label>
+                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity backdrop-blur-[2px] ${isUploadingLogo ? 'bg-black/30 opacity-100' : 'bg-slate-900/60 opacity-0 group-hover:opacity-100'}`}>
+                                {isUploadingLogo ? (
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
+                                        <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer p-3 rounded-full bg-white text-slate-900 shadow-xl transition-all hover:scale-110 active:scale-90">
+                                        <UploadCloud className="w-5 h-5 text-violet-500" />
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                                    </label>
+                                )}
                             </div>
                         </div>
                         <div className="flex-1 space-y-2">
@@ -228,8 +299,10 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent className="bg-white border-slate-200 rounded-xl">
-                                                {industries?.map(ind => (
-                                                    <SelectItem key={ind.id} value={ind.id.toString()} className="hover:bg-slate-50 focus:bg-slate-50 font-bold">{ind.name}</SelectItem>
+                                                {industries.map((industry) => (
+                                                    <SelectItem key={industry.id} value={String(industry.id)} className="hover:bg-slate-50 focus:bg-slate-50 font-bold">
+                                                        {industry.name}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -270,9 +343,54 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><Calendar className="w-3.5 h-3.5" /> Năm thành lập</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" placeholder="2020" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                                        </FormControl>
+                                        <div className="flex gap-2">
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    min={1800}
+                                                    max={new Date().getFullYear()}
+                                                    placeholder="2020"
+                                                    className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm"
+                                                    {...field}
+                                                    onChange={e => field.onChange(Number(e.target.value))}
+                                                />
+                                            </FormControl>
+                                            <Popover open={isFoundedYearOpen} onOpenChange={setIsFoundedYearOpen}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        className="h-12 w-12 shrink-0 rounded-xl border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-900"
+                                                        aria-label="Chọn năm thành lập"
+                                                    >
+                                                        <ChevronDown className="h-4 w-4" />
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-56 p-0 rounded-xl border-slate-200 bg-white shadow-xl" align="end">
+                                                    <Command>
+                                                        <CommandInput placeholder="Tìm năm..." />
+                                                        <CommandList className="max-h-64">
+                                                            <CommandEmpty>Không tìm thấy năm phù hợp.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {foundedYearOptions.map((year) => (
+                                                                    <CommandItem
+                                                                        key={year}
+                                                                        value={String(year)}
+                                                                        onSelect={() => {
+                                                                            field.onChange(year);
+                                                                            setIsFoundedYearOpen(false);
+                                                                        }}
+                                                                        className="font-semibold"
+                                                                    >
+                                                                        {year}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}

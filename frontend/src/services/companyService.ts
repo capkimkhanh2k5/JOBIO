@@ -48,6 +48,22 @@ export const companyService = {
     return api.patch<CompanyDetail>(`/api/companies/${id}/`, data);
   },
 
+  uploadLogo(id: number, file: File) {
+    const formData = new FormData();
+    formData.append('logo', file);
+    return api.post<{ logo_url: string }>(`/api/companies/${id}/logo/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  uploadBanner(id: number, file: File) {
+    const formData = new FormData();
+    formData.append('banner', file);
+    return api.post<{ banner_url: string }>(`/api/companies/${id}/banner/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
   delete(id: number) {
     return api.delete(`/api/companies/${id}/`);
   },
@@ -169,8 +185,8 @@ export const companyService = {
     return api.post<CompanyBenefit>(`/api/companies/${companyId}/benefits/`, data);
   },
 
-  updateBenefit(companyId: number, benefitId: number, data: Partial<{ benefit_name: string; description: string; display_order: number }>) {
-    return api.patch<CompanyBenefit>(`/api/companies/${companyId}/benefits/${benefitId}/`, data);
+  updateBenefit(companyId: number, benefitId: number, data: Partial<{ category_id: number; benefit_name: string; description: string; display_order: number }>) {
+    return api.put<CompanyBenefit>(`/api/companies/${companyId}/benefits/${benefitId}/`, data);
   },
 
   removeBenefit(companyId: number, benefitId: number) {
@@ -180,17 +196,21 @@ export const companyService = {
   // ─── Nested: Media ────────────────────────────────────────────────────
 
   listMedia(companyId: number) {
-    return api.get<CompanyMedia[]>(`/api/companies/${companyId}/media/`);
+    return api.get<CompanyMedia[]>(`/api/companies/${companyId}/media`);
   },
 
   addMedia(companyId: number, formData: FormData) {
-    return api.post<CompanyMedia>(`/api/companies/${companyId}/media/`, formData, {
+    return api.post<CompanyMedia>(`/api/companies/${companyId}/media`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
   removeMedia(companyId: number, mediaId: number) {
-    return api.delete(`/api/companies/${companyId}/media/${mediaId}/`);
+    return api.delete(`/api/companies/${companyId}/media/${mediaId}`);
+  },
+
+  updateMedia(companyId: number, mediaId: number, data: Partial<{ title: string; caption: string; display_order: number }>) {
+    return api.put<CompanyMedia>(`/api/companies/${companyId}/media/${mediaId}`, data);
   },
 
   // ─── Taxonomy helpers ─────────────────────────────────────────────────

@@ -4,6 +4,7 @@ from django.db import transaction
 from django.core.files.uploadedfile import UploadedFile
 
 from apps.company.companies.utils.cloudinary import save_company_file, delete_company_file
+from apps.company.companies.models import Company
 from apps.company.media_types.models import MediaType
 from ..models import CompanyMedia
 from ..selectors import get_company_media
@@ -45,6 +46,14 @@ class CompanyMediaBulkUploadInput(BaseModel):
 def upload_company_media_service(company_id: int, user, data: CompanyMediaCreateInput) -> CompanyMedia:
     """Xử lý upload media đơn lẻ lên Cloudinary và lưu DB"""
     try:
+        company = Company.objects.get(id=company_id)
+    except Company.DoesNotExist:
+        raise ValueError("Công ty không tồn tại")
+
+    if company.user_id != user.id:
+        raise ValueError("Bạn không có quyền cập nhật media của công ty này")
+
+    try:
         media_type = MediaType.objects.get(id=data.media_type_id)
     except MediaType.DoesNotExist:
         raise ValueError("Loại media không tồn tại")
@@ -65,7 +74,7 @@ def upload_company_media_service(company_id: int, user, data: CompanyMediaCreate
     
     # Lưu vào database
     media = CompanyMedia.objects.create(
-        company_id=company_id,
+        company=company,
         media_type=media_type,
         media_url=media_url,
         title=data.title,
@@ -83,6 +92,9 @@ def update_company_media_service(media_id: int, user, data: CompanyMediaUpdateIn
     if not media:
         raise ValueError("Media không tồn tại")
     
+    if media.company.user_id != user.id:
+        raise ValueError("Bạn không có quyền cập nhật media này")
+
     if data.title is not None:
         media.title = data.title
     if data.caption is not None:
@@ -102,6 +114,9 @@ def delete_company_media_service(media_id: int, user) -> None:
         raise ValueError("Media không tồn tại")
     
     # Xác định resource_type để xóa đúng trên Cloudinary
+    if media.company.user_id != user.id:
+        raise ValueError("Bạn không có quyền xóa media này")
+
     resource_type = 'video' if 'video' in media.media_type.type_name.lower() else 'image'
     
     # Xóa trên Cloudinary
@@ -114,6 +129,14 @@ def delete_company_media_service(media_id: int, user) -> None:
 @transaction.atomic
 def reorder_company_media_service(company_id: int, user, data: CompanyMediaReorderInput) -> None:
     """Cập nhật display_order cho danh sách media"""
+    try:
+        company = Company.objects.get(id=company_id)
+    except Company.DoesNotExist:
+        raise ValueError("Công ty không tồn tại")
+
+    if company.user_id != user.id:
+        raise ValueError("Bạn không có quyền sắp xếp media của công ty này")
+
     for item in data.reorders:
         CompanyMedia.objects.filter(id=item.id, company_id=company_id).update(
             display_order=item.display_order
