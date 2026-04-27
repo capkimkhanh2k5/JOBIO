@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCandidateStore } from '@/store/candidateStore';
 import { candidateService } from '@/services/candidateService';
@@ -61,6 +62,7 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
 
 export function CandidateDetailSheet() {
     const { selectedCandidateId, setSelectedCandidateId } = useCandidateStore();
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [details, setDetails] = useState<any>(null);
     const [education, setEducation] = useState<any[]>([]);
@@ -254,6 +256,18 @@ export function CandidateDetailSheet() {
         }
     };
 
+    const handleCreateInterview = () => {
+        if (!selectedCandidateId) return;
+
+        setSelectedCandidateId(null);
+        navigate('/company/interviews', {
+            state: {
+                openCreateInterview: true,
+                preselectedApplicationId: String(selectedCandidateId),
+            },
+        });
+    };
+
     if (!selectedCandidateId) return null;
 
     return (
@@ -303,7 +317,12 @@ export function CandidateDetailSheet() {
                                 </div>
 
                                 <div className="flex gap-2 shrink-0">
-                                    <Button size="icon" variant="outline" className="h-9 w-9 border-border/50">
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        className="h-9 w-9 border-border/50"
+                                        onClick={handleCreateInterview}
+                                    >
                                         <Calendar className="w-4 h-4" />
                                     </Button>
                                     <Button

@@ -113,6 +113,30 @@ class InterviewViewSetTests(APITestCase):
         response = self.client.post('/api/interviews/', data, format='json')
         # Accept 201 (success) or 400 (validation)
         self.assertIn(response.status_code, [status.HTTP_201_CREATED, status.HTTP_400_BAD_REQUEST])
+
+    def test_create_phone_interview_accepts_phone_number(self):
+        new_recruiter = Recruiter.objects.create(
+            user=CustomUser.objects.create_user(
+                email='phoneapplicant@example.com',
+                password='pass',
+                full_name='Phone Applicant'
+            ),
+            bio='Test'
+        )
+        new_app = Application.objects.create(
+            job=self.job, recruiter=new_recruiter, status='reviewing'
+        )
+        phone_type = InterviewType.objects.create(name='Phone Interview')
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.post('/api/interviews/', {
+            'application_id': new_app.id,
+            'interview_type_id': phone_type.id,
+            'scheduled_at': (timezone.now() + timedelta(days=5)).isoformat(),
+            'meeting_link': '0372832769',
+        }, format='json')
+
+        self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_create_interview_unauthenticated(self):
         """POST /api/interviews - không login → 401"""
@@ -246,6 +270,19 @@ class InterviewViewSetTests(APITestCase):
         response = self.client.put(f'/api/interviews/{self.interview.id}/', data, format='json')
         # Accept 200 (success) or 400 (validation)
         self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST])
+
+    def test_update_phone_interview_accepts_phone_number(self):
+        phone_type = InterviewType.objects.create(name='Phone Interview')
+        self.interview.interview_type = phone_type
+        self.interview.save(update_fields=['interview_type'])
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.put(f'/api/interviews/{self.interview.id}/', {
+            'interview_type_id': phone_type.id,
+            'meeting_link': '0372832769',
+        }, format='json')
+
+        self.assertNotEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_update_interview_unauthenticated(self):
         """PUT /api/interviews/:id - không login → 401"""

@@ -32,9 +32,10 @@ interface InterviewDetailModalProps {
     interviewId: string | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onViewCandidate?: (applicationId: string) => void;
 }
 
-export function InterviewDetailModal({ interviewId, open, onOpenChange }: InterviewDetailModalProps) {
+export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCandidate }: InterviewDetailModalProps) {
     const queryClient = useQueryClient();
     const [feedback, setFeedback] = useState('');
     const [rating, setRating] = useState(0);
@@ -89,6 +90,22 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
         }
     };
 
+    const inferInterviewMode = (rawType?: string | null) => {
+        const typeName = String(rawType || '').toLowerCase();
+        if (typeName.includes('trực tiếp') || typeName.includes('onsite') || typeName.includes('tại công ty')) {
+            return 'onsite';
+        }
+        if (typeName.includes('điện thoại') || typeName.includes('phone') || typeName.includes('gọi')) {
+            return 'phone';
+        }
+        return 'video';
+    };
+
+    const getOnsiteLocation = (notes?: string | null) => {
+        const match = String(notes || '').match(/Địa điểm phỏng vấn:\s*(.+)/);
+        return match?.[1]?.trim() || '';
+    };
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[700px] h-[90vh] sm:h-auto max-h-[90vh] overflow-y-auto bg-white border-slate-200 shadow-2xl">
@@ -120,10 +137,18 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
                                         <Briefcase className="w-4 h-4 mr-1.5 text-slate-400" />
                                         {interview.job_title}
                                     </div>
-                                    <div className="flex items-center text-sm text-indigo-600 cursor-pointer hover:underline font-medium">
+                                    <button
+                                        type="button"
+                                        className="flex items-center text-sm text-indigo-600 cursor-pointer hover:underline font-medium"
+                                        onClick={() => {
+                                            if (!interview.application_id) return;
+                                            onOpenChange(false);
+                                            onViewCandidate?.(String(interview.application_id));
+                                        }}
+                                    >
                                         <FileText className="w-4 h-4 mr-1.5" />
                                         Xem hồ sơ ứng viên
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -145,18 +170,20 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange }: Interv
                                         </div>
                                         <div className="flex items-start gap-3 text-sm text-slate-600">
                                             <div className="mt-0.5">
-                                                {getTypeIcon(interview.type || 'video')}
+                                                {getTypeIcon(inferInterviewMode(interview.type || interview.interview_type_name))}
                                             </div>
                                             <div>
                                                 <p className="font-bold text-slate-900 capitalize">
                                                     Phỏng vấn {interview.type}
                                                 </p>
-                                                {interview.meeting_link ? (
+                                                {inferInterviewMode(interview.type || interview.interview_type_name) === 'video' && interview.meeting_link ? (
                                                     <a href={interview.meeting_link} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 mt-0.5 font-medium">
                                                         <LinkIcon className="w-3 h-3" /> Tham gia meeting
                                                     </a>
-                                                ) : interview.location ? (
-                                                    <p className="mt-0.5 text-slate-500">{interview.location}</p>
+                                                ) : inferInterviewMode(interview.type || interview.interview_type_name) === 'phone' && interview.meeting_link ? (
+                                                    <p className="mt-0.5 text-slate-500">{interview.meeting_link}</p>
+                                                ) : (getOnsiteLocation(interview.notes) || interview.location) ? (
+                                                    <p className="mt-0.5 text-slate-500">{getOnsiteLocation(interview.notes) || interview.location}</p>
                                                 ) : null}
                                             </div>
                                         </div>

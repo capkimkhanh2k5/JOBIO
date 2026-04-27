@@ -1,10 +1,16 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Video, Phone } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Video, Phone, MoreHorizontal, Eye, Edit, XCircle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export interface Interview {
     id: string;
@@ -32,9 +38,11 @@ interface CompanyCalendarProps {
     interviews: Interview[];
     isLoading: boolean;
     onInterviewClick: (id: string) => void;
+    onEditInterview: (id: string) => void;
+    onCancelInterview: (id: string) => void;
 }
 
-export function CompanyCalendar({ interviews, isLoading, onInterviewClick }: CompanyCalendarProps) {
+export function CompanyCalendar({ interviews, isLoading, onInterviewClick, onEditInterview, onCancelInterview }: CompanyCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -54,8 +62,8 @@ export function CompanyCalendar({ interviews, isLoading, onInterviewClick }: Com
             case 'scheduled': return 'bg-blue-50 text-blue-700 border-blue-100';
             case 'confirmed': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
             case 'completed': return 'bg-slate-50 text-slate-600 border-slate-200';
-            case 'cancelled':
-            case 'no_show': return 'bg-red-100 text-red-700 border-red-200';
+            case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
+            case 'no_show': return 'bg-rose-100 text-rose-700 border-rose-200';
             case 'in_progress': return 'bg-amber-100 text-amber-700 border-amber-200';
             default: return 'bg-slate-100 text-slate-700';
         }
@@ -104,10 +112,52 @@ export function CompanyCalendar({ interviews, isLoading, onInterviewClick }: Com
                                         key={interview.id}
                                         onClick={() => onInterviewClick(interview.id)}
                                         className={cn(
-                                            "group flex flex-col gap-1 p-1.5 rounded-md border text-xs cursor-pointer hover:shadow-sm hover:-translate-y-0.5 transition-all relative overflow-hidden",
+                                            "group flex flex-col gap-1 p-1.5 pr-8 rounded-md border text-xs cursor-pointer hover:shadow-sm hover:-translate-y-0.5 transition-all relative overflow-hidden",
                                             getStatusColor(interview.status)
                                         )}
                                     >
+                                        <DropdownMenu modal={false}>
+                                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="absolute right-1 top-1 rounded p-0.5 text-current/70 opacity-0 transition-opacity hover:bg-white/60 hover:text-current group-hover:opacity-100 cursor-pointer"
+                                                >
+                                                    <MoreHorizontal className="w-3.5 h-3.5" />
+                                                </button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40 bg-white border-slate-200">
+                                                <DropdownMenuItem
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onInterviewClick(interview.id);
+                                                    }}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onEditInterview(interview.id);
+                                                    }}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Edit className="mr-2 h-4 w-4" /> Chỉnh sửa lịch
+                                                </DropdownMenuItem>
+                                                {interview.status !== 'cancelled' && interview.status !== 'completed' && (
+                                                    <DropdownMenuItem
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onCancelInterview(interview.id);
+                                                        }}
+                                                        className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer"
+                                                    >
+                                                        <XCircle className="mr-2 h-4 w-4" /> Hủy lịch hẹn
+                                                    </DropdownMenuItem>
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                         <div className="font-semibold truncate flex items-center justify-between">
                                             <span className="flex items-center gap-1">
                                                 <Clock className="w-3 h-3 opacity-70" />
@@ -160,7 +210,7 @@ export function CompanyCalendar({ interviews, isLoading, onInterviewClick }: Com
                         </Button>
                     </div>
                 </div>
-                <div className="hidden lg:flex items-center gap-4 bg-white p-1.5 px-3 rounded-xl border border-slate-200 shadow-sm">
+                <div className="hidden lg:flex items-center gap-4 bg-white p-1.5 px-3 rounded-xl border border-slate-200 shadow-sm flex-wrap">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                         <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Sắp tới
                     </div>
@@ -168,7 +218,16 @@ export function CompanyCalendar({ interviews, isLoading, onInterviewClick }: Com
                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Đã xác nhận
                     </div>
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Đang diễn ra
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                         <div className="w-2.5 h-2.5 rounded-full bg-slate-400"></div> Hoàn thành
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div> Hủy lịch
+                    </div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <div className="w-2.5 h-2.5 rounded-full bg-rose-600"></div> Vắng mặt
                     </div>
                 </div>
             </div>

@@ -20,9 +20,11 @@ interface CompanyInterviewListProps {
     interviews: Interview[];
     isLoading: boolean;
     onInterviewClick: (id: string) => void;
+    onEditInterview: (id: string) => void;
+    onCancelInterview: (id: string) => void;
 }
 
-export function CompanyInterviewList({ interviews, isLoading, onInterviewClick }: CompanyInterviewListProps) {
+export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, onEditInterview, onCancelInterview }: CompanyInterviewListProps) {
     const getStatusTextAndColor = (status: Interview['status']) => {
         switch (status) {
             case 'scheduled': return { text: 'Sắp tới', color: 'bg-blue-100 text-blue-700 border-blue-200' };
@@ -33,6 +35,17 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick }
             case 'in_progress': return { text: 'Đang diễn ra', color: 'bg-amber-100 text-amber-700 border-amber-200' };
             default: return { text: 'Không rõ', color: 'bg-slate-100 text-slate-700' };
         }
+    };
+
+    const inferInterviewMode = (rawType?: string | null) => {
+        const typeName = String(rawType || '').toLowerCase();
+        if (typeName.includes('trực tiếp') || typeName.includes('onsite') || typeName.includes('tại công ty')) {
+            return 'onsite';
+        }
+        if (typeName.includes('điện thoại') || typeName.includes('phone') || typeName.includes('gọi')) {
+            return 'phone';
+        }
+        return 'video';
     };
 
     const getTypeIconAndText = (type: Interview['type']) => {
@@ -92,7 +105,9 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick }
                     <tbody className="divide-y divide-slate-200">
                         {interviews.map((interview) => {
                             const statusInfo = getStatusTextAndColor(interview.status);
-                            const typeInfo = getTypeIconAndText(interview.type);
+                            const typeInfo = getTypeIconAndText(
+                                inferInterviewMode(interview.type || (interview as any).interview_type_name)
+                            );
                             const TypeIcon = typeInfo.icon;
 
                             return (
@@ -134,7 +149,7 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick }
                                         </Badge>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <DropdownMenu>
+                                        <DropdownMenu modal={false}>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
                                                     <span className="sr-only">Open menu</span>
@@ -147,12 +162,12 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick }
                                                 <DropdownMenuItem onClick={() => onInterviewClick(interview.id)} className="cursor-pointer">
                                                     <Eye className="mr-2 h-4 w-4" /> Xem chi tiết
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="cursor-pointer">
+                                                <DropdownMenuItem onClick={() => onEditInterview(interview.id)} className="cursor-pointer">
                                                     <Edit className="mr-2 h-4 w-4" /> Chỉnh sửa lịch
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 {interview.status !== 'cancelled' && interview.status !== 'completed' && (
-                                                    <DropdownMenuItem className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
+                                                    <DropdownMenuItem onClick={() => onCancelInterview(interview.id)} className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer">
                                                         <XCircle className="mr-2 h-4 w-4" /> Hủy lịch hẹn
                                                     </DropdownMenuItem>
                                                 )}
