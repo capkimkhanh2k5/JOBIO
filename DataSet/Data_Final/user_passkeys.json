@@ -15,7 +15,7 @@
     },
     {
         "id": 2,
-        "credential_id": "YWJjZA==",
+        "credential_id": "YWJjZA==-2",
         "public_key": "cHVibGljS2V5",
         "sign_count": 0,
         "device_name": "Chrome on Windows",
@@ -29,7 +29,7 @@
     },
     {
         "id": 3,
-        "credential_id": "YWJjZA==",
+        "credential_id": "YWJjZA==-3",
         "public_key": "cHVibGljS2V5",
         "sign_count": 0,
         "device_name": "Chrome on Windows",
@@ -43,7 +43,7 @@
     },
     {
         "id": 4,
-        "credential_id": "YWJjZA==",
+        "credential_id": "YWJjZA==-4",
         "public_key": "cHVibGljS2V5",
         "sign_count": 0,
         "device_name": "Chrome on Windows",
@@ -57,7 +57,7 @@
     },
     {
         "id": 5,
-        "credential_id": "YWJjZA==",
+        "credential_id": "YWJjZA==-5",
         "public_key": "cHVibGljS2V5",
         "sign_count": 0,
         "device_name": "Chrome on Windows",
