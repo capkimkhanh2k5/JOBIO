@@ -65,6 +65,10 @@ export const blogService = {
     return api.delete(`/api/blog/posts/${slug}/`);
   },
 
+  banPost(slug: string, reason?: string) {
+    return api.post(`/api/blog/posts/${slug}/ban/`, { reason });
+  },
+
   publishPost(slug: string) {
     return api.post<{ status: string; published_at: string }>(`/api/blog/posts/${slug}/publish/`);
   },

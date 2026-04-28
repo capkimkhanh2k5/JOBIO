@@ -149,7 +149,7 @@ def list_featured_jobs() -> QuerySet[Job]:
         status='published'
     ).select_related(
         'company', 'category'
-    ).order_by('-published_at')[:20]
+    ).order_by('-published_at')[:10]
 
 
 def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
@@ -167,7 +167,7 @@ def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
         application_deadline__gte=timezone.now().date()
     ).select_related(
         'company', 'category'
-    ).order_by('application_deadline')[:20]
+    ).order_by('application_deadline')[:10]
 
 
 def get_similar_jobs(job_id: int, limit: int = 10) -> QuerySet[Job]:

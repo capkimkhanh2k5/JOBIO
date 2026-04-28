@@ -29,7 +29,18 @@ from .services.passkey import (
     generate_authentication_options, verify_authentication,
     list_user_passkeys, delete_user_passkey, update_passkey_name,
 )
-from .services.users import create_user, UserCreateInput, bulk_user_action, upload_user_avatar, update_user_role, update_user_status, delete_user, update_user, UserUpdateInput
+from .services.users import (
+    create_user,
+    UserCreateInput,
+    bulk_user_action,
+    upload_user_avatar,
+    update_user_role,
+    update_user_status,
+    update_user_email_verified,
+    delete_user,
+    update_user,
+    UserUpdateInput,
+)
 from .selectors.users import list_users, get_user_stats, export_users_csv
 from .serializers import (
     CustomUserSerializer, LoginSerializer, LogoutSerializer, 
@@ -78,8 +89,11 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             'retrieve',
             'activity_logs',
             'destroy',
+            'update',
+            'partial_update',
             'update_status_action',
             'update_role_action',
+            'update_email_verified_action',
             'stats',
             'export',
             'bulk_action',
@@ -128,6 +142,10 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         
         return Response(CustomUserSerializer(updated_user).data)
 
+    def partial_update(self, request, *args, **kwargs):
+        """PATCH /api/users/:id/ - Cập nhật một phần thông tin user"""
+        return self.update(request, *args, **kwargs)
+
     def destroy(self, request, *args, **kwargs):
         """DELETE /api/users/:id/ - Xóa user"""
         user = self.get_object()
@@ -161,6 +179,20 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             return Response(CustomUserSerializer(updated_user).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['patch'], url_path='verify-email')
+    def update_email_verified_action(self, request, pk=None):
+        """
+            PATCH /api/users/:id/verify-email - Cập nhật trạng thái email_verified
+        """
+        user = self.get_object()
+        email_verified = request.data.get('email_verified', True)
+
+        if not isinstance(email_verified, bool):
+            return Response({"detail": "email_verified phải là kiểu boolean"}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated_user = update_user_email_verified(user, email_verified)
+        return Response(CustomUserSerializer(updated_user).data)
 
     @action(detail=True, methods=['post', 'delete'], url_path='avatar', parser_classes=[MultiPartParser, FormParser])
     def manage_avatar(self, request, pk=None):

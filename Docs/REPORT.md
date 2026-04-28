@@ -1,70 +1,163 @@
-# BÁO CÁO PHÂN TÍCH: TÁI CẤU TRÚC DANH MỤC "NGÀNH NGHỀ" (INDUSTRY) CHO NỀN TẢNG CHUYÊN IT
+# BÁO CÁO PHÂN TÍCH & KẾ HOẠCH KIỂM TRA HỆ THỐNG QUẢN TRỊ (ADMIN PAGE)
 
-**Ngày tạo:** 26/04/2026
-**Phạm vi:** Toàn bộ hệ thống (Database, Backend, Frontend)
-**Vấn đề:** Nền tảng JOBIO được định vị là chuyên về tuyển dụng IT. Do đó, việc duy trì một danh mục phân loại theo "Ngành nghề" (Industry) ở quy mô vĩ mô (như: CNTT, Y tế, Kế toán, Xây dựng...) sẽ khiến toàn bộ dữ liệu bị dồn vào một giá trị duy nhất ("Công nghệ thông tin"). Điều này phá vỡ ý nghĩa của các bộ lọc tìm kiếm và biến các biểu đồ thống kê (Phân bổ công ty) thành 100% cho một hạng mục, gây lãng phí tài nguyên và trải nghiệm UI kém.
-
----
-
-## 1. PHÂN TÍCH HIỆN TRẠNG (IMPACT ANALYSIS)
-
-### 1.1. Tầng Database (DB)
-Bảng `company_industries_industry` (`Industry`) đang đóng vai trò làm khóa ngoại (Foreign Key) cho nhiều thực thể quan trọng:
-- **`Company.industry`**: Xác định công ty thuộc ngành nghề nào.
-- **`Recruiter_Experience.industry`**: Ứng viên/Người tuyển dụng khai báo kinh nghiệm theo ngành.
-
-Nếu xóa bỏ hoàn toàn bảng này, hệ thống sẽ yêu cầu thực hiện nhiều Database Migrations phức tạp, có nguy cơ ảnh hưởng dữ liệu đang tồn tại.
-
-### 1.2. Tầng Backend (BE)
-- **API `GET /api/analytics/industry-distribution/`**: Đang `GROUP BY` theo `industry__name`. Hiện tại biểu đồ sẽ gom 100% công ty vào một miếng bánh duy nhất.
-- **API `GET /api/companies/`**: Cung cấp tham số filter `?industry_id=` để tìm công ty. Bộ lọc này sẽ trở nên dư thừa nếu công ty nào cũng là IT.
-- **Master Data CRUD (`/api/industries/`)**: Cho phép Admin tạo thêm các ngành nghề mới, điều này mâu thuẫn với định hướng "Chỉ IT" của nền tảng.
-
-### 1.3. Tầng Frontend (FE)
-- **Trang Admin Analytics (`AdvancedAnalytics.tsx`, `AdminDashboard.tsx`)**: Biểu đồ Pie Chart "Phân bổ công ty theo ngành nghề" sẽ hiển thị một hình tròn đơn sắc.
-- **Trang Admin Master Data (`MasterData.tsx`)**: Đang có riêng một tab "Ngành nghề".
-- **Trang Danh sách công ty (`CompanySidebar.tsx`)**: Có bộ lọc theo ngành nghề bên tay trái.
-- **Trang Chi tiết công ty (`CompanyDetailPage.tsx`) & Thẻ công ty (`CompanyCard`)**: Có các badges hiển thị tên ngành nghề.
+**Dự án:** JOBIO - Nền tảng tuyển dụng IT
+**Ngày lập:** 27/04/2026
+**Phạm vi:** Phân tích đối chiếu giữa Database (DB) và Giao diện Quản trị (UI)
 
 ---
 
-## 2. ĐỀ XUẤT GIẢI PHÁP: REPURPOSE "INDUSTRY" -> "IT DOMAIN"
+## 1. QUẢN LÝ NGƯỜI DÙNG (USER MANAGEMENT)
 
-Thay vì đập bỏ cấu trúc hiện tại, giải pháp tối ưu và an toàn nhất là **"Thay đổi ngữ nghĩa" (Repurpose)**. Chúng ta sẽ chuyển đổi khái niệm `Ngành nghề` thành `Lĩnh vực hoạt động (IT Domain) / Mô hình công ty`.
+### 1.1. Đối chiếu Database
+*   **Bảng dữ liệu:** `users` (CustomUser)
+*   **Các trường quan trọng:**
+    *   `email` (Primary ID)
+    *   `full_name`, `phone`
+    *   `role` (admin, company, candidate)
+    *   `status` (active, inactive, banned)
+    *   `is_staff`, `is_superuser` (Quyền hệ thống)
+    *   `email_verified` (Trạng thái xác thực)
 
-Thay vì chứa các giá trị vĩ mô (CNTT, Y tế), bảng `Industry` sẽ được **Seed lại** bằng các giá trị vi mô trong nội bộ ngành IT, ví dụ:
-1. **IT Product** (Làm sản phẩm)
-2. **IT Outsourcing** (Gia công phần mềm)
-3. **FinTech** (Công nghệ Tài chính)
-4. **EdTech** (Công nghệ Giáo dục)
-5. **E-commerce** (Thương mại điện tử)
-6. **AI & Machine Learning** (Trí tuệ nhân tạo)
-7. **Blockchain / Web3**
-
-### Lợi ích của giải pháp này:
-✅ **Zero Database Migrations:** Không cần thay đổi bất kỳ Schema hay Foreign Key nào.
-✅ **Biểu đồ sống động:** Pie chart ở Admin Analytics sẽ tự động phân chia tỷ lệ phần trăm giữa các mô hình công ty (VD: 40% Outsourcing, 30% Product, 15% FinTech, v.v.), rất có giá trị kinh doanh.
-✅ **Bộ lọc có ý nghĩa:** Ứng viên giờ đây có thể lọc công ty theo tiêu chí "Tôi muốn tìm các công ty làm Product" thay vì "Tìm công ty làm IT".
+### 1.2. Phân tích chức năng & Hiển thị UI
+| Chức năng | Dữ liệu DB đối chiếu | Yêu cầu hiển thị & Thao tác UI |
+| :--- | :--- | :--- |
+| **Xem danh sách** | `email`, `role`, `status`, `created_at` | Hiển thị bảng có bộ lọc theo Role và Status. Cần có thanh tìm kiếm theo Email/Tên. |
+| **Xem chi tiết** | Tất cả các trường + `last_login` | Hiển thị thông tin cá nhân đầy đủ. Đối với Company, cần link sang hồ sơ công ty. |
+| **Chỉnh sửa** | `full_name`, `phone`, `role` | Cho phép Admin cập nhật thông tin sai lệch hoặc điều chỉnh quyền hạn (VD: Nâng cấp lên Staff). |
+| **Cấm người dùng** | `status` -> `banned` | Nút "Cấm" phải yêu cầu xác nhận. Khi cấm, cần vô hiệu hóa khả năng đăng nhập và ẩn hồ sơ (nếu là ứng viên). |
+| **Xác thực thủ công** | `email_verified` -> `true` | Hỗ trợ Admin xác thực nhanh cho các tài khoản gặp lỗi nhận mail. |
 
 ---
 
-## 3. KẾ HOẠCH TRIỂN KHAI (ACTION PLAN)
+## 2. QUẢN LÝ BLOG (CMS)
 
-Nếu được phê duyệt, dưới đây là các bước cần thực hiện để hoàn tất quá trình chuyển đổi này:
+### 2.1. Đối chiếu Database
+*   **Bảng dữ liệu:** `blog_post`, `blog_category`, `blog_tag`
+*   **Các trường quan trọng:** `title`, `slug`, `content`, `status` (draft, published), `author_id`.
 
-### Bước 1: Điều chỉnh Dữ liệu (Backend/DB)
-- Viết 1 script (hoặc Django command) để xóa sạch các dữ liệu `Industry` cũ.
-- Seed lại danh sách `Lĩnh vực hoạt động IT` (Domains) mới như đã đề xuất ở mục 2.
-- Cập nhật lại các dữ liệu mẫu (Dummy/Seed data) của bảng `Company` để phân bổ ngẫu nhiên vào các IT Domains mới, giúp biểu đồ thống kê hiển thị số liệu thực tế.
+### 2.2. Phân tích chức năng & Hiển thị UI
+| Chức năng | Dữ liệu DB đối chiếu | Yêu cầu hiển thị & Thao tác UI |
+| :--- | :--- | :--- |
+| **Viết bài mới** | `title`, `content`, `category_id` | Bộ soạn thảo Rich Text (WYSIWYG). Cho phép upload ảnh bìa thông qua module `file_uploads`. |
+| **Quản lý trạng thái** | `status` | Nút chuyển nhanh giữa Draft (Nháp) và Published (Công khai). |
+| **Phân loại** | `blog_category` | Quản lý danh mục để gom nhóm bài viết (VD: Tin thị trường, Hướng dẫn CV). |
 
-### Bước 2: Điều chỉnh Ngôn ngữ hiển thị (Frontend)
-Tiến hành đổi toàn bộ các Label/Tooltip trên UI liên quan đến từ khóa "Ngành nghề":
-1. **`Admin Analytics`**: Đổi tiêu đề biểu đồ thành "Phân bổ công ty theo lĩnh vực IT".
-2. **`Master Data`**: Đổi tên tab `Ngành nghề` thành `Lĩnh vực / IT Domain`.
-3. **`Company List / Filters`**: Đổi nhãn bộ lọc tìm kiếm thành "Lĩnh vực hoạt động". Cập nhật các Placeholder input từ "Tìm ngành nghề" thành "Tìm lĩnh vực".
-4. **Các Form tạo/sửa Công ty**: Đổi Label trường `Industry` thành `Mô hình / Lĩnh vực IT`.
+---
 
-### Bước 3: Kiểm thử
-- Chạy toàn bộ luồng tạo công ty, chọn lĩnh vực mới.
-- Kiểm tra trang Dashboard Analytics xem dữ liệu chia tỷ lệ đã chính xác chưa.
-- Kiểm tra chức năng Lọc công ty ngoài trang chủ.
+## 3. QUẢN LÝ CÔNG TY & DUYỆT HỒ SƠ (COMPANY MODERATION)
+
+### 3.1. Đối chiếu Database
+*   **Bảng dữ liệu:** `companies`
+*   **Các trường quan trọng:** `company_name`, `tax_code`, `verification_status` (pending, verified, rejected).
+
+### 3.2. Phân tích chức năng & Hiển thị UI
+| Chức năng | Dữ liệu DB đối chiếu | Yêu cầu hiển thị & Thao tác UI |
+| :--- | :--- | :--- |
+| **Duyệt công ty** | `verification_status` | Hiển thị danh sách "Chờ duyệt". Admin xem giấy phép/MST và nhấn "Duyệt" hoặc "Từ chối". |
+| **Đối chiếu logo** | `logo_url` | Kiểm tra tính hợp lệ của ảnh logo (không chứa nội dung nhạy cảm). |
+| **Quản lý tin đăng** | `jobs` liên quan | Nếu công ty bị cấm, tất cả tin tuyển dụng liên quan phải chuyển về trạng thái ẩn. |
+
+---
+
+## 4. QUẢN LÝ GIAO DỊCH & DỊCH VỤ (BILLING)
+
+### 4.1. Đối chiếu Database
+*   **Bảng dữ liệu:** `transactions`, `company_subscriptions`
+*   **Các trường quan trọng:** `amount`, `payment_method`, `status` (success, failed), `expiry_date`.
+
+### 4.2. Phân tích chức năng & Hiển thị UI
+*   **Tra cứu giao dịch:** Cho phép tìm kiếm theo mã giao dịch hoặc email công ty.
+*   **Kiểm tra gói cước:** Xem công ty nào đang dùng gói Premium nào và khi nào hết hạn để hỗ trợ gia hạn.
+
+---
+
+## 5. BÁO CÁO VI PHẠM & HỖ TRỢ (REPORT SYSTEM)
+
+### 5.1. Đối chiếu Database
+*   **Bảng dữ liệu:** `system_reports`
+*   **Các trường quan trọng:** `subject_type` (Job, Company, User), `reason`, `status` (open, resolved).
+
+### 5.2. Phân tích chức năng & Hiển thị UI
+*   **Xử lý khiếu nại:** Admin đọc lý do người dùng báo cáo vi phạm, sau đó đưa ra quyết định (Xóa tin vi phạm, Nhắc nhở, hoặc Khóa tài khoản).
+
+---
+
+## 6. DANH SÁCH CÁC ĐIỂM CẦN KIỂM TRA (CHECKLIST)
+
+1.  **Tính nhất quán dữ liệu:** Khi xóa một User, dữ liệu liên quan (Jobs, Blogs) sẽ xử lý như thế nào? (CASCADE hay SET NULL).
+2.  **Validation hiển thị:** Các trường dữ liệu trống trong DB (null) có được hiển thị thân thiện trên UI không (VD: hiện "-" thay vì để trống).
+3.  **Bảo mật:** Đảm bảo chỉ User có `is_staff` hoặc `is_superuser` mới truy cập được các API này.
+4.  **Hiệu năng:** Các trang danh sách (User, Job) đã có phân trang (Pagination) chưa? Tránh load hàng ngàn dòng cùng lúc.
+
+---
+**Người thực hiện phân tích:** AI Assistant (Antigravity)
+**Trạng thái:** Chờ kiểm duyệt.
+
+---
+
+## 7. KẾT QUẢ RÀ SOÁT THỰC TẾ TRÊN CODEBASE (DB - API - UI)
+
+### 7.1 User Management
+*   **DB đối chiếu:** `users` có `email`, `full_name`, `phone`, `role`, `status`, `email_verified`, `last_login`, `is_staff`, `is_superuser`.
+*   **API hiện có:**
+    *   `GET /api/users/` (list + filter + search + pagination)
+    *   `GET /api/users/stats/`
+    *   `PATCH /api/users/:id/status/` (ban/active)
+    *   `PATCH /api/users/:id/role/`
+    *   `PATCH /api/users/:id/verify-email/` (đã bổ sung)
+    *   `PATCH /api/users/:id/` (đã bổ sung hỗ trợ partial update)
+*   **UI hiện có:**
+    *   Danh sách + filter role/status + search + pagination.
+    *   Drawer xem chi tiết user.
+    *   Hành động khóa/kích hoạt.
+    *   **Đã bổ sung:** modal sửa thông tin (`full_name`, `phone`, `role`, `email_verified`) + nút xác thực email thủ công.
+*   **Rule nghiệp vụ đã triển khai thêm:** Khi khóa tài khoản công ty (`status=banned`), toàn bộ job đang `published` của công ty được chuyển sang `closed` để ẩn khỏi marketplace.
+
+### 7.2 Blog Management
+*   **DB đối chiếu:** `post`, `category`, `tag` với `title`, `slug`, `content`, `status`, `author_id`, `thumbnail`.
+*   **API hiện có:** CRUD post/category/tag + `admin-stats`.
+*   **UI hiện có:** danh sách bài viết, lọc status, quản lý category/tag, create/edit post.
+*   **Đã bổ sung:** upload ảnh bìa trực tiếp trong form bài viết admin, preview ảnh và lưu `thumbnail`.
+
+### 7.3 Company Moderation
+*   **DB đối chiếu:** `companies` với `company_name`, `tax_code`, `verification_status`, `logo_url`.
+*   **API hiện có:**
+    *   `GET /api/companies/?verification_status=pending`
+    *   `PATCH /api/companies/:id/verification/`
+    *   `GET /api/companies/moderation-stats/`
+*   **UI hiện có:** danh sách chờ duyệt, tìm kiếm, duyệt/từ chối.
+*   **Đối chiếu yêu cầu:** đạt yêu cầu duyệt công ty; phần kiểm duyệt nội dung logo đang ở mức manual review qua UI.
+
+### 7.4 Billing
+*   **DB đối chiếu:** `transactions`, `company_subscriptions` với `amount`, `payment_method`, `status`, `end_date`.
+*   **API hiện có:**
+    *   `GET /api/billing/admin-finance/`
+    *   `GET /api/billing/admin-finance/stats/`
+    *   `GET /api/billing/admin-finance/export/`
+    *   `GET /api/billing/admin-finance/subscriptions/` (đã bổ sung)
+*   **UI hiện có:** bảng giao dịch + lọc/search/export.
+*   **Đã bổ sung:** bảng theo dõi gói dịch vụ đang hoạt động theo công ty, gồm ngày bắt đầu, ngày hết hạn và số ngày còn lại.
+
+### 7.5 Report System
+*   **DB đối chiếu:** `reports` với `entity_type`, `entity_id`, `description`, `status`, `resolution_notes`.
+*   **API hiện có:**
+    *   `GET /api/reports/admin-reports/`
+    *   `GET /api/reports/admin-reports/stats/`
+    *   `PATCH /api/reports/admin-reports/:id/update_status/`
+    *   `GET /api/reports/admin-reports/export/`
+*   **UI hiện có:** danh sách báo cáo, lọc status, thao tác xử lý, export CSV.
+
+---
+
+## 8. GHI CHÚ BẢO MẬT & KIỂM SOÁT TRUY CẬP
+*   Permission `IsAdmin` đã được mở rộng để chấp nhận `is_staff` hoặc `is_superuser` (ngoài `role=admin`) nhằm khớp tiêu chí bảo mật trong checklist.
+*   Các endpoint admin của user/billing/reports/jobs đã dùng cơ chế admin permission trước khi truy cập dữ liệu nhạy cảm.
+
+---
+
+## 9. HẠNG MỤC CẦN TEST HỒI QUY SAU TRIỂN KHAI
+1.  User admin edit: sửa tên/sđt/role/email_verified và reload danh sách.
+2.  Ban company user: kiểm tra job public của công ty có chuyển `closed`.
+3.  Billing subscriptions: phân trang + search theo company/email/plan + hiển thị ngày còn lại.
+4.  Blog thumbnail upload: upload ảnh, preview, lưu và hiển thị lại khi edit bài.
+5.  Permission admin: tài khoản `is_staff=true` nhưng role khác `admin` vẫn truy cập được API admin theo đúng policy.

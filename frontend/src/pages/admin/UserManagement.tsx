@@ -4,7 +4,7 @@ import {
     Search, Ban,
     Download, Eye, ChevronLeft, ChevronRight, UserCog, Loader2,
     Users, ShieldAlert, UserCheck, Mail, Phone,
-    History, Zap, ShieldCheck, Building2
+    History, Zap, ShieldCheck, Building2, Edit3
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,6 +63,7 @@ const statusColors: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
     active: 'Hoạt động',
+    inactive: 'Không hoạt động',
     banned: 'Bị khóa',
 };
 
@@ -73,6 +74,13 @@ export default function UserManagement() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [viewUser, setViewUser] = useState<User | null>(null);
+    const [editUser, setEditUser] = useState<User | null>(null);
+    const [editForm, setEditForm] = useState<{
+        full_name: string;
+        phone: string;
+        role: string;
+        email_verified: boolean;
+    }>({ full_name: '', phone: '', role: 'candidate', email_verified: false });
     const [confirmDialog, setConfirmDialog] = useState<{
         open: boolean;
         userId: number;
@@ -127,11 +135,80 @@ export default function UserManagement() {
         }
     });
 
+    const updateUserMutation = useMutation({
+        mutationFn: async (payload: {
+            userId: number;
+            full_name: string;
+            phone: string;
+            role: string;
+            email_verified: boolean;
+            currentRole: string;
+            currentEmailVerified: boolean;
+        }) => {
+            const {
+                userId,
+                full_name,
+                phone,
+                role,
+                email_verified,
+                currentRole,
+                currentEmailVerified,
+            } = payload;
+
+            await dashboardService.updateUser(userId, {
+                full_name: full_name.trim(),
+                phone: phone.trim() || null,
+            });
+
+            if (role !== currentRole) {
+                await dashboardService.updateUserRole(userId, role);
+            }
+
+            if (email_verified !== currentEmailVerified) {
+                await dashboardService.updateUserEmailVerified(userId, email_verified);
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-user-stats'] });
+            toast.success('Đã cập nhật thông tin người dùng');
+            setEditUser(null);
+        },
+        onError: () => {
+            toast.error('Không thể cập nhật thông tin người dùng');
+        }
+    });
+
+    const verifyEmailMutation = useMutation({
+        mutationFn: (userId: number) => dashboardService.updateUserEmailVerified(userId, true),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-user-stats'] });
+            toast.success('Đã xác thực email thủ công');
+            if (viewUser) {
+                setViewUser(prev => prev ? { ...prev, email_verified: true } : null);
+            }
+        },
+        onError: () => {
+            toast.error('Không thể xác thực email');
+        }
+    });
+
     const handleUpdateStatus = (userId: number, status: string) => {
         setConfirmDialog({
             open: true,
             userId,
             status,
+        });
+    };
+
+    const handleOpenEdit = (user: User) => {
+        setEditUser(user);
+        setEditForm({
+            full_name: user.full_name ?? '',
+            phone: user.phone ?? '',
+            role: user.role ?? 'candidate',
+            email_verified: !!user.email_verified,
         });
     };
 
@@ -386,11 +463,105 @@ export default function UserManagement() {
                                 >
                                     <Mail className="w-4 h-4 mr-2" /> Gửi Email trực tiếp
                                 </Button>
+                                <Button
+                                    variant="outline"
+                                    className="w-full rounded-xl border-slate-200 text-slate-700 font-bold py-6 hover:bg-slate-50 transition-all"
+                                    onClick={() => handleOpenEdit(viewUser)}
+                                >
+                                    <Edit3 className="w-4 h-4 mr-2" /> Chỉnh sửa thông tin
+                                </Button>
+                                {!viewUser.email_verified && (
+                                    <Button
+                                        variant="outline"
+                                        className="w-full rounded-xl border-emerald-200 text-emerald-700 font-bold py-6 hover:bg-emerald-50 transition-all"
+                                        onClick={() => verifyEmailMutation.mutate(viewUser.id)}
+                                        disabled={verifyEmailMutation.isPending}
+                                    >
+                                        <UserCheck className="w-4 h-4 mr-2" /> Xác thực Email thủ công
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
                 </SheetContent>
             </Sheet>
+
+            {/* Edit User Modal */}
+            {editUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                            <h3 className="text-lg font-black text-slate-900">Chỉnh sửa người dùng</h3>
+                            <button
+                                onClick={() => setEditUser(null)}
+                                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500"
+                            >
+                                X
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Họ và tên</label>
+                                <input
+                                    type="text"
+                                    value={editForm.full_name}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, full_name: e.target.value }))}
+                                    className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 text-sm font-medium"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Số điện thoại</label>
+                                <input
+                                    type="text"
+                                    value={editForm.phone}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                                    className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 text-sm font-medium"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-wider">Vai trò</label>
+                                <select
+                                    value={editForm.role}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value }))}
+                                    className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 text-sm font-medium"
+                                >
+                                    <option value="candidate">Ứng viên</option>
+                                    <option value="company">Nhà tuyển dụng</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <label className="flex items-center gap-2 cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    checked={editForm.email_verified}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, email_verified: e.target.checked }))}
+                                    className="w-4 h-4 accent-violet-600"
+                                />
+                                <span className="text-sm font-bold text-slate-700">Email đã xác thực</span>
+                            </label>
+                        </div>
+                        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                            <Button variant="outline" onClick={() => setEditUser(null)} className="rounded-xl">Hủy</Button>
+                            <Button
+                                onClick={() => updateUserMutation.mutate({
+                                    userId: editUser.id,
+                                    full_name: editForm.full_name,
+                                    phone: editForm.phone,
+                                    role: editForm.role,
+                                    email_verified: editForm.email_verified,
+                                    currentRole: editUser.role,
+                                    currentEmailVerified: editUser.email_verified,
+                                })}
+                                disabled={updateUserMutation.isPending || !editForm.full_name.trim()}
+                                className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold"
+                            >
+                                {updateUserMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                Lưu thay đổi
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Search & Filters */}
             <motion.div {...fadeUp(0.1)}>
@@ -423,6 +594,7 @@ export default function UserManagement() {
                         >
                             <option value="all">Tất cả Trạng thái</option>
                             <option value="active">Hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
                             <option value="banned">Đã khóa</option>
                         </select>
                     </div>
@@ -505,6 +677,13 @@ export default function UserManagement() {
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    className="p-2 rounded-xl hover:bg-violet-50 text-slate-400 hover:text-violet-600 transition-all cursor-pointer"
+                                                    title="Sửa thông tin"
+                                                    onClick={() => handleOpenEdit(user)}
+                                                >
+                                                    <Edit3 className="w-4 h-4" />
+                                                </button>
                                                 <button
                                                     className="p-2 rounded-xl hover:bg-violet-50 text-slate-400 hover:text-violet-600 transition-all cursor-pointer"
                                                     title="Xem chi tiết"

@@ -180,7 +180,7 @@ def company_dashboard_analytics(request):
             ),
             views_count=Count('views', distinct=True),
         )
-        .order_by('-applications_count', '-views_count')[:8]
+        .order_by('-applications_count', '-views_count')[:10]
     )
     for job in top_jobs_qs:
         conversion_rate = round((job.hired_count / job.applications_count) * 100) if job.applications_count else 0
