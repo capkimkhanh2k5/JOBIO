@@ -25,7 +25,7 @@ export function VerificationSection({ company }: { company: any }) {
         mutationFn: () => companyService.requestVerification(Number(company.id)).then(r => r.data),
         onSuccess: () => {
             toast.success('Đã gửi yêu cầu xác minh. Đội ngũ JOBIO sẽ liên hệ sớm nhất.');
-            queryClient.invalidateQueries({ queryKey: ['companyCompany'] });
+            queryClient.invalidateQueries({ queryKey: ['companyProfile'] });
             setIsRequesting(false);
         },
         onError: () => {

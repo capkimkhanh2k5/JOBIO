@@ -192,8 +192,9 @@ export function CompanyAnalyticsPage() {
     const timeSeries: TimeSeriesPoint[] = data?.time_series?.slice(-period) ?? [];
     const tickInterval = period === 7 ? 0 : period === 30 ? 4 : 14;
 
-    // Pie data (filter out zeros)
-    const pieData: StatusBreakdown[] = (data?.status_breakdown ?? []).filter(s => s.count > 0);
+    const statusBreakdown: StatusBreakdown[] = data?.status_breakdown ?? [];
+    const pieData: StatusBreakdown[] = statusBreakdown.filter(s => s.count > 0);
+    const statusTotal = statusBreakdown.reduce((s, x) => s + x.count, 0);
 
     // Funnel data
     const funnelData: FunnelStage[] = data?.funnel ?? [];
@@ -401,7 +402,7 @@ export function CompanyAnalyticsPage() {
 
                             {isLoading ? (
                                 <div className="space-y-3">
-                                    {Array(5).fill(null).map((_, i) => <Skeleton key={i} className="h-12 rounded-xl" />)}
+                                    {Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-12 rounded-xl" />)}
                                 </div>
                             ) : funnelData.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
@@ -413,6 +414,7 @@ export function CompanyAnalyticsPage() {
                                     {funnelData.map((stage, idx) => {
                                         const maxCount = funnelData[0]?.count || 1;
                                         const pct = Math.round((stage.count / maxCount) * 100);
+                                        const isEmptyStage = pct === 0;
                                         return (
                                             <motion.div
                                                 key={stage.stage}
@@ -431,7 +433,7 @@ export function CompanyAnalyticsPage() {
                                                         style={{ background: stage.color }}
                                                     />
                                                     <div className="absolute inset-0 flex items-center px-3">
-                                                        <span className="text-xs font-bold text-white drop-shadow-sm z-10">
+                                                        <span className={`text-xs font-bold z-10 ${isEmptyStage ? 'text-slate-600' : 'text-white drop-shadow-sm'}`}>
                                                             {stage.count} {pct < 100 && <span className="opacity-75 font-normal">({pct}%)</span>}
                                                         </span>
                                                     </div>
@@ -482,11 +484,10 @@ export function CompanyAnalyticsPage() {
                                         </ResponsiveContainer>
                                     </div>
                                     <div className="flex flex-col gap-2 flex-1">
-                                        {pieData.map((item) => {
-                                            const total = pieData.reduce((s, x) => s + x.count, 0);
-                                            const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                                        {statusBreakdown.map((item) => {
+                                            const pct = statusTotal > 0 ? Math.round((item.count / statusTotal) * 100) : 0;
                                             return (
-                                                <div key={item.status} className="flex items-center gap-2">
+                                                <div key={item.status} className={`flex items-center gap-2 ${item.count === 0 ? 'opacity-60' : ''}`}>
                                                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
                                                     <span className="text-xs font-medium text-slate-600 flex-1">{item.label}</span>
                                                     <span className="text-xs font-bold text-slate-800">{item.count}</span>
