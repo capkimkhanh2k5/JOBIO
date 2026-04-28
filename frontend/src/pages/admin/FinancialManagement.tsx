@@ -330,9 +330,19 @@ export default function FinancialManagement() {
                                         <td className="py-4 px-6">
                                             <Badge
                                                 variant="outline"
-                                                className={`${sub.days_left <= 7 ? 'border-amber-200 text-amber-700 bg-amber-50' : 'border-emerald-200 text-emerald-700 bg-emerald-50'} text-[10px] font-black`}
+                                                className={`${
+                                                    sub.days_left < 0 
+                                                        ? 'border-red-200 text-red-700 bg-red-50' 
+                                                        : sub.days_left <= 7 
+                                                            ? 'border-amber-200 text-amber-700 bg-amber-50' 
+                                                            : 'border-emerald-200 text-emerald-700 bg-emerald-50'
+                                                } text-[10px] font-black`}
                                             >
-                                                {typeof sub.days_left === 'number' ? `${sub.days_left} ngày` : '-'}
+                                                {typeof sub.days_left === 'number' 
+                                                    ? sub.days_left < 0 
+                                                        ? 'Hết hạn' 
+                                                        : `${sub.days_left} ngày` 
+                                                    : '-'}
                                             </Badge>
                                         </td>
                                     </tr>

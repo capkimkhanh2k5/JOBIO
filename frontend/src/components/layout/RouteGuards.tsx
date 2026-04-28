@@ -36,27 +36,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }
 
 /**
  * RoleBasedRedirect - Enforces route containment for specific roles.
- * Primarily used to keep Admins within the /admin space.
  */
 export const RoleBasedRedirect: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user, isAuthenticated } = useUserStore();
-    const location = useLocation();
-
-    const allowAdminPublicPaths = [
-        /^\/blog(?:\/.*)?$/,
-    ];
-
-    const isAllowedAdminPublicPath = allowAdminPublicPaths.some((pattern) => pattern.test(location.pathname));
-
-    if (
-        isAuthenticated
-        && user?.role === 'admin'
-        && !location.pathname.startsWith('/admin')
-        && !isAllowedAdminPublicPath
-    ) {
-        return <Navigate to="/admin/dashboard" replace />;
-    }
-
     return <>{children}</>;
 };
 

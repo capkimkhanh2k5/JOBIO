@@ -142,7 +142,7 @@ export const dashboardService = {
 
   // ─── Activity Logs ────────────────────────────────────────────────────
 
-  listActivityLogs(params?: { search?: string; page?: number; page_size?: number }) {
+  listActivityLogs(params?: { search?: string; log_type?: string; date_from?: string; date_to?: string; page?: number; page_size?: number }) {
     return api.get('/api/activity-logs/', { params });
   },
 
@@ -152,7 +152,7 @@ export const dashboardService = {
 
   // ─── File Uploads (Admin) ─────────────────────────────────────────────
 
-  listFileUploads(params?: { page?: number; page_size?: number }) {
+  listFileUploads(params?: { search?: string; file_type?: string; entity_type?: string; date_from?: string; date_to?: string; page?: number; page_size?: number }) {
     return api.get('/api/file-uploads/', { params });
   },
 

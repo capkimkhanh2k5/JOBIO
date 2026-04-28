@@ -1,6 +1,7 @@
 """
 Admin-only notification views — broadcast notifications to user groups.
 """
+import math
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
@@ -102,13 +103,16 @@ def admin_notification_stats(request):
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now - timedelta(days=7)
 
-    total = Notification.objects.count()
-    total_read = Notification.objects.filter(is_read=True).count()
-    total_unread = total - total_read
-    sent_today = Notification.objects.filter(created_at__gte=today_start).count()
-    sent_this_week = Notification.objects.filter(created_at__gte=week_start).count()
+    # Only count notifications targeted at admin users
+    admin_qs = Notification.objects.filter(user__role='admin')
 
-    # Phân tích theo loại đối tượng nhận (role)
+    total = admin_qs.count()
+    total_read = admin_qs.filter(is_read=True).count()
+    total_unread = total - total_read
+    sent_today = admin_qs.filter(created_at__gte=today_start).count()
+    sent_this_week = admin_qs.filter(created_at__gte=week_start).count()
+
+    # Phân tích theo loại đối tượng nhận (role) — toàn hệ thống
     candidate_count = Notification.objects.filter(user__role='candidate').count()
     company_count = Notification.objects.filter(user__role='company').count()
 
@@ -140,7 +144,7 @@ def admin_notification_list(request):
     type_id = request.query_params.get('type_id', '')
     is_read = request.query_params.get('is_read', None)
 
-    qs = Notification.objects.select_related('user', 'notification_type').order_by('-created_at')
+    qs = Notification.objects.select_related('user', 'notification_type').filter(user__role='admin').order_by('-created_at')
 
     if search:
         qs = qs.filter(Q(title__icontains=search) | Q(content__icontains=search) | Q(user__email__icontains=search))
@@ -200,6 +204,7 @@ def admin_notification_list(request):
         'count': total,
         'page': page,
         'page_size': page_size,
+        'total_pages': math.ceil(total / page_size) if total > 0 else 1,
         'results': results,
     })
 
@@ -211,12 +216,13 @@ def admin_mark_as_read(request, pk):
     Đánh dấu 1 thông báo là đã đọc.
     """
     try:
-        notification = Notification.objects.get(pk=pk)
+        notification = Notification.objects.get(pk=pk, user__role='admin')
     except Notification.DoesNotExist:
         return Response({'detail': 'Thông báo không tồn tại.'}, status=status.HTTP_404_NOT_FOUND)
 
     notification.is_read = True
-    notification.save()
+    notification.read_at = timezone.now()
+    notification.save(update_fields=['is_read', 'read_at'])
     return Response({'detail': 'Đã đánh dấu là đã đọc.'})
 
 
@@ -232,9 +238,9 @@ def admin_bulk_mark_as_read(request):
         return Response({'detail': 'ids phải là danh sách.'}, status=status.HTTP_400_BAD_REQUEST)
 
     if ids:
-        count = Notification.objects.filter(id__in=ids, is_read=False).update(is_read=True)
+        count = Notification.objects.filter(id__in=ids, user__role='admin', is_read=False).update(is_read=True, read_at=timezone.now())
     else:
-        count = Notification.objects.filter(is_read=False).update(is_read=True)
+        count = Notification.objects.filter(user__role='admin', is_read=False).update(is_read=True, read_at=timezone.now())
     return Response({'detail': f'Đã đánh dấu {count} thông báo là đã đọc.'})
 
 
@@ -245,7 +251,7 @@ def admin_delete_notification(request, pk):
     DELETE /api/notifications/admin-list/:id/delete/
     Xóa 1 thông báo bất kỳ trong danh sách admin.
     """
-    deleted, _ = Notification.objects.filter(pk=pk).delete()
+    deleted, _ = Notification.objects.filter(pk=pk, user__role='admin').delete()
     if deleted == 0:
         return Response({'detail': 'Thông báo không tồn tại.'}, status=status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_204_NO_CONTENT)

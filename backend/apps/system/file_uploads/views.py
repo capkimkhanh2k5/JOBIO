@@ -22,8 +22,33 @@ class FileUploadViewSet(viewsets.ModelViewSet):
             Người dùng chỉ thấy các file upload của mình trừ khi là admin
         """
         if self.request.user.is_staff:
-            return FileUpload.objects.all()
-        return FileUpload.objects.filter(user=self.request.user)
+            queryset = FileUpload.objects.all()
+        else:
+            queryset = FileUpload.objects.filter(user=self.request.user)
+            
+        search = self.request.query_params.get('search')
+        file_type = self.request.query_params.get('file_type')
+        entity_type = self.request.query_params.get('entity_type')
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        
+        if search:
+            queryset = queryset.filter(
+                Q(original_name__icontains=search) |
+                Q(file_name__icontains=search) |
+                Q(user__full_name__icontains=search) |
+                Q(user__email__icontains=search)
+            )
+        if file_type:
+            queryset = queryset.filter(file_type=file_type)
+        if entity_type:
+            queryset = queryset.filter(entity_type=entity_type)
+        if date_from:
+            queryset = queryset.filter(created_at__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(created_at__lte=date_to)
+            
+        return queryset.order_by('-created_at')
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

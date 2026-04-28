@@ -26,7 +26,7 @@ export function AdminTopNav() {
                 <div className="h-4 w-px bg-slate-200" />
 
                 <Logo
-                    to="/admin/dashboard"
+                    to="/"
                     showText={false}
                     imageClassName="h-8 w-auto grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
                 />

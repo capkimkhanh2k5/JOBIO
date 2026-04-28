@@ -113,11 +113,21 @@ export default function SystemSettings() {
 
     // --- AUDIT LOGS STATE ---
     const [logSearch, setLogSearch] = useState('');
+    const [logType, setLogType] = useState('all');
+    const [logDateFrom, setLogDateFrom] = useState('');
+    const [logDateTo, setLogDateTo] = useState('');
     const [logPage, setLogPage] = useState(1);
 
     const { data: logsData, isLoading: loadingLogs } = useQuery({
-        queryKey: ['admin-activity-logs', logPage, logSearch],
-        queryFn: () => dashboardService.listActivityLogs({ page: logPage, page_size: 20, search: logSearch }).then(res => res.data),
+        queryKey: ['admin-activity-logs', logPage, logSearch, logType, logDateFrom, logDateTo],
+        queryFn: () => dashboardService.listActivityLogs({ 
+            page: logPage, 
+            page_size: 20, 
+            search: logSearch || undefined,
+            log_type: logType !== 'all' ? logType : undefined,
+            date_from: logDateFrom || undefined,
+            date_to: logDateTo || undefined
+        }).then(res => res.data),
         enabled: activeTab === 'audit_logs',
     });
 
@@ -127,6 +137,11 @@ export default function SystemSettings() {
 
     // --- FILE UPLOADS STATE ---
     const [filePage, setFilePage] = useState(1);
+    const [fileSearch, setFileSearch] = useState('');
+    const [fileType, setFileType] = useState('all');
+    const [fileEntity, setFileEntity] = useState('all');
+    const [fileDateFrom, setFileDateFrom] = useState('');
+    const [fileDateTo, setFileDateTo] = useState('');
 
     const { data: statsData } = useQuery({
         queryKey: ['admin-file-uploads-stats'],
@@ -135,8 +150,16 @@ export default function SystemSettings() {
     });
 
     const { data: filesData, isLoading: loadingFiles } = useQuery({
-        queryKey: ['admin-file-uploads', filePage],
-        queryFn: () => dashboardService.listFileUploads({ page: filePage, page_size: 20 }).then(res => res.data),
+        queryKey: ['admin-file-uploads', filePage, fileSearch, fileType, fileEntity, fileDateFrom, fileDateTo],
+        queryFn: () => dashboardService.listFileUploads({ 
+            page: filePage, 
+            page_size: 20,
+            search: fileSearch || undefined,
+            file_type: fileType !== 'all' ? fileType : undefined,
+            entity_type: fileEntity !== 'all' ? fileEntity : undefined,
+            date_from: fileDateFrom || undefined,
+            date_to: fileDateTo || undefined
+        }).then(res => res.data),
         enabled: activeTab === 'file_uploads',
     });
 
@@ -337,15 +360,46 @@ export default function SystemSettings() {
 
             {activeTab === 'audit_logs' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
-                    <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
-                        <div className="relative flex-1 max-w-sm">
+                    <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                        <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
-                                placeholder="Tìm kiếm hành động..."
+                                placeholder="Tìm kiếm hành động hoặc người dùng..."
                                 value={logSearch}
                                 onChange={(e) => { setLogSearch(e.target.value); setLogPage(1); }}
-                                className="pl-9 h-10 bg-slate-50 border-transparent focus:bg-white"
+                                className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white"
                             />
+                        </div>
+                        <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
+                            <select
+                                className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[150px]"
+                                value={logType}
+                                onChange={(e) => { setLogType(e.target.value); setLogPage(1); }}
+                            >
+                                <option value="all">Tất cả hành động</option>
+                                <option value="apply_job">Ứng tuyển (apply_job)</option>
+                                <option value="view_job">Xem việc (view_job)</option>
+                                <option value="post_job">Đăng việc (post_job)</option>
+                                <option value="login">Đăng nhập (login)</option>
+                            </select>
+                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
+                                <span className="text-xs text-slate-500 whitespace-nowrap">Từ</span>
+                                <input
+                                    type="date"
+                                    className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
+                                    value={logDateFrom}
+                                    onChange={(e) => { setLogDateFrom(e.target.value); setLogPage(1); }}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
+                                <span className="text-xs text-slate-500 whitespace-nowrap">Đến</span>
+                                <input
+                                    type="date"
+                                    className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
+                                    value={logDateTo}
+                                    onChange={(e) => { setLogDateTo(e.target.value); setLogPage(1); }}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -457,7 +511,7 @@ export default function SystemSettings() {
                             <div>
                                 <p className="text-sm font-medium text-slate-500">Tổng dung lượng đã sử dụng</p>
                                 <p className="text-2xl font-black text-slate-900 mt-1">
-                                    {formatBytes(statsData?.total_size_bytes || 0)}
+                                    {((statsData?.total_bytes || 0) / (1024 ** 3)).toFixed(4)} <span className="text-base font-medium text-slate-400">GB</span>
                                 </p>
                             </div>
                         </div>
@@ -475,12 +529,68 @@ export default function SystemSettings() {
                     </div>
 
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-4">
-                            <h2 className="font-bold text-slate-900">Danh sách tập tin</h2>
-                            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full shrink-0">
-                                <AlertTriangle className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">Xóa file có thể ảnh hưởng dữ liệu hiển thị</span>
-                                <span className="sm:hidden">Cẩn thận khi xóa</span>
+                        <div className="p-4 border-b border-slate-100 flex flex-col gap-4">
+                            <div className="flex items-center justify-between gap-4">
+                                <h2 className="font-bold text-slate-900">Danh sách tập tin</h2>
+                                <div className="flex items-center gap-2 text-[10px] sm:text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full shrink-0">
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">Xóa file có thể ảnh hưởng dữ liệu hiển thị</span>
+                                    <span className="sm:hidden">Cẩn thận khi xóa</span>
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col lg:flex-row gap-3">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        placeholder="Tìm kiếm theo tên file..."
+                                        value={fileSearch}
+                                        onChange={(e) => { setFileSearch(e.target.value); setFilePage(1); }}
+                                        className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white"
+                                    />
+                                </div>
+                                <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
+                                    <select
+                                        className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[120px]"
+                                        value={fileType}
+                                        onChange={(e) => { setFileType(e.target.value); setFilePage(1); }}
+                                    >
+                                        <option value="all">Tất cả định dạng</option>
+                                        <option value="pdf">PDF</option>
+                                        <option value="png">PNG</option>
+                                        <option value="jpg">JPG / JPEG</option>
+                                        <option value="docx">DOCX</option>
+                                    </select>
+                                    <select
+                                        className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[120px]"
+                                        value={fileEntity}
+                                        onChange={(e) => { setFileEntity(e.target.value); setFilePage(1); }}
+                                    >
+                                        <option value="all">Tất cả nguồn gốc</option>
+                                        <option value="Company">Công ty (Company)</option>
+                                        <option value="User">Người dùng (User)</option>
+                                        <option value="Candidate">Ứng viên (Candidate)</option>
+                                        <option value="Job">Công việc (Job)</option>
+                                    </select>
+                                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
+                                        <span className="text-xs text-slate-500 whitespace-nowrap">Từ</span>
+                                        <input
+                                            type="date"
+                                            className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
+                                            value={fileDateFrom}
+                                            onChange={(e) => { setFileDateFrom(e.target.value); setFilePage(1); }}
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
+                                        <span className="text-xs text-slate-500 whitespace-nowrap">Đến</span>
+                                        <input
+                                            type="date"
+                                            className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
+                                            value={fileDateTo}
+                                            onChange={(e) => { setFileDateTo(e.target.value); setFilePage(1); }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         

@@ -38,7 +38,7 @@ def process_job_matching_task(job_id):
                 # Gửi notification
                 notification = send_notification(
                     user_id=alert.recruiter.user.id,
-                    notification_type_name='job_alert_match',
+                    notification_type_name='job_alert',
                     title=f"Job matched: {job.title}",
                     content=f"Job {job.title} at {job.company.company_name} is matched with your alert '{alert.alert_name}'.",
                     link=f"/jobs/{job.slug}",

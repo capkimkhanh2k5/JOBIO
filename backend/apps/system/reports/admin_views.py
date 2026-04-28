@@ -196,10 +196,10 @@ class AdminReportViewSet(viewsets.ReadOnlyModelViewSet):
             # Gửi In-App Notification cho Reporter
             send_notification(
                 user_id=report.reporter.id,
-                notification_type_name='system_alert',
+                notification_type_name='report',
                 title=f"Kết quả báo cáo #{report.id}",
                 content=f"Báo cáo của bạn đã được {action_text}. Xem ghi chú: {reporter_note}",
-                link='/admin/violation-reports' # Hoặc link phù hợp
+                link='/candidate/notifications'
             )
 
         # Thông báo cho đối tượng vi phạm (Reported Entity)
@@ -244,7 +244,7 @@ class AdminReportViewSet(viewsets.ReadOnlyModelViewSet):
                 notif_title = "Cảnh báo vi phạm nội dung" if action_type == 'warn' else "Nội dung vi phạm đã bị ẩn"
                 send_notification(
                     user_id=entity_user_id,
-                    notification_type_name='system_alert',
+                    notification_type_name='warning',
                     title=notif_title,
                     content=violator_note
                 )
