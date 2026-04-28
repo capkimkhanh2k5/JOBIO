@@ -342,7 +342,7 @@ const FeaturedJobsSection = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {isLoading
-                    ? Array(8).fill(0).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
+                    ? Array(10).fill(0).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
                     : jobs?.map((job: any) => <JobCard key={job.id} job={job} />)}
             </div>
         </section>

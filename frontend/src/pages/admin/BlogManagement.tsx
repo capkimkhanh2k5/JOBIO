@@ -5,7 +5,7 @@ import {
     FileText, Plus, Search, Edit3, Trash2, Eye,
     Tag, FolderOpen, Loader2, Star,
     ChevronLeft, ChevronRight, Clock, CheckCircle2,
-    TrendingUp, ExternalLink
+    TrendingUp, ExternalLink, AlertTriangle
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -102,6 +102,16 @@ export default function BlogManagement() {
         onError: () => toast.error('Xóa thất bại'),
     });
 
+    const banPostMut = useMutation({
+        mutationFn: ({ slug, reason }: { slug: string; reason?: string }) => blogService.banPost(slug, reason),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['admin-blog-posts'] });
+            qc.invalidateQueries({ queryKey: ['admin-blog-stats'] });
+            toast.success('Đã cảnh báo và lưu trữ bài viết');
+        },
+        onError: () => toast.error('Không thể cảnh báo bài viết'),
+    });
+
     const deleteCatMut = useMutation({
         mutationFn: (slug: string) => blogService.deleteCategory(slug),
         onSuccess: () => {
@@ -128,6 +138,13 @@ export default function BlogManagement() {
         if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
             deletePostMut.mutate(slug);
         }
+    };
+    const handleBanPost = (slug: string, title: string) => {
+        const ok = window.confirm(`Cảnh báo bài viết "${title}" và chuyển sang lưu trữ?`);
+        if (!ok) return;
+
+        const reason = window.prompt('Nhập lý do cảnh báo (không bắt buộc):') ?? undefined;
+        banPostMut.mutate({ slug, reason });
     };
     const handleDeleteCat = (slug: string, name: string) => {
         if (window.confirm(`Xóa danh mục "${name}"? Các bài viết thuộc danh mục này sẽ bị mất liên kết.`)) {
@@ -342,6 +359,10 @@ export default function BlogManagement() {
                                                         onClick={() => window.open(`/blog/${post.slug}`, '_blank', 'noopener,noreferrer')}
                                                         className="w-8 h-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Xem bài viết">
                                                         <ExternalLink className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" onClick={() => handleBanPost(post.slug, post.title)}
+                                                        className="w-8 h-8 p-0 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg" title="Cảnh báo và lưu trữ">
+                                                        <AlertTriangle className="w-4 h-4" />
                                                     </Button>
                                                     <Button variant="ghost" size="sm" onClick={() => handleDeletePost(post.slug)}
                                                         className="w-8 h-8 p-0 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="Xóa bài viết">

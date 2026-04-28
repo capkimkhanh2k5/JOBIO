@@ -42,7 +42,18 @@ export const RoleBasedRedirect: React.FC<{ children: React.ReactNode }> = ({ chi
     const { user, isAuthenticated } = useUserStore();
     const location = useLocation();
 
-    if (isAuthenticated && user?.role === 'admin' && !location.pathname.startsWith('/admin')) {
+    const allowAdminPublicPaths = [
+        /^\/blog(?:\/.*)?$/,
+    ];
+
+    const isAllowedAdminPublicPath = allowAdminPublicPaths.some((pattern) => pattern.test(location.pathname));
+
+    if (
+        isAuthenticated
+        && user?.role === 'admin'
+        && !location.pathname.startsWith('/admin')
+        && !isAllowedAdminPublicPath
+    ) {
         return <Navigate to="/admin/dashboard" replace />;
     }
 

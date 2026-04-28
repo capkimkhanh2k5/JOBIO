@@ -2,46 +2,46 @@
     {
         "id": 1,
         "type_name": "job_stats",
-        "description": "job_stats",
+        "description": "Báo cáo các vi phạm liên quan đến tin tuyển dụng (Spam, lừa đảo, sai thông tin công việc).",
         "template": "{}",
         "is_active": true,
         "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-19T02:54:14.630671Z"
+        "updated_at": "2026-04-27T10:00:00.000000Z"
     },
     {
         "id": 2,
         "type_name": "user_stats",
-        "description": "user_stats",
+        "description": "Báo cáo các hành vi vi phạm của người dùng, ứng viên hoặc nhà tuyển dụng.",
         "template": "{}",
         "is_active": true,
         "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-19T02:54:14.630671Z"
+        "updated_at": "2026-04-27T10:00:00.000000Z"
     },
     {
         "id": 3,
         "type_name": "revenue",
-        "description": "revenue",
+        "description": "Khiếu nại hoặc báo cáo liên quan đến giao dịch thanh toán và phí dịch vụ.",
         "template": "{}",
         "is_active": true,
         "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-19T02:54:14.630671Z"
+        "updated_at": "2026-04-27T10:00:00.000000Z"
     },
     {
         "id": 4,
         "type_name": "traffic",
-        "description": "traffic",
+        "description": "Báo cáo về các hành vi phá hoại, spam traffic hoặc dấu hiệu tấn công hệ thống.",
         "template": "{}",
         "is_active": true,
         "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-19T02:54:14.630671Z"
+        "updated_at": "2026-04-27T10:00:00.000000Z"
     },
     {
         "id": 5,
         "type_name": "errors",
-        "description": "errors",
+        "description": "Báo cáo các lỗi kỹ thuật, sự cố giao diện hoặc tính năng không hoạt động.",
         "template": "{}",
         "is_active": true,
         "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-19T02:54:14.630671Z"
+        "updated_at": "2026-04-27T10:00:00.000000Z"
     }
 ]

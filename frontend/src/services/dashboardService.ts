@@ -110,6 +110,18 @@ export const dashboardService = {
     return api.patch(`/api/users/${userId}/status/`, { status });
   },
 
+  updateUser(userId: number, data: { full_name?: string; phone?: string | null }) {
+    return api.patch(`/api/users/${userId}/`, data);
+  },
+
+  updateUserRole(userId: number, role: string) {
+    return api.patch(`/api/users/${userId}/role/`, { role });
+  },
+
+  updateUserEmailVerified(userId: number, email_verified: boolean) {
+    return api.patch(`/api/users/${userId}/verify-email/`, { email_verified });
+  },
+
   bulkUserAction(action: string, userIds: number[]) {
     return api.post('/api/users/bulk-action/', { action, ids: userIds });
   },
@@ -134,10 +146,18 @@ export const dashboardService = {
     return api.get('/api/activity-logs/', { params });
   },
 
+  getActivityLogsStats() {
+    return api.get('/api/activity-logs/stats/');
+  },
+
   // ─── File Uploads (Admin) ─────────────────────────────────────────────
 
   listFileUploads(params?: { page?: number; page_size?: number }) {
     return api.get('/api/file-uploads/', { params });
+  },
+
+  getFileUploadsStats() {
+    return api.get('/api/file-uploads/stats/');
   },
 
   deleteFileUpload(id: number) {
@@ -146,15 +166,51 @@ export const dashboardService = {
 
   // ─── Email Templates & Logs ────────────────────────────────────────────────
 
-  listEmailTemplates(params?: { category?: string; page?: number; page_size?: number }) {
+  getEmailStats() {
+    return api.get('/api/email/logs/stats/');
+  },
+
+  getSentEmailsStats() {
+    return api.get('/api/email/logs/stats/');
+  },
+
+  listEmailTemplates(params?: { search?: string; category?: string; is_active?: boolean; page?: number; page_size?: number }) {
     return api.get('/api/email/templates/', { params });
   },
 
-  listEmailCategories() {
-    return api.get('/api/email/template-categories/');
+  createEmailTemplate(data: { name: string; slug: string; category_id?: number; subject: string; body: string; variables?: Record<string, unknown>; is_active?: boolean }) {
+    return api.post('/api/email/templates/', data);
   },
 
-  listSentEmails(params?: { status?: string; page?: number; page_size?: number }) {
+  updateEmailTemplate(slug: string, data: Partial<{ name: string; slug: string; category_id: number | null; subject: string; body: string; variables: Record<string, unknown>; is_active: boolean }>) {
+    return api.patch(`/api/email/templates/${slug}/`, data);
+  },
+
+  deleteEmailTemplate(slug: string) {
+    return api.delete(`/api/email/templates/${slug}/`);
+  },
+
+  testEmailTemplate(slug: string, recipient: string, context?: Record<string, unknown>) {
+    return api.post(`/api/email/templates/${slug}/test-send/`, { recipient, context });
+  },
+
+  listEmailCategories(params?: { search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/email/template-categories/', { params });
+  },
+
+  createEmailCategory(data: { name: string; slug: string; description?: string }) {
+    return api.post('/api/email/template-categories/', data);
+  },
+
+  updateEmailCategory(slug: string, data: { name?: string; slug?: string; description?: string }) {
+    return api.patch(`/api/email/template-categories/${slug}/`, data);
+  },
+
+  deleteEmailCategory(slug: string) {
+    return api.delete(`/api/email/template-categories/${slug}/`);
+  },
+
+  listSentEmails(params?: { search?: string; status?: string; template?: string; page?: number; page_size?: number }) {
     return api.get('/api/email/logs/', { params });
   },
 
@@ -180,6 +236,18 @@ export const dashboardService = {
     return api.get('/api/billing/admin-finance/', { params });
   },
 
+  listAdminSubscriptions(params?: { search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/billing/admin-finance/subscriptions/', { params });
+  },
+
+  listAdminSubscriptionPlans(params?: { search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/billing/admin-subscription-plans/', { params });
+  },
+
+  updateAdminSubscriptionPlan(id: number, data: { price?: number | string; duration_days?: number; is_active?: boolean }) {
+    return api.patch(`/api/billing/admin-subscription-plans/${id}/`, data);
+  },
+
   exportTransactions(params?: { status?: string; search?: string }) {
     return api.get('/api/billing/admin-finance/export/', { params, responseType: 'blob' });
   },
@@ -198,20 +266,20 @@ export const dashboardService = {
     return api.get('/api/jobs/admin-jobs/', { params });
   },
 
-  getReportStats() {
-    return api.get('/api/reports/admin-reports/stats/');
+  listAdminReports(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/system/reports/admin-reports/', { params });
   },
 
-  listAdminReports(params?: { status?: string; search?: string; page?: number; page_size?: number }) {
-    return api.get('/api/reports/admin-reports/', { params });
+  getReportStats() {
+    return api.get('/api/system/reports/admin-reports/stats/');
   },
 
   updateReportStatus(id: number, data: { status: string; resolution_notes?: string }) {
-    return api.patch(`/api/reports/admin-reports/${id}/update_status/`, data);
+    return api.patch(`/api/system/reports/admin-reports/${id}/update_status/`, data);
   },
 
   exportAdminReports(params?: { status?: string; search?: string }) {
-    return api.get('/api/reports/admin-reports/export/', { params, responseType: 'blob' });
+    return api.get('/api/system/reports/admin-reports/export/', { params, responseType: 'blob' });
   },
 
   // ─── Master Data (Admin CRUD) ──────────────────────────────────────────────

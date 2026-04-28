@@ -79,10 +79,24 @@ def update_user_status(user: CustomUser, status: str) -> CustomUser:
     user.status = status
     if status == CustomUser.Status.BANNED:
         user.is_active = False # Chặn login ngay lập tức
+        # Nếu tài khoản công ty bị khóa, ẩn toàn bộ tin tuyển dụng đang public.
+        company_profile = getattr(user, 'company_profile', None)
+        if company_profile is not None:
+            from apps.recruitment.jobs.models import Job
+            company_profile.jobs.filter(status=Job.Status.PUBLISHED).update(status=Job.Status.CLOSED)
     elif status == CustomUser.Status.ACTIVE:
         user.is_active = True
         
     user.save(update_fields=['status', 'is_active'])
+    return user
+
+
+def update_user_email_verified(user: CustomUser, email_verified: bool) -> CustomUser:
+    """
+    Cập nhật trạng thái xác thực email thủ công cho user.
+    """
+    user.email_verified = email_verified
+    user.save(update_fields=['email_verified'])
     return user
 
 

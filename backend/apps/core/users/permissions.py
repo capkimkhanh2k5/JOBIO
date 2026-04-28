@@ -9,7 +9,11 @@ class IsAdmin(permissions.BasePermission):
         return (
             request.user 
             and request.user.is_authenticated 
-            and request.user.role == CustomUser.Role.ADMIN
+            and (
+                request.user.is_staff
+                or request.user.is_superuser
+                or request.user.role == CustomUser.Role.ADMIN
+            )
         )
 
 class IsAdminOrOwner(permissions.BasePermission):

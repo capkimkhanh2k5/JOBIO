@@ -5,7 +5,7 @@ import {
     Wallet, TrendingUp, DollarSign, CreditCard,
     Search, Loader2, Download,
     Mail,
-    ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle
+    ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, CalendarClock
 } from 'lucide-react';
 import { dashboardService } from '@/services/dashboardService';
 import { Badge } from '@/components/ui/badge';
@@ -83,6 +83,17 @@ export default function FinancialManagement() {
     const transactions = transactionsData?.results ?? [];
     const totalCount = transactionsData?.count ?? 0;
     const totalPages = transactionsData?.total_pages ?? 1;
+
+    const { data: subscriptionsData, isLoading: loadingSubscriptions } = useQuery({
+        queryKey: ['admin-subscriptions', debouncedSearch, page],
+        queryFn: () => dashboardService.listAdminSubscriptions({
+            search: debouncedSearch || undefined,
+            page,
+            page_size: 10,
+        }).then(r => r.data),
+    });
+
+    const subscriptions = subscriptionsData?.results ?? [];
 
     // Handle Export CSV
     const handleExportCSV = async () => {
@@ -273,6 +284,61 @@ export default function FinancialManagement() {
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Active Subscriptions Table */}
+            <motion.div {...fadeUp(0.25)}>
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+                        <CalendarClock className="w-4 h-4 text-violet-600" />
+                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider">Theo dõi hạn gói dịch vụ</h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="bg-slate-50/50 border-b border-slate-100">
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Công ty</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Email</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Gói</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày bắt đầu</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày hết hạn</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Còn lại</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {loadingSubscriptions ? (
+                                    <tr><td colSpan={6} className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                                ) : subscriptions.length === 0 ? (
+                                    <tr><td colSpan={6} className="py-12 text-center text-slate-400 font-medium">Không có gói dịch vụ đang hoạt động</td></tr>
+                                ) : subscriptions.map((sub: any) => (
+                                    <tr key={sub.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="py-4 px-6 font-bold text-slate-900">{sub.company_name ?? '-'}</td>
+                                        <td className="py-4 px-6 text-xs font-medium text-slate-600">{sub.company_email ?? '-'}</td>
+                                        <td className="py-4 px-6">
+                                            <Badge variant="outline" className="border-violet-200 text-violet-700 bg-violet-50 text-[10px] font-bold">
+                                                {sub.plan_name ?? 'N/A'}
+                                            </Badge>
+                                        </td>
+                                        <td className="py-4 px-6 text-xs font-bold text-slate-700">
+                                            {sub.start_date ? new Date(sub.start_date).toLocaleDateString('vi-VN') : '-'}
+                                        </td>
+                                        <td className="py-4 px-6 text-xs font-bold text-slate-700">
+                                            {sub.end_date ? new Date(sub.end_date).toLocaleDateString('vi-VN') : '-'}
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <Badge
+                                                variant="outline"
+                                                className={`${sub.days_left <= 7 ? 'border-amber-200 text-amber-700 bg-amber-50' : 'border-emerald-200 text-emerald-700 bg-emerald-50'} text-[10px] font-black`}
+                                            >
+                                                {typeof sub.days_left === 'number' ? `${sub.days_left} ngày` : '-'}
+                                            </Badge>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </motion.div>

@@ -8,8 +8,25 @@ from apps.blog.models import Post, Category, Tag
 from apps.blog.serializers import PostSerializer, CategorySerializer, TagSerializer
 from apps.core.permissions import IsAdminOrReadOnly
 from apps.core.permissions_extended import IsVerifiedCompanyForWrite
+from apps.core.users.permissions import IsAdmin
+from apps.email.services import EmailService
+from apps.communication.notifications.models import Notification
+from apps.communication.notification_types.models import NotificationType
+from apps.system.activity_logs.services.activity_logs import log_activity
 from apps.blog.services import BlogService
 from apps.blog.selectors import BlogSelector
+
+
+def _is_admin_user(user) -> bool:
+    return bool(
+        user
+        and user.is_authenticated
+        and (
+            user.is_staff
+            or user.is_superuser
+            or getattr(user, 'role', None) == 'admin'
+        )
+    )
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -33,6 +50,8 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'view_count']:
             return [AllowAny()]
+        if self.action in ['admin_stats', 'ban']:
+            return [IsAuthenticated(), IsAdmin()]
         return [IsAuthenticated(), IsVerifiedCompanyForWrite()]
 
     def get_queryset(self):
@@ -56,12 +75,12 @@ class PostViewSet(viewsets.ModelViewSet):
         # Status filter - admin only
         status_filter = self.request.query_params.get('status')
         if status_filter:
-            if user.is_authenticated and user.is_staff:
+            if _is_admin_user(user):
                 qs = qs.filter(status=status_filter)
 
         if user.is_authenticated:
             # Staff sees all (with optional feature filter)
-            if user.is_staff:
+            if _is_admin_user(user):
                 return qs
             # Regular user sees enabled public posts AND their own posts
             return qs.filter(
@@ -122,7 +141,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='publish')
     def publish(self, request, slug=None):
-        if not request.user.is_staff:
+        if not _is_admin_user(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
             
         post = self.get_object()
@@ -138,7 +157,7 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='admin-stats')
     def admin_stats(self, request):
         """GET /api/blog/posts/admin-stats/ - Thống kê blog cho Admin"""
-        if not request.user.is_staff:
+        if not _is_admin_user(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
         from django.db.models import Sum
         total = Post.objects.count()
@@ -151,6 +170,70 @@ class PostViewSet(viewsets.ModelViewSet):
             'draft_posts': draft,
             'total_views': total_views,
         })
+
+    @action(detail=True, methods=['post'], url_path='ban')
+    def ban(self, request, slug=None):
+        """
+        Admin cảnh báo bài viết vi phạm:
+        - Chuyển trạng thái bài về archived
+        - Gửi email cảnh báo cho tác giả
+        - Tạo thông báo trong hệ thống cho tác giả
+        """
+        post = self.get_object()
+        reason = (request.data.get('reason') or '').strip() or 'Bài viết vi phạm tiêu chuẩn nội dung của JOBIO.'
+
+        if post.status != Post.Status.ARCHIVED:
+            post.status = Post.Status.ARCHIVED
+            post.save(update_fields=['status'])
+
+        subject = '[JOBIO] Cảnh báo vi phạm nội dung blog'
+        EmailService.send_email(
+            recipient=post.author.email,
+            subject=subject,
+            template_path='emails/blog/blog_warning.html',
+            context={
+                'full_name': post.author.full_name or post.author.email,
+                'post_title': post.title,
+                'post_slug': post.slug,
+                'reason': reason,
+                'admin_email': request.user.email,
+            },
+        )
+
+        notification_type, _ = NotificationType.objects.get_or_create(
+            type_name='blog_warning',
+            defaults={
+                'description': 'Cảnh báo vi phạm bài blog từ quản trị viên',
+                'template': 'Bài viết {{post_title}} đã bị cảnh báo.',
+                'is_active': True,
+            },
+        )
+
+        Notification.objects.create(
+            user=post.author,
+            notification_type=notification_type,
+            title='Bài viết của bạn đã bị cảnh báo',
+            content=f'Bài viết "{post.title}" đã bị chuyển sang lưu trữ. Lý do: {reason}',
+            link=f'/blog/{post.slug}',
+            entity_type='blog_post',
+            entity_id=post.id,
+        )
+
+        log_activity(
+            user=request.user,
+            action='BAN_BLOG_POST',
+            log_type_code='BLOG_MODERATION',
+            entity_type='blog_post',
+            entity_id=post.id,
+            details={
+                'post_slug': post.slug,
+                'author_email': post.author.email,
+                'status': post.status,
+                'reason': reason,
+            },
+        )
+
+        return Response({'detail': 'Đã cảnh báo và lưu trữ bài viết thành công.'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='upload-thumbnail',
             parser_classes=[__import__('rest_framework').parsers.MultiPartParser,

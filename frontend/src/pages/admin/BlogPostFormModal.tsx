@@ -14,6 +14,7 @@ interface Props {
 export default function BlogPostFormModal({ post, onClose }: Props) {
   const qc = useQueryClient();
   const isEdit = !!post;
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [form, setForm] = useState<BlogPostPayload>({
     title: post?.title ?? '',
@@ -22,6 +23,7 @@ export default function BlogPostFormModal({ post, onClose }: Props) {
     category_id: post?.category?.id ?? null,
     status: post?.status ?? 'draft',
     is_featured: post?.is_featured ?? false,
+    thumbnail: post?.thumbnail ?? '',
   });
 
   const { data: cats } = useQuery({
@@ -51,8 +53,28 @@ export default function BlogPostFormModal({ post, onClose }: Props) {
       category_id: post?.category?.id ?? null,
       status: post?.status ?? 'draft',
       is_featured: post?.is_featured ?? false,
+      thumbnail: post?.thumbnail ?? '',
     });
   }, [post]);
+
+  const handleUploadThumbnail = async (file: File) => {
+    try {
+      setUploadingImage(true);
+      const response = await blogService.uploadImage(file);
+      const uploadedPath = response.data?.file_path;
+      if (!uploadedPath) {
+        toast.error('Upload ảnh thất bại');
+        return;
+      }
+
+      set('thumbnail', uploadedPath);
+      toast.success('Đã tải ảnh bìa');
+    } catch {
+      toast.error('Không thể upload ảnh bìa');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -100,6 +122,40 @@ export default function BlogPostFormModal({ post, onClose }: Props) {
             <textarea value={form.summary ?? ''} onChange={e => set('summary', e.target.value)} rows={2}
               className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium resize-none"
               placeholder="Mô tả ngắn về bài viết..." />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ảnh bìa</label>
+            <div className="mt-1 rounded-xl border border-slate-200 p-3 bg-slate-50/50 space-y-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadThumbnail(file);
+                  }
+                }}
+                className="block w-full text-xs text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white hover:file:bg-blue-700"
+              />
+              {uploadingImage && (
+                <p className="text-xs text-blue-600 font-semibold flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Đang tải ảnh...
+                </p>
+              )}
+              {form.thumbnail && (
+                <div className="space-y-2">
+                  <img src={form.thumbnail} alt="thumbnail" className="w-full h-40 object-cover rounded-lg border border-slate-200" />
+                  <input
+                    value={form.thumbnail}
+                    onChange={e => set('thumbnail', e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium"
+                    placeholder="URL ảnh bìa"
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div>

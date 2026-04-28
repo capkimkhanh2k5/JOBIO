@@ -48,12 +48,14 @@ def resolve_data_dir():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
+    root_dir = os.path.dirname(parent_dir)
 
     candidates = [
+        os.path.join(root_dir, 'DataSet', 'Data_Final'),
         os.path.join(parent_dir, 'DataSet', 'Data_Final'),
         os.path.join(current_dir, 'Data_Final_To_Load'),
-        os.path.join(current_dir, 'DataSet', 'Data_Final'),
     ]
+
 
     for candidate in candidates:
         if os.path.isdir(candidate):
