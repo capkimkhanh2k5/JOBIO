@@ -9,7 +9,7 @@ export interface NotificationItem {
     is_read: boolean;
     created_at: string;
     // Maps to notification_type.type_name from backend
-    type: 'application' | 'interview' | 'view' | 'warning' | 'system' | 'verification' | 'report' | 'job_alert';
+    type: 'application' | 'interview' | 'view' | 'warning' | 'system' | 'verification' | 'report' | 'job_alert' | 'billing';
     link?: string;
 }
 

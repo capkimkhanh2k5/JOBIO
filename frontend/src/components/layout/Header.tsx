@@ -154,6 +154,16 @@ export const Header = () => {
                         <div className="h-6 w-[1px] bg-border/40 mx-2" />
 
                         {isAuthenticated && user ? (
+                            user.role === 'admin' ? (
+                                <Link to="/admin/dashboard" className="relative h-12 w-12 rounded-full p-0 inline-flex items-center justify-center hover:opacity-80 transition-opacity">
+                                    <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-cyan-500/50 transition-colors">
+                                        <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
+                                        <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white">
+                                            {user.full_name.substring(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Link>
+                            ) : (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="relative h-12 w-12 rounded-full p-0">
@@ -222,6 +232,7 @@ export const Header = () => {
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
+                            )
                         ) : (
                             <Link to="/auth">
                                 <Button className="rounded-full px-8 h-12 font-black text-[15px] bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 magnetic-button">

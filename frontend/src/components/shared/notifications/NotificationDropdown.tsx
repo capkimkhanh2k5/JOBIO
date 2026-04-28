@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
     CheckCheck, FileText, Calendar, Eye,
-    AlertTriangle, Bell, ShieldCheck
+    AlertTriangle, Bell, ShieldCheck, CreditCard
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,6 +22,7 @@ const getIcon = (type: string) => {
         case 'warning':
         case 'report':        return <AlertTriangle className="w-4 h-4 text-amber-500" />;
         case 'verification':  return <ShieldCheck className="w-4 h-4 text-emerald-500" />;
+        case 'billing':       return <CreditCard className="w-4 h-4 text-green-500" />;
         case 'system':
         default:              return <Bell className="w-4 h-4 text-slate-400" />;
     }

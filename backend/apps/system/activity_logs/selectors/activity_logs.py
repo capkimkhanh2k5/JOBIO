@@ -1,5 +1,6 @@
 from django.db.models import QuerySet
 from ..models import ActivityLog
+from django.db.models import Q
 
 
 def list_activity_logs(filters: dict = None) -> QuerySet[ActivityLog]:
@@ -7,6 +8,13 @@ def list_activity_logs(filters: dict = None) -> QuerySet[ActivityLog]:
     queryset = ActivityLog.objects.select_related('user', 'log_type').all()
     
     if filters:
+        search = filters.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(action__icontains=search) |
+                Q(user__full_name__icontains=search) |
+                Q(user__email__icontains=search)
+            )
         if filters.get('user_id'):
             queryset = queryset.filter(user_id=filters['user_id'])
         if filters.get('action'):

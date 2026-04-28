@@ -81,7 +81,7 @@ export function AdminSidebar() {
             <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
                 <div className="px-6 mb-8">
                     <Logo
-                        to="/admin/dashboard"
+                        to="/"
                         imageClassName="h-10 w-auto object-contain drop-shadow"
                         textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
                     />

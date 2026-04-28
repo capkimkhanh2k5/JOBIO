@@ -4,7 +4,7 @@ import { notificationService } from '@/services/notificationService';
 import { useNotificationStore } from '@/store/notificationStore';
 import {
     Bell, CheckCheck, Trash2, FileText, Calendar,
-    AlertTriangle, ShieldCheck, BellOff,
+    AlertTriangle, ShieldCheck, BellOff, CreditCard,
     ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: s
     report: { label: 'Vi phạm', icon: <AlertTriangle className="w-5 h-5" />, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-100' },
     warning: { label: 'Cảnh báo', icon: <AlertTriangle className="w-5 h-5" />, color: 'text-red-600', bg: 'bg-red-50 border-red-100' },
     verification: { label: 'Xác minh', icon: <ShieldCheck className="w-5 h-5" />, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-100' },
+    billing: { label: 'Thanh toán', icon: <CreditCard className="w-5 h-5" />, color: 'text-green-600', bg: 'bg-green-50 border-green-100' },
     system: { label: 'Hệ thống', icon: <Bell className="w-5 h-5" />, color: 'text-slate-500', bg: 'bg-slate-50 border-slate-200' },
     job_alert: { label: 'Việc làm', icon: <Bell className="w-5 h-5" />, color: 'text-cyan-600', bg: 'bg-cyan-50 border-cyan-100' },
 };
@@ -34,6 +35,7 @@ const TABS = [
     { key: 'unread', label: 'Chưa đọc', icon: BellOff },
     { key: 'report', label: 'Vi phạm', icon: AlertTriangle },
     { key: 'verification', label: 'Xác minh', icon: ShieldCheck },
+    { key: 'billing', label: 'Thanh toán', icon: CreditCard },
     { key: 'system', label: 'Hệ thống', icon: FileText },
 ] as const;
 
@@ -57,7 +59,7 @@ export default function AdminNotificationsPage() {
     const queryParams = (() => {
         const p: Record<string, any> = { page_size: 10, page };
         if (activeTab === 'unread') p.is_read = false;
-        if (['report', 'verification', 'system'].includes(activeTab)) p.type = activeTab;
+        if (['report', 'verification', 'billing', 'system'].includes(activeTab)) p.type = activeTab;
         return p;
     })();
 
