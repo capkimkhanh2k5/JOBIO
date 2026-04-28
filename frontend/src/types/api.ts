@@ -1149,6 +1149,40 @@ export interface BlogPost {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// System Settings & Logs
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface SystemSetting {
+  id: number;
+  setting_key: string;
+  setting_value: string;
+  setting_type: 'string' | 'integer' | 'boolean' | 'json';
+  description: string;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActivityLogType {
+  id: number;
+  type_name: string;
+  description: string;
+}
+
+export interface ActivityLog {
+  id: number;
+  user: { id: number; full_name: string; email: string; avatar_url: string | null } | null;
+  action: string;
+  log_type: ActivityLogType | null;
+  entity_type: string;
+  entity_id: number | null;
+  details: Record<string, unknown>;
+  ip_address: string;
+  user_agent: string;
+  created_at: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // File Upload
 // ═══════════════════════════════════════════════════════════════════════════════
 

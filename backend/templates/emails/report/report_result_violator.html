@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { font-family: sans-serif; line-height: 1.6; color: #334155; }
+        .header { color: #1e293b; }
+        .note { border-left-width: 4px; border-left-style: solid; padding-left: 15px; font-style: italic; margin: 20px 0; background: #fffaf0; padding-top: 10px; padding-bottom: 10px; }
+        .action-call { font-weight: bold; }
+        .footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px; color: #64748b; font-size: 0.9em; }
+        .highlight { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="header">Thông báo từ hệ thống JOBIO</h2>
+        <p>Chào bạn,</p>
+        <p>Hệ thống ghi nhận tài khoản hoặc nội dung của bạn có liên quan đến vi phạm chính sách: <span class="highlight" style="color: {{ violator_text_color }};">{{ report_type_name }}</span>.</p>
+        <p>Dựa trên mức độ vi phạm, chúng tôi đã áp dụng hình thức xử lý: <span class="highlight" style="color: {{ violator_text_color }};">{{ violator_action }}</span>.</p>
+        
+        <p><strong>Ghi chú từ quản trị viên:</strong></p>
+        <div class="note" style="border-left-color: {{ violator_color }}; color: {{ violator_text_color }};">
+            {{ admin_note|linebreaksbr }}
+        </div>
+        
+        <p class="action-call">{{ extra_text }}</p>
+        
+        <div class="footer">
+            <p>Trân trọng,<br>Đội ngũ JOBIO.</p>
+        </div>
+    </div>
+</body>
+</html>

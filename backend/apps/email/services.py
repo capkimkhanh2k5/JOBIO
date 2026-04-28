@@ -1,26 +1,23 @@
 import logging
 from django.conf import settings
 from django.core.mail import send_mail
-from django.template import Context, Template
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from apps.email.models import SentEmail, EmailTemplate
 
 logger = logging.getLogger(__name__)
 
 class EmailService:
     @staticmethod
-    def send_email(recipient: str, subject: str, template_slug: str = None, context: dict = None, body: str = None, template_path: str = None):
+    def send_email(recipient: str, subject: str, context: dict = None, body: str = None, template_path: str = None):
         """
-        Send email using template (File or DB) or raw body, and log it.
-        Priority: template_path > template_slug > body
+        Send email using template (File) or raw body.
+        Priority: template_path > body
         """
         if context is None:
             context = {}
             
         html_content = None
         plain_content = None
-        template_obj = None
         
         # Try File Template
         if template_path:
@@ -30,30 +27,6 @@ class EmailService:
 
             except Exception as e:
                 logger.error(f"Error rendering file template {template_path}: {e}")
-                return False
-
-        # Try DB Template (if no file template)
-        elif template_slug:
-            try:
-                template_obj = EmailTemplate.objects.get(slug=template_slug, is_active=True)
-                
-                # Using Django Template String from DB
-                django_template = Template(template_obj.body)
-                django_context = Context(context)
-                
-                html_content = django_template.render(django_context)
-                plain_content = strip_tags(html_content)
-                
-                # If subject not provided, use template subject
-                if not subject:
-                    subject_template = Template(template_obj.subject)
-                    subject = subject_template.render(django_context)
-                    
-            except EmailTemplate.DoesNotExist:
-                logger.error(f"Email template {template_slug} not found.")
-                return False
-            except Exception as e:
-                logger.error(f"Error rendering DB template {template_slug}: {e}")
                 return False
 
         # Raw Body
@@ -75,24 +48,7 @@ class EmailService:
                 html_message=html_content, # HTML Content
                 fail_silently=False
             )
-            
-            # Log successful email to database
-            SentEmail.objects.create(
-                recipient=recipient,
-                subject=subject,
-                content=html_content, # Save HTML content
-                template=template_obj,
-                status=SentEmail.Status.SENT
-            )
             return True
         except Exception as e:
             logger.error(f"Error sending email to {recipient}: {e}")
-            SentEmail.objects.create(
-                recipient=recipient,
-                subject=subject,
-                content=html_content or body or "",
-                template=template_obj,
-                status=SentEmail.Status.FAILED,
-                error_message=str(e)
-            )
             return False

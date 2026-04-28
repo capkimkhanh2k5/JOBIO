@@ -61,7 +61,7 @@ urlpatterns = [
     path('api/jobs/<int:job_id>/skills/', include('apps.recruitment.job_skills.urls')),
     
     # Email routes
-    path('api/email/', include('apps.email.urls')),
+
     
     # Blog routes
     path('api/blog/', include('apps.blog.urls')),

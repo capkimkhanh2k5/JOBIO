@@ -163,14 +163,14 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        const payload: any = { 
+
+        const payload: any = {
             name,
             slug: generateSlug(name)
         };
-        
+
         if (desc) payload.description = desc;
-        
+
         // Handle icons for models except skills
         if (modal.tab !== 'skills' && iconUrl) {
             payload.icon_url = iconUrl;
@@ -222,7 +222,7 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
                             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
                         />
                     </div>
-                    
+
                     {modal.tab === 'skills' && (
                         <div>
                             <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Danh mục *</label>
@@ -431,9 +431,17 @@ export default function MasterData() {
                     columns={getColumns()}
                     onEdit={(item) => setModal({ open: true, mode: 'edit', tab: activeTab, item })}
                     onDelete={(id) => {
-                        if (confirm('Bạn có chắc muốn xóa? Hành động này không thể hoàn tác.')) {
-                            deleteMut.mutate(id);
-                        }
+                        toast('Bạn có chắc muốn xóa?', {
+                            description: 'Hành động này không thể hoàn tác.',
+                            action: {
+                                label: 'Xóa',
+                                onClick: () => deleteMut.mutate(id),
+                            },
+                            cancel: {
+                                label: 'Hủy',
+                                onClick: () => {},
+                            },
+                        });
                     }}
                     page={page}
                     setPage={setPage}
