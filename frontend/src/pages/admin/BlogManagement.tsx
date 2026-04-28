@@ -135,24 +135,72 @@ export default function BlogManagement() {
     // ─── Handlers ─────────────────────────────────────────────────────────────
 
     const handleDeletePost = (slug: string) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-            deletePostMut.mutate(slug);
-        }
+        toast('Xác nhận xóa bài viết?', {
+            description: 'Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.',
+            action: {
+                label: 'Xóa',
+                onClick: () => deletePostMut.mutate(slug),
+            },
+            cancel: {
+                label: 'Hủy',
+                onClick: () => {},
+            },
+        });
     };
     const handleBanPost = (slug: string, title: string) => {
-        const ok = window.confirm(`Cảnh báo bài viết "${title}" và chuyển sang lưu trữ?`);
-        if (!ok) return;
-
-        const reason = window.prompt('Nhập lý do cảnh báo (không bắt buộc):') ?? undefined;
-        banPostMut.mutate({ slug, reason });
+        let reason = '';
+        toast.custom((t) => (
+            <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-lg w-80 max-w-[90vw] pointer-events-auto">
+                <h3 className="font-bold text-slate-900 mb-1">Cảnh báo bài viết</h3>
+                <p className="text-xs text-slate-500 mb-3">"{title}" sẽ bị chuyển sang lưu trữ.</p>
+                <input
+                    type="text"
+                    placeholder="Nhập lý do (không bắt buộc)"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                    onChange={(e) => { reason = e.target.value; }}
+                    autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                    <button onClick={() => toast.dismiss(t)} className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200">
+                        Hủy
+                    </button>
+                    <button
+                        onClick={() => {
+                            banPostMut.mutate({ slug, reason: reason || undefined });
+                            toast.dismiss(t);
+                        }}
+                        className="px-3 py-1.5 text-xs font-semibold text-white bg-amber-600 rounded-lg hover:bg-amber-700"
+                    >
+                        Xác nhận
+                    </button>
+                </div>
+            </div>
+        ), { duration: Number.POSITIVE_INFINITY });
     };
     const handleDeleteCat = (slug: string, name: string) => {
-        if (window.confirm(`Xóa danh mục "${name}"? Các bài viết thuộc danh mục này sẽ bị mất liên kết.`)) {
-            deleteCatMut.mutate(slug);
-        }
+        toast(`Xóa danh mục "${name}"?`, {
+            description: 'Các bài viết thuộc danh mục này sẽ bị mất liên kết.',
+            action: {
+                label: 'Xóa',
+                onClick: () => deleteCatMut.mutate(slug),
+            },
+            cancel: {
+                label: 'Hủy',
+                onClick: () => {},
+            },
+        });
     };
     const handleDeleteTag = (slug: string) => {
-        if (window.confirm('Xóa tag này?')) deleteTagMut.mutate(slug);
+        toast('Xóa tag này?', {
+            action: {
+                label: 'Xóa',
+                onClick: () => deleteTagMut.mutate(slug),
+            },
+            cancel: {
+                label: 'Hủy',
+                onClick: () => {},
+            },
+        });
     };
 
     const handleEditPost = (post: BlogPost) => {

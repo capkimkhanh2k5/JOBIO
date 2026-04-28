@@ -8,7 +8,7 @@ class BenefitCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = BenefitCategory
         fields = [
-            'id', 'name', 'slug', 'icon_url', 
+            'id', 'name', 'slug', 'description', 'icon_url', 
             'is_active', 'display_order', 'created_at'
         ]
         read_only_fields = ['created_at']
@@ -19,7 +19,7 @@ class BenefitCategoryListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = BenefitCategory
-        fields = ['id', 'name', 'slug', 'icon_url', 'display_order']
+        fields = ['id', 'name', 'slug', 'description', 'icon_url', 'display_order']
 
 
 class ReorderItemSerializer(serializers.Serializer):

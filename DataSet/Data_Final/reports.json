@@ -6,7 +6,7 @@
         "description": "Tin tuyển dụng này lặp lại quá nhiều lần trong ngày, gây loãng danh sách tìm kiếm của ứng viên.",
         "status": "pending",
         "created_at": "2026-04-20T08:30:00.000000Z",
-        "report_type_id": 1,
+        "report_type_id": 2,
         "reporter_id": 14
     },
     {
@@ -16,7 +16,7 @@
         "description": "Nhà tuyển dụng này có hành vi khiếm nhã và sử dụng ngôn từ không phù hợp khi trao đổi với ứng viên qua tin nhắn.",
         "status": "pending",
         "created_at": "2026-04-21T09:15:00.000000Z",
-        "report_type_id": 2,
+        "report_type_id": 4,
         "reporter_id": 11
     },
     {
@@ -36,20 +36,20 @@
         "id": 4,
         "entity_type": "User",
         "entity_id": 7,
-        "description": "Tài khoản này có dấu hiệu spam traffic, gửi hàng loạt yêu cầu ứng tuyển ảo trong thời gian ngắn.",
+        "description": "Tài khoản này có dấu hiệu spam traffic, liên tục rải link quảng cáo độc hại.",
         "status": "pending",
         "created_at": "2026-04-23T11:45:00.000000Z",
-        "report_type_id": 4,
+        "report_type_id": 3,
         "reporter_id": 1
     },
     {
         "id": 5,
-        "entity_type": "System",
-        "entity_id": 0,
-        "description": "Lỗi không thể tải hồ sơ CV của ứng viên lên hệ thống, liên tục báo lỗi kết nối máy chủ.",
+        "entity_type": "Job",
+        "entity_id": 4,
+        "description": "Đường link nộp đơn chứa mã độc có dấu hiệu đánh cắp thông tin người dùng.",
         "status": "pending",
         "created_at": "2026-04-24T16:10:00.000000Z",
-        "report_type_id": 5,
+        "report_type_id": 3,
         "reporter_id": 5
     },
     {
@@ -69,7 +69,7 @@
         "description": "Ứng viên này sử dụng thông tin bằng cấp giả mạo trong hồ sơ năng lực.",
         "status": "pending",
         "created_at": "2026-04-26T10:30:00.000000Z",
-        "report_type_id": 2,
+        "report_type_id": 1,
         "reporter_id": 10
     }
 ]

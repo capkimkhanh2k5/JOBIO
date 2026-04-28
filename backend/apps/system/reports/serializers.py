@@ -24,3 +24,11 @@ class AdminReportStatusUpdateSerializer(serializers.Serializer):
     """
     status = serializers.ChoiceField(choices=[Report.Status.RESOLVED, Report.Status.REJECTED], required=True)
     resolution_notes = serializers.CharField(required=False, allow_blank=True)
+
+class ReportResolutionSerializer(serializers.Serializer):
+    """
+    Serializer cho chức năng xử lý báo cáo vi phạm (Ban, Hide, Warn, Reject)
+    """
+    action = serializers.ChoiceField(choices=['ban', 'hide_content', 'warn', 'reject'], required=True)
+    reporter_note = serializers.CharField(required=False, allow_blank=True)
+    violator_note = serializers.CharField(required=False, allow_blank=True)

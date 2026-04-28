@@ -164,56 +164,6 @@ export const dashboardService = {
     return api.delete(`/api/file-uploads/${id}/`);
   },
 
-  // ─── Email Templates & Logs ────────────────────────────────────────────────
-
-  getEmailStats() {
-    return api.get('/api/email/logs/stats/');
-  },
-
-  getSentEmailsStats() {
-    return api.get('/api/email/logs/stats/');
-  },
-
-  listEmailTemplates(params?: { search?: string; category?: string; is_active?: boolean; page?: number; page_size?: number }) {
-    return api.get('/api/email/templates/', { params });
-  },
-
-  createEmailTemplate(data: { name: string; slug: string; category_id?: number; subject: string; body: string; variables?: Record<string, unknown>; is_active?: boolean }) {
-    return api.post('/api/email/templates/', data);
-  },
-
-  updateEmailTemplate(slug: string, data: Partial<{ name: string; slug: string; category_id: number | null; subject: string; body: string; variables: Record<string, unknown>; is_active: boolean }>) {
-    return api.patch(`/api/email/templates/${slug}/`, data);
-  },
-
-  deleteEmailTemplate(slug: string) {
-    return api.delete(`/api/email/templates/${slug}/`);
-  },
-
-  testEmailTemplate(slug: string, recipient: string, context?: Record<string, unknown>) {
-    return api.post(`/api/email/templates/${slug}/test-send/`, { recipient, context });
-  },
-
-  listEmailCategories(params?: { search?: string; page?: number; page_size?: number }) {
-    return api.get('/api/email/template-categories/', { params });
-  },
-
-  createEmailCategory(data: { name: string; slug: string; description?: string }) {
-    return api.post('/api/email/template-categories/', data);
-  },
-
-  updateEmailCategory(slug: string, data: { name?: string; slug?: string; description?: string }) {
-    return api.patch(`/api/email/template-categories/${slug}/`, data);
-  },
-
-  deleteEmailCategory(slug: string) {
-    return api.delete(`/api/email/template-categories/${slug}/`);
-  },
-
-  listSentEmails(params?: { search?: string; status?: string; template?: string; page?: number; page_size?: number }) {
-    return api.get('/api/email/logs/', { params });
-  },
-
   // ─── File Upload ──────────────────────────────────────────────────────
 
   uploadFile(file: File, entityType?: string, entityId?: number) {
@@ -276,6 +226,10 @@ export const dashboardService = {
 
   updateReportStatus(id: number, data: { status: string; resolution_notes?: string }) {
     return api.patch(`/api/system/reports/admin-reports/${id}/update_status/`, data);
+  },
+
+  resolveReport(id: number, data: { action: 'ban' | 'hide_content' | 'warn' | 'reject'; reporter_note?: string; violator_note?: string }) {
+    return api.post(`/api/system/reports/admin-reports/${id}/resolve/`, data);
   },
 
   exportAdminReports(params?: { status?: string; search?: string }) {

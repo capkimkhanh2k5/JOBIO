@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, FileText,
     Settings, Shield, LogOut,
-    Wallet, Briefcase, AlertTriangle, Database, Bell, Mail
+    Wallet, Briefcase, AlertTriangle, Database, Bell
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useUserStore } from '@/store/userStore';
@@ -59,7 +59,6 @@ export function AdminSidebar() {
         { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" />, badge: pendingCompanies },
         { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
         { label: 'Dữ liệu danh mục', path: '/admin/master-data', icon: <Database className="w-5 h-5" /> },
-        { label: 'Quản lý Email', path: '/admin/email-manager', icon: <Mail className="w-5 h-5" /> },
     ];
 
     const handleLogout = async () => {
