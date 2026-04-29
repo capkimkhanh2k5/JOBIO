@@ -59,16 +59,19 @@ export default function JobDetailPage() {
     const normalizedJob = {
         ...job,
         salary_negotiable: (job as any).salary_negotiable ?? (job as any).is_salary_negotiable ?? false,
-        company: (job as any).company ?? {
-            id: (job as any).company_id,
-            company_name: (job as any).company_name,
-            logo_url: (job as any).company_logo ?? (job as any).logo_url ?? null,
-            verification_status: (job as any).verification_status,
+        company: {
+            ...((job as any).company ?? {}),
+            id: (job as any).company?.id ?? (job as any).company_id,
+            company_name: (job as any).company?.company_name ?? (job as any).company_name,
+            logo_url: company?.logo_url ?? (job as any).company?.logo_url ?? (job as any).company_logo ?? (job as any).logo_url ?? null,
+            banner_url: company?.banner_url ?? (job as any).company?.banner_url ?? null,
+            verification_status: (job as any).company?.verification_status ?? (job as any).verification_status,
         },
+        banner_url: company?.banner_url ?? (job as any).banner_url ?? (job as any).company_banner ?? null,
     };
 
     return (
-        <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 pt-32 pb-12 max-w-[90rem] relative z-10">
             {/* Back Button */}
             <Button
                 variant="ghost"
@@ -79,9 +82,9 @@ export default function JobDetailPage() {
                 Quay lại danh sách
             </Button>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_440px] gap-9">
                 {/* Main Content (Left) */}
-                <div className="lg:col-span-8">
+                <div className="min-w-0">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -124,7 +127,7 @@ export default function JobDetailPage() {
                 </div>
 
                 {/* Sidebar (Right) */}
-                <div className="lg:col-span-4">
+                <div className="min-w-0">
                     {company && <CompanySidebar company={company} />}
                 </div>
             </div>
@@ -152,15 +155,15 @@ export default function JobDetailPage() {
 
 function JobDetailSkeleton() {
     return (
-        <div className="container mx-auto px-4 pt-32 pb-12 max-w-7xl animate-pulse">
+        <div className="container mx-auto px-4 sm:px-6 pt-32 pb-12 max-w-[90rem] animate-pulse">
             <Skeleton className="h-10 w-40 mb-6 bg-gray-100" />
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_440px] gap-9">
+                <div>
                     <Skeleton className="h-64 w-full rounded-2xl mb-8 bg-gray-100" />
                     <Skeleton className="h-40 w-full rounded-2xl mb-8 bg-gray-100" />
                     <Skeleton className="h-96 w-full rounded-2xl mb-8 bg-gray-100" />
                 </div>
-                <div className="lg:col-span-4">
+                <div>
                     <Skeleton className="h-[500px] w-full rounded-2xl bg-gray-100" />
                 </div>
             </div>

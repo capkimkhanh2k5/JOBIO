@@ -94,6 +94,9 @@ class JobViewSet(viewsets.GenericViewSet):
         
         if params.get('category_id'):
             filters['category_id'] = int(params['category_id'])
+
+        if params.get('province_id'):
+            filters['province_id'] = int(params['province_id'])
         
         if params.get('job_type'):
             filters['job_type'] = params['job_type']

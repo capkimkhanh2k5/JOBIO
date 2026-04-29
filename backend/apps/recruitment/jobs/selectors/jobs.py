@@ -26,8 +26,8 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
             - search: str (search in title)
     """
     queryset = Job.objects.select_related(
-        'company', 'category', 'created_by'
-    )
+        'company', 'category', 'created_by', 'address', 'address__province'
+    ).prefetch_related('required_skills__skill')
     
     if not filters:
         return queryset.order_by('-published_at', '-created_at')
@@ -39,6 +39,13 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     # Filter by category
     if filters.get('category_id'):
         queryset = queryset.filter(category_id=filters['category_id'])
+
+    # Filter by province
+    if filters.get('province_id'):
+        queryset = queryset.filter(
+            Q(address__province_id=filters['province_id']) |
+            Q(locations__address__province_id=filters['province_id'])
+        ).distinct()
     
     # Filter by job_type
     if filters.get('job_type'):
@@ -75,9 +82,15 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
         queryset = queryset.filter(title__icontains=filters['search'])
     
     ordering_map = {
+        '-created_at': ['-created_at'],
+        'created_at': ['created_at'],
         '-posted_at': ['-published_at', '-created_at'],
         'posted_at': ['published_at', 'created_at'],
         'deadline': ['application_deadline', '-published_at', '-created_at'],
+        '-salary_max': ['-salary_max', '-published_at', '-created_at'],
+        'salary_max': ['salary_max', '-published_at', '-created_at'],
+        '-is_featured': ['-featured', '-published_at', '-created_at'],
+        '-featured': ['-featured', '-published_at', '-created_at'],
         '-views_count': ['-view_count', '-published_at', '-created_at'],
         '-applications_count': ['-application_count', '-published_at', '-created_at'],
     }
@@ -148,8 +161,8 @@ def list_featured_jobs() -> QuerySet[Job]:
         featured=True,
         status='published'
     ).select_related(
-        'company', 'category'
-    ).order_by('-published_at')[:10]
+        'company', 'category', 'address', 'address__province'
+    ).prefetch_related('required_skills__skill').order_by('-published_at')[:10]
 
 
 def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
@@ -166,8 +179,8 @@ def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
         application_deadline__lte=deadline_threshold,
         application_deadline__gte=timezone.now().date()
     ).select_related(
-        'company', 'category'
-    ).order_by('application_deadline')[:10]
+        'company', 'category', 'address', 'address__province'
+    ).prefetch_related('required_skills__skill').order_by('application_deadline')[:10]
 
 
 def get_similar_jobs(job_id: int, limit: int = 10) -> QuerySet[Job]:
@@ -207,8 +220,8 @@ def get_similar_jobs(job_id: int, limit: int = 10) -> QuerySet[Job]:
     ).filter(
         similarity_score__gt=0  # At least one match
     ).select_related(
-        'company', 'category'
-    ).order_by('-similarity_score', '-published_at')[:limit]
+        'company', 'category', 'address', 'address__province'
+    ).prefetch_related('required_skills__skill').order_by('-similarity_score', '-published_at')[:limit]
     
     return queryset
 
@@ -239,8 +252,8 @@ def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]
             id__in=matching_job_ids,
             status='published'
         ).select_related(
-            'company', 'category'
-        ).order_by('-published_at')[:limit]
+            'company', 'category', 'address', 'address__province'
+        ).prefetch_related('required_skills__skill').order_by('-published_at')[:limit]
         
         if queryset.exists():
             return queryset
@@ -249,8 +262,8 @@ def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]
     return Job.objects.filter(
         status='published'
     ).select_related(
-        'company', 'category'
-    ).order_by('-view_count', '-published_at')[:limit]
+        'company', 'category', 'address', 'address__province'
+    ).prefetch_related('required_skills__skill').order_by('-view_count', '-published_at')[:limit]
 
 
 def _tokenize(text: str) -> set:

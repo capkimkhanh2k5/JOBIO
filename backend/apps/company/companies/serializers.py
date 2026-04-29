@@ -1,19 +1,21 @@
 from rest_framework import serializers
 from .models import Company
 from apps.company.industries.models import Industry
+from apps.geography.addresses.serializers import AddressDetailSerializer
 
 
 class CompanySerializer(serializers.ModelSerializer):
     """Serializer cho đọc dữ liệu Company (List/Detail)"""
     industry_name = serializers.CharField(source='industry.name', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    address = AddressDetailSerializer(read_only=True)
     
     class Meta:
         model = Company
         fields = [
             'id', 'company_name', 'slug', 'tax_code', 'company_size',
             'industry', 'industry_name', 'website', 'logo_url', 'banner_url',
-            'description', 'address', 'headquarters', 'founded_year', 'verification_status',
+            'description', 'email', 'phone', 'address', 'headquarters', 'founded_year', 'verification_status',
             'verified_at', 'follower_count', 'job_count',
             'user', 'user_email', 'created_at', 'updated_at'
         ]

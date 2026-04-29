@@ -30,7 +30,7 @@ def list_companies(*, filters: dict = None) -> QuerySet[Company]:
     """
     Lấy danh sách công ty với hỗ trợ filter.
     """
-    qs = Company.objects.select_related('industry', 'user').order_by('-created_at')
+    qs = Company.objects.select_related('industry', 'user', 'address', 'address__province', 'address__commune').order_by('-created_at')
     
     if filters:
         return CompanyFilter(filters, queryset=qs).qs

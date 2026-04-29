@@ -1,8 +1,12 @@
+import type { ElementType } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
     HeartPulse, GraduationCap, MapPin, Laptop, Coffee,
     DollarSign, Palmtree, Gift, Users, Zap
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { companyService } from '@/services/companyService';
 
 interface Benefit {
     id: string | number;
@@ -16,11 +20,12 @@ interface Benefit {
 }
 
 interface Props {
-    benefits: Benefit[];
+    benefits?: Benefit[];
+    companyId?: string | number;
 }
 
 // Map icon string → Lucide component
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, ElementType> = {
     HeartPulse,
     GraduationCap,
     MapPin,
@@ -50,8 +55,27 @@ const getBenefitCategoryName = (benefit: Benefit) => (
     || 'Chưa phân loại'
 );
 
-export function CompanyBenefitsTab({ benefits }: Props) {
-    if (!benefits || benefits.length === 0) {
+export function CompanyBenefitsTab({ benefits, companyId }: Props) {
+    const { data: fetchedBenefits, isLoading } = useQuery({
+        queryKey: ['company-benefits', companyId],
+        queryFn: () => companyService.listBenefits(Number(companyId)).then(r => r.data as Benefit[]),
+        enabled: !!companyId,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const benefitItems = fetchedBenefits ?? benefits ?? [];
+
+    if (isLoading && !benefits) {
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {Array(4).fill(0).map((_, i) => (
+                    <Skeleton key={i} className="h-28 rounded-2xl bg-gray-100" />
+                ))}
+            </div>
+        );
+    }
+
+    if (benefitItems.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
@@ -62,7 +86,7 @@ export function CompanyBenefitsTab({ benefits }: Props) {
         );
     }
 
-    const grouped = benefits.reduce<Record<string, Benefit[]>>((acc, benefit) => {
+    const grouped = benefitItems.reduce<Record<string, Benefit[]>>((acc, benefit) => {
         const category = getBenefitCategoryName(benefit);
         (acc[category] = acc[category] || []).push(benefit);
         return acc;

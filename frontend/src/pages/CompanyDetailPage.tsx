@@ -18,7 +18,6 @@ import {
 import { CompanyJobsTab } from '@/components/companies/CompanyJobsTab';
 import { CompanyBenefitsTab } from '@/components/companies/CompanyBenefitsTab';
 import { CompanyMediaTab } from '@/components/companies/CompanyMediaTab';
-import { CompanyFollowersTab } from '@/components/companies/CompanyFollowersTab';
 import { CompanyStatsSidebar } from '@/components/companies/CompanyStatsSidebar';
 
 /* ── Verification badge ─────────────────────────────────────── */
@@ -136,13 +135,13 @@ export default function CompanyDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="relative z-10 pt-36"
+            className="relative z-10 pt-24 lg:pt-28"
         >
             {/* ── Back button ──────────────────────────────── */}
-            <div className="max-w-7xl mx-auto px-4 pt-6">
+            <div className="max-w-7xl mx-auto px-4 pt-2">
                 <Button
                     variant="ghost"
-                    className="hover:bg-gray-100 text-gray-500 hover:text-gray-900 group mb-4"
+                    className="hover:bg-gray-100 text-gray-500 hover:text-gray-900 group mb-3"
                     onClick={() => navigate(-1)}
                 >
                     <ChevronLeft size={18} className="mr-1 transition-transform group-hover:-translate-x-1" />
@@ -151,7 +150,7 @@ export default function CompanyDetailPage() {
             </div>
 
             {/* ── Banner + Header Section ───────────────── */}
-            <div className="max-w-7xl mx-auto px-4 mb-8">
+            <div className="max-w-7xl mx-auto px-4 mb-6">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -295,21 +294,19 @@ export default function CompanyDetailPage() {
 
                         {/* ── Tabs ───────────────────────────── */}
                         <Tabs defaultValue="jobs" className="w-full">
-                            <TabsList className="bg-white border border-gray-100 shadow-sm rounded-2xl p-1 h-auto flex flex-wrap gap-1 mb-6 w-full">
+                            <TabsList className="!grid grid-cols-3 bg-white border border-gray-100 shadow-sm rounded-2xl p-1 h-auto gap-1 mb-6 w-full">
                                 {[
                                     { value: 'jobs', label: 'Việc làm', icon: Briefcase },
                                     { value: 'benefits', label: 'Phúc lợi', icon: Star },
                                     { value: 'media', label: 'Media', icon: Play },
-                                    { value: 'followers', label: 'Followers', icon: Users },
                                 ].map(({ value, label, icon: Icon }) => (
                                     <TabsTrigger
                                         key={value}
                                         value={value}
-                                        className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 rounded-xl text-sm font-medium py-2.5 data-[state=active]:bg-primary/5 data-[state=active]:text-primary text-gray-500 transition-all"
+                                        className="min-w-0 w-full flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl px-2 py-2.5 text-xs sm:text-sm font-medium data-[state=active]:bg-primary/5 data-[state=active]:text-primary text-gray-500 transition-all"
                                     >
-                                        <Icon size={14} />
-                                        <span className="hidden sm:inline">{label}</span>
-                                        <span className="sm:hidden">{label.split(' ')[0]}</span>
+                                        <Icon size={14} className="shrink-0" />
+                                        <span className="whitespace-nowrap">{label}</span>
                                     </TabsTrigger>
                                 ))}
                             </TabsList>
@@ -319,16 +316,13 @@ export default function CompanyDetailPage() {
                             </TabsContent>
 
                             <TabsContent value="benefits">
-                                <CompanyBenefitsTab benefits={(company as any).benefits || []} />
+                                <CompanyBenefitsTab companyId={id} />
                             </TabsContent>
 
                             <TabsContent value="media">
                                 <CompanyMediaTab companyId={id} />
                             </TabsContent>
 
-                            <TabsContent value="followers">
-                                <CompanyFollowersTab companyId={id} />
-                            </TabsContent>
                         </Tabs>
                     </motion.div>
 

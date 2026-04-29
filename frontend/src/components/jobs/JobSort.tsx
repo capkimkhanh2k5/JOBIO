@@ -13,13 +13,14 @@ const SORT_OPTIONS = [
 interface JobSortProps {
     view: "grid" | "list";
     setView: (view: "grid" | "list") => void;
+    showViewToggle?: boolean;
     onMobileFilterToggle?: () => void;
     totalResults: number;
     sort: string;
     setSort: (sort: string) => void;
 }
 
-export function JobSort({ view, setView, onMobileFilterToggle, totalResults, sort, setSort }: JobSortProps) {
+export function JobSort({ view, setView, showViewToggle = true, onMobileFilterToggle, totalResults, sort, setSort }: JobSortProps) {
     const sortLabel = SORT_OPTIONS.find(o => o.value === sort)?.label ?? "Mới nhất";
 
     return (
@@ -65,10 +66,10 @@ export function JobSort({ view, setView, onMobileFilterToggle, totalResults, sor
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <div className="h-6 w-[1px] bg-gray-200 mx-0.5 hidden sm:block" />
+                {showViewToggle && <div className="h-6 w-[1px] bg-gray-200 mx-0.5 hidden sm:block" />}
 
                 {/* View toggle */}
-                <div className="flex items-center bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                {showViewToggle && <div className="flex items-center bg-gray-100 p-0.5 rounded-lg border border-gray-200">
                     <Button
                         variant={view === "grid" ? "secondary" : "ghost"}
                         size="icon"
@@ -87,7 +88,7 @@ export function JobSort({ view, setView, onMobileFilterToggle, totalResults, sor
                     >
                         <List className="h-3.5 w-3.5" />
                     </Button>
-                </div>
+                </div>}
             </div>
         </div>
     );

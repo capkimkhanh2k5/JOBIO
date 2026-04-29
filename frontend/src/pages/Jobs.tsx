@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useFilterStore } from "@/store/useStore";
 import { jobService } from "@/services/jobService";
@@ -14,17 +14,40 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "react-router-dom";
 
 const PAGE_SIZE = 12;
 
 export default function JobsPage() {
-    const [view, setView] = useState<"grid" | "list">("grid");
+    const [view, setView] = useState<"grid" | "list">("list");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState("-created_at");
+    const [searchParams] = useSearchParams();
 
     const filters = useFilterStore();
-    const { search, setSearch } = filters;
+    const { search, setSearch, category, setCategory, province, setProvince } = filters;
+
+    useEffect(() => {
+        const nextSearch = searchParams.get("search");
+        const nextCategory = searchParams.get("category_id");
+        const nextProvince = searchParams.get("province_id");
+        let shouldResetPage = false;
+
+        if (nextSearch !== null && nextSearch !== search) {
+            setSearch(nextSearch);
+            shouldResetPage = true;
+        }
+        if (nextCategory && nextCategory !== category) {
+            setCategory(nextCategory);
+            shouldResetPage = true;
+        }
+        if (nextProvince && nextProvince !== province) {
+            setProvince(nextProvince);
+            shouldResetPage = true;
+        }
+        if (shouldResetPage) setPage(1);
+    }, [category, province, search, searchParams, setCategory, setProvince, setSearch]);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobs", filters, page, sort],
@@ -129,7 +152,7 @@ export default function JobsPage() {
                     </aside>
 
                     {/* Main */}
-                    <main className="flex-1 min-w-0 flex flex-col gap-6">
+                    <main className="flex-1 min-w-0 flex flex-col gap-3">
 
                         {/* ── Search Hero relocated above ── */}
 
@@ -137,13 +160,14 @@ export default function JobsPage() {
                         <JobSort
                             view={view}
                             setView={setView}
+                            showViewToggle={false}
                             totalResults={data?.total ?? 0}
                             onMobileFilterToggle={() => setIsFilterOpen(true)}
                             sort={sort}
                             setSort={handleSortChange}
                         />
 
-                        <div className="mt-5">
+                        <div className="mt-0">
                             {isLoading ? (
                                 <div className={cn(
                                     "grid gap-4",
@@ -292,17 +316,43 @@ function getPageNumber(current: number, total: number, index: number): number {
 function CardSkeleton({ view }: { view: "grid" | "list" }) {
     if (view === "list") {
         return (
-            <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-4">
-                <Skeleton className="w-12 h-12 rounded-lg flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-3 w-1/3" />
-                    <div className="flex gap-2">
-                        <Skeleton className="h-4 w-16 rounded-full" />
-                        <Skeleton className="h-4 w-16 rounded-full" />
+            <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
+                <div className="flex flex-col xl:flex-row gap-5">
+                    <div className="flex flex-1 gap-4">
+                        <Skeleton className="w-14 h-14 rounded-xl flex-shrink-0" />
+                        <div className="flex-1 space-y-3">
+                            <div className="space-y-2">
+                                <Skeleton className="h-5 w-2/3" />
+                                <Skeleton className="h-3 w-36" />
+                            </div>
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-3/4" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
+                                <Skeleton className="h-12 rounded-lg" />
+                                <Skeleton className="h-12 rounded-lg" />
+                                <Skeleton className="h-12 rounded-lg" />
+                                <Skeleton className="h-12 rounded-lg" />
+                            </div>
+                            <div className="flex gap-2">
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                                <Skeleton className="h-6 w-20 rounded-full" />
+                                <Skeleton className="h-6 w-24 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="xl:w-64 xl:border-l xl:border-gray-100 xl:pl-5 space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                            <Skeleton className="h-10 rounded-lg" />
+                            <Skeleton className="h-10 rounded-lg" />
+                            <Skeleton className="h-10 rounded-lg" />
+                            <Skeleton className="h-10 rounded-lg" />
+                        </div>
+                        <div className="flex gap-2">
+                            <Skeleton className="h-11 flex-1 rounded-lg" />
+                            <Skeleton className="h-11 w-11 rounded-lg" />
+                        </div>
                     </div>
                 </div>
-                <Skeleton className="h-8 w-20 rounded-lg" />
             </div>
         );
     }
