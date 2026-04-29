@@ -56,19 +56,19 @@ export function JobFilters() {
 
     const { data: categories } = useQuery({
         queryKey: ["job-categories"],
-        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results),
+        queryFn: () => taxonomyService.listJobCategories(),
         staleTime: 5 * 60_000,
     });
 
     const { data: provinces } = useQuery({
         queryKey: ["provinces"],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results),
+        queryFn: () => taxonomyService.listProvinces(),
         staleTime: 5 * 60_000,
     });
 
     const { data: skillResults } = useQuery({
         queryKey: ["skills-search", skillInput],
-        queryFn: () => taxonomyService.listSkills({ search: skillInput, page_size: 8 }).then(r => r.data.results),
+        queryFn: () => taxonomyService.listSkills({ search: skillInput, page_size: 8 }),
         enabled: skillInput.length >= 2,
         staleTime: 30_000,
     });

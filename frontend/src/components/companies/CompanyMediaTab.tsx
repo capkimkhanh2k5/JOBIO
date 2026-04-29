@@ -11,12 +11,45 @@ interface Props {
 }
 
 interface MediaItem {
-    id: string;
+    id: string | number;
     media_type: 'image' | 'video';
     url: string;
-    thumbnail?: string;
-    title?: string;
+    thumbnail?: string | null;
+    title?: string | null;
 }
+
+type RawMediaItem = {
+    id: string | number;
+    media_type?: number | string | { id?: number; type_name?: string };
+    media_type_name?: string;
+    media_url?: string;
+    url?: string;
+    thumbnail_url?: string | null;
+    thumbnail?: string | null;
+    title?: string | null;
+    caption?: string | null;
+};
+
+const getMediaKind = (item: RawMediaItem): MediaItem['media_type'] => {
+    const rawType = typeof item.media_type === 'object'
+        ? item.media_type?.type_name
+        : item.media_type;
+    const typeName = String(item.media_type_name ?? rawType ?? '').toLowerCase();
+    return typeName.includes('video') ? 'video' : 'image';
+};
+
+const normalizeMediaItem = (item: RawMediaItem): MediaItem | null => {
+    const url = item.url || item.media_url;
+    if (!url) return null;
+
+    return {
+        id: item.id,
+        media_type: getMediaKind(item),
+        url,
+        thumbnail: item.thumbnail || item.thumbnail_url,
+        title: item.title || item.caption || null,
+    };
+};
 
 function MediaLightbox({ item, onClose }: { item: MediaItem; onClose: () => void }) {
     return (
@@ -52,7 +85,7 @@ function MediaLightbox({ item, onClose }: { item: MediaItem; onClose: () => void
                     ) : (
                         <img
                             src={item.url}
-                            alt={item.title}
+                            alt={item.title ?? 'Media'}
                             className="w-full h-full object-contain bg-black"
                         />
                     )}
@@ -70,11 +103,15 @@ function MediaLightbox({ item, onClose }: { item: MediaItem; onClose: () => void
 export function CompanyMediaTab({ companyId }: Props) {
     const [lightboxItem, setLightboxItem] = useState<MediaItem | null>(null);
 
-    const { data: media, isLoading } = useQuery({
+    const { data: rawMedia, isLoading } = useQuery({
         queryKey: ['company-media', companyId],
-        queryFn: () => companyService.listMedia(Number(companyId)).then(r => r.data) as Promise<MediaItem[]>,
+        queryFn: () => companyService.listMedia(Number(companyId)).then(r => r.data as RawMediaItem[]),
         staleTime: 1000 * 60 * 5,
     });
+
+    const media = (rawMedia ?? [])
+        .map(normalizeMediaItem)
+        .filter((item): item is MediaItem => Boolean(item));
 
     if (isLoading) {
         return (
@@ -86,7 +123,7 @@ export function CompanyMediaTab({ companyId }: Props) {
         );
     }
 
-    if (!media || media.length === 0) {
+    if (media.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
@@ -119,7 +156,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                             >
                                 <img
                                     src={item.thumbnail || item.url}
-                                    alt={item.title}
+                                    alt={item.title ?? 'Media'}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
@@ -158,7 +195,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                             >
                                 <img
                                     src={item.url}
-                                    alt={item.title}
+                                    alt={item.title ?? 'Media'}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />

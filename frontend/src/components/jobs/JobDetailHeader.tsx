@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
     Bookmark,
     Users,
@@ -20,6 +20,27 @@ import { savedJobService } from '@/services/savedJobService';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
 
+const JOB_TYPE_LABELS: Record<string, string> = {
+    'full-time': 'Toàn thời gian',
+    'part-time': 'Bán thời gian',
+    full_time: 'Toàn thời gian',
+    part_time: 'Bán thời gian',
+    contract: 'Hợp đồng',
+    internship: 'Thực tập',
+    freelance: 'Freelance',
+};
+
+const LEVEL_LABELS: Record<string, string> = {
+    intern: 'Intern',
+    fresher: 'Fresher',
+    junior: 'Junior',
+    middle: 'Middle',
+    senior: 'Senior',
+    lead: 'Lead',
+    manager: 'Manager',
+    director: 'Director',
+};
+
 interface JobDetailHeaderProps {
     job: {
         id: number;
@@ -28,6 +49,7 @@ interface JobDetailHeaderProps {
             id: number;
             company_name: string;
             logo_url: string | null;
+            banner_url?: string | null;
             verification_status?: string;
         };
         banner_url?: string | null;
@@ -63,7 +85,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
         const url = window.location.href;
         if (platform === 'link') {
             navigator.clipboard.writeText(url);
-            toast.success("Đã sao chép liên kết");
+            toast.success('Đã sao chép liên kết');
         } else if (platform === 'facebook') {
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
         } else if (platform === 'linkedin') {
@@ -73,7 +95,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
 
     const toggleSave = async () => {
         if (!isAuthenticated) {
-            toast.error("Vui lòng đăng nhập để lưu việc làm");
+            toast.error('Vui lòng đăng nhập để lưu việc làm');
             return;
         }
         setIsSaving(true);
@@ -81,42 +103,51 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
             if (isSaved) {
                 await savedJobService.unsaveByJob(job.id);
                 setIsSaved(false);
-                toast.success("Đã bỏ lưu việc làm");
+                toast.success('Đã bỏ lưu việc làm');
             } else {
                 await savedJobService.save(job.id);
                 setIsSaved(true);
-                toast.success("Đã lưu việc làm");
+                toast.success('Đã lưu việc làm');
             }
         } catch (error) {
-            toast.error("Thao tác thất bại");
+            toast.error('Thao tác thất bại');
         } finally {
             setIsSaving(false);
         }
     };
 
     const formatSalary = () => {
-        if (job.salary_negotiable) return "Thỏa thuận";
-        if (!job.salary_min && !job.salary_max) return "Lương thỏa thuận";
+        if (job.salary_negotiable) return 'Thỏa thuận';
+        if (!job.salary_min && !job.salary_max) return 'Lương thỏa thuận';
         return `${job.salary_min?.toLocaleString()} - ${job.salary_max?.toLocaleString()} ${job.salary_currency}`;
     };
 
-    // Calculate days remaining
-    const diffDays = job.application_deadline ? Math.ceil((new Date(job.application_deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    const diffDays = job.application_deadline
+        ? Math.ceil((new Date(job.application_deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+        : 0;
     const isUrgent = diffDays > 0 && diffDays <= 3;
+    const bannerUrl = job.banner_url ?? job.company?.banner_url ?? null;
+    const locationText = locations
+        .map(location => location.address?.province_name || location.province_name)
+        .filter(Boolean)
+        .join(', ') || 'Toàn quốc';
+    const publishedDate = job.published_at ? new Date(job.published_at).toLocaleDateString('vi-VN') : 'Mới';
 
     return (
         <section className="w-full space-y-6">
-            {/* Banner & Logo Area */}
             <div className="relative group">
-                <div className="h-48 md:h-64 w-full rounded-2xl overflow-hidden border border-gray-200">
-                    {job.banner_url ? (
-                        <img src={job.banner_url} alt="Banner" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="h-52 md:h-72 w-full rounded-2xl overflow-hidden border border-gray-200 bg-slate-100">
+                    {bannerUrl ? (
+                        <img
+                            src={bannerUrl}
+                            alt={`${job.company?.company_name} banner`}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                     ) : (
                         <div className="w-full h-full bg-slate-100" />
                     )}
                 </div>
 
-                {/* Logo Floating */}
                 <div className="absolute -bottom-10 left-8 p-1.5 bg-white rounded-2xl shadow-xl border border-gray-100 hidden md:block">
                     <div className="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50">
                         {job.company?.logo_url ? (
@@ -128,18 +159,16 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                 </div>
             </div>
 
-            {/* Main Content Card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-10 shadow-sm">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                    <div className="flex-1 space-y-4">
-                        {/* Title & Company */}
-                        <div>
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                <div className="space-y-7">
+                    <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-6">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
                                 <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 font-semibold">
-                                    {job.job_type === 'full_time' ? 'Toàn thời gian' : job.job_type}
+                                    {JOB_TYPE_LABELS[job.job_type] ?? job.job_type}
                                 </Badge>
                                 <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 font-semibold">
-                                    {job.level}
+                                    {LEVEL_LABELS[job.level] ?? job.level}
                                 </Badge>
                                 {job.is_remote && (
                                     <Badge variant="outline" className="bg-white text-slate-700 border-slate-200 font-semibold">
@@ -153,10 +182,11 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                     </Badge>
                                 )}
                             </div>
-                            <h1 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-2">
+
+                            <h1 className="text-2xl md:text-4xl font-black text-slate-900 leading-tight mb-3">
                                 {job.title}
                             </h1>
-                            <div className="flex items-center gap-2 text-gray-600 font-medium">
+                            <div className="flex items-center gap-2 text-gray-600 font-semibold text-base">
                                 <span className="hover:text-sky-700 cursor-pointer flex items-center gap-1.5 transition-colors">
                                     {job.company?.company_name}
                                     {job.company?.verification_status === 'verified' && (
@@ -166,79 +196,26 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                             </div>
                         </div>
 
-                        {/* Quick Info Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 py-6 border-y border-gray-50">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                                    <DollarSign className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mức lương</p>
-                                    <p className="text-sm font-bold text-slate-900">{formatSalary()}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                                    <MapPin className="w-5 h-5" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Địa điểm</p>
-                                    <p className="text-sm font-bold text-slate-900 truncate">
-                                        {locations.map(l => l.address?.province_name || l.province_name).filter(Boolean).join(", ") || "Toàn quốc"}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                                    <Clock className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Hạn nộp</p>
-                                    <p className={cn(
-                                        "text-sm font-bold",
-                                        isUrgent ? "text-red-600" : "text-slate-900"
-                                    )}>
-                                        {diffDays > 0 ? `Còn ${diffDays} ngày` : "Hết hạn"}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                                    <Calendar className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ngày đăng</p>
-                                    <p className="text-sm font-bold text-slate-900">
-                                        {job.published_at ? new Date(job.published_at).toLocaleDateString('vi-VN') : 'Mới'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Action Column */}
-                    <div className="flex flex-col gap-3 min-w-[280px]">
-                        <Button
-                            onClick={onApply}
-                            className="w-full h-14 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg shadow-md shadow-violet-600/20 transition-all active:scale-[0.98]"
-                        >
-                            Ứng tuyển ngay
-                        </Button>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col gap-3 w-full xl:w-[320px] shrink-0">
                             <Button
-                                onClick={toggleSave}
-                                disabled={isSaving}
-                                variant="outline"
-                                className={cn(
-                                    "flex-1 h-12 rounded-xl font-bold transition-all border-slate-200 text-slate-700",
-                                    isSaved ? "bg-slate-50 text-sky-700 border-sky-200" : "hover:bg-slate-50"
-                                )}
+                                onClick={onApply}
+                                className="w-full h-14 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg shadow-md shadow-violet-600/20 transition-all active:scale-[0.98]"
                             >
-                                <Bookmark className={cn("w-5 h-5 mr-2", isSaved && "fill-current")} />
-                                {isSaved ? "Đã lưu" : "Lưu tin"}
+                                Ứng tuyển ngay
                             </Button>
-
-                            <div className="flex gap-1">
+                            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2">
+                                <Button
+                                    onClick={toggleSave}
+                                    disabled={isSaving}
+                                    variant="outline"
+                                    className={cn(
+                                        'h-12 rounded-xl font-bold transition-all border-slate-200 text-slate-700',
+                                        isSaved ? 'bg-slate-50 text-sky-700 border-sky-200' : 'hover:bg-slate-50'
+                                    )}
+                                >
+                                    <Bookmark className={cn('w-5 h-5 mr-2', isSaved && 'fill-current')} />
+                                    {isSaved ? 'Đã lưu' : 'Lưu tin'}
+                                </Button>
                                 <Button onClick={() => handleShare('facebook')} variant="outline" size="icon" className="w-12 h-12 rounded-xl text-slate-600 border-slate-200 hover:bg-slate-50">
                                     <Facebook className="w-5 h-5" />
                                 </Button>
@@ -250,9 +227,37 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 </Button>
                             </div>
                         </div>
-                        <div className="flex items-center justify-center gap-4 text-xs text-slate-500 font-medium pt-2">
-                            <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {job.application_count} lượt ứng tuyển</span>
-                            <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> {job.view_count} lượt xem</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6 pt-6 border-t border-gray-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <InfoItem icon={<DollarSign className="w-5 h-5" />} label="Mức lương" value={formatSalary()} />
+                            <InfoItem icon={<MapPin className="w-5 h-5" />} label="Địa điểm" value={locationText} />
+                            <InfoItem
+                                icon={<Clock className="w-5 h-5" />}
+                                label="Hạn nộp"
+                                value={diffDays > 0 ? `Còn ${diffDays} ngày` : 'Hết hạn'}
+                                urgent={isUrgent}
+                            />
+                            <InfoItem icon={<Calendar className="w-5 h-5" />} label="Ngày đăng" value={publishedDate} />
+                        </div>
+
+                        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 flex flex-col justify-center gap-3">
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                                    <Users className="w-4 h-4 text-slate-400" />
+                                    Lượt ứng tuyển
+                                </span>
+                                <span className="text-base font-black text-slate-900">{job.application_count}</span>
+                            </div>
+                            <div className="h-px bg-slate-200" />
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                                    <Zap className="w-4 h-4 text-slate-400" />
+                                    Lượt xem
+                                </span>
+                                <span className="text-base font-black text-slate-900">{job.view_count}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -260,3 +265,29 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
         </section>
     );
 };
+
+function InfoItem({
+    icon,
+    label,
+    value,
+    urgent,
+}: {
+    icon: ReactNode;
+    label: string;
+    value: string;
+    urgent?: boolean;
+}) {
+    return (
+        <div className="flex items-start gap-3 rounded-2xl bg-slate-50 border border-slate-200 p-4">
+            <div className="w-11 h-11 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                {icon}
+            </div>
+            <div className="min-w-0">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+                <p className={cn('text-base font-black text-slate-900 break-words', urgent && 'text-red-600')}>
+                    {value}
+                </p>
+            </div>
+        </div>
+    );
+}

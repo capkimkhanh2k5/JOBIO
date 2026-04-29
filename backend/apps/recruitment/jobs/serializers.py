@@ -9,30 +9,63 @@ class JobListSerializer(serializers.ModelSerializer):
     
     company_id = serializers.IntegerField(source='company.id', read_only=True)
     company_name = serializers.CharField(source='company.company_name', read_only=True)
+    company_slug = serializers.CharField(source='company.slug', read_only=True, allow_null=True)
     logo_url = serializers.CharField(source='company.logo_url', read_only=True, allow_null=True)
     category_id = serializers.IntegerField(source='category.id', read_only=True, allow_null=True)
     category_name = serializers.CharField(source='category.name', read_only=True, allow_null=True)
     views_count = serializers.IntegerField(source='view_count', read_only=True)
     applications_count = serializers.IntegerField(source='application_count', read_only=True)
+    salary_negotiable = serializers.BooleanField(source='is_salary_negotiable', read_only=True)
+    is_salary_visible = serializers.SerializerMethodField()
+    is_featured = serializers.BooleanField(source='featured', read_only=True)
+    deadline = serializers.DateField(source='application_deadline', read_only=True, allow_null=True)
+    location = serializers.SerializerMethodField()
     locations = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
     
     class Meta:
         model = Job
         fields = [
             'id', 'title', 'slug', 
-            'company_id', 'company_name', 'logo_url',
+            'company_id', 'company_name', 'company_slug', 'logo_url',
             'category_id', 'category_name',
-            'job_type', 'level',
-            'salary_min', 'salary_max', 'salary_currency', 'is_salary_negotiable',
-            'is_remote', 'status', 'published_at', 'application_deadline',
-            'views_count', 'applications_count', 'locations'
+            'job_type', 'level', 'experience_years_min', 'experience_years_max',
+            'salary_min', 'salary_max', 'salary_currency', 'salary_type',
+            'is_salary_negotiable', 'salary_negotiable', 'is_salary_visible',
+            'number_of_positions', 'description', 'requirements', 'benefits',
+            'is_remote', 'status', 'published_at', 'created_at', 'application_deadline', 'deadline',
+            'view_count', 'application_count', 'views_count', 'applications_count',
+            'featured', 'is_featured', 'featured_until',
+            'location', 'locations', 'skills'
         ]
         read_only_fields = ['id', 'slug', 'published_at']
+
+    def get_is_salary_visible(self, obj):
+        return not obj.is_salary_negotiable and (
+            obj.salary_min is not None or obj.salary_max is not None
+        )
+
+    def get_location(self, obj):
+        return self.get_locations(obj)
 
     def get_locations(self, obj):
         if obj.address and hasattr(obj.address, 'province') and obj.address.province:
             return obj.address.province.province_name
         return "Toàn quốc"
+
+
+    def get_skills(self, obj):
+        return [
+            {
+                'id': job_skill.skill_id,
+                'name': job_skill.skill.name,
+                'is_required': job_skill.is_required,
+                'proficiency_level': job_skill.proficiency_level,
+                'years_required': job_skill.years_required,
+            }
+            for job_skill in obj.required_skills.all()
+            if job_skill.skill_id and job_skill.skill
+        ]
 
 
 class JobDetailSerializer(serializers.ModelSerializer):

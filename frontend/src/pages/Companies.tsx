@@ -194,6 +194,10 @@ export default function CompaniesPage() {
 
 function CompanyCard({ company }: { company: any }) {
     const industryName = typeof company.industry === 'object' ? company.industry?.name : (company.industry_name || 'Đa lĩnh vực');
+    const addressText = formatCompanyAddress(company);
+    const sizeText = company.company_size || company.employee_count_range || null;
+    const description = cleanCompanyDescription(company.description);
+
     return (
         <motion.div
             layout
@@ -218,14 +222,20 @@ function CompanyCard({ company }: { company: any }) {
                 </div>
             </div>
 
+            {description && (
+                <p className="text-sm leading-6 text-gray-600 line-clamp-2 mb-4">
+                    {description}
+                </p>
+            )}
+
             <div className="space-y-2 mt-auto pt-4 border-t border-gray-50">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="line-clamp-1">{company.headquarters_address || "Chưa cập nhật địa chỉ"}</span>
+                    <span className="line-clamp-1">{addressText || "Chưa cập nhật địa chỉ"}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span>{company.employee_count_range || "Chưa cập nhật quy mô"}</span>
+                    <span>{sizeText || "Chưa cập nhật quy mô"}</span>
                 </div>
             </div>
 
@@ -255,6 +265,25 @@ function CompanySkeleton() {
             <Skeleton className="h-10 w-full rounded-md mt-5" />
         </div>
     );
+}
+
+function formatCompanyAddress(company: any) {
+    const address = company.address;
+    if (address && typeof address === 'object' && address.province_name) return address.province_name;
+
+    const rawAddress = company.headquarters || company.headquarters_address || '';
+    if (!rawAddress) return '';
+
+    const parts = rawAddress.split(',').map((part: string) => part.trim()).filter(Boolean);
+    return parts[parts.length - 1] || rawAddress;
+}
+
+function cleanCompanyDescription(value?: string | null) {
+    return value
+        ?.replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() || '';
 }
 
 function getPageNumber(current: number, total: number, index: number): number {

@@ -13,8 +13,9 @@ import { companyService } from "../services/companyService";
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
 import { Badge } from "../components/ui/badge";
+import { Combobox } from "../components/ui/combobox";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -62,15 +63,24 @@ const HeroSection = () => {
     const [province, setProvince] = useState('');
     const navigate = useNavigate();
 
-    const { data: provinces } = useQuery({
+    const { data: provinces = [], isLoading: isProvincesLoading } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => taxonomyService.listProvinces().then(r => r.data.results),
+        queryFn: () => taxonomyService.listProvinces(),
+        staleTime: 5 * 60_000,
     });
+
+    const provinceOptions = useMemo(() => [
+        { value: '', label: 'Toàn quốc' },
+        ...provinces.map((p: any) => ({
+            value: String(p.id),
+            label: p.province_name,
+        })),
+    ], [provinces]);
 
     const handleSearch = () => {
         const params = new URLSearchParams();
         if (keyword) params.set('search', keyword);
-        if (province) params.set('province', province);
+        if (province) params.set('province_id', province);
         navigate(`/jobs?${params.toString()}`);
     };
 
@@ -166,16 +176,16 @@ const HeroSection = () => {
                         </div>
                         <div className="flex items-center flex-1 border border-gray-200 rounded-xl px-4 py-3 gap-3 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all bg-white">
                             <MapPin className="w-5 h-5 text-gray-400 shrink-0" />
-                            <select
+                            <Combobox
                                 value={province}
-                                onChange={e => setProvince(e.target.value)}
-                                className="w-full bg-transparent border-none outline-none appearance-none text-gray-800 cursor-pointer text-base"
-                            >
-                                <option value="">Toàn quốc</option>
-                                {provinces?.map((p: any) => (
-                                    <option key={p.id} value={p.province_name}>{p.province_name}</option>
-                                ))}
-                            </select>
+                                options={provinceOptions}
+                                onChange={value => setProvince(String(value))}
+                                placeholder={isProvincesLoading ? "Đang tải..." : "Toàn quốc"}
+                                searchPlaceholder="Tìm tỉnh/thành phố..."
+                                emptyMessage="Không tìm thấy tỉnh/thành phố."
+                                disabled={isProvincesLoading}
+                                className="h-auto w-full justify-between border-0 bg-transparent px-0 py-0 text-base font-normal text-gray-800 shadow-none hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
                         </div>
                         <Button
                             onClick={handleSearch}
@@ -428,7 +438,7 @@ const JobCategoriesSection = () => {
     const navigate = useNavigate();
     const { data: categories, isLoading } = useQuery({
         queryKey: ['categories'],
-        queryFn: () => taxonomyService.listJobCategories().then(r => r.data.results)
+        queryFn: () => taxonomyService.listJobCategories()
     });
 
     const getCategoryIcon = (name: string) => {
@@ -464,7 +474,7 @@ const JobCategoriesSection = () => {
                                 key={cat.id}
                                 whileHover={{ y: -6, scale: 1.02 }}
                                 transition={{ duration: 0.18 }}
-                                onClick={() => navigate(`/jobs?category=${cat.slug}`)}
+                                onClick={() => navigate(`/jobs?category_id=${cat.id}`)}
                                 className="bg-white rounded-2xl p-5 flex flex-col items-center text-center gap-3 cursor-pointer group border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all"
                             >
                                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i % gradients.length]} flex items-center justify-center text-white shadow-sm`}>
@@ -540,7 +550,7 @@ const FeaturedCompaniesSection = () => {
 const IndustriesSection = () => {
     const { data: industries, isLoading } = useQuery({
         queryKey: ['industries'],
-        queryFn: () => taxonomyService.listIndustries().then(r => r.data.results)
+        queryFn: () => taxonomyService.listIndustries()
     });
 
     const getIcon = (name: string) => {
