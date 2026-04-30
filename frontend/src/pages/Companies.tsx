@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { companyService } from "@/services/companyService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,18 +12,26 @@ import { cn } from "@/lib/utils";
 const PAGE_SIZE = 12;
 
 export default function CompaniesPage() {
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [searchInput, setSearchInput] = useState("");
+    const industryId = searchParams.get("industry_id") || "";
+
+    useEffect(() => {
+        setPage(1);
+    }, [industryId]);
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ["companies", search, page],
+        queryKey: ["companies", search, industryId, page],
         queryFn: async () => {
             const params: Record<string, any> = {
                 page,
                 page_size: PAGE_SIZE,
             };
             if (search) params.search = search;
+            if (industryId) params.industry_id = industryId;
 
             const { data: resp } = await companyService.list(params);
             const items = Array.isArray(resp) ? resp : (resp?.results || []);
@@ -48,6 +56,13 @@ export default function CompaniesPage() {
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const clearFilters = () => {
+        setSearchInput("");
+        setSearch("");
+        setPage(1);
+        navigate("/companies");
     };
 
     return (
@@ -125,7 +140,7 @@ export default function CompaniesPage() {
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy công ty nào</h3>
                         <p className="text-gray-500 mb-6">Không có kết quả nào phù hợp với từ khóa "{search}". Vui lòng thử lại với từ khóa khác.</p>
-                        <Button onClick={() => { setSearchInput(""); setSearch(""); setPage(1); }} variant="outline">
+                        <Button onClick={clearFilters} variant="outline">
                             Xem tất cả công ty
                         </Button>
                     </div>

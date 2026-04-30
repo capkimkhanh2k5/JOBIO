@@ -3,6 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 import unittest
+from apps.company.industries.models import Industry
 
 CustomUser = get_user_model()
 
@@ -69,6 +70,43 @@ class TestCompanyManagement(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_companies_filter_by_industry_id(self):
+        """GET /api/companies/?industry_id=<id> filters companies by industry"""
+        product_industry = Industry.objects.create(name="IT Product")
+        outsourcing_industry = Industry.objects.create(name="IT Outsourcing")
+
+        user1 = CustomUser.objects.create_user(
+            email="product-company@example.com",
+            password="password123",
+            role='company'
+        )
+        self.client.force_authenticate(user=user1)
+        self.client.post(
+            reverse('company-list'),
+            {"company_name": "Product Company", "industry_id": product_industry.id},
+            format='json'
+        )
+
+        user2 = CustomUser.objects.create_user(
+            email="outsourcing-company@example.com",
+            password="password123",
+            role='company'
+        )
+        self.client.force_authenticate(user=user2)
+        self.client.post(
+            reverse('company-list'),
+            {"company_name": "Outsourcing Company", "industry_id": outsourcing_industry.id},
+            format='json'
+        )
+        self.client.logout()
+
+        response = self.client.get(reverse('company-list'), {'industry_id': product_industry.id})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data['results'] if isinstance(response.data, dict) else response.data
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['company_name'], "Product Company")
     
     def test_retrieve_company_by_slug(self):
         """Lấy chi tiết công ty theo slug"""

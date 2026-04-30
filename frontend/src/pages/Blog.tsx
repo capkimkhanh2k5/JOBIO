@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, Calendar, ArrowRight, UserCircle, Loader2, Tag as TagIcon, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,8 +14,10 @@ const fadeUp = (delay: number) => ({
 });
 
 export default function Blog() {
-    const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { user } = useUserStore();
+    const selectedCategory = searchParams.get('category_id') ? Number(searchParams.get('category_id')) : undefined;
+    const selectedTag = searchParams.get('tag_id') ? Number(searchParams.get('tag_id')) : undefined;
 
     // ── Queries ──
     const { data: featuredResp } = useQuery({
@@ -27,8 +28,8 @@ export default function Blog() {
     const featuredPost = featuredResp?.results?.[0];
 
     const { data: postsResp, isLoading: isLoadingPosts } = useQuery({
-        queryKey: ['blog-posts', selectedCategory],
-        queryFn: () => blogService.listPosts({ category_id: selectedCategory, page_size: 10 }).then(r => r.data),
+        queryKey: ['blog-posts', selectedCategory, selectedTag],
+        queryFn: () => blogService.listPosts({ category_id: selectedCategory, tag_id: selectedTag, page_size: 10 }).then(r => r.data),
         staleTime: 60_000,
     });
     const posts = postsResp?.results ?? [];
@@ -50,6 +51,15 @@ export default function Blog() {
 
     const resolveAuthorAvatar = (post: { author_avatar?: string | null; author?: number }) =>
         post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
+
+    const setCategoryFilter = (categoryId?: number) => {
+        if (categoryId) setSearchParams({ category_id: String(categoryId) });
+        else setSearchParams({});
+    };
+
+    const setTagFilter = (tagId: number) => {
+        setSearchParams({ tag_id: String(tagId) });
+    };
 
     return (
         <div className="min-h-screen bg-slate-50/50 pb-24">
@@ -74,7 +84,7 @@ export default function Blog() {
                 <div className="lg:col-span-8 space-y-12">
                     
                     {/* Featured Hero Card */}
-                    {featuredPost && !selectedCategory && (
+                    {featuredPost && !selectedCategory && !selectedTag && (
                         <motion.div {...fadeUp(0.1)} className="group cursor-pointer">
                             <Link to={`/blog/${featuredPost.slug}`} className="block relative bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-violet-600/5 transition-all duration-300">
                                 <div className="absolute top-4 left-4 z-20">
@@ -119,7 +129,7 @@ export default function Blog() {
                     <div>
                         <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                             <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-                                {selectedCategory ? 'Tất cả bài viết' : 'Bài viết mới nhất'}
+                                {selectedTag ? 'Bài viết theo topic' : selectedCategory ? 'Bài viết theo danh mục' : 'Bài viết mới nhất'}
                             </h3>
                         </div>
 
@@ -130,7 +140,7 @@ export default function Blog() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                                 {posts.map((post, idx) => {
-                                    if (featuredPost && post.id === featuredPost.id && !selectedCategory) return null; // Deduplicate
+                                    if (featuredPost && post.id === featuredPost.id && !selectedCategory && !selectedTag) return null; // Deduplicate
                                     return (
                                         <motion.article 
                                             key={post.id} 
@@ -203,17 +213,17 @@ export default function Blog() {
                         </h4>
                         <div className="space-y-2">
                             <button
-                                onClick={() => setSelectedCategory(undefined)}
+                                onClick={() => setCategoryFilter(undefined)}
                                 className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer
-                                    ${!selectedCategory ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
+                                    ${!selectedCategory && !selectedTag ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                             >
                                 Tất cả bài viết
-                                {!selectedCategory && <ChevronRight className="w-4 h-4 opacity-50" />}
+                                {!selectedCategory && !selectedTag && <ChevronRight className="w-4 h-4 opacity-50" />}
                             </button>
                             {categories?.map((cat) => (
                                 <button
                                     key={cat.id}
-                                    onClick={() => setSelectedCategory(cat.id)}
+                                    onClick={() => setCategoryFilter(cat.id)}
                                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer
                                         ${selectedCategory === cat.id ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}
                                 >
@@ -232,9 +242,11 @@ export default function Blog() {
                             </h4>
                             <div className="flex flex-wrap gap-2">
                                 {tags.map((tag) => (
-                                    <Badge key={tag.id} className="bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 font-semibold px-3 py-1.5 border border-slate-200 transition-colors shadow-none cursor-pointer">
-                                        #{tag.name}
-                                    </Badge>
+                                    <button key={tag.id} onClick={() => setTagFilter(tag.id)}>
+                                        <Badge className={`${selectedTag === tag.id ? 'bg-violet-600 text-white border-violet-600' : 'bg-slate-50 text-slate-600 hover:bg-violet-50 hover:text-violet-700 border-slate-200'} font-semibold px-3 py-1.5 border transition-colors shadow-none cursor-pointer`}>
+                                            #{tag.name}
+                                        </Badge>
+                                    </button>
                                 ))}
                             </div>
                         </motion.div>

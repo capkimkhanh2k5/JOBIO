@@ -21,6 +21,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const FEATURED_JOBS_LIMIT = 8;
+
 export default function Home() {
     const mainRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +47,7 @@ export default function Home() {
     }, []);
 
     return (
-        <div ref={mainRef} className="w-full flex flex-col gap-24 pb-0 bg-white">
+        <div ref={mainRef} className="w-full flex flex-col gap-12 pb-0 bg-white">
             <HeroSection />
             <div className="reveal-section"><StatsSection /></div>
             <div className="reveal-section"><FeaturedJobsSection /></div>
@@ -332,8 +334,8 @@ const StatsSection = () => {
 /* ────────────────────────── FEATURED JOBS ────────────────────── */
 const FeaturedJobsSection = () => {
     const { data: jobs, isLoading } = useQuery({
-        queryKey: ['featuredJobs'],
-        queryFn: () => jobService.featured().then(r => r.data)
+        queryKey: ['featuredJobs', FEATURED_JOBS_LIMIT],
+        queryFn: () => jobService.featured({ page_size: FEATURED_JOBS_LIMIT }).then(r => r.data)
     });
 
     return (
@@ -352,7 +354,7 @@ const FeaturedJobsSection = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {isLoading
-                    ? Array(10).fill(0).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
+                    ? Array(FEATURED_JOBS_LIMIT).fill(0).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
                     : jobs?.map((job: any) => <JobCard key={job.id} job={job} />)}
             </div>
         </section>
@@ -459,7 +461,7 @@ const JobCategoriesSection = () => {
     ];
 
     return (
-        <section className="bg-gray-50 py-16 -mx-0 px-4">
+        <section className="bg-gray-50 pt-10 pb-16 -mx-0 px-4">
             <div className="container mx-auto">
                 <div className="text-center mb-10">
                     <h2 className="text-3xl font-black text-gray-900 tracking-tight">Danh Mục Nghề Nghiệp</h2>
@@ -499,6 +501,9 @@ const FeaturedCompaniesSection = () => {
         queryKey: ['featuredCompanies'],
         queryFn: () => companyService.featured().then(r => r.data)
     });
+    const getJobCountLabel = (count?: number) => (
+        count && count > 0 ? `${count} tin tuyển dụng` : 'Chưa có tin tuyển dụng'
+    );
 
     return (
         <section className="container mx-auto px-4">
@@ -520,24 +525,24 @@ const FeaturedCompaniesSection = () => {
                     : companies?.map((company: any) => (
                         <motion.div
                             key={company.id}
-                            whileHover={{ y: -5 }}
+                            whileHover={{ y: -4 }}
                             transition={{ duration: 0.2 }}
-                            className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col items-center text-center gap-3 cursor-pointer group hover:border-primary/30 hover:shadow-md transition-all relative overflow-hidden"
+                            className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col items-center text-center gap-3 cursor-pointer group hover:border-primary/25 hover:bg-slate-50/50 hover:shadow-lg hover:shadow-slate-200/70 transition-all relative overflow-hidden"
                             onClick={() => navigate(`/companies/${company.id}`)}
                         >
-                            <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center p-3 group-hover:scale-105 transition-transform">
+                            <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center p-3 group-hover:-translate-y-0.5 group-hover:shadow-sm transition-all">
                                 <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
                             </div>
                             <div className="space-y-1">
-                                <div className="font-bold text-gray-900 text-sm group-hover:text-primary transition-colors">{company.company_name}</div>
+                                <div className="font-bold text-gray-900 text-sm transition-colors">{company.company_name}</div>
                                 {company.industry?.name && (
                                     <div className="text-xs text-primary font-semibold bg-primary/8 px-2 py-0.5 rounded-full inline-block">{company.industry.name}</div>
                                 )}
-                                <div className="text-xs text-gray-400">{company.job_count} vị trí</div>
+                                <div className="text-xs text-gray-400">{getJobCountLabel(company.job_count)}</div>
                             </div>
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 to-primary/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-5 rounded-2xl">
-                                <span className="text-white text-sm font-bold">Xem Việc Làm →</span>
+                            <div className="mt-1 flex items-center justify-center gap-1 text-xs font-semibold text-primary opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                                Xem tin tuyển dụng
+                                <ArrowRight className="w-3.5 h-3.5" />
                             </div>
                         </motion.div>
                     ))}
@@ -548,6 +553,7 @@ const FeaturedCompaniesSection = () => {
 
 /* ────────────────────────── INDUSTRIES ────────────────────────── */
 const IndustriesSection = () => {
+    const navigate = useNavigate();
     const { data: industries, isLoading } = useQuery({
         queryKey: ['industries'],
         queryFn: () => taxonomyService.listIndustries()
@@ -568,7 +574,7 @@ const IndustriesSection = () => {
                         <p className="text-gray-500 leading-relaxed mb-6">
                             Khám phá đa dạng các mô hình công ty IT như Product, Outsourcing, Fintech, Edtech và AI/Blockchain.
                         </p>
-                        <Link to="/jobs">
+                        <Link to="/companies">
                             <Button className="rounded-xl px-6 h-11 bg-gradient-to-r from-primary to-primary/80 text-white font-semibold shadow-md shadow-primary/30 hover:opacity-90 transition-opacity">
                                 Khám Phá Tất Cả
                             </Button>
@@ -584,6 +590,16 @@ const IndustriesSection = () => {
                                     whileHover={{ x: 3 }}
                                     transition={{ duration: 0.15 }}
                                     className="bg-white flex items-center gap-4 px-4 py-3.5 rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm cursor-pointer group transition-all"
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-label={`Xem công ty thuộc lĩnh vực ${ind.name}`}
+                                    onClick={() => navigate(`/companies?industry_id=${ind.id}`)}
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            navigate(`/companies?industry_id=${ind.id}`);
+                                        }
+                                    }}
                                 >
                                     <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-primary/80 group-hover:text-white transition-all shrink-0">
                                         {getIcon(ind.icon_url)}

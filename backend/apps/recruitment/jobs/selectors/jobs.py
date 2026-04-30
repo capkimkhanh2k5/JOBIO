@@ -152,17 +152,30 @@ def get_job_stats(job_id: int) -> dict:
     }
 
 
-def list_featured_jobs() -> QuerySet[Job]:
+def list_featured_jobs(limit: int = 8) -> QuerySet[Job]:
     """
         Lấy danh sách việc làm nổi bật.
-        featured=True, status=published
+        Ưu tiên featured=True; fallback sang published jobs theo traffic nếu chưa có featured.
     """
-    return Job.objects.filter(
-        featured=True,
-        status='published'
+    base_queryset = Job.objects.filter(
+        status=Job.Status.PUBLISHED
     ).select_related(
         'company', 'category', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill').order_by('-published_at')[:10]
+    ).prefetch_related('required_skills__skill')
+
+    featured_queryset = base_queryset.filter(
+        featured=True,
+    ).order_by('-published_at', '-created_at')[:limit]
+
+    if featured_queryset.exists():
+        return featured_queryset
+
+    return base_queryset.order_by(
+        '-view_count',
+        '-application_count',
+        '-published_at',
+        '-created_at',
+    )[:limit]
 
 
 def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
