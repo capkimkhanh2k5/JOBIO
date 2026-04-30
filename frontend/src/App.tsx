@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
 import Home from '@/pages/Home';
@@ -76,6 +76,7 @@ function AppInner() {
     const theme = useUiStore((state: UiState) => state.theme);
     const toggleCommand = useUiStore((state: UiState) => state.toggleCommand);
     const location = useLocation();
+    const lenisRef = useRef<Lenis | null>(null);
 
     // Lenis smooth scroll – only active on public pages
     const isDashboard = location.pathname.startsWith('/admin') ||
@@ -90,16 +91,42 @@ function AppInner() {
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smoothWheel: true,
         });
+        lenisRef.current = lenis;
+
+        let rafId: number;
         function raf(time: number) {
             lenis.raf(time);
-            requestAnimationFrame(raf);
+            rafId = requestAnimationFrame(raf);
         }
-        const rafId = requestAnimationFrame(raf);
+        rafId = requestAnimationFrame(raf);
         return () => {
+            if (lenisRef.current === lenis) {
+                lenisRef.current = null;
+            }
             lenis.destroy();
             cancelAnimationFrame(rafId);
         };
     }, [isDashboard]);
+
+    useLayoutEffect(() => {
+        const scrollToTop = () => {
+            const lenis = lenisRef.current;
+            if (lenis) {
+                lenis.stop();
+                lenis.scrollTo(0, { immediate: true, force: true });
+                lenis.start();
+            }
+
+            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        };
+
+        scrollToTop();
+        const frameId = requestAnimationFrame(scrollToTop);
+
+        return () => cancelAnimationFrame(frameId);
+    }, [location.pathname, location.search]);
 
     // Dark mode class sync
     useEffect(() => {

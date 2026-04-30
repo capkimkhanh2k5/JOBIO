@@ -583,9 +583,38 @@ class JobViewTests(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
+        self.assertGreaterEqual(len(response.data), 1)
+
+    def test_featured_jobs_fallback_to_published_jobs(self):
+        """Test GET /api/jobs/featured/ - fallback to published jobs when no featured jobs exist"""
+        self.job.featured = False
+        self.job.view_count = 123
+        self.job.save()
+
+        url = '/api/jobs/featured/'
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        job_ids = [job['id'] for job in response.data]
+        self.assertIn(self.job.id, job_ids)
     
     def test_featured_jobs_contains_featured(self):
         """Test GET /api/jobs/featured/ - trả về jobs featured"""
+        popular_job = Job.objects.create(
+            company=self.company,
+            title="Popular Non Featured Job",
+            slug="popular-non-featured-job-test",
+            job_type="full-time",
+            level="senior",
+            description="Job description",
+            requirements="Job requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            view_count=999,
+            featured=False,
+            created_by=self.user
+        )
+
         # Set job as featured
         self.job.featured = True
         self.job.status = 'published'
@@ -595,8 +624,9 @@ class JobViewTests(APITestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # API trả về danh sách jobs, có thể rỗng nếu filter thêm điều kiện
-        self.assertIsInstance(response.data, list)
+        job_ids = [job['id'] for job in response.data]
+        self.assertIn(self.job.id, job_ids)
+        self.assertNotIn(popular_job.id, job_ids)
     
     def test_get_urgent_jobs_success(self):
         """Test GET /api/jobs/urgent/ - public access → 200"""

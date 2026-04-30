@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "react-router-dom";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 5;
 
 export default function JobsPage() {
     const [view, setView] = useState<"grid" | "list">("list");
@@ -173,7 +173,7 @@ export default function JobsPage() {
                                     "grid gap-4",
                                     view === "grid" ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-2" : "grid-cols-1"
                                 )}>
-                                    {Array(6).fill(0).map((_, i) => (
+                                    {Array(PAGE_SIZE).fill(0).map((_, i) => (
                                         <CardSkeleton key={i} view={view} />
                                     ))}
                                 </div>

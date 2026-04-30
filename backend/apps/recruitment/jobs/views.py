@@ -389,7 +389,14 @@ class JobViewSet(viewsets.GenericViewSet):
             GET /api/jobs/featured/
             Việc làm nổi bật
         """
-        queryset = list_featured_jobs()
+        raw_limit = request.query_params.get('limit') or request.query_params.get('page_size')
+        try:
+            limit = int(raw_limit) if raw_limit else 8
+        except (TypeError, ValueError):
+            limit = 8
+        limit = max(1, min(limit, 50))
+
+        queryset = list_featured_jobs(limit=limit)
         serializer = JobListSerializer(queryset, many=True)
         return Response(serializer.data)
     

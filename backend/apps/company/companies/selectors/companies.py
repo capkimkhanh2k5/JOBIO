@@ -7,6 +7,7 @@ from ..models import Company
 class CompanyFilter(django_filters.FilterSet):
     """Filter cho danh sách công ty"""
     search = django_filters.CharFilter(method='filter_search')
+    industry_id = django_filters.NumberFilter(field_name='industry_id')
 
     class Meta:
         model = Company
