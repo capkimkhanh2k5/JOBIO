@@ -51,7 +51,7 @@ export const companyService = {
   uploadLogo(id: number, file: File) {
     const formData = new FormData();
     formData.append('logo', file);
-    return api.post<{ logo_url: string }>(`/api/companies/${id}/logo/`, formData, {
+    return api.post<{ logo_url: string; avatar_url?: string }>(`/api/companies/${id}/logo/`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },

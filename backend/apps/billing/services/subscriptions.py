@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from apps.billing.models import CompanySubscription
 from datetime import timedelta
 from apps.billing.models import Transaction
+import json
 import re
 
 class SubscriptionService:
@@ -233,6 +234,13 @@ class SubscriptionService:
     def get_transaction_plan_id(transaction):
         """Read plan_id from structured metadata first, then fallback to legacy description parsing."""
         metadata = getattr(transaction, 'metadata', None) or {}
+        if isinstance(metadata, str):
+            try:
+                metadata = json.loads(metadata)
+            except (TypeError, ValueError):
+                metadata = {}
+        if not isinstance(metadata, dict):
+            metadata = {}
         plan_id = metadata.get('plan_id')
         if plan_id is not None:
             try:
