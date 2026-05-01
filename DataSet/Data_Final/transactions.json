@@ -12,7 +12,10 @@
         "company_id": 2,
         "payment_method_id": 5,
         "ip_address": "127.0.0.1",
-        "metadata": "{}",
+        "metadata": {
+            "plan_id": 1,
+            "plan_slug": "plus-3-thang"
+        },
         "vnp_BankCode": "NCB",
         "vnp_CardType": "ATM",
         "vnp_OrderInfo": "Thanh toan JOB",
@@ -31,7 +34,10 @@
         "company_id": 4,
         "payment_method_id": 3,
         "ip_address": "127.0.0.1",
-        "metadata": "{}",
+        "metadata": {
+            "plan_id": 1,
+            "plan_slug": "plus-3-thang"
+        },
         "vnp_BankCode": "NCB",
         "vnp_CardType": "ATM",
         "vnp_OrderInfo": "Thanh toan JOB",
@@ -50,7 +56,10 @@
         "company_id": 3,
         "payment_method_id": 4,
         "ip_address": "127.0.0.1",
-        "metadata": "{}",
+        "metadata": {
+            "plan_id": 1,
+            "plan_slug": "plus-3-thang"
+        },
         "vnp_BankCode": "NCB",
         "vnp_CardType": "ATM",
         "vnp_OrderInfo": "Thanh toan JOB",
@@ -69,7 +78,10 @@
         "company_id": 1,
         "payment_method_id": 5,
         "ip_address": "127.0.0.1",
-        "metadata": "{}",
+        "metadata": {
+            "plan_id": 1,
+            "plan_slug": "plus-3-thang"
+        },
         "vnp_BankCode": "NCB",
         "vnp_CardType": "ATM",
         "vnp_OrderInfo": "Thanh toan JOB",
@@ -88,7 +100,10 @@
         "company_id": 2,
         "payment_method_id": 5,
         "ip_address": "127.0.0.1",
-        "metadata": "{}",
+        "metadata": {
+            "plan_id": 1,
+            "plan_slug": "plus-3-thang"
+        },
         "vnp_BankCode": "NCB",
         "vnp_CardType": "ATM",
         "vnp_OrderInfo": "Thanh toan JOB",

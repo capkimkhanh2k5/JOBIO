@@ -3,11 +3,12 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { 
     Calendar, 
+    CheckCircle2,
     Crown, 
     Zap, 
     Briefcase,
-    Eye,
     Star,
+    XCircle,
     ZapOff,
     Rocket
 } from 'lucide-react';
@@ -54,6 +55,7 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
         cv_views: { current: 0, limit: 0 },
         ai_matching: { enabled: false }
     };
+    const topJobEnabled = Boolean(subscription.plan.features?.top_job ?? usage.featured_jobs.limit > 0);
 
     const planSlug = (subscription.plan.slug || '').toLowerCase();
     
@@ -150,19 +152,10 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                         limit={usage.jobs.limit}
                         color="violet"
                     />
-                    <MetricRow 
-                        icon={Star} 
-                        label="Tin đăng nổi bật" 
-                        current={usage.featured_jobs.current}
-                        limit={usage.featured_jobs.limit}
-                        color="amber"
-                    />
-                    <MetricRow 
-                        icon={Eye} 
-                        label="Lượt xem hồ sơ" 
-                        current={usage.cv_views.current}
-                        limit={usage.cv_views.limit}
-                        color="indigo"
+                    <FeatureStatusRow
+                        icon={Star}
+                        label="Tin đăng nổi bật"
+                        enabled={topJobEnabled}
                     />
                 </div>
 
@@ -178,6 +171,36 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                         </Link>
                     </div>
                 )}
+            </div>
+        </div>
+    );
+};
+
+const FeatureStatusRow = ({ icon: Icon, label, enabled }: {
+    icon: any;
+    label: string;
+    enabled: boolean;
+}) => {
+    const StatusIcon = enabled ? CheckCircle2 : XCircle;
+
+    return (
+        <div className="group/row">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-xl flex items-center justify-center text-amber-500 bg-amber-50 transition-transform group-hover/row:scale-110">
+                        <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-600">{label}</span>
+                </div>
+                <div className={cn(
+                    "inline-flex h-7 items-center gap-1.5 rounded-full border px-3 text-[10px] font-black uppercase tracking-wider",
+                    enabled
+                        ? "border-emerald-100 bg-emerald-50 text-emerald-600"
+                        : "border-slate-100 bg-slate-50 text-slate-400"
+                )}>
+                    <StatusIcon className="h-3.5 w-3.5" />
+                    {enabled ? 'Có hỗ trợ' : 'Không hỗ trợ'}
+                </div>
             </div>
         </div>
     );

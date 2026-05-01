@@ -114,6 +114,31 @@ class TestCompanySubscriptionViewSet(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_current_subscription_usage_uses_plan_feature_keys(self):
+        """Current endpoint exposes usage limits from the plan feature schema used by Pricing."""
+        self.plan.features = {
+            'job_post_limit': 5,
+            'featured_job_limit': 2,
+            'cv_view_limit': 50,
+            'has_ai_matching': True,
+        }
+        self.plan.save(update_fields=['features'])
+        CompanySubscription.objects.create(
+            company=self.company,
+            plan=self.plan,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=30),
+            status=CompanySubscription.Status.ACTIVE,
+        )
+
+        url = reverse('company-subscriptions-current')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['usage']['jobs']['limit'], 5)
+        self.assertEqual(response.data['usage']['featured_jobs']['limit'], 2)
+        self.assertEqual(response.data['usage']['cv_views']['limit'], 50)
+        self.assertTrue(response.data['usage']['ai_matching']['enabled'])
+
     def test_pre_check_ignores_stale_pending_transaction(self):
         """Pre-check should only surface reusable pending transactions inside reuse window."""
         payment_method = PaymentMethod.objects.create(name='VNPay', code='vnpay')
@@ -176,3 +201,29 @@ class TestTransactionViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # At least 1 transaction should exist
         self.assertGreaterEqual(len(response.data.get('results', response.data) if isinstance(response.data, dict) else response.data), 1)
+
+    def test_list_transactions_resolves_plan_name_from_metadata_plan_id(self):
+        """Transaction history can display a plan name when metadata only stores plan_id."""
+        plan = SubscriptionPlan.objects.create(
+            name="Metadata Plan",
+            slug="metadata-plan",
+            price=100000,
+            duration_days=30,
+        )
+        payment_method = PaymentMethod.objects.create(name='VNPay', code='vnpay-meta')
+        Transaction.objects.create(
+            company=self.company,
+            payment_method=payment_method,
+            amount=plan.price,
+            type=Transaction.Type.SUBSCRIPTION,
+            status=Transaction.Status.COMPLETED,
+            reference_code='ORDER_META_1',
+            metadata={'plan_id': plan.id},
+            description='Thanh toán',
+        )
+
+        url = reverse('transactions-list')
+        response = self.client.get(url)
+        rows = response.data.get('results', response.data) if isinstance(response.data, dict) else response.data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(rows[0]['plan_name'], 'Metadata Plan')

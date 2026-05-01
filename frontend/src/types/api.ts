@@ -1220,12 +1220,19 @@ export interface BillingPlan {
 }
 
 export interface PlanFeatures {
-  max_jobs: number;
-  max_featured_jobs: number;
-  max_cv_views: number;
-  can_export_cv: boolean;
-  has_ai_matching: boolean;
-  has_priority_support: boolean;
+  job_post_limit?: number;
+  featured_job_limit?: number;
+  cv_view_limit?: number;
+  top_job?: boolean;
+  mass_email?: boolean;
+  priority_support?: boolean;
+  employer_branding?: boolean;
+  max_jobs?: number;
+  max_featured_jobs?: number;
+  max_cv_views?: number;
+  can_export_cv?: boolean;
+  has_ai_matching?: boolean;
+  has_priority_support?: boolean;
 }
 
 export interface BillingSubscription {

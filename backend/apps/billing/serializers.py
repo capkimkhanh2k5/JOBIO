@@ -16,6 +16,14 @@ class CompanySubscriptionSerializer(serializers.ModelSerializer):
         model = CompanySubscription
         fields = ['id', 'company', 'plan', 'start_date', 'end_date', 'status', 'auto_renew', 'usage']
 
+    @staticmethod
+    def _feature_value(features, *keys, default=0):
+        for key in keys:
+            value = features.get(key)
+            if value is not None:
+                return value
+        return default
+
     def get_usage(self, obj):
         # Count active jobs
         active_jobs_count = Job.objects.filter(
@@ -36,18 +44,18 @@ class CompanySubscriptionSerializer(serializers.ModelSerializer):
         return {
             'jobs': {
                 'current': active_jobs_count,
-                'limit': features.get('max_jobs', 0)
+                'limit': self._feature_value(features, 'job_post_limit', 'max_jobs', 'max_job_posts')
             },
             'featured_jobs': {
                 'current': featured_jobs_count,
-                'limit': features.get('max_featured_jobs', 0)
+                'limit': self._feature_value(features, 'featured_job_limit', 'max_featured_jobs')
             },
             'cv_views': {
                 'current': 0, # Not tracked yet
-                'limit': features.get('max_cv_views', 0)
+                'limit': self._feature_value(features, 'cv_view_limit', 'max_cv_views', 'max_cv_view')
             },
             'ai_matching': {
-                'enabled': features.get('has_ai_matching', False)
+                'enabled': self._feature_value(features, 'has_ai_matching', 'ai_matching', default=False)
             }
         }
 
@@ -79,6 +87,9 @@ class TransactionSerializer(serializers.ModelSerializer):
                 
         if isinstance(metadata, dict) and metadata.get('plan_name'):
             return metadata.get('plan_name')
+
+        if isinstance(metadata, dict) and metadata.get('plan_id'):
+            return SubscriptionPlan.objects.filter(id=metadata.get('plan_id')).values_list('name', flat=True).first()
         
         # Fallback to description parsing
         desc = obj.description or ""

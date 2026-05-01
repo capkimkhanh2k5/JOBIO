@@ -191,7 +191,10 @@ class CompanyViewSet(viewsets.GenericViewSet):
         
         try:
             logo_url = upload_company_logo(company, file)
-            return Response({"logo_url": logo_url}, status=status.HTTP_200_OK)
+            if company.user_id:
+                company.user.avatar_url = logo_url
+                company.user.save(update_fields=['avatar_url', 'updated_at'])
+            return Response({"logo_url": logo_url, "avatar_url": logo_url}, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     

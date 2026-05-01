@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.shortcuts import redirect
 from django.utils import timezone
+from django.db import models
 
 from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMethod, Transaction
 from apps.billing.serializers import (

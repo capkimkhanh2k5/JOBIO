@@ -101,7 +101,7 @@ class TestRetrieveCompanyById(BaseCompanyTestCase):
 class TestUploadLogo(BaseCompanyTestCase):
     """Tests cho POST /api/companies/:id/logo"""
     
-    @patch('apps.company.companies.services.companies.upload_company_logo')
+    @patch('apps.company.companies.views.upload_company_logo')
     def test_upload_logo_success(self, mock_upload):
         """Upload logo thành công"""
         mock_upload.return_value = "http://cloudinary.com/logo.jpg"
@@ -118,6 +118,8 @@ class TestUploadLogo(BaseCompanyTestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('logo_url', response.data)
+        self.company_user.refresh_from_db()
+        self.assertEqual(self.company_user.avatar_url, "http://cloudinary.com/logo.jpg")
     
     def test_upload_logo_not_owner(self):
         """Không phải owner → 403"""

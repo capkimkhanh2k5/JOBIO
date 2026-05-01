@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { companyService } from '@/services/companyService';
 import { toast } from 'sonner';
+import { useUserStore } from '@/store/userStore';
 
 import {
     Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
@@ -54,6 +55,7 @@ const getDefaultValues = (company: any): FormValues => ({
 
 export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     const queryClient = useQueryClient();
+    const updateUser = useUserStore((state) => state.updateUser);
     const [isUploadingLogo, setIsUploadingLogo] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
     const [localLogoUrl, setLocalLogoUrl] = useState<string | null>(null);
@@ -100,6 +102,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
         mutationFn: (file: File) => companyService.uploadLogo(Number(company.id), file).then(r => r.data),
         onSuccess: (data) => {
             setLocalLogoUrl(data.logo_url);
+            updateUser({ avatar_url: data.avatar_url || data.logo_url });
             queryClient.setQueryData(['companyProfile'], (current: any) => (
                 current ? { ...current, logo_url: data.logo_url } : current
             ));

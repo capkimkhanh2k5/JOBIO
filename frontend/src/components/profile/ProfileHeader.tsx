@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Mail, Phone, MapPin, Globe, Linkedin, Facebook, Github, Eye, EyeOff, Upload, CheckCircle2 } from 'lucide-react';
+import { Camera, Mail, Phone, MapPin, Globe, Linkedin, Facebook, Github, Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Switch } from '../ui/switch';
 import { Label } from '../ui/label';
@@ -26,16 +26,38 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
     const fileInputRef = useRef<HTMLInputElement>(null);
     const queryClient = useQueryClient();
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
-    const updateUser = useUserStore((s) => s.updateUser);
+    const previewObjectUrlRef = useRef<string | null>(null);
+    const { user, updateUser } = useUserStore();
+
+    const clearPreviewObjectUrl = () => {
+        if (previewObjectUrlRef.current) {
+            URL.revokeObjectURL(previewObjectUrlRef.current);
+            previewObjectUrlRef.current = null;
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (previewObjectUrlRef.current) {
+                URL.revokeObjectURL(previewObjectUrlRef.current);
+            }
+        };
+    }, []);
 
     const avatarMutation = useMutation({
         mutationFn: (file: File) => authService.uploadAvatar(file).then(r => r.data),
         onSuccess: (data) => {
             const newUrl = data.avatar_url;
+            clearPreviewObjectUrl();
             setLocalAvatarUrl(newUrl);
             // Sync avatar into auth store → updates navbar avatar immediately
             updateUser({ avatar_url: newUrl });
-            queryClient.invalidateQueries({ queryKey: ['profile'] });
+            queryClient.setQueryData(['profile', user?.id], (current: any) => current ? {
+                ...current,
+                avatar_url: newUrl,
+                user: current.user ? { ...current.user, avatar_url: newUrl } : current.user,
+            } : current);
+            queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
             toast.success('Đã cập nhật ảnh đại diện!');
         },
         onError: () => toast.error('Không thể tải lên ảnh. Vui lòng thử lại.')
@@ -44,14 +66,26 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Preview locally first
+            clearPreviewObjectUrl();
             const previewUrl = URL.createObjectURL(file);
+            previewObjectUrlRef.current = previewUrl;
             setLocalAvatarUrl(previewUrl);
-            avatarMutation.mutate(file);
+            avatarMutation.mutate(file, {
+                onError: () => {
+                    clearPreviewObjectUrl();
+                    setLocalAvatarUrl(null);
+                },
+                onSettled: () => {
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
+                }
+            });
         }
     };
 
     const currentStatus = JOB_SEARCH_STATUSES.find(s => s.value === profile?.job_search_status) || JOB_SEARCH_STATUSES[0];
+    const isUploadingAvatar = avatarMutation.isPending;
 
     return (
         <motion.div
@@ -75,7 +109,10 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                         className="relative"
                     >
                         <Avatar className="w-36 h-36 border-4 border-white shadow-2xl ring-2 ring-violet-200">
-                            <AvatarImage src={localAvatarUrl || profile?.user?.avatar_url || profile?.avatar_url} />
+                            <AvatarImage
+                                src={localAvatarUrl || profile?.user?.avatar_url || profile?.avatar_url}
+                                className={`object-cover transition-all duration-300 ${isUploadingAvatar ? 'scale-[1.01] opacity-60 blur-[1px]' : ''}`}
+                            />
                             <AvatarFallback className="text-3xl bg-gradient-to-br from-violet-200 to-cyan-400/20 text-violet-600 font-bold">
                                 {(profile?.user?.full_name || profile?.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                             </AvatarFallback>
@@ -84,12 +121,14 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                         {/* Upload Overlay */}
                         <button
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={avatarMutation.isPending}
-                            className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center gap-1 cursor-pointer"
+                            disabled={isUploadingAvatar}
+                            className={`absolute inset-0 rounded-full transition-all duration-300 flex flex-col items-center justify-center gap-1 cursor-pointer backdrop-blur-[2px] ${isUploadingAvatar ? 'bg-black/40 opacity-100' : 'bg-black/50 opacity-0 group-hover:opacity-100'}`}
                             aria-label="Thay đổi ảnh đại diện"
                         >
-                            {avatarMutation.isPending ? (
-                                <Upload className="w-6 h-6 text-white animate-bounce" />
+                            {isUploadingAvatar ? (
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
+                                    <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
+                                </div>
                             ) : (
                                 <Camera className="w-6 h-6 text-white" />
                             )}
