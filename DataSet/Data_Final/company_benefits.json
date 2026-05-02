@@ -2,7 +2,7 @@
     {
         "id": 1,
         "benefit_name": "Bảo hiểm",
-        "description": "Chế độ tốt",
+        "description": "Công ty cung cấp đầy đủ các chế độ bảo hiểm theo quy định của pháp luật bao gồm bảo hiểm xã hội, bảo hiểm y tế và bảo hiểm thất nghiệp. Ngoài ra, nhân viên còn được tham gia các gói bảo hiểm sức khỏe mở rộng nhằm đảm bảo quyền lợi khám chữa bệnh tốt hơn cho bản thân và gia đình.",
         "display_order": 1,
         "created_at": "2026-04-19T02:54:14.630671Z",
         "category_id": 1,
@@ -12,7 +12,7 @@
     {
         "id": 2,
         "benefit_name": "Ngày nghỉ",
-        "description": "Chế độ tốt",
+        "description": "Nhân viên được hưởng đầy đủ ngày nghỉ phép năm theo quy định, cùng với các ngày nghỉ lễ, Tết theo luật lao động. Công ty còn có chính sách nghỉ linh hoạt, hỗ trợ cân bằng giữa công việc và cuộc sống cá nhân.",
         "display_order": 1,
         "created_at": "2026-04-19T02:54:14.630671Z",
         "category_id": 2,
@@ -22,7 +22,7 @@
     {
         "id": 3,
         "benefit_name": "Thưởng",
-        "description": "Chế độ tốt",
+        "description": "Chính sách thưởng hấp dẫn bao gồm thưởng hiệu suất làm việc, thưởng dự án và thưởng cuối năm. Nhân viên có cơ hội nhận thêm các khoản thưởng theo kết quả kinh doanh của công ty và đóng góp cá nhân.",
         "display_order": 1,
         "created_at": "2026-04-19T02:54:14.630671Z",
         "category_id": 3,
@@ -32,7 +32,7 @@
     {
         "id": 4,
         "benefit_name": "Sức khỏe",
-        "description": "Chế độ tốt",
+        "description": "Công ty tổ chức khám sức khỏe định kỳ hàng năm cho toàn bộ nhân viên. Ngoài ra còn có các chương trình chăm sóc sức khỏe như hoạt động thể thao, team building và hỗ trợ tư vấn sức khỏe nhằm nâng cao chất lượng cuộc sống.",
         "display_order": 1,
         "created_at": "2026-04-19T02:54:14.630671Z",
         "category_id": 4,
@@ -42,7 +42,7 @@
     {
         "id": 5,
         "benefit_name": "Đào tạo",
-        "description": "Chế độ tốt",
+        "description": "Công ty chú trọng phát triển nhân viên thông qua các chương trình đào tạo nội bộ và bên ngoài. Nhân viên được hỗ trợ tham gia các khóa học nâng cao kỹ năng chuyên môn, kỹ năng mềm và có cơ hội phát triển nghề nghiệp lâu dài.",
         "display_order": 1,
         "created_at": "2026-04-19T02:54:14.630671Z",
         "category_id": 5,
