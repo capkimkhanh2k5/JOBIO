@@ -73,6 +73,19 @@ class InterviewViewSet(viewsets.GenericViewSet):
         else:
             queryset = Interview.objects.none()
 
+        queryset = queryset.select_related(
+            'application__recruiter__user',
+            'application__job__company__address__province',
+            'application__job__company__address__commune',
+            'application__job__address__province',
+            'application__job__address__commune',
+            'interview_type',
+            'address__province',
+            'address__commune',
+            'interviewer',
+            'created_by',
+        )
+
         # Filters
         status_filter = request.query_params.get('status')
         if status_filter:

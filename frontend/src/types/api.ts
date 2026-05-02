@@ -823,40 +823,52 @@ export interface JobAlertMatch {
 // Interviews
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type InterviewStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+export type InterviewStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rescheduled' | 'no_show' | 'no-show';
 export type InterviewResult = 'pass' | 'fail' | 'pending';
+export type InterviewMode = 'video' | 'phone' | 'onsite';
 
 export interface InterviewListItem {
   id: number;
   application_id: number;
+  job_id?: number;
   job_title: string;
+  company_id?: number;
+  company_name?: string;
+  company_slug?: string | null;
+  company_logo?: string | null;
   applicant_name: string;
   applicant_avatar?: string | null;
+  interview_type_id?: number;
   interview_type_name: string;
+  interview_type?: InterviewType | null;
   round_number: number;
   scheduled_at: string;
   duration_minutes: number;
+  address_id?: number | null;
+  address?: Address | null;
+  location?: string | null;
   meeting_link?: string | null;
   status: InterviewStatus;
   result: InterviewResult;
+  rating?: number | null;
+  notes?: string | null;
+  interviewer?: number | null;
+  interviewer_name?: string | null;
+  interviewer_avatar?: string | null;
+  interviewers?: Array<{ id: number; name: string; avatar?: string | null }>;
   // Legacy fields from previous type iterations (kept for fallback)
   application?: any;
-  interview_type?: any;
   created_at?: string;
-  type?: string;
+  type?: InterviewMode | string;
   candidate_name?: string;
   candidate_avatar?: string | null;
-  location?: string | null;
+  duration?: number;
 }
 
 export interface InterviewDetail extends InterviewListItem {
-  address: Address | null;
-  location: string | null;
   meeting_link: string | null;
   notes: string | null;
   feedback: string | null;
-  rating?: number | null;
-  interviewers: User[];
   updated_at: string;
 }
 

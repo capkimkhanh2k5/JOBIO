@@ -15,7 +15,12 @@ def get_interview_by_id(interview_id: int) -> Optional[Interview]:
         return Interview.objects.select_related(
             'application', 'application__recruiter', 'application__recruiter__user',
             'application__job', 'application__job__company',
-            'interview_type', 'created_by'
+            'application__job__company__address__province',
+            'application__job__company__address__commune',
+            'application__job__address__province',
+            'application__job__address__commune',
+            'interview_type', 'address__province', 'address__commune',
+            'interviewer', 'created_by'
         ).get(id=interview_id)
     except Interview.DoesNotExist:
         return None
@@ -28,7 +33,13 @@ def list_interviews_by_application(application_id: int) -> QuerySet[Interview]:
     return Interview.objects.filter(
         application_id=application_id
     ).select_related(
-        'interview_type', 'created_by'
+        'application__recruiter__user',
+        'application__job__company__address__province',
+        'application__job__company__address__commune',
+        'application__job__address__province',
+        'application__job__address__commune',
+        'interview_type', 'address__province', 'address__commune',
+        'interviewer', 'created_by'
     ).order_by('scheduled_at')
 
 
@@ -45,7 +56,13 @@ def get_calendar_interviews(user, start_date, end_date) -> dict:
         scheduled_at__date__lte=end_date,
         status__in=['scheduled', 'rescheduled']
     ).select_related(
-        'application__recruiter__user', 'application__job', 'interview_type'
+        'application__recruiter__user', 'application__job__company',
+        'application__job__company__address__province',
+        'application__job__company__address__commune',
+        'application__job__address__province',
+        'application__job__address__commune',
+        'interview_type', 'address__province', 'address__commune',
+        'interviewer', 'created_by'
     ).order_by('scheduled_at')
     
     # Group by date
@@ -84,5 +101,11 @@ def get_upcoming_interviews(user, days: int = 7) -> QuerySet[Interview]:
         scheduled_at__lte=end_date,
         status__in=['scheduled', 'rescheduled']
     ).select_related(
-        'application__recruiter__user', 'application__job', 'interview_type'
+        'application__recruiter__user', 'application__job__company',
+        'application__job__company__address__province',
+        'application__job__company__address__commune',
+        'application__job__address__province',
+        'application__job__address__commune',
+        'interview_type', 'address__province', 'address__commune',
+        'interviewer', 'created_by'
     ).order_by('scheduled_at')
