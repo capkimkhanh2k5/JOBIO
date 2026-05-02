@@ -17,9 +17,11 @@ from .services.auth import (
     login_user, logout_user, register_user, forgot_password, reset_password, 
     verify_email, resend_verification, change_password, check_email,
     social_login, verify_2fa, get_2fa_status, enable_2fa, disable_2fa,
+    request_set_password, confirm_set_password,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
     ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
     ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
+    RequestSetPasswordInput, ConfirmSetPasswordInput,
     AuthenticationError,
     send_registration_otp, SendRegistrationOtpInput,
     verify_registration_otp, VerifyRegistrationOtpInput,
@@ -47,6 +49,7 @@ from .serializers import (
     LoginResponseSerializer, RegisterSerializer, RegisterResponseSerializer, 
     ForgotPasswordSerializer, ResetPasswordSerializer, VerifyEmailSerializer, 
     ResendVerificationSerializer, ChangePasswordSerializer, CheckEmailSerializer,
+    ConfirmSetPasswordSerializer,
     SocialAuthSerializer, Verify2FASerializer,
     SendRegistrationOtpSerializer, VerifyRegistrationOtpSerializer,
     TwoFactorStatusSerializer, TwoFactorEnableSerializer, TwoFactorDisableSerializer,
@@ -399,6 +402,33 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"detail": "Password has been changed"}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/request-set-password', throttle_classes=[EmailVerificationRateThrottle])
+    def auth_request_set_password(self, request):
+        """POST /api/users/auth/request-set-password/ - Gui OTP dat mat khau lan dau"""
+        try:
+            request_set_password(data=RequestSetPasswordInput(user_id=request.user.id))
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Ma OTP dat mat khau da duoc gui den email cua ban."}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='auth/confirm-set-password', throttle_classes=[PasswordResetRateThrottle])
+    def auth_confirm_set_password(self, request):
+        """POST /api/users/auth/confirm-set-password/ - Xac minh OTP va dat mat khau lan dau"""
+        serializer = ConfirmSetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            confirm_set_password(data=ConfirmSetPasswordInput(
+                user_id=request.user.id,
+                otp=serializer.validated_data['otp'],
+                new_password=serializer.validated_data['new_password']
+            ))
+        except AuthenticationError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Dat mat khau thanh cong."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'], url_path='auth/verify-email')
     def auth_verify_email(self, request):

@@ -146,44 +146,61 @@ def social_login(
                 social_id=profile_provider_id
             ).first()
         
-        # Create new user if not exists
+        # Create or link user if not exists by social id
         if not user:
-            is_new_user = True
-            
-            # SECURITY FIX: Check if email already exists (different user)
-            # If email exists with different social_id, prevent account takeover
             existing_email_user = CustomUser.objects.filter(email=profile_email).first()
             if existing_email_user:
-                # Email already registered with different auth method
-                raise AuthenticationError(
-                    f"Email '{profile_email}' is already registered. "
-                    "Please login with your existing account or verify account linkage."
-                )
-            
-            user = CustomUser.objects.create_user(
-                email=profile_email,
-                password=None,  # Social users don't need password
-                full_name=profile_name or profile_email.split('@')[0],
-                social_provider=profile_provider,
-                social_id=profile_provider_id,
-                role=role  # Use the provided role
-            )
-            user.email_verified = True  # Social login = email verified
-            if profile_data.get('picture'):
-                user.avatar_url = profile_data.get('picture')
-            user.save()
+                if existing_email_user.social_id and existing_email_user.social_id != profile_provider_id:
+                    raise AuthenticationError("Email nay da lien ket voi tai khoan social khac.")
 
-            # Create profiles for new social user
-            if role == 'company':
-                # Use full_name as placeholder company_name if none provided
-                create_company(
-                    user=user,
-                    data=CompanyCreateInput(
-                        company_name=profile_name or profile_email.split('@')[0]
-                    )
+                user = existing_email_user
+                update_fields = []
+
+                if user.social_provider != profile_provider:
+                    user.social_provider = profile_provider
+                    update_fields.append('social_provider')
+
+                if user.social_id != profile_provider_id:
+                    user.social_id = profile_provider_id
+                    update_fields.append('social_id')
+
+                if not user.email_verified:
+                    user.email_verified = True
+                    update_fields.append('email_verified')
+
+                if profile_data.get('picture') and not user.avatar_url:
+                    user.avatar_url = profile_data.get('picture')
+                    update_fields.append('avatar_url')
+
+                if update_fields:
+                    user.save(update_fields=update_fields)
+            else:
+                is_new_user = True
+
+                user = CustomUser.objects.create_user(
+                    email=profile_email,
+                    password=None,  # Social users don't need password
+                    full_name=profile_name or profile_email.split('@')[0],
+                    social_provider=profile_provider,
+                    social_id=profile_provider_id,
+                    role=role  # Use the provided role
                 )
-            elif role == 'candidate':
-                Recruiter.objects.create(user=user)
+                user.email_verified = True  # Social login = email verified
+                if profile_data.get('picture'):
+                    user.avatar_url = profile_data.get('picture')
+                user.save()
+
+                # Create profiles for new social user
+                if role == 'company':
+                    # Use full_name as placeholder company_name if none provided
+                    create_company(
+                        user=user,
+                        data=CompanyCreateInput(
+                            company_name=profile_name or profile_email.split('@')[0]
+                        )
+                    )
+                elif role == 'candidate':
+                    Recruiter.objects.create(user=user)
         
         # 3. Check user status
         if user.status != 'active':
@@ -373,6 +390,19 @@ class ResetPasswordInput(BaseModel):
     otp: str
     new_password: str
 
+class RequestSetPasswordInput(BaseModel):
+    user_id: int
+
+class ConfirmSetPasswordInput(BaseModel):
+    user_id: int
+    otp: str
+    new_password: str
+
+SET_PASSWORD_OTP_TIMEOUT_SECONDS = 10 * 60
+
+def _set_password_cache_key(user_id: int) -> str:
+    return f"set_password_otp_{user_id}"
+
 def forgot_password(data: ForgotPasswordInput) -> bool:
     """
     Quên mật khẩu: Gửi mã OTP xác thực qua email
@@ -384,6 +414,9 @@ def forgot_password(data: ForgotPasswordInput) -> bool:
     user = get_user_by_email(email=data.email)
     if not user:
         raise AuthenticationError("Email not found!")
+
+    if not user.has_usable_password():
+        raise AuthenticationError("Tai khoan nay chua co mat khau. Vui long dang nhap bang Google va dung chuc nang dat mat khau.")
     
     # Generate 6-digit OTP
     otp_code = ''.join(secrets.choice(string.digits) for _ in range(6))
@@ -425,6 +458,9 @@ def reset_password(data: ResetPasswordInput) -> bool:
     if not user:
         raise AuthenticationError("Email không tồn tại!")
 
+    if not user.has_usable_password():
+        raise AuthenticationError("Tai khoan nay chua co mat khau. Vui long dang nhap bang Google va dung chuc nang dat mat khau.")
+
     if str(user.password_reset_token or "") != str(data.otp):
         raise AuthenticationError("Mã OTP không chính xác!")
 
@@ -439,6 +475,68 @@ def reset_password(data: ResetPasswordInput) -> bool:
     user.password_reset_expires = None
     user.save(update_fields=["password", "password_reset_token", "password_reset_expires"])
     
+    return True
+
+def request_set_password(data: RequestSetPasswordInput) -> bool:
+    """
+    Tao OTP rieng cho user social-only muon dat mat khau noi bo.
+    Khong dung chung token/luong quen mat khau.
+    """
+    user = CustomUser.objects.get(id=data.user_id)
+
+    if user.has_usable_password():
+        raise AuthenticationError("Tai khoan da co mat khau. Vui long dung chuc nang doi mat khau.")
+
+    if not user.social_provider:
+        raise AuthenticationError("Chi tai khoan dang nhap bang social chua co mat khau moi can dat mat khau.")
+
+    otp_code = ''.join(secrets.choice(string.digits) for _ in range(6))
+    cache_key = _set_password_cache_key(user.id)
+    cache.set(cache_key, otp_code, timeout=SET_PASSWORD_OTP_TIMEOUT_SECONDS)
+
+    send_ok = EmailService.send_email(
+        recipient=user.email,
+        subject="[JobPortal] Ma xac minh dat mat khau",
+        template_path="emails/auth/set_password_otp.html",
+        context={
+            "user_name": user.full_name,
+            "otp_code": otp_code,
+            "expiry_minutes": SET_PASSWORD_OTP_TIMEOUT_SECONDS // 60,
+        }
+    )
+
+    if not send_ok:
+        cache.delete(cache_key)
+        raise AuthenticationError("Khong the gui email OTP. Vui long thu lai sau.")
+
+    return True
+
+def confirm_set_password(data: ConfirmSetPasswordInput) -> bool:
+    """
+    Xac minh OTP va dat mat khau lan dau cho tai khoan social-only.
+    """
+    user = CustomUser.objects.get(id=data.user_id)
+
+    if user.has_usable_password():
+        raise AuthenticationError("Tai khoan da co mat khau. Vui long dung chuc nang doi mat khau.")
+
+    if not user.social_provider:
+        raise AuthenticationError("Chi tai khoan dang nhap bang social chua co mat khau moi can dat mat khau.")
+
+    cache_key = _set_password_cache_key(user.id)
+    cached_otp = cache.get(cache_key)
+
+    if not cached_otp:
+        raise AuthenticationError("Ma OTP da het han hoac chua duoc gui.")
+
+    if str(cached_otp) != str(data.otp):
+        raise AuthenticationError("Ma OTP khong chinh xac.")
+
+    user.set_password(data.new_password)
+    user.email_verified = True
+    user.save(update_fields=["password", "email_verified"])
+    cache.delete(cache_key)
+
     return True
 
 
@@ -524,6 +622,9 @@ def change_password(data: ChangePasswordInput) -> bool:
         AuthenticationError nếu mật khẩu cũ không đúng
     """
     user = CustomUser.objects.get(id=data.user_id)
+
+    if not user.has_usable_password():
+        raise AuthenticationError("Tai khoan nay chua co mat khau. Vui long dung chuc nang dat mat khau.")
 
     if not user.check_password(data.old_password):
         raise AuthenticationError("Old password is incorrect!")
@@ -655,4 +756,3 @@ def disable_2fa(user: CustomUser, code: str) -> dict:
         "has_secret": False,
     }
 
-        

@@ -7,6 +7,7 @@ import type {
   ChangePasswordRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  ConfirmSetPasswordRequest,
   TwoFactorStatus,
   SocialAuthRequest,
 } from '@/types/api';
@@ -79,6 +80,14 @@ export const authService = {
 
   resetPassword(data: ResetPasswordRequest) {
     return api.post('/api/users/auth/reset-password/', data);
+  },
+
+  requestSetPassword() {
+    return api.post('/api/users/auth/request-set-password/');
+  },
+
+  confirmSetPassword(data: ConfirmSetPasswordRequest) {
+    return api.post('/api/users/auth/confirm-set-password/', data);
   },
 
   // ─── Email Verification ──────────────────────────────────────────────────

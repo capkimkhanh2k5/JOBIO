@@ -185,6 +185,25 @@ class ResetPasswordSerializer(serializers.Serializer):
             })
         return data
 
+class ConfirmSetPasswordSerializer(serializers.Serializer):
+    otp = serializers.RegexField(
+        regex=r'^\d{6}$',
+        error_messages={'invalid': 'Ma OTP phai gom dung 6 chu so'}
+    )
+    new_password = serializers.CharField(
+        write_only=True,
+        min_length=8,
+        error_messages={'min_length': 'Mat khau phai co it nhat 8 ky tu'}
+    )
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['new_password_confirm']:
+            raise serializers.ValidationError({
+                'new_password_confirm': 'Mat khau xac nhan khong khop'
+            })
+        return data
+
 class VerifyEmailSerializer(serializers.Serializer):
     email_verification_token = serializers.CharField()
 
