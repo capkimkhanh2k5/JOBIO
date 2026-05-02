@@ -24,8 +24,14 @@ type SecurityFormValues = z.infer<typeof securitySchema>;
 
 
 export function SecuritySettings() {
-    const { user } = useUserStore();
+    const { user, updateUser } = useUserStore();
     const [isLoading, setIsLoading] = useState(false);
+    const [isRequestingOtp, setIsRequestingOtp] = useState(false);
+    const [isConfirmingSetPassword, setIsConfirmingSetPassword] = useState(false);
+    const [hasRequestedSetPasswordOtp, setHasRequestedSetPasswordOtp] = useState(false);
+    const [setPasswordOtp, setSetPasswordOtp] = useState('');
+    const [setPasswordValue, setSetPasswordValue] = useState('');
+    const [setPasswordConfirm, setSetPasswordConfirm] = useState('');
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<SecurityFormValues>({
         resolver: zodResolver(securitySchema)
@@ -35,8 +41,53 @@ export function SecuritySettings() {
     const isGoogleOnlyAccount = isGoogleLinked && !user?.has_usable_password;
     const canLoginWithPassword = !isGoogleOnlyAccount;
 
-    const handleSetPasswordClick = () => {
-        toast.info('Chức năng đặt mật khẩu cho tài khoản Google cần luồng xác minh riêng từ backend.');
+    const handleRequestSetPassword = async () => {
+        setIsRequestingOtp(true);
+        try {
+            await authService.requestSetPassword();
+            setHasRequestedSetPasswordOtp(true);
+            toast.success('Mã xác minh đã được gửi đến email của bạn.');
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || 'Không thể gửi mã xác minh');
+        } finally {
+            setIsRequestingOtp(false);
+        }
+    };
+
+    const handleConfirmSetPassword = async () => {
+        if (!/^\d{6}$/.test(setPasswordOtp.trim())) {
+            toast.error('Vui lòng nhập mã OTP gồm 6 chữ số.');
+            return;
+        }
+
+        if (setPasswordValue.length < 8) {
+            toast.error('Mật khẩu mới phải có ít nhất 8 ký tự.');
+            return;
+        }
+
+        if (setPasswordValue !== setPasswordConfirm) {
+            toast.error('Mật khẩu xác nhận không khớp.');
+            return;
+        }
+
+        setIsConfirmingSetPassword(true);
+        try {
+            await authService.confirmSetPassword({
+                otp: setPasswordOtp.trim(),
+                new_password: setPasswordValue,
+                new_password_confirm: setPasswordConfirm,
+            });
+            updateUser({ has_usable_password: true, email_verified: true });
+            setHasRequestedSetPasswordOtp(false);
+            setSetPasswordOtp('');
+            setSetPasswordValue('');
+            setSetPasswordConfirm('');
+            toast.success('Đặt mật khẩu thành công. Bạn có thể đăng nhập bằng Google hoặc Email/Mật khẩu.');
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || 'Không thể đặt mật khẩu');
+        } finally {
+            setIsConfirmingSetPassword(false);
+        }
     };
 
     const onSubmit = async (data: SecurityFormValues) => {
@@ -168,13 +219,63 @@ export function SecuritySettings() {
                                         ))}
                                     </div>
 
-                                    <div className="mt-6">
+                                    {hasRequestedSetPasswordOtp && (
+                                        <div className="mt-6 grid gap-5 rounded-2xl border border-violet-100 bg-violet-50/40 p-5">
+                                            <div className="space-y-2.5">
+                                                <Label htmlFor="setPasswordOtp" className="text-slate-700 font-bold ml-1">Mã xác minh</Label>
+                                                <Input
+                                                    id="setPasswordOtp"
+                                                    value={setPasswordOtp}
+                                                    onChange={(event) => setSetPasswordOtp(event.target.value)}
+                                                    inputMode="numeric"
+                                                    maxLength={6}
+                                                    placeholder="Nhập mã 6 số"
+                                                    className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                                <div className="space-y-2.5">
+                                                    <Label htmlFor="setPasswordValue" className="text-slate-700 font-bold ml-1">Mật khẩu mới</Label>
+                                                    <Input
+                                                        id="setPasswordValue"
+                                                        type="password"
+                                                        value={setPasswordValue}
+                                                        onChange={(event) => setSetPasswordValue(event.target.value)}
+                                                        placeholder="********"
+                                                        className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2.5">
+                                                    <Label htmlFor="setPasswordConfirm" className="text-slate-700 font-bold ml-1">Xác nhận mật khẩu</Label>
+                                                    <Input
+                                                        id="setPasswordConfirm"
+                                                        type="password"
+                                                        value={setPasswordConfirm}
+                                                        onChange={(event) => setSetPasswordConfirm(event.target.value)}
+                                                        placeholder="********"
+                                                        className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="mt-6 flex flex-wrap gap-3">
                                         <Button
                                             type="button"
-                                            onClick={handleSetPasswordClick}
+                                            onClick={hasRequestedSetPasswordOtp ? handleConfirmSetPassword : handleRequestSetPassword}
+                                            disabled={isRequestingOtp || isConfirmingSetPassword}
                                             className="h-12 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/20 px-10 transition-all active:scale-95"
                                         >
-                                            Đặt mật khẩu
+                                            {isRequestingOtp || isConfirmingSetPassword ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : hasRequestedSetPasswordOtp ? (
+                                                'Xác nhận đặt mật khẩu'
+                                            ) : (
+                                                'Gửi mã xác minh'
+                                            )}
                                         </Button>
                                     </div>
                                 </div>

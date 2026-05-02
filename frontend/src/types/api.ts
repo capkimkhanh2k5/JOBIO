@@ -85,6 +85,12 @@ export interface ResetPasswordRequest {
   new_password_confirm: string;
 }
 
+export interface ConfirmSetPasswordRequest {
+  otp: string;
+  new_password: string;
+  new_password_confirm: string;
+}
+
 export interface TwoFactorStatus {
   is_enabled: boolean;
   secret?: string;
