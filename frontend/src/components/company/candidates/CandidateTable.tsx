@@ -16,6 +16,7 @@ interface Application {
     job_title: string;
     status: string;
     ai_score: number;
+    match_score?: number;
     applied_at: string;
     skills: string[];
     rating: number;
@@ -107,14 +108,17 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                             <th scope="col" className="px-4 py-3 font-medium">Ứng viên</th>
                             <th scope="col" className="px-4 py-3 font-medium">Vị trí ứng tuyển</th>
                             <th scope="col" className="px-4 py-3 font-medium">Trạng thái</th>
-                            <th scope="col" className="px-4 py-3 font-medium">AI Match</th>
+                            <th scope="col" className="px-4 py-3 font-medium">Điểm Match</th>
                             <th scope="col" className="px-4 py-3 font-medium">Ngày ứng tuyển</th>
                             <th scope="col" className="px-4 py-3 font-medium">Đánh giá</th>
                             <th scope="col" className="px-4 py-3 rounded-tr-xl font-medium text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50 overflow-y-auto">
-                        {applications.map((app) => (
+                        {applications.map((app) => {
+                            const matchScore = app.match_score ?? app.ai_score ?? 0;
+
+                            return (
                             <tr
                                 key={app.id}
                                 className="bg-background hover:bg-secondary/20 transition-colors cursor-pointer"
@@ -145,8 +149,8 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                     </Badge>
                                 </td>
                                 <td className="px-4 py-3">
-                                    <Badge variant="outline" className={cn("font-medium", getScoreColor(app.ai_score))}>
-                                        {app.ai_score}%
+                                    <Badge variant="outline" className={cn("font-medium", getScoreColor(matchScore))}>
+                                        {matchScore}%
                                     </Badge>
                                 </td>
                                 <td className="px-4 py-3 text-muted-foreground text-sm">
@@ -188,7 +192,8 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

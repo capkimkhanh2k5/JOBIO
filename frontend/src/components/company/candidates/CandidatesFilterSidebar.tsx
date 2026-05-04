@@ -5,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { companyService } from '@/services/companyService';
 import { taxonomyService } from '@/services/taxonomyService';
@@ -126,10 +126,10 @@ export function CandidatesFilterSidebar() {
                 </div>
                 <Separator className="bg-border/50" />
 
-                {/* AI Score */}
+                {/* Match Score */}
                 <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm font-medium">
-                        <label>AI Match Score</label>
+                        <label>Điểm Match</label>
                         <span className="text-xs text-muted-foreground">
                             {filters.aiScoreRange[0]}% - {filters.aiScoreRange[1]}%
                         </span>

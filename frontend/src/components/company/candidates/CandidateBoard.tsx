@@ -17,6 +17,7 @@ interface Application {
     job_title: string;
     status: string;
     ai_score: number;
+    match_score?: number;
     applied_at: string;
     skills: string[];
 }
@@ -209,7 +210,10 @@ export function CandidateBoard({
 
                                 <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
                                     <AnimatePresence>
-                                        {columnApps.map((app) => (
+                                        {columnApps.map((app) => {
+                                            const matchScore = app.match_score ?? app.ai_score ?? 0;
+
+                                            return (
                                             <motion.div
                                                 layout
                                                 initial={{ opacity: 0, y: 10 }}
@@ -280,15 +284,16 @@ export function CandidateBoard({
                                                     <div
                                                         className={cn(
                                                             'flex items-center gap-1 px-1.5 rounded-md border text-[10px] font-medium',
-                                                            getScoreColor(app.ai_score)
+                                                            getScoreColor(matchScore)
                                                         )}
                                                     >
                                                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                                                        AI: {app.ai_score}%
+                                                        Match {matchScore}%
                                                     </div>
                                                 </div>
                                             </motion.div>
-                                        ))}
+                                            );
+                                        })}
                                     </AnimatePresence>
 
                                     {columnApps.length === 0 && (

@@ -18,7 +18,9 @@ def list_applications_by_job(job_id: int, filters: dict = None) -> QuerySet[Appl
     queryset = Application.objects.filter(
         job_id=job_id
     ).select_related(
-        'recruiter', 'recruiter__user', 'job', 'cv', 'reviewed_by'
+        'recruiter', 'recruiter__user', 'job', 'job__company', 'cv', 'reviewed_by'
+    ).prefetch_related(
+        'job__required_skills__skill'
     ).order_by('-applied_at')
     
     if not filters:
@@ -39,7 +41,9 @@ def get_application_by_id(application_id: int) -> Optional[Application]:
     """
     try:
         return Application.objects.select_related(
-            'recruiter', 'recruiter__user', 'job', 'cv', 'reviewed_by'
+            'recruiter', 'recruiter__user', 'job', 'job__company', 'cv', 'reviewed_by'
+        ).prefetch_related(
+            'job__required_skills__skill'
         ).get(id=application_id)
     except Application.DoesNotExist:
         return None
@@ -52,7 +56,9 @@ def list_applications_by_recruiter(recruiter_id: int) -> QuerySet[Application]:
     return Application.objects.filter(
         recruiter_id=recruiter_id
     ).select_related(
-        'job', 'job__company', 'cv'
+        'recruiter', 'recruiter__user', 'job', 'job__company', 'cv'
+    ).prefetch_related(
+        'job__required_skills__skill'
     ).order_by('-applied_at')
 
 
@@ -114,7 +120,9 @@ def list_applications_by_status(job_id: int, status: str) -> QuerySet[Applicatio
         job_id=job_id,
         status=status
     ).select_related(
-        'recruiter', 'recruiter__user', 'job', 'cv', 'reviewed_by'
+        'recruiter', 'recruiter__user', 'job', 'job__company', 'cv', 'reviewed_by'
+    ).prefetch_related(
+        'job__required_skills__skill'
     ).order_by('-applied_at')
 
 
@@ -130,7 +138,9 @@ def list_applications_by_rating(
     queryset = Application.objects.filter(
         job_id=job_id
     ).select_related(
-        'recruiter', 'recruiter__user', 'job', 'cv', 'reviewed_by'
+        'recruiter', 'recruiter__user', 'job', 'job__company', 'cv', 'reviewed_by'
+    ).prefetch_related(
+        'job__required_skills__skill'
     )
     
     if rating is not None:
@@ -157,5 +167,7 @@ def search_applications(job_id: int, query: str) -> QuerySet[Application]:
         Q(notes__icontains=query) |
         Q(cover_letter__icontains=query)
     ).select_related(
-        'recruiter', 'recruiter__user', 'job', 'cv', 'reviewed_by'
+        'recruiter', 'recruiter__user', 'job', 'job__company', 'cv', 'reviewed_by'
+    ).prefetch_related(
+        'job__required_skills__skill'
     ).order_by('-applied_at')
