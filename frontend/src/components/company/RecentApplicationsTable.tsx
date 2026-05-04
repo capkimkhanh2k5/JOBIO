@@ -19,7 +19,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
     rejected: { label: 'Từ chối', className: 'bg-red-50 text-red-700 border-red-200' },
 };
 
-function AiScoreBadge({ score }: { score: number }) {
+function MatchScoreBadge({ score }: { score: number }) {
     const color = score >= 90 ? 'text-emerald-600' : score >= 80 ? 'text-blue-600' : 'text-amber-600';
 
     return (
@@ -53,7 +53,7 @@ export function RecentApplicationsTable() {
                 <table className="w-full" role="table">
                     <thead>
                         <tr className="border-b border-slate-100 bg-slate-50/50">
-                            {['Ứng viên', 'Vị trí', 'Trạng thái', 'AI Score', 'Ngày ứng tuyển'].map((col) => (
+                            {['Ứng viên', 'Vị trí', 'Trạng thái', 'Điểm Match', 'Ngày ứng tuyển'].map((col) => (
                                 <th
                                     key={col}
                                     className="whitespace-nowrap px-6 py-3 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500"
@@ -119,7 +119,7 @@ export function RecentApplicationsTable() {
                                               </Badge>
                                           </td>
                                           <td className="px-6 py-4">
-                                              <AiScoreBadge score={app.ai_score || 0} />
+                                              <MatchScoreBadge score={app.match_score ?? app.ai_score ?? 0} />
                                           </td>
                                           <td className="px-6 py-4">
                                               <span className="whitespace-nowrap text-sm text-slate-500">

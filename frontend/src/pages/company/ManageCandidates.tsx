@@ -23,17 +23,22 @@ export default function ManageCandidates() {
     });
     const rawApplications = applicationsRes?.results ?? [];
     const applications = rawApplications
-        .map((app: any) => ({
-            ...app,
-            candidate_id: String(app.recruiter_id),
-            candidate_name: app.recruiter_name,
-            candidate_avatar: app.recruiter_avatar,
-            candidate_email: app.recruiter_email,
-            status: app.status === 'accepted' ? 'accepted' : app.status,
-            ai_score: app.ai_score ?? 0,
-            skills: app.skills ?? [],
-            rating: app.rating ?? 0,
-        }))
+        .map((app: any) => {
+            const matchScore = app.match_score ?? app.ai_score ?? 0;
+
+            return {
+                ...app,
+                candidate_id: String(app.recruiter_id),
+                candidate_name: app.recruiter_name,
+                candidate_avatar: app.recruiter_avatar,
+                candidate_email: app.recruiter_email,
+                status: app.status === 'accepted' ? 'accepted' : app.status,
+                ai_score: matchScore,
+                match_score: matchScore,
+                skills: app.skills ?? [],
+                rating: app.rating ?? 0,
+            };
+        })
         .filter((app: any) => {
             if (filters.jobId && String(app.job_id) !== String(filters.jobId)) return false;
             if (filters.statuses.length > 0 && !filters.statuses.includes(app.status)) return false;

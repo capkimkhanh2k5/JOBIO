@@ -326,6 +326,69 @@ def _salary_match_score(desired_min, desired_max, job_min, job_max) -> float:
     return overlap / total_range if total_range > 0 else 1.0
 
 
+def _normalize_cv_data(cv_data) -> dict:
+    if isinstance(cv_data, dict):
+        return cv_data
+
+    if isinstance(cv_data, str):
+        import json
+        try:
+            parsed = json.loads(cv_data)
+            return parsed if isinstance(parsed, dict) else {}
+        except (TypeError, ValueError):
+            return {}
+
+    return {}
+
+
+def _cv_skill_tokens(cv_data: dict) -> set:
+    raw_skills = cv_data.get('skills', [])
+    tokens = set()
+
+    if isinstance(raw_skills, dict):
+        raw_skills = raw_skills.values()
+
+    for skill in raw_skills or []:
+        if isinstance(skill, dict):
+            name = skill.get('name') or skill.get('skill_name') or skill.get('title') or ''
+        else:
+            name = str(skill or '')
+
+        if name:
+            tokens.update(_tokenize(name))
+
+    return tokens
+
+
+def calculate_cv_job_match_score(cv, recruiter, job) -> int:
+    if not cv or not recruiter or not job:
+        return 0
+
+    cv_data = _normalize_cv_data(getattr(cv, 'cv_data', {}) or {})
+    personal = cv_data.get('personal', {}) if isinstance(cv_data.get('personal', {}), dict) else {}
+    candidate_position = personal.get('current_position', '') or ''
+    cv_skill_names = _cv_skill_tokens(cv_data)
+
+    title_score = _title_similarity_score(candidate_position, job.title)
+    salary_score = _salary_match_score(
+        recruiter.desired_salary_min,
+        recruiter.desired_salary_max,
+        job.salary_min,
+        job.salary_max
+    )
+
+    job_skill_tokens = set()
+    for job_skill in job.required_skills.all():
+        if job_skill.skill and job_skill.skill.name:
+            job_skill_tokens.update(_tokenize(job_skill.skill.name))
+
+    skill_intersection = cv_skill_names & job_skill_tokens if job_skill_tokens else set()
+    skill_score = len(skill_intersection) / len(job_skill_tokens) if job_skill_tokens else 0.0
+
+    total = (title_score * 0.40 + salary_score * 0.30 + skill_score * 0.30) * 100
+    return round(total)
+
+
 def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     """
     Gợi ý việc làm cho một CV cụ thể với multi-factor scoring:
@@ -342,17 +405,14 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     except RecruiterCV.DoesNotExist:
         return []
 
-    cv_data = cv.cv_data or {}
+    cv_data = _normalize_cv_data(cv.cv_data or {})
     personal = cv_data.get('personal', {})
+    if not isinstance(personal, dict):
+        personal = {}
     candidate_position = personal.get('current_position', '') or ''
 
     # ----- Extract CV skills -----
-    cv_skills_raw = cv_data.get('skills', [])
-    cv_skill_names = set()
-    for s in cv_skills_raw:
-        name = s.get('name', '')
-        if name:
-            cv_skill_names.update(_tokenize(name))
+    cv_skill_names = _cv_skill_tokens(cv_data)
 
     # ----- Get all published jobs -----
     jobs = Job.objects.filter(status='published').select_related(

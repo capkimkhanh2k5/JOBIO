@@ -354,7 +354,7 @@ export function CandidateDetailSheet() {
                                 </div>
 
                                 <div className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm font-semibold whitespace-nowrap">
-                                    AI Match: {details.ai_score || 0}%
+                                    Match: {details.match_score ?? details.ai_score ?? 0}%
                                 </div>
                             </div>
                         </div>

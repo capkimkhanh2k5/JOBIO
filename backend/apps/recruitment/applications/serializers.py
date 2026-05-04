@@ -19,6 +19,7 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='job.company.company_name', read_only=True)
     company_logo = serializers.URLField(source='job.company.logo_url', read_only=True)
     ai_score = serializers.SerializerMethodField()
+    match_score = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     cv_url = serializers.CharField(source='cv.cv_url', read_only=True, allow_null=True)
     cv_name = serializers.CharField(source='cv.cv_name', read_only=True, allow_null=True)
@@ -29,13 +30,29 @@ class ApplicationListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'job_id', 'job_title', 'company_name', 'company_logo',
             'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar',
-            'status', 'rating', 'ai_score', 'skills', 'cv_url', 'cv_name', 'cv_id',
+            'status', 'rating', 'ai_score', 'match_score', 'skills', 'cv_url', 'cv_name', 'cv_id',
             'applied_at', 'updated_at'
         ]
         read_only_fields = ['id', 'applied_at', 'updated_at']
 
+    def _get_match_score(self, obj):
+        if hasattr(obj, '_jobio_match_score'):
+            return obj._jobio_match_score
+
+        try:
+            from apps.recruitment.jobs.selectors.jobs import calculate_cv_job_match_score
+            score = calculate_cv_job_match_score(obj.cv, obj.recruiter, obj.job)
+        except Exception:
+            score = 0
+
+        obj._jobio_match_score = score
+        return score
+
     def get_ai_score(self, obj):
-        return 0
+        return self._get_match_score(obj)
+
+    def get_match_score(self, obj):
+        return self._get_match_score(obj)
 
     def get_skills(self, obj):
         try:
@@ -62,6 +79,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
     recruiter_avatar = serializers.URLField(source='recruiter.user.avatar_url', read_only=True)
     recruiter_phone = serializers.CharField(source='recruiter.user.phone', read_only=True)
     ai_score = serializers.SerializerMethodField()
+    match_score = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     
     class Meta:
@@ -70,14 +88,30 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
             'id', 'job_id', 'job_title',
             'recruiter_id', 'recruiter_name', 'recruiter_email', 'recruiter_avatar', 'recruiter_phone',
             'cv_url', 'cv_name', 'cv_id', 'cover_letter',
-            'status', 'rating', 'notes', 'ai_score', 'skills',
+            'status', 'rating', 'notes', 'ai_score', 'match_score', 'skills',
             'applied_at', 'updated_at',
             'reviewed_by_name', 'reviewed_at'
         ]
         read_only_fields = ['id', 'applied_at', 'updated_at']
 
+    def _get_match_score(self, obj):
+        if hasattr(obj, '_jobio_match_score'):
+            return obj._jobio_match_score
+
+        try:
+            from apps.recruitment.jobs.selectors.jobs import calculate_cv_job_match_score
+            score = calculate_cv_job_match_score(obj.cv, obj.recruiter, obj.job)
+        except Exception:
+            score = 0
+
+        obj._jobio_match_score = score
+        return score
+
     def get_ai_score(self, obj):
-        return 0
+        return self._get_match_score(obj)
+
+    def get_match_score(self, obj):
+        return self._get_match_score(obj)
 
     def get_skills(self, obj):
         try:

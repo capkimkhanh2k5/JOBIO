@@ -418,12 +418,16 @@ export interface ApplicationListItem {
   job: { id: number; title: string; company_name: string } | null;
   candidate: { id: number; full_name: string; avatar: string | null } | null;
   cv: { id: number; file_name: string } | null;
+  cv_url?: string | null;
+  cv_name?: string | null;
+  cv_id?: number | null;
   status: ApplicationStatus;
   rating: number | null;
   applied_at: string;
   created_at: string;
   updated_at?: string;
   ai_score?: number;
+  match_score?: number;
   skills?: string[];
   position?: string;
 }
