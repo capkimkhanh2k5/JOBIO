@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    LifeBuoy, Mail, MessageSquare, Phone, MapPin, 
-    Send, CheckCircle2, HelpCircle, 
-    Clock, ArrowRight, ChevronDown 
+import {
+    LifeBuoy, Mail, MessageSquare, Phone, MapPin,
+    Send, CheckCircle2, HelpCircle,
+    Clock, ArrowRight, ChevronDown
 } from 'lucide-react';
 import { useUserStore } from '@/store/userStore';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/shared/PageHeader';
+import api from '@/services/api';
 
 const faqs = [
     {
@@ -45,7 +46,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
             "border-b border-slate-100 last:border-0 transition-all",
             isOpen ? "bg-slate-50/50" : "bg-transparent"
         )}>
-            <button 
+            <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between py-5 text-left group outline-none"
             >
@@ -96,15 +97,25 @@ export default function CompanySupportPage() {
         }
 
         setIsSubmitting(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        toast.success('Yêu cầu đã được gửi đi!', {
-            description: 'Chúng tôi sẽ phản hồi lại bạn qua email sớm nhất có thể.',
-        });
-        
-        setMessage('');
-        setSubject('');
-        setIsSubmitting(false);
+        try {
+            await api.post('/api/contact/', {
+                name: (user as any)?.full_name || user?.email || 'Khách hàng Doanh nghiệp',
+                email: email,
+                subject: subject || 'Yêu cầu hỗ trợ (Doanh nghiệp)',
+                message: message
+            });
+
+            toast.success('Yêu cầu đã được gửi đi!', {
+                description: 'Chúng tôi sẽ phản hồi lại bạn qua email sớm nhất có thể.',
+            });
+
+            setMessage('');
+            setSubject('');
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || 'Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -129,10 +140,10 @@ export default function CompanySupportPage() {
 
             <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    
+
                     {/* ── Left Column: Contact Form ───────────────────────────── */}
                     <div className="lg:col-span-2 space-y-8">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
@@ -157,7 +168,7 @@ export default function CompanySupportPage() {
                                             </Label>
                                             <div className="relative group">
                                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-violet-600 transition-colors" />
-                                                <Input 
+                                                <Input
                                                     id="email"
                                                     type="email"
                                                     value={email}
@@ -171,7 +182,7 @@ export default function CompanySupportPage() {
                                             <Label htmlFor="subject" className="text-sm font-bold text-slate-700 ml-1">
                                                 Chủ đề quan tâm
                                             </Label>
-                                            <Input 
+                                            <Input
                                                 id="subject"
                                                 placeholder="VD: Tài khoản, Đăng tin, Thanh toán..."
                                                 value={subject}
@@ -185,7 +196,7 @@ export default function CompanySupportPage() {
                                         <Label htmlFor="message" className="text-sm font-bold text-slate-700 ml-1">
                                             Nội dung cần giải đáp
                                         </Label>
-                                        <Textarea 
+                                        <Textarea
                                             id="message"
                                             placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..."
                                             value={message}
@@ -202,8 +213,8 @@ export default function CompanySupportPage() {
                                             </div>
                                             Thông tin được bảo mật mã hóa đầu cuối
                                         </div>
-                                        <Button 
-                                            type="submit" 
+                                        <Button
+                                            type="submit"
                                             disabled={isSubmitting}
                                             className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl px-12 h-14 font-black shadow-xl shadow-violet-600/25 transition-all gap-3 group relative overflow-hidden text-base shrink-0"
                                         >
@@ -225,7 +236,7 @@ export default function CompanySupportPage() {
                         </motion.div>
 
                         {/* FAQs Section */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
@@ -247,14 +258,14 @@ export default function CompanySupportPage() {
 
                     {/* ── Right Column: Contact Cards ──────────────────────────── */}
                     <div className="space-y-8">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                             className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-8 space-y-8"
                         >
                             <h3 className="text-[11px] font-black text-violet-600 uppercase tracking-[0.2em] px-1">Thông tin liên hệ</h3>
-                            
+
                             <div className="space-y-5">
                                 {[
                                     { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '1800 599 984', color: 'text-emerald-600 bg-emerald-50' },
@@ -291,7 +302,7 @@ export default function CompanySupportPage() {
                         </motion.div>
 
                         {/* Office location card */}
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.4 }}
