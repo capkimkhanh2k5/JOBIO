@@ -89,6 +89,7 @@ const SelectContent = React.forwardRef<
                     position === "popper" &&
                     "h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)]"
                 )}
+                data-lenis-prevent
             >
                 {children}
             </SelectPrimitive.Viewport>

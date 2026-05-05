@@ -120,7 +120,7 @@ export default function BlogDetailPage() {
                 <p className="text-slate-500 mb-8 max-w-md">Bài viết có thể đã bị xóa, ẩn hoặc đường dẫn không chính xác.</p>
                 <Link to="/blog">
                     <Button className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-11 px-6 font-semibold shadow-sm hover:shadow-md transition-all">
-                        Quay lại trang Blog
+                        Quay lại
                     </Button>
                 </Link>
             </div>

@@ -40,7 +40,7 @@ export const ProfileCover = ({ profile }: { profile: CandidateDetail }) => {
                         <p className="text-lg text-muted-foreground mt-1">
                             {(profile.years_of_experience ?? 0) > 0
                                 ? `${profile.years_of_experience} năm kinh nghiệm`
-                                : 'Mới tốt nghiệp'}
+                                : 'Mới tạo tài khoản'}
                         </p>
                     </div>
                 </div>

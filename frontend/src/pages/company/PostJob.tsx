@@ -200,7 +200,10 @@ export default function PostJob() {
                     await jobService.removeSkill(jobId, existingSkill.id);
                 }
 
-                await jobService.addSkill(jobId, payload);
+                await jobService.addSkill(jobId, {
+                    ...payload,
+                    proficiency_level: payload.proficiency_level || undefined
+                } as any);
             })
         );
 
@@ -283,7 +286,7 @@ export default function PostJob() {
 
             const hydratedLocations = await Promise.all(
                 locations.map(async (location) => {
-                    const address = await geographyService.getAddress(location.address_id);
+                    const address = await geographyService.getAddress(location.address_id as number);
                     return {
                         id: `loc_${location.id}`,
                         province_id: address.province ? String(address.province) : '',
@@ -310,14 +313,14 @@ export default function PostJob() {
             const seoDraft = readSeoDraft(existingJob.id || id);
             reset({
                 title: existingJob.title || '',
-                category_id: existingJob.category_id ? String(existingJob.category_id) : '',
+                category_id: (existingJob as any).category_id ? String((existingJob as any).category_id) : (existingJob.category?.id ? String(existingJob.category.id) : ''),
                 job_type: (existingJob.job_type?.replace('-', '_') as any) || 'full_time',
                 level: (existingJob.level as any) || 'middle',
-                quantity: existingJob.number_of_positions || 1,
+                quantity: (existingJob as any).number_of_positions || 1,
                 salary_min: existingJob.salary_min ? Number(existingJob.salary_min) : null,
                 salary_max: existingJob.salary_max ? Number(existingJob.salary_max) : null,
                 salary_currency: (existingJob.salary_currency as any) || 'VND',
-                is_salary_visible: !existingJob.is_salary_negotiable,
+                is_salary_visible: !existingJob.salary_negotiable,
                 experience_min: existingJob.experience_years_min || null,
                 experience_max: existingJob.experience_years_max || null,
                 deadline: normalizeDateForApi(existingJob.application_deadline) || '',
@@ -448,7 +451,9 @@ export default function PostJob() {
                 queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] }),
                 queryClient.invalidateQueries({ queryKey: ['job', id, 'editor'] }),
             ]);
-            setTimeout(() => navigate('/company/jobs'), 1500);
+            if (user?.role === 'company') {
+                setTimeout(() => navigate('/company/jobs'), 1500);
+            }
         },
         onError: () => {
             setIsPublishingFlow(false);
