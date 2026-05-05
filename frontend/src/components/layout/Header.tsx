@@ -96,12 +96,12 @@ export const Header = () => {
     const isAuthPage = location.pathname === '/auth';
 
     return (
-        <header className={`fixed top-0 z-50 w-full transition-all duration-700 ${isScrolled ? 'py-4' : 'py-8'}`}>
-            <div className="w-full max-w-[1600px] mx-auto px-6">
+        <header className={`fixed top-0 z-50 w-full transition-all duration-700 pointer-events-none ${isScrolled ? 'py-4' : 'py-8'}`}>
+            <div className="w-full max-w-[1600px] mx-auto px-6 pointer-events-auto">
                 <div className={cn(
                     "flex items-center justify-between px-10 h-20 transition-all duration-700",
-                    (isScrolled || isAuthPage) 
-                        ? 'glass-effect shadow-xl h-16 rounded-[28px]' 
+                    (isScrolled || isAuthPage)
+                        ? 'glass-effect shadow-xl h-16 rounded-[28px]'
                         : 'bg-transparent border-transparent rounded-[32px]'
                 )}>
                     <div className="flex items-center gap-16">
@@ -164,74 +164,74 @@ export const Header = () => {
                                     </Avatar>
                                 </Link>
                             ) : (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-12 w-12 rounded-full p-0">
-                                        <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-cyan-500/50 transition-colors">
-                                            <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
-                                            <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white">
-                                                {user.full_name.substring(0, 2).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-64 glass-effect border-white/10 mt-2" align="end" forceMount>
-                                    <DropdownMenuLabel className="font-normal">
-                                        <div className="flex flex-col space-y-2 py-2">
-                                            <p className="text-sm font-bold leading-none">{user.full_name}</p>
-                                            <p className="text-xs leading-none text-muted-foreground/70">
-                                                {user.email}
-                                            </p>
-                                            <div className="flex items-center gap-2">
-                                                <div className="inline-flex items-center px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold uppercase w-fit">
-                                                    {user.role}
-                                                </div>
-                                                {user.role === 'company' && user.subscription_plan && (
-                                                    <div className={cn(
-                                                        "inline-flex items-center px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest w-fit border shadow-sm",
-                                                        user.subscription_plan.toLowerCase().includes('plus')
-                                                            ? "bg-blue-50 text-blue-600 border-blue-100"
-                                                            : user.subscription_plan.toLowerCase().includes('pro')
-                                                                ? "bg-orange-50 text-orange-600 border-orange-100"
-                                                                : user.subscription_plan.toLowerCase().includes('max')
-                                                                    ? "bg-amber-50 text-amber-600 border-amber-100"
-                                                                    : "bg-violet-500/10 text-violet-400 border-transparent"
-                                                    )}>
-                                                        Gói: {user.subscription_plan.split(' (')[0]}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="relative h-12 w-12 rounded-full p-0">
+                                            <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-cyan-500/50 transition-colors">
+                                                <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
+                                                <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white">
+                                                    {user.full_name.substring(0, 2).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-64 glass-effect border-white/10 mt-2" align="end" forceMount>
+                                        <DropdownMenuLabel className="font-normal">
+                                            <div className="flex flex-col space-y-2 py-2">
+                                                <p className="text-sm font-bold leading-none">{user.full_name}</p>
+                                                <p className="text-xs leading-none text-muted-foreground/70">
+                                                    {user.email}
+                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="inline-flex items-center px-2 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold uppercase w-fit">
+                                                        {user.role}
                                                     </div>
-                                                )}
+                                                    {user.role === 'company' && user.subscription_plan && (
+                                                        <div className={cn(
+                                                            "inline-flex items-center px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest w-fit border shadow-sm",
+                                                            user.subscription_plan.toLowerCase().includes('plus')
+                                                                ? "bg-blue-50 text-blue-600 border-blue-100"
+                                                                : user.subscription_plan.toLowerCase().includes('pro')
+                                                                    ? "bg-orange-50 text-orange-600 border-orange-100"
+                                                                    : user.subscription_plan.toLowerCase().includes('max')
+                                                                        ? "bg-amber-50 text-amber-600 border-amber-100"
+                                                                        : "bg-violet-500/10 text-violet-400 border-transparent"
+                                                        )}>
+                                                            Gói: {user.subscription_plan.split(' (')[0]}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-white/5" />
-                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'admin' ? '/admin/dashboard' : user.role === 'company' ? '/company/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
-                                            <LayoutDashboard className="mr-3 h-4 w-4" />
-                                            <span>Dashboard</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'company' ? '/company/profile' : (user.candidate_id ? `/profile/${user.candidate_id}` : '/candidate/profile')} className="flex items-center w-full">
-                                            <User className="mr-3 h-4 w-4" />
-                                            <span>Trang cá nhân</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                        <Link to={user.role === 'company' ? '/company/settings' : '/candidate/settings'} className="flex items-center w-full">
-                                            <Settings className="mr-3 h-4 w-4" />
-                                            <span>Cài đặt</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/5" />
-                                    <DropdownMenuItem
-                                        className="py-3 cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-400/10 focus:bg-red-400/10"
-                                        onClick={handleLogout}
-                                    >
-                                        <LogOut className="mr-3 h-4 w-4" />
-                                        <span>Đăng xuất</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator className="bg-white/5" />
+                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
+                                                <LayoutDashboard className="mr-3 h-4 w-4" />
+                                                <span>Dashboard</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/profile' : (user.candidate_id ? `/profile/${user.candidate_id}` : '/candidate/profile')} className="flex items-center w-full">
+                                                <User className="mr-3 h-4 w-4" />
+                                                <span>Trang cá nhân</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/settings' : '/candidate/settings'} className="flex items-center w-full">
+                                                <Settings className="mr-3 h-4 w-4" />
+                                                <span>Cài đặt</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator className="bg-white/5" />
+                                        <DropdownMenuItem
+                                            className="py-3 cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-400/10 focus:bg-red-400/10"
+                                            onClick={handleLogout}
+                                        >
+                                            <LogOut className="mr-3 h-4 w-4" />
+                                            <span>Đăng xuất</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             )
                         ) : (
                             <Link to="/auth">

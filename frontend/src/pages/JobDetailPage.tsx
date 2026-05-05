@@ -75,11 +75,11 @@ export default function JobDetailPage() {
             {/* Back Button */}
             <Button
                 variant="ghost"
-                className="mb-6 hover:bg-white/5 text-muted-foreground hover:text-foreground group"
+                className="mb-6 hover:bg-primary/5 text-muted-foreground hover:text-primary group rounded-xl transition-all duration-300"
                 onClick={() => navigate(-1)}
             >
                 <ChevronLeft size={20} className="mr-1 transition-transform group-hover:-translate-x-1" />
-                Quay lại danh sách
+                Quay lại
             </Button>
 
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_440px] gap-9">
@@ -182,7 +182,7 @@ function JobNotFoundError() {
                 Tin tuyển dụng này có thể đã hết hạn hoặc không tồn tại. Hãy quay lại danh sách để tìm kiếm cơ hội khác.
             </p>
             <Button asChild className="bg-sky-700 hover:bg-sky-800 px-8 h-12 rounded-xl text-white font-medium">
-                <a href="/jobs">Quay lại danh sách</a>
+                <a href="/jobs">Quay lại</a>
             </Button>
         </div>
     );

@@ -271,8 +271,8 @@ export const CVSearchFiltersPanel = () => {
                             <div className="flex justify-between text-xs font-medium text-muted-foreground">
                                 <span>Bất kỳ</span>
                                 <span className="text-primary font-bold">
-                                    {filters.salary_max >= 100000000 
-                                        ? "Bất kỳ" 
+                                    {filters.salary_max >= 100000000
+                                        ? "Bất kỳ"
                                         : `≤ ${filters.salary_max >= 1000000 ? `${filters.salary_max / 1000000} triệu` : `${filters.salary_max.toLocaleString()}đ`}`
                                     }
                                 </span>

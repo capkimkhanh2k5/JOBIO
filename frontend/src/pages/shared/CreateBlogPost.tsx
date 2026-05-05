@@ -13,7 +13,7 @@ import {
   Send,
   Sparkles,
 } from 'lucide-react';
-
+import { useUserStore } from '@/store/userStore';
 import { blogService } from '@/services/blogService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,12 +44,15 @@ function extractApiErrorMessage(responseData: unknown): string | null {
 }
 
 export default function CreateBlogPost() {
+  const { user } = useUserStore();
   const navigate = useNavigate();
   const { slug } = useParams();
   const location = useLocation();
   const isEdit = Boolean(slug);
   const isCompany = location.pathname.startsWith('/company');
-  const basePath = isCompany ? '/company/blog' : '/candidate/blog';
+  const basePath = user?.role === 'admin' 
+    ? '/admin/blog' 
+    : (isCompany ? '/company/blog' : '/candidate/blog');
 
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
@@ -147,7 +150,7 @@ export default function CreateBlogPost() {
       summary,
       content,
       category_id: Number(categoryId),
-      status,
+      status: status as 'draft' | 'published' | 'archived',
     };
 
     try {
@@ -311,22 +314,20 @@ export default function CreateBlogPost() {
                   <button
                     type="button"
                     onClick={() => setStatus('draft')}
-                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all ${
-                      status === 'draft'
-                        ? 'border border-slate-200 bg-white text-slate-900 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
+                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all ${status === 'draft'
+                      ? 'border border-slate-200 bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-600'
+                      }`}
                   >
                     <Clock className="h-3.5 w-3.5" /> Bản nháp
                   </button>
                   <button
                     type="button"
                     onClick={() => setStatus('published')}
-                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all ${
-                      status === 'published'
-                        ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
-                        : 'text-slate-400 hover:text-slate-600'
-                    }`}
+                    className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-black transition-all ${status === 'published'
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                      : 'text-slate-400 hover:text-slate-600'
+                      }`}
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" /> Công khai
                   </button>
@@ -369,9 +370,8 @@ export default function CreateBlogPost() {
                         className={`relative h-full w-full object-contain p-2 transition-all duration-300 ${isUploadingThumbnail ? 'scale-[1.01] opacity-50 blur-[1.5px]' : ''}`}
                       />
                       <div
-                        className={`absolute inset-0 flex items-center justify-center transition-opacity ${
-                          isUploadingThumbnail ? 'bg-black/25 opacity-100' : 'bg-black/40 opacity-0 group-hover:opacity-100'
-                        }`}
+                        className={`absolute inset-0 flex items-center justify-center transition-opacity ${isUploadingThumbnail ? 'bg-black/25 opacity-100' : 'bg-black/40 opacity-0 group-hover:opacity-100'
+                          }`}
                       >
                         {isUploadingThumbnail ? (
                           <div className="flex flex-col items-center gap-3">
