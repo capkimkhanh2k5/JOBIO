@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { savedJobService } from '@/services/savedJobService';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 const JOB_TYPE_LABELS: Record<string, string> = {
     'full-time': 'Toàn thời gian',
@@ -72,8 +73,15 @@ interface JobDetailHeaderProps {
 
 export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProps) => {
     const { isAuthenticated } = useUserStore();
+    const queryClient = useQueryClient();
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    const invalidateSavedJobQueries = () => {
+        queryClient.invalidateQueries({ queryKey: ['savedJobs'] });
+        queryClient.invalidateQueries({ queryKey: ['saved-jobs'] });
+        queryClient.invalidateQueries({ queryKey: ['candidate', 'saved-jobs'] });
+    };
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -103,10 +111,12 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
             if (isSaved) {
                 await savedJobService.unsaveByJob(job.id);
                 setIsSaved(false);
+                invalidateSavedJobQueries();
                 toast.success('Đã bỏ lưu việc làm');
             } else {
                 await savedJobService.save(job.id);
                 setIsSaved(true);
+                invalidateSavedJobQueries();
                 toast.success('Đã lưu việc làm');
             }
         } catch (error) {

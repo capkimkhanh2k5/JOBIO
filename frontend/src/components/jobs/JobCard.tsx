@@ -145,7 +145,9 @@ export function JobCard({ job, view }: JobCardProps) {
             setSavedJobId(res.data.id);
             setOptimisticSaved(true);
             toast.success("Đã lưu việc làm");
+            queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
             queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
+            queryClient.invalidateQueries({ queryKey: ["candidate", "saved-jobs"] });
         },
         onError: () => toast.error("Không thể lưu việc làm"),
     });
@@ -158,7 +160,9 @@ export function JobCard({ job, view }: JobCardProps) {
             setOptimisticSaved(false);
             setSavedJobId(null);
             toast.success("Đã bỏ lưu");
+            queryClient.invalidateQueries({ queryKey: ["savedJobs"] });
             queryClient.invalidateQueries({ queryKey: ["saved-jobs"] });
+            queryClient.invalidateQueries({ queryKey: ["candidate", "saved-jobs"] });
         },
         onError: () => toast.error("Không thể bỏ lưu"),
     });
