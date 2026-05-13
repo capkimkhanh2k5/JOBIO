@@ -5,12 +5,13 @@ import * as z from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { format, parseISO } from 'date-fns';
-import { CalendarIcon, Clock, Link as LinkIcon, MapPin, Loader2, Briefcase, User } from 'lucide-react';
+import { CalendarIcon, Clock, Link as LinkIcon, MapPin, Loader2, Briefcase } from 'lucide-react';
 import { companyService } from '@/services/companyService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Dialog,
     DialogContent,
@@ -225,9 +226,15 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
                         <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
                             <div className="flex items-start gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 text-slate-700">
-                                    <User className="w-5 h-5" />
-                                </div>
+                                <Avatar className="h-11 w-11 border border-slate-200 bg-white">
+                                    <AvatarImage
+                                        src={(interview?.candidate_avatar || interview?.applicant_avatar) ?? undefined}
+                                        alt={interview?.applicant_name || interview?.candidate_name || 'Ứng viên'}
+                                    />
+                                    <AvatarFallback className="bg-white text-slate-700">
+                                        {(interview?.applicant_name || interview?.candidate_name || 'UV').substring(0, 2)}
+                                    </AvatarFallback>
+                                </Avatar>
                                 <div className="min-w-0">
                                     <div className="font-semibold text-slate-900">{interview?.applicant_name || 'Ứng viên'}</div>
                                     <div className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
