@@ -21,11 +21,41 @@ export default function SavedJobs() {
         queryFn: () => savedJobService.list().then(r => r.data.results),
     });
 
+    const displaySavedJobs = (savedJobs || []).map((job: any) => ({
+        ...job,
+        id: job.id,
+        job_id: job.job_id ?? job.job?.id,
+        title: job.job_title ?? job.title ?? job.job?.title ?? '',
+        company_name: job.company_name ?? job.job?.company_name ?? '',
+        company_slug: job.company_slug ?? job.job?.company_slug,
+        logo_url: job.logo_url ?? job.company_logo ?? job.job?.logo_url ?? '',
+        locations: job.locations ?? job.location ?? 'Toan quoc',
+        saved_at: job.saved_at ?? job.created_at,
+        deadline: job.deadline ?? job.application_deadline,
+        salary_negotiable: job.salary_negotiable ?? job.is_salary_negotiable ?? false,
+    }));
+
+    const formatDate = (value?: string | null) => {
+        if (!value) return 'Chua cap nhat';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Chua cap nhat';
+        return date.toLocaleDateString('vi-VN');
+    };
+
+    const formatSalary = (job: any) => {
+        if (!job.is_salary_visible || job.salary_negotiable) return 'Thoa thuan';
+        const min = job.salary_min ? Number(job.salary_min).toLocaleString('vi-VN') : '';
+        const max = job.salary_max ? Number(job.salary_max).toLocaleString('vi-VN') : '';
+        const range = [min, max].filter(Boolean).join(' - ');
+        return range ? `${range} ${job.salary_currency || ''}`.trim() : 'Thoa thuan';
+    };
+
     const removeMutation = useMutation({
         mutationFn: (id: string) => savedJobService.unsave(Number(id)),
         onSuccess: (_, id) => {
             toast.success("Đã bỏ lưu công việc");
-            queryClient.setQueryData(['savedJobs'], (old: any) => old?.filter((j: any) => j.id !== id));
+            queryClient.setQueryData(['savedJobs'], (old: any) => old?.filter((j: any) => String(j.id) !== String(id)));
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'saved-jobs'] });
         }
     });
 
@@ -33,7 +63,7 @@ export default function SavedJobs() {
         mutationFn: ({ id, note }: { id: string, note: string }) => savedJobService.update(Number(id), { notes: note } as any).then(r => r.data),
         onSuccess: (_, { id, note }) => {
             toast.success("Đã cập nhật ghi chú");
-            queryClient.setQueryData(['savedJobs'], (old: any) => old?.map((j: any) => j.id === id ? { ...j, notes: note } : j));
+            queryClient.setQueryData(['savedJobs'], (old: any) => old?.map((j: any) => String(j.id) === String(id) ? { ...j, notes: note } : j));
             setEditingNoteId(null);
         }
     });
@@ -71,13 +101,13 @@ export default function SavedJobs() {
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Việc làm đã lưu"
-                    description={`Quản lý và theo dõi các vị trí bạn quan tâm (${savedJobs?.length || 0})`}
+                    description={`Quản lý và theo dõi các vị trí bạn quan tâm (${displaySavedJobs.length})`}
                     icon={Bookmark}
                 />
             </div>
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
-                {savedJobs?.length === 0 ? (
+                {displaySavedJobs.length === 0 ? (
                     <div className="text-center py-16 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm">
                         <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-violet-500/20">
                             <Bookmark className="w-8 h-8" />
@@ -96,7 +126,7 @@ export default function SavedJobs() {
                 ) : (
                     <div className="space-y-4">
                         <AnimatePresence mode="popLayout">
-                            {savedJobs?.map((job: any) => (
+                            {displaySavedJobs.map((job: any) => (
                                 <motion.div
                                     key={job.id}
                                     layout
@@ -108,7 +138,11 @@ export default function SavedJobs() {
                                     <Card className="overflow-hidden bg-white/60 backdrop-blur-xl border-white/40 hover:border-violet-300 hover:shadow-md transition-all rounded-3xl group shadow-sm">
                                         <div className="p-6 flex flex-col md:flex-row gap-6">
                                             <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                                <img src={job.logo_url} alt={job.company_name} className="w-10 h-10 object-contain" />
+                                                {job.logo_url ? (
+                                                    <img src={job.logo_url} alt={job.company_name} className="w-10 h-10 object-contain" />
+                                                ) : (
+                                                    <span className="text-xs font-bold text-slate-500">{(job.company_name || 'CO').slice(0, 2).toUpperCase()}</span>
+                                                )}
                                             </div>
 
                                             <div className="flex-1 min-w-0">
@@ -117,7 +151,7 @@ export default function SavedJobs() {
                                                         <Link to={`/jobs/${job.job_id}`} className="hover:text-violet-600 transition-colors">
                                                             <h3 className="text-lg font-bold text-slate-900 line-clamp-1">{job.title}</h3>
                                                         </Link>
-                                                        <Link to={`/companies/1`} className="text-sm text-slate-500 hover:text-violet-600 transition-colors font-medium">
+                                                        <Link to={job.company_slug ? `/companies/${job.company_slug}` : '#'} className="text-sm text-slate-500 hover:text-violet-600 transition-colors font-medium">
                                                             {job.company_name}
                                                         </Link>
                                                     </div>
@@ -133,20 +167,20 @@ export default function SavedJobs() {
                                                     </div>
                                                     <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
                                                         <DollarSign className="w-4 h-4 text-emerald-500" />
-                                                        {job.is_salary_visible ? `${job.salary_min} - ${job.salary_max} ${job.salary_currency}` : 'Thỏa thuận'}
+                                                        {formatSalary(job)}
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-slate-400">
                                                         <Clock className="w-4 h-4" />
-                                                        Lưu {new Date(job.saved_at).toLocaleDateString('vi-VN')}
+                                                        Lưu {formatDate(job.saved_at)}
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-orange-500 font-medium">
                                                         <Calendar className="w-4 h-4" />
-                                                        Hạn chót: {new Date(job.deadline).toLocaleDateString('vi-VN')}
+                                                        Hạn chót: {formatDate(job.deadline)}
                                                     </div>
                                                 </div>
 
                                                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 relative">
-                                                    {editingNoteId === job.id ? (
+                                                    {editingNoteId === String(job.id) ? (
                                                         <div className="space-y-3">
                                                             <textarea
                                                                 value={editingNoteText}
@@ -169,7 +203,7 @@ export default function SavedJobs() {
                                                                 <Button
                                                                     size="sm"
                                                                     className="h-8 bg-violet-600 hover:bg-violet-700 text-white rounded-lg"
-                                                                    onClick={() => handleSaveNote(job.id)}
+                                                                    onClick={() => handleSaveNote(String(job.id))}
                                                                     disabled={updateNoteMutation.isPending}
                                                                 >
                                                                     <Save className="w-4 h-4 mr-1" />
@@ -189,7 +223,7 @@ export default function SavedJobs() {
                                                                 variant="ghost"
                                                                 size="icon"
                                                                 className="h-8 w-8 text-violet-400 opacity-40 group-hover/note:opacity-100 hover:text-violet-600 hover:bg-violet-50 transition-all rounded-full shrink-0"
-                                                                onClick={() => handleEditNote(job.id, job.notes)}
+                                                                onClick={() => handleEditNote(String(job.id), job.notes)}
                                                             >
                                                                 <Edit3 className="w-4 h-4" />
                                                             </Button>
@@ -207,7 +241,7 @@ export default function SavedJobs() {
                                                 <Button
                                                     variant="outline"
                                                     className="w-full md:w-auto flex-1 border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 rounded-xl"
-                                                    onClick={() => removeMutation.mutate(job.id)}
+                                                    onClick={() => removeMutation.mutate(String(job.id))}
                                                     disabled={removeMutation.isPending}
                                                 >
                                                     <Trash2 className="w-4 h-4 mr-2" />

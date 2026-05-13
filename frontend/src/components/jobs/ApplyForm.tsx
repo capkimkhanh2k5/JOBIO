@@ -35,6 +35,7 @@ import { useUserStore } from '@/store/userStore';
 import { candidateService } from '@/services/candidateService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const formSchema = z.object({
     cv_id: z.string().min(1, "Vui lòng chọn CV của bạn"),
@@ -52,6 +53,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const { user, isAuthenticated, updateUser } = useUserStore();
+    const currentJobPath = `/jobs/${jobId}`;
 
     const { data: candidateProfile } = useQuery({
         queryKey: ['candidate-profile-me', user?.id],
@@ -141,17 +143,19 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                     className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-lg shadow-indigo-100"
                                     asChild
                                 >
-                                    <a href={`/login?redirect=/jobs/detail/${jobId}`}>
+                                    <Link to={`/auth?redirect=${encodeURIComponent(currentJobPath)}`} state={{ from: currentJobPath }}>
                                         <LogIn className="w-4 h-4 mr-2" />
                                         Đăng nhập ngay
-                                    </a>
+                                    </Link>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     className="w-full h-12 rounded-xl border-gray-200 text-gray-600 font-bold"
                                     asChild
                                 >
-                                    <a href="/register">Chưa có tài khoản? Đăng ký</a>
+                                    <Link to={`/auth?mode=register&redirect=${encodeURIComponent(currentJobPath)}`} state={{ from: currentJobPath }}>
+                                        Chưa có tài khoản? Đăng ký
+                                    </Link>
                                 </Button>
                             </div>
                         </motion.div>

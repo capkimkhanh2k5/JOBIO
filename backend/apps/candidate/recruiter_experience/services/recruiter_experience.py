@@ -6,6 +6,7 @@ from django.db.models import Max
 
 from apps.candidate.recruiter_experience.models import RecruiterExperience
 from apps.candidate.recruiters.models import Recruiter
+from apps.geography.addresses.models import Address
 
 
 class ExperienceInput(BaseModel):
@@ -19,6 +20,7 @@ class ExperienceInput(BaseModel):
     is_current: bool = False
     description: Optional[str] = None
     address_id: Optional[int] = None
+    province_id: Optional[int] = None
     achievements: Optional[str] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -42,6 +44,14 @@ def create_experience_service(recruiter: Recruiter, data: ExperienceInput) -> Re
     fields = data.model_dump()
     industry_id = fields.pop('industry_id', None)
     address_id = fields.pop('address_id', None)
+    province_id = fields.pop('province_id', None)
+    if province_id and not address_id:
+        address, _ = Address.objects.get_or_create(
+            province_id=province_id,
+            address_line='',
+            defaults={'is_verified': False},
+        )
+        address_id = address.id
 
     experience = RecruiterExperience.objects.create(
         recruiter=recruiter,
@@ -67,6 +77,18 @@ def update_experience_service(experience: RecruiterExperience, data: ExperienceI
     
     if 'address_id' in fields:
         experience.address_id = fields.pop('address_id')
+
+    if 'province_id' in fields:
+        province_id = fields.pop('province_id')
+        if province_id:
+            address, _ = Address.objects.get_or_create(
+                province_id=province_id,
+                address_line='',
+                defaults={'is_verified': False},
+            )
+            experience.address_id = address.id
+        else:
+            experience.address_id = None
     
     for field, value in fields.items():
         setattr(experience, field, value)

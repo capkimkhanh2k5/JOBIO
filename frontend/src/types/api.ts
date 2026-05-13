@@ -484,10 +484,28 @@ export interface ApplicationFilters {
 
 export interface SavedJob {
   id: number;
-  job: { id: number; title: string; company_name: string; slug: string };
+  job?: { id: number; title: string; company_name: string; slug: string };
+  job_id?: number;
+  job_title?: string;
+  job_slug?: string;
+  company_id?: number | null;
+  company_name?: string | null;
+  company_slug?: string | null;
+  logo_url?: string | null;
+  job_type?: string | null;
+  level?: string | null;
+  status?: string | null;
+  locations?: string | null;
+  salary_min?: number | string | null;
+  salary_max?: number | string | null;
+  salary_currency?: string | null;
+  salary_negotiable?: boolean;
+  is_salary_visible?: boolean;
+  deadline?: string | null;
   folder_name: string | null;
   notes: string | null;
   created_at: string;
+  saved_at?: string;
 }
 
 export interface SavedJobUpdateRequest {
@@ -585,11 +603,13 @@ export interface CandidateExperience {
   company_name: string;
   job_title: string;
   industry?: number;
+  industry_id?: number;
   industry_name?: string;
   start_date: string | null;
   end_date: string | null;
   is_current: boolean;
   address?: number;
+  address_id?: number;
   province_id?: number;
   province_name?: string;
   description: string | null;

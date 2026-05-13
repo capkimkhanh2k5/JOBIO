@@ -102,14 +102,15 @@ class InterviewListSerializer(InterviewDisplayMixin):
     """
     
     applicant_name = serializers.CharField(source='application.recruiter.user.full_name', read_only=True)
-    applicant_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True)
+    applicant_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True, allow_null=True)
+    candidate_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True, allow_null=True)
 
     class Meta:
         model = Interview
         fields = [
             'id', 'application_id', 'job_id', 'job_title',
             'company_id', 'company_name', 'company_slug', 'company_logo',
-            'applicant_name', 'applicant_avatar',
+            'applicant_name', 'applicant_avatar', 'candidate_avatar',
             'interview_type_id', 'interview_type_name', 'interview_type', 'type',
             'round_number', 'scheduled_at', 'duration_minutes',
             'address_id', 'address', 'location', 'meeting_link',
@@ -124,6 +125,8 @@ class InterviewDetailSerializer(InterviewDisplayMixin):
     """
     
     applicant_name = serializers.CharField(source='application.recruiter.user.full_name', read_only=True)
+    applicant_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True, allow_null=True)
+    candidate_avatar = serializers.URLField(source='application.recruiter.user.avatar_url', read_only=True, allow_null=True)
     applicant_email = serializers.CharField(source='application.recruiter.user.email', read_only=True)
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     
@@ -132,7 +135,7 @@ class InterviewDetailSerializer(InterviewDisplayMixin):
         fields = [
             'id', 'application_id', 'job_id', 'job_title',
             'company_id', 'company_name', 'company_slug', 'company_logo',
-            'applicant_name', 'applicant_email',
+            'applicant_name', 'applicant_avatar', 'candidate_avatar', 'applicant_email',
             'interview_type_id', 'interview_type_name', 'interview_type', 'type',
             'round_number', 'scheduled_at', 'duration_minutes',
             'address_id', 'address', 'location', 'meeting_link',

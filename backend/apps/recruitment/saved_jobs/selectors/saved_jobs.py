@@ -10,7 +10,7 @@ def list_saved_jobs_by_recruiter(recruiter_id: int) -> QuerySet[SavedJob]:
     return SavedJob.objects.filter(
         recruiter_id=recruiter_id
     ).select_related(
-        'job', 'job__company'
+        'job', 'job__company', 'job__address', 'job__address__province'
     ).order_by('-created_at')
 
 
@@ -20,7 +20,8 @@ def get_saved_job_by_id(saved_job_id: int) -> Optional[SavedJob]:
     """
     try:
         return SavedJob.objects.select_related(
-            'job', 'job__company', 'recruiter', 'recruiter__user'
+            'job', 'job__company', 'job__address', 'job__address__province',
+            'recruiter', 'recruiter__user'
         ).get(id=saved_job_id)
     except SavedJob.DoesNotExist:
         return None
@@ -32,7 +33,7 @@ def get_saved_job_by_recruiter_and_job(recruiter_id: int, job_id: int) -> Option
     """
     try:
         return SavedJob.objects.select_related(
-            'job', 'job__company'
+            'job', 'job__company', 'job__address', 'job__address__province'
         ).get(recruiter_id=recruiter_id, job_id=job_id)
     except SavedJob.DoesNotExist:
         return None

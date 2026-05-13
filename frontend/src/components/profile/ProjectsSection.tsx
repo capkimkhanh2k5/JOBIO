@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Reorder, motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, FolderGit2, ExternalLink, Github, Pencil, GripVertical, CalendarDays, Zap } from 'lucide-react';
+import { Plus, Trash2, FolderGit2, ExternalLink, Pencil, GripVertical, CalendarDays, Zap } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { SectionWrapper } from './SectionWrapper';
@@ -19,7 +19,6 @@ interface ProjectEntry {
     project_name: string;
     description?: string;
     project_url?: string;
-    github_url?: string;
     start_date?: string;
     end_date?: string;
     is_ongoing: boolean;
@@ -41,7 +40,6 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
         project_name: '',
         description: '',
         project_url: '',
-        github_url: '',
         start_date: '',
         end_date: '',
         is_ongoing: false,
@@ -54,14 +52,13 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
                 project_name: entry.project_name || '',
                 description: entry.description || '',
                 project_url: entry.project_url || '',
-                github_url: entry.github_url || '',
                 start_date: entry.start_date || '',
                 end_date: entry.end_date || '',
                 is_ongoing: entry.is_ongoing || false,
                 technologies_raw: Array.isArray(entry.technologies_used) ? entry.technologies_used.join(', ') : (typeof entry.technologies_used === 'string' ? entry.technologies_used : ''),
             });
         } else {
-            setFormData({ project_name: '', description: '', project_url: '', github_url: '', start_date: '', end_date: '', is_ongoing: false, technologies_raw: '' });
+            setFormData({ project_name: '', description: '', project_url: '', start_date: '', end_date: '', is_ongoing: false, technologies_raw: '' });
         }
     }, [entry, open]);
 
@@ -109,17 +106,10 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
                             value={formData.description} onChange={e => handleChange('description', e.target.value)} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Link dự án</Label>
-                            <Input className="" placeholder="https://myproject.com"
-                                value={formData.project_url} onChange={e => handleChange('project_url', e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>GitHub</Label>
-                            <Input className="" placeholder="https://github.com/..."
-                                value={formData.github_url} onChange={e => handleChange('github_url', e.target.value)} />
-                        </div>
+                    <div className="space-y-2">
+                        <Label>Link dự án</Label>
+                        <Input className="" placeholder="https://myproject.com"
+                            value={formData.project_url} onChange={e => handleChange('project_url', e.target.value)} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -285,12 +275,6 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                                 <a href={project.project_url} target="_blank" rel="noreferrer"
                                                     className="text-xs flex items-center gap-1 font-semibold text-violet-600 hover:underline">
                                                     <ExternalLink className="w-3 h-3" /> Live Demo
-                                                </a>
-                                            )}
-                                            {project.github_url && (
-                                                <a href={project.github_url} target="_blank" rel="noreferrer"
-                                                    className="text-xs flex items-center gap-1 font-semibold text-muted-foreground hover:text-foreground">
-                                                    <Github className="w-3 h-3" /> GitHub
                                                 </a>
                                             )}
                                         </div>
