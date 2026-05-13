@@ -603,11 +603,13 @@ export interface CandidateExperience {
   company_name: string;
   job_title: string;
   industry?: number;
+  industry_id?: number;
   industry_name?: string;
   start_date: string | null;
   end_date: string | null;
   is_current: boolean;
   address?: number;
+  address_id?: number;
   province_id?: number;
   province_name?: string;
   description: string | null;

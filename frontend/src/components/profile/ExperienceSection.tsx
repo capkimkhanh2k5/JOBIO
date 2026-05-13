@@ -12,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { geographyService } from '@/services/geographyService';
 import { taxonomyService } from '@/services/taxonomyService';
 import { Combobox } from '@/components/ui/combobox';
 
@@ -22,7 +21,7 @@ interface ExperienceEntry {
     job_title: string;
     industry_id?: number;
     industry_name?: string;
-    industry?: string; 
+    industry?: number | string; 
     start_date: string;
     end_date?: string;
     is_current: boolean;
@@ -64,14 +63,14 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
                 company_name: entry.company_name || '',
                 job_title: entry.job_title || '',
                 industry: entry.industry_name || '',
-                industry_id: entry.industry_id || '',
+                industry_id: (entry.industry_id || entry.industry) ? Number(entry.industry_id || entry.industry) : '',
                 start_date: entry.start_date || '',
                 end_date: entry.end_date || '',
                 is_current: entry.is_current || false,
                 description: entry.description || '',
                 achievements: entry.achievements || '',
                 location: entry.location || '',
-                province_id: entry.province_id || '',
+                province_id: entry.province_id ? Number(entry.province_id) : '',
             });
         } else {
             setFormData({ company_name: '', job_title: '', industry: '', industry_id: '', start_date: '', end_date: '', is_current: false, description: '', achievements: '', location: '', province_id: '' });
@@ -85,8 +84,8 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
             const payload = {
                 ...rest,
                 is_current,
-                industry_id: industry_id || null,
-                province_id: province_id || null,
+                industry_id: industry_id ? Number(industry_id) : null,
+                province_id: province_id ? Number(province_id) : null,
                 start_date: start_date || null,
                 end_date: is_current ? null : (end_date || null)
             };
@@ -129,14 +128,14 @@ const ExperienceForm = ({ open, onClose, entry, userId }: ExperienceFormProps) =
 
     const { data: provinces = [] } = useQuery({
         queryKey: ['provinces'],
-        queryFn: () => geographyService.getProvinces(),
+        queryFn: () => taxonomyService.listProvinces(),
         staleTime: 24 * 60 * 60 * 1000,
     });
 
     const provinceOptions = provinces.map((p: any) => ({
-        value: p.id,
+        value: Number(p.id),
         label: p.province_name
-    }));
+    })).filter((p: any) => p.value && p.label);
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && onClose()}>

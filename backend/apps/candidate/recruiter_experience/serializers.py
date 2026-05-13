@@ -4,16 +4,18 @@ from .models import RecruiterExperience
 
 class ExperienceSerializer(serializers.ModelSerializer):
     """Serializer cho đọc dữ liệu (List/Detail)"""
+    industry_id = serializers.IntegerField(source='industry.id', read_only=True, allow_null=True)
     industry_name = serializers.CharField(source='industry.name', read_only=True, allow_null=True)
+    address_id = serializers.IntegerField(source='address.id', read_only=True, allow_null=True)
     province_name = serializers.CharField(source='address.province.province_name', read_only=True, allow_null=True)
     province_id = serializers.IntegerField(source='address.province.id', read_only=True, allow_null=True)
     
     class Meta:
         model = RecruiterExperience
         fields = [
-            'id', 'company_name', 'job_title', 'industry', 'industry_name',
+            'id', 'company_name', 'job_title', 'industry', 'industry_id', 'industry_name',
             'start_date', 'end_date', 'is_current', 'description',
-            'address', 'province_id', 'province_name', 'achievements', 
+            'address', 'address_id', 'province_id', 'province_name', 'achievements', 
             'display_order', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
