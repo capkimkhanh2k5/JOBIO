@@ -5,30 +5,65 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_skill_categories', '0001_initial'),
+        ("candidate_skill_categories", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Skill',
+            name="Skill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Tên kỹ năng')),
-                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='Slug')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('is_verified', models.BooleanField(default=False, verbose_name='Đã xác minh')),
-                ('usage_count', models.IntegerField(default=0, verbose_name='Số lần sử dụng')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='skills', to='candidate_skill_categories.skillcategory', verbose_name='Danh mục')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Tên kỹ năng"
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "is_verified",
+                    models.BooleanField(default=False, verbose_name="Đã xác minh"),
+                ),
+                (
+                    "usage_count",
+                    models.IntegerField(default=0, verbose_name="Số lần sử dụng"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="skills",
+                        to="candidate_skill_categories.skillcategory",
+                        verbose_name="Danh mục",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Kỹ năng',
-                'verbose_name_plural': 'Kỹ năng',
-                'db_table': 'skills',
+                "verbose_name": "Kỹ năng",
+                "verbose_name_plural": "Kỹ năng",
+                "db_table": "skills",
             },
         ),
     ]

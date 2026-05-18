@@ -5,26 +5,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('geography_addresses', '0001_initial'),
+        ("geography_addresses", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='JobLocation',
+            name="JobLocation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_primary', models.BooleanField(default=False, verbose_name='Địa điểm chính')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='job_locations', to='geography_addresses.address', verbose_name='Địa chỉ')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_primary",
+                    models.BooleanField(default=False, verbose_name="Địa điểm chính"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "address",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="job_locations",
+                        to="geography_addresses.address",
+                        verbose_name="Địa chỉ",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Địa điểm công việc',
-                'verbose_name_plural': 'Địa điểm công việc',
-                'db_table': 'job_locations',
+                "verbose_name": "Địa điểm công việc",
+                "verbose_name_plural": "Địa điểm công việc",
+                "db_table": "job_locations",
             },
         ),
     ]

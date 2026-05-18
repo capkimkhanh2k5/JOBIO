@@ -8,7 +8,11 @@ from .company_dashboard_views import (
 
 
 urlpatterns = [
-    path('admin/', admin_overview_stats, name='dashboard-admin-stats'),
-    path('company/', company_dashboard_stats, name='dashboard-company-stats'),
-    path('company-analytics/', company_dashboard_analytics, name='dashboard-company-analytics'),
+    path("admin/", admin_overview_stats, name="dashboard-admin-stats"),
+    path("company/", company_dashboard_stats, name="dashboard-company-stats"),
+    path(
+        "company-analytics/",
+        company_dashboard_analytics,
+        name="dashboard-company-analytics",
+    ),
 ]

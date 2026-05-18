@@ -4,27 +4,52 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='InterviewType',
+            name="InterviewType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True, verbose_name='Tên loại phỏng vấn')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('icon_url', models.URLField(blank=True, max_length=255, null=True, verbose_name='URL icon')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Tên loại phỏng vấn"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "icon_url",
+                    models.URLField(
+                        blank=True, max_length=255, null=True, verbose_name="URL icon"
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Loại phỏng vấn',
-                'verbose_name_plural': 'Loại phỏng vấn',
-                'db_table': 'interview_types',
+                "verbose_name": "Loại phỏng vấn",
+                "verbose_name_plural": "Loại phỏng vấn",
+                "db_table": "interview_types",
             },
         ),
     ]

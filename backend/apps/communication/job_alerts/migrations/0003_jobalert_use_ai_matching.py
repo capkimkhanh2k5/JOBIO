@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('communication_job_alerts', '0002_alter_jobalert_options_remove_jobalert_province_and_more'),
+        (
+            "communication_job_alerts",
+            "0002_alter_jobalert_options_remove_jobalert_province_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='jobalert',
-            name='use_ai_matching',
-            field=models.BooleanField(default=True, verbose_name='Sử dụng AI Match'),
+            model_name="jobalert",
+            name="use_ai_matching",
+            field=models.BooleanField(default=True, verbose_name="Sử dụng AI Match"),
         ),
     ]

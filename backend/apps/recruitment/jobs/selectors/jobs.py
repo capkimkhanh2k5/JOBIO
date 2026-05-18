@@ -10,281 +10,291 @@ from apps.recruitment.applications.models import Application
 from apps.candidate.recruiter_skills.models import RecruiterSkill
 from apps.recruitment.job_skills.models import JobSkill
 
+
 def list_jobs(filters: dict = None) -> QuerySet[Job]:
     """
-        Lấy danh sách jobs với filter logic.
-        
-        Filters:
-            - company_id: int
-            - category_id: int  
-            - job_type: str (full-time, part-time, etc.)
-            - level: str (intern, fresher, junior, etc.)
-            - status: str (draft, published, closed, expired)
-            - is_remote: bool
-            - salary_min: decimal
-            - salary_max: decimal
-            - search: str (search in title)
+    Lấy danh sách jobs với filter logic.
+
+    Filters:
+        - company_id: int
+        - category_id: int
+        - job_type: str (full-time, part-time, etc.)
+        - level: str (intern, fresher, junior, etc.)
+        - status: str (draft, published, closed, expired)
+        - is_remote: bool
+        - salary_min: decimal
+        - salary_max: decimal
+        - search: str (search in title)
     """
     queryset = Job.objects.select_related(
-        'company', 'category', 'created_by', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill')
-    
+        "company", "category", "created_by", "address", "address__province"
+    ).prefetch_related("required_skills__skill")
+
     if not filters:
-        return queryset.order_by('-published_at', '-created_at')
-    
+        return queryset.order_by("-published_at", "-created_at")
+
     # Filter by company
-    if filters.get('company_id'):
-        queryset = queryset.filter(company_id=filters['company_id'])
-    
+    if filters.get("company_id"):
+        queryset = queryset.filter(company_id=filters["company_id"])
+
     # Filter by category
-    if filters.get('category_id'):
-        queryset = queryset.filter(category_id=filters['category_id'])
+    if filters.get("category_id"):
+        queryset = queryset.filter(category_id=filters["category_id"])
 
     # Filter by province
-    if filters.get('province_id'):
+    if filters.get("province_id"):
         queryset = queryset.filter(
-            Q(address__province_id=filters['province_id']) |
-            Q(locations__address__province_id=filters['province_id'])
+            Q(address__province_id=filters["province_id"])
+            | Q(locations__address__province_id=filters["province_id"])
         ).distinct()
-    
+
     # Filter by job_type
-    if filters.get('job_type'):
-        queryset = queryset.filter(job_type=filters['job_type'])
-    
+    if filters.get("job_type"):
+        queryset = queryset.filter(job_type=filters["job_type"])
+
     # Filter by level
-    if filters.get('level'):
-        queryset = queryset.filter(level=filters['level'])
-    
+    if filters.get("level"):
+        queryset = queryset.filter(level=filters["level"])
+
     # Filter by status
-    if filters.get('status'):
-        queryset = queryset.filter(status=filters['status'])
-    elif not filters.get('include_all_statuses'):
+    if filters.get("status"):
+        queryset = queryset.filter(status=filters["status"])
+    elif not filters.get("include_all_statuses"):
         # Default: only show published jobs for public
-        queryset = queryset.filter(status='published')
-    
+        queryset = queryset.filter(status="published")
+
     # Filter by is_remote
-    if filters.get('is_remote') is not None:
-        queryset = queryset.filter(is_remote=filters['is_remote'])
-    
+    if filters.get("is_remote") is not None:
+        queryset = queryset.filter(is_remote=filters["is_remote"])
+
     # Filter by salary range
-    if filters.get('salary_min'):
+    if filters.get("salary_min"):
         queryset = queryset.filter(
-            Q(salary_max__gte=filters['salary_min']) | Q(is_salary_negotiable=True)
+            Q(salary_max__gte=filters["salary_min"]) | Q(is_salary_negotiable=True)
         )
-    
-    if filters.get('salary_max'):
+
+    if filters.get("salary_max"):
         queryset = queryset.filter(
-            Q(salary_min__lte=filters['salary_max']) | Q(is_salary_negotiable=True)
+            Q(salary_min__lte=filters["salary_max"]) | Q(is_salary_negotiable=True)
         )
-    
+
     # Search in title
-    if filters.get('search'):
-        queryset = queryset.filter(title__icontains=filters['search'])
-    
+    if filters.get("search"):
+        queryset = queryset.filter(title__icontains=filters["search"])
+
     ordering_map = {
-        '-created_at': ['-created_at'],
-        'created_at': ['created_at'],
-        '-posted_at': ['-published_at', '-created_at'],
-        'posted_at': ['published_at', 'created_at'],
-        'deadline': ['application_deadline', '-published_at', '-created_at'],
-        '-salary_max': ['-salary_max', '-published_at', '-created_at'],
-        'salary_max': ['salary_max', '-published_at', '-created_at'],
-        '-is_featured': ['-featured', '-published_at', '-created_at'],
-        '-featured': ['-featured', '-published_at', '-created_at'],
-        '-views_count': ['-view_count', '-published_at', '-created_at'],
-        '-applications_count': ['-application_count', '-published_at', '-created_at'],
+        "-created_at": ["-created_at"],
+        "created_at": ["created_at"],
+        "-posted_at": ["-published_at", "-created_at"],
+        "posted_at": ["published_at", "created_at"],
+        "deadline": ["application_deadline", "-published_at", "-created_at"],
+        "-salary_max": ["-salary_max", "-published_at", "-created_at"],
+        "salary_max": ["salary_max", "-published_at", "-created_at"],
+        "-is_featured": ["-featured", "-published_at", "-created_at"],
+        "-featured": ["-featured", "-published_at", "-created_at"],
+        "-views_count": ["-view_count", "-published_at", "-created_at"],
+        "-applications_count": ["-application_count", "-published_at", "-created_at"],
     }
-    ordering = ordering_map.get(filters.get('ordering'), ['-featured', '-published_at', '-created_at'])
+    ordering = ordering_map.get(
+        filters.get("ordering"), ["-featured", "-published_at", "-created_at"]
+    )
 
     return queryset.order_by(*ordering)
 
 
 def get_job_by_id(job_id: int) -> Optional[Job]:
     """
-        Lấy job theo ID.
-        Trả về None nếu không tìm thấy.
+    Lấy job theo ID.
+    Trả về None nếu không tìm thấy.
     """
     try:
-        return Job.objects.select_related(
-            'company', 'category', 'created_by'
-        ).get(id=job_id)
+        return Job.objects.select_related("company", "category", "created_by").get(
+            id=job_id
+        )
     except Job.DoesNotExist:
         return None
 
 
 def get_job_by_slug(slug: str) -> Optional[Job]:
     """
-        Lấy job theo slug.
-        Trả về None nếu không tìm thấy.
+    Lấy job theo slug.
+    Trả về None nếu không tìm thấy.
     """
     try:
-        return Job.objects.select_related(
-            'company', 'category', 'created_by'
-        ).get(slug=slug)
+        return Job.objects.select_related("company", "category", "created_by").get(
+            slug=slug
+        )
     except Job.DoesNotExist:
         return None
 
 
 def get_job_stats(job_id: int) -> dict:
     """
-        Lấy thống kê cho job.
-        Returns: view_count, application_count, applications_by_status
+    Lấy thống kê cho job.
+    Returns: view_count, application_count, applications_by_status
     """
 
-    
     job = get_job_by_id(job_id)
     if not job:
         return None
-    
+
     # Count applications by status
-    status_counts = Application.objects.filter(
-        job_id=job_id
-    ).values('status').annotate(
-        count=Count('id')
+    status_counts = (
+        Application.objects.filter(job_id=job_id)
+        .values("status")
+        .annotate(count=Count("id"))
     )
-    
-    applications_by_status = {item['status']: item['count'] for item in status_counts}
-    
+
+    applications_by_status = {item["status"]: item["count"] for item in status_counts}
+
     return {
-        'view_count': job.view_count,
-        'application_count': job.application_count,
-        'applications_by_status': applications_by_status
+        "view_count": job.view_count,
+        "application_count": job.application_count,
+        "applications_by_status": applications_by_status,
     }
 
 
 def list_featured_jobs(limit: int = 8) -> QuerySet[Job]:
     """
-        Lấy danh sách việc làm nổi bật.
-        Ưu tiên featured=True; fallback sang published jobs theo traffic nếu chưa có featured.
+    Lấy danh sách việc làm nổi bật.
+    Ưu tiên featured=True; fallback sang published jobs theo traffic nếu chưa có featured.
     """
-    base_queryset = Job.objects.filter(
-        status=Job.Status.PUBLISHED
-    ).select_related(
-        'company', 'category', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill')
+    base_queryset = (
+        Job.objects.filter(status=Job.Status.PUBLISHED)
+        .select_related("company", "category", "address", "address__province")
+        .prefetch_related("required_skills__skill")
+    )
 
     featured_queryset = base_queryset.filter(
         featured=True,
-    ).order_by('-published_at', '-created_at')[:limit]
+    ).order_by("-published_at", "-created_at")[:limit]
 
     if featured_queryset.exists():
         return featured_queryset
 
     return base_queryset.order_by(
-        '-view_count',
-        '-application_count',
-        '-published_at',
-        '-created_at',
+        "-view_count",
+        "-application_count",
+        "-published_at",
+        "-created_at",
     )[:limit]
 
 
 def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
     """
-        Lấy danh sách việc làm gấp.
-        Deadline trong N ngày tới, status=published
+    Lấy danh sách việc làm gấp.
+    Deadline trong N ngày tới, status=published
     """
-    
+
     deadline_threshold = timezone.now().date() + timedelta(days=days)
-    
-    return Job.objects.filter(
-        status='published',
-        application_deadline__isnull=False,
-        application_deadline__lte=deadline_threshold,
-        application_deadline__gte=timezone.now().date()
-    ).select_related(
-        'company', 'category', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill').order_by('application_deadline')[:10]
+
+    return (
+        Job.objects.filter(
+            status="published",
+            application_deadline__isnull=False,
+            application_deadline__lte=deadline_threshold,
+            application_deadline__gte=timezone.now().date(),
+        )
+        .select_related("company", "category", "address", "address__province")
+        .prefetch_related("required_skills__skill")
+        .order_by("application_deadline")[:10]
+    )
 
 
 def get_similar_jobs(job_id: int, limit: int = 10) -> QuerySet[Job]:
     """
-        Tìm jobs tương tự dựa trên multi-factor:
-            - Same category (highest priority)
-            - Same level
-            - Same job_type
+    Tìm jobs tương tự dựa trên multi-factor:
+        - Same category (highest priority)
+        - Same level
+        - Same job_type
     """
-    
+
     job = get_job_by_id(job_id)
     if not job:
         return Job.objects.none()
-    
+
     # Build similarity query với scoring
-    queryset = Job.objects.filter(
-        status='published'
-    ).exclude(
-        id=job_id
-    ).annotate(
-        similarity_score=
-            Case(
+    queryset = (
+        Job.objects.filter(status="published")
+        .exclude(id=job_id)
+        .annotate(
+            similarity_score=Case(
                 When(category=job.category, then=Value(3)),
                 default=Value(0),
-                output_field=IntegerField()
-            ) +
-            Case(
+                output_field=IntegerField(),
+            )
+            + Case(
                 When(level=job.level, then=Value(2)),
                 default=Value(0),
-                output_field=IntegerField()
-            ) +
-            Case(
+                output_field=IntegerField(),
+            )
+            + Case(
                 When(job_type=job.job_type, then=Value(1)),
                 default=Value(0),
-                output_field=IntegerField()
+                output_field=IntegerField(),
             )
-    ).filter(
-        similarity_score__gt=0  # At least one match
-    ).select_related(
-        'company', 'category', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill').order_by('-similarity_score', '-published_at')[:limit]
-    
+        )
+        .filter(
+            similarity_score__gt=0  # At least one match
+        )
+        .select_related("company", "category", "address", "address__province")
+        .prefetch_related("required_skills__skill")
+        .order_by("-similarity_score", "-published_at")[:limit]
+    )
+
     return queryset
 
 
 def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]:
     """
-        Gợi ý việc làm cho ứng viên (Hybrid approach):
-            - Nếu có skills → match với job_skills
-            - Fallback → trending jobs (high views, recent)
+    Gợi ý việc làm cho ứng viên (Hybrid approach):
+        - Nếu có skills → match với job_skills
+        - Fallback → trending jobs (high views, recent)
     """
 
     # Get recruiter's skill IDs
     recruiter_skill_ids = list(
-        RecruiterSkill.objects.filter(
-            recruiter_id=recruiter_id
-        ).values_list('skill_id', flat=True)
+        RecruiterSkill.objects.filter(recruiter_id=recruiter_id).values_list(
+            "skill_id", flat=True
+        )
     )
-    
+
     if recruiter_skill_ids:
         # Skill-based recommendations
-        matching_job_ids = JobSkill.objects.filter(
-            skill_id__in=recruiter_skill_ids
-        ).values('job_id').annotate(
-            match_count=Count('skill_id')
-        ).order_by('-match_count').values_list('job_id', flat=True)[:limit * 2]
-        
-        queryset = Job.objects.filter(
-            id__in=matching_job_ids,
-            status='published'
-        ).select_related(
-            'company', 'category', 'address', 'address__province'
-        ).prefetch_related('required_skills__skill').order_by('-published_at')[:limit]
-        
+        matching_job_ids = (
+            JobSkill.objects.filter(skill_id__in=recruiter_skill_ids)
+            .values("job_id")
+            .annotate(match_count=Count("skill_id"))
+            .order_by("-match_count")
+            .values_list("job_id", flat=True)[: limit * 2]
+        )
+
+        queryset = (
+            Job.objects.filter(id__in=matching_job_ids, status="published")
+            .select_related("company", "category", "address", "address__province")
+            .prefetch_related("required_skills__skill")
+            .order_by("-published_at")[:limit]
+        )
+
         if queryset.exists():
             return queryset
-    
+
     # Fallback: Trending jobs (high views, recent published)
-    return Job.objects.filter(
-        status='published'
-    ).select_related(
-        'company', 'category', 'address', 'address__province'
-    ).prefetch_related('required_skills__skill').order_by('-view_count', '-published_at')[:limit]
+    return (
+        Job.objects.filter(status="published")
+        .select_related("company", "category", "address", "address__province")
+        .prefetch_related("required_skills__skill")
+        .order_by("-view_count", "-published_at")[:limit]
+    )
 
 
 def _tokenize(text: str) -> set:
     """Simple Vietnamese-friendly tokenizer: lowercase, split by spaces & special chars."""
     import re
+
     if not text:
         return set()
-    tokens = re.findall(r'[a-z0-9]+', text.lower())
+    tokens = re.findall(r"[a-z0-9]+", text.lower())
     return set(tokens)
 
 
@@ -332,6 +342,7 @@ def _normalize_cv_data(cv_data) -> dict:
 
     if isinstance(cv_data, str):
         import json
+
         try:
             parsed = json.loads(cv_data)
             return parsed if isinstance(parsed, dict) else {}
@@ -342,7 +353,7 @@ def _normalize_cv_data(cv_data) -> dict:
 
 
 def _cv_skill_tokens(cv_data: dict) -> set:
-    raw_skills = cv_data.get('skills', [])
+    raw_skills = cv_data.get("skills", [])
     tokens = set()
 
     if isinstance(raw_skills, dict):
@@ -350,9 +361,11 @@ def _cv_skill_tokens(cv_data: dict) -> set:
 
     for skill in raw_skills or []:
         if isinstance(skill, dict):
-            name = skill.get('name') or skill.get('skill_name') or skill.get('title') or ''
+            name = (
+                skill.get("name") or skill.get("skill_name") or skill.get("title") or ""
+            )
         else:
-            name = str(skill or '')
+            name = str(skill or "")
 
         if name:
             tokens.update(_tokenize(name))
@@ -364,9 +377,13 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
     if not cv or not recruiter or not job:
         return 0
 
-    cv_data = _normalize_cv_data(getattr(cv, 'cv_data', {}) or {})
-    personal = cv_data.get('personal', {}) if isinstance(cv_data.get('personal', {}), dict) else {}
-    candidate_position = personal.get('current_position', '') or ''
+    cv_data = _normalize_cv_data(getattr(cv, "cv_data", {}) or {})
+    personal = (
+        cv_data.get("personal", {})
+        if isinstance(cv_data.get("personal", {}), dict)
+        else {}
+    )
+    candidate_position = personal.get("current_position", "") or ""
     cv_skill_names = _cv_skill_tokens(cv_data)
 
     title_score = _title_similarity_score(candidate_position, job.title)
@@ -374,7 +391,7 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
         recruiter.desired_salary_min,
         recruiter.desired_salary_max,
         job.salary_min,
-        job.salary_max
+        job.salary_max,
     )
 
     job_skill_tokens = set()
@@ -382,8 +399,12 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
         if job_skill.skill and job_skill.skill.name:
             job_skill_tokens.update(_tokenize(job_skill.skill.name))
 
-    skill_intersection = cv_skill_names & job_skill_tokens if job_skill_tokens else set()
-    skill_score = len(skill_intersection) / len(job_skill_tokens) if job_skill_tokens else 0.0
+    skill_intersection = (
+        cv_skill_names & job_skill_tokens if job_skill_tokens else set()
+    )
+    skill_score = (
+        len(skill_intersection) / len(job_skill_tokens) if job_skill_tokens else 0.0
+    )
 
     total = (title_score * 0.40 + salary_score * 0.30 + skill_score * 0.30) * 100
     return round(total)
@@ -406,18 +427,20 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
         return []
 
     cv_data = _normalize_cv_data(cv.cv_data or {})
-    personal = cv_data.get('personal', {})
+    personal = cv_data.get("personal", {})
     if not isinstance(personal, dict):
         personal = {}
-    candidate_position = personal.get('current_position', '') or ''
+    candidate_position = personal.get("current_position", "") or ""
 
     # ----- Extract CV skills -----
     cv_skill_names = _cv_skill_tokens(cv_data)
 
     # ----- Get all published jobs -----
-    jobs = Job.objects.filter(status='published').select_related(
-        'company', 'category'
-    ).prefetch_related('required_skills__skill')[:limit * 5]  # Over-fetch then re-rank
+    jobs = (
+        Job.objects.filter(status="published")
+        .select_related("company", "category")
+        .prefetch_related("required_skills__skill")[: limit * 5]
+    )  # Over-fetch then re-rank
 
     # ----- Scoring -----
     scored = []
@@ -434,7 +457,7 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
             recruiter.desired_salary_min,
             recruiter.desired_salary_max,
             job.salary_min,
-            job.salary_max
+            job.salary_max,
         )
         if salary_score > 0.5:
             reasons.append("Mức lương phù hợp")
@@ -445,8 +468,12 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
             if js.skill and js.skill.name:
                 job_skill_tokens.update(_tokenize(js.skill.name))
 
-        skill_intersection = cv_skill_names & job_skill_tokens if job_skill_tokens else set()
-        skill_score = len(skill_intersection) / len(job_skill_tokens) if job_skill_tokens else 0.0
+        skill_intersection = (
+            cv_skill_names & job_skill_tokens if job_skill_tokens else set()
+        )
+        skill_score = (
+            len(skill_intersection) / len(job_skill_tokens) if job_skill_tokens else 0.0
+        )
         if skill_score > 0:
             reasons.append(f"{len(skill_intersection)} kỹ năng phù hợp")
 
@@ -455,18 +482,32 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
         match_score = round(total)
 
         if match_score > 0 or not candidate_position:
-            scored.append({
-                'job': job,
-                'match_score': match_score,
-                'match_reasons': reasons,
-            })
+            scored.append(
+                {
+                    "job": job,
+                    "match_score": match_score,
+                    "match_reasons": reasons,
+                }
+            )
 
     # Sort by match_score desc, published_at desc
-    scored.sort(key=lambda x: (-x['match_score'], -(x['job'].published_at.timestamp() if x['job'].published_at else 0)))
+    scored.sort(
+        key=lambda x: (
+            -x["match_score"],
+            -(x["job"].published_at.timestamp() if x["job"].published_at else 0),
+        )
+    )
 
     # If no scored results, fallback to trending
     if not scored:
-        trending = Job.objects.filter(status='published').select_related('company', 'category').order_by('-view_count', '-published_at')[:limit]
-        scored = [{'job': j, 'match_score': 0, 'match_reasons': ['Việc làm phổ biến']} for j in trending]
+        trending = (
+            Job.objects.filter(status="published")
+            .select_related("company", "category")
+            .order_by("-view_count", "-published_at")[:limit]
+        )
+        scored = [
+            {"job": j, "match_score": 0, "match_reasons": ["Việc làm phổ biến"]}
+            for j in trending
+        ]
 
     return scored[:limit]

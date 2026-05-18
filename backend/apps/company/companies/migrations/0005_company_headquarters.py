@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('company_companies', '0004_alter_company_company_size'),
+        ("company_companies", "0004_alter_company_company_size"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='company',
-            name='headquarters',
-            field=models.CharField(blank=True, max_length=500, null=True, verbose_name='Trụ sở chính'),
+            model_name="company",
+            name="headquarters",
+            field=models.CharField(
+                blank=True, max_length=500, null=True, verbose_name="Trụ sở chính"
+            ),
         ),
     ]

@@ -5,37 +5,44 @@ from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
 from apps.blog.models import Post
 
+
 class CompanyBlogTest(TestCase):
     def setUp(self):
         self.client = APIClient()
-        
+
         # 1. Company Owner
-        self.owner = CustomUser.objects.create(email='owner@test.com', full_name='Owner', role='company')
+        self.owner = CustomUser.objects.create(
+            email="owner@test.com", full_name="Owner", role="company"
+        )
         self.company = Company.objects.create(
             user=self.owner,
-            company_name='Owner Co',
-            slug='owner-co',
+            company_name="Owner Co",
+            slug="owner-co",
             verification_status=Company.VerificationStatus.VERIFIED,
         )
-        
+
         # 2. Regular User (Freelancer)
-        self.freelancer = CustomUser.objects.create(email='free@test.com', full_name='Free')
-        
+        self.freelancer = CustomUser.objects.create(
+            email="free@test.com", full_name="Free"
+        )
+
         # 3. Admin
-        self.admin = CustomUser.objects.create_superuser(email='admin@test.com', password='pwd')
+        self.admin = CustomUser.objects.create_superuser(
+            email="admin@test.com", password="pwd"
+        )
 
     def test_create_post_company_owner(self):
         """Owner's post should be linked to Company and Draft by default"""
         self.client.force_authenticate(user=self.owner)
         data = {
-            'title': 'Company Culture',
-            'content': 'We are great.',
-            'summary': 'Summary'
+            "title": "Company Culture",
+            "content": "We are great.",
+            "summary": "Summary",
         }
-        response = self.client.post('/api/blog/posts/', data)
+        response = self.client.post("/api/blog/posts/", data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
-        post = Post.objects.get(id=response.data['id'])
+
+        post = Post.objects.get(id=response.data["id"])
         self.assertEqual(post.author, self.owner)
         self.assertEqual(post.company, self.company)
         self.assertEqual(post.status, Post.Status.DRAFT)
@@ -44,14 +51,14 @@ class CompanyBlogTest(TestCase):
         """Freelancer's post has no company"""
         self.client.force_authenticate(user=self.freelancer)
         data = {
-            'title': 'My Freelance Journey',
-            'content': 'It is hard.',
-            'summary': 'Summary'
+            "title": "My Freelance Journey",
+            "content": "It is hard.",
+            "summary": "Summary",
         }
-        response = self.client.post('/api/blog/posts/', data)
+        response = self.client.post("/api/blog/posts/", data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
-        post = Post.objects.get(id=response.data['id'])
+
+        post = Post.objects.get(id=response.data["id"])
         self.assertEqual(post.author, self.freelancer)
         self.assertIsNone(post.company)
         self.assertEqual(post.status, Post.Status.DRAFT)
@@ -60,35 +67,38 @@ class CompanyBlogTest(TestCase):
         """Admin can publish immediately"""
         self.client.force_authenticate(user=self.admin)
         data = {
-            'title': 'Official News',
-            'content': 'Update available.',
-            'status': Post.Status.PUBLISHED
+            "title": "Official News",
+            "content": "Update available.",
+            "status": Post.Status.PUBLISHED,
         }
-        response = self.client.post('/api/blog/posts/', data)
+        response = self.client.post("/api/blog/posts/", data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
-        post = Post.objects.get(id=response.data['id'])
+
+        post = Post.objects.get(id=response.data["id"])
         self.assertEqual(post.status, Post.Status.PUBLISHED)
 
     def test_create_post_pending_company_forbidden(self):
         """Pending company cannot create blog posts"""
         pending_owner = CustomUser.objects.create_user(
-            email='pending@test.com',
-            password='pwd',
-            full_name='Pending Owner',
-            role='company',
+            email="pending@test.com",
+            password="pwd",
+            full_name="Pending Owner",
+            role="company",
         )
         Company.objects.create(
             user=pending_owner,
-            company_name='Pending Co',
-            slug='pending-co-blog-test',
+            company_name="Pending Co",
+            slug="pending-co-blog-test",
         )
 
         self.client.force_authenticate(user=pending_owner)
-        response = self.client.post('/api/blog/posts/', {
-            'title': 'Blocked Post',
-            'content': 'Should not be allowed',
-            'summary': 'Blocked'
-        })
+        response = self.client.post(
+            "/api/blog/posts/",
+            {
+                "title": "Blocked Post",
+                "content": "Should not be allowed",
+                "summary": "Blocked",
+            },
+        )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

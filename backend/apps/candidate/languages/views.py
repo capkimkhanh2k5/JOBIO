@@ -9,12 +9,13 @@ from .selectors.languages import list_all_languages
 class LanguageViewSet(viewsets.GenericViewSet):
     """
     ViewSet cho Language (Public API).
-    
+
     Endpoint: GET /api/languages/
     Permission: AllowAny (public)
     """
+
     permission_classes = [AllowAny]
-    
+
     def list(self, request):
         """
         GET /api/languages/

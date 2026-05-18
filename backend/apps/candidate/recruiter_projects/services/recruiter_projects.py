@@ -13,6 +13,7 @@ class ProjectInput(BaseModel):
     """
     Pydantic input model cho create/update project
     """
+
     project_name: Optional[str] = None
     description: Optional[str] = None
     project_url: Optional[str] = None
@@ -20,7 +21,7 @@ class ProjectInput(BaseModel):
     end_date: Optional[date] = None
     is_ongoing: Optional[bool] = None
     technologies_used: Optional[str] = None
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -31,18 +32,16 @@ def create_project(recruiter: Recruiter, data: ProjectInput) -> RecruiterProject
     Auto set display_order = max + 1
     """
     # Get max display_order
-    max_order = RecruiterProject.objects.filter(
-        recruiter=recruiter
-    ).aggregate(Max('display_order'))['display_order__max']
-    
+    max_order = RecruiterProject.objects.filter(recruiter=recruiter).aggregate(
+        Max("display_order")
+    )["display_order__max"]
+
     next_order = (max_order or 0) + 1
-    
+
     fields = data.model_dump(exclude_unset=True)
-    
+
     project = RecruiterProject.objects.create(
-        recruiter=recruiter,
-        display_order=next_order,
-        **fields
+        recruiter=recruiter, display_order=next_order, **fields
     )
     return project
 
@@ -53,10 +52,10 @@ def update_project(project: RecruiterProject, data: ProjectInput) -> RecruiterPr
     Cập nhật thông tin dự án.
     """
     fields = data.model_dump(exclude_unset=True)
-    
+
     for field, value in fields.items():
         setattr(project, field, value)
-    
+
     project.save()
     return project
 
@@ -77,20 +76,24 @@ def reorder_project(recruiter: Recruiter, order_data: list) -> None:
     """
     # Lấy tất cả project ids thuộc recruiter
     valid_ids = set(
-        RecruiterProject.objects.filter(recruiter=recruiter).values_list('id', flat=True)
+        RecruiterProject.objects.filter(recruiter=recruiter).values_list(
+            "id", flat=True
+        )
     )
-    
+
     # Validate tất cả ids thuộc recruiter
     for item in order_data:
-        if item['id'] not in valid_ids:
-            raise ValueError(f"Project id {item['id']} does not belong to this recruiter")
-    
+        if item["id"] not in valid_ids:
+            raise ValueError(
+                f"Project id {item['id']} does not belong to this recruiter"
+            )
+
     # Build list để update
     project_updates = []
     for item in order_data:
-        proj = RecruiterProject.objects.get(id=item['id'])
-        proj.display_order = item['display_order']
+        proj = RecruiterProject.objects.get(id=item["id"])
+        proj.display_order = item["display_order"]
         project_updates.append(proj)
-    
+
     # Bulk update
-    RecruiterProject.objects.bulk_update(project_updates, ['display_order'])
+    RecruiterProject.objects.bulk_update(project_updates, ["display_order"])

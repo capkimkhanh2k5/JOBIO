@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import IndustryViewSet
 
 router = DefaultRouter()
-router.register(r'', IndustryViewSet, basename='industries')
+router.register(r"", IndustryViewSet, basename="industries")
 
-app_name = 'industries'
+app_name = "industries"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

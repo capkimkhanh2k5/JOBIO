@@ -4,23 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JobAlertSkill',
+            name="JobAlertSkill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Kỹ năng thông báo việc làm',
-                'verbose_name_plural': 'Kỹ năng thông báo việc làm',
-                'db_table': 'job_alert_skills',
+                "verbose_name": "Kỹ năng thông báo việc làm",
+                "verbose_name_plural": "Kỹ năng thông báo việc làm",
+                "db_table": "job_alert_skills",
             },
         ),
     ]

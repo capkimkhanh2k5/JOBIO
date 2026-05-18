@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from django.db.models import Avg, Count, Q
+from django.db.models import Count, Q
 from django.utils import timezone
 from django.conf import settings
 from apps.email.services import EmailService
@@ -12,13 +12,21 @@ from apps.company.companies.services.suggestions import CompanySuggestionService
 
 from .models import Company
 from .serializers import (
-    CompanySerializer, CompanyCreateSerializer, CompanyUpdateSerializer,
-    JobListSerializer, CompanyFollowerSerializer, CompanyStatsSerializer
+    CompanySerializer,
+    CompanyCreateSerializer,
+    CompanyUpdateSerializer,
+    JobListSerializer,
+    CompanyFollowerSerializer,
+    CompanyStatsSerializer,
 )
 from .services.companies import (
-    create_company, update_company, delete_company,
-    upload_company_logo, upload_company_banner,
-    CompanyCreateInput, CompanyUpdateInput
+    create_company,
+    update_company,
+    delete_company,
+    upload_company_logo,
+    upload_company_banner,
+    CompanyCreateInput,
+    CompanyUpdateInput,
 )
 from .selectors.companies import list_companies, get_company_by_id, get_company_by_slug
 
@@ -27,6 +35,7 @@ class IsCompanyOwner:
     """
     Permission: Chỉ chủ sở hữu mới được chỉnh sửa
     """
+
     def has_object_permission(self, request, view, obj):
         return obj.user == request.user
 
@@ -35,44 +44,54 @@ class CompanyViewSet(viewsets.GenericViewSet):
     """
     ViewSet cho quản lý Company.
     """
+
     serializer_class = CompanySerializer
-    
+
     def get_queryset(self):
         """
         Lấy queryset cho viewset
         """
         return list_companies(filters=self.request.query_params)
-    
+
     def get_permissions(self):
         """
         Lấy permissions cho viewset
         """
         public_actions = [
-            'list', 'retrieve', 'retrieve_by_slug', 'search_companies',
-            'featured_companies', 'company_suggestions', 'company_stats',
-            'company_jobs', 'company_followers',
+            "list",
+            "retrieve",
+            "retrieve_by_slug",
+            "search_companies",
+            "featured_companies",
+            "company_suggestions",
+            "company_stats",
+            "company_jobs",
+            "company_followers",
         ]
         if self.action in public_actions:
             return [AllowAny()]
         return [IsAuthenticated()]
-    
+
     def list(self, request):
         """
         GET /api/companies/ - Danh sách công ty (công khai)
         """
-        verification_status = request.query_params.get('verification_status')
-        if verification_status == 'pending' and not request.user.is_staff:
-            return Response({"detail": "You don't have permission to view pending companies"}, status=status.HTTP_403_FORBIDDEN)
+        verification_status = request.query_params.get("verification_status")
+        if verification_status == "pending" and not request.user.is_staff:
+            return Response(
+                {"detail": "You don't have permission to view pending companies"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-        
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-    
+
     def create(self, request):
         """
         POST /api/companies/ - Tạo hồ sơ công ty
@@ -80,50 +99,58 @@ class CompanyViewSet(viewsets.GenericViewSet):
         # Validate input
         serializer = CompanyCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         # Gọi service layer
         try:
             company = create_company(
-                user=request.user,
-                data=CompanyCreateInput(**serializer.validated_data)
+                user=request.user, data=CompanyCreateInput(**serializer.validated_data)
             )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Trả về response
         output_serializer = CompanySerializer(company)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
-    
+
     def retrieve(self, request, pk=None):
         """
         GET /api/companies/:id/ - Chi tiết công ty
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         serializer = self.get_serializer(company)
         return Response(serializer.data)
-    
+
     def update(self, request, pk=None):
         """
         PUT /api/companies/:id/ - Cập nhật thông tin công ty
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         # Kiểm tra quyền sở hữu
         if company.user != request.user:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
-        
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         # Validate input
         serializer = CompanyUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         # Gọi service layer
-        updated_company = update_company(company, CompanyUpdateInput(**serializer.validated_data))
-        
+        updated_company = update_company(
+            company, CompanyUpdateInput(**serializer.validated_data)
+        )
+
         output_serializer = CompanySerializer(updated_company)
         return Response(output_serializer.data)
 
@@ -132,23 +159,28 @@ class CompanyViewSet(viewsets.GenericViewSet):
         PATCH /api/companies/:id/ - Cập nhật thông tin công ty (từng phần)
         """
         return self.update(request, pk)
-    
+
     def destroy(self, request, pk=None):
         """
         DELETE /api/companies/:id/ - Xóa công ty
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         # Kiểm tra quyền sở hữu
         if company.user != request.user:
-            return Response({"detail": "You don't have permission to delete this company"}, status=status.HTTP_403_FORBIDDEN)
-        
+            return Response(
+                {"detail": "You don't have permission to delete this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         delete_company(company)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    @action(detail=False, methods=['get'], url_path='me')
+
+    @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
         """
         GET /api/companies/me/ - Lấy công ty của user hiện tại
@@ -156,146 +188,194 @@ class CompanyViewSet(viewsets.GenericViewSet):
         try:
             company = Company.objects.get(user=request.user)
         except Company.DoesNotExist:
-            return Response({"detail": "You don't have a company profile"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "You don't have a company profile"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         serializer = self.get_serializer(company)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], url_path='slug/(?P<slug>[^/.]+)')
+    @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
     def retrieve_by_slug(self, request, slug=None):
         """
         GET /api/companies/slug/:slug/ - Chi tiết theo slug
         """
         company = get_company_by_slug(slug=slug)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         serializer = self.get_serializer(company)
         return Response(serializer.data)
-    
-    @action(detail=True, methods=['post'], url_path='logo', parser_classes=[MultiPartParser, FormParser])
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="logo",
+        parser_classes=[MultiPartParser, FormParser],
+    )
     def upload_logo(self, request, pk=None):
         """
         POST /api/companies/:id/logo - Upload logo
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if company.user != request.user:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
-        
-        file = request.FILES.get('logo')
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        file = request.FILES.get("logo")
         if not file:
-            return Response({"detail": "File not provided"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"detail": "File not provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             logo_url = upload_company_logo(company, file)
             if company.user_id:
                 company.user.avatar_url = logo_url
-                company.user.save(update_fields=['avatar_url', 'updated_at'])
-            return Response({"logo_url": logo_url, "avatar_url": logo_url}, status=status.HTTP_200_OK)
+                company.user.save(update_fields=["avatar_url", "updated_at"])
+            return Response(
+                {"logo_url": logo_url, "avatar_url": logo_url},
+                status=status.HTTP_200_OK,
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=True, methods=['post'], url_path='banner', parser_classes=[MultiPartParser, FormParser])
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="banner",
+        parser_classes=[MultiPartParser, FormParser],
+    )
     def upload_banner(self, request, pk=None):
         """
         POST /api/companies/:id/banner - Upload banner
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if company.user != request.user:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
-        
-        file = request.FILES.get('banner')
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        file = request.FILES.get("banner")
         if not file:
-            return Response({"detail": "File not provided"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"detail": "File not provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             banner_url = upload_company_banner(company, file)
             return Response({"banner_url": banner_url}, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['get'], url_path='jobs')
+    @action(detail=True, methods=["get"], url_path="jobs")
     def company_jobs(self, request, pk=None):
         """
         GET /api/companies/:id/jobs - Lấy danh sách công việc của công ty
         """
-        
+
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
-        jobs = company.jobs.filter(status='published')
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        jobs = company.jobs.filter(status="published")
 
         serializer = JobListSerializer(jobs, many=True)
         return Response(serializer.data)
-    
 
-
-    @action(detail=True, methods=['get'], url_path='followers')
+    @action(detail=True, methods=["get"], url_path="followers")
     def company_followers(self, request, pk=None):
         """
         GET /api/companies/:id/followers - Lấy danh sách người theo dõi của công ty
         """
-        
+
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         followers = company.followers.all()
 
         serializer = CompanyFollowerSerializer(followers, many=True)
         return Response(serializer.data)
-    
-    @action(detail=True, methods=['get'], url_path='stats')
+
+    @action(detail=True, methods=["get"], url_path="stats")
     def company_stats(self, request, pk=None):
         """
         GET /api/companies/:id/stats - Lấy thống kê của công ty
         """
-        
+
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
-        job_count = company.jobs.filter(status='published').count()
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        job_count = company.jobs.filter(status="published").count()
         follower_count = company.followers.count()
-        application_count = company.jobs.filter(status='published').aggregate(Count('applications'))
+        application_count = company.jobs.filter(status="published").aggregate(
+            Count("applications")
+        )
 
         stats = {
-            'job_count': job_count,
-            'follower_count': follower_count,
-            'application_count': application_count
+            "job_count": job_count,
+            "follower_count": follower_count,
+            "application_count": application_count,
         }
 
         serializer = CompanyStatsSerializer(stats)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], url_path='verify')
+    @action(detail=True, methods=["post"], url_path="verify")
     def request_verification(self, request, pk=None):
         """
         POST /api/companies/:id/verify - Yêu cầu xác thực
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if company.user != request.user:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
-        
-        if company.verification_status == 'verified':
-            return Response({"detail": "Company is already verified"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        company.verification_status = 'pending'
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if company.verification_status == "verified":
+            return Response(
+                {"detail": "Company is already verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        company.verification_status = "pending"
         company.save()
 
         # Send Admin Notification
-        admin_email = getattr(settings, 'ADMIN_EMAIL', settings.DEFAULT_FROM_EMAIL)  # Fallback
-        
+        admin_email = getattr(
+            settings, "ADMIN_EMAIL", settings.DEFAULT_FROM_EMAIL
+        )  # Fallback
+
         EmailService.send_email(
             recipient=admin_email,
             subject=f"[JobPortal] Yêu cầu xác thực mới: {company.company_name}",
@@ -305,46 +385,58 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 "requester_name": request.user.full_name,
                 "requester_email": request.user.email,
                 "created_at": company.created_at.strftime("%d/%m/%Y"),
-                "admin_dashboard_link": f"{settings.FRONTEND_URL}/admin/companies/{company.id}"
-            }
+                "admin_dashboard_link": f"{settings.FRONTEND_URL}/admin/companies/{company.id}",
+            },
         )
-        
-        return Response({"detail": "Verification request sent successfully"}, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['patch'], url_path='verification')
+        return Response(
+            {"detail": "Verification request sent successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="verification")
     def admin_verification(self, request, pk=None):
         """
         PATCH /api/companies/:id/verification - Duyệt/từ chối xác thực
         """
         if not request.user.is_staff:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        new_status = request.data.get('status')
-        if new_status not in ['verified', 'rejected']:
-            return Response({"detail": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+        new_status = request.data.get("status")
+        if new_status not in ["verified", "rejected"]:
+            return Response(
+                {"detail": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         company.verification_status = new_status
-        if new_status == 'verified':
+        if new_status == "verified":
             company.verified_at = timezone.now()
             company.verified_by = request.user
         company.save()
 
-        return Response({"detail": "Company verified successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Company verified successfully"}, status=status.HTTP_200_OK
+        )
 
-    @action(detail=False, methods=['get'], url_path='search')
+    @action(detail=False, methods=["get"], url_path="search")
     def search_companies(self, request):
         """
         GET /api/companies/search - Tìm kiếm công ty
         """
-        
-        q = request.query_params.get('q', '')
-        industry = request.query_params.get('industry', None)
-        size = request.query_params.get('size', None)
-        location = request.query_params.get('location', None)
+
+        q = request.query_params.get("q", "")
+        industry = request.query_params.get("industry", None)
+        size = request.query_params.get("size", None)
+        location = request.query_params.get("location", None)
 
         companies = Company.objects.filter(company_name__icontains=q)
         if industry:
@@ -353,70 +445,92 @@ class CompanyViewSet(viewsets.GenericViewSet):
             companies = companies.filter(company_size=size)
         if location:
             companies = companies.filter(
-                Q(address__icontains=location) |
-                Q(headquarters__icontains=location)
+                Q(address__icontains=location) | Q(headquarters__icontains=location)
             )
 
         serializer = CompanySerializer(companies, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], url_path='featured')
+    @action(detail=False, methods=["get"], url_path="featured")
     def featured_companies(self, request):
         """
         GET /api/companies/featured - Lấy danh sách công ty nổi bật
         """
-        companies = Company.objects.filter(verification_status='verified').order_by('-follower_count')[:10]
+        companies = Company.objects.filter(verification_status="verified").order_by(
+            "-follower_count"
+        )[:10]
         serializer = CompanySerializer(companies, many=True)
         return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], url_path='suggestions')
+
+    @action(detail=False, methods=["get"], url_path="suggestions")
     def company_suggestions(self, request):
         """
         GET /api/companies/suggestions - Lấy danh sách công ty gợi ý
-        
+
         Logic gợi ý:
         1. Dựa trên kỹ năng của ứng viên (Recruiter Profile)
         2. Nếu chưa đăng nhập hoặc không có profile, trả về Top Verified Companies
         """
         companies = CompanySuggestionService.get_suggestions(request.user)
         serializer = CompanySerializer(companies, many=True)
-        
+
         return Response(serializer.data)
-        
-    @action(detail=True, methods=['post'], url_path='claim')
+
+    @action(detail=True, methods=["post"], url_path="claim")
     def claim_company(self, request, pk=None):
         """
         POST /api/companies/:id/claim - Yêu cầu claim ownership
         """
         company = get_company_by_id(company_id=pk)
         if not company:
-            return Response({"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if company.user is not None:
-            return Response({"detail": "Company already claimed"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"detail": "Company already claimed"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         user = request.user
         if not user.is_authenticated:
-            return Response({"detail": "You don't have permission to update this company"}, status=status.HTTP_403_FORBIDDEN)
-        
+            return Response(
+                {"detail": "You don't have permission to update this company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         company.user = user
         company.save()
-        
-        return Response({"detail": "Company claimed successfully"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='moderation-stats')
+        return Response(
+            {"detail": "Company claimed successfully"}, status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=["get"], url_path="moderation-stats")
     def moderation_stats(self, request):
         """
         GET /api/companies/moderation-stats/ - Thống kê kiểm duyệt cho Admin
         """
         if not request.user.is_staff:
-            return Response({"detail": "You don't have permission to view moderation stats"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "You don't have permission to view moderation stats"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
-        pending_companies = Company.objects.filter(verification_status='pending').count()
-        verified_companies = Company.objects.filter(verification_status='verified').count()
-        rejected_companies = Company.objects.filter(verification_status='rejected').count()
-        return Response({
-            "pending_companies": pending_companies,
-            "verified_companies": verified_companies,
-            "rejected_companies": rejected_companies,
-        })
+        pending_companies = Company.objects.filter(
+            verification_status="pending"
+        ).count()
+        verified_companies = Company.objects.filter(
+            verification_status="verified"
+        ).count()
+        rejected_companies = Company.objects.filter(
+            verification_status="rejected"
+        ).count()
+        return Response(
+            {
+                "pending_companies": pending_companies,
+                "verified_companies": verified_companies,
+                "rejected_companies": rejected_companies,
+            }
+        )

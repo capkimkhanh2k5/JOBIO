@@ -6,42 +6,60 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_recruiters', '0001_initial'),
-        ('recruitment_applications', '0001_initial'),
-        ('recruitment_jobs', '0001_initial'),
+        ("candidate_recruiters", "0001_initial"),
+        ("recruitment_applications", "0001_initial"),
+        ("recruitment_jobs", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='application',
-            name='job',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='recruitment_jobs.job', verbose_name='Công việc'),
+            model_name="application",
+            name="job",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="applications",
+                to="recruitment_jobs.job",
+                verbose_name="Công việc",
+            ),
         ),
         migrations.AddField(
-            model_name='application',
-            name='recruiter',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='candidate_recruiters.recruiter', verbose_name='Ứng viên'),
+            model_name="application",
+            name="recruiter",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="applications",
+                to="candidate_recruiters.recruiter",
+                verbose_name="Ứng viên",
+            ),
         ),
         migrations.AddField(
-            model_name='application',
-            name='reviewed_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='reviewed_applications', to=settings.AUTH_USER_MODEL, verbose_name='Người xem xét'),
+            model_name="application",
+            name="reviewed_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="reviewed_applications",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Người xem xét",
+            ),
         ),
         migrations.AddIndex(
-            model_name='application',
-            index=models.Index(fields=['recruiter', 'status'], name='idx_app_recruiter_status'),
+            model_name="application",
+            index=models.Index(
+                fields=["recruiter", "status"], name="idx_app_recruiter_status"
+            ),
         ),
         migrations.AddIndex(
-            model_name='application',
-            index=models.Index(fields=['job', 'status'], name='idx_app_job_status'),
+            model_name="application",
+            index=models.Index(fields=["job", "status"], name="idx_app_job_status"),
         ),
         migrations.AlterUniqueTogether(
-            name='application',
-            unique_together={('job', 'recruiter')},
+            name="application",
+            unique_together={("job", "recruiter")},
         ),
     ]

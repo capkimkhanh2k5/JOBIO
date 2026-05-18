@@ -7,20 +7,24 @@ from django.db import migrations
 
 from django.contrib.postgres.operations import TrigramExtension
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('company_companies', '0002_allow_null_user'),
-        ('geography_addresses', '0001_initial'),
-        ('recruitment_job_categories', '0001_initial'),
-        ('recruitment_jobs', '0001_initial'),
+        ("company_companies", "0002_allow_null_user"),
+        ("geography_addresses", "0001_initial"),
+        ("recruitment_job_categories", "0001_initial"),
+        ("recruitment_jobs", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         TrigramExtension(),
         migrations.AddIndex(
-            model_name='job',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['title', 'description'], name='idx_jobs_title_desc_gin', opclasses=['gin_trgm_ops', 'gin_trgm_ops']),
+            model_name="job",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["title", "description"],
+                name="idx_jobs_title_desc_gin",
+                opclasses=["gin_trgm_ops", "gin_trgm_ops"],
+            ),
         ),
     ]

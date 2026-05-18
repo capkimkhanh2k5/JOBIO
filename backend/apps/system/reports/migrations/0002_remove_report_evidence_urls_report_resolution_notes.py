@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('system_reports', '0001_initial'),
+        ("system_reports", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='report',
-            name='evidence_urls',
+            model_name="report",
+            name="evidence_urls",
         ),
         migrations.AddField(
-            model_name='report',
-            name='resolution_notes',
-            field=models.TextField(blank=True, null=True, verbose_name='Ghi chú xử lý'),
+            model_name="report",
+            name="resolution_notes",
+            field=models.TextField(blank=True, null=True, verbose_name="Ghi chú xử lý"),
         ),
     ]

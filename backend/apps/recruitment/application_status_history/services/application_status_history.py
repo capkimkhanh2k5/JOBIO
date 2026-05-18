@@ -9,15 +9,15 @@ def log_status_history(
     old_status: str,
     new_status: str,
     changed_by,
-    notes: str = None
+    notes: str = None,
 ) -> ApplicationStatusHistory:
     """
-        Ghi lại lịch sử thay đổi trạng thái.
+    Ghi lại lịch sử thay đổi trạng thái.
     """
     return ApplicationStatusHistory.objects.create(
         application=application,
         old_status=old_status,
         new_status=new_status,
         changed_by=changed_by,
-        notes=notes
+        notes=notes,
     )

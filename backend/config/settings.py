@@ -29,151 +29,143 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ha%=6u*hb!+orxa^g6e_uh83#!xuyx7f$nka2m&z-ab+kcy9!!'
+SECRET_KEY = "django-insecure-ha%=6u*hb!+orxa^g6e_uh83#!xuyx7f$nka2m&z-ab+kcy9!!"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split() if os.getenv('DJANGO_ALLOWED_HOSTS') else []
+ALLOWED_HOSTS = (
+    os.getenv("DJANGO_ALLOWED_HOSTS", "").split()
+    if os.getenv("DJANGO_ALLOWED_HOSTS")
+    else []
+)
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',  # ASGI server 
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.postgres', # Postgres Full-Text Search
+    "daphne",  # ASGI server
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.postgres",  # Postgres Full-Text Search
     # Third party
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
-    'cloudinary_storage',
-    'cloudinary',
-    'channels',
-    'django_eventstream',
-    
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+    "cloudinary_storage",
+    "cloudinary",
+    "channels",
+    "django_eventstream",
     # ===== Core Domain =====
-    'apps.core.users',
-    
+    "apps.core.users",
     # ===== Geography Domain =====
-    'apps.geography.provinces',
-    'apps.geography.communes',
-    'apps.geography.addresses',
-    
+    "apps.geography.provinces",
+    "apps.geography.communes",
+    "apps.geography.addresses",
     # ===== Company Domain =====
-    'apps.company.companies',
-    'apps.company.industries',
-    'apps.company.benefit_categories',
-    'apps.company.company_benefits',
-    'apps.company.media_types',
-    'apps.company.company_media',
-    
+    "apps.company.companies",
+    "apps.company.industries",
+    "apps.company.benefit_categories",
+    "apps.company.company_benefits",
+    "apps.company.media_types",
+    "apps.company.company_media",
     # ===== Recruitment Domain =====
-    'apps.recruitment.jobs',
-    'apps.recruitment.job_categories',
-    
+    "apps.recruitment.jobs",
+    "apps.recruitment.job_categories",
     # Billing Module
-    'apps.billing',
-    'apps.recruitment.job_skills',
-    'apps.recruitment.job_locations',
-    'apps.recruitment.applications',
-    'apps.recruitment.application_status_history',
-    'apps.recruitment.interviews',
-    'apps.recruitment.interview_types',
-    'apps.recruitment.saved_jobs',
-    'apps.recruitment.job_views',
+    "apps.billing",
+    "apps.recruitment.job_skills",
+    "apps.recruitment.job_locations",
+    "apps.recruitment.applications",
+    "apps.recruitment.application_status_history",
+    "apps.recruitment.interviews",
+    "apps.recruitment.interview_types",
+    "apps.recruitment.saved_jobs",
+    "apps.recruitment.job_views",
     # ===== Candidate Domain =====
-    'apps.candidate.recruiters',
-    'apps.candidate.recruiter_education',
-    'apps.candidate.recruiter_experience',
-    'apps.candidate.recruiter_skills',
-    'apps.candidate.recruiter_certifications',
-    'apps.candidate.recruiter_languages',
-    'apps.candidate.recruiter_projects',
-    'apps.candidate.recruiter_cvs',
-    'apps.candidate.cv_templates',
-    'apps.candidate.cv_template_categories',
-    'apps.candidate.skills',
-    'apps.candidate.skill_categories',
-    'apps.candidate.languages',
-    
+    "apps.candidate.recruiters",
+    "apps.candidate.recruiter_education",
+    "apps.candidate.recruiter_experience",
+    "apps.candidate.recruiter_skills",
+    "apps.candidate.recruiter_certifications",
+    "apps.candidate.recruiter_languages",
+    "apps.candidate.recruiter_projects",
+    "apps.candidate.recruiter_cvs",
+    "apps.candidate.cv_templates",
+    "apps.candidate.cv_template_categories",
+    "apps.candidate.skills",
+    "apps.candidate.skill_categories",
+    "apps.candidate.languages",
     # ===== Social Domain =====
-    'apps.social.company_followers',
-    
+    "apps.social.company_followers",
     # ===== Communication Domain =====
-    'apps.communication.notifications',
-    'apps.communication.notification_types',
-    'apps.communication.job_alerts',
-    'apps.communication.job_alert_skills',
-    
+    "apps.communication.notifications",
+    "apps.communication.notification_types",
+    "apps.communication.job_alerts",
+    "apps.communication.job_alert_skills",
     # ===== Billing Domain =====
     # 'apps.billing.subscription_plans',
-    # 'apps.billing.company_subscriptions', 
+    # 'apps.billing.company_subscriptions',
     # 'apps.billing.payment_methods',
     # 'apps.billing.payment_transactions',
-    
     # ===== Email Domain =====
-    'apps.email',
+    "apps.email",
     # 'apps.email.email_templates',
-    # 'apps.email.email_template_categories', 
+    # 'apps.email.email_template_categories',
     # 'apps.email.email_logs',
     # 'apps.email.sent_emails',
-    
     # ===== Blog Domain =====
-    'apps.blog',
+    "apps.blog",
     # 'apps.blog.blog_posts',
     # 'apps.blog.blog_categories',
     # 'apps.blog.blog_tags',
     # 'apps.blog.blog_post_tags',
     # 'apps.blog.blog_comments',
-    
     # ===== System Domain =====
-    'apps.system.system_settings',
-    'apps.system.activity_logs',
-    'apps.system.activity_log_types',
-    'apps.system.file_uploads',
-    
+    "apps.system.system_settings",
+    "apps.system.activity_logs",
+    "apps.system.activity_log_types",
+    "apps.system.file_uploads",
     # ===== Analytics Domain =====
-    'apps.system.report_types',
-    'apps.system.reports',
+    "apps.system.report_types",
+    "apps.system.reports",
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 # Channel Layers với Redis cho real-time
 CHANNEL_LAYERS = {
@@ -186,23 +178,22 @@ CHANNEL_LAYERS = {
 }
 
 # EventStream Settings cho SSE
-EVENTSTREAM_STORAGE_CLASS = 'django_eventstream.storage.DjangoModelStorage'
+EVENTSTREAM_STORAGE_CLASS = "django_eventstream.storage.DjangoModelStorage"
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'jobportal_db'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", "jobportal_db"),
+        "USER": os.getenv("DB_USER", "postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
-
 
 
 # Password validation
@@ -210,16 +201,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -227,9 +218,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -239,156 +230,166 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Cloudinary Storage
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
 
-if os.getenv('CLOUDINARY_CLOUD_NAME'):
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'  # Cloudinary handles the actual URL generation
-    
+if os.getenv("CLOUDINARY_CLOUD_NAME"):
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    MEDIA_URL = "/media/"  # Cloudinary handles the actual URL generation
+
     # Explicitly initialize Cloudinary SDK so direct cloudinary.uploader calls work
     import cloudinary
+
     cloudinary.config(
-        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-        api_key=os.getenv('CLOUDINARY_API_KEY'),
-        api_secret=os.getenv('CLOUDINARY_API_SECRET'),
-        secure=True
+        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+        api_key=os.getenv("CLOUDINARY_API_KEY"),
+        api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+        secure=True,
     )
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'core_users.CustomUser'
+AUTH_USER_MODEL = "core_users.CustomUser"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     # Pagination mặc định
-    'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.StandardResultsSetPagination',
-    'PAGE_SIZE': 20,
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardResultsSetPagination",
+    "PAGE_SIZE": 20,
     # Rate Limiting
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour',
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",
+        "user": "1000/hour",
         # Custom throttles
-        'login': '5/minute',
-        'register': '10/hour',
-        'password_reset': '3/hour',
-        'email_verification': '3/hour',
-        'social_auth': '10/minute',
-        'burst': '60/minute',
-        'sustained': '1000/day',
-        'payment': '10/minute',
-        'ai_matching': '20/hour',
-        'file_upload': '30/hour',
+        "login": "5/minute",
+        "register": "10/hour",
+        "password_reset": "3/hour",
+        "email_verification": "3/hour",
+        "social_auth": "10/minute",
+        "burst": "60/minute",
+        "sustained": "1000/day",
+        "payment": "10/minute",
+        "ai_matching": "20/hour",
+        "file_upload": "30/hour",
     },
     # Exception handling
-    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
 
-from datetime import timedelta
+from datetime import timedelta  # noqa: E402
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 # ===== WebAuthn / Passkey Configuration =====
-WEBAUTHN_RP_ID = os.getenv('WEBAUTHN_RP_ID', 'localhost')
-WEBAUTHN_RP_NAME = os.getenv('WEBAUTHN_RP_NAME', 'JobPortal')
-WEBAUTHN_ORIGIN = os.getenv('WEBAUTHN_ORIGIN', 'http://localhost:4000')
+WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")
+WEBAUTHN_RP_NAME = os.getenv("WEBAUTHN_RP_NAME", "JobPortal")
+WEBAUTHN_ORIGIN = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:4000")
 
 # Dev defaults + production origins from env
-_cors_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
-CORS_ALLOWED_ORIGINS = [
-    origin.strip() for origin in _cors_env.split(',') if origin.strip()
-] if _cors_env else [
-    "http://localhost:4000",
-    "http://localhost:5173",  # Vite dev server
-]
+_cors_env = os.getenv("CORS_ALLOWED_ORIGINS", "")
+CORS_ALLOWED_ORIGINS = (
+    [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
+    if _cors_env
+    else [
+        "http://localhost:4000",
+        "http://localhost:5173",  # Vite dev server
+    ]
+)
 
 CORS_ALLOW_CREDENTIALS = True
 
 # ===== Email Configuration =====
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:4000')
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend"
+)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:4000")
 
 # ===== VN Pay Configuration =====
-VNP_TMN_CODE = os.getenv('VNP_TMN_CODE', '')
-VNP_HASH_SECRET = os.getenv('VNP_HASH_SECRET', '')
-VNP_URL = os.getenv('VNP_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html')
-VNP_RETURN_URL = os.getenv('VNP_RETURN_URL', 'http://localhost:8000/api/billing/company-subscriptions/payment-return/')
-VNP_FRONTEND_RETURN_URL = os.getenv('VNP_FRONTEND_RETURN_URL', 'http://localhost:4000/company/payment-result')
+VNP_TMN_CODE = os.getenv("VNP_TMN_CODE", "")
+VNP_HASH_SECRET = os.getenv("VNP_HASH_SECRET", "")
+VNP_URL = os.getenv("VNP_URL", "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html")
+VNP_RETURN_URL = os.getenv(
+    "VNP_RETURN_URL",
+    "http://localhost:8000/api/billing/company-subscriptions/payment-return/",
+)
+VNP_FRONTEND_RETURN_URL = os.getenv(
+    "VNP_FRONTEND_RETURN_URL", "http://localhost:4000/company/payment-result"
+)
 
 # ===== AI Configuration =====
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # ===== Celery Configuration =====
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 # ===== Redis Cache Configuration =====
 CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.getenv('REDIS_CACHE_URL', 'redis://redis:6379/1'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'SOCKET_CONNECT_TIMEOUT': 5,
-            'SOCKET_TIMEOUT': 5,
-            'RETRY_ON_TIMEOUT': True,
-            'MAX_CONNECTIONS': 50,
-            'CONNECTION_POOL_CLASS': 'redis.connection.BlockingConnectionPool',
-            'CONNECTION_POOL_CLASS_KWARGS': {
-                'max_connections': 50,
-                'timeout': 20,
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://redis:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "RETRY_ON_TIMEOUT": True,
+            "MAX_CONNECTIONS": 50,
+            "CONNECTION_POOL_CLASS": "redis.connection.BlockingConnectionPool",
+            "CONNECTION_POOL_CLASS_KWARGS": {
+                "max_connections": 50,
+                "timeout": 20,
             },
             # Serialization
-            'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
+            "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
         },
-        'KEY_PREFIX': 'jobportal',
-        'TIMEOUT': 60 * 30,  # 30 minutes default
+        "KEY_PREFIX": "jobportal",
+        "TIMEOUT": 60 * 30,  # 30 minutes default
     }
 }
 
 # Fallback to local memory cache in development if Redis not available
-if DEBUG and not os.getenv('REDIS_CACHE_URL'):
+if DEBUG and not os.getenv("REDIS_CACHE_URL"):
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'unique-snowflake',
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
         }
     }
 
@@ -398,43 +399,43 @@ if DEBUG and not os.getenv('REDIS_CACHE_URL'):
 
 # ===== Logging Configuration =====
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
         },
-        'simple': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+        "simple": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-            'propagate': False,
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
         },
-        'apps': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': False,
+        "apps": {
+            "handlers": ["console"],
+            "level": "DEBUG" if DEBUG else "INFO",
+            "propagate": False,
         },
-        'apps.billing.services.vnpay': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+        "apps.billing.services.vnpay": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }

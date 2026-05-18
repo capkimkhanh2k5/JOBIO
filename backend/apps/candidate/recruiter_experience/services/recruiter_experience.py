@@ -11,7 +11,7 @@ from apps.geography.addresses.models import Address
 
 class ExperienceInput(BaseModel):
     """Pydantic input model cho create/update experience"""
-    
+
     company_name: str
     job_title: str
     industry_id: Optional[int] = None
@@ -22,34 +22,36 @@ class ExperienceInput(BaseModel):
     address_id: Optional[int] = None
     province_id: Optional[int] = None
     achievements: Optional[str] = None
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
-def create_experience_service(recruiter: Recruiter, data: ExperienceInput) -> RecruiterExperience:
+def create_experience_service(
+    recruiter: Recruiter, data: ExperienceInput
+) -> RecruiterExperience:
     """
     Tạo một kinh nghiệm làm việc mới cho ứng viên.
-    
+
     Business rule:
     - Tự động set display_order = max hiện tại + 1
     """
     # Get max display_order
-    max_order = RecruiterExperience.objects.filter(
-        recruiter=recruiter
-    ).aggregate(Max('display_order'))['display_order__max']
-    
+    max_order = RecruiterExperience.objects.filter(recruiter=recruiter).aggregate(
+        Max("display_order")
+    )["display_order__max"]
+
     next_order = (max_order or 0) + 1
-    
+
     fields = data.model_dump()
-    industry_id = fields.pop('industry_id', None)
-    address_id = fields.pop('address_id', None)
-    province_id = fields.pop('province_id', None)
+    industry_id = fields.pop("industry_id", None)
+    address_id = fields.pop("address_id", None)
+    province_id = fields.pop("province_id", None)
     if province_id and not address_id:
         address, _ = Address.objects.get_or_create(
             province_id=province_id,
-            address_line='',
-            defaults={'is_verified': False},
+            address_line="",
+            defaults={"is_verified": False},
         )
         address_id = address.id
 
@@ -58,41 +60,43 @@ def create_experience_service(recruiter: Recruiter, data: ExperienceInput) -> Re
         display_order=next_order,
         industry_id=industry_id,
         address_id=address_id,
-        **fields
+        **fields,
     )
     return experience
 
 
 @transaction.atomic
-def update_experience_service(experience: RecruiterExperience, data: ExperienceInput) -> RecruiterExperience:
+def update_experience_service(
+    experience: RecruiterExperience, data: ExperienceInput
+) -> RecruiterExperience:
     """
     Cập nhật thông tin kinh nghiệm làm việc.
     Chỉ update các fields có trong data.
     """
     fields = data.model_dump()
-    
-    # Handle FK fields
-    if 'industry_id' in fields:
-        experience.industry_id = fields.pop('industry_id')
-    
-    if 'address_id' in fields:
-        experience.address_id = fields.pop('address_id')
 
-    if 'province_id' in fields:
-        province_id = fields.pop('province_id')
+    # Handle FK fields
+    if "industry_id" in fields:
+        experience.industry_id = fields.pop("industry_id")
+
+    if "address_id" in fields:
+        experience.address_id = fields.pop("address_id")
+
+    if "province_id" in fields:
+        province_id = fields.pop("province_id")
         if province_id:
             address, _ = Address.objects.get_or_create(
                 province_id=province_id,
-                address_line='',
-                defaults={'is_verified': False},
+                address_line="",
+                defaults={"is_verified": False},
             )
             experience.address_id = address.id
         else:
             experience.address_id = None
-    
+
     for field, value in fields.items():
         setattr(experience, field, value)
-    
+
     experience.save()
     return experience
 
@@ -109,28 +113,32 @@ def delete_experience_service(experience: RecruiterExperience) -> None:
 def reorder_experience_service(recruiter: Recruiter, order_data: list) -> None:
     """
     Sắp xếp lại thứ tự hiển thị của các kinh nghiệm.
-    
+
     Input: [{'id': 1, 'display_order': 0}, {'id': 2, 'display_order': 1}]
-    
+
     Business rule:
     - Tất cả id phải thuộc về recruiter
     """
     # Get all experience ids belonging to recruiter
     valid_ids = set(
-        RecruiterExperience.objects.filter(recruiter=recruiter).values_list('id', flat=True)
+        RecruiterExperience.objects.filter(recruiter=recruiter).values_list(
+            "id", flat=True
+        )
     )
-    
+
     # Validate all ids belong to recruiter
     for item in order_data:
-        if item['id'] not in valid_ids:
-            raise ValueError(f"Experience id {item['id']} does not belong to this recruiter")
-    
+        if item["id"] not in valid_ids:
+            raise ValueError(
+                f"Experience id {item['id']} does not belong to this recruiter"
+            )
+
     # Build list of experience objects to update
     experience_updates = []
     for item in order_data:
-        experience = RecruiterExperience.objects.get(id=item['id'])
-        experience.display_order = item['display_order']
+        experience = RecruiterExperience.objects.get(id=item["id"])
+        experience.display_order = item["display_order"]
         experience_updates.append(experience)
-    
+
     # Bulk update
-    RecruiterExperience.objects.bulk_update(experience_updates, ['display_order'])
+    RecruiterExperience.objects.bulk_update(experience_updates, ["display_order"])

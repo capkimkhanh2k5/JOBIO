@@ -5,30 +5,61 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='BlogCategory',
+            name="BlogCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, verbose_name='Tên danh mục')),
-                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='Slug')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('display_order', models.IntegerField(default=0, verbose_name='Thứ tự hiển thị')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('parent', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='children', to='blog_blog_categories.blogcategory', verbose_name='Danh mục cha')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, verbose_name="Tên danh mục")),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "display_order",
+                    models.IntegerField(default=0, verbose_name="Thứ tự hiển thị"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "parent",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="children",
+                        to="blog_blog_categories.blogcategory",
+                        verbose_name="Danh mục cha",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Danh mục bài viết',
-                'verbose_name_plural': 'Danh mục bài viết',
-                'db_table': 'blog_categories',
-                'ordering': ['display_order', 'name'],
+                "verbose_name": "Danh mục bài viết",
+                "verbose_name_plural": "Danh mục bài viết",
+                "db_table": "blog_categories",
+                "ordering": ["display_order", "name"],
             },
         ),
     ]

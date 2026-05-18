@@ -4,28 +4,56 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Language',
+            name="Language",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('language_code', models.CharField(db_index=True, max_length=10, unique=True, verbose_name='Mã ngôn ngữ')),
-                ('language_name', models.CharField(max_length=50, verbose_name='Tên ngôn ngữ')),
-                ('native_name', models.CharField(blank=True, max_length=50, null=True, verbose_name='Tên bản địa')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "language_code",
+                    models.CharField(
+                        db_index=True,
+                        max_length=10,
+                        unique=True,
+                        verbose_name="Mã ngôn ngữ",
+                    ),
+                ),
+                (
+                    "language_name",
+                    models.CharField(max_length=50, verbose_name="Tên ngôn ngữ"),
+                ),
+                (
+                    "native_name",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="Tên bản địa"
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Ngôn ngữ',
-                'verbose_name_plural': 'Ngôn ngữ',
-                'db_table': 'languages',
-                'ordering': ['language_name'],
+                "verbose_name": "Ngôn ngữ",
+                "verbose_name_plural": "Ngôn ngữ",
+                "db_table": "languages",
+                "ordering": ["language_name"],
             },
         ),
     ]

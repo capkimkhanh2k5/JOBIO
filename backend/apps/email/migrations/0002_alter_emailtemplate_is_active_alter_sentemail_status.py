@@ -4,20 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('email', '0001_initial'),
+        ("email", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='emailtemplate',
-            name='is_active',
+            model_name="emailtemplate",
+            name="is_active",
             field=models.BooleanField(db_index=True, default=True),
         ),
         migrations.AlterField(
-            model_name='sentemail',
-            name='status',
-            field=models.CharField(choices=[('sent', 'Sent'), ('failed', 'Failed'), ('pending', 'Pending')], db_index=True, default='pending', max_length=20),
+            model_name="sentemail",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("sent", "Sent"),
+                    ("failed", "Failed"),
+                    ("pending", "Pending"),
+                ],
+                db_index=True,
+                default="pending",
+                max_length=20,
+            ),
         ),
     ]
