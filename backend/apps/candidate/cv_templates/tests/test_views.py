@@ -26,6 +26,7 @@ class CVTemplateViewSetTests(TestCase):
         # Create templates
         self.template = CVTemplate.objects.create(
             name="Modern Classic",
+            file_name="modern.html",
             category=self.category,
             template_data={"sections": []},
             is_premium=False,

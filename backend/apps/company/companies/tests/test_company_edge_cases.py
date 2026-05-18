@@ -185,7 +185,7 @@ class TestUploadLogo(BaseCompanyTestCase):
 class TestUploadBanner(BaseCompanyTestCase):
     """Tests cho POST /api/companies/:id/banner"""
 
-    @patch("apps.company.companies.services.companies.upload_company_banner")
+    @patch("apps.company.companies.views.upload_company_banner")
     def test_upload_banner_success(self, mock_upload):
         """Upload banner thành công"""
         mock_upload.return_value = "http://cloudinary.com/banner.jpg"

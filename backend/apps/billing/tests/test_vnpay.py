@@ -182,7 +182,7 @@ class TestVNPayIntegration(APITestCase):
         response = browser_client.get(return_url, params)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn("/employer/payment-result", response["Location"])
+        self.assertIn("/company/payment-result", response["Location"])
         self.assertIn("txnId=", response["Location"])
         self.assertIn("status=success", response["Location"])
 
@@ -218,7 +218,7 @@ class TestVNPayIntegration(APITestCase):
         response = browser_client.get("/billing/payment-return", params)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertIn("/employer/payment-result", response["Location"])
+        self.assertIn("/company/payment-result", response["Location"])
         self.assertIn("txnId=", response["Location"])
         self.assertIn("status=success", response["Location"])
 

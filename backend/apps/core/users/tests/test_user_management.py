@@ -8,6 +8,7 @@ from apps.core.users.models import CustomUser
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 import io
+from unittest.mock import patch
 
 
 # ============================================================================
@@ -132,7 +133,9 @@ class TestUserManagement(APITestCase):
         target.refresh_from_db()
         self.assertEqual(target.role, "admin")
 
-    def test_upload_avatar(self):
+    @patch('cloudinary.uploader.upload')
+    def test_upload_avatar(self, mock_upload):
+        mock_upload.return_value = {"secure_url": "http://example.com/avatars/new.jpg"}
         file = io.BytesIO()
         image = Image.new("RGB", (100, 100), "white")
         image.save(file, "jpeg")

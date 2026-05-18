@@ -7,6 +7,7 @@ from PIL import Image
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import patch
 
 from apps.core.users.models import CustomUser
 
@@ -345,7 +346,9 @@ class TestAvatarEdgeCases(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertIn("detail", response.data)
 
-    def test_upload_avatar_self(self):
+    @patch('cloudinary.uploader.upload')
+    def test_upload_avatar_self(self, mock_upload):
+        mock_upload.return_value = {"secure_url": "http://example.com/avatars/my_avatar.jpg"}
         """User uploads own avatar → 200"""
         self.client.force_authenticate(user=self.user)
 
@@ -402,7 +405,9 @@ class TestPermissionSecurityFix(APITestCase):
         self.target_user.refresh_from_db()
         self.assertEqual(self.target_user.full_name, "Updated By Admin")
 
-    def test_admin_can_upload_avatar_for_other_user(self):
+    @patch('cloudinary.uploader.upload')
+    def test_admin_can_upload_avatar_for_other_user(self, mock_upload):
+        mock_upload.return_value = {"secure_url": "http://example.com/avatars/admin_avatar.jpg"}
         """Admin can upload avatar for other user → 200"""
         self.client.force_authenticate(user=self.admin)
 

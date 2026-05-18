@@ -143,7 +143,6 @@ class CustomUserViewSet(
         # Admin only endpoints
         admin_actions = [
             "list",
-            "retrieve",
             "activity_logs",
             "destroy",
             "update",

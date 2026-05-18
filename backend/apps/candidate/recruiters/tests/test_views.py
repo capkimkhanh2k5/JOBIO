@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiters.models import Recruiter
+from unittest.mock import patch
 
 
 class RecruiterViewTest(APITestCase):
@@ -102,7 +103,9 @@ class RecruiterViewTest(APITestCase):
 
     # ========== Tests for Avatar Upload API ==========
 
-    def test_upload_avatar_success(self):
+    @patch('cloudinary.uploader.upload')
+    def test_upload_avatar_success(self, mock_upload):
+        mock_upload.return_value = {"secure_url": "http://example.com/avatars/recruiter.jpg"}
         """Test POST /api/candidates/:id/avatar - upload success"""
         from PIL import Image
         from io import BytesIO
