@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-ha%=6u*hb!+orxa^g6e_uh83#!xuyx7f$nka2m&z-ab+kcy9!!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split() if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -240,6 +240,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -319,7 +320,11 @@ WEBAUTHN_RP_ID = os.getenv('WEBAUTHN_RP_ID', 'localhost')
 WEBAUTHN_RP_NAME = os.getenv('WEBAUTHN_RP_NAME', 'JobPortal')
 WEBAUTHN_ORIGIN = os.getenv('WEBAUTHN_ORIGIN', 'http://localhost:4000')
 
+# Dev defaults + production origins from env
+_cors_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
 CORS_ALLOWED_ORIGINS = [
+    origin.strip() for origin in _cors_env.split(',') if origin.strip()
+] if _cors_env else [
     "http://localhost:4000",
     "http://localhost:5173",  # Vite dev server
 ]

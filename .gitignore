@@ -39,7 +39,6 @@ media/
 # ========================
 .agent
 .vscode
-.github
 .postman
 .idea/
 .DS_Store

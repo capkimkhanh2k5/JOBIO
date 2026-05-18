@@ -398,7 +398,7 @@ class VNPayService:
         """
         Build frontend redirect URL after processing return callback.
         """
-        base_url = getattr(settings, 'VNP_FRONTEND_RETURN_URL', '').strip() or 'http://localhost:4000/employer/payment-result'
+        base_url = getattr(settings, 'VNP_FRONTEND_RETURN_URL', '').strip() or f"{settings.FRONTEND_URL}/employer/payment-result"
 
         txn = result.get('transaction')
         query = {
