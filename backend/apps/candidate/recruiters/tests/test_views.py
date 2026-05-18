@@ -103,9 +103,11 @@ class RecruiterViewTest(APITestCase):
 
     # ========== Tests for Avatar Upload API ==========
 
-    @patch('cloudinary.uploader.upload')
+    @patch("cloudinary.uploader.upload")
     def test_upload_avatar_success(self, mock_upload):
-        mock_upload.return_value = {"secure_url": "http://example.com/avatars/recruiter.jpg"}
+        mock_upload.return_value = {
+            "secure_url": "http://example.com/avatars/recruiter.jpg"
+        }
         """Test POST /api/candidates/:id/avatar - upload success"""
         from PIL import Image
         from io import BytesIO
