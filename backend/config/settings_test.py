@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "apps.system.activity_log_types",
     "apps.system.system_settings",
     "apps.system.file_uploads",
-    "apps.analytics",
     "apps.system.report_types",
     "apps.system.reports",
     # Candidate Domain (recruiters, education, experience, skills, certifications, languages, projects)
