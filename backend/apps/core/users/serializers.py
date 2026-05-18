@@ -31,13 +31,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
     def get_recruiter_id(self, obj):
         try:
             return obj.recruiter_profile.id
-        except:
+        except Exception:
             return None
 
     def get_company_id(self, obj):
         try:
             return obj.company_profile.id
-        except:
+        except Exception:
             return None
 
     def get_subscription_plan(self, obj):

@@ -1,6 +1,5 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.urls import reverse
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.recruiter_education.models import RecruiterEducation

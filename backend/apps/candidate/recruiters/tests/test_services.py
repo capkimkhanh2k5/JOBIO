@@ -53,7 +53,7 @@ class RecruiterServiceTest(TestCase):
         recruiter = Recruiter.objects.create(user=self.user, bio="Old Bio", years_of_experience=1)
         
         data = RecruiterInput(bio="New Bio", years_of_experience=10)
-        updated = update_recruiter_service(recruiter, data)
+        update_recruiter_service(recruiter, data)
         
         recruiter.refresh_from_db()
         self.assertEqual(recruiter.bio, "New Bio")
@@ -70,7 +70,7 @@ class RecruiterServiceTest(TestCase):
         
         # Only update bio, keep everything else
         data = RecruiterInput(bio="Updated Bio")
-        updated = update_recruiter_service(recruiter, data)
+        update_recruiter_service(recruiter, data)
         
         recruiter.refresh_from_db()
         self.assertEqual(recruiter.bio, "Updated Bio")
@@ -80,7 +80,7 @@ class RecruiterServiceTest(TestCase):
     def test_update_job_search_status(self):
         recruiter = Recruiter.objects.create(user=self.user, job_search_status=Recruiter.JobSearchStatus.ACTIVE)
         
-        updated = update_job_search_status_service(recruiter, Recruiter.JobSearchStatus.NOT_LOOKING)
+        update_job_search_status_service(recruiter, Recruiter.JobSearchStatus.NOT_LOOKING)
         
         recruiter.refresh_from_db()
         self.assertEqual(recruiter.job_search_status, Recruiter.JobSearchStatus.NOT_LOOKING)

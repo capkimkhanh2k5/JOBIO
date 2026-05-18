@@ -3,9 +3,8 @@ from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Q
 from django.utils import timezone
-from datetime import timedelta
 
 from apps.core.users.permissions import IsAdmin
 from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan

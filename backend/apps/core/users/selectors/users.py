@@ -1,4 +1,3 @@
-from typing import Iterable
 from ..models import CustomUser
 
 import django_filters

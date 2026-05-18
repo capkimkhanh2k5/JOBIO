@@ -1,12 +1,10 @@
+from rest_framework import serializers
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.db.models import Count
 
 from .models import JobAlert, JobAlertMatch
 from .serializers import JobAlertSerializer, JobAlertMatchSerializer
-from apps.communication.job_alerts.services.matching import JobMatchingService
 # from apps.recruitment.jobs.models import Job # Needed if testing against random job or recently created? Using matching service instead.
 
 class JobAlertViewSet(viewsets.ModelViewSet):

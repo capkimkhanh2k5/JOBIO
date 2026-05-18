@@ -1,4 +1,4 @@
-from typing import Optional, Iterable
+from typing import Optional
 from django.db.models import QuerySet
 from django.core.cache import cache
 

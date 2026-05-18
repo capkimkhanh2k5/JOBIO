@@ -2,7 +2,6 @@ from typing import Optional
 from django.db.models import QuerySet
 from apps.candidate.recruiters.models import Recruiter
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
-from django.db.models import F
 
 def get_recruiter_by_user(user) -> Optional[Recruiter]:
     """

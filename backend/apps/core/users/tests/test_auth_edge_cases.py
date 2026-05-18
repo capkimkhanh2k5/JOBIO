@@ -346,7 +346,7 @@ class TestSocialLoginEdgeCases(APITestCase):
     def test_social_login_existing_user(self, mock_get):
         """Test social login with existing user → login success"""
         # Create existing user
-        existing_user = CustomUser.objects.create_user(
+        CustomUser.objects.create_user(
             email="existing@example.com",
             password="password123",
             full_name="Existing User",

@@ -45,7 +45,7 @@ def notify_on_application_event(sender, instance, created, **kwargs):
                 notification_type_name='application',
                 title='Cập nhật trạng thái ứng tuyển',
                 content=f'Hồ sơ của bạn cho vị trí "{instance.job.title}" đã được chuyển sang trạng thái: {status_labels.get(instance.status)}.',
-                link=f'/candidate/applications',
+                link='/candidate/applications',
                 entity_type='application',
                 entity_id=instance.id
             )

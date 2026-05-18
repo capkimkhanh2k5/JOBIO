@@ -1,6 +1,5 @@
 from typing import Optional
 from django.utils import timezone
-from django.db import transaction
 from pydantic import BaseModel, ConfigDict
 
 from apps.communication.notifications.models import Notification

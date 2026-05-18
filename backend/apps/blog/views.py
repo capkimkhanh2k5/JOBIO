@@ -14,7 +14,6 @@ from apps.communication.notifications.models import Notification
 from apps.communication.notification_types.models import NotificationType
 from apps.system.activity_logs.services.activity_logs import log_activity
 from apps.blog.services import BlogService
-from apps.blog.selectors import BlogSelector
 
 
 def _is_admin_user(user) -> bool:

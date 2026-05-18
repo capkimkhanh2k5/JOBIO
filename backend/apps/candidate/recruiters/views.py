@@ -1,13 +1,13 @@
-from rest_framework import viewsets, status, pagination
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from apps.core.pagination import StandardResultsSetPagination
 
 from .models import Recruiter
 from .serializers import (
     RecruiterSerializer, RecruiterCreateSerializer, RecruiterUpdateSerializer, 
-    JobSearchStatusSerializer, ProfileCompletenessSerializer, RecruiterAvatarSerializer,
+    JobSearchStatusSerializer, RecruiterAvatarSerializer,
     RecruiterPublicProfileSerializer, RecruiterPrivacySerializer, RecruiterStatsSerializer,
     RecruiterApplicationSerializer, SavedJobSerializer
 )

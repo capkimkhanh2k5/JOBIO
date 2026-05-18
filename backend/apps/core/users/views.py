@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework_simplejwt.views import TokenRefreshView
 
 from .permissions import IsAdmin
 from .exceptions import SocialAuthError
@@ -20,7 +19,7 @@ from .services.auth import (
     request_set_password, confirm_set_password,
     LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
     ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
-    ChangePasswordInput, CheckEmailInput, SocialLoginInput, Verify2FAInput,
+    ChangePasswordInput, CheckEmailInput, Verify2FAInput,
     RequestSetPasswordInput, ConfirmSetPasswordInput,
     AuthenticationError,
     send_registration_otp, SendRegistrationOtpInput,
@@ -52,10 +51,10 @@ from .serializers import (
     ConfirmSetPasswordSerializer,
     SocialAuthSerializer, Verify2FASerializer,
     SendRegistrationOtpSerializer, VerifyRegistrationOtpSerializer,
-    TwoFactorStatusSerializer, TwoFactorEnableSerializer, TwoFactorDisableSerializer,
+    TwoFactorDisableSerializer,
     UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
     PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
-    PasskeyAuthVerifySerializer, PasskeyDeleteSerializer, PasskeyUpdateNameSerializer,
+    PasskeyAuthVerifySerializer, PasskeyUpdateNameSerializer,
 )
 from django.http import HttpResponse
 from apps.core.pagination import SmallResultsSetPagination

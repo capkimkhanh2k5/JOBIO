@@ -3,10 +3,8 @@ User Management Edge Cases Tests - Django TestCase Version
 """
 import io
 from PIL import Image
-from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.core.users.models import CustomUser

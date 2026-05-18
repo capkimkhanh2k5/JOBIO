@@ -192,7 +192,8 @@ class SavedJobSerializer(serializers.Serializer):
         return obj.job.company.logo_url if obj.job and obj.job.company and hasattr(obj.job.company, 'logo_url') and obj.job.company.logo_url else None
         
     def get_salary(self, obj):
-        if not obj.job: return None
+        if not obj.job:
+            return None
         if obj.job.salary_min and obj.job.salary_max:
             return f"{int(obj.job.salary_min)} - {int(obj.job.salary_max)} {obj.job.salary_currency}"
         elif obj.job.salary_min:

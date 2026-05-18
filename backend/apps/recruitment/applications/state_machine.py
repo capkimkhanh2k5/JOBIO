@@ -4,7 +4,7 @@ State Machine cho Application workflow.
 Sử dụng django-fsm pattern để quản lý trạng thái Application một cách an toàn.
 Đảm bảo state transitions hợp lệ và tracking history.
 """
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 from dataclasses import dataclass
 from enum import Enum
 from django.db import transaction
@@ -167,7 +167,6 @@ class ApplicationStateMachine:
         )
         
         # Update status
-        old_status = application.status
         application.status = target_state.value
         
         # Update reviewer info if applicable
@@ -206,7 +205,7 @@ class ApplicationStateMachine:
             success=True,
             from_state=from_state.value,
             to_state=target_state.value,
-            message=f"Đã chuyển trạng thái thành công",
+            message="Đã chuyển trạng thái thành công",
             application=application
         )
     

@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from django.core.files.uploadedfile import UploadedFile
 
@@ -150,7 +150,7 @@ def bulk_upload_company_media_service(company_id: int, user, data: CompanyMediaB
     
     # Pre-fetch media type check once
     try:
-        media_type = MediaType.objects.get(id=data.media_type_id)
+        MediaType.objects.get(id=data.media_type_id)
     except MediaType.DoesNotExist:
         raise ValueError("Loại media không tồn tại")
 

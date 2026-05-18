@@ -4,7 +4,7 @@ from datetime import timedelta
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.db import models
@@ -13,13 +13,11 @@ from apps.billing.models import SubscriptionPlan, CompanySubscription, PaymentMe
 from apps.billing.serializers import (
     SubscriptionPlanSerializer, 
     CompanySubscriptionSerializer, 
-    PaymentMethodSerializer, 
     TransactionSerializer,
     SubscribeInputSerializer
 )
 from apps.billing.services.subscriptions import SubscriptionService
 from apps.billing.services.payments import PaymentService
-from apps.billing.services.plans import PlanService
 from apps.core.permissions import IsCompanyOwner
 from apps.billing.services.vnpay import VNPayService, VNPaySecurityError
 

@@ -1,11 +1,9 @@
-from typing import Optional
-from datetime import date, timedelta
+from datetime import timedelta
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from urllib.parse import urlparse
 
-import re
 
 from apps.recruitment.job_views.models import JobView
 
@@ -128,7 +126,7 @@ def get_viewer_demographics(job_id: int) -> dict:
             if domain.startswith('www.'):
                 domain = domain[4:]
             referrer_counts[domain] = referrer_counts.get(domain, 0) + 1
-        except:
+        except Exception:
             referrer_counts['other'] = referrer_counts.get('other', 0) + 1
     
     # Thêm traffic trực tiếp

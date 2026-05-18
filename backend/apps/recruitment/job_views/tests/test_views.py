@@ -325,7 +325,7 @@ class JobViewAnalyticsTests(APITestCase):
         
         # Get initial stats - API trả về view_count từ Job model
         stats_url = f'/api/jobs/{self.job.id}/views/'
-        initial = self.client.get(stats_url)
+        self.client.get(stats_url)
         
         # Record a view - tạo JobView để làm tăng stats
         JobView.objects.create(

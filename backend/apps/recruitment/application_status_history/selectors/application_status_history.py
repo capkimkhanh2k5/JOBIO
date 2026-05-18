@@ -1,4 +1,3 @@
-from typing import Optional
 from django.db.models import QuerySet
 from apps.recruitment.application_status_history.models import ApplicationStatusHistory
 

@@ -10,8 +10,6 @@ nên tests chủ yếu cover:
 3. API endpoints (authentication, permissions, serializer validation)
 4. Management functions (list, delete, rename)
 """
-import base64
-from unittest.mock import patch, MagicMock
 
 from django.test import TestCase, override_settings
 from django.core.cache import cache
@@ -125,8 +123,8 @@ class TestUserPasskeyModel(TestCase):
 
     def test_ordering_by_created_at_desc(self):
         """Test passkeys được sắp xếp theo created_at giảm dần."""
-        pk1 = _create_passkey(self.user, credential_id=b'\x01', device_name='First')
-        pk2 = _create_passkey(self.user, credential_id=b'\x02', device_name='Second')
+        _create_passkey(self.user, credential_id=b'\x01', device_name='First')
+        _create_passkey(self.user, credential_id=b'\x02', device_name='Second')
         passkeys = list(UserPasskey.objects.filter(user=self.user))
         self.assertEqual(passkeys[0].device_name, 'Second')  # Mới nhất trước
 
@@ -230,7 +228,7 @@ class TestRegistrationService(TestCase):
 
     def test_generate_registration_options_caches_state(self):
         """Test state được lưu vào cache."""
-        options = generate_registration_options(user=self.user)
+        generate_registration_options(user=self.user)
         cache_key = _cache_key(str(self.user.id), 'register')
         state = cache.get(cache_key)
         self.assertIsNotNone(state)

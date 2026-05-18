@@ -114,38 +114,30 @@ class AdminReportViewSet(viewsets.ReadOnlyModelViewSet):
         combined_notes = f"[Gửi Reporter]: {reporter_note}\n[Gửi Violator]: {violator_note}" if action_type != 'reject' else f"[Bác bỏ]: {reporter_note}"
 
         # Lấy Entity bị báo cáo
-        entity = None
         entity_user = None
         entity_company = None
         entity_job = None
         entity_email = None
         entity_user_id = None
-        entity_name = "Người dùng"
         entity_type = (report.entity_type or "").lower()
         try:
             if entity_type in ['user', 'candidate', 'recruiter']:
                 entity_user = apps.get_model('core_users', 'CustomUser').objects.get(id=report.entity_id)
-                entity = entity_user
                 entity_email = entity_user.email
                 entity_user_id = entity_user.id
-                entity_name = entity_user.full_name or entity_user.email
             elif entity_type == 'company':
                 entity_company = apps.get_model('company_companies', 'Company').objects.get(id=report.entity_id)
-                entity = entity_company
                 if entity_company.user:
                     entity_user = entity_company.user
                     entity_email = entity_user.email
                     entity_user_id = entity_user.id
-                entity_name = entity_company.company_name
             elif entity_type == 'job':
                 entity_job = apps.get_model('recruitment_jobs', 'Job').objects.get(id=report.entity_id)
-                entity = entity_job
                 if entity_job.company and entity_job.company.user:
                     entity_user = entity_job.company.user
                     entity_email = entity_user.email
                     entity_user_id = entity_user.id
-                entity_name = entity_job.title
-        except Exception as e:
+        except Exception:
             logger.warning(f"Could not find entity {report.entity_type} {report.entity_id} for report {report.id}")
 
         report_status = Report.Status.RESOLVED

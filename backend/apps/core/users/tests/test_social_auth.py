@@ -4,8 +4,6 @@ Tests verify token validation, error handling, and user creation/linking.
 """
 from unittest.mock import patch, MagicMock
 from django.test import TestCase
-from django.utils import timezone
-from django.core.cache import cache
 
 from apps.core.users.models import CustomUser
 from apps.core.users.services.social_auth import (
@@ -13,10 +11,9 @@ from apps.core.users.services.social_auth import (
     GoogleAdapter,
     SocialProfile
 )
-from apps.core.users.services.auth import social_login, verify_social_token
+from apps.core.users.services.auth import social_login
 from apps.core.users.exceptions import (
     TokenInvalidError,
-    ProviderUnavailableError,
     EmailNotProvidedError,
     UnsupportedProviderError
 )

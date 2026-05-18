@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from django.db.models import Avg, Count, Q
+from django.db.models import Count, Q
 from django.utils import timezone
 from django.conf import settings
 from apps.email.services import EmailService

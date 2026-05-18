@@ -1,4 +1,4 @@
-from apps.blog.models import Post, Category, Tag
+from apps.blog.models import Post
 
 class BlogSelector:
     @staticmethod

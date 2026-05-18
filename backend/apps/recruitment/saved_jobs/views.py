@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
-from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_user, get_recruiter_by_id
+from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
 from .models import SavedJob
 from .serializers import SavedJobSerializer, SavedJobUpdateSerializer, SavedJobCreateSerializer
 from .selectors.saved_jobs import list_saved_jobs_by_recruiter, get_saved_job_by_id, get_saved_job_by_recruiter_and_job, is_job_saved
