@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,23 +14,83 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='SystemSetting',
+            name="SystemSetting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('setting_key', models.CharField(db_index=True, max_length=100, unique=True, verbose_name='Khóa')),
-                ('setting_value', models.TextField(blank=True, null=True, verbose_name='Giá trị')),
-                ('setting_type', models.CharField(choices=[('string', 'Chuỗi'), ('number', 'Số'), ('boolean', 'Boolean'), ('json', 'JSON')], default='string', max_length=20, verbose_name='Loại')),
-                ('category', models.CharField(blank=True, db_index=True, max_length=50, null=True, verbose_name='Danh mục')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('is_public', models.BooleanField(default=False, verbose_name='Công khai')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')),
-                ('updated_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='updated_system_settings', to=settings.AUTH_USER_MODEL, verbose_name='Người cập nhật')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "setting_key",
+                    models.CharField(
+                        db_index=True, max_length=100, unique=True, verbose_name="Khóa"
+                    ),
+                ),
+                (
+                    "setting_value",
+                    models.TextField(blank=True, null=True, verbose_name="Giá trị"),
+                ),
+                (
+                    "setting_type",
+                    models.CharField(
+                        choices=[
+                            ("string", "Chuỗi"),
+                            ("number", "Số"),
+                            ("boolean", "Boolean"),
+                            ("json", "JSON"),
+                        ],
+                        default="string",
+                        max_length=20,
+                        verbose_name="Loại",
+                    ),
+                ),
+                (
+                    "category",
+                    models.CharField(
+                        blank=True,
+                        db_index=True,
+                        max_length=50,
+                        null=True,
+                        verbose_name="Danh mục",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(default=False, verbose_name="Công khai"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
+                ),
+                (
+                    "updated_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="updated_system_settings",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Người cập nhật",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Cấu hình hệ thống',
-                'verbose_name_plural': 'Cấu hình hệ thống',
-                'db_table': 'system_settings',
+                "verbose_name": "Cấu hình hệ thống",
+                "verbose_name_plural": "Cấu hình hệ thống",
+                "db_table": "system_settings",
             },
         ),
     ]

@@ -7,28 +7,57 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .permissions import IsAdmin
 from .exceptions import SocialAuthError
 from apps.core.throttles import (
-    LoginRateThrottle, RegisterRateThrottle, PasswordResetRateThrottle,
-    EmailVerificationRateThrottle, SocialAuthRateThrottle
+    LoginRateThrottle,
+    RegisterRateThrottle,
+    PasswordResetRateThrottle,
+    EmailVerificationRateThrottle,
+    SocialAuthRateThrottle,
 )
 
 from .models import CustomUser
 from .services.auth import (
-    login_user, logout_user, register_user, forgot_password, reset_password, 
-    verify_email, resend_verification, change_password, check_email,
-    social_login, verify_2fa, get_2fa_status, enable_2fa, disable_2fa,
-    request_set_password, confirm_set_password,
-    LoginInput, LogoutInput, RegisterInput, ForgotPasswordInput, 
-    ResetPasswordInput, VerifyEmailInput, ResendVerificationInput, 
-    ChangePasswordInput, CheckEmailInput, Verify2FAInput,
-    RequestSetPasswordInput, ConfirmSetPasswordInput,
+    login_user,
+    logout_user,
+    register_user,
+    forgot_password,
+    reset_password,
+    verify_email,
+    resend_verification,
+    change_password,
+    check_email,
+    social_login,
+    verify_2fa,
+    get_2fa_status,
+    enable_2fa,
+    disable_2fa,
+    request_set_password,
+    confirm_set_password,
+    LoginInput,
+    LogoutInput,
+    RegisterInput,
+    ForgotPasswordInput,
+    ResetPasswordInput,
+    VerifyEmailInput,
+    ResendVerificationInput,
+    ChangePasswordInput,
+    CheckEmailInput,
+    Verify2FAInput,
+    RequestSetPasswordInput,
+    ConfirmSetPasswordInput,
     AuthenticationError,
-    send_registration_otp, SendRegistrationOtpInput,
-    verify_registration_otp, VerifyRegistrationOtpInput,
+    send_registration_otp,
+    SendRegistrationOtpInput,
+    verify_registration_otp,
+    VerifyRegistrationOtpInput,
 )
 from .services.passkey import (
-    generate_registration_options, verify_registration,
-    generate_authentication_options, verify_authentication,
-    list_user_passkeys, delete_user_passkey, update_passkey_name,
+    generate_registration_options,
+    verify_registration,
+    generate_authentication_options,
+    verify_authentication,
+    list_user_passkeys,
+    delete_user_passkey,
+    update_passkey_name,
 )
 from .services.users import (
     create_user,
@@ -44,17 +73,32 @@ from .services.users import (
 )
 from .selectors.users import list_users, get_user_stats, export_users_csv
 from .serializers import (
-    CustomUserSerializer, LoginSerializer, LogoutSerializer, 
-    LoginResponseSerializer, RegisterSerializer, RegisterResponseSerializer, 
-    ForgotPasswordSerializer, ResetPasswordSerializer, VerifyEmailSerializer, 
-    ResendVerificationSerializer, ChangePasswordSerializer, CheckEmailSerializer,
+    CustomUserSerializer,
+    LoginSerializer,
+    LogoutSerializer,
+    LoginResponseSerializer,
+    RegisterSerializer,
+    RegisterResponseSerializer,
+    ForgotPasswordSerializer,
+    ResetPasswordSerializer,
+    VerifyEmailSerializer,
+    ResendVerificationSerializer,
+    ChangePasswordSerializer,
+    CheckEmailSerializer,
     ConfirmSetPasswordSerializer,
-    SocialAuthSerializer, Verify2FASerializer,
-    SendRegistrationOtpSerializer, VerifyRegistrationOtpSerializer,
+    SocialAuthSerializer,
+    Verify2FASerializer,
+    SendRegistrationOtpSerializer,
+    VerifyRegistrationOtpSerializer,
     TwoFactorDisableSerializer,
-    UserUpdateSerializer, UserStatusSerializer, UserRoleSerializer, UserAvatarSerializer,
-    PasskeyRegisterVerifySerializer, PasskeyAuthOptionsSerializer,
-    PasskeyAuthVerifySerializer, PasskeyUpdateNameSerializer,
+    UserUpdateSerializer,
+    UserStatusSerializer,
+    UserRoleSerializer,
+    UserAvatarSerializer,
+    PasskeyRegisterVerifySerializer,
+    PasskeyAuthOptionsSerializer,
+    PasskeyAuthVerifySerializer,
+    PasskeyUpdateNameSerializer,
 )
 from django.http import HttpResponse
 from apps.core.pagination import SmallResultsSetPagination
@@ -63,10 +107,13 @@ from apps.system.activity_logs.models import ActivityLog
 from apps.system.activity_logs.serializers import ActivityLogSerializer
 
 
-class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin):
+class CustomUserViewSet(
+    viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin
+):
     """
-        ViewSet cho quản lý User và Authentication
+    ViewSet cho quản lý User và Authentication
     """
+
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = SmallResultsSetPagination
@@ -76,33 +123,40 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
     def get_permissions(self):
         public_actions = [
-            'create', 'auth_login', 'auth_register', 'auth_forgot_password',
-            'auth_reset_password', 'auth_verify_email', 'auth_resend_verification',
-            'auth_check_email', 'auth_social_login',
-            'passkey_auth_options', 'passkey_auth_verify',
-            'auth_send_registration_otp', 'auth_verify_registration_otp',
+            "create",
+            "auth_login",
+            "auth_register",
+            "auth_forgot_password",
+            "auth_reset_password",
+            "auth_verify_email",
+            "auth_resend_verification",
+            "auth_check_email",
+            "auth_social_login",
+            "passkey_auth_options",
+            "passkey_auth_verify",
+            "auth_send_registration_otp",
+            "auth_verify_registration_otp",
         ]
         if self.action in public_actions:
             return [AllowAny()]
-        
+
         # Admin only endpoints
         admin_actions = [
-            'list',
-            'retrieve',
-            'activity_logs',
-            'destroy',
-            'update',
-            'partial_update',
-            'update_status_action',
-            'update_role_action',
-            'update_email_verified_action',
-            'stats',
-            'export',
-            'bulk_action',
+            "list",
+            "activity_logs",
+            "destroy",
+            "update",
+            "partial_update",
+            "update_status_action",
+            "update_role_action",
+            "update_email_verified_action",
+            "stats",
+            "export",
+            "bulk_action",
         ]
         if self.action in admin_actions:
             return [IsAuthenticated(), IsAdmin()]
-            
+
         return super().get_permissions()
 
     def create(self, request, *args, **kwargs):
@@ -112,9 +166,9 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
 
         try:
             user_input = UserCreateInput(
-                email=serializer.validated_data['email'],
-                password=serializer.validated_data['password'],
-                role=serializer.validated_data.get('role', CustomUser.Role.CANDIDATE)
+                email=serializer.validated_data["email"],
+                password=serializer.validated_data["password"],
+                role=serializer.validated_data.get("role", CustomUser.Role.CANDIDATE),
             )
             user = create_user(data=user_input)
         except Exception as e:
@@ -126,22 +180,21 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
     def update(self, request, *args, **kwargs):
         """PUT /api/users/:id/ - Cập nhật user"""
         user = self.get_object()
-        
+
         # Quyền: Chỉ user hoặc admin mới được cập nhật
         if request.user.id != user.id and request.user.role != CustomUser.Role.ADMIN:
             return Response(
                 {"detail": "Bạn không có quyền cập nhật thông tin user này."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
-        
+
         serializer = UserUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         updated_user = update_user(
-            user=user, 
-            data=UserUpdateInput(**serializer.validated_data)
+            user=user, data=UserUpdateInput(**serializer.validated_data)
         )
-        
+
         return Response(CustomUserSerializer(updated_user).data)
 
     def partial_update(self, request, *args, **kwargs):
@@ -154,60 +207,73 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         delete_user(user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['patch'], url_path='status')
+    @action(detail=True, methods=["patch"], url_path="status")
     def update_status_action(self, request, pk=None):
         """PATCH /api/users/:id/status - Cập nhật status"""
         user = self.get_object()
         serializer = UserStatusSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            updated_user = update_user_status(user, serializer.validated_data['status'])
+            updated_user = update_user_status(user, serializer.validated_data["status"])
             return Response(CustomUserSerializer(updated_user).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['patch'], url_path='role')
+    @action(detail=True, methods=["patch"], url_path="role")
     def update_role_action(self, request, pk=None):
         """
-            PATCH /api/users/:id/role - Cập nhật role
+        PATCH /api/users/:id/role - Cập nhật role
         """
         user = self.get_object()
         serializer = UserRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            updated_user = update_user_role(user, serializer.validated_data['role'])
+            updated_user = update_user_role(user, serializer.validated_data["role"])
             return Response(CustomUserSerializer(updated_user).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['patch'], url_path='verify-email')
+    @action(detail=True, methods=["patch"], url_path="verify-email")
     def update_email_verified_action(self, request, pk=None):
         """
-            PATCH /api/users/:id/verify-email - Cập nhật trạng thái email_verified
+        PATCH /api/users/:id/verify-email - Cập nhật trạng thái email_verified
         """
         user = self.get_object()
-        email_verified = request.data.get('email_verified', True)
+        email_verified = request.data.get("email_verified", True)
 
         if not isinstance(email_verified, bool):
-            return Response({"detail": "email_verified phải là kiểu boolean"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "email_verified phải là kiểu boolean"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         updated_user = update_user_email_verified(user, email_verified)
         return Response(CustomUserSerializer(updated_user).data)
 
-    @action(detail=True, methods=['post', 'delete'], url_path='avatar', parser_classes=[MultiPartParser, FormParser])
+    @action(
+        detail=True,
+        methods=["post", "delete"],
+        url_path="avatar",
+        parser_classes=[MultiPartParser, FormParser],
+    )
     def manage_avatar(self, request, pk=None):
         """
-            POST/DELETE /api/users/:id/avatar - Quản lý avatar (Admin/Self)
+        POST/DELETE /api/users/:id/avatar - Quản lý avatar (Admin/Self)
         """
         user = self.get_object()
         return self._handle_avatar(request, user)
 
-    @action(detail=False, methods=['post', 'delete'], url_path='me/avatar', parser_classes=[MultiPartParser, FormParser])
+    @action(
+        detail=False,
+        methods=["post", "delete"],
+        url_path="me/avatar",
+        parser_classes=[MultiPartParser, FormParser],
+    )
     def me_avatar(self, request):
         """
-            POST/DELETE /api/users/me/avatar/ - Quản lý avatar cá nhân
+        POST/DELETE /api/users/me/avatar/ - Quản lý avatar cá nhân
         """
         return self._handle_avatar(request, request.user)
 
@@ -216,193 +282,249 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         if request.user.id != user.id and request.user.role != CustomUser.Role.ADMIN:
             return Response(
                 {"detail": "Bạn không có quyền quản lý avatar của user này."},
-                status=status.HTTP_403_FORBIDDEN
+                status=status.HTTP_403_FORBIDDEN,
             )
-        
-        if request.method == 'POST':
+
+        if request.method == "POST":
             serializer = UserAvatarSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            
+
             try:
-                updated_user = upload_user_avatar(user, serializer.validated_data['avatar'])
+                updated_user = upload_user_avatar(
+                    user, serializer.validated_data["avatar"]
+                )
                 return Response(CustomUserSerializer(updated_user).data)
             except Exception as e:
                 return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-                
-        elif request.method == 'DELETE':
+
+        elif request.method == "DELETE":
             user.avatar_url = None
-            user.save(update_fields=['avatar_url'])
+            user.save(update_fields=["avatar_url"])
             return Response(CustomUserSerializer(user).data)
 
-    @action(detail=False, methods=['get'], url_path='me')
+    @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
         """GET /api/users/me/ - Lấy thông tin user hiện tại"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'], url_path='activity-logs')
+    @action(detail=True, methods=["get"], url_path="activity-logs")
     def activity_logs(self, request, pk=None):
         """GET /api/users/:id/activity-logs - Lịch sử hoạt động"""
         user = self.get_object()
-        
+
         logs = ActivityLog.objects.filter(user=user)
         page = self.paginate_queryset(logs)
         if page is not None:
             serializer = ActivityLogSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-            
+
         serializer = ActivityLogSerializer(logs, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], url_path='stats')
+    @action(detail=False, methods=["get"], url_path="stats")
     def stats(self, request):
         """GET /api/users/stats/ - Thống kê users (admin only)"""
         data = get_user_stats()
         return Response(data)
 
-    @action(detail=False, methods=['get'], url_path='export')
+    @action(detail=False, methods=["get"], url_path="export")
     def export(self, request):
         """GET /api/users/export/ - Export users CSV (admin only)"""
         try:
             csv_content = export_users_csv()
-            response = HttpResponse(csv_content, content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="users_export.csv"'
+            response = HttpResponse(csv_content, content_type="text/csv")
+            response["Content-Disposition"] = 'attachment; filename="users_export.csv"'
             return response
         except Exception as e:
-             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='bulk-action')
+    @action(detail=False, methods=["post"], url_path="bulk-action")
     def bulk_action(self, request):
         """POST /api/users/bulk-action/ - Bulk actions (admin only)"""
-        ids = request.data.get('ids', [])
-        action_type = request.data.get('action')
-        value = request.data.get('value')
-        
+        ids = request.data.get("ids", [])
+        action_type = request.data.get("action")
+        value = request.data.get("value")
+
         if not ids or not action_type:
-            return Response({"detail": "Missing ids or action"}, status=status.HTTP_400_BAD_REQUEST)
-            
+            return Response(
+                {"detail": "Missing ids or action"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             result = bulk_user_action(ids, action_type, value)
             return Response(result)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='auth/login', throttle_classes=[LoginRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/login",
+        throttle_classes=[LoginRateThrottle],
+    )
     def auth_login(self, request):
         """POST /api/users/auth/login/ - Đăng nhập"""
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            result = login_user(data=LoginInput(
-                email=serializer.validated_data['email'],
-                password=serializer.validated_data['password']
-            ))
+            result = login_user(
+                data=LoginInput(
+                    email=serializer.validated_data["email"],
+                    password=serializer.validated_data["password"],
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/logout')
+    @action(detail=False, methods=["post"], url_path="auth/logout")
     def auth_logout(self, request):
         """POST /api/users/auth/logout/ - Đăng xuất"""
         serializer = LogoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            logout_user(data=LogoutInput(
-                refresh_token=serializer.validated_data['refresh_token']
-            ))
+            logout_user(
+                data=LogoutInput(
+                    refresh_token=serializer.validated_data["refresh_token"]
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"detail": "Logout successfully"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/send-registration-otp', throttle_classes=[EmailVerificationRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/send-registration-otp",
+        throttle_classes=[EmailVerificationRateThrottle],
+    )
     def auth_send_registration_otp(self, request):
         """POST /api/users/auth/send-registration-otp/ - Gửi mã OTP đăng ký"""
         serializer = SendRegistrationOtpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            send_registration_otp(data=SendRegistrationOtpInput(
-                email=serializer.validated_data['email']
-            ))
-            return Response({"detail": "Mã OTP đã được gửi đến email của bạn."}, status=status.HTTP_200_OK)
+            send_registration_otp(
+                data=SendRegistrationOtpInput(email=serializer.validated_data["email"])
+            )
+            return Response(
+                {"detail": "Mã OTP đã được gửi đến email của bạn."},
+                status=status.HTTP_200_OK,
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='auth/verify-registration-otp', throttle_classes=[EmailVerificationRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/verify-registration-otp",
+        throttle_classes=[EmailVerificationRateThrottle],
+    )
     def auth_verify_registration_otp(self, request):
         """POST /api/users/auth/verify-registration-otp/ - Xác thực OTP 6 số"""
         serializer = VerifyRegistrationOtpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            verify_registration_otp(data=VerifyRegistrationOtpInput(
-                email=serializer.validated_data['email'],
-                otp=serializer.validated_data['otp']
-            ))
-            return Response({"detail": "Xác thực OTP thành công!"}, status=status.HTTP_200_OK)
+            verify_registration_otp(
+                data=VerifyRegistrationOtpInput(
+                    email=serializer.validated_data["email"],
+                    otp=serializer.validated_data["otp"],
+                )
+            )
+            return Response(
+                {"detail": "Xác thực OTP thành công!"}, status=status.HTTP_200_OK
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['post'], url_path='auth/register', throttle_classes=[RegisterRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/register",
+        throttle_classes=[RegisterRateThrottle],
+    )
     def auth_register(self, request):
         """POST /api/users/auth/register/ - Đăng ký"""
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            result = register_user(data=RegisterInput(
-                email=serializer.validated_data['email'],
-                password=serializer.validated_data['password'],
-                full_name=serializer.validated_data['full_name'],
-                role=serializer.validated_data.get('role', 'candidate'),
-                otp=serializer.validated_data.get('otp'),
-                company_name=serializer.validated_data.get('company_name'),
-                tax_code=serializer.validated_data.get('tax_code')
-            ))
+            result = register_user(
+                data=RegisterInput(
+                    email=serializer.validated_data["email"],
+                    password=serializer.validated_data["password"],
+                    full_name=serializer.validated_data["full_name"],
+                    role=serializer.validated_data.get("role", "candidate"),
+                    otp=serializer.validated_data.get("otp"),
+                    company_name=serializer.validated_data.get("company_name"),
+                    tax_code=serializer.validated_data.get("tax_code"),
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         output_serializer = RegisterResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['post'], url_path='auth/forgot-password', throttle_classes=[PasswordResetRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/forgot-password",
+        throttle_classes=[PasswordResetRateThrottle],
+    )
     def auth_forgot_password(self, request):
         """POST /api/users/auth/forgot-password/ - Quên mật khẩu"""
         serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            forgot_password(data=ForgotPasswordInput(
-                email=serializer.validated_data['email']
-            ))
+            forgot_password(
+                data=ForgotPasswordInput(email=serializer.validated_data["email"])
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response({"detail": "Email has been sent"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/reset-password', throttle_classes=[PasswordResetRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/reset-password",
+        throttle_classes=[PasswordResetRateThrottle],
+    )
     def auth_reset_password(self, request):
         """POST /api/users/auth/reset-password/ - Reset mật khẩu"""
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            reset_password(data=ResetPasswordInput(
-                email=serializer.validated_data['email'],
-                otp=serializer.validated_data['otp'],
-                new_password=serializer.validated_data['new_password']
-            ))
+            reset_password(
+                data=ResetPasswordInput(
+                    email=serializer.validated_data["email"],
+                    otp=serializer.validated_data["otp"],
+                    new_password=serializer.validated_data["new_password"],
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"detail": "Password has been changed"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/request-set-password', throttle_classes=[EmailVerificationRateThrottle])
+        return Response(
+            {"detail": "Password has been changed"}, status=status.HTTP_200_OK
+        )
+
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/request-set-password",
+        throttle_classes=[EmailVerificationRateThrottle],
+    )
     def auth_request_set_password(self, request):
         """POST /api/users/auth/request-set-password/ - Gui OTP dat mat khau lan dau"""
         try:
@@ -410,161 +532,196 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"detail": "Ma OTP dat mat khau da duoc gui den email cua ban."}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Ma OTP dat mat khau da duoc gui den email cua ban."},
+            status=status.HTTP_200_OK,
+        )
 
-    @action(detail=False, methods=['post'], url_path='auth/confirm-set-password', throttle_classes=[PasswordResetRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/confirm-set-password",
+        throttle_classes=[PasswordResetRateThrottle],
+    )
     def auth_confirm_set_password(self, request):
         """POST /api/users/auth/confirm-set-password/ - Xac minh OTP va dat mat khau lan dau"""
         serializer = ConfirmSetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            confirm_set_password(data=ConfirmSetPasswordInput(
-                user_id=request.user.id,
-                otp=serializer.validated_data['otp'],
-                new_password=serializer.validated_data['new_password']
-            ))
+            confirm_set_password(
+                data=ConfirmSetPasswordInput(
+                    user_id=request.user.id,
+                    otp=serializer.validated_data["otp"],
+                    new_password=serializer.validated_data["new_password"],
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"detail": "Dat mat khau thanh cong."}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Dat mat khau thanh cong."}, status=status.HTTP_200_OK
+        )
 
-    @action(detail=False, methods=['post'], url_path='auth/verify-email')
+    @action(detail=False, methods=["post"], url_path="auth/verify-email")
     def auth_verify_email(self, request):
         """POST /api/users/auth/verify-email/ - Xác thực email"""
         serializer = VerifyEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            verify_email(data=VerifyEmailInput(
-                token=serializer.validated_data['email_verification_token']
-            ))
+            verify_email(
+                data=VerifyEmailInput(
+                    token=serializer.validated_data["email_verification_token"]
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"detail": "Email has been verified"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/resend-verification', throttle_classes=[EmailVerificationRateThrottle])
+        return Response(
+            {"detail": "Email has been verified"}, status=status.HTTP_200_OK
+        )
+
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/resend-verification",
+        throttle_classes=[EmailVerificationRateThrottle],
+    )
     def auth_resend_verification(self, request):
         """POST /api/users/auth/resend-verification/ - Gửi lại email xác thực"""
         serializer = ResendVerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            resend_verification(data=ResendVerificationInput(
-                email=serializer.validated_data['email']
-            ))
+            resend_verification(
+                data=ResendVerificationInput(email=serializer.validated_data["email"])
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"detail": "Email verification has been resend"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/change-password')
+        return Response(
+            {"detail": "Email verification has been resend"}, status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=["post"], url_path="auth/change-password")
     def auth_change_password(self, request):
         """POST /api/users/auth/change-password/ - Đổi mật khẩu"""
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            change_password(data=ChangePasswordInput(
-                user_id=request.user.id,
-                old_password=serializer.validated_data['old_password'],
-                new_password=serializer.validated_data['new_password']
-            ))
+            change_password(
+                data=ChangePasswordInput(
+                    user_id=request.user.id,
+                    old_password=serializer.validated_data["old_password"],
+                    new_password=serializer.validated_data["new_password"],
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"detail": "Password has been changed"}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/check-email')
+        return Response(
+            {"detail": "Password has been changed"}, status=status.HTTP_200_OK
+        )
+
+    @action(detail=False, methods=["post"], url_path="auth/check-email")
     def auth_check_email(self, request):
         """POST /api/users/auth/check-email/ - Kiểm tra email"""
         serializer = CheckEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            result = check_email(data=CheckEmailInput(email=serializer.validated_data['email']))
+            result = check_email(
+                data=CheckEmailInput(email=serializer.validated_data["email"])
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='auth/me')
+    @action(detail=False, methods=["get"], url_path="auth/me")
     def auth_me(self, request):
         """GET /api/users/auth/me/ - Lấy thông tin user hiện tại"""
         serializer = CustomUserSerializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['post'], url_path='auth/social/(?P<provider>[^/.]+)', throttle_classes=[SocialAuthRateThrottle])
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/social/(?P<provider>[^/.]+)",
+        throttle_classes=[SocialAuthRateThrottle],
+    )
     def auth_social_login(self, request, provider=None):
         """POST /api/users/auth/social/:provider/ - Đăng nhập social"""
         serializer = SocialAuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             result = social_login(
                 provider=provider,
-                access_token=serializer.validated_data['access_token'],
-                role=serializer.validated_data.get('role', 'candidate'),
-                email=serializer.validated_data.get('email'),
-                full_name=serializer.validated_data.get('full_name')
+                access_token=serializer.validated_data["access_token"],
+                role=serializer.validated_data.get("role", "candidate"),
+                email=serializer.validated_data.get("email"),
+                full_name=serializer.validated_data.get("full_name"),
             )
         except (AuthenticationError, SocialAuthError) as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/verify-2fa')
+    @action(detail=False, methods=["post"], url_path="auth/verify-2fa")
     def auth_verify_2fa(self, request):
         """POST /api/users/auth/verify-2fa/ - Xác thực 2FA"""
         serializer = Verify2FASerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            result = verify_2fa(data=Verify2FAInput(
-                user_id=request.user.id,
-                code=serializer.validated_data['code']
-            ))
+            result = verify_2fa(
+                data=Verify2FAInput(
+                    user_id=request.user.id, code=serializer.validated_data["code"]
+                )
+            )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='auth/2fa/status')
+    @action(detail=False, methods=["get"], url_path="auth/2fa/status")
     def auth_2fa_status(self, request):
         """GET /api/users/auth/2fa/status/ - Lấy trạng thái 2FA"""
         result = get_2fa_status(request.user)
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/2fa/enable')
+    @action(detail=False, methods=["post"], url_path="auth/2fa/enable")
     def auth_2fa_enable(self, request):
         """POST /api/users/auth/2fa/enable/ - Bật 2FA"""
         try:
             result = enable_2fa(request.user)
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/2fa/disable')
+    @action(detail=False, methods=["post"], url_path="auth/2fa/disable")
     def auth_2fa_disable(self, request):
         """POST /api/users/auth/2fa/disable/ - Tắt 2FA"""
         serializer = TwoFactorDisableSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
-            result = disable_2fa(request.user, serializer.validated_data['code'])
+            result = disable_2fa(request.user, serializer.validated_data["code"])
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(result, status=status.HTTP_200_OK)
 
     # ============================================================
     # Passkey (WebAuthn/FIDO2) Endpoints
     # ============================================================
 
-    @action(detail=False, methods=['post'], url_path='auth/passkey/register/options')
+    @action(detail=False, methods=["post"], url_path="auth/passkey/register/options")
     def passkey_register_options(self, request):
         """
         POST /api/users/auth/passkey/register/options/
@@ -575,10 +732,10 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             options = generate_registration_options(user=request.user)
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(options, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/passkey/register/verify')
+    @action(detail=False, methods=["post"], url_path="auth/passkey/register/verify")
     def passkey_register_verify(self, request):
         """
         POST /api/users/auth/passkey/register/verify/
@@ -586,22 +743,24 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         """
         serializer = PasskeyRegisterVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             result = verify_registration(
                 user=request.user,
-                credential_id=serializer.validated_data['credential_id'],
-                client_data_json=serializer.validated_data['client_data_json'],
-                attestation_object=serializer.validated_data['attestation_object'],
-                device_name=serializer.validated_data.get('device_name', 'Passkey'),
-                transports=serializer.validated_data.get('transports', []),
+                credential_id=serializer.validated_data["credential_id"],
+                client_data_json=serializer.validated_data["client_data_json"],
+                attestation_object=serializer.validated_data["attestation_object"],
+                device_name=serializer.validated_data.get("device_name", "Passkey"),
+                transports=serializer.validated_data.get("transports", []),
             )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(result, status=status.HTTP_201_CREATED)
 
-    @action(detail=False, methods=['post'], url_path='auth/passkey/authenticate/options')
+    @action(
+        detail=False, methods=["post"], url_path="auth/passkey/authenticate/options"
+    )
     def passkey_auth_options(self, request):
         """
         POST /api/users/auth/passkey/authenticate/options/
@@ -610,17 +769,17 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         """
         serializer = PasskeyAuthOptionsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             options = generate_authentication_options(
-                email=serializer.validated_data.get('email'),
+                email=serializer.validated_data.get("email"),
             )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response(options, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['post'], url_path='auth/passkey/authenticate/verify')
+    @action(detail=False, methods=["post"], url_path="auth/passkey/authenticate/verify")
     def passkey_auth_verify(self, request):
         """
         POST /api/users/auth/passkey/authenticate/verify/
@@ -628,23 +787,23 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         """
         serializer = PasskeyAuthVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             result = verify_authentication(
-                session_id=serializer.validated_data['session_id'],
-                credential_id=serializer.validated_data['credential_id'],
-                client_data_json=serializer.validated_data['client_data_json'],
-                authenticator_data=serializer.validated_data['authenticator_data'],
-                signature=serializer.validated_data['signature'],
-                user_handle=serializer.validated_data.get('user_handle', ''),
+                session_id=serializer.validated_data["session_id"],
+                credential_id=serializer.validated_data["credential_id"],
+                client_data_json=serializer.validated_data["client_data_json"],
+                authenticator_data=serializer.validated_data["authenticator_data"],
+                signature=serializer.validated_data["signature"],
+                user_handle=serializer.validated_data.get("user_handle", ""),
             )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='auth/passkey/list')
+    @action(detail=False, methods=["get"], url_path="auth/passkey/list")
     def passkey_list(self, request):
         """
         GET /api/users/auth/passkey/list/
@@ -653,7 +812,11 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         passkeys = list_user_passkeys(user=request.user)
         return Response(passkeys, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['delete'], url_path='auth/passkey/(?P<passkey_id>[0-9]+)/delete')
+    @action(
+        detail=False,
+        methods=["delete"],
+        url_path="auth/passkey/(?P<passkey_id>[0-9]+)/delete",
+    )
     def passkey_delete(self, request, passkey_id=None):
         """
         DELETE /api/users/auth/passkey/:id/delete/
@@ -663,10 +826,14 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
             delete_user_passkey(user=request.user, passkey_id=int(passkey_id))
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         return Response({"detail": "Passkey đã được xóa."}, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['patch'], url_path='auth/passkey/(?P<passkey_id>[0-9]+)/rename')
+    @action(
+        detail=False,
+        methods=["patch"],
+        url_path="auth/passkey/(?P<passkey_id>[0-9]+)/rename",
+    )
     def passkey_rename(self, request, passkey_id=None):
         """
         PATCH /api/users/auth/passkey/:id/rename/
@@ -674,12 +841,12 @@ class CustomUserViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixi
         """
         serializer = PasskeyUpdateNameSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         try:
             result = update_passkey_name(
                 user=request.user,
                 passkey_id=int(passkey_id),
-                device_name=serializer.validated_data['device_name'],
+                device_name=serializer.validated_data["device_name"],
             )
             return Response(result, status=status.HTTP_200_OK)
         except AuthenticationError as e:

@@ -9,7 +9,7 @@ class InterviewTypeViewSet(viewsets.ModelViewSet):
     """
     ViewSet cho quản lý loại phỏng vấn.
     URL: /api/interview-types/
-    
+
     Endpoints:
     - GET /           → list
     - POST /          → create
@@ -18,15 +18,16 @@ class InterviewTypeViewSet(viewsets.ModelViewSet):
     - PATCH /:id/     → partial_update
     - DELETE /:id/    → destroy
     """
-    queryset = InterviewType.objects.all().order_by('name')
+
+    queryset = InterviewType.objects.all().order_by("name")
     serializer_class = InterviewTypeSerializer
-    
+
     def get_permissions(self):
         """
-            List/Retrieve: Authenticated users
-            Create/Update/Delete: Admin only
+        List/Retrieve: Authenticated users
+        Create/Update/Delete: Admin only
         """
-        if self.action in ['list', 'retrieve']:
+        if self.action in ["list", "retrieve"]:
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAdminUser]

@@ -4,20 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('geography_communes', '0001_initial'),
+        ("geography_communes", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='commune',
-            name='commune_code',
-            field=models.CharField(blank=True, db_index=True, max_length=20, null=True, unique=True, verbose_name='Mã xã/phường'),
+            model_name="commune",
+            name="commune_code",
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                max_length=20,
+                null=True,
+                unique=True,
+                verbose_name="Mã xã/phường",
+            ),
         ),
         migrations.AddField(
-            model_name='commune',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="commune",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

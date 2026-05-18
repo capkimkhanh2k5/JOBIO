@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 from django.db import transaction  # noqa: E402
 from apps.communication.job_alerts.tasks import process_job_matching_task  # noqa: E402
 
+
 @receiver(post_save, sender=Job)
 def trigger_job_matching(sender, instance, created, **kwargs):
     """

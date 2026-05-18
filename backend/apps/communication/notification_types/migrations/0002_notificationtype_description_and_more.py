@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('communication_notification_types', '0001_initial'),
+        ("communication_notification_types", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='notificationtype',
-            name='description',
-            field=models.TextField(blank=True, null=True, verbose_name='Mô tả'),
+            model_name="notificationtype",
+            name="description",
+            field=models.TextField(blank=True, null=True, verbose_name="Mô tả"),
         ),
         migrations.AddField(
-            model_name='notificationtype',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="notificationtype",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

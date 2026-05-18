@@ -6,24 +6,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('recruitment_application_status_history', '0001_initial'),
-        ('recruitment_applications', '0001_initial'),
+        ("recruitment_application_status_history", "0001_initial"),
+        ("recruitment_applications", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='applicationstatushistory',
-            name='application',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='status_history', to='recruitment_applications.application', verbose_name='Đơn ứng tuyển'),
+            model_name="applicationstatushistory",
+            name="application",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="status_history",
+                to="recruitment_applications.application",
+                verbose_name="Đơn ứng tuyển",
+            ),
         ),
         migrations.AddField(
-            model_name='applicationstatushistory',
-            name='changed_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='status_changes', to=settings.AUTH_USER_MODEL, verbose_name='Người thay đổi'),
+            model_name="applicationstatushistory",
+            name="changed_by",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="status_changes",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Người thay đổi",
+            ),
         ),
     ]

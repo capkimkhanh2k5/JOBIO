@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import CommuneViewSet
 
 router = DefaultRouter()
-router.register(r'', CommuneViewSet, basename='communes')
+router.register(r"", CommuneViewSet, basename="communes")
 
-app_name = 'communes'
+app_name = "communes"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

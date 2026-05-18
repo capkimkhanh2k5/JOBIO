@@ -4,29 +4,74 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Province',
+            name="Province",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('province_code', models.CharField(db_index=True, max_length=20, unique=True, verbose_name='Mã tỉnh')),
-                ('province_name', models.CharField(max_length=100, verbose_name='Tên tỉnh/thành phố')),
-                ('province_type', models.CharField(choices=[('province', 'Tỉnh'), ('municipality', 'Thành phố trực thuộc Trung ương')], max_length=20, verbose_name='Loại')),
-                ('region', models.CharField(choices=[('north', 'Miền Bắc'), ('central', 'Miền Trung'), ('south', 'Miền Nam')], db_index=True, max_length=10, verbose_name='Vùng miền')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "province_code",
+                    models.CharField(
+                        db_index=True,
+                        max_length=20,
+                        unique=True,
+                        verbose_name="Mã tỉnh",
+                    ),
+                ),
+                (
+                    "province_name",
+                    models.CharField(max_length=100, verbose_name="Tên tỉnh/thành phố"),
+                ),
+                (
+                    "province_type",
+                    models.CharField(
+                        choices=[
+                            ("province", "Tỉnh"),
+                            ("municipality", "Thành phố trực thuộc Trung ương"),
+                        ],
+                        max_length=20,
+                        verbose_name="Loại",
+                    ),
+                ),
+                (
+                    "region",
+                    models.CharField(
+                        choices=[
+                            ("north", "Miền Bắc"),
+                            ("central", "Miền Trung"),
+                            ("south", "Miền Nam"),
+                        ],
+                        db_index=True,
+                        max_length=10,
+                        verbose_name="Vùng miền",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Tỉnh/Thành phố',
-                'verbose_name_plural': 'Tỉnh/Thành phố',
-                'db_table': 'provinces',
-                'ordering': ['province_name'],
+                "verbose_name": "Tỉnh/Thành phố",
+                "verbose_name_plural": "Tỉnh/Thành phố",
+                "db_table": "provinces",
+                "ordering": ["province_name"],
             },
         ),
     ]

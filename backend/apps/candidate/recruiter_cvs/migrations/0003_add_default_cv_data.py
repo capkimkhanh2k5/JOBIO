@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_cvs', '0002_initial'),
+        ("candidate_recruiter_cvs", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='recruitercv',
-            name='cv_data',
-            field=models.JSONField(default=dict, verbose_name='Dữ liệu CV'),
+            model_name="recruitercv",
+            name="cv_data",
+            field=models.JSONField(default=dict, verbose_name="Dữ liệu CV"),
         ),
     ]

@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_languages', '0002_initial'),
+        ("candidate_recruiter_languages", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recruiterlanguage',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="recruiterlanguage",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

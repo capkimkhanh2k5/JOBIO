@@ -5,30 +5,67 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_recruiters', '0001_initial'),
-        ('recruitment_jobs', '0001_initial'),
+        ("candidate_recruiters", "0001_initial"),
+        ("recruitment_jobs", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SavedJob',
+            name="SavedJob",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('folder_name', models.CharField(blank=True, max_length=100, null=True, verbose_name='Tên thư mục')),
-                ('notes', models.TextField(blank=True, null=True, verbose_name='Ghi chú')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày lưu')),
-                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_by', to='recruitment_jobs.job', verbose_name='Công việc')),
-                ('recruiter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_jobs', to='candidate_recruiters.recruiter', verbose_name='Ứng viên')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "folder_name",
+                    models.CharField(
+                        blank=True,
+                        max_length=100,
+                        null=True,
+                        verbose_name="Tên thư mục",
+                    ),
+                ),
+                (
+                    "notes",
+                    models.TextField(blank=True, null=True, verbose_name="Ghi chú"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày lưu"),
+                ),
+                (
+                    "job",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saved_by",
+                        to="recruitment_jobs.job",
+                        verbose_name="Công việc",
+                    ),
+                ),
+                (
+                    "recruiter",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saved_jobs",
+                        to="candidate_recruiters.recruiter",
+                        verbose_name="Ứng viên",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Công việc đã lưu',
-                'verbose_name_plural': 'Công việc đã lưu',
-                'db_table': 'saved_jobs',
-                'unique_together': {('recruiter', 'job')},
+                "verbose_name": "Công việc đã lưu",
+                "verbose_name_plural": "Công việc đã lưu",
+                "db_table": "saved_jobs",
+                "unique_together": {("recruiter", "job")},
             },
         ),
     ]

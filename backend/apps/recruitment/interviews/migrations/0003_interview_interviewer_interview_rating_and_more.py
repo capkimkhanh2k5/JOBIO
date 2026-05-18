@@ -7,26 +7,42 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recruitment_interviews', '0002_alter_interview_result'),
+        ("recruitment_interviews", "0002_alter_interview_result"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='interview',
-            name='interviewer',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='conducted_interviews', to=settings.AUTH_USER_MODEL, verbose_name='Người phỏng vấn'),
+            model_name="interview",
+            name="interviewer",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="conducted_interviews",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Người phỏng vấn",
+            ),
         ),
         migrations.AddField(
-            model_name='interview',
-            name='rating',
-            field=models.IntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(5)], verbose_name='Đánh giá'),
+            model_name="interview",
+            name="rating",
+            field=models.IntegerField(
+                blank=True,
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(1),
+                    django.core.validators.MaxValueValidator(5),
+                ],
+                verbose_name="Đánh giá",
+            ),
         ),
         migrations.AddField(
-            model_name='interview',
-            name='role',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Vai trò'),
+            model_name="interview",
+            name="role",
+            field=models.CharField(
+                blank=True, max_length=100, null=True, verbose_name="Vai trò"
+            ),
         ),
     ]

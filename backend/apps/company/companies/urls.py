@@ -7,15 +7,15 @@ from apps.company.company_benefits.views import CompanyBenefitViewSet
 
 # Main router cho companies
 router = DefaultRouter()
-router.register(r'', CompanyViewSet, basename='company')
+router.register(r"", CompanyViewSet, basename="company")
 
 # Nested router cho benefits: /api/companies/:company_pk/benefits/
-companies_router = nested_routers.NestedDefaultRouter(router, r'', lookup='company')
-companies_router.register(r'benefits', CompanyBenefitViewSet, basename='company-benefits')
+companies_router = nested_routers.NestedDefaultRouter(router, r"", lookup="company")
+companies_router.register(
+    r"benefits", CompanyBenefitViewSet, basename="company-benefits"
+)
 
 urlpatterns = [
-
-    path('', include(router.urls)),
-    path('', include(companies_router.urls)),
+    path("", include(router.urls)),
+    path("", include(companies_router.urls)),
 ]
-

@@ -13,29 +13,53 @@ class RecruiterSerializer(serializers.ModelSerializer):
     address = AddressDetailSerializer(read_only=True)
     score = serializers.SerializerMethodField()
     checklist = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Recruiter
         fields = [
-            'id', 'user', 'current_company', 'current_position', 
-            'date_of_birth', 'gender', 'address', 'bio', 
-            'linkedin_url', 'facebook_url', 'github_url', 'portfolio_url',
-            'job_search_status', 'desired_salary_min', 'desired_salary_max', 'salary_currency',
-            'available_from_date', 'years_of_experience', 'highest_education_level',
-            'profile_completeness_score', 'is_profile_public', 'profile_views_count',
-            'created_at', 'updated_at', 'score', 'checklist'
+            "id",
+            "user",
+            "current_company",
+            "current_position",
+            "date_of_birth",
+            "gender",
+            "address",
+            "bio",
+            "linkedin_url",
+            "facebook_url",
+            "github_url",
+            "portfolio_url",
+            "job_search_status",
+            "desired_salary_min",
+            "desired_salary_max",
+            "salary_currency",
+            "available_from_date",
+            "years_of_experience",
+            "highest_education_level",
+            "profile_completeness_score",
+            "is_profile_public",
+            "profile_views_count",
+            "created_at",
+            "updated_at",
+            "score",
+            "checklist",
         ]
         read_only_fields = [
-            'id', 'created_at', 'updated_at', 
-            'profile_completeness_score', 'profile_views_count',
-            'score', 'checklist'
+            "id",
+            "created_at",
+            "updated_at",
+            "profile_completeness_score",
+            "profile_views_count",
+            "score",
+            "checklist",
         ]
 
     def get_score(self, obj):
         return obj.profile_completeness_score
 
     def get_checklist(self, obj):
-        return calculate_profile_completeness_service(obj).get('checklist', [])
+        return calculate_profile_completeness_service(obj).get("checklist", [])
+
 
 class RecruiterDetailSerializer(RecruiterSerializer):
     """Serializer chi tiết cho Recruiter bao gồm đầy đủ các bảng liên quan"""
@@ -46,109 +70,193 @@ class RecruiterDetailSerializer(RecruiterSerializer):
     certifications = serializers.SerializerMethodField()
     languages = serializers.SerializerMethodField()
     projects = serializers.SerializerMethodField()
-    current_company_name = serializers.CharField(source='current_company.company_name', read_only=True)
+    current_company_name = serializers.CharField(
+        source="current_company.company_name", read_only=True
+    )
 
     def get_experiences(self, obj):
         from apps.candidate.recruiter_experience.serializers import ExperienceSerializer
+
         return ExperienceSerializer(obj.experiences.all(), many=True).data
 
     def get_education(self, obj):
         from apps.candidate.recruiter_education.serializers import EducationSerializer
+
         return EducationSerializer(obj.education.all(), many=True).data
 
     def get_skills(self, obj):
         from apps.candidate.recruiter_skills.serializers import RecruiterSkillSerializer
+
         return RecruiterSkillSerializer(obj.skills.all(), many=True).data
 
     def get_certifications(self, obj):
-        from apps.candidate.recruiter_certifications.serializers import CertificationSerializer
+        from apps.candidate.recruiter_certifications.serializers import (
+            CertificationSerializer,
+        )
+
         return CertificationSerializer(obj.certifications.all(), many=True).data
 
     def get_languages(self, obj):
-        from apps.candidate.recruiter_languages.serializers import RecruiterLanguageSerializer
+        from apps.candidate.recruiter_languages.serializers import (
+            RecruiterLanguageSerializer,
+        )
+
         return RecruiterLanguageSerializer(obj.languages.all(), many=True).data
 
     def get_projects(self, obj):
         from apps.candidate.recruiter_projects.serializers import ProjectSerializer
+
         return ProjectSerializer(obj.projects.all(), many=True).data
 
     class Meta:
         model = Recruiter
         fields = [
-            'id', 'user', 'current_company', 'current_position', 
-            'date_of_birth', 'gender', 'address', 'bio', 
-            'linkedin_url', 'facebook_url', 'github_url', 'portfolio_url',
-            'job_search_status', 'desired_salary_min', 'desired_salary_max', 'salary_currency',
-            'available_from_date', 'years_of_experience', 'highest_education_level',
-            'profile_completeness_score', 'is_profile_public', 'profile_views_count',
-            'created_at', 'updated_at', 'score', 'checklist',
-            'experiences', 'education', 'skills', 
-            'certifications', 'languages', 'projects', 'current_company_name'
+            "id",
+            "user",
+            "current_company",
+            "current_position",
+            "date_of_birth",
+            "gender",
+            "address",
+            "bio",
+            "linkedin_url",
+            "facebook_url",
+            "github_url",
+            "portfolio_url",
+            "job_search_status",
+            "desired_salary_min",
+            "desired_salary_max",
+            "salary_currency",
+            "available_from_date",
+            "years_of_experience",
+            "highest_education_level",
+            "profile_completeness_score",
+            "is_profile_public",
+            "profile_views_count",
+            "created_at",
+            "updated_at",
+            "score",
+            "checklist",
+            "experiences",
+            "education",
+            "skills",
+            "certifications",
+            "languages",
+            "projects",
+            "current_company_name",
         ]
         read_only_fields = [
-            'id', 'created_at', 'updated_at', 
-            'profile_completeness_score', 'profile_views_count',
-            'score', 'checklist'
+            "id",
+            "created_at",
+            "updated_at",
+            "profile_completeness_score",
+            "profile_views_count",
+            "score",
+            "checklist",
         ]
+
 
 class RecruiterCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recruiter
         fields = [
-            'current_company', 'current_position', 
-            'date_of_birth', 'gender', 'address', 'bio', 
-            'linkedin_url', 'facebook_url', 'github_url', 'portfolio_url',
-            'job_search_status', 'desired_salary_min', 'desired_salary_max', 'salary_currency',
-            'available_from_date', 'years_of_experience', 'highest_education_level',
-            'is_profile_public'
+            "current_company",
+            "current_position",
+            "date_of_birth",
+            "gender",
+            "address",
+            "bio",
+            "linkedin_url",
+            "facebook_url",
+            "github_url",
+            "portfolio_url",
+            "job_search_status",
+            "desired_salary_min",
+            "desired_salary_max",
+            "salary_currency",
+            "available_from_date",
+            "years_of_experience",
+            "highest_education_level",
+            "is_profile_public",
         ]
+
 
 class RecruiterUpdateSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(required=False)
     address = serializers.JSONField(required=False)
-    
+
     class Meta:
         model = Recruiter
         fields = [
-            'full_name',
-            'current_company', 'current_position', 
-            'date_of_birth', 'gender', 'address', 'bio', 
-            'linkedin_url', 'facebook_url', 'github_url', 'portfolio_url',
-            'job_search_status', 'desired_salary_min', 'desired_salary_max', 'salary_currency',
-            'available_from_date', 'years_of_experience', 'highest_education_level',
-            'is_profile_public'
+            "full_name",
+            "current_company",
+            "current_position",
+            "date_of_birth",
+            "gender",
+            "address",
+            "bio",
+            "linkedin_url",
+            "facebook_url",
+            "github_url",
+            "portfolio_url",
+            "job_search_status",
+            "desired_salary_min",
+            "desired_salary_max",
+            "salary_currency",
+            "available_from_date",
+            "years_of_experience",
+            "highest_education_level",
+            "is_profile_public",
         ]
 
+
 class JobSearchStatusSerializer(serializers.Serializer):
-    job_search_status = serializers.ChoiceField(choices=Recruiter.JobSearchStatus.choices)
+    job_search_status = serializers.ChoiceField(
+        choices=Recruiter.JobSearchStatus.choices
+    )
+
 
 class ProfileCompletenessSerializer(serializers.Serializer):
     score = serializers.IntegerField(read_only=True)
-    missing_fields = serializers.ListField(child=serializers.CharField(), read_only=True)
+    missing_fields = serializers.ListField(
+        child=serializers.CharField(), read_only=True
+    )
+
 
 class RecruiterAvatarSerializer(serializers.Serializer):
     avatar = serializers.ImageField(max_length=None, use_url=True)
-    
+
+
 class RecruiterPublicProfileSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
-    
+
     class Meta:
         model = Recruiter
         fields = [
-            'id', 'user', 'current_company', 'current_position', 
-            'bio', 'linkedin_url', 'github_url', 'portfolio_url',
-            'years_of_experience', 'highest_education_level',
+            "id",
+            "user",
+            "current_company",
+            "current_position",
+            "bio",
+            "linkedin_url",
+            "github_url",
+            "portfolio_url",
+            "years_of_experience",
+            "highest_education_level",
         ]
-        read_only_fields = ['id']
+        read_only_fields = ["id"]
+
 
 class RecruiterPrivacySerializer(serializers.ModelSerializer):
     class Meta:
         model = Recruiter
-        fields = ['is_profile_public']
+        fields = ["is_profile_public"]
+
 
 class RecruiterStatsSerializer(serializers.Serializer):
     profile_views = serializers.IntegerField(read_only=True)
     following_companies = serializers.IntegerField(read_only=True)
+
 
 class RecruiterSearchFilterSerializer(serializers.Serializer):
     skills = serializers.ListField(child=serializers.CharField())
@@ -159,14 +267,17 @@ class RecruiterSearchFilterSerializer(serializers.Serializer):
 
 class RecruiterApplicationSerializer(serializers.Serializer):
     """Placeholder cho danh sách đơn ứng tuyển"""
+
     id = serializers.IntegerField()
     job_title = serializers.CharField()
     company_name = serializers.CharField()
     status = serializers.CharField()
     applied_at = serializers.DateTimeField()
 
+
 class SavedJobSerializer(serializers.Serializer):
     """Serializer cho danh sách việc làm đã lưu"""
+
     id = serializers.SerializerMethodField()
     job_id = serializers.SerializerMethodField()
     job_title = serializers.SerializerMethodField()
@@ -175,22 +286,29 @@ class SavedJobSerializer(serializers.Serializer):
     salary = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     saved_at = serializers.SerializerMethodField()
-    
+
     def get_id(self, obj):
         return obj.id
-        
+
     def get_job_id(self, obj):
         return obj.job.id if obj.job else None
-    
+
     def get_job_title(self, obj):
         return obj.job.title if obj.job else None
-    
+
     def get_company_name(self, obj):
         return obj.job.company.company_name if obj.job and obj.job.company else None
-        
+
     def get_logo_url(self, obj):
-        return obj.job.company.logo_url if obj.job and obj.job.company and hasattr(obj.job.company, 'logo_url') and obj.job.company.logo_url else None
-        
+        return (
+            obj.job.company.logo_url
+            if obj.job
+            and obj.job.company
+            and hasattr(obj.job.company, "logo_url")
+            and obj.job.company.logo_url
+            else None
+        )
+
     def get_salary(self, obj):
         if not obj.job:
             return None
@@ -199,12 +317,17 @@ class SavedJobSerializer(serializers.Serializer):
         elif obj.job.salary_min:
             return f"Từ {int(obj.job.salary_min)} {obj.job.salary_currency}"
         return "Thoả thuận"
-        
+
     def get_location(self, obj):
-        if obj.job and getattr(obj.job, 'primary_location', None):
-            return obj.job.primary_location.address.province.province_name if obj.job.primary_location.address and obj.job.primary_location.address.province else None
+        if obj.job and getattr(obj.job, "primary_location", None):
+            return (
+                obj.job.primary_location.address.province.province_name
+                if obj.job.primary_location.address
+                and obj.job.primary_location.address.province
+                else None
+            )
         # Fallback to general area etc if needed
         return None
-    
+
     def get_saved_at(self, obj):
         return obj.created_at

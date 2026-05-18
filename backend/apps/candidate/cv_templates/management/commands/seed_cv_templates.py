@@ -2,6 +2,7 @@
 Management command to seed CV templates and categories.
 Run: python manage.py seed_cv_templates
 """
+
 from django.core.management.base import BaseCommand
 
 TEMPLATE_DATA = [
@@ -69,7 +70,9 @@ class Command(BaseCommand):
         if options["clear"]:
             CVTemplate.objects.all().delete()
             CVTemplateCategory.objects.all().delete()
-            self.stdout.write(self.style.WARNING("Cleared existing templates and categories."))
+            self.stdout.write(
+                self.style.WARNING("Cleared existing templates and categories.")
+            )
 
         # Create/update categories
         category_map = {}
@@ -114,12 +117,17 @@ class Command(BaseCommand):
                     "is_premium": False,
                     "price": 0,
                     "is_active": True,
-                    "template_data": {"tags": tpl["tags"], "description": tpl["description"]},
+                    "template_data": {
+                        "tags": tpl["tags"],
+                        "description": tpl["description"],
+                    },
                 },
             )
             if created:
                 created_count += 1
-                self.stdout.write(self.style.SUCCESS(f"  Created template: {obj.name} (id={obj.id})"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"  Created template: {obj.name} (id={obj.id})")
+                )
             else:
                 updated_count += 1
                 self.stdout.write(f"  Updated template: {obj.name} (id={obj.id})")

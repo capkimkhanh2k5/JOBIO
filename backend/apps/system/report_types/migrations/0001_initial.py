@@ -4,27 +4,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ReportType',
+            name="ReportType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type_name', models.CharField(max_length=100, unique=True, verbose_name='Tên loại báo cáo')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('template', models.JSONField(blank=True, null=True, verbose_name='Template')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type_name",
+                    models.CharField(
+                        max_length=100, unique=True, verbose_name="Tên loại báo cáo"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "template",
+                    models.JSONField(blank=True, null=True, verbose_name="Template"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Loại báo cáo',
-                'verbose_name_plural': 'Loại báo cáo',
-                'db_table': 'report_types',
+                "verbose_name": "Loại báo cáo",
+                "verbose_name_plural": "Loại báo cáo",
+                "db_table": "report_types",
             },
         ),
     ]

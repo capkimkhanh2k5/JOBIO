@@ -4,67 +4,99 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('billing', '0004_alter_companysubscription_status'),
+        ("billing", "0004_alter_companysubscription_status"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='companysubscription',
-            options={'verbose_name': 'Đăng ký công ty', 'verbose_name_plural': 'Đăng ký công ty'},
+            name="companysubscription",
+            options={
+                "verbose_name": "Đăng ký công ty",
+                "verbose_name_plural": "Đăng ký công ty",
+            },
         ),
         migrations.AlterModelOptions(
-            name='paymentmethod',
-            options={'verbose_name': 'Phương thức thanh toán', 'verbose_name_plural': 'Phương thức thanh toán'},
+            name="paymentmethod",
+            options={
+                "verbose_name": "Phương thức thanh toán",
+                "verbose_name_plural": "Phương thức thanh toán",
+            },
         ),
         migrations.AlterModelOptions(
-            name='subscriptionplan',
-            options={'verbose_name': 'Gói đăng ký', 'verbose_name_plural': 'Gói đăng ký'},
+            name="subscriptionplan",
+            options={
+                "verbose_name": "Gói đăng ký",
+                "verbose_name_plural": "Gói đăng ký",
+            },
         ),
         migrations.AlterModelOptions(
-            name='transaction',
-            options={'ordering': ['-created_at'], 'verbose_name': 'Giao dịch', 'verbose_name_plural': 'Giao dịch'},
+            name="transaction",
+            options={
+                "ordering": ["-created_at"],
+                "verbose_name": "Giao dịch",
+                "verbose_name_plural": "Giao dịch",
+            },
         ),
         migrations.AlterField(
-            model_name='companysubscription',
-            name='end_date',
+            model_name="companysubscription",
+            name="end_date",
             field=models.DateField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='companysubscription',
-            name='status',
-            field=models.CharField(choices=[('active', 'Active'), ('pending', 'Pending'), ('expired', 'Expired'), ('cancelled', 'Cancelled')], db_index=True, default='active', max_length=20),
+            model_name="companysubscription",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("active", "Active"),
+                    ("pending", "Pending"),
+                    ("expired", "Expired"),
+                    ("cancelled", "Cancelled"),
+                ],
+                db_index=True,
+                default="active",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='paymentmethod',
-            name='is_active',
+            model_name="paymentmethod",
+            name="is_active",
             field=models.BooleanField(db_index=True, default=True),
         ),
         migrations.AlterField(
-            model_name='subscriptionplan',
-            name='is_active',
+            model_name="subscriptionplan",
+            name="is_active",
             field=models.BooleanField(db_index=True, default=True),
         ),
         migrations.AlterField(
-            model_name='transaction',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('completed', 'Completed'), ('failed', 'Failed'), ('refunded', 'Refunded')], db_index=True, default='pending', max_length=20),
+            model_name="transaction",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "Pending"),
+                    ("completed", "Completed"),
+                    ("failed", "Failed"),
+                    ("refunded", "Refunded"),
+                ],
+                db_index=True,
+                default="pending",
+                max_length=20,
+            ),
         ),
         migrations.AlterModelTable(
-            name='companysubscription',
-            table='company_subscriptions',
+            name="companysubscription",
+            table="company_subscriptions",
         ),
         migrations.AlterModelTable(
-            name='paymentmethod',
-            table='payment_methods',
+            name="paymentmethod",
+            table="payment_methods",
         ),
         migrations.AlterModelTable(
-            name='subscriptionplan',
-            table='subscription_plans',
+            name="subscriptionplan",
+            table="subscription_plans",
         ),
         migrations.AlterModelTable(
-            name='transaction',
-            table='transactions',
+            name="transaction",
+            table="transactions",
         ),
     ]

@@ -5,11 +5,11 @@ from ..models import MediaType
 
 def list_media_types(is_active: Optional[bool] = None) -> QuerySet[MediaType]:
     """Lấy danh sách loại media"""
-    queryset = MediaType.objects.all().order_by('type_name')
-    
+    queryset = MediaType.objects.all().order_by("type_name")
+
     if is_active is not None:
         queryset = queryset.filter(is_active=is_active)
-    
+
     return queryset
 
 

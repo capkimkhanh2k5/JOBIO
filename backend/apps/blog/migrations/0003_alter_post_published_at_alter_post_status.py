@@ -4,20 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('blog', '0002_post_company'),
+        ("blog", "0002_post_company"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='post',
-            name='published_at',
+            model_name="post",
+            name="published_at",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='status',
-            field=models.CharField(choices=[('draft', 'Draft'), ('published', 'Published'), ('archived', 'Archived')], db_index=True, default='draft', max_length=20),
+            model_name="post",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "Draft"),
+                    ("published", "Published"),
+                    ("archived", "Archived"),
+                ],
+                db_index=True,
+                default="draft",
+                max_length=20,
+            ),
         ),
     ]

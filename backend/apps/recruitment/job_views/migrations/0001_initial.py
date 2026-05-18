@@ -4,27 +4,54 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JobView',
+            name="JobView",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True, verbose_name='Địa chỉ IP')),
-                ('user_agent', models.TextField(blank=True, null=True, verbose_name='User Agent')),
-                ('referrer', models.URLField(blank=True, max_length=500, null=True, verbose_name='Nguồn truy cập')),
-                ('viewed_at', models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Thời gian xem')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="Địa chỉ IP"
+                    ),
+                ),
+                (
+                    "user_agent",
+                    models.TextField(blank=True, null=True, verbose_name="User Agent"),
+                ),
+                (
+                    "referrer",
+                    models.URLField(
+                        blank=True,
+                        max_length=500,
+                        null=True,
+                        verbose_name="Nguồn truy cập",
+                    ),
+                ),
+                (
+                    "viewed_at",
+                    models.DateTimeField(
+                        auto_now_add=True, db_index=True, verbose_name="Thời gian xem"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Lượt xem công việc',
-                'verbose_name_plural': 'Lượt xem công việc',
-                'db_table': 'job_views',
-                'ordering': ['-viewed_at'],
+                "verbose_name": "Lượt xem công việc",
+                "verbose_name_plural": "Lượt xem công việc",
+                "db_table": "job_views",
+                "ordering": ["-viewed_at"],
             },
         ),
     ]

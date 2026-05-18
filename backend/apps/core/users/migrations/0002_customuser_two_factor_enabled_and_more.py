@@ -4,20 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core_users', '0001_initial'),
+        ("core_users", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='two_factor_enabled',
-            field=models.BooleanField(default=False, verbose_name='Kích hoạt 2FA'),
+            model_name="customuser",
+            name="two_factor_enabled",
+            field=models.BooleanField(default=False, verbose_name="Kích hoạt 2FA"),
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='two_factor_secret',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Mã bí mật 2FA'),
+            model_name="customuser",
+            name="two_factor_secret",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="Mã bí mật 2FA"
+            ),
         ),
     ]

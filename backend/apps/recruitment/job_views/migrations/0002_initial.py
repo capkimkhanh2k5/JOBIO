@@ -6,24 +6,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('recruitment_job_views', '0001_initial'),
-        ('recruitment_jobs', '0001_initial'),
+        ("recruitment_job_views", "0001_initial"),
+        ("recruitment_jobs", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='jobview',
-            name='job',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='views', to='recruitment_jobs.job', verbose_name='Công việc'),
+            model_name="jobview",
+            name="job",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="views",
+                to="recruitment_jobs.job",
+                verbose_name="Công việc",
+            ),
         ),
         migrations.AddField(
-            model_name='jobview',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='job_views', to=settings.AUTH_USER_MODEL, verbose_name='Người xem'),
+            model_name="jobview",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="job_views",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Người xem",
+            ),
         ),
     ]

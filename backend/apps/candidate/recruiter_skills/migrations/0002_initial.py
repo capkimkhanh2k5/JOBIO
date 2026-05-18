@@ -5,28 +5,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_recruiter_skills', '0001_initial'),
-        ('candidate_recruiters', '0001_initial'),
-        ('candidate_skills', '0001_initial'),
+        ("candidate_recruiter_skills", "0001_initial"),
+        ("candidate_recruiters", "0001_initial"),
+        ("candidate_skills", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recruiterskill',
-            name='recruiter',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='skills', to='candidate_recruiters.recruiter', verbose_name='Ứng viên'),
+            model_name="recruiterskill",
+            name="recruiter",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="skills",
+                to="candidate_recruiters.recruiter",
+                verbose_name="Ứng viên",
+            ),
         ),
         migrations.AddField(
-            model_name='recruiterskill',
-            name='skill',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recruiter_skills', to='candidate_skills.skill', verbose_name='Kỹ năng'),
+            model_name="recruiterskill",
+            name="skill",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="recruiter_skills",
+                to="candidate_skills.skill",
+                verbose_name="Kỹ năng",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='recruiterskill',
-            unique_together={('recruiter', 'skill')},
+            name="recruiterskill",
+            unique_together={("recruiter", "skill")},
         ),
     ]

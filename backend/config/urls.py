@@ -14,131 +14,130 @@ router = DefaultRouter()
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    
+    path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
     # Users app routes (login, logout, register, user management)
-    path('api/users/', include('apps.core.users.urls')),
-    
+    path("api/users/", include("apps.core.users.urls")),
     # Company app routes (includes nested benefits)
     # Company Followers routes (must be before generic company routes)
-    path('api/companies/', include('apps.social.company_followers.urls')),
-    path('api/companies/', include('apps.company.companies.urls')),
+    path("api/companies/", include("apps.social.company_followers.urls")),
+    path("api/companies/", include("apps.company.companies.urls")),
     # Company Media nested routes
-    path('api/companies/', include('apps.company.company_media.urls')),
-    
+    path("api/companies/", include("apps.company.company_media.urls")),
     # Jobs routes (Module 4 - CRITICAL)
-    path('api/jobs/', include('apps.recruitment.jobs.urls')),
-    
+    path("api/jobs/", include("apps.recruitment.jobs.urls")),
     # Candidate app routes
-    path('api/candidates/', include('apps.candidate.recruiters.urls')),
+    path("api/candidates/", include("apps.candidate.recruiters.urls")),
     # Candidate Education nested routes
-    path('api/candidates/<int:recruiter_id>/education/', include('apps.candidate.recruiter_education.urls')),
+    path(
+        "api/candidates/<int:recruiter_id>/education/",
+        include("apps.candidate.recruiter_education.urls"),
+    ),
     # Candidate Experience nested routes
-    path('api/candidates/<int:recruiter_id>/experience/', include('apps.candidate.recruiter_experience.urls')),
+    path(
+        "api/candidates/<int:recruiter_id>/experience/",
+        include("apps.candidate.recruiter_experience.urls"),
+    ),
     # Candidate Skills nested routes
-    path('api/candidates/<int:recruiter_id>/skills/', include('apps.candidate.recruiter_skills.urls')),
+    path(
+        "api/candidates/<int:recruiter_id>/skills/",
+        include("apps.candidate.recruiter_skills.urls"),
+    ),
     # Candidate Certifications nested routes
-    path('api/candidates/<int:recruiter_id>/certifications/', include('apps.candidate.recruiter_certifications.urls')),
+    path(
+        "api/candidates/<int:recruiter_id>/certifications/",
+        include("apps.candidate.recruiter_certifications.urls"),
+    ),
     # Candidate Languages nested routes
-    path('api/candidates/<int:recruiter_id>/languages/', include('apps.candidate.recruiter_languages.urls')),
+    path(
+        "api/candidates/<int:recruiter_id>/languages/",
+        include("apps.candidate.recruiter_languages.urls"),
+    ),
     # Candidate Projects nested routes
-    path('api/candidates/<int:recruiter_id>/projects/', include('apps.candidate.recruiter_projects.urls')),
-    
+    path(
+        "api/candidates/<int:recruiter_id>/projects/",
+        include("apps.candidate.recruiter_projects.urls"),
+    ),
     # Languages public routes
-    path('api/languages/', include('apps.candidate.languages.urls')),
-    
-    path('api/applications/', include('apps.recruitment.applications.urls')),
-    path('api/', include('apps.recruitment.application_status_history.urls')),
-    
+    path("api/languages/", include("apps.candidate.languages.urls")),
+    path("api/applications/", include("apps.recruitment.applications.urls")),
+    path("api/", include("apps.recruitment.application_status_history.urls")),
     # Billing routes
-    path('api/billing/', include('apps.billing.urls')),
-    
+    path("api/billing/", include("apps.billing.urls")),
     # Job Applications nested routes
-    path('api/jobs/<int:job_id>/applications/', include('apps.recruitment.applications.urls_nested')),
-    
+    path(
+        "api/jobs/<int:job_id>/applications/",
+        include("apps.recruitment.applications.urls_nested"),
+    ),
     # Job Skills nested routes
-    path('api/jobs/<int:job_id>/skills/', include('apps.recruitment.job_skills.urls')),
-    
+    path("api/jobs/<int:job_id>/skills/", include("apps.recruitment.job_skills.urls")),
     # Email routes
-
-    
     # Blog routes
-    path('api/blog/', include('apps.blog.urls')),
-    
+    path("api/blog/", include("apps.blog.urls")),
     # System Domaintions nested routes
-    path('api/jobs/<int:job_id>/locations/', include('apps.recruitment.job_locations.urls')),
-    
+    path(
+        "api/jobs/<int:job_id>/locations/",
+        include("apps.recruitment.job_locations.urls"),
+    ),
     # Saved Jobs routes
-    path('api/saved-jobs/', include('apps.recruitment.saved_jobs.urls')),
+    path("api/saved-jobs/", include("apps.recruitment.saved_jobs.urls")),
     # Candidate Saved Jobs nested routes
-    path('api/candidates/<int:recruiter_id>/saved-jobs/', 
-         include('apps.recruitment.saved_jobs.urls_nested')),
-    
+    path(
+        "api/candidates/<int:recruiter_id>/saved-jobs/",
+        include("apps.recruitment.saved_jobs.urls_nested"),
+    ),
     # Interviews routes
-    path('api/interviews/', include('apps.recruitment.interviews.urls')),
-    
+    path("api/interviews/", include("apps.recruitment.interviews.urls")),
     # Interview Types routes
-    path('api/interview-types/', include('apps.recruitment.interview_types.urls')),
-    
+    path("api/interview-types/", include("apps.recruitment.interview_types.urls")),
     # CV Templates routes (CV Builder Module)
-    path('api/cv-templates/', include('apps.candidate.cv_templates.urls')),
-    
+    path("api/cv-templates/", include("apps.candidate.cv_templates.urls")),
     # Candidate CVs nested routes
-    path('api/candidates/<int:recruiter_id>/cvs/', include('apps.candidate.recruiter_cvs.urls')),
-    
+    path(
+        "api/candidates/<int:recruiter_id>/cvs/",
+        include("apps.candidate.recruiter_cvs.urls"),
+    ),
     # Industries routes (Taxonomy)
-    path('api/industries/', include('apps.company.industries.urls')),
-    
+    path("api/industries/", include("apps.company.industries.urls")),
     # Job Categories routes (Taxonomy)
-    path('api/job-categories/', include('apps.recruitment.job_categories.urls')),
-    
+    path("api/job-categories/", include("apps.recruitment.job_categories.urls")),
     # Skills routes (Taxonomy)
-    path('api/skills/', include('apps.candidate.skills.urls')),
-    
+    path("api/skills/", include("apps.candidate.skills.urls")),
     # Benefit Categories routes
-    path('api/benefit-categories/', include('apps.company.benefit_categories.urls')),
-    
+    path("api/benefit-categories/", include("apps.company.benefit_categories.urls")),
     # Geography routes
-    path('api/provinces/', include('apps.geography.provinces.urls')),
-    path('api/communes/', include('apps.geography.communes.urls')),
-    path('api/addresses/', include('apps.geography.addresses.urls')),
-    
-    
+    path("api/provinces/", include("apps.geography.provinces.urls")),
+    path("api/communes/", include("apps.geography.communes.urls")),
+    path("api/addresses/", include("apps.geography.addresses.urls")),
     # Notifications
-    path('api/notifications/', include('apps.communication.notifications.urls')),
-    
+    path("api/notifications/", include("apps.communication.notifications.urls")),
     # Job Alerts
-    path('api/', include('apps.communication.job_alerts.urls')),
-    
+    path("api/", include("apps.communication.job_alerts.urls")),
     # JWT Token endpoints (built-in)
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     # System App routes
-    path('api/system/settings/', include('apps.system.system_settings.urls')),
-    path('api/system/reports/', include('apps.system.reports.urls')),
-    path('api/activity-logs/', include('apps.system.activity_logs.urls')),
-    path('api/file-uploads/', include('apps.system.file_uploads.urls')),
-    path('api/contact/', include('apps.system.contact.urls')),
-    
-    
-
+    path("api/system/settings/", include("apps.system.system_settings.urls")),
+    path("api/system/reports/", include("apps.system.reports.urls")),
+    path("api/activity-logs/", include("apps.system.activity_logs.urls")),
+    path("api/file-uploads/", include("apps.system.file_uploads.urls")),
+    path("api/contact/", include("apps.system.contact.urls")),
     # Admin Analytics (time-series charts, funnel, top jobs, etc.)
-    path('api/analytics/', include('apps.system.analytics_reports.analytics_urls')),
-    path('api/dashboard/stats/', include('apps.system.analytics_reports.dashboard_stats_urls')),
-
+    path("api/analytics/", include("apps.system.analytics_reports.analytics_urls")),
+    path(
+        "api/dashboard/stats/",
+        include("apps.system.analytics_reports.dashboard_stats_urls"),
+    ),
     # Media Types
-    path('api/media-types/', include('apps.company.media_types.urls')),
-    
+    path("api/media-types/", include("apps.company.media_types.urls")),
     # VNPay Return friendly URL
     path(
-        'billing/payment-return',
+        "billing/payment-return",
         CompanySubscriptionViewSet.as_view(
-            {'get': 'payment_return'},
+            {"get": "payment_return"},
             permission_classes=[AllowAny],
             authentication_classes=[],
         ),
-        name='vnpay-return-friendly',
+        name="vnpay-return-friendly",
     ),
 ]

@@ -2,9 +2,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('system_system_settings', '0001_initial'),
+        ("system_system_settings", "0001_initial"),
     ]
 
     operations = [

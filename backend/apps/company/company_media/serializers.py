@@ -3,28 +3,32 @@ from .models import CompanyMedia
 
 
 class CompanyMediaSerializer(serializers.ModelSerializer):
-    """ Serializer hiển thị thông tin media"""
-    media_type_name = serializers.CharField(source='media_type.type_name', read_only=True)
+    """Serializer hiển thị thông tin media"""
+
+    media_type_name = serializers.CharField(
+        source="media_type.type_name", read_only=True
+    )
 
     class Meta:
         model = CompanyMedia
         fields = [
-            'id', 
-            'company', 
-            'media_type', 
-            'media_type_name', 
-            'media_url', 
-            'thumbnail_url', 
-            'title', 
-            'caption', 
-            'display_order', 
-            'created_at'
+            "id",
+            "company",
+            "media_type",
+            "media_type_name",
+            "media_url",
+            "thumbnail_url",
+            "title",
+            "caption",
+            "display_order",
+            "created_at",
         ]
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ["id", "created_at"]
 
 
 class CompanyMediaCreateSerializer(serializers.Serializer):
-    """ Serializer xử lý upload media mới"""
+    """Serializer xử lý upload media mới"""
+
     media_file = serializers.FileField(required=True)
     media_type_id = serializers.IntegerField(required=True)
     title = serializers.CharField(max_length=255, required=False, allow_blank=True)
@@ -33,10 +37,11 @@ class CompanyMediaCreateSerializer(serializers.Serializer):
 
 
 class CompanyMediaUpdateSerializer(serializers.ModelSerializer):
-    """ Serializer cập nhật thông tin media"""
+    """Serializer cập nhật thông tin media"""
+
     class Meta:
         model = CompanyMedia
-        fields = ['title', 'caption', 'display_order']
+        fields = ["title", "caption", "display_order"]
 
 
 class MediaReorderItemSerializer(serializers.Serializer):
@@ -45,14 +50,15 @@ class MediaReorderItemSerializer(serializers.Serializer):
 
 
 class CompanyMediaReorderSerializer(serializers.Serializer):
-    """ Serializer xử lý sắp xếp thứ tự media"""
+    """Serializer xử lý sắp xếp thứ tự media"""
+
     reorders = MediaReorderItemSerializer(many=True)
 
 
 class CompanyMediaBulkUploadSerializer(serializers.Serializer):
-    """ Serializer xử lý upload nhiều media"""
+    """Serializer xử lý upload nhiều media"""
+
     media_files = serializers.ListField(
-        child=serializers.FileField(),
-        allow_empty=False
+        child=serializers.FileField(), allow_empty=False
     )
     media_type_id = serializers.IntegerField(required=True)
