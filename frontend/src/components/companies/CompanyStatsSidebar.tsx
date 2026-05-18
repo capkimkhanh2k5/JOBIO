@@ -1,17 +1,16 @@
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Users, Briefcase, MessageSquareText, Send } from 'lucide-react';
+import { BarChart3, Users, Briefcase, Send } from 'lucide-react';
 
 interface Stats {
     job_count: number;
     follower_count: number;
-    review_count: number;
-    avg_rating: number;
     application_count: number;
 }
 
 interface Props {
     stats?: Stats;
+    followerCount?: number;
 }
 
 function StatItem({
@@ -49,19 +48,19 @@ function StatItem({
     );
 }
 
-export function CompanyStatsSidebar({ stats }: Props) {
+export function CompanyStatsSidebar({ stats, followerCount: syncedFollowerCount }: Props) {
     if (!stats) {
         return (
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-3">
                 <Skeleton className="h-6 w-32 bg-gray-100" />
-                {Array(5).fill(0).map((_, i) => (
+                {Array(3).fill(0).map((_, i) => (
                     <Skeleton key={i} className="h-14 w-full rounded-xl bg-gray-50" />
                 ))}
             </div>
         );
     }
 
-    const getSafeNumber = (val: any): number => {
+    const getSafeNumber = (val: unknown): number => {
         if (typeof val === 'number') return val;
         if (typeof val === 'string') return Number(val) || 0;
         if (typeof val === 'object' && val !== null) {
@@ -72,10 +71,8 @@ export function CompanyStatsSidebar({ stats }: Props) {
         return 0;
     };
 
-    const avgRating = getSafeNumber(stats.avg_rating);
     const jobCount = getSafeNumber(stats.job_count);
-    const followerCount = getSafeNumber(stats.follower_count);
-    const reviewCount = getSafeNumber(stats.review_count);
+    const followerCount = syncedFollowerCount ?? getSafeNumber(stats.follower_count);
     const applicationCount = getSafeNumber(stats.application_count);
 
     return (
@@ -87,7 +84,7 @@ export function CompanyStatsSidebar({ stats }: Props) {
         >
             <h3 className="font-bold text-gray-900 text-base mb-4 flex items-center gap-2">
                 <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Star size={14} className="text-primary fill-current" />
+                    <BarChart3 size={14} className="text-primary" />
                 </div>
                 Tổng quan
             </h3>
@@ -108,45 +105,12 @@ export function CompanyStatsSidebar({ stats }: Props) {
                     delay={0.1}
                 />
                 <StatItem
-                    icon={MessageSquareText}
-                    label="Đánh giá"
-                    value={reviewCount}
-                    color="bg-emerald-500/10"
-                    delay={0.15}
-                />
-                <StatItem
-                    icon={Star}
-                    label="Điểm trung bình"
-                    value={`${avgRating.toFixed(1)} / 5`}
-                    color="bg-amber-500/10"
-                    delay={0.2}
-                />
-                <StatItem
                     icon={Send}
                     label="Lượt ứng tuyển"
                     value={applicationCount}
                     color="bg-rose-500/10"
-                    delay={0.25}
+                    delay={0.15}
                 />
-            </div>
-
-            {/* Mini rating display */}
-            <div className="mt-5 p-4 rounded-xl bg-amber-50 border border-amber-100 flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-3xl font-black text-amber-400">{avgRating.toFixed(1)}</span>
-                    <div>
-                        <div className="flex gap-0.5 mb-0.5">
-                            {Array(5).fill(0).map((_, i) => (
-                                <Star
-                                    key={i}
-                                    size={14}
-                                    className={i < Math.round(avgRating) ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}
-                                />
-                            ))}
-                        </div>
-                        <p className="text-xs text-gray-500 font-medium">{reviewCount} đánh giá</p>
-                    </div>
-                </div>
             </div>
         </motion.div>
     );

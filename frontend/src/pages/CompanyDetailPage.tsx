@@ -334,7 +334,7 @@ export default function CompanyDetailPage() {
                         className="lg:col-span-4"
                     >
                         <div className="sticky top-24">
-                            <CompanyStatsSidebar stats={stats} />
+                            <CompanyStatsSidebar stats={stats} followerCount={effectiveCount} />
 
                             {/* Quick Links */}
                             <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm mt-4">
