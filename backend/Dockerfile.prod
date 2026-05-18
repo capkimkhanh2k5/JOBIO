@@ -1,0 +1,56 @@
+# ──────────────────────────────────────────────
+# Stage 1: Builder — install dependencies
+# ──────────────────────────────────────────────
+FROM python:3.14-slim AS builder
+
+WORKDIR /build
+
+# System dependencies for WeasyPrint & psycopg2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libcairo2 \
+    libjpeg-dev \
+    zlib1g-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+# ──────────────────────────────────────────────
+# Stage 2: Runtime — lean production image
+# ──────────────────────────────────────────────
+FROM python:3.14-slim
+
+# Runtime system deps only (no build tools)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libcairo2 \
+    libjpeg62-turbo \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --system app && adduser --system --ingroup app app
+
+WORKDIR /app
+
+# Copy installed Python packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application code
+COPY . .
+
+# Collect static files at build time
+RUN python manage.py collectstatic --noinput 2>/dev/null || true
+
+# Switch to non-root user
+RUN chown -R app:app /app
+USER app
+
+EXPOSE 8000
+
+# Use daphne for ASGI (supports both HTTP + WebSocket)
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
