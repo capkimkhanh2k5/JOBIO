@@ -51,7 +51,6 @@ import CVManager from '@/pages/candidate/CVManager';
 import SuggestedJobs from '@/pages/candidate/SuggestedJobs';
 import MyApplications from '@/pages/candidate/MyApplications';
 import SavedJobs from '@/pages/candidate/SavedJobs';
-import JobAlerts from '@/pages/candidate/JobAlerts';
 import CandidateInterviews from '@/pages/candidate/Interviews';
 import NotificationsPage from '@/pages/Notifications';
 import SearchHistory from '@/pages/candidate/SearchHistory';
@@ -160,15 +159,11 @@ function AppInner() {
                         <Route path="suggested-jobs" element={<SuggestedJobs />} />
                         <Route path="applications" element={<MyApplications />} />
                         <Route path="saved" element={<SavedJobs />} />
-                        <Route path="alerts" element={<JobAlerts />} />
                         <Route path="interviews" element={<CandidateInterviews />} />
 
                         <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="settings" element={<CandidateSettingsPage />} />
                         <Route path="search-history" element={<SearchHistory />} />
-                        <Route path="blog" element={<UserBlogManagement />} />
-                        <Route path="blog/create" element={<CreateBlogPost />} />
-                        <Route path="blog/edit/:slug" element={<CreateBlogPost />} />
                     </Route>
 
                     {/* ── Admin area ── */}

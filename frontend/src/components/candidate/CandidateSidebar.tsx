@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    Bell, CalendarClock, Settings, BookOpen, Sparkles
+    CalendarClock, Settings, Sparkles
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 
@@ -26,14 +26,12 @@ export function CandidateSidebar() {
         { label: 'Gợi ý việc làm', path: '/candidate/suggested-jobs', icon: <Sparkles className="w-5 h-5" /> },
         { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
-        { label: 'Job Alerts', path: '/candidate/alerts', icon: <Bell className="w-5 h-5" /> },
         { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
         { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
-        { label: 'Blog', path: '/candidate/blog', icon: <BookOpen className="w-5 h-5" /> },
     ];
 
-    const mainItems = navItems.slice(0, 8);
-    const bottomItems = navItems.slice(8);
+    const mainItems = navItems.slice(0, 7);
+    const bottomItems = navItems.slice(7);
 
     return (
         <aside
