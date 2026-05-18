@@ -4,11 +4,11 @@ from .views import JobViewSet
 from .admin_views import AdminJobViewSet
 
 router = DefaultRouter()
-router.register(r'admin-jobs', AdminJobViewSet, basename='admin-jobs')
-router.register(r'', JobViewSet, basename='jobs')
+router.register(r"admin-jobs", AdminJobViewSet, basename="admin-jobs")
+router.register(r"", JobViewSet, basename="jobs")
 
-app_name = 'jobs'
+app_name = "jobs"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

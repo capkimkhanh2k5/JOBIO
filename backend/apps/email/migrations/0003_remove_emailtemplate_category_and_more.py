@@ -4,27 +4,26 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('email', '0002_alter_emailtemplate_is_active_alter_sentemail_status'),
+        ("email", "0002_alter_emailtemplate_is_active_alter_sentemail_status"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='emailtemplate',
-            name='category',
+            model_name="emailtemplate",
+            name="category",
         ),
         migrations.RemoveField(
-            model_name='sentemail',
-            name='template',
+            model_name="sentemail",
+            name="template",
         ),
         migrations.DeleteModel(
-            name='EmailTemplateCategory',
+            name="EmailTemplateCategory",
         ),
         migrations.DeleteModel(
-            name='EmailTemplate',
+            name="EmailTemplate",
         ),
         migrations.DeleteModel(
-            name='SentEmail',
+            name="SentEmail",
         ),
     ]

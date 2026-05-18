@@ -6,24 +6,26 @@ from ..models import Company
 
 class CompanyFilter(django_filters.FilterSet):
     """Filter cho danh sách công ty"""
-    search = django_filters.CharFilter(method='filter_search')
-    industry_id = django_filters.NumberFilter(field_name='industry_id')
+
+    search = django_filters.CharFilter(method="filter_search")
+    industry_id = django_filters.NumberFilter(field_name="industry_id")
 
     class Meta:
         model = Company
         fields = {
-            'company_name': ['icontains'],
-            'company_size': ['exact'],
-            'industry': ['exact'],
-            'verification_status': ['exact'],
+            "company_name": ["icontains"],
+            "company_size": ["exact"],
+            "industry": ["exact"],
+            "verification_status": ["exact"],
         }
 
     def filter_search(self, queryset, name, value):
         from django.db.models import Q
+
         return queryset.filter(
-            Q(company_name__icontains=value) | 
-            Q(industry__name__icontains=value) |
-            Q(slug__icontains=value)
+            Q(company_name__icontains=value)
+            | Q(industry__name__icontains=value)
+            | Q(slug__icontains=value)
         )
 
 
@@ -31,19 +33,29 @@ def list_companies(*, filters: dict = None) -> QuerySet[Company]:
     """
     Lấy danh sách công ty với hỗ trợ filter.
     """
-    qs = Company.objects.select_related('industry', 'user', 'address', 'address__province', 'address__commune').order_by('-created_at')
-    
+    qs = Company.objects.select_related(
+        "industry", "user", "address", "address__province", "address__commune"
+    ).order_by("-created_at")
+
     if filters:
         return CompanyFilter(filters, queryset=qs).qs
-    
+
     return qs
 
 
 def get_company_by_id(*, company_id: int) -> Company | None:
     """Lấy công ty theo ID"""
-    return Company.objects.select_related('industry', 'user', 'address').filter(id=company_id).first()
+    return (
+        Company.objects.select_related("industry", "user", "address")
+        .filter(id=company_id)
+        .first()
+    )
 
 
 def get_company_by_slug(*, slug: str) -> Company | None:
     """Lấy công ty theo slug"""
-    return Company.objects.select_related('industry', 'user', 'address').filter(slug=slug).first()
+    return (
+        Company.objects.select_related("industry", "user", "address")
+        .filter(slug=slug)
+        .first()
+    )

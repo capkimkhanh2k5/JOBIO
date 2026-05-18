@@ -10,8 +10,8 @@ import cloudinary.uploader
 class UserCreateInput(BaseModel):
     email: EmailStr
     password: str
-    full_name: str = ''
-    role: str = 'candidate'
+    full_name: str = ""
+    role: str = "candidate"
 
 
 def create_user(data: UserCreateInput) -> CustomUser:
@@ -24,7 +24,7 @@ def create_user(data: UserCreateInput) -> CustomUser:
             email=data.email,
             password=data.password,
             full_name=data.full_name,
-            role=data.role
+            role=data.role,
         )
         return user
 
@@ -34,27 +34,28 @@ class UserUpdateInput(BaseModel):
     phone: str | None = None
     avatar_url: str | None = None
 
+
 def update_user(user: CustomUser, data: UserUpdateInput) -> CustomUser:
     """
     Cập nhật thông tin cơ bản của user.
     """
     fields_to_update = []
-    
+
     if data.full_name is not None:
         user.full_name = data.full_name
-        fields_to_update.append('full_name')
-        
+        fields_to_update.append("full_name")
+
     if data.phone is not None:
         user.phone = data.phone
-        fields_to_update.append('phone')
-        
+        fields_to_update.append("phone")
+
     if data.avatar_url is not None:
         user.avatar_url = data.avatar_url
-        fields_to_update.append('avatar_url')
-    
+        fields_to_update.append("avatar_url")
+
     if fields_to_update:
         user.save(update_fields=fields_to_update)
-        
+
     return user
 
 
@@ -71,19 +72,22 @@ def update_user_status(user: CustomUser, status: str) -> CustomUser:
     """
     if status not in CustomUser.Status.values:
         raise ValueError("Trạng thái không hợp lệ")
-    
+
     user.status = status
     if status == CustomUser.Status.BANNED:
-        user.is_active = False # Chặn login ngay lập tức
+        user.is_active = False  # Chặn login ngay lập tức
         # Nếu tài khoản công ty bị khóa, ẩn toàn bộ tin tuyển dụng đang public.
-        company_profile = getattr(user, 'company_profile', None)
+        company_profile = getattr(user, "company_profile", None)
         if company_profile is not None:
             from apps.recruitment.jobs.models import Job
-            company_profile.jobs.filter(status=Job.Status.PUBLISHED).update(status=Job.Status.CLOSED)
+
+            company_profile.jobs.filter(status=Job.Status.PUBLISHED).update(
+                status=Job.Status.CLOSED
+            )
     elif status == CustomUser.Status.ACTIVE:
         user.is_active = True
-        
-    user.save(update_fields=['status', 'is_active'])
+
+    user.save(update_fields=["status", "is_active"])
     return user
 
 
@@ -92,7 +96,7 @@ def update_user_email_verified(user: CustomUser, email_verified: bool) -> Custom
     Cập nhật trạng thái xác thực email thủ công cho user.
     """
     user.email_verified = email_verified
-    user.save(update_fields=['email_verified'])
+    user.save(update_fields=["email_verified"])
     return user
 
 
@@ -102,9 +106,9 @@ def update_user_role(user: CustomUser, role: str) -> CustomUser:
     """
     if role not in CustomUser.Role.values:
         raise ValueError("Vai trò không hợp lệ")
-        
+
     user.role = role
-    
+
     # Cập nhật is_staff/is_superuser nếu cần
     if role == CustomUser.Role.ADMIN:
         user.is_staff = True
@@ -112,8 +116,8 @@ def update_user_role(user: CustomUser, role: str) -> CustomUser:
     else:
         user.is_staff = False
         user.is_superuser = False
-        
-    user.save(update_fields=['role', 'is_staff', 'is_superuser'])
+
+    user.save(update_fields=["role", "is_staff", "is_superuser"])
     return user
 
 
@@ -121,34 +125,32 @@ def upload_user_avatar(user: CustomUser, file) -> CustomUser:
     """
     Upload avatar cho user lên Cloudinary.
     """
-    
+
     # Validate file type
-    allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     if file.content_type not in allowed_types:
         raise ValueError("Loại file không hợp lệ. Chỉ chấp nhận: JPEG, PNG, GIF, WEBP")
-    
+
     # Validate file size (max 2MB)
     if file.size > 2 * 1024 * 1024:
         raise ValueError("File quá lớn. Tối đa 2MB")
-    
+
     # Upload to Cloudinary
     public_id = f"Jobio/Avatars/{user.id}/avatar_{int(time.time())}"
     try:
         result = cloudinary.uploader.upload(
-            file,
-            public_id=public_id,
-            resource_type='image',
-            overwrite=True
+            file, public_id=public_id, resource_type="image", overwrite=True
         )
-        avatar_url = result['secure_url']
+        avatar_url = result["secure_url"]
     except Exception as e:
         raise ValueError(f"Upload avatar thất bại: {str(e)}")
-    
+
     # Update user
     user.avatar_url = avatar_url
-    user.save(update_fields=['avatar_url'])
-    
+    user.save(update_fields=["avatar_url"])
+
     return user
+
 
 def bulk_user_action(ids: list[int], action: str, value: str = None) -> dict:
     """
@@ -157,16 +159,16 @@ def bulk_user_action(ids: list[int], action: str, value: str = None) -> dict:
     """
     users = CustomUser.objects.filter(id__in=ids)
     count = users.count()
-    
-    if action == 'delete':
-        users.delete() 
+
+    if action == "delete":
+        users.delete()
         return {"deleted": count}
-        
-    elif action == 'update_status':
+
+    elif action == "update_status":
         if value is None:
             raise ValueError("Cần cung cấp value cho update_status")
         users.update(status=value, is_active=(value == CustomUser.Status.ACTIVE))
         return {"updated": count, "status": value}
-        
+
     else:
         raise ValueError("Hành động không được hỗ trợ")

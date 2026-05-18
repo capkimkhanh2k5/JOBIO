@@ -4,35 +4,39 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('billing', '0002_alter_companysubscription_company_and_more'),
+        ("billing", "0002_alter_companysubscription_company_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transaction',
-            name='ip_address',
+            model_name="transaction",
+            name="ip_address",
             field=models.GenericIPAddressField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='transaction',
-            name='vnp_BankCode',
+            model_name="transaction",
+            name="vnp_BankCode",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='transaction',
-            name='vnp_CardType',
+            model_name="transaction",
+            name="vnp_CardType",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
         migrations.AddField(
-            model_name='transaction',
-            name='vnp_OrderInfo',
+            model_name="transaction",
+            name="vnp_OrderInfo",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='transaction',
-            name='vnp_TransactionNo',
-            field=models.CharField(blank=True, help_text='Transaction ID at VNPay System', max_length=100, null=True),
+            model_name="transaction",
+            name="vnp_TransactionNo",
+            field=models.CharField(
+                blank=True,
+                help_text="Transaction ID at VNPay System",
+                max_length=100,
+                null=True,
+            ),
         ),
     ]

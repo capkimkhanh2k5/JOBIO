@@ -10,50 +10,65 @@ from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
-@shared_task(name='apps.billing.tasks.send_payment_confirmation_email_task')
+
+@shared_task(name="apps.billing.tasks.send_payment_confirmation_email_task")
 def send_payment_confirmation_email_task(transaction_id):
     """
     Tác vụ chạy ngầm để gửi email xác nhận sau khi thanh toán thành công.
     """
     try:
         # 1. Lấy thông tin giao dịch
-        txn = Transaction.objects.select_related('company', 'company__user').get(id=transaction_id)
-        
+        txn = Transaction.objects.select_related("company", "company__user").get(
+            id=transaction_id
+        )
+
         if txn.status != Transaction.Status.COMPLETED:
-            logger.warning(f"Attempted to send confirmation for incomplete txn: {transaction_id}")
+            logger.warning(
+                f"Attempted to send confirmation for incomplete txn: {transaction_id}"
+            )
             return False
 
         # 2. Lấy thông tin người nhận
         recipient_email = txn.company.user.email
         company_name = txn.company.company_name
-        
+
         # 3. Lấy thông tin Subscription (nếu có)
         subscription = None
         plan_name = "N/A"
         end_date = "N/A"
-        
+
         plan_id = SubscriptionService.get_transaction_plan_id(txn)
         if plan_id:
             try:
-                subscription = CompanySubscription.objects.select_related('plan').filter(
-                    company=txn.company,
-                    plan_id=plan_id,
-                    status=CompanySubscription.Status.ACTIVE,
-                ).order_by('-created_at').first()
-                if not subscription:
-                    subscription = CompanySubscription.objects.select_related('plan').filter(
+                subscription = (
+                    CompanySubscription.objects.select_related("plan")
+                    .filter(
                         company=txn.company,
                         plan_id=plan_id,
-                    ).order_by('-created_at').first()
+                        status=CompanySubscription.Status.ACTIVE,
+                    )
+                    .order_by("-created_at")
+                    .first()
+                )
+                if not subscription:
+                    subscription = (
+                        CompanySubscription.objects.select_related("plan")
+                        .filter(
+                            company=txn.company,
+                            plan_id=plan_id,
+                        )
+                        .order_by("-created_at")
+                        .first()
+                    )
 
                 plan_name = subscription.plan.name
-                end_date = subscription.end_date.strftime('%d/%m/%Y')
+                end_date = subscription.end_date.strftime("%d/%m/%Y")
             except Exception as e:
                 logger.error(f"Error fetching subscription for email: {e}")
 
         # 4. Soạn nội dung email (HTML)
         subject = f"Xác nhận thanh toán thành công - Gói {plan_name}"
-        
+
         html_body = f"""
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
             <div style="text-align: center; margin-bottom: 24px;">
@@ -101,19 +116,21 @@ def send_payment_confirmation_email_task(transaction_id):
             </div>
         </div>
         """
-        
+
         # 5. Gửi email thông qua EmailService
         success = EmailService.send_email(
-            recipient=recipient_email,
-            subject=subject,
-            body=html_body
+            recipient=recipient_email, subject=subject, body=html_body
         )
-        
+
         if success:
-            logger.info(f"Payment confirmation email sent to {recipient_email} for txn {txn.reference_code}")
+            logger.info(
+                f"Payment confirmation email sent to {recipient_email} for txn {txn.reference_code}"
+            )
         else:
-            logger.error(f"Failed to send payment confirmation email to {recipient_email}")
-            
+            logger.error(
+                f"Failed to send payment confirmation email to {recipient_email}"
+            )
+
         return success
 
     except Transaction.DoesNotExist:
@@ -122,51 +139,58 @@ def send_payment_confirmation_email_task(transaction_id):
         logger.error(f"Error in payment confirmation task: {str(e)}")
     return False
 
-@shared_task(name='apps.billing.tasks.cleanup_expired_transactions')
+
+@shared_task(name="apps.billing.tasks.cleanup_expired_transactions")
 def cleanup_expired_transactions():
     """
     Quét các giao dịch PENDING quá 30 phút và kiểm tra trạng thái thực tế.
     """
-    
+
     threshold = timezone.now() - timedelta(minutes=5)
     pending_txns = Transaction.objects.filter(
-        status=Transaction.Status.PENDING,
-        created_at__lt=threshold
+        status=Transaction.Status.PENDING, created_at__lt=threshold
     )
-    
+
     count = 0
     for txn in pending_txns:
         logger.info(f"Checking expired transaction: {txn.reference_code}")
         try:
             from apps.billing.services.vnpay import VNPayService
+
             # Query VNPay
             result = VNPayService.query_vnpay_transaction(txn.reference_code)
-            
+
             # Phản hồi từ VNPay QueryDR: vnp_ResponseCode, vnp_TransactionStatus
             # vnp_TransactionStatus: 00 (Thành công), 02 (Lỗi), 04 (Hoàn tiền), 05 (Đang xử lý),...
-            if result.get('vnp_ResponseCode') == '00':
-                status = result.get('vnp_TransactionStatus')
-                if status == '00':
+            if result.get("vnp_ResponseCode") == "00":
+                status = result.get("vnp_TransactionStatus")
+                if status == "00":
                     # QueryDR không trả callback signature nên cập nhật trực tiếp.
                     txn.status = Transaction.Status.COMPLETED
-                    txn.vnp_TransactionNo = result.get('vnp_TransactionNo') or txn.vnp_TransactionNo
-                    txn.vnp_BankCode = result.get('vnp_BankCode') or txn.vnp_BankCode
-                    txn.vnp_CardType = result.get('vnp_CardType') or txn.vnp_CardType
-                    txn.vnp_OrderInfo = result.get('vnp_OrderInfo') or txn.vnp_OrderInfo
+                    txn.vnp_TransactionNo = (
+                        result.get("vnp_TransactionNo") or txn.vnp_TransactionNo
+                    )
+                    txn.vnp_BankCode = result.get("vnp_BankCode") or txn.vnp_BankCode
+                    txn.vnp_CardType = result.get("vnp_CardType") or txn.vnp_CardType
+                    txn.vnp_OrderInfo = result.get("vnp_OrderInfo") or txn.vnp_OrderInfo
                     txn.save()
 
                     plan_id = SubscriptionService.get_transaction_plan_id(txn)
                     if plan_id:
                         try:
                             plan = SubscriptionPlan.objects.get(id=plan_id)
-                            SubscriptionService.activate_paid_subscription(txn.company, plan)
+                            SubscriptionService.activate_paid_subscription(
+                                txn.company, plan
+                            )
                         except Exception as e:
-                            logger.error(f"Failed activating subscription from cleanup for txn {txn.reference_code}: {e}")
-                elif status in ['02', '03', '04', '06', '07', '09']:
+                            logger.error(
+                                f"Failed activating subscription from cleanup for txn {txn.reference_code}: {e}"
+                            )
+                elif status in ["02", "03", "04", "06", "07", "09"]:
                     # Giao dịch lỗi hoặc đã bị hủy
                     txn.status = Transaction.Status.FAILED
                     txn.save()
-                elif status == '00' or status == '05':
+                elif status == "00" or status == "05":
                     # Vẫn đang chờ hoặc đang xử lý, giữ nguyên
                     pass
             else:
@@ -177,10 +201,11 @@ def cleanup_expired_transactions():
             count += 1
         except Exception as e:
             logger.error(f"Error cleaning up txn {txn.reference_code}: {e}")
-            
+
     return f"Cleaned up {count} transactions"
 
-@shared_task(name='apps.billing.tasks.cleanup_expired_subscriptions')
+
+@shared_task(name="apps.billing.tasks.cleanup_expired_subscriptions")
 def cleanup_expired_subscriptions():
     """
     Quét các gói dịch vụ ACTIVE đã quá hạn (end_date < today)
@@ -188,23 +213,23 @@ def cleanup_expired_subscriptions():
     """
     now = timezone.now().date()
     expired_subs = CompanySubscription.objects.filter(
-        status=CompanySubscription.Status.ACTIVE,
-        end_date__lt=now
+        status=CompanySubscription.Status.ACTIVE, end_date__lt=now
     )
-    
-    comp_ids = list(expired_subs.values_list('company_id', flat=True))
+
+    comp_ids = list(expired_subs.values_list("company_id", flat=True))
     count = expired_subs.count()
-    
+
     if count > 0:
         # 1. Chuyển trạng thái subscription
         expired_subs.update(status=CompanySubscription.Status.EXPIRED)
-        
+
         # 2. Gỡ nhãn featured của các jobs thuộc các công ty này
         Job.objects.filter(company_id__in=comp_ids, featured=True).update(
-            featured=False, 
-            featured_until=None
+            featured=False, featured_until=None
         )
-        
-        logger.info(f"Successfully expired {count} subscriptions and cleaned up jobs for companies: {comp_ids}")
+
+        logger.info(
+            f"Successfully expired {count} subscriptions and cleaned up jobs for companies: {comp_ids}"
+        )
 
     return f"Expired {count} subscriptions"

@@ -6,21 +6,20 @@ from django.db import migrations, models
 
 def rename_recruiter_to_candidate(apps, schema_editor):
     """Update existing users with role='recruiter' → 'candidate'"""
-    CustomUser = apps.get_model('core_users', 'CustomUser')
-    updated = CustomUser.objects.filter(role='recruiter').update(role='candidate')
+    CustomUser = apps.get_model("core_users", "CustomUser")
+    updated = CustomUser.objects.filter(role="recruiter").update(role="candidate")
     print(f"\n  → Updated {updated} user(s) from role='recruiter' to role='candidate'")
 
 
 def rename_candidate_to_recruiter(apps, schema_editor):
     """Reverse: candidate → recruiter"""
-    CustomUser = apps.get_model('core_users', 'CustomUser')
-    CustomUser.objects.filter(role='candidate').update(role='recruiter')
+    CustomUser = apps.get_model("core_users", "CustomUser")
+    CustomUser.objects.filter(role="candidate").update(role="recruiter")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core_users', '0005_userpasskey_updated_at'),
+        ("core_users", "0005_userpasskey_updated_at"),
     ]
 
     operations = [
@@ -31,14 +30,18 @@ class Migration(migrations.Migration):
         ),
         # 2. Then alter field choices
         migrations.AlterField(
-            model_name='customuser',
-            name='role',
+            model_name="customuser",
+            name="role",
             field=models.CharField(
-                choices=[('candidate', 'Ứng viên'), ('company', 'Công ty'), ('admin', 'Quản trị viên')],
+                choices=[
+                    ("candidate", "Ứng viên"),
+                    ("company", "Công ty"),
+                    ("admin", "Quản trị viên"),
+                ],
                 db_index=True,
-                default='candidate',
+                default="candidate",
                 max_length=20,
-                verbose_name='Vai trò',
+                verbose_name="Vai trò",
             ),
         ),
     ]

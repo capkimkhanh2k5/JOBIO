@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import LanguageViewSet
 
 router = DefaultRouter()
-router.register(r'', LanguageViewSet, basename='languages')
+router.register(r"", LanguageViewSet, basename="languages")
 
-app_name = 'languages'
+app_name = "languages"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

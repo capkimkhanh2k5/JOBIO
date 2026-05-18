@@ -3,6 +3,7 @@ Test cases cho Subscription Hybrid Logic.
 - Cancellation: Passive (giữ end_date, tắt auto_renew).
 - New Subscription: Aggressive (xoá gói cũ ngay, tạo gói mới).
 """
+
 from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
@@ -20,33 +21,21 @@ class TestSubscriptionHybridLogic(TestCase):
     def setUp(self):
         # Create User
         self.user = CustomUser.objects.create_user(
-            email="test@example.com",
-            password="password123"
+            email="test@example.com", password="password123"
         )
         # Create Company
         self.company = Company.objects.create(
-            user=self.user,
-            company_name="Test Corp",
-            slug="test-corp"
+            user=self.user, company_name="Test Corp", slug="test-corp"
         )
         # Create Plans
         self.free_plan = SubscriptionPlan.objects.create(
-            name="Free",
-            slug="free",
-            price=0,
-            duration_days=30
+            name="Free", slug="free", price=0, duration_days=30
         )
         self.basic_plan = SubscriptionPlan.objects.create(
-            name="Basic",
-            slug="basic",
-            price=100000,
-            duration_days=30
+            name="Basic", slug="basic", price=100000, duration_days=30
         )
         self.premium_plan = SubscriptionPlan.objects.create(
-            name="Premium",
-            slug="premium",
-            price=300000,
-            duration_days=30
+            name="Premium", slug="premium", price=300000, duration_days=30
         )
 
     # ==========================================================================
@@ -107,7 +96,7 @@ class TestSubscriptionHybridLogic(TestCase):
             start_date=timezone.now().date() + timedelta(days=31),
             end_date=timezone.now().date() + timedelta(days=61),
             status=CompanySubscription.Status.PENDING,
-            auto_renew=True
+            auto_renew=True,
         )
 
         # Now subscribe to a new plan
@@ -127,9 +116,13 @@ class TestSubscriptionHybridLogic(TestCase):
 
         cancelled_sub = SubscriptionService.cancel_subscription(self.company)
 
-        self.assertEqual(cancelled_sub.status, CompanySubscription.Status.ACTIVE)  # Vẫn Active
+        self.assertEqual(
+            cancelled_sub.status, CompanySubscription.Status.ACTIVE
+        )  # Vẫn Active
         self.assertFalse(cancelled_sub.auto_renew)  # Tắt gia hạn
-        self.assertEqual(cancelled_sub.end_date, original_end_date)  # Giữ nguyên end_date
+        self.assertEqual(
+            cancelled_sub.end_date, original_end_date
+        )  # Giữ nguyên end_date
 
     def test_cancel_subscription_no_active_raises_error(self):
         """Hủy khi không có gói -> Raise ValidationError"""

@@ -19,7 +19,7 @@ class ActivityLogTypes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'activity_log_types'
+        db_table = "activity_log_types"
 
 
 class ActivityLogs(models.Model):
@@ -32,27 +32,31 @@ class ActivityLogs(models.Model):
     details = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField()
     log_type = models.ForeignKey(ActivityLogTypes, models.DO_NOTHING)
-    user = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'activity_logs'
+        db_table = "activity_logs"
 
 
 class Addresses(models.Model):
     id = models.BigAutoField(primary_key=True)
     address_line = models.CharField(max_length=255)
-    latitude = models.DecimalField(max_digits=10, decimal_places=8, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8, blank=True, null=True)
+    latitude = models.DecimalField(
+        max_digits=10, decimal_places=8, blank=True, null=True
+    )
+    longitude = models.DecimalField(
+        max_digits=11, decimal_places=8, blank=True, null=True
+    )
     is_verified = models.BooleanField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    commune = models.ForeignKey('Communes', models.DO_NOTHING, blank=True, null=True)
-    province = models.ForeignKey('Provinces', models.DO_NOTHING)
+    commune = models.ForeignKey("Communes", models.DO_NOTHING, blank=True, null=True)
+    province = models.ForeignKey("Provinces", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'addresses'
+        db_table = "addresses"
 
 
 class AnalyticsGeneratedreport(models.Model):
@@ -63,11 +67,11 @@ class AnalyticsGeneratedreport(models.Model):
     report_type = models.CharField(max_length=50)
     file = models.CharField(max_length=500)
     filters = models.JSONField()
-    created_by = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    created_by = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'analytics_generatedreport'
+        db_table = "analytics_generatedreport"
 
 
 class ApplicationStatusHistory(models.Model):
@@ -76,12 +80,12 @@ class ApplicationStatusHistory(models.Model):
     new_status = models.CharField(max_length=50)
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField()
-    application = models.ForeignKey('Applications', models.DO_NOTHING)
-    changed_by = models.ForeignKey('Users', models.DO_NOTHING)
+    application = models.ForeignKey("Applications", models.DO_NOTHING)
+    changed_by = models.ForeignKey("Users", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'application_status_history'
+        db_table = "application_status_history"
 
 
 class Applications(models.Model):
@@ -93,15 +97,15 @@ class Applications(models.Model):
     applied_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     reviewed_at = models.DateTimeField(blank=True, null=True)
-    cv = models.ForeignKey('RecruiterCvs', models.DO_NOTHING, blank=True, null=True)
-    job = models.ForeignKey('Jobs', models.DO_NOTHING)
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
-    reviewed_by = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    cv = models.ForeignKey("RecruiterCvs", models.DO_NOTHING, blank=True, null=True)
+    job = models.ForeignKey("Jobs", models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
+    reviewed_by = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'applications'
-        unique_together = (('job', 'recruiter'),)
+        db_table = "applications"
+        unique_together = (("job", "recruiter"),)
 
 
 class AuthGroup(models.Model):
@@ -109,29 +113,29 @@ class AuthGroup(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'auth_group'
+        db_table = "auth_group"
 
 
 class AuthGroupPermissions(models.Model):
     id = models.BigAutoField(primary_key=True)
     group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
+    permission = models.ForeignKey("AuthPermission", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'auth_group_permissions'
-        unique_together = (('group', 'permission'),)
+        db_table = "auth_group_permissions"
+        unique_together = (("group", "permission"),)
 
 
 class AuthPermission(models.Model):
     name = models.CharField(max_length=255)
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
+    content_type = models.ForeignKey("DjangoContentType", models.DO_NOTHING)
     codename = models.CharField(max_length=100)
 
     class Meta:
         managed = False
-        db_table = 'auth_permission'
-        unique_together = (('content_type', 'codename'),)
+        db_table = "auth_permission"
+        unique_together = (("content_type", "codename"),)
 
 
 class BenefitCategories(models.Model):
@@ -147,7 +151,7 @@ class BenefitCategories(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'benefit_categories'
+        db_table = "benefit_categories"
 
 
 class BlogCategory(models.Model):
@@ -160,7 +164,7 @@ class BlogCategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'blog_category'
+        db_table = "blog_category"
 
 
 class BlogPost(models.Model):
@@ -177,25 +181,25 @@ class BlogPost(models.Model):
     view_count = models.IntegerField()
     meta_title = models.CharField(max_length=255)
     meta_description = models.TextField()
-    author = models.ForeignKey('Users', models.DO_NOTHING)
+    author = models.ForeignKey("Users", models.DO_NOTHING)
     category = models.ForeignKey(BlogCategory, models.DO_NOTHING, blank=True, null=True)
-    company = models.ForeignKey('Companies', models.DO_NOTHING, blank=True, null=True)
+    company = models.ForeignKey("Companies", models.DO_NOTHING, blank=True, null=True)
     is_featured = models.BooleanField()
 
     class Meta:
         managed = False
-        db_table = 'blog_post'
+        db_table = "blog_post"
 
 
 class BlogPostTags(models.Model):
     id = models.BigAutoField(primary_key=True)
     post = models.ForeignKey(BlogPost, models.DO_NOTHING)
-    tag = models.ForeignKey('BlogTag', models.DO_NOTHING)
+    tag = models.ForeignKey("BlogTag", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'blog_post_tags'
-        unique_together = (('post', 'tag'),)
+        db_table = "blog_post_tags"
+        unique_together = (("post", "tag"),)
 
 
 class BlogTag(models.Model):
@@ -207,7 +211,7 @@ class BlogTag(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'blog_tag'
+        db_table = "blog_tag"
 
 
 class Communes(models.Model):
@@ -216,12 +220,12 @@ class Communes(models.Model):
     commune_type = models.CharField(max_length=20)
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
-    province = models.ForeignKey('Provinces', models.DO_NOTHING)
+    province = models.ForeignKey("Provinces", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'communes'
+        db_table = "communes"
 
 
 class Companies(models.Model):
@@ -242,16 +246,22 @@ class Companies(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
-    industry = models.ForeignKey('Industries', models.DO_NOTHING, blank=True, null=True)
-    user = models.OneToOneField('Users', models.DO_NOTHING, blank=True, null=True)
-    verified_by = models.ForeignKey('Users', models.DO_NOTHING, related_name='companies_verified_by_set', blank=True, null=True)
+    industry = models.ForeignKey("Industries", models.DO_NOTHING, blank=True, null=True)
+    user = models.OneToOneField("Users", models.DO_NOTHING, blank=True, null=True)
+    verified_by = models.ForeignKey(
+        "Users",
+        models.DO_NOTHING,
+        related_name="companies_verified_by_set",
+        blank=True,
+        null=True,
+    )
     email = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     headquarters = models.CharField(max_length=500, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'companies'
+        db_table = "companies"
 
 
 class CompanyBenefits(models.Model):
@@ -266,19 +276,19 @@ class CompanyBenefits(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'company_benefits'
+        db_table = "company_benefits"
 
 
 class CompanyFollowers(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField()
     company = models.ForeignKey(Companies, models.DO_NOTHING)
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'company_followers'
-        unique_together = (('company', 'recruiter'),)
+        db_table = "company_followers"
+        unique_together = (("company", "recruiter"),)
 
 
 class CompanyMedia(models.Model):
@@ -290,12 +300,12 @@ class CompanyMedia(models.Model):
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
     company = models.ForeignKey(Companies, models.DO_NOTHING)
-    media_type = models.ForeignKey('MediaTypes', models.DO_NOTHING)
+    media_type = models.ForeignKey("MediaTypes", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'company_media'
+        db_table = "company_media"
 
 
 class CompanySubscriptions(models.Model):
@@ -307,11 +317,11 @@ class CompanySubscriptions(models.Model):
     status = models.CharField(max_length=20)
     auto_renew = models.BooleanField()
     company = models.OneToOneField(Companies, models.DO_NOTHING)
-    plan = models.ForeignKey('SubscriptionPlans', models.DO_NOTHING)
+    plan = models.ForeignKey("SubscriptionPlans", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'company_subscriptions'
+        db_table = "company_subscriptions"
 
 
 class CvTemplateCategories(models.Model):
@@ -326,7 +336,7 @@ class CvTemplateCategories(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'cv_template_categories'
+        db_table = "cv_template_categories"
 
 
 class CvTemplates(models.Model):
@@ -347,7 +357,7 @@ class CvTemplates(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'cv_templates'
+        db_table = "cv_templates"
 
 
 class DjangoAdminLog(models.Model):
@@ -356,12 +366,14 @@ class DjangoAdminLog(models.Model):
     object_repr = models.CharField(max_length=200)
     action_flag = models.SmallIntegerField()
     change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
+    content_type = models.ForeignKey(
+        "DjangoContentType", models.DO_NOTHING, blank=True, null=True
+    )
+    user = models.ForeignKey("Users", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'django_admin_log'
+        db_table = "django_admin_log"
 
 
 class DjangoContentType(models.Model):
@@ -370,8 +382,8 @@ class DjangoContentType(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'django_content_type'
-        unique_together = (('app_label', 'model'),)
+        db_table = "django_content_type"
+        unique_together = (("app_label", "model"),)
 
 
 class DjangoEventstreamEvent(models.Model):
@@ -383,8 +395,8 @@ class DjangoEventstreamEvent(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'django_eventstream_event'
-        unique_together = (('channel', 'eid'),)
+        db_table = "django_eventstream_event"
+        unique_together = (("channel", "eid"),)
 
 
 class DjangoEventstreamEventcounter(models.Model):
@@ -394,7 +406,7 @@ class DjangoEventstreamEventcounter(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'django_eventstream_eventcounter'
+        db_table = "django_eventstream_eventcounter"
 
 
 class DjangoMigrations(models.Model):
@@ -405,7 +417,7 @@ class DjangoMigrations(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'django_migrations'
+        db_table = "django_migrations"
 
 
 class DjangoSession(models.Model):
@@ -415,7 +427,7 @@ class DjangoSession(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'django_session'
+        db_table = "django_session"
 
 
 class EmailEmailtemplate(models.Model):
@@ -428,11 +440,13 @@ class EmailEmailtemplate(models.Model):
     body = models.TextField()
     variables = models.JSONField()
     is_active = models.BooleanField()
-    category = models.ForeignKey('EmailEmailtemplatecategory', models.DO_NOTHING, blank=True, null=True)
+    category = models.ForeignKey(
+        "EmailEmailtemplatecategory", models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
-        db_table = 'email_emailtemplate'
+        db_table = "email_emailtemplate"
 
 
 class EmailEmailtemplatecategory(models.Model):
@@ -445,7 +459,7 @@ class EmailEmailtemplatecategory(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'email_emailtemplatecategory'
+        db_table = "email_emailtemplatecategory"
 
 
 class EmailSentemail(models.Model):
@@ -457,11 +471,13 @@ class EmailSentemail(models.Model):
     content = models.TextField()
     status = models.CharField(max_length=20)
     error_message = models.TextField()
-    template = models.ForeignKey(EmailEmailtemplate, models.DO_NOTHING, blank=True, null=True)
+    template = models.ForeignKey(
+        EmailEmailtemplate, models.DO_NOTHING, blank=True, null=True
+    )
 
     class Meta:
         managed = False
-        db_table = 'email_sentemail'
+        db_table = "email_sentemail"
 
 
 class FileUploads(models.Model):
@@ -476,12 +492,12 @@ class FileUploads(models.Model):
     entity_id = models.IntegerField(blank=True, null=True)
     is_public = models.BooleanField()
     created_at = models.DateTimeField()
-    user = models.ForeignKey('Users', models.DO_NOTHING)
+    user = models.ForeignKey("Users", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'file_uploads'
+        db_table = "file_uploads"
 
 
 class Industries(models.Model):
@@ -493,12 +509,12 @@ class Industries(models.Model):
     is_active = models.BooleanField()
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
-    parent = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    parent = models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'industries'
+        db_table = "industries"
 
 
 class InterviewTypes(models.Model):
@@ -512,7 +528,7 @@ class InterviewTypes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'interview_types'
+        db_table = "interview_types"
 
 
 class Interviews(models.Model):
@@ -529,15 +545,21 @@ class Interviews(models.Model):
     updated_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
     application = models.ForeignKey(Applications, models.DO_NOTHING)
-    created_by = models.ForeignKey('Users', models.DO_NOTHING)
+    created_by = models.ForeignKey("Users", models.DO_NOTHING)
     interview_type = models.ForeignKey(InterviewTypes, models.DO_NOTHING)
-    interviewer = models.ForeignKey('Users', models.DO_NOTHING, related_name='interviews_interviewer_set', blank=True, null=True)
+    interviewer = models.ForeignKey(
+        "Users",
+        models.DO_NOTHING,
+        related_name="interviews_interviewer_set",
+        blank=True,
+        null=True,
+    )
     rating = models.IntegerField(blank=True, null=True)
     role = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'interviews'
+        db_table = "interviews"
 
 
 class JobAlertMatches(models.Model):
@@ -546,25 +568,25 @@ class JobAlertMatches(models.Model):
     is_viewed = models.BooleanField()
     matched_at = models.DateTimeField()
     score = models.FloatField()
-    job = models.ForeignKey('Jobs', models.DO_NOTHING)
-    job_alert = models.ForeignKey('JobAlerts', models.DO_NOTHING)
+    job = models.ForeignKey("Jobs", models.DO_NOTHING)
+    job_alert = models.ForeignKey("JobAlerts", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'job_alert_matches'
-        unique_together = (('job_alert', 'job'),)
+        db_table = "job_alert_matches"
+        unique_together = (("job_alert", "job"),)
 
 
 class JobAlertSkills(models.Model):
     id = models.BigAutoField(primary_key=True)
     created_at = models.DateTimeField()
-    job_alert = models.ForeignKey('JobAlerts', models.DO_NOTHING)
-    skill = models.ForeignKey('Skills', models.DO_NOTHING)
+    job_alert = models.ForeignKey("JobAlerts", models.DO_NOTHING)
+    skill = models.ForeignKey("Skills", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'job_alert_skills'
-        unique_together = (('job_alert', 'skill'),)
+        db_table = "job_alert_skills"
+        unique_together = (("job_alert", "skill"),)
 
 
 class JobAlerts(models.Model):
@@ -573,42 +595,46 @@ class JobAlerts(models.Model):
     keywords = models.TextField(blank=True, null=True)
     job_type = models.CharField(max_length=20, blank=True, null=True)
     level = models.CharField(max_length=20, blank=True, null=True)
-    salary_min = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    salary_min = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
     is_active = models.BooleanField()
     frequency = models.CharField(max_length=20)
     last_sent_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    category = models.ForeignKey('JobCategories', models.DO_NOTHING, blank=True, null=True)
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    category = models.ForeignKey(
+        "JobCategories", models.DO_NOTHING, blank=True, null=True
+    )
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
     email_notification = models.BooleanField()
     use_ai_matching = models.BooleanField()
 
     class Meta:
         managed = False
-        db_table = 'job_alerts'
+        db_table = "job_alerts"
 
 
 class JobAlertsLocations(models.Model):
     id = models.BigAutoField(primary_key=True)
     jobalert = models.ForeignKey(JobAlerts, models.DO_NOTHING)
-    province = models.ForeignKey('Provinces', models.DO_NOTHING)
+    province = models.ForeignKey("Provinces", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'job_alerts_locations'
-        unique_together = (('jobalert', 'province'),)
+        db_table = "job_alerts_locations"
+        unique_together = (("jobalert", "province"),)
 
 
 class JobAlertsSkills(models.Model):
     id = models.BigAutoField(primary_key=True)
     jobalert = models.ForeignKey(JobAlerts, models.DO_NOTHING)
-    skill = models.ForeignKey('Skills', models.DO_NOTHING)
+    skill = models.ForeignKey("Skills", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'job_alerts_skills'
-        unique_together = (('jobalert', 'skill'),)
+        db_table = "job_alerts_skills"
+        unique_together = (("jobalert", "skill"),)
 
 
 class JobCategories(models.Model):
@@ -620,12 +646,12 @@ class JobCategories(models.Model):
     is_active = models.BooleanField()
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
-    parent = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    parent = models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'job_categories'
+        db_table = "job_categories"
 
 
 class JobLocations(models.Model):
@@ -633,13 +659,13 @@ class JobLocations(models.Model):
     is_primary = models.BooleanField()
     created_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING)
-    job = models.ForeignKey('Jobs', models.DO_NOTHING)
+    job = models.ForeignKey("Jobs", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'job_locations'
-        unique_together = (('job', 'address'),)
+        db_table = "job_locations"
+        unique_together = (("job", "address"),)
 
 
 class JobSkills(models.Model):
@@ -648,14 +674,14 @@ class JobSkills(models.Model):
     proficiency_level = models.CharField(max_length=20, blank=True, null=True)
     years_required = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
-    job = models.ForeignKey('Jobs', models.DO_NOTHING)
-    skill = models.ForeignKey('Skills', models.DO_NOTHING)
+    job = models.ForeignKey("Jobs", models.DO_NOTHING)
+    skill = models.ForeignKey("Skills", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'job_skills'
-        unique_together = (('job', 'skill'),)
+        db_table = "job_skills"
+        unique_together = (("job", "skill"),)
 
 
 class JobViews(models.Model):
@@ -664,12 +690,12 @@ class JobViews(models.Model):
     user_agent = models.TextField(blank=True, null=True)
     referrer = models.CharField(max_length=500, blank=True, null=True)
     viewed_at = models.DateTimeField()
-    job = models.ForeignKey('Jobs', models.DO_NOTHING)
-    user = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    job = models.ForeignKey("Jobs", models.DO_NOTHING)
+    user = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'job_views'
+        db_table = "job_views"
 
 
 class Jobs(models.Model):
@@ -680,8 +706,12 @@ class Jobs(models.Model):
     level = models.CharField(max_length=20)
     experience_years_min = models.IntegerField()
     experience_years_max = models.IntegerField(blank=True, null=True)
-    salary_min = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
-    salary_max = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    salary_min = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
+    salary_max = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
     salary_currency = models.CharField(max_length=10)
     salary_type = models.CharField(max_length=20)
     is_salary_negotiable = models.BooleanField()
@@ -700,13 +730,15 @@ class Jobs(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
-    category = models.ForeignKey(JobCategories, models.DO_NOTHING, blank=True, null=True)
+    category = models.ForeignKey(
+        JobCategories, models.DO_NOTHING, blank=True, null=True
+    )
     company = models.ForeignKey(Companies, models.DO_NOTHING)
-    created_by = models.ForeignKey('Users', models.DO_NOTHING)
+    created_by = models.ForeignKey("Users", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'jobs'
+        db_table = "jobs"
 
 
 class Languages(models.Model):
@@ -720,7 +752,7 @@ class Languages(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'languages'
+        db_table = "languages"
 
 
 class MediaTypes(models.Model):
@@ -733,7 +765,7 @@ class MediaTypes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'media_types'
+        db_table = "media_types"
 
 
 class NotificationTypes(models.Model):
@@ -747,7 +779,7 @@ class NotificationTypes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'notification_types'
+        db_table = "notification_types"
 
 
 class Notifications(models.Model):
@@ -761,12 +793,12 @@ class Notifications(models.Model):
     read_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField()
     notification_type = models.ForeignKey(NotificationTypes, models.DO_NOTHING)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
+    user = models.ForeignKey("Users", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'notifications'
+        db_table = "notifications"
 
 
 class PaymentMethods(models.Model):
@@ -780,7 +812,7 @@ class PaymentMethods(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'payment_methods'
+        db_table = "payment_methods"
 
 
 class Provinces(models.Model):
@@ -794,7 +826,7 @@ class Provinces(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'provinces'
+        db_table = "provinces"
 
 
 class RecruiterCertifications(models.Model):
@@ -809,11 +841,11 @@ class RecruiterCertifications(models.Model):
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_certifications'
+        db_table = "recruiter_certifications"
 
 
 class RecruiterCvs(models.Model):
@@ -827,12 +859,12 @@ class RecruiterCvs(models.Model):
     download_count = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
     template = models.ForeignKey(CvTemplates, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_cvs'
+        db_table = "recruiter_cvs"
 
 
 class RecruiterEducation(models.Model):
@@ -848,11 +880,11 @@ class RecruiterEducation(models.Model):
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_education'
+        db_table = "recruiter_education"
 
 
 class RecruiterExperience(models.Model):
@@ -869,11 +901,11 @@ class RecruiterExperience(models.Model):
     updated_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
     industry = models.ForeignKey(Industries, models.DO_NOTHING, blank=True, null=True)
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_experience'
+        db_table = "recruiter_experience"
 
 
 class RecruiterLanguages(models.Model):
@@ -882,13 +914,13 @@ class RecruiterLanguages(models.Model):
     is_native = models.BooleanField()
     created_at = models.DateTimeField()
     language = models.ForeignKey(Languages, models.DO_NOTHING)
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'recruiter_languages'
-        unique_together = (('recruiter', 'language'),)
+        db_table = "recruiter_languages"
+        unique_together = (("recruiter", "language"),)
 
 
 class RecruiterProjects(models.Model):
@@ -903,11 +935,11 @@ class RecruiterProjects(models.Model):
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_projects'
+        db_table = "recruiter_projects"
 
 
 class RecruiterSkills(models.Model):
@@ -919,13 +951,13 @@ class RecruiterSkills(models.Model):
     last_used_date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    recruiter = models.ForeignKey('Recruiters', models.DO_NOTHING)
-    skill = models.ForeignKey('Skills', models.DO_NOTHING)
+    recruiter = models.ForeignKey("Recruiters", models.DO_NOTHING)
+    skill = models.ForeignKey("Skills", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiter_skills'
-        unique_together = (('recruiter', 'skill'),)
+        db_table = "recruiter_skills"
+        unique_together = (("recruiter", "skill"),)
 
 
 class Recruiters(models.Model):
@@ -939,8 +971,12 @@ class Recruiters(models.Model):
     github_url = models.CharField(max_length=255, blank=True, null=True)
     portfolio_url = models.CharField(max_length=255, blank=True, null=True)
     job_search_status = models.CharField(max_length=20)
-    desired_salary_min = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
-    desired_salary_max = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    desired_salary_min = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
+    desired_salary_max = models.DecimalField(
+        max_digits=15, decimal_places=2, blank=True, null=True
+    )
     salary_currency = models.CharField(max_length=10)
     available_from_date = models.DateField(blank=True, null=True)
     years_of_experience = models.IntegerField()
@@ -951,12 +987,14 @@ class Recruiters(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     address = models.ForeignKey(Addresses, models.DO_NOTHING, blank=True, null=True)
-    current_company = models.ForeignKey(Companies, models.DO_NOTHING, blank=True, null=True)
-    user = models.OneToOneField('Users', models.DO_NOTHING)
+    current_company = models.ForeignKey(
+        Companies, models.DO_NOTHING, blank=True, null=True
+    )
+    user = models.OneToOneField("Users", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'recruiters'
+        db_table = "recruiters"
 
 
 class ReportTypes(models.Model):
@@ -970,7 +1008,7 @@ class ReportTypes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'report_types'
+        db_table = "report_types"
 
 
 class Reports(models.Model):
@@ -982,13 +1020,19 @@ class Reports(models.Model):
     resolved_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField()
     report_type = models.ForeignKey(ReportTypes, models.DO_NOTHING)
-    reporter = models.ForeignKey('Users', models.DO_NOTHING)
-    resolved_by = models.ForeignKey('Users', models.DO_NOTHING, related_name='reports_resolved_by_set', blank=True, null=True)
+    reporter = models.ForeignKey("Users", models.DO_NOTHING)
+    resolved_by = models.ForeignKey(
+        "Users",
+        models.DO_NOTHING,
+        related_name="reports_resolved_by_set",
+        blank=True,
+        null=True,
+    )
     resolution_notes = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'reports'
+        db_table = "reports"
 
 
 class SavedJobs(models.Model):
@@ -1002,8 +1046,8 @@ class SavedJobs(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'saved_jobs'
-        unique_together = (('recruiter', 'job'),)
+        db_table = "saved_jobs"
+        unique_together = (("recruiter", "job"),)
 
 
 class SkillCategories(models.Model):
@@ -1014,12 +1058,12 @@ class SkillCategories(models.Model):
     is_active = models.BooleanField()
     display_order = models.IntegerField()
     created_at = models.DateTimeField()
-    parent = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True)
+    parent = models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'skill_categories'
+        db_table = "skill_categories"
 
 
 class Skills(models.Model):
@@ -1036,7 +1080,7 @@ class Skills(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'skills'
+        db_table = "skills"
 
 
 class SubscriptionPlans(models.Model):
@@ -1053,7 +1097,7 @@ class SubscriptionPlans(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'subscription_plans'
+        db_table = "subscription_plans"
 
 
 class SystemSettings(models.Model):
@@ -1066,21 +1110,21 @@ class SystemSettings(models.Model):
     is_public = models.BooleanField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    updated_by = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    updated_by = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'system_settings'
+        db_table = "system_settings"
 
 
 class TokenBlacklistBlacklistedtoken(models.Model):
     id = models.BigAutoField(primary_key=True)
     blacklisted_at = models.DateTimeField()
-    token = models.OneToOneField('TokenBlacklistOutstandingtoken', models.DO_NOTHING)
+    token = models.OneToOneField("TokenBlacklistOutstandingtoken", models.DO_NOTHING)
 
     class Meta:
         managed = False
-        db_table = 'token_blacklist_blacklistedtoken'
+        db_table = "token_blacklist_blacklistedtoken"
 
 
 class TokenBlacklistOutstandingtoken(models.Model):
@@ -1088,12 +1132,12 @@ class TokenBlacklistOutstandingtoken(models.Model):
     token = models.TextField()
     created_at = models.DateTimeField(blank=True, null=True)
     expires_at = models.DateTimeField()
-    user = models.ForeignKey('Users', models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey("Users", models.DO_NOTHING, blank=True, null=True)
     jti = models.CharField(unique=True, max_length=255)
 
     class Meta:
         managed = False
-        db_table = 'token_blacklist_outstandingtoken'
+        db_table = "token_blacklist_outstandingtoken"
 
 
 class Transactions(models.Model):
@@ -1104,20 +1148,32 @@ class Transactions(models.Model):
     currency = models.CharField(max_length=10)
     type = models.CharField(max_length=20)
     status = models.CharField(max_length=20)
-    reference_code = models.CharField(unique=True, max_length=100, blank=True, null=True)
+    reference_code = models.CharField(
+        unique=True, max_length=100, blank=True, null=True
+    )
     description = models.TextField()
     company = models.ForeignKey(Companies, models.DO_NOTHING)
-    payment_method = models.ForeignKey(PaymentMethods, models.DO_NOTHING, blank=True, null=True)
+    payment_method = models.ForeignKey(
+        PaymentMethods, models.DO_NOTHING, blank=True, null=True
+    )
     ip_address = models.GenericIPAddressField(blank=True, null=True)
-    vnp_bankcode = models.CharField(db_column='vnp_BankCode', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    vnp_cardtype = models.CharField(db_column='vnp_CardType', max_length=50, blank=True, null=True)  # Field name made lowercase.
-    vnp_orderinfo = models.TextField(db_column='vnp_OrderInfo', blank=True, null=True)  # Field name made lowercase.
-    vnp_transactionno = models.CharField(db_column='vnp_TransactionNo', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    vnp_bankcode = models.CharField(
+        db_column="vnp_BankCode", max_length=50, blank=True, null=True
+    )  # Field name made lowercase.
+    vnp_cardtype = models.CharField(
+        db_column="vnp_CardType", max_length=50, blank=True, null=True
+    )  # Field name made lowercase.
+    vnp_orderinfo = models.TextField(
+        db_column="vnp_OrderInfo", blank=True, null=True
+    )  # Field name made lowercase.
+    vnp_transactionno = models.CharField(
+        db_column="vnp_TransactionNo", max_length=100, blank=True, null=True
+    )  # Field name made lowercase.
     metadata = models.JSONField()
 
     class Meta:
         managed = False
-        db_table = 'transactions'
+        db_table = "transactions"
 
 
 class UserPasskeys(models.Model):
@@ -1131,12 +1187,12 @@ class UserPasskeys(models.Model):
     is_active = models.BooleanField()
     created_at = models.DateTimeField()
     last_used_at = models.DateTimeField(blank=True, null=True)
-    user = models.ForeignKey('Users', models.DO_NOTHING)
+    user = models.ForeignKey("Users", models.DO_NOTHING)
     updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
-        db_table = 'user_passkeys'
+        db_table = "user_passkeys"
 
 
 class Users(models.Model):
@@ -1168,7 +1224,7 @@ class Users(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'users'
+        db_table = "users"
 
 
 class UsersGroups(models.Model):
@@ -1178,8 +1234,8 @@ class UsersGroups(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'users_groups'
-        unique_together = (('customuser', 'group'),)
+        db_table = "users_groups"
+        unique_together = (("customuser", "group"),)
 
 
 class UsersUserPermissions(models.Model):
@@ -1189,5 +1245,5 @@ class UsersUserPermissions(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'users_user_permissions'
-        unique_together = (('customuser', 'permission'),)
+        db_table = "users_user_permissions"
+        unique_together = (("customuser", "permission"),)

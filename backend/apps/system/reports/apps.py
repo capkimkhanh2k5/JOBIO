@@ -2,10 +2,9 @@ from django.apps import AppConfig
 
 
 class ReportsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.system.reports'
-    label = 'system_reports'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.system.reports"
+    label = "system_reports"
 
     def ready(self):
         pass
-

@@ -13,6 +13,7 @@ class CertificationInput(BaseModel):
     """
     Input model cho Tạo và cập nhật chứng chỉ
     """
+
     certification_name: Optional[str] = None
     issuing_organization: Optional[str] = None
     issue_date: Optional[date] = None
@@ -20,43 +21,45 @@ class CertificationInput(BaseModel):
     credential_id: Optional[str] = None
     credential_url: Optional[str] = None
     does_not_expire: Optional[bool] = None
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 @transaction.atomic
-def create_certification(recruiter: Recruiter, data: CertificationInput) -> RecruiterCertification:
+def create_certification(
+    recruiter: Recruiter, data: CertificationInput
+) -> RecruiterCertification:
     """
     Tạo chứng chỉ mới cho recruiter.
     Auto set display_order = max + 1
     """
     # Get max display_order
-    max_order = RecruiterCertification.objects.filter(
-        recruiter=recruiter
-    ).aggregate(Max('display_order'))['display_order__max']
-    
+    max_order = RecruiterCertification.objects.filter(recruiter=recruiter).aggregate(
+        Max("display_order")
+    )["display_order__max"]
+
     next_order = (max_order or 0) + 1
-    
+
     fields = data.model_dump(exclude_unset=True)
-    
+
     certification = RecruiterCertification.objects.create(
-        recruiter=recruiter,
-        display_order=next_order,
-        **fields
+        recruiter=recruiter, display_order=next_order, **fields
     )
     return certification
 
 
 @transaction.atomic
-def update_certification(certification: RecruiterCertification, data: CertificationInput) -> RecruiterCertification:
+def update_certification(
+    certification: RecruiterCertification, data: CertificationInput
+) -> RecruiterCertification:
     """
     Cập nhật thông tin chứng chỉ.
     """
     fields = data.model_dump(exclude_unset=True)
-    
+
     for field, value in fields.items():
         setattr(certification, field, value)
-    
+
     certification.save()
     return certification
 
@@ -77,20 +80,24 @@ def reorder_certification(recruiter: Recruiter, order_data: list) -> None:
     """
     # Lấy tất cả certification ids thuộc recruiter
     valid_ids = set(
-        RecruiterCertification.objects.filter(recruiter=recruiter).values_list('id', flat=True)
+        RecruiterCertification.objects.filter(recruiter=recruiter).values_list(
+            "id", flat=True
+        )
     )
-    
+
     # Validate tất cả ids thuộc recruiter
     for item in order_data:
-        if item['id'] not in valid_ids:
-            raise ValueError(f"Certification id {item['id']} does not belong to this recruiter")
-    
+        if item["id"] not in valid_ids:
+            raise ValueError(
+                f"Certification id {item['id']} does not belong to this recruiter"
+            )
+
     # Build list để update
     certification_updates = []
     for item in order_data:
-        cert = RecruiterCertification.objects.get(id=item['id'])
-        cert.display_order = item['display_order']
+        cert = RecruiterCertification.objects.get(id=item["id"])
+        cert.display_order = item["display_order"]
         certification_updates.append(cert)
-    
+
     # Bulk update
-    RecruiterCertification.objects.bulk_update(certification_updates, ['display_order'])
+    RecruiterCertification.objects.bulk_update(certification_updates, ["display_order"])

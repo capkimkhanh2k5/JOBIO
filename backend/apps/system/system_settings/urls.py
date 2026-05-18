@@ -3,8 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import SystemSettingViewSet
 
 router = DefaultRouter()
-router.register(r'', SystemSettingViewSet, basename='system-settings')
+router.register(r"", SystemSettingViewSet, basename="system-settings")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

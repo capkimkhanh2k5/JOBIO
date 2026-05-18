@@ -4,20 +4,36 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core_users', '0002_customuser_two_factor_enabled_and_more'),
+        ("core_users", "0002_customuser_two_factor_enabled_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='customuser',
-            name='social_id',
-            field=models.CharField(blank=True, max_length=255, null=True, unique=True, verbose_name='ID từ Social Provider'),
+            model_name="customuser",
+            name="social_id",
+            field=models.CharField(
+                blank=True,
+                max_length=255,
+                null=True,
+                unique=True,
+                verbose_name="ID từ Social Provider",
+            ),
         ),
         migrations.AddField(
-            model_name='customuser',
-            name='social_provider',
-            field=models.CharField(blank=True, choices=[('', 'Không'), ('google', 'Google'), ('facebook', 'Facebook'), ('linkedin', 'LinkedIn')], default='', max_length=20, verbose_name='Nhà cung cấp Social'),
+            model_name="customuser",
+            name="social_provider",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Không"),
+                    ("google", "Google"),
+                    ("facebook", "Facebook"),
+                    ("linkedin", "LinkedIn"),
+                ],
+                default="",
+                max_length=20,
+                verbose_name="Nhà cung cấp Social",
+            ),
         ),
     ]

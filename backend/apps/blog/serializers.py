@@ -1,56 +1,89 @@
 from rest_framework import serializers
 from apps.blog.models import Post, Category, Tag
 
+
 class CategorySerializer(serializers.ModelSerializer):
     post_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'description', 'post_count']
+        fields = ["id", "name", "slug", "description", "post_count"]
 
     def get_post_count(self, obj):
         return obj.posts.count()
+
 
 class TagSerializer(serializers.ModelSerializer):
     post_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'post_count']
+        fields = ["id", "name", "slug", "post_count"]
 
     def get_post_count(self, obj):
         return obj.posts.count()
 
+
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.IntegerField(source='author_id', read_only=True)
+    author = serializers.IntegerField(source="author_id", read_only=True)
     author_name = serializers.SerializerMethodField()
     author_avatar = serializers.SerializerMethodField()
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category', write_only=True, required=False, allow_null=True
+        queryset=Category.objects.all(),
+        source="category",
+        write_only=True,
+        required=False,
+        allow_null=True,
     )
     tags = TagSerializer(many=True, read_only=True)
     tag_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), source='tags', write_only=True, many=True, required=False
+        queryset=Tag.objects.all(),
+        source="tags",
+        write_only=True,
+        many=True,
+        required=False,
     )
-    
+
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'slug', 'author', 'author_name', 'author_avatar', 
-            'category', 'category_id', 'tags', 'tag_ids', 
-            'summary', 'content', 'thumbnail', 'is_featured',
-            'meta_title', 'meta_description',
-            'status', 'published_at', 'updated_at', 'view_count', 'created_at'
+            "id",
+            "title",
+            "slug",
+            "author",
+            "author_name",
+            "author_avatar",
+            "category",
+            "category_id",
+            "tags",
+            "tag_ids",
+            "summary",
+            "content",
+            "thumbnail",
+            "is_featured",
+            "meta_title",
+            "meta_description",
+            "status",
+            "published_at",
+            "updated_at",
+            "view_count",
+            "created_at",
         ]
-        read_only_fields = ['author', 'published_at', 'view_count', 'slug', 'updated_at']
+        read_only_fields = [
+            "author",
+            "published_at",
+            "view_count",
+            "slug",
+            "updated_at",
+        ]
 
     def get_author_name(self, obj):
         if not obj.author:
-            return ''
+            return ""
 
         return (
-            getattr(obj.author, 'full_name', None)
+            getattr(obj.author, "full_name", None)
             or obj.author.get_full_name()
             or obj.author.email
         )
@@ -59,4 +92,4 @@ class PostSerializer(serializers.ModelSerializer):
         if not obj.author:
             return None
 
-        return getattr(obj.author, 'avatar_url', None)
+        return getattr(obj.author, "avatar_url", None)
