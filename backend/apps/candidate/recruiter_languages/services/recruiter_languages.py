@@ -12,10 +12,11 @@ class LanguageInput(BaseModel):
     """
     Pydantic input model cho create/update recruiter language
     """
+
     language_id: Optional[int] = None
     proficiency_level: Optional[str] = None
     is_native: Optional[bool] = None
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
@@ -23,7 +24,7 @@ class LanguageInput(BaseModel):
 def create_language(recruiter: Recruiter, data: LanguageInput) -> RecruiterLanguage:
     """
     Thêm ngôn ngữ mới cho recruiter.
-    
+
     Raises:
         ValueError: Nếu language_id không tồn tại hoặc đã được thêm
     """
@@ -31,11 +32,13 @@ def create_language(recruiter: Recruiter, data: LanguageInput) -> RecruiterLangu
     language = Language.objects.filter(id=data.language_id, is_active=True).first()
     if not language:
         raise ValueError("Ngôn ngữ không tồn tại!")
-    
+
     # Kiểm tra đã thêm language này chưa
-    if RecruiterLanguage.objects.filter(recruiter=recruiter, language=language).exists():
+    if RecruiterLanguage.objects.filter(
+        recruiter=recruiter, language=language
+    ).exists():
         raise ValueError("Ngôn ngữ này đã được thêm!")
-    
+
     # Tạo RecruiterLanguage
     recruiter_language = RecruiterLanguage.objects.create(
         recruiter=recruiter,
@@ -43,25 +46,27 @@ def create_language(recruiter: Recruiter, data: LanguageInput) -> RecruiterLangu
         proficiency_level=data.proficiency_level,
         is_native=data.is_native or False,
     )
-    
+
     return recruiter_language
 
 
 @transaction.atomic
-def update_language(recruiter_language: RecruiterLanguage, data: LanguageInput) -> RecruiterLanguage:
+def update_language(
+    recruiter_language: RecruiterLanguage, data: LanguageInput
+) -> RecruiterLanguage:
     """
     Cập nhật thông tin ngôn ngữ.
     Không cho phép update language_id.
     """
     fields = data.model_dump(exclude_unset=True)
-    
+
     # Không cho update language_id
-    fields.pop('language_id', None)
-    
+    fields.pop("language_id", None)
+
     for field, value in fields.items():
         if value is not None:
             setattr(recruiter_language, field, value)
-    
+
     recruiter_language.save()
     return recruiter_language
 

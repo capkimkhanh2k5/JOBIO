@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import RecruiterViewSet
 
 router = DefaultRouter()
-router.register(r'', RecruiterViewSet, basename='recruiter')
+router.register(r"", RecruiterViewSet, basename="recruiter")
 
-app_name = 'recruiters'
+app_name = "recruiters"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

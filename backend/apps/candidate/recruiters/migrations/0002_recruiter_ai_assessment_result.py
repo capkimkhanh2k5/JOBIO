@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiters', '0001_initial'),
+        ("candidate_recruiters", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recruiter',
-            name='ai_assessment_result',
-            field=models.JSONField(blank=True, default=dict, verbose_name='Kết quả đánh giá AI'),
+            model_name="recruiter",
+            name="ai_assessment_result",
+            field=models.JSONField(
+                blank=True, default=dict, verbose_name="Kết quả đánh giá AI"
+            ),
         ),
     ]

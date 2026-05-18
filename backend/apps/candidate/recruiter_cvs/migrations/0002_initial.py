@@ -5,24 +5,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_cv_templates', '0001_initial'),
-        ('candidate_recruiter_cvs', '0001_initial'),
-        ('candidate_recruiters', '0001_initial'),
+        ("candidate_cv_templates", "0001_initial"),
+        ("candidate_recruiter_cvs", "0001_initial"),
+        ("candidate_recruiters", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recruitercv',
-            name='recruiter',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='cvs', to='candidate_recruiters.recruiter', verbose_name='Ứng viên'),
+            model_name="recruitercv",
+            name="recruiter",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="cvs",
+                to="candidate_recruiters.recruiter",
+                verbose_name="Ứng viên",
+            ),
         ),
         migrations.AddField(
-            model_name='recruitercv',
-            name='template',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='recruiter_cvs', to='candidate_cv_templates.cvtemplate', verbose_name='Mẫu CV'),
+            model_name="recruitercv",
+            name="template",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="recruiter_cvs",
+                to="candidate_cv_templates.cvtemplate",
+                verbose_name="Mẫu CV",
+            ),
         ),
     ]

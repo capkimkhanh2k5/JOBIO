@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('company_companies', '0002_allow_null_user'),
+        ("company_companies", "0002_allow_null_user"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='company',
-            name='email',
-            field=models.EmailField(blank=True, max_length=255, null=True, verbose_name='Email liên hệ'),
+            model_name="company",
+            name="email",
+            field=models.EmailField(
+                blank=True, max_length=255, null=True, verbose_name="Email liên hệ"
+            ),
         ),
         migrations.AddField(
-            model_name='company',
-            name='phone',
-            field=models.CharField(blank=True, max_length=20, null=True, verbose_name='Số điện thoại'),
+            model_name="company",
+            name="phone",
+            field=models.CharField(
+                blank=True, max_length=20, null=True, verbose_name="Số điện thoại"
+            ),
         ),
     ]

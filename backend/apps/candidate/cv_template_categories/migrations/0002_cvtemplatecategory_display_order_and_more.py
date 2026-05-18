@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_cv_template_categories', '0001_initial'),
+        ("candidate_cv_template_categories", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cvtemplatecategory',
-            name='display_order',
-            field=models.IntegerField(default=0, verbose_name='Thứ tự hiển thị'),
+            model_name="cvtemplatecategory",
+            name="display_order",
+            field=models.IntegerField(default=0, verbose_name="Thứ tự hiển thị"),
         ),
         migrations.AddField(
-            model_name='cvtemplatecategory',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="cvtemplatecategory",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

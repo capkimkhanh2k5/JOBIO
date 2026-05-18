@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('company_benefit_categories', '0001_initial'),
+        ("company_benefit_categories", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='benefitcategory',
-            name='description',
-            field=models.TextField(blank=True, null=True, verbose_name='Mô tả'),
+            model_name="benefitcategory",
+            name="description",
+            field=models.TextField(blank=True, null=True, verbose_name="Mô tả"),
         ),
         migrations.AddField(
-            model_name='benefitcategory',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="benefitcategory",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

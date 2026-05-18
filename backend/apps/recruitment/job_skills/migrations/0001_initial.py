@@ -4,26 +4,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JobSkill',
+            name="JobSkill",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_required', models.BooleanField(default=True, verbose_name='Bắt buộc')),
-                ('proficiency_level', models.CharField(blank=True, choices=[('basic', 'Cơ bản'), ('intermediate', 'Trung bình'), ('advanced', 'Nâng cao'), ('expert', 'Chuyên gia')], max_length=20, null=True, verbose_name='Mức độ yêu cầu')),
-                ('years_required', models.IntegerField(blank=True, null=True, verbose_name='Số năm yêu cầu')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_required",
+                    models.BooleanField(default=True, verbose_name="Bắt buộc"),
+                ),
+                (
+                    "proficiency_level",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("basic", "Cơ bản"),
+                            ("intermediate", "Trung bình"),
+                            ("advanced", "Nâng cao"),
+                            ("expert", "Chuyên gia"),
+                        ],
+                        max_length=20,
+                        null=True,
+                        verbose_name="Mức độ yêu cầu",
+                    ),
+                ),
+                (
+                    "years_required",
+                    models.IntegerField(
+                        blank=True, null=True, verbose_name="Số năm yêu cầu"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Kỹ năng công việc',
-                'verbose_name_plural': 'Kỹ năng công việc',
-                'db_table': 'job_skills',
+                "verbose_name": "Kỹ năng công việc",
+                "verbose_name_plural": "Kỹ năng công việc",
+                "db_table": "job_skills",
             },
         ),
     ]

@@ -5,21 +5,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('billing', '0001_initial'),
-        ('company_companies', '0002_allow_null_user'),
+        ("billing", "0001_initial"),
+        ("company_companies", "0002_allow_null_user"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='companysubscription',
-            name='company',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subscriptions', to='company_companies.company'),
+            model_name="companysubscription",
+            name="company",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="subscriptions",
+                to="company_companies.company",
+            ),
         ),
         migrations.AlterField(
-            model_name='companysubscription',
-            name='plan',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='company_subscriptions', to='billing.subscriptionplan'),
+            model_name="companysubscription",
+            name="plan",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="company_subscriptions",
+                to="billing.subscriptionplan",
+            ),
         ),
     ]

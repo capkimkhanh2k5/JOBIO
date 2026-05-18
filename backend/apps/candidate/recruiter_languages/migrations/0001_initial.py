@@ -5,27 +5,61 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('candidate_languages', '0001_initial'),
+        ("candidate_languages", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RecruiterLanguage',
+            name="RecruiterLanguage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('proficiency_level', models.CharField(choices=[('basic', 'Cơ bản'), ('intermediate', 'Trung bình'), ('advanced', 'Khá'), ('fluent', 'Thành thạo'), ('native', 'Bản xứ')], max_length=20, verbose_name='Trình độ')),
-                ('is_native', models.BooleanField(default=False, verbose_name='Ngôn ngữ mẹ đẻ')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recruiter_languages', to='candidate_languages.language', verbose_name='Ngôn ngữ')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "proficiency_level",
+                    models.CharField(
+                        choices=[
+                            ("basic", "Cơ bản"),
+                            ("intermediate", "Trung bình"),
+                            ("advanced", "Khá"),
+                            ("fluent", "Thành thạo"),
+                            ("native", "Bản xứ"),
+                        ],
+                        max_length=20,
+                        verbose_name="Trình độ",
+                    ),
+                ),
+                (
+                    "is_native",
+                    models.BooleanField(default=False, verbose_name="Ngôn ngữ mẹ đẻ"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "language",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="recruiter_languages",
+                        to="candidate_languages.language",
+                        verbose_name="Ngôn ngữ",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Ngôn ngữ ứng viên',
-                'verbose_name_plural': 'Ngôn ngữ ứng viên',
-                'db_table': 'recruiter_languages',
+                "verbose_name": "Ngôn ngữ ứng viên",
+                "verbose_name_plural": "Ngôn ngữ ứng viên",
+                "db_table": "recruiter_languages",
             },
         ),
     ]

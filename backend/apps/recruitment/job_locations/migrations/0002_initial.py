@@ -5,18 +5,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('recruitment_job_locations', '0001_initial'),
-        ('recruitment_jobs', '0001_initial'),
+        ("recruitment_job_locations", "0001_initial"),
+        ("recruitment_jobs", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='joblocation',
-            name='job',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='locations', to='recruitment_jobs.job', verbose_name='Công việc'),
+            model_name="joblocation",
+            name="job",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="locations",
+                to="recruitment_jobs.job",
+                verbose_name="Công việc",
+            ),
         ),
     ]

@@ -4,15 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recruitment_interviews', '0001_initial'),
+        ("recruitment_interviews", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='interview',
-            name='result',
-            field=models.CharField(choices=[('pass', 'Đạt'), ('fail', 'Không đạt'), ('pending', 'Chờ kết quả')], db_index=True, default='pending', max_length=20, verbose_name='Kết quả'),
+            model_name="interview",
+            name="result",
+            field=models.CharField(
+                choices=[
+                    ("pass", "Đạt"),
+                    ("fail", "Không đạt"),
+                    ("pending", "Chờ kết quả"),
+                ],
+                db_index=True,
+                default="pending",
+                max_length=20,
+                verbose_name="Kết quả",
+            ),
         ),
     ]

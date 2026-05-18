@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class SystemSettingsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.system.system_settings'
-    label = 'system_system_settings'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.system.system_settings"
+    label = "system_system_settings"

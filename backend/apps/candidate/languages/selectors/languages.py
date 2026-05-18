@@ -6,4 +6,4 @@ def list_all_languages() -> QuerySet[Language]:
     """
     Lấy danh sách tất cả ngôn ngữ đang active.
     """
-    return Language.objects.filter(is_active=True).order_by('language_name')
+    return Language.objects.filter(is_active=True).order_by("language_name")

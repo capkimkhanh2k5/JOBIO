@@ -4,26 +4,46 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='MediaType',
+            name="MediaType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type_name', models.CharField(max_length=50, unique=True, verbose_name='Tên loại media')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='Mô tả')),
-                ('is_active', models.BooleanField(default=True, verbose_name='Đang hoạt động')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "type_name",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Tên loại media"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="Mô tả"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(default=True, verbose_name="Đang hoạt động"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
             ],
             options={
-                'verbose_name': 'Loại media',
-                'verbose_name_plural': 'Loại media',
-                'db_table': 'media_types',
+                "verbose_name": "Loại media",
+                "verbose_name_plural": "Loại media",
+                "db_table": "media_types",
             },
         ),
     ]

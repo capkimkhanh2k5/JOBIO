@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_cv_templates', '0001_initial'),
+        ("candidate_cv_templates", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cvtemplate',
-            name='file_name',
-            field=models.CharField(blank=True, help_text='Tên file HTML trong thư mục templates/cv/ (vd: modern.html)', max_length=100, null=True, verbose_name='Tên file HTML template'),
+            model_name="cvtemplate",
+            name="file_name",
+            field=models.CharField(
+                blank=True,
+                help_text="Tên file HTML trong thư mục templates/cv/ (vd: modern.html)",
+                max_length=100,
+                null=True,
+                verbose_name="Tên file HTML template",
+            ),
         ),
     ]

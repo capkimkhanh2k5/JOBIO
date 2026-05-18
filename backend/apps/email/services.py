@@ -6,19 +6,26 @@ from django.utils.html import strip_tags
 
 logger = logging.getLogger(__name__)
 
+
 class EmailService:
     @staticmethod
-    def send_email(recipient: str, subject: str, context: dict = None, body: str = None, template_path: str = None):
+    def send_email(
+        recipient: str,
+        subject: str,
+        context: dict = None,
+        body: str = None,
+        template_path: str = None,
+    ):
         """
         Send email using template (File) or raw body.
         Priority: template_path > body
         """
         if context is None:
             context = {}
-            
+
         html_content = None
         plain_content = None
-        
+
         # Try File Template
         if template_path:
             try:
@@ -31,8 +38,10 @@ class EmailService:
 
         # Raw Body
         elif body:
-            html_content = body # Assume body is HTML if intend is HTML email, or just text.
-            plain_content = strip_tags(body)       
+            html_content = (
+                body  # Assume body is HTML if intend is HTML email, or just text.
+            )
+            plain_content = strip_tags(body)
 
         if not html_content and not plain_content:
             logger.error("No content provided for email.")
@@ -42,11 +51,12 @@ class EmailService:
             # Send email via Django's send_mail
             send_mail(
                 subject=subject,
-                message=plain_content or strip_tags(html_content), # Fallback plain text
+                message=plain_content
+                or strip_tags(html_content),  # Fallback plain text
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[recipient],
-                html_message=html_content, # HTML Content
-                fail_silently=False
+                html_message=html_content,  # HTML Content
+                fail_silently=False,
             )
             return True
         except Exception as e:

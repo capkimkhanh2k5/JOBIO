@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import JobSkillViewSet
 
 router = DefaultRouter()
-router.register(r'', JobSkillViewSet, basename='job-skills')
+router.register(r"", JobSkillViewSet, basename="job-skills")
 
-app_name = 'job_skills'
+app_name = "job_skills"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

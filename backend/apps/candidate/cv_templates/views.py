@@ -7,10 +7,10 @@ from rest_framework.permissions import AllowAny, IsAdminUser
 
 from .models import CVTemplate
 from .serializers import (
-    CVTemplateListSerializer, 
+    CVTemplateListSerializer,
     CVTemplateDetailSerializer,
     CVTemplateCategorySerializer,
-    CVTemplateCreateSerializer
+    CVTemplateCreateSerializer,
 )
 
 
@@ -93,7 +93,10 @@ def ensure_cv_templates_seeded():
         meta = TEMPLATE_LIBRARY.get(
             file_name,
             {
-                "name": Path(file_name).stem.replace("_", " ").replace("-", " ").title(),
+                "name": Path(file_name)
+                .stem.replace("_", " ")
+                .replace("-", " ")
+                .title(),
                 "category": "professional",
                 "description": f"Template HTML dong bo tu file {file_name}.",
                 "tags": ["html"],
@@ -120,7 +123,7 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
     """
     ViewSet cho mẫu CV.
     URL: /api/cv-templates/
-    
+
     Endpoints:
     - GET /             → list (public)
     - GET /:id/         → retrieve (public)
@@ -131,90 +134,96 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
     - PUT /:id/         → update (admin)
     - DELETE /:id/      → destroy (admin)
     """
-    
+
     def get_queryset(self):
         ensure_cv_templates_seeded()
-        queryset = CVTemplate.objects.select_related('category')
-        
+        queryset = CVTemplate.objects.select_related("category")
+
         # Admin thấy tất cả, user chỉ thấy active
         if not self.request.user.is_staff:
             queryset = queryset.filter(is_active=True)
-        
+
         # Filter by category
-        category = self.request.query_params.get('category')
+        category = self.request.query_params.get("category")
         if category:
             queryset = queryset.filter(category__slug=category)
-        
+
         # Filter by premium
-        is_premium = self.request.query_params.get('is_premium')
+        is_premium = self.request.query_params.get("is_premium")
         if is_premium is not None:
-            queryset = queryset.filter(is_premium=is_premium.lower() == 'true')
-        
-        return queryset.order_by('-usage_count', '-rating')
-    
+            queryset = queryset.filter(is_premium=is_premium.lower() == "true")
+
+        return queryset.order_by("-usage_count", "-rating")
+
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == "retrieve":
             return CVTemplateDetailSerializer
-        if self.action in ['create', 'update', 'partial_update']:
+        if self.action in ["create", "update", "partial_update"]:
             return CVTemplateCreateSerializer
         return CVTemplateListSerializer
-    
+
     def get_permissions(self):
         """
         Public: list, retrieve, categories, premium, popular
         Authenticated: preview
         Admin: create, update, partial_update, destroy
         """
-        if self.action in ['list', 'retrieve', 'categories', 'premium', 'popular']:
+        if self.action in ["list", "retrieve", "categories", "premium", "popular"]:
             return [AllowAny()]
-        if self.action == 'preview':
+        if self.action == "preview":
             from rest_framework.permissions import IsAuthenticated
+
             return [IsAuthenticated()]
         return [IsAdminUser()]
-    
-    @action(detail=False, methods=['get'])
+
+    @action(detail=False, methods=["get"])
     def categories(self, request):
         """
         GET /api/cv-templates/categories/
         Danh sách danh mục mẫu CV
         """
         from apps.candidate.cv_template_categories.models import CVTemplateCategory
-        
-        categories = CVTemplateCategory.objects.filter(
-            is_active=True
-        ).prefetch_related('templates').order_by('name')
-        
+
+        categories = (
+            CVTemplateCategory.objects.filter(is_active=True)
+            .prefetch_related("templates")
+            .order_by("name")
+        )
+
         serializer = CVTemplateCategorySerializer(categories, many=True)
         return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
+
+    @action(detail=False, methods=["get"])
     def premium(self, request):
         """
         GET /api/cv-templates/premium/
         Danh sách mẫu CV premium
         """
-        queryset = CVTemplate.objects.filter(
-            is_active=True,
-            is_premium=True
-        ).select_related('category').order_by('-rating', '-usage_count')
-        
+        queryset = (
+            CVTemplate.objects.filter(is_active=True, is_premium=True)
+            .select_related("category")
+            .order_by("-rating", "-usage_count")
+        )
+
         serializer = CVTemplateListSerializer(queryset, many=True)
         return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
+
+    @action(detail=False, methods=["get"])
     def popular(self, request):
         """
         GET /api/cv-templates/popular/
         Danh sách mẫu CV phổ biến (top 10)
         """
-        queryset = CVTemplate.objects.filter(
-            is_active=True
-        ).select_related('category').order_by('-usage_count')[:10]
-        
+        queryset = (
+            CVTemplate.objects.filter(is_active=True)
+            .select_related("category")
+            .order_by("-usage_count")[:10]
+        )
+
         serializer = CVTemplateListSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], permission_classes=[])
+    @action(detail=True, methods=["post"], permission_classes=[])
     def preview(self, request, pk=None):
         """
         POST /api/cv-templates/:id/preview/
@@ -227,7 +236,9 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         from apps.candidate.recruiter_skills.models import RecruiterSkill
         from apps.candidate.recruiter_education.models import RecruiterEducation
         from apps.candidate.recruiter_experience.models import RecruiterExperience
-        from apps.candidate.recruiter_certifications.models import RecruiterCertification
+        from apps.candidate.recruiter_certifications.models import (
+            RecruiterCertification,
+        )
         from apps.candidate.recruiter_projects.models import RecruiterProject
         from apps.candidate.recruiter_languages.models import RecruiterLanguage
 
@@ -249,72 +260,112 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         try:
             recruiter = Recruiter.objects.select_related("user").get(id=recruiter_id)
         except Recruiter.DoesNotExist:
-            return Response({"detail": "Recruiter not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "Recruiter not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         # Build profile data (same structure as auto_generate_cv)
         skills_data = []
-        for rs in RecruiterSkill.objects.filter(recruiter=recruiter).select_related("skill"):
-            skills_data.append({
-                "name": rs.skill.name,  # skill FK is always required (non-null)
-                "proficiency_level": rs.proficiency_level,
-                "years_of_experience": rs.years_of_experience,
-            })
+        for rs in RecruiterSkill.objects.filter(recruiter=recruiter).select_related(
+            "skill"
+        ):
+            skills_data.append(
+                {
+                    "name": rs.skill.name,  # skill FK is always required (non-null)
+                    "proficiency_level": rs.proficiency_level,
+                    "years_of_experience": rs.years_of_experience,
+                }
+            )
 
         education_data = []
-        for edu in RecruiterEducation.objects.filter(recruiter=recruiter).order_by("-start_date"):
-            education_data.append({
-                "school_name": edu.school_name,
-                "degree": edu.degree,
-                "field_of_study": edu.field_of_study or "",
-                "start_date": edu.start_date.isoformat() if edu.start_date else None,
-                "end_date": edu.end_date.isoformat() if edu.end_date else None,
-                "is_current": edu.is_current,
-                "description": edu.description or "",
-            })
+        for edu in RecruiterEducation.objects.filter(recruiter=recruiter).order_by(
+            "-start_date"
+        ):
+            education_data.append(
+                {
+                    "school_name": edu.school_name,
+                    "degree": edu.degree,
+                    "field_of_study": edu.field_of_study or "",
+                    "start_date": edu.start_date.isoformat()
+                    if edu.start_date
+                    else None,
+                    "end_date": edu.end_date.isoformat() if edu.end_date else None,
+                    "is_current": edu.is_current,
+                    "description": edu.description or "",
+                }
+            )
 
         experience_data = []
-        for exp in RecruiterExperience.objects.filter(recruiter=recruiter).order_by("-start_date"):
-            experience_data.append({
-                "company_name": exp.company_name,
-                "position": exp.job_title,
-                "job_title": exp.job_title,
-                "start_date": exp.start_date.isoformat() if exp.start_date else None,
-                "end_date": exp.end_date.isoformat() if exp.end_date else None,
-                "is_current": exp.is_current,
-                "description": exp.description or "",
-            })
+        for exp in RecruiterExperience.objects.filter(recruiter=recruiter).order_by(
+            "-start_date"
+        ):
+            experience_data.append(
+                {
+                    "company_name": exp.company_name,
+                    "position": exp.job_title,
+                    "job_title": exp.job_title,
+                    "start_date": exp.start_date.isoformat()
+                    if exp.start_date
+                    else None,
+                    "end_date": exp.end_date.isoformat() if exp.end_date else None,
+                    "is_current": exp.is_current,
+                    "description": exp.description or "",
+                }
+            )
 
         certifications_data = []
-        for cert in RecruiterCertification.objects.filter(recruiter=recruiter).order_by("-issue_date"):
-            certifications_data.append({
-                "name": cert.certification_name,  # fixed: field is certification_name not name
-                "issuing_organization": cert.issuing_organization or "",
-                "issue_date": cert.issue_date.isoformat() if cert.issue_date else None,
-            })
+        for cert in RecruiterCertification.objects.filter(recruiter=recruiter).order_by(
+            "-issue_date"
+        ):
+            certifications_data.append(
+                {
+                    "name": cert.certification_name,  # fixed: field is certification_name not name
+                    "issuing_organization": cert.issuing_organization or "",
+                    "issue_date": cert.issue_date.isoformat()
+                    if cert.issue_date
+                    else None,
+                }
+            )
 
         projects_data = []
-        for proj in RecruiterProject.objects.filter(recruiter=recruiter).order_by("-start_date"):
+        for proj in RecruiterProject.objects.filter(recruiter=recruiter).order_by(
+            "-start_date"
+        ):
             technologies = []
             if proj.technologies_used:
                 if isinstance(proj.technologies_used, list):
                     technologies = proj.technologies_used
                 else:
-                    technologies = [t.strip() for t in str(proj.technologies_used).split(",") if t.strip()]
-            projects_data.append({
-                "name": proj.project_name,
-                "description": proj.description or "",
-                "project_url": proj.project_url or "",
-                "start_date": proj.start_date.isoformat() if proj.start_date else None,
-                "end_date": proj.end_date.isoformat() if proj.end_date else None,
-                "technologies": technologies,
-            })
+                    technologies = [
+                        t.strip()
+                        for t in str(proj.technologies_used).split(",")
+                        if t.strip()
+                    ]
+            projects_data.append(
+                {
+                    "name": proj.project_name,
+                    "description": proj.description or "",
+                    "project_url": proj.project_url or "",
+                    "start_date": proj.start_date.isoformat()
+                    if proj.start_date
+                    else None,
+                    "end_date": proj.end_date.isoformat() if proj.end_date else None,
+                    "technologies": technologies,
+                }
+            )
 
         languages_data = []
-        for lang in RecruiterLanguage.objects.filter(recruiter=recruiter).select_related("language"):
-            languages_data.append({
-                "name": lang.language.language_name if lang.language else "",  # field is language_name
-                "proficiency_level": lang.proficiency_level,
-            })
+        for lang in RecruiterLanguage.objects.filter(
+            recruiter=recruiter
+        ).select_related("language"):
+            languages_data.append(
+                {
+                    "name": lang.language.language_name
+                    if lang.language
+                    else "",  # field is language_name
+                    "proficiency_level": lang.proficiency_level,
+                }
+            )
 
         cv_data = {
             "personal": {
@@ -346,12 +397,14 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
             html = render_to_string(template_name, {"data": cv_data})
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
-            logger.error(f"Error rendering CV template '{template_name}': {e}", exc_info=True)
+            logger.error(
+                f"Error rendering CV template '{template_name}': {e}", exc_info=True
+            )
             return Response(
                 {"detail": f"Error rendering template: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
         return Response({"html": html})
-

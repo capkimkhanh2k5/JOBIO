@@ -4,31 +4,59 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='RecruiterCV',
+            name="RecruiterCV",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cv_name', models.CharField(max_length=255, verbose_name='Tên CV')),
-                ('cv_data', models.JSONField(verbose_name='Dữ liệu CV')),
-                ('cv_url', models.URLField(blank=True, max_length=500, null=True, verbose_name='URL CV')),
-                ('is_default', models.BooleanField(db_index=True, default=False, verbose_name='CV mặc định')),
-                ('is_public', models.BooleanField(default=True, verbose_name='CV công khai')),
-                ('view_count', models.IntegerField(default=0, verbose_name='Lượt xem')),
-                ('download_count', models.IntegerField(default=0, verbose_name='Lượt tải')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Ngày tạo')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cv_name", models.CharField(max_length=255, verbose_name="Tên CV")),
+                ("cv_data", models.JSONField(verbose_name="Dữ liệu CV")),
+                (
+                    "cv_url",
+                    models.URLField(
+                        blank=True, max_length=500, null=True, verbose_name="URL CV"
+                    ),
+                ),
+                (
+                    "is_default",
+                    models.BooleanField(
+                        db_index=True, default=False, verbose_name="CV mặc định"
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(default=True, verbose_name="CV công khai"),
+                ),
+                ("view_count", models.IntegerField(default=0, verbose_name="Lượt xem")),
+                (
+                    "download_count",
+                    models.IntegerField(default=0, verbose_name="Lượt tải"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
+                ),
             ],
             options={
-                'verbose_name': 'CV ứng viên',
-                'verbose_name_plural': 'CV ứng viên',
-                'db_table': 'recruiter_cvs',
+                "verbose_name": "CV ứng viên",
+                "verbose_name_plural": "CV ứng viên",
+                "db_table": "recruiter_cvs",
             },
         ),
     ]

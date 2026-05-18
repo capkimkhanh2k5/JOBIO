@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_skills', '0001_initial'),
+        ("candidate_skills", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='skill',
-            name='is_active',
-            field=models.BooleanField(default=True, verbose_name='Đang hoạt động'),
+            model_name="skill",
+            name="is_active",
+            field=models.BooleanField(default=True, verbose_name="Đang hoạt động"),
         ),
         migrations.AddField(
-            model_name='skill',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="skill",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
     ]

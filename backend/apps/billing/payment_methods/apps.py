@@ -2,6 +2,6 @@ from django.apps import AppConfig
 
 
 class PaymentMethodsConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.billing.payment_methods'
-    label = 'billing_payment_methods'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.billing.payment_methods"
+    label = "billing_payment_methods"

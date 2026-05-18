@@ -4,21 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('geography_addresses', '0001_initial'),
-        ('recruitment_job_locations', '0002_initial'),
-        ('recruitment_jobs', '0002_job_idx_jobs_title_desc_gin'),
+        ("geography_addresses", "0001_initial"),
+        ("recruitment_job_locations", "0002_initial"),
+        ("recruitment_jobs", "0002_job_idx_jobs_title_desc_gin"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='joblocation',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, verbose_name='Ngày cập nhật'),
+            model_name="joblocation",
+            name="updated_at",
+            field=models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật"),
         ),
         migrations.AlterUniqueTogether(
-            name='joblocation',
-            unique_together={('job', 'address')},
+            name="joblocation",
+            unique_together={("job", "address")},
         ),
     ]
