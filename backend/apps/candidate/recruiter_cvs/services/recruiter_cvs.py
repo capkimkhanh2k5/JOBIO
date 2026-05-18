@@ -1,10 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
-from datetime import timedelta
 from django.template.loader import render_to_string
-from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 
 from ..models import RecruiterCV
 

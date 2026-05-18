@@ -1,4 +1,3 @@
-import re
 import unicodedata
 from django.utils.text import slugify as django_slugify
 

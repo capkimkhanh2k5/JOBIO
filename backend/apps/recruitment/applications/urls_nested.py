@@ -16,9 +16,6 @@ urlpatterns = [
 ]
 
 # Nested interviews routes
-from apps.recruitment.interviews.views import InterviewViewSet as AppInterviewViewSet
-from apps.recruitment.interviews.serializers import InterviewListSerializer
-from apps.recruitment.interviews.selectors.interviews import list_interviews_by_application
 
 
 class ApplicationInterviewListView:

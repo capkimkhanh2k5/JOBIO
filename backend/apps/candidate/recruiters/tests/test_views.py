@@ -2,7 +2,6 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiters.models import Recruiter
-from django.urls import reverse
 
 class RecruiterViewTest(APITestCase):
     def setUp(self):

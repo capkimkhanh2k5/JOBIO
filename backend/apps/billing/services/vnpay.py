@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan
+from apps.billing.models import Transaction, SubscriptionPlan
 from apps.billing.services.subscriptions import SubscriptionService
 # send_payment_confirmation_email_task sẽ được import bên trong method để tránh circular import
 import requests

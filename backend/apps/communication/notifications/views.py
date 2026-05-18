@@ -8,7 +8,6 @@ from .services.notifications import bulk_mark_as_read
 import json
 import time
 
-from .models import Notification
 from .serializers import (
     NotificationSerializer,
     NotificationMarkReadSerializer,
@@ -297,7 +296,7 @@ class NotificationViewSet(
                 last_check = timezone.now()
                 
                 # Send heartbeat every 30 seconds
-                yield f": heartbeat\n\n"
+                yield ": heartbeat\n\n"
                 time.sleep(5)  # Check every 5 seconds
         
         response = StreamingHttpResponse(

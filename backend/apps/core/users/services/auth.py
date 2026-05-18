@@ -4,7 +4,6 @@ from datetime import timedelta
 
 from pydantic import BaseModel, EmailStr
 from django.conf import settings
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from django.core.cache import cache
@@ -19,7 +18,6 @@ from ..models import CustomUser
 import string
 from apps.email.services import EmailService
 from . import social_auth
-from apps.core.users.exceptions import SocialAuthError
 
 
 # Input Models

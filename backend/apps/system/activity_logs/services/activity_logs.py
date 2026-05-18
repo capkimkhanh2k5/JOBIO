@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional
 from ..models import ActivityLog
 from apps.system.activity_log_types.models import ActivityLogType
 

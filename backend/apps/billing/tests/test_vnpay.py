@@ -3,7 +3,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from decimal import Decimal
-import hmac, hashlib, urllib.parse
+import hmac
+import hashlib
+import urllib.parse
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta

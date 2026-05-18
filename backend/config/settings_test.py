@@ -2,7 +2,6 @@
 Settings cho chạy tests - chỉ bao gồm apps cần thiết
 """
 from pathlib import Path
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -175,7 +174,7 @@ REST_FRAMEWORK = {
     },
 }
 
-from datetime import timedelta
+from datetime import timedelta  # noqa: E402
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),

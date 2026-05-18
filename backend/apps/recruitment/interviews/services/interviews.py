@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 from django.db import transaction
-from django.utils import timezone
 
 from apps.recruitment.interviews.models import Interview
 from apps.recruitment.applications.models import Application

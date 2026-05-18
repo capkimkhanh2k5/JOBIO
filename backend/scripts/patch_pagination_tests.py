@@ -1,5 +1,4 @@
 import os
-import glob
 
 def patch_file(filepath):
     with open(filepath, 'r') as f:

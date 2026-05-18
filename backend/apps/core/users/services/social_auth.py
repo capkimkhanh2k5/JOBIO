@@ -8,7 +8,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
-from django.conf import settings
 
 from apps.core.users.exceptions import (
     TokenInvalidError,

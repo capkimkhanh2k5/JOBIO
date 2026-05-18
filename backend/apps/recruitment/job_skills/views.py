@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from apps.recruitment.jobs.selectors.jobs import get_job_by_id
-from .models import JobSkill
 from .serializers import JobSkillSerializer, JobSkillCreateSerializer
 from .selectors.job_skills import list_skills_by_job, get_job_skill_by_id
 from .services.job_skills import (

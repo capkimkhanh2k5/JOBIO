@@ -85,7 +85,6 @@ class TestSubscriptionHybridLogic(TestCase):
         """Đổi gói -> Gói cũ bị CANCELLED ngay lập tức"""
         # Subscribe to Basic first
         old_sub = SubscriptionService.subscribe(self.company, self.basic_plan)
-        old_sub_id = old_sub.id
 
         # Upgrade to Premium
         new_sub = SubscriptionService.subscribe(self.company, self.premium_plan)

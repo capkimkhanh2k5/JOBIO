@@ -9,7 +9,6 @@ Test Coverage:
 """
 
 from django.test import TestCase
-from django.db import IntegrityError
 
 from apps.company.media_types.models import MediaType
 from apps.company.media_types.services.media_types import (
@@ -117,7 +116,7 @@ class TestMediaTypeServices(TestCase):
     
     def test_update_media_type_duplicate_name_fails(self):
         """Should raise ValueError when updating to existing name"""
-        type1 = MediaType.objects.create(type_name='Type1', is_active=True)
+        MediaType.objects.create(type_name='Type1', is_active=True)
         type2 = MediaType.objects.create(type_name='Type2', is_active=True)
         
         input_data = MediaTypeInput(type_name='Type1')
@@ -153,7 +152,7 @@ class TestMediaTypeServices(TestCase):
     def test_delete_media_type_removes_from_db(self):
         """Should completely remove from database"""
         type1 = MediaType.objects.create(type_name='ToDelete', is_active=True)
-        type2 = MediaType.objects.create(type_name='ToKeep', is_active=True)
+        MediaType.objects.create(type_name='ToKeep', is_active=True)
         
         delete_media_type(type1)
         

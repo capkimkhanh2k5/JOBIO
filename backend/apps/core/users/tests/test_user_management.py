@@ -1,7 +1,6 @@
 """
 User Management Tests - Django TestCase Version
 """
-from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from apps.core.users.models import CustomUser

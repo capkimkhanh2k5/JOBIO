@@ -32,7 +32,7 @@ class JobAlertSignalTest(TestCase):
         )
         
         # Update to Published within captureOnCommitCallbacks
-        with self.captureOnCommitCallbacks(execute=True) as callbacks:
+        with self.captureOnCommitCallbacks(execute=True):
             job.status = Job.Status.PUBLISHED
             job.save()
         

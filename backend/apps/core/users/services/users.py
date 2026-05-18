@@ -1,8 +1,4 @@
 from django.db import transaction
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.conf import settings
-import os
 from pydantic import BaseModel, EmailStr
 from ..models import CustomUser
 

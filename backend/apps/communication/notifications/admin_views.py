@@ -2,7 +2,7 @@
 Admin-only notification views — broadcast notifications to user groups.
 """
 import math
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from re import sub

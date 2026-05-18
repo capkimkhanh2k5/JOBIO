@@ -2,15 +2,12 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
 
-from .models import RecruiterSkill
 from .serializers import (
     RecruiterSkillSerializer,
     RecruiterSkillCreateSerializer,
     RecruiterSkillUpdateSerializer,
-    BulkAddSkillSerializer,
-    EndorseSkillSerializer
+    BulkAddSkillSerializer
 )
 from .services.recruiter_skills import (
     create_skill,
@@ -24,7 +21,6 @@ from .selectors.recruiter_skills import (
     get_skill_by_id
 )
 from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_id
-from apps.candidate.recruiters.models import Recruiter
 
 
 class RecruiterSkillViewSet(viewsets.GenericViewSet):

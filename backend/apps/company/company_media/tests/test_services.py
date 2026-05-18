@@ -1,7 +1,6 @@
-from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company

@@ -4,9 +4,8 @@ Redis Caching Layer cho Django Backend.
 Cung cấp caching utilities cho các data thường xuyên truy cập.
 """
 from functools import wraps
-from typing import Any, Callable, Optional, Union, List
+from typing import Any, Callable, Optional, List
 from django.core.cache import cache
-from django.conf import settings
 import hashlib
 import json
 import logging

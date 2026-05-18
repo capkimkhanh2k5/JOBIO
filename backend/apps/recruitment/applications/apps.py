@@ -7,5 +7,5 @@ class ApplicationsConfig(AppConfig):
     label = 'recruitment_applications'
 
     def ready(self):
-        import apps.recruitment.applications.signals
+        pass
 

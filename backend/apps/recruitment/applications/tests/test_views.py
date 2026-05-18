@@ -405,7 +405,6 @@ class ApplicationViewTests(APITestCase):
     
     def test_change_status_creates_history(self):
         """PATCH /api/applications/:id/status - tạo history record"""
-        from apps.recruitment.application_status_history.models import ApplicationStatusHistory
         
         app = Application.objects.create(job=self.job, recruiter=self.recruiter)
         

@@ -13,8 +13,7 @@ from apps.social.company_followers.selectors import (
     list_following_companies, 
     check_is_following
 )
-from apps.company.companies.models import Company
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiTypes
 
 class CompanyFollowerViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]

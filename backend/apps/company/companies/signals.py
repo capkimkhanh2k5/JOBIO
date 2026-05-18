@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Company
 from apps.communication.notifications.services.notifications import notify_admins, send_notification

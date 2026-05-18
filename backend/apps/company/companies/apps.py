@@ -7,5 +7,5 @@ class CompaniesConfig(AppConfig):
     label = 'company_companies'
 
     def ready(self):
-        import apps.company.companies.signals
+        pass
 

@@ -7,5 +7,5 @@ class ReportsConfig(AppConfig):
     label = 'system_reports'
 
     def ready(self):
-        import apps.system.reports.signals
+        pass
 

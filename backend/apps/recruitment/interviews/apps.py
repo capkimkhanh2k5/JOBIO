@@ -7,5 +7,5 @@ class InterviewsConfig(AppConfig):
     label = 'recruitment_interviews'
 
     def ready(self):
-        import apps.recruitment.interviews.signals
+        pass
 

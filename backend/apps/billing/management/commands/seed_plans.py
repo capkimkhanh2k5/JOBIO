@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
 from apps.billing.models import SubscriptionPlan
-from apps.core.utils import slugify_vietnamese as slugify
 
 class Command(BaseCommand):
     help = 'Seed initial subscription plans'
