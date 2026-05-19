@@ -52,7 +52,7 @@ export default function CreateBlogPost() {
   const isCompany = location.pathname.startsWith('/company');
   const basePath = user?.role === 'admin' 
     ? '/admin/blog' 
-    : (isCompany ? '/company/blog' : '/candidate/blog');
+    : (isCompany ? '/company/blog' : '/blog');
 
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<BlogCategory[]>([]);

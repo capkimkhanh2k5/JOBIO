@@ -83,18 +83,18 @@ export function ManageJobsTable({
     const someSelected = jobs.some(j => selectedIds.includes(j.id));
 
     return (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] overflow-hidden">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-white/8 bg-white/[0.02]">
+                        <tr className="border-b border-slate-100 bg-slate-50/50">
                             <th className="py-3 px-4 text-left w-10">
                                 <input
                                     type="checkbox"
                                     checked={allSelected}
                                     ref={el => { if (el) el.indeterminate = someSelected && !allSelected; }}
                                     onChange={e => onSelectAll(e.target.checked)}
-                                    className="w-4 h-4 rounded border-white/20 bg-white/10 checked:bg-cyan-500 accent-cyan-500 cursor-pointer"
+                                    className="w-4 h-4 rounded border-slate-300 bg-white checked:bg-cyan-500 accent-cyan-500 cursor-pointer"
                                     aria-label="Select all"
                                 />
                             </th>
@@ -133,8 +133,8 @@ export function ManageJobsTable({
                                         initial={{ opacity: 0, y: 6 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.2, delay: i * 0.03 }}
-                                        className={`border-b border-white/5 last:border-0 transition-colors duration-150 group cursor-pointer
-                                            ${isSelected ? 'bg-cyan-500/5' : 'hover:bg-white/[0.03]'}`}
+                                        className={`border-b border-slate-100 last:border-0 transition-colors duration-150 group cursor-pointer
+                                            ${isSelected ? 'bg-cyan-50/70' : 'hover:bg-slate-50/80'}`}
                                     >
                                         {/* Checkbox */}
                                         <td className="py-3 px-4">
@@ -142,7 +142,7 @@ export function ManageJobsTable({
                                                 type="checkbox"
                                                 checked={isSelected}
                                                 onChange={e => onSelectOne(job.id, e.target.checked)}
-                                                className="w-4 h-4 rounded border-white/20 bg-white/10 accent-cyan-500 cursor-pointer"
+                                                className="w-4 h-4 rounded border-slate-300 bg-white accent-cyan-500 cursor-pointer"
                                                 aria-label={`Select ${job.title}`}
                                                 onClick={e => e.stopPropagation()}
                                             />
@@ -205,7 +205,7 @@ export function ManageJobsTable({
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                     <button
-                                                        className="p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                                        className="p-1.5 rounded-lg hover:bg-slate-100 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                                         aria-label="Job actions"
                                                         onClick={e => e.stopPropagation()}
                                                     >
@@ -245,7 +245,7 @@ export function ManageJobsTable({
                                                             </span>
                                                         )}
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuSeparator className="bg-white/8" />
+                                                    <DropdownMenuSeparator className="bg-slate-100" />
                                                     <DropdownMenuItem
                                                         className="gap-2 cursor-pointer"
                                                         onClick={() => onToggleStatus(job.id, job.status)}
@@ -256,7 +256,7 @@ export function ManageJobsTable({
                                                             <><RotateCcw className="w-4 h-4 text-emerald-400" /> Mở lại tin</>
                                                         )}
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuSeparator className="bg-white/8" />
+                                                    <DropdownMenuSeparator className="bg-slate-100" />
                                                     <DropdownMenuItem
                                                         className="gap-2 cursor-pointer text-red-400 focus:text-red-400 focus:bg-red-500/10"
                                                         onClick={() => onDelete(job.id)}

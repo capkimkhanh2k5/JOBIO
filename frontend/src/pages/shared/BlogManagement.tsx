@@ -60,7 +60,7 @@ export default function BlogManagement() {
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
 
   const isCompany = location.pathname.startsWith('/company');
-  const basePath = isCompany ? '/company/blog' : '/candidate/blog';
+  const basePath = isCompany ? '/company/blog' : '/blog';
 
   const fetchPosts = async () => {
     try {
