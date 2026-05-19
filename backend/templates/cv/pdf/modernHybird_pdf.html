@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<title>{{ data.personal.full_name|default:"CV" }}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+@page { size: A4; margin: 0; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+    color: #334155;
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+}
+
+.cv-page {
+    display: flex;
+    flex-direction: row;
+    width: 210mm;
+    min-height: 297mm;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 70mm;
+    background-color: #1e293b;
+    color: #e2e8f0;
+    padding: 24pt 18pt;
+    display: flex;
+    flex-direction: column;
+    gap: 16pt;
+    flex-shrink: 0;
+}
+
+.avatar-wrap {
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #334155;
+    overflow: hidden;
+    border: 1.5pt solid #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4pt;
+}
+
+.avatar-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(30%);
+}
+
+.name-block h1 {
+    font-size: 16pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 4pt;
+}
+
+.name-block .position {
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #0696ef;
+}
+
+.sidebar-section h2 {
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #94A3B8;
+    border-bottom: 0.5pt solid #334155;
+    padding-bottom: 3pt;
+    margin-bottom: 8pt;
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6pt;
+    margin-bottom: 6pt;
+}
+
+.contact-label {
+    font-size: 7pt;
+    font-weight: 700;
+    color: #0696ef;
+    text-transform: uppercase;
+    min-width: 14pt;
+}
+
+.contact-value {
+    font-size: 7.5pt;
+    color: #cbd5e1;
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+.skills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4pt;
+}
+
+.skill-tag {
+    background-color: rgba(255,255,255,0.08);
+    color: #e2e8f0;
+    font-size: 7pt;
+    padding: 2pt 5pt;
+    border: 0.5pt solid #475569;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.lang-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #e2e8f0;
+    margin-bottom: 4pt;
+}
+
+.lang-level { color: #64748B; font-style: italic; font-size: 7.5pt; }
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 24pt 22pt;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 16pt;
+}
+
+.section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #0F172A;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-left: 3pt solid #0696ef;
+    padding-left: 8pt;
+    margin-bottom: 10pt;
+}
+
+.bio-text {
+    font-size: 8.5pt;
+    color: #475569;
+    line-height: 1.6;
+}
+
+/* Experience timeline */
+.timeline {
+    border-left: 1pt solid #e2e8f0;
+    margin-left: 4pt;
+    padding-left: 14pt;
+    display: flex;
+    flex-direction: column;
+    gap: 14pt;
+}
+
+.timeline-item { position: relative; }
+
+.timeline-dot {
+    position: absolute;
+    left: -19pt;
+    top: 3pt;
+    width: 8pt;
+    height: 8pt;
+    border-radius: 50%;
+    background: white;
+    border: 2pt solid #cbd5e1;
+}
+
+.timeline-dot.first { border-color: #0696ef; }
+
+.exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2pt;
+}
+
+.exp-title { font-size: 10pt; font-weight: 700; color: #0F172A; }
+
+.exp-badge {
+    font-size: 7pt;
+    font-weight: 700;
+    color: #0696ef;
+    background-color: rgba(6,150,239,0.08);
+    padding: 1pt 5pt;
+}
+
+.exp-badge-gray {
+    font-size: 7pt;
+    font-weight: 700;
+    color: #94A3B8;
+    background-color: #F1F5F9;
+    padding: 1pt 5pt;
+}
+
+.exp-company { font-size: 8pt; font-weight: 600; color: #64748B; margin-bottom: 4pt; }
+.exp-desc { font-size: 7.5pt; color: #475569; line-height: 1.5; }
+
+/* Education */
+.edu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8pt;
+}
+
+.edu-left { max-width: 78%; }
+.edu-degree { font-size: 9.5pt; font-weight: 700; color: #0F172A; margin-bottom: 2pt; }
+.edu-school { font-size: 8pt; color: #64748B; }
+.edu-date { font-size: 7pt; font-weight: 700; color: #94A3B8; white-space: nowrap; }
+
+/* Certifications */
+.cert-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6pt;
+}
+
+.cert-card {
+    width: 48%;
+    padding: 6pt 8pt;
+    border: 0.5pt solid #F1F5F9;
+    background-color: #fafafa;
+    display: flex;
+    align-items: flex-start;
+    gap: 6pt;
+}
+
+.cert-icon {
+    font-size: 14pt;
+    color: #0696ef;
+    flex-shrink: 0;
+}
+
+.cert-name { font-size: 8pt; font-weight: 700; color: #0F172A; }
+.cert-org { font-size: 7pt; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Projects */
+.project-card {
+    border: 0.5pt solid #F1F5F9;
+    background-color: #fafafa;
+    padding: 7pt 8pt;
+    margin-bottom: 6pt;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 3pt;
+}
+
+.project-name { font-size: 9pt; font-weight: 700; color: #0F172A; }
+.project-url { font-size: 7pt; color: #0696ef; }
+.project-date { font-size: 7pt; color: #94A3B8; }
+
+.tech-tags { display: flex; flex-wrap: wrap; gap: 3pt; margin-bottom: 4pt; }
+.tech-tag { font-size: 7pt; background-color: rgba(6,150,239,0.08); color: #0696ef; font-weight: 600; padding: 1pt 4pt; }
+.project-desc { font-size: 7.5pt; color: #475569; line-height: 1.4; }
+
+.placeholder { color: #94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="cv-page">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <div class="avatar-wrap">
+            {% if data.personal.avatar_url %}
+            <img src="{{ data.personal.avatar_url }}" alt="Avatar"/>
+            {% endif %}
+        </div>
+
+        <div class="name-block">
+            <h1>{% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}</h1>
+            <div class="position">{% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="placeholder">Chức danh</span>{% endif %}</div>
+        </div>
+
+        <div class="sidebar-section">
+            <h2>Liên hệ</h2>
+            {% if data.personal.email %}
+            <div class="contact-item">
+                <span class="contact-label">✉</span>
+                <span class="contact-value">{{ data.personal.email }}</span>
+            </div>
+            {% endif %}
+            {% if data.personal.phone %}
+            <div class="contact-item">
+                <span class="contact-label">☎</span>
+                <span class="contact-value">{{ data.personal.phone }}</span>
+            </div>
+            {% endif %}
+            {% if data.links %}
+                {% if data.links.linkedin %}
+                <div class="contact-item">
+                    <span class="contact-label">in</span>
+                    <span class="contact-value">{{ data.links.linkedin }}</span>
+                </div>
+                {% endif %}
+                {% if data.links.github %}
+                <div class="contact-item">
+                    <span class="contact-label">&lt;/&gt;</span>
+                    <span class="contact-value">{{ data.links.github }}</span>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        {% if data.skills %}
+        <div class="sidebar-section">
+            <h2>Kỹ năng</h2>
+            <div class="skills-wrap">
+                {% for skill in data.skills %}
+                <span class="skill-tag">{% if skill.name %}{{ skill.name }}{% elif skill.skill_name %}{{ skill.skill_name }}{% endif %}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if data.languages %}
+        <div class="sidebar-section">
+            <h2>Ngôn ngữ</h2>
+            {% for lang in data.languages %}
+            <div class="lang-item">
+                <span>{{ lang.name }}</span>
+                <span class="lang-level">{% if lang.proficiency_level %}{{ lang.proficiency_level }}{% elif lang.level %}{{ lang.level }}{% endif %}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        {% if data.personal.bio %}
+        <div>
+            <div class="section-title">Giới thiệu</div>
+            <p class="bio-text">{{ data.personal.bio }}</p>
+        </div>
+        {% endif %}
+
+        {% if data.experience %}
+        <div>
+            <div class="section-title">Kinh nghiệm làm việc</div>
+            <div class="timeline">
+                {% for exp in data.experience %}
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if forloop.first %}first{% endif %}"></div>
+                    <div class="exp-header">
+                        <span class="exp-title">{% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}</span>
+                        {% if forloop.first %}
+                        <span class="exp-badge">{% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %}{% if exp.is_current %} — HIỆN TẠI{% elif exp.end_date %} — {{ exp.end_date|slice:":7" }}{% endif %}</span>
+                        {% else %}
+                        <span class="exp-badge-gray">{% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %}{% if exp.is_current %} — HIỆN TẠI{% elif exp.end_date %} — {{ exp.end_date|slice:":7" }}{% endif %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="exp-company">{% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% endif %}</div>
+                    {% if exp.description %}<div class="exp-desc">{{ exp.description|linebreaksbr }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if data.education %}
+        <div>
+            <div class="section-title">Học vấn</div>
+            {% for edu in data.education %}
+            <div class="edu-item">
+                <div class="edu-left">
+                    <div class="edu-degree">{% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}</div>
+                    <div class="edu-school">{% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% endif %}</div>
+                </div>
+                <span class="edu-date">{% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.certifications %}
+        <div>
+            <div class="section-title">Chứng chỉ</div>
+            <div class="cert-grid">
+                {% for cert in data.certifications %}
+                <div class="cert-card">
+                    <span class="cert-icon">✓</span>
+                    <div>
+                        <div class="cert-name">{{ cert.name }}</div>
+                        <div class="cert-org">{% if cert.issuing_organization %}{{ cert.issuing_organization }}{% elif cert.issuer %}{{ cert.issuer }}{% endif %}{% if cert.issue_date %} · {{ cert.issue_date|slice:":7" }}{% endif %}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if data.projects %}
+        <div>
+            <div class="section-title">Dự án</div>
+            {% for proj in data.projects %}
+            <div class="project-card">
+                <div class="project-header">
+                    <span class="project-name">{{ proj.name }}</span>
+                    <span class="project-date">{{ proj.start_date|default:"" }}{% if proj.end_date %} - {{ proj.end_date }}{% endif %}</span>
+                </div>
+                {% if proj.project_url %}<div class="project-url">{{ proj.project_url }}</div>{% endif %}
+                {% if proj.technologies %}
+                <div class="tech-tags">{% for tech in proj.technologies %}<span class="tech-tag">{{ tech }}</span>{% endfor %}</div>
+                {% endif %}
+                {% if proj.description %}<div class="project-desc">{{ proj.description }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+</body>
+</html>

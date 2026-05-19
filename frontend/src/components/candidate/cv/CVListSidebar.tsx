@@ -115,6 +115,9 @@ export function CVListSidebar({
                                                     <Lock className="w-2.5 h-2.5 mr-1" /> Private
                                                 </Badge>
                                             )}
+                                            {!cv.template_id && cv.cv_url && (
+                                                <Badge variant="outline" className="h-4 text-[10px] px-1.5 border-blue-200 text-blue-600 bg-blue-50">PDF</Badge>
+                                            )}
                                         </div>
 
                                         <p className="text-[10px] text-muted-foreground/60 mt-1.5">
