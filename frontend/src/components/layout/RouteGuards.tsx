@@ -1,9 +1,29 @@
 import React from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
 import { useUserStore } from '@/store/userStore';
 
-import type { UserRole } from '@/types/api';
+import type { User, UserRole } from '@/types/api';
+
+interface JwtPayload {
+    exp?: number;
+}
+
+function isMissingOrExpiredJwt(token: string | null) {
+    if (!token) return true;
+
+    try {
+        const payload = jwtDecode<JwtPayload>(token);
+        return typeof payload.exp !== 'number' || payload.exp * 1000 <= Date.now();
+    } catch {
+        return true;
+    }
+}
+
+function hasInvalidAuthState(user: User | null, refreshToken: string | null) {
+    return !user || isMissingOrExpiredJwt(refreshToken);
+}
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -11,16 +31,23 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, role }) => {
-    const { isAuthenticated, user } = useUserStore();
+    const { isAuthenticated, user, refreshToken, clearAuth } = useUserStore();
     const location = useLocation();
+    const invalidAuthState = isAuthenticated && hasInvalidAuthState(user, refreshToken);
 
     React.useEffect(() => {
-        if (isAuthenticated && role && user?.role !== role) {
+        if (!invalidAuthState && isAuthenticated && role && user?.role !== role) {
             toast.error("Bạn không có quyền truy cập trang này!");
         }
-    }, [isAuthenticated, role, user?.role]);
+    }, [invalidAuthState, isAuthenticated, role, user?.role]);
 
-    if (!isAuthenticated) {
+    React.useEffect(() => {
+        if (invalidAuthState) {
+            clearAuth();
+        }
+    }, [clearAuth, invalidAuthState]);
+
+    if (!isAuthenticated || invalidAuthState) {
         return <Navigate to="/auth" state={{ from: location }} replace />;
     }
 
@@ -42,12 +69,20 @@ export const RoleBasedRedirect: React.FC<{ children: React.ReactNode }> = ({ chi
 };
 
 export const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { isAuthenticated } = useUserStore();
+    const { isAuthenticated, user, refreshToken, clearAuth } = useUserStore();
     const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
+    const from = location.state?.from?.pathname;
+    const redirectPath = from && !from.startsWith('/auth') ? from : "/";
+    const invalidAuthState = isAuthenticated && hasInvalidAuthState(user, refreshToken);
 
-    if (isAuthenticated) {
-        return <Navigate to={from} replace />;
+    React.useEffect(() => {
+        if (invalidAuthState) {
+            clearAuth();
+        }
+    }, [clearAuth, invalidAuthState]);
+
+    if (isAuthenticated && !invalidAuthState) {
+        return <Navigate to={redirectPath} replace />;
     }
 
     return <>{children}</>;
