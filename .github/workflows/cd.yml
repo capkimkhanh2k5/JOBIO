@@ -121,13 +121,15 @@ jobs:
           GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
           GCP_VM_USERNAME: ${{ secrets.GCP_VM_USERNAME }}
           GCP_VM_SSH_KEY: ${{ secrets.GCP_VM_SSH_KEY }}
+          BACKEND_ENV_FILE: ${{ secrets.BACKEND_ENV_FILE }}
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$GCP_VM_SSH_KEY" | tr -d '\r' > ~/.ssh/jobio_deploy_key
           chmod 600 ~/.ssh/jobio_deploy_key
           trap 'rm -f ~/.ssh/jobio_deploy_key' EXIT
-          ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" 'mkdir -p ~/jobio'
+          ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" 'mkdir -p ~/jobio/backend'
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new docker-compose.prod.yml "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/docker-compose.yml"
+          ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env" <<< "$BACKEND_ENV_FILE"
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
