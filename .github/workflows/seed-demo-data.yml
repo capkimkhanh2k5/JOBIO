@@ -34,7 +34,7 @@ jobs:
             exit 1
           fi
 
-          SEED_DATA_DIR="DataSet/Data_Final"
+          export SEED_DATA_DIR="DataSet/Data_Final"
           if [ ! -d "$SEED_DATA_DIR" ]; then
             echo "::error::Missing DataSet/Data_Final"
             exit 1
