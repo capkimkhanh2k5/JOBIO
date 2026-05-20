@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { useUserStore } from '@/store/userStore';
 
 // Axios Instance
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
@@ -42,18 +43,34 @@ function setPersistedTokens(accessToken: string, refreshToken: string) {
 }
 
 function clearPersistedAuth() {
+  useUserStore.getState().clearAuth();
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw);
-    parsed.state.user = null;
-    parsed.state.accessToken = null;
-    parsed.state.refreshToken = null;
-    parsed.state.isAuthenticated = false;
+    parsed.state = {
+      ...parsed.state,
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+    };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
   } catch {
     localStorage.removeItem(STORAGE_KEY);
   }
+}
+
+function redirectToAuthIfNeeded() {
+  if (!window.location.pathname.startsWith('/auth')) {
+    window.location.href = '/auth';
+  }
+}
+
+function clearAuthAndRedirectToLogin() {
+  clearPersistedAuth();
+  redirectToAuthIfNeeded();
 }
 
 // Request Interceptor
@@ -89,10 +106,7 @@ api.interceptors.response.use(
 
     // Don't attempt to refresh if the failing request was itself the refresh call
     if (originalRequest.url?.includes('/api/token/refresh')) {
-      clearPersistedAuth();
-      if (!window.location.pathname.startsWith('/auth')) {
-        window.location.href = '/auth';
-      }
+      clearAuthAndRedirectToLogin();
       return Promise.reject(error);
     }
 
@@ -114,7 +128,8 @@ api.interceptors.response.use(
     try {
       const { refreshToken } = getPersistedTokens();
       if (!refreshToken) {
-        isRefreshing = false;
+        processQueue(error, null);
+        clearAuthAndRedirectToLogin();
         return Promise.reject(error);
       }
 
@@ -135,11 +150,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       processQueue(refreshError, null);
-      clearPersistedAuth();
-      // Only redirect if we're not already on the auth page
-      if (!window.location.pathname.startsWith('/auth')) {
-        window.location.href = '/auth';
-      }
+      clearAuthAndRedirectToLogin();
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
