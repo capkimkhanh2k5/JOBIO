@@ -148,6 +148,7 @@ jobs:
           trap 'rm -f ~/.ssh/jobio_deploy_key' EXIT
           ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" 'mkdir -p ~/jobio/backend'
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new docker-compose.prod.yml "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/docker-compose.yml"
+          scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new Caddyfile "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/Caddyfile"
           printf '%s\n' "$ROOT_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/.env"
           printf '%s\n' "$BACKEND_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env"
 
@@ -183,7 +184,7 @@ jobs:
               if [ -n "${PREVIOUS_TAG}" ]; then
                 echo "Rolling back to ${PREVIOUS_TAG}."
                 export IMAGE_TAG="${PREVIOUS_TAG}"
-                docker compose pull backend celery-worker frontend || true
+                docker compose pull backend celery-worker frontend caddy || true
                 docker compose up -d || true
                 verify_health || true
               else
@@ -198,7 +199,7 @@ jobs:
               url="$2"
 
               for attempt in $(seq 1 30); do
-                if curl -fsS "$url" >/dev/null; then
+                if curl -fsS --resolve jobio.id.vn:443:127.0.0.1 "$url" >/dev/null; then
                   echo "${name} is healthy."
                   return 0
                 fi
@@ -208,13 +209,13 @@ jobs:
               done
 
               docker compose ps
-              docker compose logs --tail=100 backend frontend
+              docker compose logs --tail=100 backend frontend caddy
               return 1
             }
 
             verify_health() {
-              wait_for_url "backend" "http://localhost:8000/health/"
-              wait_for_url "frontend" "http://localhost/health"
+              wait_for_url "backend" "https://jobio.id.vn/health/"
+              wait_for_url "frontend" "https://jobio.id.vn/health"
             }
 
             trap rollback ERR

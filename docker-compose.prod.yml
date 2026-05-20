@@ -5,8 +5,8 @@ services:
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-backend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
       - ./.env
       - ./backend/.env
@@ -97,8 +97,8 @@ services:
   frontend:
     image: ${FRONTEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-frontend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     depends_on:
       - backend
     healthcheck:
@@ -109,6 +109,24 @@ services:
     networks:
       - jobio-network
 
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - jobio-network
+
 networks:
   jobio-network:
     driver: bridge
@@ -116,3 +134,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:
