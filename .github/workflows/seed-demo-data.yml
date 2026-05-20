@@ -1,0 +1,240 @@
+name: Seed Demo Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type SEED_DEMO_DATA to confirm production data seeding
+        required: true
+      reset_existing_data:
+        description: Flush existing database data before import
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: seed-demo-data-production
+  cancel-in-progress: false
+
+jobs:
+  seed-demo-data:
+    name: Seed demo data on GCP VM
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate seed request and data
+        run: |
+          if [ "${{ inputs.confirmation }}" != "SEED_DEMO_DATA" ]; then
+            echo "::error::Confirmation must be exactly SEED_DEMO_DATA"
+            exit 1
+          fi
+
+          SEED_DATA_DIR="DataSet/Data_Final"
+          if [ ! -d "$SEED_DATA_DIR" ]; then
+            echo "::error::Missing DataSet/Data_Final"
+            exit 1
+          fi
+
+          echo "SEED_DATA_DIR=${SEED_DATA_DIR}" >> "$GITHUB_ENV"
+          test -f backend/scripts/load_seed_data.py
+
+          for file in users.json addresses.json industries.json companies.json jobs.json applications.json transactions.json company_subscriptions.json; do
+            if [ ! -f "${SEED_DATA_DIR}/${file}" ]; then
+              echo "::error::Missing required seed file: ${file}"
+              exit 1
+            fi
+          done
+
+          python3 <<'PY'
+          import json
+          import os
+          import sys
+          from collections import defaultdict
+          from pathlib import Path
+
+          data_dir = Path(os.environ["SEED_DATA_DIR"])
+          checks = [
+              ("jobs.json", ("slug",), None),
+              ("recruiter_languages.json", ("recruiter_id", "language_id"), None),
+              (
+                  "company_subscriptions.json",
+                  ("company_id",),
+                  lambda row: row.get("status") == "active",
+              ),
+              ("saved_jobs.json", ("recruiter_id", "job_id"), None),
+              ("job_locations.json", ("job_id", "address_id"), None),
+              ("user_passkeys.json", ("credential_id",), None),
+          ]
+
+          errors = []
+          for filename, fields, predicate in checks:
+              path = data_dir / filename
+              if not path.exists():
+                  continue
+
+              with path.open("r", encoding="utf-8-sig") as handle:
+                  rows = json.load(handle)
+
+              groups = defaultdict(list)
+              for row in rows:
+                  if predicate and not predicate(row):
+                      continue
+
+                  key = tuple(row.get(field) for field in fields)
+                  groups[key].append(row.get("id"))
+
+              for key, ids in groups.items():
+                  if len(ids) > 1:
+                      errors.append(
+                          f"{filename}: fields={fields}, value={key}, ids={ids}"
+                      )
+
+          if errors:
+              print("Found duplicate seed data:")
+              for error in errors:
+                  print(f"  - {error}")
+              sys.exit(1)
+
+          print(f"Seed data validation passed: {data_dir}")
+          PY
+
+      - name: Upload seed data to VM
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USERNAME: ${{ secrets.GCP_VM_USERNAME }}
+          GCP_VM_SSH_KEY: ${{ secrets.GCP_VM_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$GCP_VM_SSH_KEY" | tr -d '\r' > ~/.ssh/jobio_deploy_key
+          chmod 600 ~/.ssh/jobio_deploy_key
+          trap 'rm -f ~/.ssh/jobio_deploy_key seed-data.tgz' EXIT
+
+          tar -czf seed-data.tgz -C "$SEED_DATA_DIR" .
+
+          ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" \
+            'mkdir -p ~/jobio/seed && rm -rf ~/jobio/seed/Data_To_Load'
+          scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new seed-data.tgz \
+            "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/seed/seed-data.tgz"
+
+      - name: Import seed data on VM
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          RESET_EXISTING_DATA: ${{ inputs.reset_existing_data }}
+        with:
+          host: ${{ secrets.GCP_VM_HOST }}
+          username: ${{ secrets.GCP_VM_USERNAME }}
+          key: ${{ secrets.GCP_VM_SSH_KEY }}
+          command_timeout: 45m
+          envs: RESET_EXISTING_DATA
+          script: |
+            set -euo pipefail
+
+            cd ~/jobio
+
+            if [ -f .env ]; then
+              set -a
+              . ./.env
+              set +a
+            fi
+
+            if [ -f .deployed-image-tag ]; then
+              export IMAGE_TAG="$(cat .deployed-image-tag)"
+            fi
+
+            : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env}"
+            : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env}"
+
+            mkdir -p backups seed
+            rm -rf seed/Data_To_Load
+            mkdir -p seed/Data_To_Load
+            tar -xzf seed/seed-data.tgz -C seed/Data_To_Load
+
+            docker compose up -d postgres redis
+
+            for attempt in $(seq 1 30); do
+              if docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+                break
+              fi
+
+              if [ "$attempt" -eq 30 ]; then
+                echo "Postgres did not become ready."
+                exit 1
+              fi
+
+              sleep 2
+            done
+
+            BACKUP_FILE="backups/pre-seed-demo-data-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+            docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP_FILE"
+
+            if [ "$RESET_EXISTING_DATA" = "true" ]; then
+              echo "Flushing existing database data before seed import."
+              docker compose run --rm -T backend python manage.py flush --noinput
+            fi
+
+            docker compose run --rm -T \
+              -v "$PWD/seed/Data_To_Load:/seed/Data_Final:ro" \
+              backend python scripts/load_seed_data.py /seed/Data_Final | tee seed/seed-import.log
+
+            if grep -q "\[ERROR\]" seed/seed-import.log; then
+              echo "Seed import reported errors."
+              exit 1
+            fi
+
+            docker compose run --rm -T backend python - <<'PY'
+            import os
+
+            import django
+            from django.apps import apps
+            from django.core.management.color import no_style
+            from django.db import connection
+
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+            django.setup()
+
+            with connection.cursor() as cursor:
+                for app_config in apps.get_app_configs():
+                    if not app_config.models_module:
+                        continue
+
+                    statements = connection.ops.sequence_reset_sql(
+                        no_style(), app_config.get_models()
+                    )
+                    for statement in statements:
+                        cursor.execute(statement)
+
+            print("Sequences synchronized.")
+            PY
+
+            docker compose run --rm -T backend python - <<'PY'
+            import os
+
+            import django
+
+            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+            django.setup()
+
+            from apps.company.companies.models import Company
+            from apps.core.users.models import CustomUser
+            from apps.recruitment.applications.models import Application
+            from apps.recruitment.jobs.models import Job
+
+            checks = [
+                ("users", CustomUser.objects.count()),
+                ("companies", Company.objects.count()),
+                ("jobs", Job.objects.count()),
+                ("applications", Application.objects.count()),
+            ]
+
+            for name, count in checks:
+                print(f"{name}: {count}")
+                if count == 0:
+                    raise SystemExit(f"{name} was not seeded")
+            PY
+
+            printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .seeded-demo-data
