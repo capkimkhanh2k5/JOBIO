@@ -174,7 +174,7 @@ Ghi chú:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
-VITE_GOOGLE_CLIENT_ID=
+VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
 Nếu frontend gọi backend từ Docker port mapping thì có thể dùng:

@@ -44,7 +44,7 @@ File: `.env`
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
-VITE_GOOGLE_CLIENT_ID=
+VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
 Nếu gọi backend qua Docker Compose port mapping, dùng:
@@ -106,6 +106,7 @@ Token đang được lưu trong localStorage với key `jobio-user-storage`.
 	- Kiểm tra dữ liệu auth trong localStorage.
 - Lỗi Google OAuth:
 	- Kiểm tra `VITE_GOOGLE_CLIENT_ID` có được set.
+	- Khi build Docker production, truyền `--build-arg VITE_GOOGLE_CLIENT_ID=...`; frontend sẽ không dùng client ID mặc định.
 
 ## 11. Tài liệu tham khảo
 
