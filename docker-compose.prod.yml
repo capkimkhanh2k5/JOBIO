@@ -1,20 +1,18 @@
 # docker-compose.prod.yml
-# Usage: docker compose -f docker-compose.prod.yml up -d
+# Usage: IMAGE_TAG=<commit-sha> docker compose -f docker-compose.prod.yml up -d
 
 services:
   backend:
-    image: ghcr.io/capkimkhanh2k5/jobio-backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
+    image: ${BACKEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-backend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     env_file:
+      - ./.env
       - ./backend/.env
     environment:
       - DEBUG=0
-      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DB_HOST=postgres
@@ -25,13 +23,21 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_CACHE_URL=redis://redis:6379/1
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS must be set for production deploys}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:?CSRF_TRUSTED_ORIGINS must be set for production deploys}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; req=urllib.request.Request('http://127.0.0.1:8000/health/', headers={'Host': 'jobio.id.vn', 'X-Forwarded-Proto': 'https'}); urllib.request.urlopen(req, timeout=5)",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -40,10 +46,7 @@ services:
       - jobio-network
 
   celery-worker:
-    image: ghcr.io/capkimkhanh2k5/jobio-backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.prod
+    image: ${BACKEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-backend}:${IMAGE_TAG:-latest}
     command: celery -A config worker -l info --concurrency=2
     restart: unless-stopped
     env_file:
@@ -60,8 +63,10 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_CACHE_URL=redis://redis:6379/1
     depends_on:
-      - backend
-      - redis
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - jobio-network
 
@@ -74,10 +79,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -87,12 +90,10 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,22 +101,35 @@ services:
       - jobio-network
 
   frontend:
-    image: ghcr.io/capkimkhanh2k5/jobio-frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    image: ${FRONTEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-frontend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80/health"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:80/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
+    networks:
+      - jobio-network
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     networks:
       - jobio-network
 
@@ -126,3 +140,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  caddy_data:
+  caddy_config:

@@ -10,10 +10,18 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
-# Build arg for API URL (injected at build time)
+# Build args injected at build time
 ARG VITE_API_BASE_URL=https://api.example.com
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+
+ARG VITE_SYSTEM_LOGO_URL=https://res.cloudinary.com/dbkxwc5gr/image/upload/v1773671098/system_assets/main_logo.png
+ENV VITE_SYSTEM_LOGO_URL=$VITE_SYSTEM_LOGO_URL
+
+
+RUN test -n "$VITE_GOOGLE_CLIENT_ID" || (echo "VITE_GOOGLE_CLIENT_ID is required" && exit 1)
 RUN npm run build
 
 # ──────────────────────────────────────────────

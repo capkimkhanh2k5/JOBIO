@@ -235,7 +235,6 @@ function AppInner() {
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
                                         <Route path="/profile/:id" element={<PublicProfile />} />
-                                        <Route path="/auth" element={<Navigate to="/" replace />} /> {/* Moved to top level */}
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />
                                         <Route path="/contact" element={<Contact />} />

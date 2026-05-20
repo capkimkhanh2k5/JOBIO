@@ -73,7 +73,7 @@ DATA_DIR = resolve_data_dir()
 print(f"Bắt đầu nạp dữ liệu từ: {DATA_DIR}")
 
 models_dict = {}
-for obj in apps.get_models():
+for obj in apps.get_models(include_auto_created=True):
     if (
         inspect.isclass(obj)
         and issubclass(obj, models.Model)
@@ -248,16 +248,34 @@ def load_table(table_name, model_obj, json_file):
         )
 
 
+loaded_tables = set()
+
 for table in TABLES_ORDER:
-    if table in models_dict:
-        load_table(table, models_dict[table], os.path.join(DATA_DIR, f"{table}.json"))
+    json_file = os.path.join(DATA_DIR, f"{table}.json")
+    if table in models_dict and os.path.exists(json_file):
+        load_table(table, models_dict[table], json_file)
+        loaded_tables.add(table)
 
 
-for filename in os.listdir(DATA_DIR):
+for filename in sorted(os.listdir(DATA_DIR)):
     if filename.endswith(".json"):
         tbl = filename[:-5]
         if tbl not in TABLES_ORDER and tbl in models_dict:
             load_table(tbl, models_dict[tbl], os.path.join(DATA_DIR, filename))
+            loaded_tables.add(tbl)
+
+
+skipped_tables = sorted(
+    filename[:-5]
+    for filename in os.listdir(DATA_DIR)
+    if filename.endswith(".json") and filename[:-5] not in loaded_tables
+)
+
+if skipped_tables:
+    print(
+        "[WARN] Bỏ qua các file JSON không khớp model/table hiện tại: "
+        + ", ".join(skipped_tables)
+    )
 
 
 print("\n--- HOÀN TẤT NẠP DỮ LIỆU ---")

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import path, include
 from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
@@ -13,7 +14,12 @@ from apps.billing.views import CompanySubscriptionViewSet
 router = DefaultRouter()
 
 
+def health_check(_request):
+    return JsonResponse({"status": "ok"})
+
+
 urlpatterns = [
+    path("health/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     # Users app routes (login, logout, register, user management)

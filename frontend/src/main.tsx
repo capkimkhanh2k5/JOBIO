@@ -22,7 +22,11 @@ const queryClient = new QueryClient({
     },
 });
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
+
+if (!GOOGLE_CLIENT_ID) {
+    throw new Error('Missing required environment variable: VITE_GOOGLE_CLIENT_ID');
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
