@@ -57,3 +57,5 @@ package-lock.json
 
 __logs__/
 **.log
+
+Secret/

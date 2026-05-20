@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+import re
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load .env file
@@ -25,19 +26,35 @@ except Exception as e:
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name, default=None):
+    value = os.getenv(name, "")
+    if not value.strip():
+        return list(default or [])
+    return [item for item in re.split(r"[\s,]+", value.strip()) if item]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ha%=6u*hb!+orxa^g6e_uh83#!xuyx7f$nka2m&z-ab+kcy9!!"
+DEBUG = env_bool("DEBUG", default=True)
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "django-insecure-dev-only-change-me"
+    else:
+        raise RuntimeError("SECRET_KEY must be set when DEBUG=0")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = (
-    os.getenv("DJANGO_ALLOWED_HOSTS", "").split()
-    if os.getenv("DJANGO_ALLOWED_HOSTS")
-    else []
+ALLOWED_HOSTS = env_list(
+    "DJANGO_ALLOWED_HOSTS",
+    default=["localhost", "127.0.0.1"] if DEBUG else [],
 )
 
 
@@ -313,17 +330,47 @@ WEBAUTHN_RP_NAME = os.getenv("WEBAUTHN_RP_NAME", "JobPortal")
 WEBAUTHN_ORIGIN = os.getenv("WEBAUTHN_ORIGIN", "http://localhost:4000")
 
 # Dev defaults + production origins from env
-_cors_env = os.getenv("CORS_ALLOWED_ORIGINS", "")
-CORS_ALLOWED_ORIGINS = (
-    [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
-    if _cors_env
-    else [
-        "http://localhost:4000",
-        "http://localhost:5173",  # Vite dev server
-    ]
+CORS_ALLOWED_ORIGINS = env_list(
+    "CORS_ALLOWED_ORIGINS",
+    default=(
+        [
+            "http://localhost:4000",
+            "http://localhost:5173",  # Vite dev server
+        ]
+        if DEBUG
+        else []
+    ),
+)
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=(
+        [
+            "http://localhost:4000",
+            "http://localhost:5173",
+        ]
+        if DEBUG
+        else []
+    ),
 )
 
 CORS_ALLOW_CREDENTIALS = True
+
+# ===== Production Security Configuration =====
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=False)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=False)
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False
+)
+SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = os.getenv(
+    "SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin"
+)
+
+if env_bool("USE_X_FORWARDED_PROTO", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ===== Email Configuration =====
 EMAIL_BACKEND = os.getenv(
