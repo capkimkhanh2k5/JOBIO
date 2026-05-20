@@ -87,6 +87,11 @@ jobs:
             exit 1
           fi
 
+          if [ -z "${{ vars.VITE_GOOGLE_CLIENT_ID }}" ]; then
+            echo "::error::VITE_GOOGLE_CLIENT_ID must be set in repository variables (Settings → Variables)"
+            exit 1
+          fi
+
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
