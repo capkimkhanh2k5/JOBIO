@@ -1,0 +1,29 @@
+jobio.id.vn {
+    encode gzip zstd
+
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /admin/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /health/ {
+        reverse_proxy backend:8000
+    }
+
+    handle /billing/payment-return* {
+        reverse_proxy backend:8000
+    }
+
+    handle /media/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /static/* {
+        reverse_proxy backend:8000
+    }
+
+    reverse_proxy frontend:80
+}
