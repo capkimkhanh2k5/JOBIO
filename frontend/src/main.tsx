@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
     },
 });
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '86373775263-0mfi3f380qmfrnaelmg4g52k4jm5ciev.apps.googleusercontent.com';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
