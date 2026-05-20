@@ -736,22 +736,38 @@ export function CandidateDetailSheet() {
 
         </Sheet>
 
-        {/* CV preview Dialog — rendered via portal to appear above Sheet */}
+        {/* CV preview — portal above Sheet z-[200] */}
         {previewOpen && createPortal(
             <div
-                className="fixed inset-0 z-[9999] flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-                onClick={handleClosePreview}
+                className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+                style={{ backgroundColor: 'rgba(0,0,0,0.7)', pointerEvents: 'all' }}
             >
-                <div
-                    className="relative"
-                    style={{ width: '210mm', maxHeight: '90vh', overflow: 'auto' }}
-                    onClick={(e) => e.stopPropagation()}
-                >
+                {/* Close button OUTSIDE iframe so it's always clickable */}
+                <div className="flex justify-end w-full max-w-[210mm] mb-2 px-1">
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="cursor-pointer border border-white/30 bg-slate-900 px-4 font-semibold text-white shadow-lg hover:bg-slate-700"
+                        onClick={handleClosePreview}
+                    >
+                        Đóng
+                    </Button>
+                </div>
+                {/* CV content */}
+                <div style={{ width: '210mm', height: '297mm', position: 'relative' }}>
                     {previewMode === 'pdf' && pdfBlobUrl ? (
-                        <PdfBlobViewer blobUrl={pdfBlobUrl} onClose={handleClosePreview} />
+                        <iframe
+                            src={pdfBlobUrl}
+                            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                            title="CV PDF Preview"
+                        />
                     ) : previewMode === 'html' && previewHtml ? (
-                        <HtmlCvViewer html={previewHtml} onClose={handleClosePreview} />
+                        <iframe
+                            srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${previewHtml}</body></html>`}
+                            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                            title="CV Preview"
+                            sandbox="allow-same-origin allow-scripts"
+                        />
                     ) : null}
                 </div>
             </div>,
