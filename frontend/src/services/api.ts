@@ -90,7 +90,9 @@ api.interceptors.response.use(
     // Don't attempt to refresh if the failing request was itself the refresh call
     if (originalRequest.url?.includes('/api/token/refresh')) {
       clearPersistedAuth();
-      window.location.href = '/auth';
+      if (!window.location.pathname.startsWith('/auth')) {
+        window.location.href = '/auth';
+      }
       return Promise.reject(error);
     }
 
