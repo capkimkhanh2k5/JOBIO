@@ -41,7 +41,7 @@ jobs:
           fi
 
           echo "SEED_DATA_DIR=${SEED_DATA_DIR}" >> "$GITHUB_ENV"
-          test -f backend/scripts/load_seed_data.py
+          test -f backend/scripts/load_production_seed_data.py
 
           for file in users.json addresses.json industries.json companies.json jobs.json applications.json transactions.json company_subscriptions.json; do
             if [ ! -f "${SEED_DATA_DIR}/${file}" ]; then
@@ -100,7 +100,6 @@ jobs:
                   print(f"  - {error}")
               sys.exit(1)
 
-          print(f"Seed data validation passed: {data_dir}")
           PY
 
       - name: Upload seed data to VM
@@ -117,9 +116,11 @@ jobs:
           tar -czf seed-data.tgz -C "$SEED_DATA_DIR" .
 
           ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" \
-            'mkdir -p ~/jobio/seed && rm -rf ~/jobio/seed/Data_To_Load'
+            'mkdir -p ~/jobio/seed && rm -rf ~/jobio/seed/Data_To_Load && rm -f ~/jobio/seed/load_production_seed_data.py'
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new seed-data.tgz \
             "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/seed/seed-data.tgz"
+          scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new backend/scripts/load_production_seed_data.py \
+            "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/seed/load_production_seed_data.py"
 
       - name: Import seed data on VM
         uses: appleboy/ssh-action@v1.0.3
@@ -149,7 +150,7 @@ jobs:
             : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env}"
             : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env}"
 
-            mkdir -p backups seed
+            mkdir -p seed
             rm -rf seed/Data_To_Load
             mkdir -p seed/Data_To_Load
             tar -xzf seed/seed-data.tgz -C seed/Data_To_Load
@@ -169,72 +170,13 @@ jobs:
               sleep 2
             done
 
-            BACKUP_FILE="backups/pre-seed-demo-data-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
-            docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP_FILE"
-
             if [ "$RESET_EXISTING_DATA" = "true" ]; then
-              echo "Flushing existing database data before seed import."
               docker compose run --rm -T backend python manage.py flush --noinput
             fi
 
             docker compose run --rm -T \
               -v "$PWD/seed/Data_To_Load:/seed/Data_Final:ro" \
-              backend python scripts/load_seed_data.py /seed/Data_Final | tee seed/seed-import.log
-
-            if grep -q "\[ERROR\]" seed/seed-import.log; then
-              echo "Seed import reported errors."
-              exit 1
-            fi
-
-            docker compose run --rm -T backend python - <<'PY'
-            import os
-
-            import django
-            from django.apps import apps
-            from django.core.management.color import no_style
-            from django.db import connection
-
-            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-            django.setup()
-
-            with connection.cursor() as cursor:
-                for app_config in apps.get_app_configs():
-                    if not app_config.models_module:
-                        continue
-
-                    statements = connection.ops.sequence_reset_sql(
-                        no_style(), app_config.get_models()
-                    )
-                    for statement in statements:
-                        cursor.execute(statement)
-
-            print("Sequences synchronized.")
-            PY
-
-            docker compose run --rm -T backend python - <<'PY'
-            import os
-
-            import django
-
-            os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-            django.setup()
-
-            from apps.company.companies.models import Company
-            from apps.core.users.models import CustomUser
-            from apps.recruitment.applications.models import Application
-            from apps.recruitment.jobs.models import Job
-
-            checks = [
-                ("users", CustomUser.objects.count()),
-                ("companies", Company.objects.count()),
-                ("jobs", Job.objects.count()),
-                ("applications", Application.objects.count()),
-            ]
-
-            for name, count in checks:
-                print(f"{name}: {count}")
-                if count == 0:
-                    raise SystemExit(f"{name} was not seeded")
-            PY
+              -v "$PWD/seed/load_production_seed_data.py:/app/scripts/load_production_seed_data.py:ro" \
+              backend python scripts/load_production_seed_data.py /seed/Data_Final
 
             printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .seeded-demo-data
