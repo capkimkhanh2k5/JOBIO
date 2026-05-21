@@ -63,10 +63,16 @@ elif [ -f "$PROJECT_ROOT/.venv/Scripts/python.exe" ]; then
     PYTHON_CMD="$PROJECT_ROOT/.venv/Scripts/python.exe"
 elif [ -f "$BACKEND_DIR/venv/bin/python3" ]; then
     PYTHON_CMD="$BACKEND_DIR/venv/bin/python3"
+elif [ -f "$BACKEND_DIR/venv/bin/python3.11" ]; then
+    PYTHON_CMD="$BACKEND_DIR/venv/bin/python3.11"
 elif [ -f "$BACKEND_DIR/.venv/bin/python3" ]; then
     PYTHON_CMD="$BACKEND_DIR/.venv/bin/python3"
+elif [ -f "$BACKEND_DIR/.venv/bin/python3.11" ]; then
+    PYTHON_CMD="$BACKEND_DIR/.venv/bin/python3.11"
 elif [ -f "$PROJECT_ROOT/.venv/bin/python3" ]; then
     PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python3"
+elif [ -f "$PROJECT_ROOT/.venv/bin/python3.11" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python3.11"
 else
     PYTHON_CMD="python3"
     # Kiểm tra nếu python3 không tồn tại thì thử dùng python

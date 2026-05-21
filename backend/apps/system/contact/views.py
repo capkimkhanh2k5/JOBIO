@@ -3,15 +3,24 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework import status
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.conf import settings
 import logging
+from urllib.parse import quote
+
+from apps.communication.notification_types.models import NotificationType
+from apps.communication.notifications.services.notifications import notify_admins
 
 logger = logging.getLogger(__name__)
 
 
+def build_gmail_search_url(admin_email: str, sender_email: str, subject: str) -> str:
+    query = f'from:{admin_email} subject:"[JOBIO Contact]" "{sender_email}" "{subject}"'
+    return f"https://mail.google.com/mail/u/0/#search/{quote(query, safe='')}"
+
+
 class ContactRateThrottle(AnonRateThrottle):
-    rate = "5/hour"
+    rate = "3/hour"
 
 
 class ContactView(APIView):
@@ -60,15 +69,45 @@ Nội dung tin nhắn:
 {message}
 """
         try:
-            send_mail(
+            email_message = EmailMessage(
                 subject=email_subject,
-                message=email_body,
+                body=email_body,
                 from_email=admin_email,
-                recipient_list=[admin_email],
-                fail_silently=False,
+                to=[admin_email],
+                reply_to=[email],
+                headers={
+                    "Importance": "High",
+                    "X-Priority": "1",
+                    "X-MSMail-Priority": "High",
+                    "Priority": "urgent",
+                },
             )
+            email_message.send(fail_silently=False)
         except Exception as e:
             logger.error("Failed to send contact email: %s", e)
+
+        try:
+            NotificationType.objects.get_or_create(
+                type_name="system",
+                defaults={
+                    "description": "Thông báo hệ thống chung",
+                    "template": '{"html": ""}',
+                    "is_active": True,
+                },
+            )
+            phone_text = f" - {phone}" if phone else ""
+            notify_admins(
+                notification_type_name="system",
+                title=f"Liên hệ mới: {subject}",
+                content=(
+                    f"{name} ({email}{phone_text}) vừa gửi tin nhắn từ trang Contact: "
+                    f"{message}"
+                ),
+                link=build_gmail_search_url(admin_email, email, subject),
+                entity_type="contact",
+            )
+        except Exception as e:
+            logger.error("Failed to create contact admin notification: %s", e)
 
         return Response(
             {

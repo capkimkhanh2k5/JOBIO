@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     Database, Search, Plus, Pencil, Trash2, Loader2,
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dashboardService } from '@/services/dashboardService';
 import { toast } from 'sonner';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -24,6 +26,9 @@ const tabs = [
 ] as const;
 
 type TabId = (typeof tabs)[number]['id'];
+
+const isTabId = (value: string | null): value is TabId =>
+    tabs.some((tab) => tab.id === value);
 
 interface EditModal {
     open: boolean;
@@ -278,14 +283,31 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function MasterData() {
-    const [activeTab, setActiveTab] = useState<TabId>('skills');
-    const [search, setSearch] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlTab = searchParams.get('tab');
+    const [activeTab, setActiveTab] = useState<TabId>(isTabId(urlTab) ? urlTab : 'skills');
+    const [search, setSearch] = useUrlSearchParam();
     const [page, setPage] = useState(1);
     const [modal, setModal] = useState<EditModal | null>(null);
     const qc = useQueryClient();
 
+    useEffect(() => {
+        if (isTabId(urlTab)) {
+            setActiveTab(urlTab);
+            setPage(1);
+        }
+    }, [urlTab]);
+
     // Reset page on tab change
-    const switchTab = (tab: TabId) => { setActiveTab(tab); setPage(1); setSearch(''); };
+    const switchTab = (tab: TabId) => {
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set('tab', tab);
+        nextParams.delete('search');
+        setSearchParams(nextParams, { replace: true });
+        setActiveTab(tab);
+        setPage(1);
+        setSearch('');
+    };
 
     // ── Queries ──────────────────────────────────────────────────────────
 

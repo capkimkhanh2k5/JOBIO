@@ -126,8 +126,8 @@ export const dashboardService = {
     return api.post('/api/users/bulk-action/', { action, ids: userIds });
   },
 
-  exportUsers() {
-    return api.get('/api/users/export/', { responseType: 'blob' });
+  exportUsers(params?: { role?: string; status?: string; search?: string }) {
+    return api.get('/api/users/export/', { params, responseType: 'blob' });
   },
 
   // ─── System Settings ──────────────────────────────────────────────────
@@ -300,5 +300,4 @@ export const dashboardService = {
     }>('/api/analytics/overview/');
   },
 };
-
 

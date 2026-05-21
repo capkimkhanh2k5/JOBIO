@@ -1,10 +1,9 @@
-import csv
-from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum, Q
 
+from apps.core.excel import make_excel_response
 from apps.core.users.permissions import IsAdmin
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.jobs.serializers import AdminJobSerializer
@@ -78,45 +77,43 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"], url_path="export")
     def export_csv(self, request):
         """
-        Xuất danh sách việc làm ra file CSV
+        Xuất danh sách việc làm ra file Excel.
         """
         queryset = self.get_queryset()
 
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="jobs.csv"'
-
-        writer = csv.writer(response)
-        writer.writerow(
+        headers = [
+            "ID",
+            "Tiêu đề",
+            "Công ty",
+            "Email công ty",
+            "Loại công việc",
+            "Cấp bậc",
+            "Lượt xem",
+            "Lượt ứng tuyển",
+            "Trạng thái",
+            "Ngày tạo",
+        ]
+        rows = (
             [
-                "ID",
-                "Tiêu đề",
-                "Công ty",
-                "Email Công ty",
-                "Loại công việc",
-                "Cấp bậc",
-                "Lượt xem",
-                "Lượt ứng tuyển",
-                "Trạng thái",
-                "Ngày tạo",
+                f"JOB-{job.id}",
+                job.title,
+                job.company.company_name if job.company else "N/A",
+                job.company.user.email if job.company and job.company.user else "N/A",
+                job.get_job_type_display(),
+                job.get_level_display(),
+                job.view_count,
+                job.application_count,
+                job.get_status_display(),
+                job.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                if job.created_at
+                else "",
             ]
+            for job in queryset
         )
 
-        for job in queryset:
-            writer.writerow(
-                [
-                    f"JOB-{job.id}",
-                    job.title,
-                    job.company.company_name if job.company else "N/A",
-                    job.company.user.email
-                    if job.company and job.company.user
-                    else "N/A",
-                    job.get_job_type_display(),
-                    job.get_level_display(),
-                    job.view_count,
-                    job.application_count,
-                    job.get_status_display(),
-                    job.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                ]
-            )
-
-        return response
+        return make_excel_response(
+            filename="jobs.xlsx",
+            headers=headers,
+            rows=rows,
+            sheet_name="Thi truong viec lam",
+        )

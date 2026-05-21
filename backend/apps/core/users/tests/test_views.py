@@ -4,6 +4,7 @@ User Authentication Views Tests - Django TestCase Version
 
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core.users.models import CustomUser
@@ -40,6 +41,35 @@ class TestLoginAPI(APITestCase):
         self.assertIn("refresh_token", response.data)
         self.assertIn("user", response.data)
         self.assertEqual(response.data["user"]["email"], "test@example.com")
+
+        refresh = RefreshToken(response.data["refresh_token"])
+        lifetime_seconds = refresh["exp"] - refresh["iat"]
+        self.assertEqual(
+            lifetime_seconds,
+            int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()),
+        )
+
+    def test_login_remember_me_extends_refresh_token_lifetime(self):
+        """Test remember_me issues a longer refresh token"""
+        response = self.client.post(
+            "/api/users/auth/login/",
+            {
+                "email": "test@example.com",
+                "password": "password123",
+                "remember_me": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        refresh = RefreshToken(response.data["refresh_token"])
+        lifetime_seconds = refresh["exp"] - refresh["iat"]
+
+        self.assertEqual(
+            lifetime_seconds,
+            int(settings.REMEMBER_ME_REFRESH_TOKEN_LIFETIME.total_seconds()),
+        )
 
     def test_login_wrong_email(self):
         """Test login with non-existent email"""

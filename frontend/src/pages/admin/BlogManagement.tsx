@@ -14,6 +14,7 @@ import type { BlogPost, BlogCategory, BlogTag } from '@/types/api';
 import { toast } from 'sonner';
 import BlogPostFormModal from './BlogPostFormModal';
 import { CategoryFormModal, TagFormModal } from './BlogCategoryTagModals';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -43,8 +44,8 @@ const STATUS_LABELS: Record<string, string> = {
 export default function BlogManagement() {
     const [activeTab, setActiveTab] = useState<TabId>('posts');
     const [page, setPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [statusFilter, setStatusFilter] = useState('');
     // Modal states
     const [showPostForm, setShowPostForm] = useState(false);

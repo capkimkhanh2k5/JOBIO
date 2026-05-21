@@ -5,7 +5,6 @@ import { jobService } from "@/services/jobService";
 import { JobFilters } from "@/components/jobs/JobFilters";
 import { JobSort } from "@/components/jobs/JobSort";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,31 +22,23 @@ export default function JobsPage() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState("-created_at");
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const filters = useFilterStore();
     const { search, setSearch, category, setCategory, province, setProvince } = filters;
+    const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
+
+    const urlSearch = searchParams.get("search") ?? "";
+    const urlCategory = searchParams.get("category_id") ?? "all";
+    const urlProvince = searchParams.get("province_id") ?? "all";
 
     useEffect(() => {
-        const nextSearch = searchParams.get("search");
-        const nextCategory = searchParams.get("category_id");
-        const nextProvince = searchParams.get("province_id");
-        let shouldResetPage = false;
-
-        if (nextSearch !== null && nextSearch !== search) {
-            setSearch(nextSearch);
-            shouldResetPage = true;
-        }
-        if (nextCategory && nextCategory !== category) {
-            setCategory(nextCategory);
-            shouldResetPage = true;
-        }
-        if (nextProvince && nextProvince !== province) {
-            setProvince(nextProvince);
-            shouldResetPage = true;
-        }
-        if (shouldResetPage) setPage(1);
-    }, [category, province, search, searchParams, setCategory, setProvince, setSearch]);
+        setSearch(urlSearch);
+        setSearchInput(urlSearch);
+        setCategory(urlCategory);
+        setProvince(urlProvince);
+        setPage(1);
+    }, [setCategory, setProvince, setSearch, urlCategory, urlProvince, urlSearch]);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobs", filters, page, sort],
@@ -77,8 +68,39 @@ export default function JobsPage() {
         placeholderData: prev => prev,
     });
 
+    useEffect(() => {
+        setPage(1);
+    }, [
+        filters.category,
+        filters.province,
+        filters.job_type,
+        filters.level,
+        filters.salaryRange,
+        filters.experienceRange,
+        filters.isRemote,
+        filters.skills,
+    ]);
+
+    const commitSearch = () => {
+        const nextSearch = searchInput.trim();
+        const params = new URLSearchParams(searchParams);
+
+        if (nextSearch) params.set("search", nextSearch);
+        else params.delete("search");
+
+        if (category && category !== "all") params.set("category_id", category);
+        else params.delete("category_id");
+
+        if (province && province !== "all") params.set("province_id", province);
+        else params.delete("province_id");
+
+        setSearch(nextSearch);
+        setPage(1);
+        setSearchParams(params, { replace: true });
+    };
+
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") setPage(1);
+        if (e.key === "Enter") commitSearch();
     };
 
     const handleSortChange = (s: string) => { setSort(s); setPage(1); };
@@ -120,16 +142,17 @@ export default function JobsPage() {
                     <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-xl mx-auto ring-1 ring-black/5">
                         <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-xl px-3 gap-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
                             <Search className="h-4 w-4 text-gray-400 shrink-0" />
-                            <Input
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
+                            <input
+                                type="text"
+                                value={searchInput}
+                                onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={handleSearch}
                                 placeholder="Tiêu đề, kỹ năng, công ty..."
-                                className="border-0 bg-transparent h-11 px-0 focus-visible:ring-0 text-sm placeholder:text-gray-400"
+                                className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-gray-800 outline-none placeholder:text-gray-400"
                             />
                         </div>
                         <Button
-                            onClick={() => setPage(1)}
+                            onClick={commitSearch}
                             className="px-8 h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-md shadow-violet-400/30 transition-all shrink-0"
                         >
                             Tìm kiếm

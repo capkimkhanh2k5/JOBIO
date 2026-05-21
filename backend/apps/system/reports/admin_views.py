@@ -1,5 +1,3 @@
-import csv
-from django.http import HttpResponse
 from django.template.loader import render_to_string
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -7,6 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.utils import timezone
 
+from apps.core.excel import make_excel_response
 from apps.core.users.permissions import IsAdmin
 from apps.core.users.models import CustomUser
 from apps.core.users.services.users import update_user_status
@@ -307,41 +306,41 @@ class AdminReportViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"], url_path="export")
     def export_csv(self, request):
         """
-        Xuất danh sách báo cáo ra file CSV
+        Xuất danh sách báo cáo ra file Excel.
         """
         queryset = self.get_queryset()
 
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="reports.csv"'
-
-        writer = csv.writer(response)
-        writer.writerow(
+        headers = [
+            "ID báo cáo",
+            "Loại vi phạm",
+            "Người báo cáo",
+            "Đối tượng",
+            "ID đối tượng",
+            "Trạng thái",
+            "Ngày báo cáo",
+            "Người xử lý",
+            "Ghi chú",
+        ]
+        rows = (
             [
-                "ID Báo cáo",
-                "Loại vi phạm",
-                "Người báo cáo",
-                "Đối tượng",
-                "ID Đối tượng",
-                "Trạng thái",
-                "Ngày báo cáo",
-                "Người xử lý",
-                "Ghi chú",
+                f"REP-{report.id}",
+                report.report_type.type_name if report.report_type else "N/A",
+                report.reporter.email if report.reporter else "N/A",
+                report.entity_type,
+                report.entity_id,
+                report.get_status_display(),
+                report.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                if report.created_at
+                else "",
+                report.resolved_by.email if report.resolved_by else "N/A",
+                report.resolution_notes or "",
             ]
+            for report in queryset
         )
 
-        for report in queryset:
-            writer.writerow(
-                [
-                    f"REP-{report.id}",
-                    report.report_type.type_name if report.report_type else "N/A",
-                    report.reporter.email if report.reporter else "N/A",
-                    report.entity_type,
-                    report.entity_id,
-                    report.get_status_display(),
-                    report.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                    report.resolved_by.email if report.resolved_by else "N/A",
-                    report.resolution_notes or "",
-                ]
-            )
-
-        return response
+        return make_excel_response(
+            filename="reports.xlsx",
+            headers=headers,
+            rows=rows,
+            sheet_name="Bao cao vi pham",
+        )

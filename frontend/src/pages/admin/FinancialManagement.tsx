@@ -11,6 +11,8 @@ import { dashboardService } from '@/services/dashboardService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+import { downloadBlob } from '@/lib/download';
 
 // Helper for formatting currency
 const formatCurrency = (amount: number) => {
@@ -46,8 +48,8 @@ const statusIcons: Record<string, any> = {
 
 export default function FinancialManagement() {
     // Search & Filter State
-    const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchTerm, setSearchTerm] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
 
@@ -95,29 +97,17 @@ export default function FinancialManagement() {
 
     const subscriptions = subscriptionsData?.results ?? [];
 
-    // Handle Export CSV
-    const handleExportCSV = async () => {
+    // Handle Export Excel
+    const handleExportExcel = async () => {
         try {
-            const toastId = toast.loading('Đang xuất dữ liệu CSV...');
+            const toastId = toast.loading('Đang xuất dữ liệu Excel...');
             const response = await dashboardService.exportTransactions({
                 search: debouncedSearch,
                 status: statusFilter !== 'all' ? statusFilter : undefined
             });
 
-            // Create a blob from the response data
-            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-
-            link.setAttribute('href', url);
-            link.setAttribute('download', `Giao_Dich_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            toast.success('Đã xuất báo cáo CSV thành công!', { id: toastId });
+            downloadBlob(response.data, `Giao_Dich_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success('Đã xuất Excel thành công!', { id: toastId });
         } catch (error) {
             console.error('Export error:', error);
             toast.error('Có lỗi xảy ra khi xuất báo cáo.');
@@ -144,11 +134,11 @@ export default function FinancialManagement() {
                 </div>
                 <Button
                     variant="outline"
-                    onClick={handleExportCSV}
+                    onClick={handleExportExcel}
                     className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
                 >
                     <Download className="w-4 h-4 mr-2" />
-                    Xuất CSV
+                    Xuất Excel
                 </Button>
             </motion.div>
 

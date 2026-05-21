@@ -11,6 +11,12 @@ from apps.candidate.recruiter_skills.models import RecruiterSkill
 from apps.recruitment.job_skills.models import JobSkill
 
 
+def _as_list(value):
+    if isinstance(value, (list, tuple, set)):
+        return list(value)
+    return [value]
+
+
 def list_jobs(filters: dict = None) -> QuerySet[Job]:
     """
     Lấy danh sách jobs với filter logic.
@@ -24,7 +30,10 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
         - is_remote: bool
         - salary_min: decimal
         - salary_max: decimal
-        - search: str (search in title)
+        - experience_min: int
+        - experience_max: int
+        - skills: list[str]
+        - search: str (search in title, company, category, skills, description)
     """
     queryset = Job.objects.select_related(
         "company", "category", "created_by", "address", "address__province"
@@ -50,11 +59,11 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
 
     # Filter by job_type
     if filters.get("job_type"):
-        queryset = queryset.filter(job_type=filters["job_type"])
+        queryset = queryset.filter(job_type__in=_as_list(filters["job_type"]))
 
     # Filter by level
     if filters.get("level"):
-        queryset = queryset.filter(level=filters["level"])
+        queryset = queryset.filter(level__in=_as_list(filters["level"]))
 
     # Filter by status
     if filters.get("status"):
@@ -78,9 +87,42 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
             Q(salary_min__lte=filters["salary_max"]) | Q(is_salary_negotiable=True)
         )
 
-    # Search in title
+    # Filter by overlapping experience range.
+    if filters.get("experience_min") is not None:
+        queryset = queryset.filter(
+            Q(experience_years_max__gte=filters["experience_min"])
+            | Q(experience_years_max__isnull=True)
+        )
+
+    if filters.get("experience_max") is not None:
+        queryset = queryset.filter(experience_years_min__lte=filters["experience_max"])
+
+    if filters.get("skills"):
+        skills = [
+            str(skill).strip()
+            for skill in _as_list(filters["skills"])
+            if str(skill).strip()
+        ]
+        skill_query = Q()
+        for skill in skills:
+            skill_query |= Q(required_skills__skill__name__iexact=skill)
+        if skills:
+            queryset = queryset.filter(skill_query).distinct()
+
+    # Search by the same fields exposed in the public job-search UI.
     if filters.get("search"):
-        queryset = queryset.filter(title__icontains=filters["search"])
+        search = str(filters["search"]).strip()
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search)
+                | Q(description__icontains=search)
+                | Q(requirements__icontains=search)
+                | Q(benefits__icontains=search)
+                | Q(company__company_name__icontains=search)
+                | Q(company__slug__icontains=search)
+                | Q(category__name__icontains=search)
+                | Q(required_skills__skill__name__icontains=search)
+            ).distinct()
 
     ordering_map = {
         "-created_at": ["-created_at"],

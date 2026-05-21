@@ -51,7 +51,14 @@ export const NotificationDropdown = ({ onClose }: { onClose?: () => void }) => {
     const handleItemClick = (id: string, isRead: boolean, link?: string) => {
         if (!isRead) markAsRead(id);
         if (onClose) onClose();
-        if (link) navigate(link);
+        if (!link) return;
+
+        if (/^https?:\/\//i.test(link)) {
+            window.open(link, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        navigate(link);
     };
 
     return (

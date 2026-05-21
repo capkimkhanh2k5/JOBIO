@@ -180,6 +180,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+REMEMBER_ME_REFRESH_TOKEN_LIFETIME = timedelta(days=7)
 
 FRONTEND_URL = "http://localhost:4000"
 

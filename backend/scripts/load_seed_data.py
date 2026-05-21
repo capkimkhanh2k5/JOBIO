@@ -6,13 +6,16 @@ import inspect
 import django
 from django.apps import apps
 from django.db import models, transaction
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.hashers import identify_hasher, make_password
 
 # --- CONFIGURATION CHUẨN BỊ MÔI TRƯỜNG ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
+
+from django.contrib.auth.models import Permission  # noqa: E402
+from django.contrib.contenttypes.models import ContentType  # noqa: E402
 
 
 def disable_import_side_effects():
@@ -43,8 +46,26 @@ def disable_import_side_effects():
     except Exception as exc:
         print(f"[WARN] Could not disable interview notification signal: {exc}")
 
+    try:
+        from apps.billing.signals import (
+            notify_admin_on_completed_transaction,
+            store_old_transaction_status,
+        )
+        from apps.billing.models import Transaction
+
+        pre_save.disconnect(store_old_transaction_status, sender=Transaction)
+        post_save.disconnect(
+            notify_admin_on_completed_transaction,
+            sender=Transaction,
+        )
+    except Exception as exc:
+        print(f"[WARN] Could not disable billing notification signal: {exc}")
+
 
 disable_import_side_effects()
+
+CONTENT_TYPE_ID_MAP = {}
+PERMISSION_ID_MAP = {}
 
 
 def resolve_data_dir():
@@ -78,6 +99,8 @@ for obj in apps.get_models(include_auto_created=True):
         inspect.isclass(obj)
         and issubclass(obj, models.Model)
         and obj is not models.Model
+        and obj._meta.managed
+        and not obj._meta.proxy
     ):
         table_name = getattr(obj._meta, "db_table", "").lower()
         if table_name:
@@ -126,6 +149,7 @@ TABLES_ORDER = [
     "company_media",
     "company_followers",
     "company_subscriptions",
+    "transactions",
     "saved_jobs",
     "job_alerts",
     "reports",
@@ -187,16 +211,119 @@ def repair_mojibake(value):
     return repaired or value
 
 
+def load_json(json_file):
+    with open(json_file, "r", encoding="utf-8-sig") as f:
+        return json.load(f)
+
+
+def normalize_row(row):
+    return {key: repair_mojibake(value) for key, value in dict(row).items()}
+
+
+def load_content_types(json_file):
+    try:
+        data = load_json(json_file)
+    except Exception as e:
+        print(f"[ERROR] Không thể đọc file seed {json_file}: {str(e)}")
+        return
+
+    created_count = 0
+    updated_count = 0
+
+    try:
+        with transaction.atomic():
+            for row in data:
+                row_data = normalize_row(row)
+                seed_id = row_data.get("id")
+                content_type, created = ContentType.objects.update_or_create(
+                    app_label=row_data["app_label"],
+                    model=row_data["model"],
+                    defaults={},
+                )
+                if seed_id is not None:
+                    CONTENT_TYPE_ID_MAP[seed_id] = content_type.id
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+        print(
+            f"[OK] Đã đồng bộ bảng: django_content_type "
+            f"(created={created_count}, updated={updated_count}, total={len(data)})"
+        )
+    except Exception as e:
+        print(
+            "[ERROR] Quá trình nạp bảng django_content_type thất bại. "
+            f"Chi tiết lỗi: {str(e)}"
+        )
+
+
+def load_permissions(json_file):
+    try:
+        data = load_json(json_file)
+    except Exception as e:
+        print(f"[ERROR] Không thể đọc file seed {json_file}: {str(e)}")
+        return
+
+    created_count = 0
+    updated_count = 0
+
+    try:
+        with transaction.atomic():
+            for row in data:
+                row_data = normalize_row(row)
+                seed_id = row_data.pop("id", None)
+                content_type_id = row_data.get("content_type_id")
+                if content_type_id in CONTENT_TYPE_ID_MAP:
+                    row_data["content_type_id"] = CONTENT_TYPE_ID_MAP[content_type_id]
+
+                permission, created = Permission.objects.update_or_create(
+                    content_type_id=row_data["content_type_id"],
+                    codename=row_data["codename"],
+                    defaults={"name": row_data["name"]},
+                )
+                if seed_id is not None:
+                    PERMISSION_ID_MAP[seed_id] = permission.id
+                if created:
+                    created_count += 1
+                else:
+                    updated_count += 1
+
+        print(
+            f"[OK] Đã đồng bộ bảng: auth_permission "
+            f"(created={created_count}, updated={updated_count}, total={len(data)})"
+        )
+    except Exception as e:
+        print(
+            "[ERROR] Quá trình nạp bảng auth_permission thất bại. "
+            f"Chi tiết lỗi: {str(e)}"
+        )
+
+
+def remap_known_foreign_keys(table_name, row_data):
+    if table_name in {"auth_group_permissions", "users_user_permissions"}:
+        permission_id = row_data.get("permission_id")
+        if permission_id in PERMISSION_ID_MAP:
+            row_data["permission_id"] = PERMISSION_ID_MAP[permission_id]
+
+
 def load_table(table_name, model_obj, json_file):
     if not os.path.exists(json_file):
         return
 
-    with open(json_file, "r", encoding="utf-8-sig") as f:
-        try:
-            data = json.load(f)
-        except Exception as e:
-            print(f"[ERROR] Không thể đọc file seed {json_file}: {str(e)}")
-            return
+    if table_name == "django_content_type":
+        load_content_types(json_file)
+        return
+
+    if table_name == "auth_permission":
+        load_permissions(json_file)
+        return
+
+    try:
+        data = load_json(json_file)
+    except Exception as e:
+        print(f"[ERROR] Không thể đọc file seed {json_file}: {str(e)}")
+        return
 
     binary_fields = [
         f.name for f in model_obj._meta.fields if isinstance(f, models.BinaryField)
@@ -211,9 +338,8 @@ def load_table(table_name, model_obj, json_file):
                     if bf in row and isinstance(row[bf], str):
                         row[bf] = row[bf].encode("utf-8")
 
-                row_data = {
-                    key: repair_mojibake(value) for key, value in dict(row).items()
-                }
+                row_data = normalize_row(row)
+                remap_known_foreign_keys(table_name, row_data)
                 record_id = row_data.pop("id", None)
 
                 if table_name == "users":

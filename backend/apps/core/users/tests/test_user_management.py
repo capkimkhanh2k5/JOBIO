@@ -8,6 +8,7 @@ from apps.core.users.models import CustomUser
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 import io
+import zipfile
 from unittest.mock import patch
 
 
@@ -192,14 +193,31 @@ class TestUserManagement(APITestCase):
 
     def test_export_users(self):
         admin = CustomUser.objects.create_user(
-            email="admin_export@example.com", password="password", role="admin"
+            email="admin_export@example.com",
+            password="password",
+            role="admin",
+            full_name="Quản trị viên",
+        )
+        CustomUser.objects.create_user(
+            email="unicode@example.com",
+            password="password",
+            full_name="Nguyễn Văn A",
         )
         self.client.force_authenticate(user=admin)
 
         response = self.client.get(USER_EXPORT)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response["Content-Type"], "text/csv")
+        self.assertEqual(
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        self.assertIn("users_export.xlsx", response["Content-Disposition"])
+        self.assertTrue(response.content.startswith(b"PK"))
+
+        with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
+            worksheet_xml = archive.read("xl/worksheets/sheet1.xml").decode("utf-8")
+            self.assertIn("Nguyễn Văn A", worksheet_xml)
 
     def test_bulk_limit(self):
         admin = CustomUser.objects.create_user(

@@ -47,11 +47,11 @@ const INFO_CARDS = [
         iconColor: 'text-indigo-600', bgColor: 'bg-indigo-50',
     },
     {
-        icon: Phone, title: 'Điện thoại', lines: ['(028) 3822 1234', '1800 599 984 (miễn phí)'],
+        icon: Phone, title: 'Điện thoại', lines: ['(012) 3456 7890', '1800 456 789 (miễn phí)'],
         iconColor: 'text-violet-600', bgColor: 'bg-violet-50',
     },
     {
-        icon: MapPin, title: 'Địa chỉ', lines: ['Tầng 12, Tòa nhà Saigon Centre', '65 Lê Lợi, Quận 1, TP.HCM'],
+        icon: MapPin, title: 'Địa chỉ', lines: ['Đại Học Bách Khoa Đà Nẵng', '54 Nguyễn Lương Bằng, Phường Liên Chiểu, TP.Đà Nẵng'],
         iconColor: 'text-emerald-600', bgColor: 'bg-emerald-50',
     },
     {
@@ -277,7 +277,7 @@ export default function Contact() {
                                 <div className="h-72 bg-gray-100 relative">
                                     <iframe
                                         title="JOBIO Office Location"
-                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4349!2d106.69924!3d10.77626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f3a9d8d1bb5%3A0x5c3c6be89e08c7a!2sSaigon%20Centre!5e0!3m2!1svi!2svn!4v1620000000000!5m2!1svi!2svn"
+                                        src="https://www.google.com/maps?q=%C4%90%E1%BA%A1i%20H%E1%BB%8Dc%20B%C3%A1ch%20Khoa%20%C4%90%C3%A0%20N%E1%BA%B5ng%2C%2054%20Nguy%E1%BB%85n%20L%C6%B0%C6%A1ng%20B%E1%BA%B1ng%2C%20Li%C3%AAn%20Chi%E1%BB%83u%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng&output=embed"
                                         className="w-full h-full transition-opacity"
                                         allowFullScreen
                                         loading="lazy"
@@ -292,8 +292,8 @@ export default function Contact() {
                                         <div>
                                             <p className="font-bold text-gray-900">JOBIO Headquarters</p>
                                             <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                                                Tầng 12, Tòa nhà Saigon Centre<br />
-                                                65 Lê Lợi, Quận 1, TP. Hồ Chí Minh
+                                                Đại Học Bách Khoa Đà Nẵng<br />
+                                                54 Nguyễn Lương Bằng, Phường Liên Chiểu, TP.Đà Nẵng
                                             </p>
                                         </div>
                                     </div>
@@ -331,7 +331,7 @@ export default function Contact() {
                                     <div>
                                         <p className="text-sm font-semibold text-gray-900 mb-1">Hotline hỗ trợ 24/7</p>
                                         <p className="text-sm text-gray-600">
-                                            <strong className="text-indigo-600 text-lg mr-1">1800 599 984</strong><br />
+                                            <strong className="text-indigo-600 text-lg mr-1">1800 567 789</strong><br />
                                             (Miễn phí cước, dành cho sự cố khẩn cấp)
                                         </p>
                                     </div>

@@ -47,6 +47,7 @@ export interface AuthTokens {
 export interface LoginRequest {
   email: string;
   password: string;
+  remember_me?: boolean;
 }
 
 export interface LoginResponse {
@@ -1362,6 +1363,5 @@ export interface SubscribeResponse {
   payment_url: string;
   transaction_ref: string;
 }
-
 
 

@@ -1,9 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useUiStore } from '../../store/uiStore';
 import { useUserStore } from '../../store/userStore';
 import { Search, Menu, LogOut, User, Settings, LayoutDashboard } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { authService } from '../../services/authService';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
@@ -37,9 +36,11 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const Header = () => {
-    const toggleCommand = useUiStore((state) => state.toggleCommand);
     const { user, isAuthenticated, clearAuth, updateUser } = useUserStore();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isHeaderSearchOpen, setIsHeaderSearchOpen] = useState(false);
+    const [headerSearch, setHeaderSearch] = useState('');
+    const headerSearchRef = useRef<HTMLInputElement>(null);
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -56,6 +57,26 @@ export const Header = () => {
 
         return () => window.removeEventListener('scroll', handleScroll);
     }, [isAuthenticated, user?.role, updateUser]);
+
+    useEffect(() => {
+        if (isHeaderSearchOpen) {
+            const frameId = requestAnimationFrame(() => headerSearchRef.current?.focus());
+            return () => cancelAnimationFrame(frameId);
+        }
+    }, [isHeaderSearchOpen]);
+
+    useEffect(() => {
+        setIsHeaderSearchOpen(false);
+    }, [location.pathname]);
+
+    const handleHeaderSearch = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const query = headerSearch.trim();
+
+        navigate(query ? `/jobs?search=${encodeURIComponent(query)}` : '/jobs');
+        setHeaderSearch('');
+        setIsHeaderSearchOpen(false);
+    };
 
     const handleLogout = async () => {
         try {
@@ -141,11 +162,44 @@ export const Header = () => {
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <form
+                            onSubmit={handleHeaderSearch}
+                            className={cn(
+                                "hidden xl:flex items-center rounded-full transition-all duration-300",
+                                isHeaderSearchOpen
+                                    ? "w-72 gap-2 border border-primary/20 bg-white/90 px-3 shadow-lg shadow-primary/10 backdrop-blur-xl"
+                                    : "w-12 border border-transparent bg-transparent px-0"
+                            )}
+                        >
+                            {isHeaderSearchOpen && (
+                                <input
+                                    ref={headerSearchRef}
+                                    type="text"
+                                    value={headerSearch}
+                                    onChange={(event) => setHeaderSearch(event.target.value)}
+                                    placeholder="Tìm việc, công ty..."
+                                    className="h-12 min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
+                                />
+                            )}
+                            <Button
+                                type={isHeaderSearchOpen ? "submit" : "button"}
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                    if (!isHeaderSearchOpen) setIsHeaderSearchOpen(true);
+                                }}
+                                className="h-12 w-12 shrink-0 rounded-full hover:bg-primary/10 transition-colors magnetic-button"
+                                aria-label="Tìm kiếm"
+                            >
+                                <Search className="w-6 h-6" />
+                            </Button>
+                        </form>
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={toggleCommand}
-                            className="rounded-full w-12 h-12 hover:bg-primary/10 transition-colors magnetic-button"
+                            onClick={() => navigate('/jobs')}
+                            className="xl:hidden rounded-full w-12 h-12 hover:bg-primary/10 transition-colors magnetic-button"
+                            aria-label="Tìm kiếm"
                         >
                             <Search className="w-6 h-6" />
                         </Button>

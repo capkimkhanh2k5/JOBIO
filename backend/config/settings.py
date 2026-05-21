@@ -323,6 +323,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+REMEMBER_ME_REFRESH_TOKEN_LIFETIME = timedelta(days=7)
 
 # ===== WebAuthn / Passkey Configuration =====
 WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")

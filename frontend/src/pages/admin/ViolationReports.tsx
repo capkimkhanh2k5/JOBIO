@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Textarea } from '@/components/ui/textarea';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+import { downloadBlob } from '@/lib/download';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -64,8 +66,8 @@ const getEntityUrl = (entityType: string, entityId: number) => {
 export default function ViolationReports() {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [statusFilter, setStatusFilter] = useState('all');
 
     useEffect(() => {
@@ -126,26 +128,18 @@ export default function ViolationReports() {
         });
     };
 
-    const handleExportCSV = async () => {
+    const handleExportExcel = async () => {
         try {
-            const toastId = toast.loading('Đang xuất dữ liệu CSV...');
+            const toastId = toast.loading('Đang xuất dữ liệu Excel...');
             const response = await dashboardService.exportAdminReports({
                 search: debouncedSearch,
                 status: statusFilter !== 'all' ? statusFilter : undefined
             });
-            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `bao_cao_vi_pham_${new Date().getTime()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
+            downloadBlob(response.data, `bao_cao_vi_pham_${new Date().toISOString().split('T')[0]}.xlsx`);
             toast.dismiss(toastId);
-            toast.success('Xuất CSV thành công!');
+            toast.success('Xuất Excel thành công!');
         } catch (error) {
-            toast.error('Không thể xuất CSV.');
+            toast.error('Không thể xuất Excel.');
         }
     };
 
@@ -172,11 +166,11 @@ export default function ViolationReports() {
                     <p className="text-sm text-slate-500 mt-1">Xử lý các khiếu nại và báo cáo từ cộng đồng người dùng.</p>
                 </div>
                 <Button
-                    onClick={handleExportCSV}
+                    onClick={handleExportExcel}
                     className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-bold shadow-sm h-11 px-6"
                 >
                     <Download className="w-4 h-4 mr-2" />
-                    Xuất CSV
+                    Xuất Excel
                 </Button>
             </motion.div>
 

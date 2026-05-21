@@ -24,7 +24,7 @@ const FAQS = [
         id: 'q2',
         category: 'general',
         q: 'Làm thế nào để liên hệ với bộ phận hỗ trợ?',
-        a: 'Bạn có thể liên hệ với chúng tôi qua trang Liên hệ, qua email support@jobio.vn, hoặc số điện thoại hotline 1800 599 984 trong giờ hành chính.'
+        a: 'Bạn có thể liên hệ với chúng tôi qua trang Liên hệ, qua email support@jobio.vn, hoặc số điện thoại hotline 1800 456 789 trong giờ hành chính.'
     },
     {
         id: 'q3',

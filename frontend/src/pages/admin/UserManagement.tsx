@@ -18,6 +18,8 @@ import {
 import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+import { downloadBlob } from '@/lib/download';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -66,8 +68,8 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function UserManagement() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [roleFilter, setRoleFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
@@ -212,15 +214,13 @@ export default function UserManagement() {
 
     const handleExport = async () => {
         try {
-            const response = await dashboardService.exportUsers();
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            toast.success('Xuất dữ liệu thành công');
+            const response = await dashboardService.exportUsers({
+                search: debouncedSearch || undefined,
+                role: roleFilter === 'all' ? undefined : roleFilter,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+            });
+            downloadBlob(response.data, `users_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success('Xuất Excel thành công');
         } catch (error) {
             toast.error('Không thể xuất dữ liệu');
         }
@@ -262,7 +262,7 @@ export default function UserManagement() {
                         className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
                         onClick={handleExport}
                     >
-                        <Download className="w-4 h-4 mr-2" /> Xuất CSV
+                        <Download className="w-4 h-4 mr-2" /> Xuất Excel
                     </Button>
                 </div>
             </motion.div>

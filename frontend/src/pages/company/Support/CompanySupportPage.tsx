@@ -268,7 +268,7 @@ export default function CompanySupportPage() {
 
                             <div className="space-y-5">
                                 {[
-                                    { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '1800 599 984', color: 'text-emerald-600 bg-emerald-50' },
+                                    { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '', color: 'text-emerald-600 bg-emerald-50' },
                                     { icon: <Mail className="w-6 h-6" />, label: 'Email hỗ trợ', value: 'support@jobio.vn', color: 'text-violet-600 bg-violet-50' },
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-5 p-5 rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 group">

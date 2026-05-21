@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService } from '@/services/notificationService';
 import { useNotificationStore } from '@/store/notificationStore';
 import {
     Bell, CheckCheck, Trash2, FileText, Calendar,
     AlertTriangle, ShieldCheck, BellOff, CreditCard,
-    ChevronLeft, ChevronRight
+    ChevronLeft, ChevronRight, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
@@ -45,9 +46,19 @@ type TabKey = typeof TABS[number]['key'];
 export default function AdminNotificationsPage() {
     const [activeTab, setActiveTab] = useState<TabKey>('all');
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const { markAllAsRead: markAllStore, fetchUnreadCount } = useNotificationStore();
+
+    useEffect(() => {
+        const handler = window.setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+            setPage(1);
+        }, 300);
+        return () => window.clearTimeout(handler);
+    }, [searchQuery]);
 
     const { data: stats } = useQuery({
         queryKey: ['admin-notification-stats'],
@@ -60,12 +71,13 @@ export default function AdminNotificationsPage() {
         const p: Record<string, any> = { page_size: 10, page };
         if (activeTab === 'unread') p.is_read = false;
         if (['report', 'verification', 'billing', 'system'].includes(activeTab)) p.type = activeTab;
+        if (debouncedSearch) p.search = debouncedSearch;
         return p;
     })();
 
     // ── Data fetching ────────────────────────────────────────────────────────
     const { data, isLoading } = useQuery({
-        queryKey: ['admin-notifications', activeTab, page],
+        queryKey: ['admin-notifications', activeTab, page, debouncedSearch],
         queryFn: () => notificationService.listAdminNotifications(queryParams).then(r => r.data),
         staleTime: 30_000,
     });
@@ -111,7 +123,14 @@ export default function AdminNotificationsPage() {
     // ── Handlers ──────────────────────────────────────────────────────────────
     const handleItemClick = (notif: any) => {
         if (!notif.is_read) markReadMut.mutate(notif.id);
-        if (notif.link) navigate(notif.link);
+        if (!notif.link) return;
+
+        if (/^https?:\/\//i.test(notif.link)) {
+            window.open(notif.link, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        navigate(notif.link);
     };
 
     const handleTabChange = (key: TabKey) => {
@@ -171,7 +190,17 @@ export default function AdminNotificationsPage() {
                     })}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex w-full sm:w-auto items-center gap-3">
+                    <div className="relative w-full sm:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Tìm thông báo..."
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-400 bg-white shadow-sm"
+                        />
+                    </div>
                     <Button
                         size="sm"
                         className={cn(
