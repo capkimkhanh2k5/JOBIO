@@ -378,10 +378,13 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
         return 0
 
     # CV_Upload: template is None and cv_data is empty — use recruiter profile
-    is_cv_upload = getattr(cv, "template", None) is None and not getattr(cv, "cv_data", None)
+    is_cv_upload = getattr(cv, "template", None) is None and not getattr(
+        cv, "cv_data", None
+    )
 
     if is_cv_upload:
         from apps.candidate.recruiter_skills.models import RecruiterSkill
+
         candidate_position = getattr(recruiter, "current_position", "") or ""
         profile_skills = RecruiterSkill.objects.filter(
             recruiter=recruiter

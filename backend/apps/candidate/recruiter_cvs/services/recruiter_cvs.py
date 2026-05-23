@@ -1,4 +1,4 @@
-﻿from django.db import transaction
+from django.db import transaction
 from django.utils import timezone
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
@@ -203,6 +203,7 @@ def render_cv_to_pdf_html(cv: RecruiterCV) -> str:
         # Check if it exists, otherwise use browser template
         from django.template.loader import get_template
         from django.template import TemplateDoesNotExist
+
         try:
             get_template(template_name)
         except TemplateDoesNotExist:
@@ -243,6 +244,7 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
     cv.save(update_fields=["cv_url", "download_count"])
 
     return {"download_url": cv_url, "format": "pdf", "message": "Generated new PDF"}
+
 
 def generate_cv_preview(cv: RecruiterCV) -> dict:
     """
@@ -445,5 +447,3 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     )
 
     return cv
-
-
