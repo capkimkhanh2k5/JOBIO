@@ -271,21 +271,26 @@ def generate_cv_preview(cv: RecruiterCV) -> dict:
 @transaction.atomic
 def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
     """
-    Upload file PDF lÃªn Cloudinary vÃ  táº¡o RecruiterCV má»›i (CV_Upload).
+    Upload file PDF lên Cloudinary và tạo RecruiterCV mới (CV_Upload).
+
+    After saving, dispatches a Celery task to parse the PDF content
+    using LLM (Groq) and populate cv_data asynchronously.
+    If parsing fails after retries, cv_data stays empty and
+    scoring falls back to recruiter profile data automatically.
 
     Args:
-        recruiter: Recruiter instance thá»±c hiá»‡n upload.
-        file: File object (InMemoryUploadedFile hoáº·c tÆ°Æ¡ng tá»±) chá»©a ná»™i dung PDF.
-        cv_name: TÃªn CV tÃ¹y chá»n. Náº¿u khÃ´ng cung cáº¥p, dÃ¹ng tÃªn file gá»‘c bá» pháº§n má»Ÿ rá»™ng .pdf.
+        recruiter: Recruiter instance thực hiện upload.
+        file: File object (InMemoryUploadedFile hoặc tương tự) chứa nội dung PDF.
+        cv_name: Tên CV tùy chọn. Nếu không cung cấp, dùng tên file gốc bỏ phần mở rộng .pdf.
 
     Returns:
-        RecruiterCV instance vá»«a Ä‘Æ°á»£c táº¡o (CV_Upload).
+        RecruiterCV instance vừa được tạo (CV_Upload, cv_data={} initially).
     """
-    # Upload lÃªn Cloudinary
+    # Upload lên Cloudinary
     content_file = ContentFile(file.read(), name=file.name)
     cv_url = save_raw_file("CVs", content_file, f"cv_upload_{recruiter.id}")
 
-    # TÃªn CV: dÃ¹ng cv_name náº¿u cÃ³, ngÆ°á»£c láº¡i dÃ¹ng tÃªn file gá»‘c bá» pháº§n má»Ÿ rá»™ng .pdf
+    # Tên CV: dùng cv_name nếu có, ngược lại dùng tên file gốc bỏ phần mở rộng .pdf
     if not cv_name:
         cv_name = file.name
         if cv_name.lower().endswith(".pdf"):
@@ -300,7 +305,29 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
         is_default=False,
         is_public=True,
     )
+
+    # Dispatch async CV parsing task via Celery
+    # The task will download the PDF, extract text, parse with LLM, and update cv_data
+    transaction.on_commit(
+        lambda: _dispatch_cv_parse(cv.id)
+    )
+
     return cv
+
+
+def _dispatch_cv_parse(cv_id: int):
+    """Dispatch CV parsing task, with graceful fallback if Celery is unavailable."""
+    try:
+        from apps.candidate.recruiter_cvs.tasks import parse_cv_task
+        parse_cv_task.delay(cv_id)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            f"Could not dispatch async CV parse task for CV {cv_id}: {e}. "
+            "Celery may not be running. CV will stay with empty cv_data "
+            "and scoring will fallback to recruiter profile."
+        )
 
 
 @transaction.atomic

@@ -24,6 +24,7 @@ class RecruiterCVListSerializer(serializers.ModelSerializer):
             "is_public",
             "view_count",
             "download_count",
+            "parsed_at",
             "created_at",
             "updated_at",
         ]
@@ -48,6 +49,7 @@ class RecruiterCVDetailSerializer(serializers.ModelSerializer):
             "is_public",
             "view_count",
             "download_count",
+            "parsed_at",
             "created_at",
             "updated_at",
         ]

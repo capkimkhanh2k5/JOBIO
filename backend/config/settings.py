@@ -433,6 +433,13 @@ PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS = env_int(
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# Groq API — CV Parsing with LLM
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_CV_PARSER_MODEL = os.getenv("GROQ_CV_PARSER_MODEL", "openai/gpt-oss-120b")
+GROQ_CV_PARSER_FALLBACK_MODEL = os.getenv(
+    "GROQ_CV_PARSER_FALLBACK_MODEL", "llama-3.3-70b-versatile"
+)
+
 # ===== Celery Configuration =====
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")

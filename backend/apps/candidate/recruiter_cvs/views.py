@@ -258,6 +258,7 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+
     def generate(self, request, *args, **kwargs):
         """
         POST /generate/
