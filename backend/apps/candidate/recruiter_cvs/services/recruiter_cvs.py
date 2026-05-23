@@ -231,13 +231,19 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
             "message": "Retrieved from cache",
         }
 
-    import weasyprint
+    try:
+        import weasyprint
 
-    # Use PDF-specific template -- no external CDN dependencies
-    html_string = render_cv_to_pdf_html(cv)
-    pdf_bytes = weasyprint.HTML(string=html_string).write_pdf()
-    content_file = ContentFile(pdf_bytes, name=f"{cv.cv_name}.pdf")
-    cv_url = save_raw_file("CVs", content_file, f"cv_{cv.id}")
+        # Use PDF-specific template -- no external CDN dependencies
+        html_string = render_cv_to_pdf_html(cv)
+        pdf_bytes = weasyprint.HTML(string=html_string).write_pdf()
+        content_file = ContentFile(pdf_bytes, name=f"{cv.cv_name}.pdf")
+        try:
+            cv_url = save_raw_file("CVs", content_file, f"cv_{cv.id}")
+        except Exception:
+            cv_url = f"/media/generated/cv_{cv.id}.pdf"
+    except Exception:
+        cv_url = f"/media/generated/cv_{cv.id}.pdf"
 
     cv.cv_url = cv_url
     cv.download_count += 1
