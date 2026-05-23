@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import inspect
-from datetime import datetime, timezone as datetime_timezone
+from datetime import timezone as datetime_timezone
 
 import django
 from django.apps import apps
