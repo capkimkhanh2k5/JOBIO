@@ -199,3 +199,6 @@ VNP_RETURN_URL = (
     "http://localhost:8000/api/billing/company-subscriptions/payment-return/"
 )
 VNP_FRONTEND_RETURN_URL = "http://localhost:4000/company/payment-result"
+
+PAYMENT_PENDING_TIMEOUT_MINUTES = 5
+PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS = 60
