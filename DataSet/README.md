@@ -1,353 +1,127 @@
-# 📑 DATA AUDIT & FIX - COMPLETE DOCUMENTATION INDEX
+# 📑 HƯỚNG DẪN KIỂM TOÁN & NẠP DỮ LIỆU DỰ ÁN JOBIO
 
-**Status:** ✅ **COMPLETE & VALIDATED**  
-**Date:** 2026-04-25  
-**Total Errors Fixed:** 99 (across 7 files)  
-**Validation Result:** 100% PASS
+**Trạng thái:** ✅ **HOÀN THÀNH & ĐÃ XÁC MINH**
+**Tổng số lỗi đã sửa:** 99 lỗi (trên 7 file dữ liệu JSON)
+**Tỷ lệ xác thực thành công:** 100% PASS
 
 ---
 
-## 📂 FILES STRUCTURE
+## 📂 CẤU TRÚC THƯ MỤC DỮ LIỆU
 
 ```
-/Users/capkimkhanh/Documents/DUT/JOBIO/DataSet/
+DataSet/
+├── 📋 TÀI LIỆU HƯỚNG DẪN (Đọc trước)
+│   ├── README.md                           ← Tài liệu hướng dẫn chung (Bạn đang ở đây)
+│   ├── COMPREHENSIVE_DATA_AUDIT_REPORT.md  ← Báo cáo kiểm toán dữ liệu chi tiết
+│   ├── DATA_FIX_SUMMARY.md                 ← Tóm tắt nhanh các lỗi và phương án sửa
+│   ├── BEFORE_AFTER_COMPARISON.md          ← Bảng so sánh dữ liệu trước và sau khi sửa
+│   └── reportData.md                       ← Báo cáo kiểm toán ban đầu
 │
-├── 📋 DOCUMENTATION (Read these)
-│   ├── README.md                           ← You are here
-│   ├── COMPREHENSIVE_DATA_AUDIT_REPORT.md  ← ⭐ Start here (14KB)
-│   ├── DATA_FIX_SUMMARY.md                 ← Quick overview (6.5KB)
-│   ├── BEFORE_AFTER_COMPARISON.md          ← Visual changes (11KB)
-│   └── reportData.md                       ← Original audit (3.9KB)
+├── 🔧 SCRIPT TỰ ĐỘNG HÓA
+│   ├── data_fixer.py                       ← Script sửa lỗi dữ liệu tự động
+│   ├── data_validator.py                   ← Script kiểm tra tính hợp lệ dữ liệu JSON
+│   ├── loadData.sh                         ← Script hợp nhất để reset DB & import dữ liệu
+│   └── FIX_REPORT.txt                      ← Log chi tiết lịch sử sửa lỗi
 │
-├── 🔧 AUTOMATION SCRIPTS (Run these if needed)
-│   ├── data_fixer.py                       ← Auto-fix script (14KB)
-│   ├── data_validator.py                   ← Validation script (7.4KB)
-│   └── FIX_REPORT.txt                      ← Detailed fix log
-│
-├── 📊 DATA FOLDERS
-│   ├── Data_Final/                         ← Original data (unchanged)
-│   │   └── *.json (60 files)
-│   │
-│   └── Data_Final_FIXED/ ✅                ← FIXED DATA (use this!)
-│       ├── transactions.json               ✅ 30 errors fixed
-│       ├── jobs.json                       ✅ 24 errors fixed
-│       ├── recruiters.json                 ✅ 15 errors fixed
-│       ├── interviews.json                 ✅ 10 errors fixed
-│       ├── job_alerts.json                 ✅ 10 errors fixed
-│       ├── company_subscriptions.json      ✅ 5 errors fixed
-│       ├── reports.json                    ✅ 5 errors fixed
-│       └── [56 other files - copied as-is]
-│
-└── DataSet/
-    ├── reportData.md                       ← Original report
-    └── Data/
-        ├── Data_Final/
-        ├── Data_Final_BackUp/
-        └── Data_Final_FIXED/
+└── 📊 THƯ MỤC DỮ LIỆU (JSON)
+    ├── Data_Final/                         ← Thư mục chứa dữ liệu gốc (chưa sửa)
+    │   └── *.json (60 files)
+    │
+    └── Data_Final_FIXED/ ✅                ← Thư mục chứa DỮ LIỆU SẠCH (dùng để import)
+        ├── transactions.json               (Đã sửa 30 lỗi)
+        ├── jobs.json                       (Đã sửa 24 lỗi)
+        ├── recruiters.json                 (Đã sửa 15 lỗi)
+        ├── interviews.json                 (Đã sửa 10 lỗi)
+        ├── job_alerts.json                 (Đã sửa 10 lỗi)
+        ├── company_subscriptions.json      (Đã sửa 5 lỗi)
+        ├── reports.json                    (Đã sửa 5 lỗi)
+        └── [56 file khác - được sao chép nguyên bản]
 ```
 
 ---
 
-## 🎯 QUICK START
+## 🎯 HƯỚNG DẪN NHANH (QUICK START)
 
-### 1. **Read the Comprehensive Report** (15 min)
+Để nạp toàn bộ dữ liệu sạch đã được sửa đổi vào database của bạn một cách nhanh nhất, hãy thực hiện theo các bước sau:
+
+### Bước 1: Di chuyển tới thư mục gốc dự án
 ```bash
-# Open and read this first
-cat COMPREHENSIVE_DATA_AUDIT_REPORT.md
+cd /Users/capkimkhanh/Documents/DUT/JOBIO
 ```
-This contains:
-- All 15 unique errors found
-- Detailed explanation of each error
-- Why they cause problems
-- How they were fixed
 
-### 2. **Use the Fixed Data** (Immediate)
+### Bước 2: Cấp quyền thực thi cho script nạp dữ liệu (nếu chưa có)
 ```bash
-# The fixed data is already ready
-cd /Users/capkimkhanh/Documents/DUT/JOBIO/DataSet/Data_Final_FIXED/
-
-# Verify it's all there
-ls -la | wc -l  # Should show 68 files + headers
+chmod +x DataSet/loadData.sh
 ```
 
-### 3. **Import to Database** (Per your needs)
+### Bước 3: Chạy script để nạp dữ liệu
+> [!IMPORTANT]
+> Script `loadData.sh` đã được cấu hình tối giản: **Không thực hiện sao lưu database cũ thành file sql** và **Không xuất file log dư thừa**, mục tiêu tập trung tối đa vào việc nạp dữ liệu trực tiếp và nhanh chóng.
+
 ```bash
-# Option A: Simple import (if using Django loaddata)
-cd /Users/capkimkhanh/Documents/DUT/JOBIO/backend
-python manage.py loaddata ../DataSet/Data_Final_FIXED/*.json
-
-# Option B: Import with proper ordering (avoid FK errors)
-python manage.py loaddata \
-  ../DataSet/Data_Final_FIXED/users.json \
-  ../DataSet/Data_Final_FIXED/addresses.json \
-  ../DataSet/Data_Final_FIXED/companies.json \
-  ../DataSet/Data_Final_FIXED/jobs.json
-# ... etc
+./DataSet/loadData.sh
 ```
 
----
-
-## 📖 DOCUMENT GUIDE
-
-### 1. **COMPREHENSIVE_DATA_AUDIT_REPORT.md** ⭐⭐⭐
-**When to read:** First  
-**Length:** 14 KB (15 min read)  
-**Contains:**
-- Summary of all 15 unique errors
-- Detailed breakdown of each error
-- Django model requirements
-- Before/after JSON samples
-- Import order recommendations
-
-**Key sections:**
-- 🔴 CRITICAL (12 errors that prevent import)
-- 🟡 WARNINGS (secondary issues)
-- 📋 Error table with priority
-- 💡 Step-by-step fix recommendations
+*Lưu ý: Hệ thống sẽ yêu cầu bạn xác nhận xóa dữ liệu cũ (gõ `yes`). Quá trình này sẽ dọn sạch các bảng hiện tại (ngoại trừ bảng migration) và import toàn bộ dữ liệu sạch từ thư mục `Data_Final_FIXED` theo đúng thứ tự ràng buộc khóa ngoại (Foreign Key).*
 
 ---
 
-### 2. **DATA_FIX_SUMMARY.md**
-**When to read:** After reading comprehensive report  
-**Length:** 6.5 KB (5 min read)  
-**Contains:**
-- Executive summary
-- Results before/after
-- Output files location
-- Import instructions
-- Validation results
+## 🔧 THÔNG TIN CÁC CÔNG CỤ TỰ ĐỘNG HÓA
 
-**Key sections:**
-- Summary table of all fixes
-- Technical changes (JSON diffs)
-- Import checklist
-- Troubleshooting guide
+### 1. `loadData.sh` (Script nạp dữ liệu chính)
+* **Tính năng:**
+  * Kiểm tra môi trường (Python, thư mục dữ liệu).
+  * Kiểm tra tính duy nhất của Seed Data để tránh trùng lặp.
+  * Làm sạch database cũ (sử dụng lệnh `flush` của Django hoặc `TRUNCATE CASCADE` trong SQL).
+  * Chạy script Python `load_seed_data.py` để import dữ liệu sạch.
+  * Tự động đồng bộ hóa PostgreSQL sequences để tránh lỗi trùng ID khi tạo mới dữ liệu sau này.
+  * Hiển thị bảng thống kê dữ liệu sau khi nạp xong.
+* **Tùy chọn:**
+  * `--dry-run`: Mô phỏng quá trình nạp dữ liệu mà không ghi đè vào database thật.
 
----
+### 2. `data_fixer.py` (Script sửa lỗi tự động)
+* **Mục đích:** Quét qua dữ liệu thô ban đầu và tự động sửa các lỗi định dạng, enum, kiểu chữ.
+* **Cách chạy (chỉ khi có dữ liệu thô mới):**
+  ```bash
+  python3 DataSet/data_fixer.py DataSet/Data_Final
+  ```
 
-### 3. **BEFORE_AFTER_COMPARISON.md**
-**When to read:** If you want to see specific record changes  
-**Length:** 11 KB (10 min read)  
-**Contains:**
-- File-by-file before/after JSON
-- Highlighted changes
-- Full JSON records showing exactly what changed
-- Enum value mappings
-
-**Key sections:**
-- Per-file comparisons
-- Sample records with annotations
-- Summary table
+### 3. `data_validator.py` (Script kiểm tra tính hợp lệ)
+* **Mục đích:** Xác minh các tệp JSON đã tuân thủ hoàn toàn cấu hình Django Models.
+* **Cách chạy:**
+  ```bash
+  python3 DataSet/data_validator.py DataSet/Data_Final_FIXED
+  ```
 
 ---
 
-### 4. **COMPREHENSIVE_DATA_AUDIT_REPORT.md** (Original - for reference)
-**When to read:** Only if comparing with previous version  
-**Purpose:** Shows what was missed in original report  
-**Differences from new reports:**
-- Missed 10 critical errors
-- Incomplete VNPay field analysis
-- Missing recruiter status issue
+## 📊 THỐNG KÊ LỖI ĐÃ SỬA (99 LỖI)
+
+| Tên File JSON | Lỗi Trước Khi Sửa | Lỗi Sau Khi Sửa | Trạng Thế |
+| :--- | :---: | :---: | :---: |
+| `transactions.json` | 30 | 0 | ✅ Sạch |
+| `jobs.json` | 24 | 0 | ✅ Sạch |
+| `recruiters.json` | 15 | 0 | ✅ Sạch |
+| `interviews.json` | 10 | 0 | ✅ Sạch |
+| `job_alerts.json` | 10 | 0 | ✅ Sạch |
+| `company_subscriptions.json` | 5 | 0 | ✅ Sạch |
+| `reports.json` | 5 | 0 | ✅ Sạch |
+| **TỔNG CỘNG** | **99** | **0** | **✅ 100% Hoàn hảo** |
 
 ---
 
-## 🔧 AUTOMATION TOOLS
+## 🎓 CÁC LỖI THƯỜNG GẶP TRONG DỮ LIỆU GỐC
 
-### data_fixer.py
-**Purpose:** Automatically fix all data errors  
-**Usage:**
-```bash
-python3 data_fixer.py /path/to/Data_Final
-# Creates Data_Final_FIXED/ with all fixes applied
-```
-
-**Features:**
-- Scans 7 critical files
-- Fixes 99 errors automatically
-- Copies other 53 files unchanged
-- Generates detailed fix report
-
-**Already ran?** Yes, results in `Data_Final_FIXED/`
+Trong quá trình kiểm toán dữ liệu gốc, chúng tôi đã phát hiện và xử lý các nhóm lỗi sau:
+1. **Sai lệch kiểu chữ (Case Sensitivity):** Django enums phân biệt chữ hoa/thường rất nghiêm ngặt (Ví dụ: dữ liệu gốc ghi `SUCCESS`, Django yêu cầu `completed` hoặc dữ liệu gốc ghi `full_time` trong khi model yêu cầu `full-time`).
+2. **Sai tên trường (CamelCase vs snake_case):** Một số tên trường trong file JSON không đồng nhất với Django Model (Ví dụ: `vnp_bankcode` sửa lại thành `vnp_BankCode`).
+3. **Sai giá trị Enum:** Sử dụng các giá trị không nằm trong cấu hình lựa chọn của Django (Ví dụ: sửa đổi trạng thái nhà tuyển dụng từ `actively_looking` thành `active`).
 
 ---
 
-### data_validator.py
-**Purpose:** Verify all data is correct  
-**Usage:**
-```bash
-python3 data_validator.py Data_Final_FIXED
-# Validates all 7 critical files
-```
+## 📞 XỬ LÝ SỰ CỐ (TROUBLESHOOTING)
 
-**Checks:**
-- Enum values are valid
-- Field names are correct
-- No validation errors
-
-**Result:** ✅ ALL 7 FILES VALID
-
----
-
-## 📊 ERROR SUMMARY
-
-### By Severity
-| Type | Count | Files | Impact |
-|------|-------|-------|--------|
-| 🔴 Critical | 15 | 7 | Will fail import |
-| 🟡 Warning | 0 | 0 | May cause issues |
-| 🟢 Info | 0 | 0 | Just FYI |
-
-### By Type
-| Type | Count | Examples |
-|------|-------|----------|
-| Enum value (case) | 6 | "SUCCESS" vs "completed" |
-| Enum value (wrong) | 4 | "gross" vs "monthly" |
-| Field name (CamelCase) | 4 | vnp_bankcode vs vnp_BankCode |
-| Format error | 2 | "full_time" vs "full-time" |
-
-### By File (After Fix)
-| File | Errors Before | Errors After | Status |
-|------|---|---|---|
-| transactions.json | 30 | 0 | ✅ |
-| jobs.json | 24 | 0 | ✅ |
-| recruiters.json | 15 | 0 | ✅ |
-| interviews.json | 10 | 0 | ✅ |
-| job_alerts.json | 10 | 0 | ✅ |
-| company_subscriptions.json | 5 | 0 | ✅ |
-| reports.json | 5 | 0 | ✅ |
-| **TOTAL** | **99** | **0** | **✅ 100% Fixed** |
-
----
-
-## ✅ VALIDATION CHECKLIST
-
-- [x] Phát hiện tất cả lỗi trong 60 JSON files
-- [x] Tạo detailed audit report
-- [x] Tạo automated fixer script
-- [x] Sửa tất cả 99 errors
-- [x] Tạo validation script
-- [x] Xác minh tất cả data là hợp lệ
-- [x] Tạo before/after comparisons
-- [x] Tạo comprehensive documentation
-- [ ] Import vào database (next step - your decision)
-
----
-
-## 🚀 NEXT STEPS
-
-### If data looks good:
-1. Backup current database
-   ```bash
-   pg_dump jobio_db > backup_2026_04_25.sql
-   ```
-
-2. Import fixed data
-   ```bash
-   cd backend
-   python manage.py loaddata ../DataSet/Data_Final_FIXED/*.json
-   ```
-
-3. Verify import
-   ```bash
-   # Check record counts
-   python manage.py shell
-   >>> from apps.recruitment.jobs.models import Job
-   >>> Job.objects.count()  # Should match
-   ```
-
-### If you want to run scripts manually:
-```bash
-# 1. Re-run fixer (if you have updated source data)
-cd /Users/capkimkhanh/Documents/DUT/JOBIO/DataSet
-python3 data_fixer.py Data_Final
-
-# 2. Validate results
-python3 data_validator.py Data_Final_FIXED
-
-# 3. Import to database
-cd ../backend
-python manage.py loaddata ../DataSet/Data_Final_FIXED/*.json
-```
-
----
-
-## 🎓 KEY LEARNINGS
-
-### What We Found
-1. **Case Sensitivity:** Django enum values are strict about case
-   - ❌ "SUCCESS" (uppercase)
-   - ✅ "completed" (lowercase)
-
-2. **Field Names:** Must match Django model exactly
-   - ❌ vnp_bankcode (snake_case)
-   - ✅ vnp_BankCode (CamelCase)
-
-3. **Format Matters:** Even similar values differ
-   - ❌ "full_time" (underscore)
-   - ✅ "full-time" (hyphen)
-
-4. **Enum Values:** Must be from the defined choices
-   - ❌ "actively_looking" (not in model)
-   - ✅ "active" (valid choice)
-
-### Why This Happened
-- Source data from external system (DataSet)
-- Data generated with different Django version/settings
-- No validation before export
-- Manual data entry inconsistencies
-
----
-
-## 📞 TROUBLESHOOTING
-
-### "I see validation errors after import"
-→ Check COMPREHENSIVE_DATA_AUDIT_REPORT.md → Error section
-
-### "Import failed with FK constraint error"
-→ Check DATA_FIX_SUMMARY.md → Import Order section
-
-### "Some files look different"
-→ Check BEFORE_AFTER_COMPARISON.md for exact changes
-
-### "I want to re-run the fixer"
-→ Run: `python3 data_fixer.py /your/data/path`
-
-### "How do I verify the fixes?"
-→ Run: `python3 data_validator.py Data_Final_FIXED`
-
----
-
-## 📌 IMPORTANT NOTES
-
-1. **Original data safe:** Data_Final/ is unchanged
-2. **Backup created:** Data_Final_FIXED/ is your new source
-3. **All 68 files copied:** Including the 53 that needed no fixes
-4. **Ready to import:** No further processing needed
-5. **Scripts reusable:** Can be run on future data
-
----
-
-## 🏆 FINAL STATUS
-
-```
-┌─────────────────────────────────────────┐
-│  ✅ DATA AUDIT COMPLETE & VALIDATED     │
-│                                         │
-│  • 15 unique errors identified          │
-│  • 99 total errors fixed                │
-│  • 7 files corrected                    │
-│  • 100% validation pass rate            │
-│  • Ready for production import          │
-│                                         │
-│  All documentation complete             │
-│  All scripts automated & tested         │
-│  No manual intervention needed          │
-└─────────────────────────────────────────┘
-```
-
----
-
-**Last Updated:** 2026-04-25 14:28:11  
-**Quality Score:** ⭐⭐⭐⭐⭐ 100%  
-**Status:** ✅ READY FOR PRODUCTION
-
+* **Lỗi khóa ngoại (Foreign Key Constraint) khi import thủ công:**
+  * Giải pháp: Hãy sử dụng script `./DataSet/loadData.sh` vì nó đã được thiết lập thứ tự import dữ liệu chuẩn xác để không gây lỗi ràng buộc.
+* **Lỗi trùng khóa chính (Primary Key/ID) khi tạo dữ liệu mới sau khi import:**
+  * Giải pháp: Script `loadData.sh` có bước đồng bộ hóa sequence (`sync_sequences`). Hãy chắc chắn bạn chạy script này để sửa lại bộ đếm ID của PostgreSQL.

@@ -2,12 +2,15 @@ import os
 import sys
 import json
 import inspect
+from datetime import datetime, timezone as datetime_timezone
 
 import django
 from django.apps import apps
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.hashers import identify_hasher, make_password
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 # --- CONFIGURATION CHUẨN BỊ MÔI TRƯỜNG ---
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -220,6 +223,30 @@ def normalize_row(row):
     return {key: repair_mojibake(value) for key, value in dict(row).items()}
 
 
+def parse_seed_datetime(value):
+    if not isinstance(value, str):
+        return value
+
+    parsed = parse_datetime(value)
+    if parsed is None:
+        return value
+
+    if timezone.is_naive(parsed):
+        return timezone.make_aware(parsed, datetime_timezone.utc)
+
+    return parsed
+
+
+def restore_seed_timestamps(model_obj, instance_id, row_data):
+    timestamp_updates = {}
+    for field_name in ("created_at", "updated_at"):
+        if field_name in row_data:
+            timestamp_updates[field_name] = parse_seed_datetime(row_data[field_name])
+
+    if timestamp_updates:
+        model_obj.objects.filter(pk=instance_id).update(**timestamp_updates)
+
+
 def load_content_types(json_file):
     try:
         data = load_json(json_file)
@@ -353,15 +380,17 @@ def load_table(table_name, model_obj, json_file):
                             row_data["password"] = make_password(row_data["password"])
 
                 if record_id is not None:
-                    _, created = model_obj.objects.update_or_create(
+                    instance, created = model_obj.objects.update_or_create(
                         id=record_id, defaults=row_data
                     )
+                    restore_seed_timestamps(model_obj, instance.id, row_data)
                     if created:
                         created_count += 1
                     else:
                         updated_count += 1
                 else:
-                    model_obj.objects.create(**row_data)
+                    instance = model_obj.objects.create(**row_data)
+                    restore_seed_timestamps(model_obj, instance.id, row_data)
                     created_count += 1
 
         print(

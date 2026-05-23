@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from apps.core.users.permissions import IsAdmin
 
 from .models import Address
 from .serializers import (
@@ -29,7 +31,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         if self.action in ["create", "update"]:
             return [IsAuthenticated()]
         elif self.action in ["destroy", "verify"]:
-            return [IsAdminUser()]
+            return [IsAdmin()]
         return [AllowAny()]
 
     def get_queryset(self):

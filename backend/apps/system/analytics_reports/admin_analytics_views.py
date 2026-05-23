@@ -319,12 +319,8 @@ def top_jobs(request):
 
     jobs = (
         Job.objects.select_related("company")
-        .annotate(
-            real_views=Count("views", distinct=True),
-            real_saves=Count("saved_by", distinct=True),
-            real_applications=Count("applications", distinct=True),
-        )
-        .order_by("-real_views", "-real_applications", "-real_saves", "-created_at")[
+        .annotate(real_saves=Count("saved_by", distinct=True))
+        .order_by("-view_count", "-application_count", "-real_saves", "-created_at")[
             :limit
         ]
     )
@@ -337,9 +333,9 @@ def top_jobs(request):
                 "title": job.title,
                 "company": job.company.company_name if job.company else "—",
                 "status": job.status,
-                "views": job.real_views,
+                "views": job.view_count,
                 "saves": job.real_saves,
-                "applications": job.real_applications,
+                "applications": job.application_count,
             }
         )
     return Response(result)

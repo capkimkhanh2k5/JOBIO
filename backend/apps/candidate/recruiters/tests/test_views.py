@@ -238,6 +238,18 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["bio"], "Public Bio")
 
+    def test_public_profile_visible_unauthenticated(self):
+        """Public profile endpoint can be viewed without login."""
+        recruiter = Recruiter.objects.create(
+            user=self.user, bio="Public Bio", is_profile_public=True
+        )
+        self.client.logout()
+
+        response = self.client.get(f"/api/candidates/{recruiter.id}/public_profile/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["bio"], "Public Bio")
+
     def test_public_profile_hidden(self):
         """Test GET /api/candidates/:id/public_profile when profile is private"""
         recruiter2 = Recruiter.objects.create(

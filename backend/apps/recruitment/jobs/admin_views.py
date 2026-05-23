@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Q
+from django.db.models import Avg, Sum, Q
 
 from apps.core.excel import make_excel_response
 from apps.core.users.permissions import IsAdmin
@@ -57,8 +57,12 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
         total_jobs = Job.objects.count()
         active_jobs = Job.objects.filter(status=Job.Status.PUBLISHED).count()
 
-        # Tổng view của tất cả các job
-        total_views = Job.objects.aggregate(total=Sum("view_count"))["total"] or 0
+        view_stats = Job.objects.aggregate(
+            total=Sum("view_count"),
+            average=Avg("view_count"),
+        )
+        total_views = view_stats["total"] or 0
+        avg_views_per_job = view_stats["average"] or 0
 
         # Tổng đơn ứng tuyển
         total_applications = (
@@ -70,6 +74,7 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
                 "total_jobs": total_jobs,
                 "active_jobs": active_jobs,
                 "total_views": total_views,
+                "avg_views_per_job": avg_views_per_job,
                 "total_applications": total_applications,
             }
         )

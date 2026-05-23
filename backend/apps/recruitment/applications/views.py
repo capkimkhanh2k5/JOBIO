@@ -307,6 +307,11 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         POST /api/applications/
         Nộp đơn ứng tuyển
         """
+        if getattr(request.user, "role", None) != "candidate":
+            return Response(
+                {"detail": "Only candidates can apply for jobs"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         recruiter = get_recruiter_by_user(request.user)
         if not recruiter:

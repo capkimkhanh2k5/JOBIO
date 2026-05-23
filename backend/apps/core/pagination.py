@@ -34,7 +34,7 @@ class StandardResultsSetPagination(PageNumberPagination):
         )
 
 
-class SmallResultsSetPagination(PageNumberPagination):
+class SmallResultsSetPagination(StandardResultsSetPagination):
     """
     Pagination cho light-weight endpoints.
     - page_size: 10 items/page
@@ -46,7 +46,7 @@ class SmallResultsSetPagination(PageNumberPagination):
     max_page_size = 50
 
 
-class LargeResultsSetPagination(PageNumberPagination):
+class LargeResultsSetPagination(StandardResultsSetPagination):
     """
     Pagination cho data-heavy endpoints (export, analytics).
     - page_size: 50 items/page
@@ -83,7 +83,7 @@ class JobSearchPagination(PageNumberPagination):
         )
 
 
-class ApplicationPagination(PageNumberPagination):
+class ApplicationPagination(StandardResultsSetPagination):
     """
     Pagination cho Applications list.
     - page_size: 25 applications/page
@@ -94,7 +94,7 @@ class ApplicationPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class NotificationPagination(PageNumberPagination):
+class NotificationPagination(StandardResultsSetPagination):
     """
     Pagination cho Notifications.
     - page_size: 15 notifications/page
@@ -117,7 +117,7 @@ class MessagePagination(CursorPagination):
     cursor_query_param = "cursor"
 
 
-class ReviewPagination(PageNumberPagination):
+class ReviewPagination(StandardResultsSetPagination):
     """
     Pagination cho Company Reviews.
     - page_size: 10 reviews/page
@@ -128,7 +128,7 @@ class ReviewPagination(PageNumberPagination):
     max_page_size = 50
 
 
-class SearchHistoryPagination(PageNumberPagination):
+class SearchHistoryPagination(StandardResultsSetPagination):
     """
     Pagination cho Search History.
     - page_size: 20 items/page
@@ -139,7 +139,7 @@ class SearchHistoryPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class ActivityLogPagination(PageNumberPagination):
+class ActivityLogPagination(StandardResultsSetPagination):
     """
     Pagination cho Activity Logs (Admin).
     - page_size: 50 logs/page

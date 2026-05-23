@@ -3,7 +3,8 @@ from pathlib import Path
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
+from apps.core.users.permissions import IsAdmin, is_admin_user
 
 from .models import CVTemplate
 from .serializers import (
@@ -140,7 +141,7 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         queryset = CVTemplate.objects.select_related("category")
 
         # Admin thấy tất cả, user chỉ thấy active
-        if not self.request.user.is_staff:
+        if not is_admin_user(self.request.user):
             queryset = queryset.filter(is_active=True)
 
         # Filter by category
@@ -174,7 +175,7 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
             from rest_framework.permissions import IsAuthenticated
 
             return [IsAuthenticated()]
-        return [IsAdminUser()]
+        return [IsAdmin()]
 
     @action(detail=False, methods=["get"])
     def categories(self, request):

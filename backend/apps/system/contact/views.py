@@ -20,6 +20,7 @@ def build_gmail_search_url(admin_email: str, sender_email: str, subject: str) ->
 
 
 class ContactRateThrottle(AnonRateThrottle):
+    scope = "contact"
     rate = "3/hour"
 
 

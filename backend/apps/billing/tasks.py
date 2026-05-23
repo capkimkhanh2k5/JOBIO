@@ -143,10 +143,11 @@ def send_payment_confirmation_email_task(transaction_id):
 @shared_task(name="apps.billing.tasks.cleanup_expired_transactions")
 def cleanup_expired_transactions():
     """
-    Quét các giao dịch PENDING quá 30 phút và kiểm tra trạng thái thực tế.
+    Quét các giao dịch PENDING quá hạn và kiểm tra trạng thái thực tế.
     """
 
-    threshold = timezone.now() - timedelta(minutes=5)
+    timeout_minutes = settings.PAYMENT_PENDING_TIMEOUT_MINUTES
+    threshold = timezone.now() - timedelta(minutes=timeout_minutes)
     pending_txns = Transaction.objects.filter(
         status=Transaction.Status.PENDING, created_at__lt=threshold
     )
@@ -190,12 +191,12 @@ def cleanup_expired_transactions():
                     # Giao dịch lỗi hoặc đã bị hủy
                     txn.status = Transaction.Status.FAILED
                     txn.save()
-                elif status == "00" or status == "05":
+                elif status == "05":
                     # Vẫn đang chờ hoặc đang xử lý, giữ nguyên
                     pass
             else:
                 # Không tìm thấy giao dịch trên VNPay hoặc lỗi checksum
-                # Sau 30p mà không thấy thì coi như fail
+                # Quá thời hạn mà không thấy thì coi như fail
                 txn.status = Transaction.Status.FAILED
                 txn.save()
             count += 1

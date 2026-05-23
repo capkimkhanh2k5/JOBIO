@@ -6,6 +6,7 @@ from django.db.models import Count, Sum, Avg, Q
 from .models import FileUpload
 from .serializers import FileUploadSerializer
 from .services.file_uploads import save_upload
+from apps.core.users.permissions import is_admin_user
 
 
 class FileUploadViewSet(viewsets.ModelViewSet):
@@ -22,7 +23,7 @@ class FileUploadViewSet(viewsets.ModelViewSet):
         """
         Người dùng chỉ thấy các file upload của mình trừ khi là admin
         """
-        if self.request.user.is_staff:
+        if is_admin_user(self.request.user):
             queryset = FileUpload.objects.all()
         else:
             queryset = FileUpload.objects.filter(user=self.request.user)

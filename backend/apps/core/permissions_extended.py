@@ -7,6 +7,8 @@ Tập trung hóa tất cả permission logic để tránh inline checks trong vi
 from rest_framework import permissions
 from rest_framework.permissions import SAFE_METHODS
 
+from apps.core.users.permissions import is_admin_user
+
 
 class IsCompanyOwner(permissions.BasePermission):
     """
@@ -146,9 +148,7 @@ class IsAdmin(permissions.BasePermission):
     message = "Chỉ admin mới có quyền thực hiện hành động này."
 
     def has_permission(self, request, view):
-        return bool(
-            request.user and request.user.is_authenticated and request.user.is_staff
-        )
+        return is_admin_user(request.user)
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -162,7 +162,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return bool(request.user and request.user.is_staff)
+        return is_admin_user(request.user)
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
@@ -175,7 +175,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Admin có full quyền
-        if request.user.is_staff:
+        if is_admin_user(request.user):
             return True
 
         # Owner
@@ -222,7 +222,7 @@ class CanModerateReview(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Admin
-        if request.user.is_staff:
+        if is_admin_user(request.user):
             return True
 
         # Company được review
@@ -281,7 +281,7 @@ class IsVerifiedCompanyForWrite(permissions.BasePermission):
         if not user or not user.is_authenticated:
             return False
 
-        if user.is_staff:
+        if is_admin_user(user):
             return True
 
         if getattr(user, "role", None) != "company":

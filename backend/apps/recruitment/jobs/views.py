@@ -571,6 +571,11 @@ class JobViewSet(viewsets.GenericViewSet):
                 {"detail": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        if getattr(request.user, "role", None) != "candidate":
+            return Response(
+                {"detail": "Only candidates can save jobs"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         job = get_job_by_id(pk)
         if not job:
@@ -606,6 +611,11 @@ class JobViewSet(viewsets.GenericViewSet):
                 {"detail": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        if getattr(request.user, "role", None) != "candidate":
+            return Response(
+                {"detail": "Only candidates can unsave jobs"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         job = get_job_by_id(pk)
         if not job:
@@ -634,6 +644,8 @@ class JobViewSet(viewsets.GenericViewSet):
         """
 
         if not request.user.is_authenticated:
+            return Response({"is_saved": False})
+        if getattr(request.user, "role", None) != "candidate":
             return Response({"is_saved": False})
 
         job = get_job_by_id(pk)

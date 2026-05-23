@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from apps.core.users.permissions import is_admin_user
+
 
 class IsCompanyOwner(permissions.BasePermission):
     """
@@ -33,4 +35,4 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             return True
 
         # Write permissions are only allowed to the admin.
-        return bool(request.user and request.user.is_staff)
+        return is_admin_user(request.user)

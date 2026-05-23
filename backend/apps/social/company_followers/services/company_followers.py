@@ -10,6 +10,8 @@ def follow_company_service(user, company_id: int) -> CompanyFollower:
     """
     User (Recruiter) follow một công ty.
     """
+    if getattr(user, "role", None) != "candidate":
+        raise ValueError("Only candidates can follow company.")
     if not hasattr(user, "recruiter_profile"):
         raise ValueError("Only recuiter can follow company.")
 
@@ -35,6 +37,8 @@ def unfollow_company_service(user, company_id: int) -> None:
     """
     User (Recruiter) unfollow một công ty.
     """
+    if getattr(user, "role", None) != "candidate":
+        raise ValueError("Only candidates can unfollow company.")
     if not hasattr(user, "recruiter_profile"):
         raise ValueError("Only recuiter can unfollow company.")
 

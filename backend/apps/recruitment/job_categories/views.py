@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
+from apps.core.users.permissions import IsAdmin, is_admin_user
 
 from .models import JobCategory
 from .serializers import JobCategorySerializer, JobCategoryTreeSerializer
@@ -27,7 +28,7 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
         queryset = JobCategory.objects.select_related("parent")
 
         # Lọc bằng is_active
-        if not self.request.user.is_staff:
+        if not is_admin_user(self.request.user):
             queryset = queryset.filter(is_active=True)
 
         # Lọc bằng parent
@@ -47,7 +48,7 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
         """
         if self.action in ["list", "retrieve", "tree"]:
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsAdmin()]
 
     @action(detail=False, methods=["get"])
     def tree(self, request):

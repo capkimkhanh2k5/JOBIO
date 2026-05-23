@@ -67,7 +67,7 @@ class VNPayService:
         clean_desc = VNPayService._normalize_vnpay_order_info(order_desc)
         create_date = VNPayService._format_vnpay_datetime(timezone.now())
         expire_date = VNPayService._format_vnpay_datetime(
-            timezone.now() + timedelta(minutes=15)
+            timezone.now() + timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES)
         )
 
         try:

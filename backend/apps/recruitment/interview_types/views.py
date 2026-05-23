@@ -1,5 +1,7 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
+
+from apps.core.users.permissions import IsAdmin
 
 from .models import InterviewType
 from .serializers import InterviewTypeSerializer
@@ -30,5 +32,5 @@ class InterviewTypeViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve"]:
             permission_classes = [IsAuthenticated]
         else:
-            permission_classes = [IsAdminUser]
+            permission_classes = [IsAdmin]
         return [permission() for permission in permission_classes]

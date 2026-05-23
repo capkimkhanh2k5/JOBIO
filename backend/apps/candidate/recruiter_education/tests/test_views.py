@@ -60,6 +60,25 @@ class RecruiterEducationViewTest(APITestCase):
             "DUT",
         )
 
+    def test_list_public_education_unauthenticated(self):
+        """Public profiles expose education read endpoints without login."""
+        self.client.logout()
+
+        response = self.client.get(f"/api/candidates/{self.recruiter.id}/education/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["school_name"], "DUT")
+
+    def test_list_private_education_unauthenticated_forbidden(self):
+        """Private profiles do not expose education read endpoints publicly."""
+        self.recruiter.is_profile_public = False
+        self.recruiter.save(update_fields=["is_profile_public"])
+        self.client.logout()
+
+        response = self.client.get(f"/api/candidates/{self.recruiter.id}/education/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_list_education_recruiter_not_found(self):
         """Test GET with non-existent recruiter returns 404"""
         url = "/api/candidates/99999/education/"

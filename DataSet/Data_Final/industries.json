@@ -7,9 +7,9 @@
         "icon_url": "https://example.com/icons/it-product.png",
         "is_active": true,
         "display_order": 1,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-05-01T23:51:37.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-05-02T05:51:37.000Z"
     },
     {
         "id": 2,
@@ -19,9 +19,9 @@
         "icon_url": "https://example.com/icons/it-outsourcing.png",
         "is_active": true,
         "display_order": 2,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-02-27T09:45:08.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-03-01T00:45:08.000Z"
     },
     {
         "id": 3,
@@ -31,9 +31,9 @@
         "icon_url": "https://example.com/icons/fintech.png",
         "is_active": true,
         "display_order": 3,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-05-02T07:39:20.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-05-05T04:39:20.000Z"
     },
     {
         "id": 4,
@@ -43,9 +43,9 @@
         "icon_url": "https://example.com/icons/edtech.png",
         "is_active": true,
         "display_order": 4,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-01-24T06:31:54.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-01-24T16:31:54.000Z"
     },
     {
         "id": 5,
@@ -55,9 +55,9 @@
         "icon_url": "https://example.com/icons/e-commerce.png",
         "is_active": true,
         "display_order": 5,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-03-10T06:32:07.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-03-10T12:32:07.000Z"
     },
     {
         "id": 6,
@@ -67,9 +67,9 @@
         "icon_url": "https://example.com/icons/ai-machine-learning.png",
         "is_active": true,
         "display_order": 6,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-02-28T12:31:27.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-02-28T03:31:27.000Z"
     },
     {
         "id": 7,
@@ -79,8 +79,8 @@
         "icon_url": "https://example.com/icons/blockchain-web3.png",
         "is_active": true,
         "display_order": 7,
-        "created_at": "2026-04-19T02:39:43.866408Z",
+        "created_at": "2026-02-21T01:33:18.000Z",
         "parent_id": null,
-        "updated_at": "2026-04-19T02:39:43.866408Z"
+        "updated_at": "2026-02-22T16:33:18.000Z"
     }
 ]

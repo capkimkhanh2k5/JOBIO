@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .serializers import (
     RecruiterSkillSerializer,
@@ -29,6 +29,11 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
 
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        if self.action in {"list", "retrieve"}:
+            return [AllowAny()]
+        return super().get_permissions()
+
     def get_queryset(self):
         recruiter_id = self.kwargs.get("recruiter_id")
         return list_skills_by_recruiter(recruiter_id)
@@ -54,6 +59,15 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
             )
         return None
 
+    def _check_public_or_owner_permission(self, request, recruiter):
+        if recruiter.is_profile_public:
+            return None
+        if request.user.is_authenticated and recruiter.user == request.user:
+            return None
+        return Response(
+            {"detail": "Profile is not public"}, status=status.HTTP_403_FORBIDDEN
+        )
+
     def list(self, request, recruiter_id=None):
         """
         GET /api/recruiters/:recruiter_id/skills/
@@ -62,6 +76,9 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_public_or_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         queryset = list_skills_by_recruiter(recruiter_id)
         serializer = RecruiterSkillSerializer(queryset, many=True)
@@ -100,6 +117,9 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_public_or_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         skill = get_skill_by_id(pk)
         if not skill:
