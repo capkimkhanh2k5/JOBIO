@@ -14,6 +14,12 @@ urlpatterns = [
         RecruiterCVViewSet.as_view({"post": "generate"}),
         name="cv-generate",
     ),
+    # Upload route (must be before router routes to avoid conflict with <int:pk>/)
+    path(
+        "upload/",
+        RecruiterCVViewSet.as_view({"post": "upload_cv"}),
+        name="cv-upload",
+    ),
     # Router routes
     path("", include(router.urls)),
     # Extended routes (detail actions)

@@ -43,6 +43,26 @@ export const cvService = {
     });
   },
 
+  /** Upload a PDF file directly as a CV_Upload (backend: upload endpoint) */
+  uploadPdfFile(candidateId: number, file: File, cvName?: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (cvName) formData.append('cv_name', cvName);
+    return api.post<CandidateCV>(
+      `/api/candidates/${candidateId}/cvs/upload/`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+  },
+
+  /** Save a CV_Template as PDF (force regenerate) */
+  savePdf(candidateId: number, cvId: number) {
+    return api.post<{ download_url: string; format: string; message: string }>(
+      `/api/candidates/${candidateId}/cvs/${cvId}/download/`,
+      { force: true }
+    );
+  },
+
   /** Set as default CV */
   setDefault(candidateId: number, cvId: number) {
     return api.patch(`/api/candidates/${candidateId}/cvs/${cvId}/default/`);

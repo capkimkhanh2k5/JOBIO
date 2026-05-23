@@ -10,21 +10,26 @@ import {
     ChevronUp,
     Clock,
     Code,
+    Download,
     FileText,
     FolderOpen,
     Globe,
     GraduationCap,
     LinkIcon,
+    Loader2,
+    Pencil,
     Plus,
     Save,
     Trash2,
     User,
     Wand2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
 import { taxonomyService } from '@/services/taxonomyService';
 import { AutoSaveStatus, CVItem } from '@/pages/candidate/CVManager';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Command,
     CommandEmpty,
@@ -46,6 +51,8 @@ interface Props {
     autoSaveStatus: AutoSaveStatus;
     onFieldChange: (field: string, value: any) => void;
     selectedCV: CVItem | null;
+    candidateId?: number;
+    onCvUrlUpdated?: (url: string) => void;
 }
 
 interface SuggestionOption {
@@ -266,8 +273,13 @@ export function CVBuilder({
     autoSaveStatus,
     onFieldChange,
     selectedCV,
+    candidateId,
+    onCvUrlUpdated,
 }: Props) {
     const [isTemplateExpanded, setIsTemplateExpanded] = useState(false);
+    const [isRenaming, setIsRenaming] = useState(false);
+    const [renameValue, setRenameValue] = useState('');
+    const [isSavingPdf, setIsSavingPdf] = useState(false);
 
     const { data: templates = [], isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates'],
@@ -367,6 +379,20 @@ export function CVBuilder({
         [cvData, getArr, onFieldChange]
     );
 
+    const handleSavePdf = async () => {
+        if (!selectedCV || !candidateId) return;
+        setIsSavingPdf(true);
+        try {
+            const res = await cvService.savePdf(candidateId, Number(selectedCV.id));
+            onCvUrlUpdated?.(res.data.download_url);
+            toast.success('Đã lưu PDF thành công', { duration: 3000 });
+        } catch {
+            toast.error('Lưu PDF thất bại. Vui lòng thử lại.');
+        } finally {
+            setIsSavingPdf(false);
+        }
+    };
+
     if (!selectedCV) {
         return (
             <div className="flex h-full flex-col items-center justify-center p-8 text-center">
@@ -385,11 +411,96 @@ export function CVBuilder({
         );
     }
 
+    // CV_Upload: has cv_url but no template_id — show read-only view with rename option
+    const isUploadedCv = !selectedCV.template_id && !!selectedCV.cv_url;
+
+    if (isUploadedCv) {
+        const handleRenameStart = () => {
+            setRenameValue(selectedCV.cv_name);
+            setIsRenaming(true);
+        };
+
+        const handleRenameConfirm = () => {
+            const trimmed = renameValue.trim();
+            if (trimmed && trimmed !== selectedCV.cv_name) {
+                onFieldChange('cv_name', trimmed);
+            }
+            setIsRenaming(false);
+        };
+
+        const handleRenameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Enter') handleRenameConfirm();
+            if (e.key === 'Escape') setIsRenaming(false);
+        };
+
+        return (
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center gap-4">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50"
+                >
+                    <FileText className="h-8 w-8 text-blue-400" />
+                </motion.div>
+
+                <div className="flex flex-col items-center gap-1">
+                    {isRenaming ? (
+                        <div className="flex items-center gap-2">
+                            <Input
+                                autoFocus
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onBlur={handleRenameConfirm}
+                                onKeyDown={handleRenameKeyDown}
+                                className="h-8 text-sm font-semibold text-slate-700 text-center w-56"
+                            />
+                        </div>
+                    ) : (
+                        <h3 className="text-lg font-bold text-slate-700">{selectedCV.cv_name}</h3>
+                    )}
+                    <p className="text-sm text-muted-foreground max-w-xs">
+                        CV được tải lên từ file PDF — không thể chỉnh sửa nội dung
+                    </p>
+                </div>
+
+                {!isRenaming && (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRenameStart}
+                        className="gap-2"
+                    >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Đổi tên
+                    </Button>
+                )}
+            </div>
+        );
+    }
+
     const currentTemplate = templates.find((template: any) => String(template.id) === String(selectedTemplateId));
 
     return (
         <div className="space-y-4 p-5">
-            <div className="flex h-5 items-center justify-end">
+            <div className="flex h-5 items-center justify-between">
+                <div>
+                    {!isUploadedCv && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleSavePdf}
+                            disabled={isSavingPdf}
+                            className="gap-2 h-7 text-xs"
+                        >
+                            {isSavingPdf ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                                <Download className="h-3.5 w-3.5" />
+                            )}
+                            {isSavingPdf ? 'Đang lưu...' : 'Lưu PDF'}
+                        </Button>
+                    )}
+                </div>
                 <AnimatePresence mode="wait">
                     {autoSaveStatus === 'saving' && (
                         <motion.span

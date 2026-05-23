@@ -10,7 +10,8 @@ import { useUserStore } from '@/store/userStore';
 interface Props {
     cvId: string | null;
     cvName: string;
-    templateId: string;
+    templateId: string | null;  // null for CV_Upload
+    cvUrl?: string | null;       // URL of uploaded PDF for CV_Upload
     previewKey?: number; // increments from parent when data is saved → triggers re-fetch
 }
 
@@ -26,10 +27,13 @@ function CVIframe({ html, style }: { html: string; style?: React.CSSProperties }
 }
 
 // ─── Fullscreen modal ─────────────────────────────────────────────────────────
-function CVFullscreenModal({ cvName, html, templateName, onClose }: {
-    cvName: string; html: string; templateName?: string; onClose: () => void;
+function CVFullscreenModal({ cvName, html, cvUrl, isUploadedCv, templateName, onClose }: {
+    cvName: string; html?: string | null; cvUrl?: string | null; isUploadedCv?: boolean; templateName?: string; onClose: () => void;
 }) {
+    const [pdfError, setPdfError] = useState(false);
+
     const handlePrint = () => {
+        if (!html) return;
         const win = window.open('', '_blank', 'width=900,height=700');
         if (!win) return;
         win.document.write(html);
@@ -44,6 +48,64 @@ function CVFullscreenModal({ cvName, html, templateName, onClose }: {
         return () => document.removeEventListener('keydown', onKey);
     }, [onClose]);
 
+    // PDF mode for CV_Upload
+    if (isUploadedCv && cvUrl) {
+        const cleanUrl = cvUrl.split('#')[0];
+        const iframeSrc = `${cleanUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] flex flex-col"
+                style={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }}
+            >
+                <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center shadow-md">
+                            <FileText className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-white">{cvName || 'Xem trước CV'}</p>
+                            <p className="text-[11px] text-white/50">PDF Upload · Bản in đầy đủ</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline"
+                            className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white gap-1.5 h-8 cursor-pointer"
+                            onClick={() => window.open(cvUrl, '_blank')}>
+                            <Printer className="w-3.5 h-3.5" /> Mở tab mới
+                        </Button>
+                        <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center transition-colors cursor-pointer">
+                            <X className="w-4 h-4 text-white" />
+                        </button>
+                    </div>
+                </div>
+                <div className="flex-1 overflow-hidden flex justify-center items-start py-6 px-4">
+                    {pdfError ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-4">
+                            <AlertCircle className="w-10 h-10 text-red-400" />
+                            <p className="text-sm text-red-400 font-medium">Không thể tải file PDF</p>
+                            <Button size="sm" variant="outline"
+                                className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white gap-1.5"
+                                onClick={() => window.open(cvUrl, '_blank')}>
+                                Mở trong tab mới
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="bg-white shadow-2xl rounded overflow-hidden" style={{ width: '210mm', height: 'calc(90vh - 80px)' }}>
+                            <iframe src={iframeSrc} className="w-full h-full border-none" title="CV PDF Preview" onError={() => setPdfError(true)} />
+                        </div>
+                    )}
+                </div>
+                <div className="text-center py-3 shrink-0">
+                    <p className="text-[11px] text-white/30">Nhấn <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/50 font-mono text-[10px]">Esc</kbd> để đóng</p>
+                </div>
+            </motion.div>
+        );
+    }
+
+    // HTML mode for CV_Template
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -90,7 +152,7 @@ function CVFullscreenModal({ cvName, html, templateName, onClose }: {
                              flexShrink: 0,
                              marginBottom: '-50mm'
                          }}>
-                        <CVIframe html={html} style={{ height: '100%', display: 'block' }} />
+                        <CVIframe html={html || ''} style={{ height: '100%', display: 'block' }} />
                     </div>
                 </motion.div>
             </div>
@@ -104,10 +166,42 @@ function CVFullscreenModal({ cvName, html, templateName, onClose }: {
     );
 }
 
+// ─── PDF iframe preview (for CV_Upload) ──────────────────────────────────────
+function PdfIframePreview({ url }: { url: string }) {
+    const [error, setError] = useState(false);
+    const [key, setKey] = useState(0);
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+                <AlertCircle className="w-8 h-8 text-red-400" />
+                <p className="text-sm text-red-500">Không thể tải file PDF. Vui lòng thử lại.</p>
+                <Button size="sm" variant="outline" onClick={() => { setError(false); setKey(k => k + 1); }} className="cursor-pointer">
+                    Thử lại
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <iframe
+            key={key}
+            src={url}
+            className="w-full h-full border-none"
+            title="CV PDF Preview"
+            onError={() => setError(true)}
+        />
+    );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
-export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Props) {
+export function CVLivePreview({ cvId, cvName, templateId, cvUrl, previewKey = 0 }: Props) {
     const { user } = useUserStore();
     const candidateId = user?.candidate_id;
+
+    // CV_Upload: no template, but has a cv_url (uploaded PDF)
+    // CV_Template: has templateId (even if cv_url is also set after saving PDF)
+    const isUploadedCv = !templateId && !!cvUrl;
 
     const [html, setHtml] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -118,6 +212,8 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
     const [zoom, setZoom] = useState(0.58); // default zoom
 
     const fetchPreview = useCallback(async () => {
+        // CV_Upload: no need to fetch HTML preview
+        if (isUploadedCv) return;
         if (!cvId || !candidateId) return;
         const cvIdNum = parseInt(cvId, 10);
         const candidateIdNum = candidateId;
@@ -134,7 +230,7 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
         } finally {
             setLoading(false);
         }
-    }, [cvId, candidateId, refreshKey, previewKey]); // previewKey triggers on auto-save
+    }, [cvId, candidateId, refreshKey, previewKey, isUploadedCv]); // previewKey triggers on auto-save
 
     useEffect(() => { fetchPreview(); }, [fetchPreview]);
 
@@ -176,7 +272,7 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
                         className="w-7 h-7 rounded hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-40">
                         <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? 'animate-spin text-violet-500' : ''}`} />
                     </button>
-                    <button onClick={() => setFullscreen(true)} disabled={!cvId || !html} title="Xem toàn màn hình"
+                    <button onClick={() => setFullscreen(true)} disabled={!cvId || (!html && !isUploadedCv)} title="Xem toàn màn hình"
                         className="w-7 h-7 rounded hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer disabled:opacity-40">
                         <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
                     </button>
@@ -189,6 +285,11 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
                     <div className="flex flex-col items-center justify-center h-full text-center gap-2">
                         <Lock className="w-8 h-8 text-slate-300" />
                         <p className="text-sm text-slate-400">Chọn CV để xem trước</p>
+                    </div>
+                ) : isUploadedCv ? (
+                    // CV_Upload: render PDF iframe
+                    <div className="w-full h-full min-h-[600px] bg-white rounded-lg shadow-sm overflow-hidden">
+                        <PdfIframePreview url={cvUrl!} />
                     </div>
                 ) : loading ? (
                     <div className="bg-white rounded-lg p-6 shadow space-y-3">
@@ -228,9 +329,8 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
                 ) : null}
             </div>
 
-            {/* Bottom CTA */}
             <div className="px-4 py-3 border-t border-slate-200 bg-white shrink-0">
-                <Button onClick={() => setFullscreen(true)} disabled={!cvId || !html}
+                <Button onClick={() => setFullscreen(true)} disabled={!cvId || (!html && !isUploadedCv)}
                     className="w-full bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 gap-2 cursor-pointer">
                     <Maximize2 className="w-4 h-4" /> Xem bản in đầy đủ
                 </Button>
@@ -238,8 +338,15 @@ export function CVLivePreview({ cvId, cvName, templateId, previewKey = 0 }: Prop
 
             {createPortal(
                 <AnimatePresence>
-                    {fullscreen && html && (
-                        <CVFullscreenModal cvName={cvName} html={html} templateName={templateName} onClose={() => setFullscreen(false)} />
+                    {fullscreen && (
+                        <CVFullscreenModal
+                            cvName={cvName}
+                            html={html}
+                            cvUrl={cvUrl}
+                            isUploadedCv={isUploadedCv}
+                            templateName={templateName}
+                            onClose={() => setFullscreen(false)}
+                        />
                     )}
                 </AnimatePresence>,
                 document.body

@@ -18,7 +18,7 @@ from apps.company.companies.utils.cloudinary import save_raw_file
 @transaction.atomic
 def set_cv_as_default(cv: RecruiterCV) -> RecruiterCV:
     """
-    Đặt CV làm mặc định (reset các CV khác).
+    Äáº·t CV lÃ m máº·c Ä‘á»‹nh (reset cÃ¡c CV khÃ¡c).
     """
     RecruiterCV.objects.filter(recruiter=cv.recruiter, is_default=True).exclude(
         id=cv.id
@@ -174,14 +174,55 @@ def render_cv_to_html(cv: RecruiterCV) -> str:
     return html_string
 
 
+# Mapping from browser template filename â†’ WeasyPrint-compatible PDF template
+_PDF_TEMPLATE_MAP = {
+    "modern.html": "cv/pdf/modern_pdf.html",
+    "ATS_Prime.html": "cv/pdf/ATS_Prime_pdf.html",
+    "editorialBold.html": "cv/pdf/editorialBold_pdf.html",
+    "modernHybird.html": "cv/pdf/modernHybird_pdf.html",
+    "modernHybird2.html": "cv/pdf/modernHybird2_pdf.html",
+    "modernLuxury.html": "cv/pdf/modernLuxury_pdf.html",
+}
+
+
+def render_cv_to_pdf_html(cv: RecruiterCV) -> str:
+    """
+    Render CV data to a WeasyPrint-compatible HTML string.
+    Uses dedicated PDF templates (no Tailwind CDN, no Google Fonts CDN).
+    Falls back to the browser template if no PDF template exists.
+    """
+    file_name = cv.template.file_name if cv.template else None
+
+    # Use dedicated PDF template if available
+    if file_name and file_name in _PDF_TEMPLATE_MAP:
+        template_name = _PDF_TEMPLATE_MAP[file_name]
+    elif file_name:
+        # Fallback: try pdf/<name>_pdf.html
+        pdf_name = file_name.replace(".html", "_pdf.html")
+        template_name = f"cv/pdf/{pdf_name}"
+        # Check if it exists, otherwise use browser template
+        from django.template.loader import get_template
+        from django.template import TemplateDoesNotExist
+
+        try:
+            get_template(template_name)
+        except TemplateDoesNotExist:
+            template_name = f"cv/{file_name}"
+    else:
+        template_name = "cv/modern.html"
+
+    context = {"data": cv.cv_data, "cv": cv}
+    return render_to_string(template_name, context)
+
+
 def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dict:
     """
     Generate PDF for CV using WeasyPrint.
+    Uses dedicated WeasyPrint-compatible PDF templates (no Tailwind CDN, no Google Fonts CDN).
     Uploads to Cloudinary and returns URL.
     """
     # Use cached URL if exists and not forced
     if cv.cv_url and not force_regenerate:
-        # Increment download count
         cv.download_count += 1
         cv.save(update_fields=["download_count"])
         return {
@@ -191,12 +232,12 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
         }
 
     try:
-        html_string = render_to_string("cv/modern.html", {"data": cv.cv_data})
         import weasyprint
 
-        pdf_file = weasyprint.HTML(string=html_string).write_pdf()
-        content_file = ContentFile(pdf_file, name=f"{cv.cv_name}.pdf")
-
+        # Use PDF-specific template -- no external CDN dependencies
+        html_string = render_cv_to_pdf_html(cv)
+        pdf_bytes = weasyprint.HTML(string=html_string).write_pdf()
+        content_file = ContentFile(pdf_bytes, name=f"{cv.cv_name}.pdf")
         try:
             cv_url = save_raw_file("CVs", content_file, f"cv_{cv.id}")
         except Exception:
@@ -204,7 +245,6 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
     except Exception:
         cv_url = f"/media/generated/cv_{cv.id}.pdf"
 
-    # Update CV
     cv.cv_url = cv_url
     cv.download_count += 1
     cv.save(update_fields=["cv_url", "download_count"])
@@ -215,6 +255,7 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
 def generate_cv_preview(cv: RecruiterCV) -> dict:
     """
     Return HTML for preview using the CV's associated template.
+    For CV_Upload (template=None, cv_url set), returns an HTML page embedding the PDF.
     """
     cv.view_count += 1
     cv.save(update_fields=["view_count"])
@@ -228,10 +269,45 @@ def generate_cv_preview(cv: RecruiterCV) -> dict:
 
 
 @transaction.atomic
+def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
+    """
+    Upload file PDF lÃªn Cloudinary vÃ  táº¡o RecruiterCV má»›i (CV_Upload).
+
+    Args:
+        recruiter: Recruiter instance thá»±c hiá»‡n upload.
+        file: File object (InMemoryUploadedFile hoáº·c tÆ°Æ¡ng tá»±) chá»©a ná»™i dung PDF.
+        cv_name: TÃªn CV tÃ¹y chá»n. Náº¿u khÃ´ng cung cáº¥p, dÃ¹ng tÃªn file gá»‘c bá» pháº§n má»Ÿ rá»™ng .pdf.
+
+    Returns:
+        RecruiterCV instance vá»«a Ä‘Æ°á»£c táº¡o (CV_Upload).
+    """
+    # Upload lÃªn Cloudinary
+    content_file = ContentFile(file.read(), name=file.name)
+    cv_url = save_raw_file("CVs", content_file, f"cv_upload_{recruiter.id}")
+
+    # TÃªn CV: dÃ¹ng cv_name náº¿u cÃ³, ngÆ°á»£c láº¡i dÃ¹ng tÃªn file gá»‘c bá» pháº§n má»Ÿ rá»™ng .pdf
+    if not cv_name:
+        cv_name = file.name
+        if cv_name.lower().endswith(".pdf"):
+            cv_name = cv_name[:-4]
+
+    cv = RecruiterCV.objects.create(
+        recruiter=recruiter,
+        template=None,
+        cv_name=cv_name,
+        cv_data={},
+        cv_url=cv_url,
+        is_default=False,
+        is_public=True,
+    )
+    return cv
+
+
+@transaction.atomic
 def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
     """
-    Tự động tạo CV từ recruiter profile với đầy đủ dữ liệu.
-    Fetch từ: skills, education, experience, certifications, projects, languages
+    Tá»± Ä‘á»™ng táº¡o CV tá»« recruiter profile vá»›i Ä‘áº§y Ä‘á»§ dá»¯ liá»‡u.
+    Fetch tá»«: skills, education, experience, certifications, projects, languages
     """
 
     # Get template

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<title>{{ data.personal.full_name|default:"CV" }}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+@page { size: A4; margin: 0; }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+    color: #333;
+    background: white;
+    width: 210mm;
+    min-height: 297mm;
+    line-height: 1.5;
+}
+.container {
+    display: flex;
+    min-height: 297mm;
+    width: 210mm;
+}
+/* Sidebar */
+.sidebar {
+    width: 67mm;
+    background-color: #f4f6f8;
+    padding: 24pt 16pt;
+    border-right: 0.5pt solid #e0e0e0;
+    flex-shrink: 0;
+}
+.avatar-wrap {
+    width: 80pt;
+    height: 80pt;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2pt solid white;
+    background-color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16pt;
+}
+.avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-placeholder { font-size: 28pt; color: #94a3b8; }
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 7pt;
+    font-size: 8pt;
+    word-break: break-all;
+}
+.contact-icon { margin-right: 6pt; flex-shrink: 0; }
+.section-title-side {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10pt;
+    margin-bottom: 10pt;
+    border-bottom: 1.5pt solid #333;
+    padding-bottom: 4pt;
+    margin-top: 18pt;
+}
+.skill-item { margin-bottom: 8pt; }
+.skill-name { font-weight: 600; font-size: 8.5pt; }
+.skill-bar-bg {
+    height: 4pt;
+    background: #ddd;
+    border-radius: 2pt;
+    margin-top: 3pt;
+}
+.skill-bar-fill { height: 100%; background: #333; border-radius: 2pt; }
+.lang-item { font-size: 8.5pt; margin-bottom: 5pt; }
+/* Main */
+.main {
+    flex: 1;
+    padding: 28pt 22pt;
+}
+.header-name {
+    font-size: 22pt;
+    font-weight: 800;
+    color: #2c3e50;
+    text-transform: uppercase;
+    margin-bottom: 3pt;
+    line-height: 1.1;
+}
+.header-position {
+    font-size: 12pt;
+    color: #7f8c8d;
+    font-weight: 500;
+    margin-bottom: 14pt;
+}
+.summary {
+    font-size: 8.5pt;
+    color: #444;
+    margin-bottom: 18pt;
+    line-height: 1.6;
+}
+.section { margin-bottom: 16pt; }
+.section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #2c3e50;
+    border-bottom: 1.5pt solid #2c3e50;
+    padding-bottom: 4pt;
+    margin-bottom: 10pt;
+    text-transform: uppercase;
+}
+.item { margin-bottom: 10pt; }
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2pt;
+}
+.item-title { font-weight: 700; font-size: 9.5pt; }
+.item-subtitle { font-style: italic; color: #555; font-size: 8.5pt; }
+.item-date { color: #777; font-size: 7.5pt; white-space: nowrap; }
+.item-desc { font-size: 8pt; margin-top: 3pt; color: #444; line-height: 1.5; }
+.chip {
+    display: inline-block;
+    background: #eee;
+    padding: 1pt 5pt;
+    border-radius: 2pt;
+    font-size: 7.5pt;
+    margin-right: 3pt;
+    margin-bottom: 3pt;
+}
+.placeholder { color: #94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="avatar-wrap">
+            {% if data.personal.avatar_url %}
+            <img src="{{ data.personal.avatar_url }}" alt="Avatar"/>
+            {% else %}
+            <span class="avatar-placeholder">👤</span>
+            {% endif %}
+        </div>
+
+        <div class="contact-item"><span class="contact-icon">✉</span><span>{% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="placeholder">Email</span>{% endif %}</span></div>
+        <div class="contact-item"><span class="contact-icon">☎</span><span>{% if data.personal.phone %}{{ data.personal.phone }}{% else %}<span class="placeholder">Số điện thoại</span>{% endif %}</span></div>
+        {% if data.links %}
+            {% if data.links.linkedin %}<div class="contact-item"><span class="contact-icon">in</span><span>{{ data.links.linkedin }}</span></div>{% endif %}
+            {% if data.links.github %}<div class="contact-item"><span class="contact-icon">&lt;/&gt;</span><span>{{ data.links.github }}</span></div>{% endif %}
+            {% if data.links.portfolio %}<div class="contact-item"><span class="contact-icon">🌐</span><span>{{ data.links.portfolio }}</span></div>{% endif %}
+        {% endif %}
+
+        <div class="section-title-side">Kỹ năng</div>
+        {% if data.skills %}
+        {% for skill in data.skills %}
+        <div class="skill-item">
+            <div class="skill-name">{% if skill.name %}{{ skill.name }}{% elif skill.skill_name %}{{ skill.skill_name }}{% endif %}</div>
+            <div class="skill-bar-bg">
+                {% if skill.proficiency_level == 'expert' %}<div class="skill-bar-fill" style="width:100%"></div>
+                {% elif skill.proficiency_level == 'advanced' %}<div class="skill-bar-fill" style="width:75%"></div>
+                {% elif skill.proficiency_level == 'intermediate' %}<div class="skill-bar-fill" style="width:50%"></div>
+                {% else %}<div class="skill-bar-fill" style="width:25%"></div>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="section-title-side">Ngôn ngữ</div>
+        {% if data.languages %}
+        {% for lang in data.languages %}
+        <div class="lang-item">{{ lang.name }}{% if lang.proficiency_level %} — {{ lang.proficiency_level }}{% endif %}</div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="header-name">{% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}</div>
+        <div class="header-position">{% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="placeholder">Vị trí / Chức danh</span>{% endif %}</div>
+        {% if data.personal.bio %}<p class="summary">{{ data.personal.bio }}</p>{% endif %}
+
+        {% if data.experience %}
+        <div class="section">
+            <div class="section-title">Kinh nghiệm làm việc</div>
+            {% for exp in data.experience %}
+            <div class="item">
+                <div class="item-header">
+                    <span class="item-title">{% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}</span>
+                    <span class="item-date">{% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %} - {% if exp.is_current %}Hiện tại{% elif exp.end_date %}{{ exp.end_date|slice:":7" }}{% endif %}</span>
+                </div>
+                <div class="item-subtitle">{% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% endif %}</div>
+                {% if exp.description %}<div class="item-desc">{{ exp.description|linebreaksbr }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.education %}
+        <div class="section">
+            <div class="section-title">Học vấn</div>
+            {% for edu in data.education %}
+            <div class="item">
+                <div class="item-header">
+                    <span class="item-title">{% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% endif %}</span>
+                    <span class="item-date">{% if edu.start_date %}{{ edu.start_date|slice:":7" }}{% endif %} - {% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}</span>
+                </div>
+                <div class="item-subtitle">{{ edu.degree }}{% if edu.field_of_study %} - {{ edu.field_of_study }}{% endif %}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.projects %}
+        <div class="section">
+            <div class="section-title">Dự án</div>
+            {% for proj in data.projects %}
+            <div class="item">
+                <div class="item-header">
+                    <span class="item-title">{% if proj.name %}{{ proj.name }}{% elif proj.project_name %}{{ proj.project_name }}{% endif %}</span>
+                    <span class="item-date">{% if proj.start_date %}{{ proj.start_date|slice:":7" }}{% endif %}{% if proj.end_date %} - {{ proj.end_date|slice:":7" }}{% endif %}</span>
+                </div>
+                {% if proj.description %}<div class="item-desc">{{ proj.description }}</div>{% endif %}
+                {% if proj.technologies %}
+                <div style="margin-top:4pt;">{% for tech in proj.technologies %}<span class="chip">{{ tech }}</span>{% endfor %}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if data.certifications %}
+        <div class="section">
+            <div class="section-title">Chứng chỉ</div>
+            {% for cert in data.certifications %}
+            <div class="item">
+                <div class="item-header">
+                    <span class="item-title">{{ cert.name }}</span>
+                    <span class="item-date">{{ cert.issue_date|default:""|slice:":7" }}</span>
+                </div>
+                <div class="item-subtitle">{{ cert.issuing_organization }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

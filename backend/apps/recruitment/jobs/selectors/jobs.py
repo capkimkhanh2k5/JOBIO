@@ -377,14 +377,31 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
     if not cv or not recruiter or not job:
         return 0
 
-    cv_data = _normalize_cv_data(getattr(cv, "cv_data", {}) or {})
-    personal = (
-        cv_data.get("personal", {})
-        if isinstance(cv_data.get("personal", {}), dict)
-        else {}
+    # CV_Upload: template is None and cv_data is empty — use recruiter profile
+    is_cv_upload = getattr(cv, "template", None) is None and not getattr(
+        cv, "cv_data", None
     )
-    candidate_position = personal.get("current_position", "") or ""
-    cv_skill_names = _cv_skill_tokens(cv_data)
+
+    if is_cv_upload:
+        from apps.candidate.recruiter_skills.models import RecruiterSkill
+
+        candidate_position = getattr(recruiter, "current_position", "") or ""
+        profile_skills = RecruiterSkill.objects.filter(
+            recruiter=recruiter
+        ).select_related("skill")
+        cv_skill_names = set()
+        for rs in profile_skills:
+            if rs.skill and rs.skill.name:
+                cv_skill_names.update(_tokenize(rs.skill.name))
+    else:
+        cv_data = _normalize_cv_data(getattr(cv, "cv_data", {}) or {})
+        personal = (
+            cv_data.get("personal", {})
+            if isinstance(cv_data.get("personal", {}), dict)
+            else {}
+        )
+        candidate_position = personal.get("current_position", "") or ""
+        cv_skill_names = _cv_skill_tokens(cv_data)
 
     title_score = _title_similarity_score(candidate_position, job.title)
     salary_score = _salary_match_score(
@@ -417,23 +434,40 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
       - Salary match      30%: so sánh desired_salary của recruiter với job salary
       - Skill match       30%: so sánh cv_data.skills với job skills
 
+    Với CV_Upload (template=None, cv_data={}): dùng profile data của recruiter thay thế.
+
     Trả về list of dict: [{'job': Job, 'match_score': int, 'match_reasons': list[str]}, ...]
     """
     from apps.candidate.recruiter_cvs.models import RecruiterCV
+    from apps.candidate.recruiter_skills.models import RecruiterSkill
 
     try:
         cv = RecruiterCV.objects.get(id=cv_id, recruiter=recruiter)
     except RecruiterCV.DoesNotExist:
         return []
 
-    cv_data = _normalize_cv_data(cv.cv_data or {})
-    personal = cv_data.get("personal", {})
-    if not isinstance(personal, dict):
-        personal = {}
-    candidate_position = personal.get("current_position", "") or ""
+    # Detect CV_Upload: template is None and cv_data is empty
+    is_cv_upload = cv.template is None and not cv.cv_data
 
-    # ----- Extract CV skills -----
-    cv_skill_names = _cv_skill_tokens(cv_data)
+    if is_cv_upload:
+        # Use recruiter profile data instead of empty cv_data
+        candidate_position = getattr(recruiter, "current_position", "") or ""
+
+        # Get skills from RecruiterSkill profile
+        profile_skills = RecruiterSkill.objects.filter(
+            recruiter=recruiter
+        ).select_related("skill")
+        cv_skill_names = set()
+        for rs in profile_skills:
+            if rs.skill and rs.skill.name:
+                cv_skill_names.update(_tokenize(rs.skill.name))
+    else:
+        cv_data = _normalize_cv_data(cv.cv_data or {})
+        personal = cv_data.get("personal", {})
+        if not isinstance(personal, dict):
+            personal = {}
+        candidate_position = personal.get("current_position", "") or ""
+        cv_skill_names = _cv_skill_tokens(cv_data)
 
     # ----- Get all published jobs -----
     jobs = (
