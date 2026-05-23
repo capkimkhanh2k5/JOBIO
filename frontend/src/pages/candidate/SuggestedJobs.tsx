@@ -198,7 +198,14 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
                                         <p className="text-sm font-bold text-slate-800 truncate">{cv.cv_name}</p>
                                         {cv.is_default && <Star className="w-3 h-3 text-amber-500 fill-amber-400 shrink-0" />}
                                     </div>
-                                    <p className="text-[11px] text-muted-foreground truncate font-medium">{cv.template_name}</p>
+                                    <p className="text-[11px] text-muted-foreground truncate font-medium">
+                                        {cv.template_id ? cv.template_name : (
+                                            <span className="text-blue-500 font-semibold">PDF Upload</span>
+                                        )}
+                                    </p>
+                                    {!cv.template_id && cv.cv_url && (
+                                        <p className="text-[10px] text-slate-400 mt-0.5">Gợi ý dựa trên hồ sơ</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -284,7 +291,9 @@ export default function SuggestedJobs() {
                     <PageHeader
                         title="Việc làm gợi ý"
                         description={selectedCV 
-                            ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
+                            ? selectedCV.template_id
+                                ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
+                                : `Dựa trên hồ sơ của bạn (CV "${selectedCV.cv_name}" là PDF upload)`
                             : "Chọn một CV để xem những việc làm phù hợp nhất"
                         }
                         icon={Sparkles}

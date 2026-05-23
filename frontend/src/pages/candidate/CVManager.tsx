@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Sparkles, FileText, Lightbulb } from 'lucide-react';
+import { Plus, Sparkles, FileText, Lightbulb, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
 import api from '@/services/api';
@@ -18,7 +18,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 export interface CVItem {
     id: string;
     cv_name: string;
-    template_id: string;
+    template_id: string | null;   // null for CV_Upload
     template_name: string;
     is_default: boolean;
     is_public: boolean;
@@ -26,6 +26,7 @@ export interface CVItem {
     download_count: number;
     updated_at: string;
     thumbnail_url?: string;
+    cv_url?: string | null;        // URL of uploaded PDF for CV_Upload
 }
 
 export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
@@ -42,6 +43,44 @@ export default function CVManager() {
     const [autoSaveStatus, setAutoSaveStatus] = useState<AutoSaveStatus>('idle');
     const [previewKey, setPreviewKey] = useState(0); // increments after save to trigger preview refresh
     const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // ── Upload handlers ───────────────────────────────────────────────────────
+    const handleUploadClick = () => fileInputRef.current?.click();
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Client-side validation: type must be application/pdf
+        if (file.type !== 'application/pdf') {
+            toast.error('Chỉ chấp nhận file PDF');
+            e.target.value = '';
+            return;
+        }
+
+        // Client-side validation: size must not exceed 10MB
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('Kích thước file không được vượt quá 10MB');
+            e.target.value = '';
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const cvName = file.name.replace(/\.pdf$/i, '');
+            const res = await cvService.uploadPdfFile(Number(candidateId), file, cvName);
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
+            handleSelectCV(res.data);
+            toast.success('Upload CV thành công!');
+        } catch {
+            toast.error('Upload thất bại. Vui lòng thử lại.');
+        } finally {
+            setIsUploading(false);
+            e.target.value = '';
+        }
+    };
 
     // ── Fetch CV list ────────────────────────────────────────────────────────
     const { data: cvList = [], isLoading: loadingCVs } = useQuery({
@@ -183,6 +222,14 @@ export default function CVManager() {
                     icon={FileText}
                     action={
                         <div className="flex items-center gap-3">
+                            {/* Hidden file input for PDF upload */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -201,6 +248,20 @@ export default function CVManager() {
                             >
                                 <Sparkles className={`w-4 h-4 ${aiGenMutation.isPending ? 'animate-spin text-violet-400' : ''}`} />
                                 {aiGenMutation.isPending ? 'AI đang tạo...' : 'AI Generate'}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl"
+                                onClick={handleUploadClick}
+                                disabled={isUploading}
+                            >
+                                {isUploading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Upload className="w-4 h-4" />
+                                )}
+                                {isUploading ? 'Đang upload...' : 'Upload CV'}
                             </Button>
                             <Button
                                 size="sm"
@@ -239,6 +300,10 @@ export default function CVManager() {
                             autoSaveStatus={autoSaveStatus}
                             onFieldChange={handleFieldChange}
                             selectedCV={selectedCV}
+                            candidateId={Number(candidateId)}
+                            onCvUrlUpdated={() => {
+                                queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
+                            }}
                         />
                     </div>
 
@@ -248,6 +313,7 @@ export default function CVManager() {
                             cvName={cvName}
                             templateId={selectedTemplateId}
                             cvId={selectedCvId}
+                            cvUrl={selectedCV?.cv_url}
                             previewKey={previewKey}
                         />
                     </div>

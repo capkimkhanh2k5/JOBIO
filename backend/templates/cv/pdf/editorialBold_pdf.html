@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<title>{{ data.personal.full_name|default:"CV" }}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+@page { size: A4; margin: 0; }
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+    color: #0F172A;
+    background: #f8f8f5;
+    width: 210mm;
+    min-height: 297mm;
+}
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #f8f8f5;
+    position: relative;
+}
+/* Accent bar */
+.accent-bar {
+    position: absolute;
+    top: 0;
+    right: 30pt;
+    width: 6pt;
+    height: 120pt;
+    background-color: #c8f906;
+}
+/* Header */
+.header {
+    padding: 36pt 36pt 28pt 36pt;
+    border-bottom: 0.5pt solid #e2e8f0;
+    position: relative;
+}
+.header-label {
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c8f906;
+    background: #0F172A;
+    display: inline-block;
+    padding: 2pt 6pt;
+    margin-bottom: 10pt;
+}
+.header h1 {
+    font-family: Georgia, serif;
+    font-size: 36pt;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    margin-bottom: 12pt;
+    color: #0F172A;
+}
+.header-divider {
+    display: flex;
+    align-items: center;
+    gap: 12pt;
+    margin-bottom: 0;
+}
+.header-line { width: 40pt; height: 0.5pt; background: #0F172A; }
+.header-position {
+    font-size: 11pt;
+    font-style: italic;
+    font-weight: 300;
+    color: #334155;
+}
+/* Main grid */
+.main-grid {
+    display: flex;
+    gap: 0;
+    padding: 0 36pt 36pt 36pt;
+    padding-top: 24pt;
+}
+.left-col { flex: 1; padding-right: 24pt; }
+.right-col {
+    width: 72mm;
+    padding-left: 20pt;
+    border-left: 0.5pt solid #e2e8f0;
+    flex-shrink: 0;
+}
+/* Section */
+.section { margin-bottom: 22pt; }
+.section-num {
+    display: inline-block;
+    background: #c8f906;
+    color: #0F172A;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 2pt 5pt;
+    margin-right: 8pt;
+    vertical-align: middle;
+}
+.section-title {
+    font-family: Georgia, serif;
+    font-size: 18pt;
+    color: #0F172A;
+    display: inline;
+    vertical-align: middle;
+}
+/* Bio */
+.bio-text { font-size: 10pt; line-height: 1.7; color: #1e293b; font-weight: 300; margin-top: 10pt; }
+/* Experience */
+.exp-grid { display: flex; gap: 12pt; margin-bottom: 14pt; }
+.exp-date-col { width: 50pt; flex-shrink: 0; }
+.exp-date { font-size: 7.5pt; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; }
+.exp-company-small { font-size: 7pt; font-style: italic; color: #64748B; margin-top: 2pt; }
+.exp-content { flex: 1; }
+.exp-title { font-size: 11pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 3pt; }
+.exp-company { font-size: 7.5pt; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5pt; }
+.exp-desc { font-size: 8pt; color: #334155; line-height: 1.5; }
+/* Education */
+.edu-item { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10pt; }
+.edu-degree { font-size: 10pt; font-weight: 700; }
+.edu-school { font-family: Georgia, serif; font-style: italic; font-size: 8.5pt; color: #475569; margin-top: 2pt; }
+.edu-date { font-size: 7.5pt; font-weight: 700; color: #94A3B8; white-space: nowrap; }
+/* Right col sections */
+.right-section { margin-bottom: 18pt; }
+.right-title { font-family: Georgia, serif; font-size: 14pt; color: #0F172A; margin-bottom: 10pt; }
+.contact-item { margin-bottom: 8pt; }
+.contact-label { font-size: 6.5pt; text-transform: uppercase; letter-spacing: 0.15em; color: #94A3B8; display: block; margin-bottom: 1pt; }
+.contact-value { font-size: 8pt; color: #0F172A; word-break: break-all; }
+.skill-tag {
+    display: inline-block;
+    background: #0F172A;
+    color: white;
+    font-size: 7pt;
+    padding: 2pt 5pt;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-right: 3pt;
+    margin-bottom: 3pt;
+}
+.lang-item { display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 4pt; }
+.lang-level { color: #64748B; font-style: italic; }
+.cert-item { font-size: 8.5pt; margin-bottom: 5pt; }
+.cert-name { font-weight: 700; }
+.cert-org { color: #64748B; }
+/* Footer */
+.footer {
+    background: #0F172A;
+    color: white;
+    padding: 16pt 36pt;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.footer-name { font-family: Georgia, serif; font-size: 18pt; color: white; }
+.footer-contact { text-align: right; font-size: 7pt; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+.placeholder { color: #94a3b8; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="page">
+    <div class="accent-bar"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-label">Portfolio — CV</div>
+        <h1>{% if data.personal.full_name %}{{ data.personal.full_name }}{% else %}<span class="placeholder">Họ và Tên</span>{% endif %}</h1>
+        <div class="header-divider">
+            <div class="header-line"></div>
+            <span class="header-position">{% if data.personal.current_position %}{{ data.personal.current_position }}{% else %}<span class="placeholder">Chức danh chuyên môn</span>{% endif %}</span>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+        <!-- Left Column -->
+        <div class="left-col">
+
+            <!-- Bio -->
+            {% if data.personal.bio %}
+            <div class="section">
+                <div><span class="section-num">01</span><span class="section-title">Giới thiệu</span></div>
+                <p class="bio-text">{{ data.personal.bio }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Experience -->
+            {% if data.experience %}
+            <div class="section">
+                <div style="margin-bottom:14pt;"><span class="section-num">02</span><span class="section-title">Kinh nghiệm</span></div>
+                {% for exp in data.experience %}
+                <div class="exp-grid">
+                    <div class="exp-date-col">
+                        <div class="exp-date">{% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %}{% if exp.is_current %} — HT{% elif exp.end_date %} — {{ exp.end_date|slice:":7" }}{% endif %}</div>
+                        <div class="exp-company-small">{% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% endif %}</div>
+                    </div>
+                    <div class="exp-content">
+                        <div class="exp-title">{% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}</div>
+                        <div class="exp-company">{% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% endif %}</div>
+                        {% if exp.description %}<div class="exp-desc">{{ exp.description|linebreaksbr }}</div>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Education -->
+            {% if data.education %}
+            <div class="section">
+                <div style="margin-bottom:12pt;"><span class="section-num">03</span><span class="section-title">Học vấn</span></div>
+                {% for edu in data.education %}
+                <div class="edu-item">
+                    <div>
+                        <div class="edu-degree">{% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}</div>
+                        <div class="edu-school">{% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% endif %}</div>
+                    </div>
+                    <span class="edu-date">{% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-col">
+
+            <!-- Contact -->
+            <div class="right-section">
+                <div class="right-title">Liên hệ</div>
+                {% if data.personal.email %}
+                <div class="contact-item"><span class="contact-label">Email</span><span class="contact-value">{{ data.personal.email }}</span></div>
+                {% endif %}
+                {% if data.personal.phone %}
+                <div class="contact-item"><span class="contact-label">Điện thoại</span><span class="contact-value">{{ data.personal.phone }}</span></div>
+                {% endif %}
+                {% if data.links %}
+                    {% if data.links.linkedin %}<div class="contact-item"><span class="contact-label">LinkedIn</span><span class="contact-value">{{ data.links.linkedin }}</span></div>{% endif %}
+                    {% if data.links.github %}<div class="contact-item"><span class="contact-label">GitHub</span><span class="contact-value">{{ data.links.github }}</span></div>{% endif %}
+                {% endif %}
+            </div>
+
+            <!-- Skills -->
+            {% if data.skills %}
+            <div class="right-section">
+                <div class="right-title">Kỹ năng</div>
+                {% for skill in data.skills %}<span class="skill-tag">{% if skill.name %}{{ skill.name }}{% elif skill.skill_name %}{{ skill.skill_name }}{% endif %}</span>{% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Languages -->
+            {% if data.languages %}
+            <div class="right-section">
+                <div class="right-title">Ngôn ngữ</div>
+                {% for lang in data.languages %}
+                <div class="lang-item"><span>{{ lang.name }}</span><span class="lang-level">{% if lang.proficiency_level %}{{ lang.proficiency_level }}{% elif lang.level %}{{ lang.level }}{% endif %}</span></div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Certifications -->
+            {% if data.certifications %}
+            <div class="right-section">
+                <div class="right-title">Chứng chỉ</div>
+                {% for cert in data.certifications %}
+                <div class="cert-item"><span class="cert-name">{{ cert.name }}</span>{% if cert.issuing_organization %} <span class="cert-org">· {{ cert.issuing_organization }}</span>{% endif %}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>
+            <div style="font-size:7pt;letter-spacing:0.2em;text-transform:uppercase;color:#c8f906;margin-bottom:4pt;">Chữ ký số</div>
+            <div class="footer-name">{{ data.personal.full_name|default:"CV" }}</div>
+        </div>
+        <div class="footer-contact">
+            <div>{{ data.personal.email }}</div>
+            <div>{{ data.personal.phone }}</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

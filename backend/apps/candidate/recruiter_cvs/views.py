@@ -15,6 +15,9 @@ from .services.recruiter_cvs import auto_generate_cv
 from .services.recruiter_cvs import generate_cv_preview
 from .services.recruiter_cvs import generate_cv_download
 from .services.recruiter_cvs import set_cv_as_default
+from .services.recruiter_cvs import upload_cv_pdf
+
+MAX_PDF_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 class RecruiterCVViewSet(viewsets.ModelViewSet):
@@ -212,6 +215,48 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         cv.is_public = is_public
         cv.save(update_fields=["is_public"])
         return Response(RecruiterCVListSerializer(cv).data)
+
+    def upload_cv(self, request, *args, **kwargs):
+        """
+        POST /upload/
+        Upload file PDF CV lên Cloudinary và tạo RecruiterCV mới (CV_Upload).
+        """
+        recruiter, error = self._get_recruiter_or_403(request)
+        if error:
+            return error
+
+        file = request.FILES.get("file")
+        if not file:
+            return Response(
+                {"detail": "Trường 'file' là bắt buộc."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if file.content_type != "application/pdf":
+            return Response(
+                {"detail": "Chỉ chấp nhận file PDF."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if file.size > MAX_PDF_SIZE:
+            return Response(
+                {"detail": "Kích thước file không được vượt quá 10MB."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        cv_name = request.data.get("cv_name", "").strip() or None
+
+        try:
+            cv = upload_cv_pdf(recruiter, file, cv_name)
+            return Response(
+                RecruiterCVListSerializer(cv).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except Exception as e:
+            return Response(
+                {"detail": f"Upload thất bại: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def generate(self, request, *args, **kwargs):
         """

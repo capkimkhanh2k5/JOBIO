@@ -56,6 +56,8 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
             job_title: appDetail.job_title || appDetail.job?.title || '',
             cv_name: appDetail.cv?.file_name || (appDetail as any).cv_name || applicationPreview?.cv_name || 'CV.pdf',
             cv_id: appDetail.cv?.id || (appDetail as any).cv_id || applicationPreview?.cv_id,
+            cv_template_id: (appDetail as any).cv_template_id ?? null,
+            cv_url: (appDetail as any).cv_url ?? null,
             candidate_id: appDetail.candidate?.id || appDetail.candidate_id,
             statusLabel: STATUS_LABEL_MAP[appDetail.status] || appDetail.status,
         }
@@ -71,21 +73,55 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
 
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+    const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+
+    // Clean up blob URL when dialog closes
+    const handleClosePreview = () => {
+        setPreviewOpen(false);
+        if (pdfBlobUrl) {
+            URL.revokeObjectURL(pdfBlobUrl);
+            setPdfBlobUrl(null);
+        }
+        setPreviewHtml(null);
+    };
 
     const handlePreviewCv = async () => {
         if (!app) return;
-
         if (!app.cv_id) {
             toast.error("Không tìm thấy dữ liệu CV");
             return;
         }
+
+        const isUploadedCv = !app.cv_template_id && !!app.cv_url;
+
+        if (isUploadedCv) {
+            // CV_Upload: fetch PDF as blob → create blob URL → show in Dialog iframe
+            // Blob URL is same-origin so browser PDF viewer works without security restrictions
+            try {
+                toast.loading("Đang tải CV...");
+                const res = await fetch(app.cv_url!);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                setPdfBlobUrl(blobUrl);
+                setPreviewHtml(null);
+                setPreviewOpen(true);
+                toast.dismiss();
+            } catch {
+                toast.dismiss();
+                toast.error("Không thể tải CV. Vui lòng thử lại.");
+            }
+            return;
+        }
+
+        // CV_Template: call previewCv() to get HTML, show in Dialog
         try {
             toast.loading("Đang tải dữ liệu CV...");
             const res = await applicationService.previewCv(Number(applicationId));
             setPreviewHtml(res.data.html_content);
+            setPdfBlobUrl(null);
             setPreviewOpen(true);
             toast.dismiss();
-        } catch (error) {
+        } catch {
             toast.dismiss();
             toast.error("Không thể tải bản xem trước CV");
         }
@@ -98,7 +134,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
         else if (app.status === 'reviewing') currentStepIndex = 1;
         else if (app.status === 'interview' || app.status === 'shortlisted') currentStepIndex = 2;
         else if (app.status === 'offered' || app.status === 'accepted') currentStepIndex = 3;
-        else currentStepIndex = 4; // rejected, withdrawn
+        else currentStepIndex = 4;
     }
 
     const progressWidth = app
@@ -167,9 +203,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         <span
                                             key={st}
                                             className={`text-center text-[11px] font-semibold leading-tight transition-colors sm:text-xs ${
-                                                i <= currentStepIndex
-                                                    ? 'text-cyan-700'
-                                                    : 'text-slate-400'
+                                                i <= currentStepIndex ? 'text-cyan-700' : 'text-slate-400'
                                             }`}
                                         >
                                             {st}
@@ -179,7 +213,10 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                 <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200 shadow-inner">
                                     <div
                                         className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 transition-all duration-500"
-                                        style={{ width: `${progressWidth}%`, backgroundColor: app.status === 'rejected' ? '#ef4444' : app.status === 'withdrawn' ? '#94a3b8' : '' }}
+                                        style={{
+                                            width: `${progressWidth}%`,
+                                            backgroundColor: app.status === 'rejected' ? '#ef4444' : app.status === 'withdrawn' ? '#94a3b8' : '',
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -187,7 +224,6 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
 
                         <ScrollArea className="flex-1">
                             <div className="p-6 space-y-8">
-                                {/* Application Info Section */}
                                 <section>
                                     <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                         <FileText className="w-4 h-4 text-cyan-600" />
@@ -200,8 +236,8 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
                                             <span className="text-slate-500">CV đính kèm:</span>
-                                            <button 
-                                                onClick={handlePreviewCv} 
+                                            <button
+                                                onClick={handlePreviewCv}
                                                 type="button"
                                                 className="flex cursor-pointer items-center gap-1.5 font-medium text-cyan-600 transition-colors hover:text-cyan-700 hover:underline"
                                             >
@@ -227,7 +263,6 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                     )}
                                 </section>
 
-                                {/* Timeline Section */}
                                 <section>
                                     <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                         <Calendar className="w-4 h-4 text-cyan-600" />
@@ -265,56 +300,49 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         </div>
                                     )}
                                 </section>
-
                             </div>
                         </ScrollArea>
                     </>
                 )}
             </SheetContent>
 
-            <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            {/* CV preview Dialog — handles both CV_Template (HTML) and CV_Upload (PDF blob) */}
+            <Dialog open={previewOpen} onOpenChange={(open) => { if (!open) handleClosePreview(); }}>
                 <DialogContent className="max-w-[210mm] max-h-[90vh] overflow-auto p-0 bg-transparent border-none shadow-none">
                     <DialogHeader className="sr-only">
                         <DialogTitle>Xem trước CV</DialogTitle>
                     </DialogHeader>
                     <div className="bg-white mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
-                        {previewHtml && (
+                        {pdfBlobUrl ? (
+                            // CV_Upload: blob URL is same-origin → browser PDF viewer works
                             <iframe
-                                srcDoc={`
-                                    <!DOCTYPE html>
-                                    <html>
-                                        <head>
-                                            <style>
-                                                body { margin: 0; padding: 0; background: white; }
-                                                ::-webkit-scrollbar { width: 0px; background: transparent; }
-                                            </style>
-                                        </head>
-                                        <body>
-                                            ${previewHtml}
-                                        </body>
-                                    </html>
-                                `}
+                                src={pdfBlobUrl}
                                 className="w-full pointer-events-auto"
-                                style={{
-                                    height: '100%',
-                                    minHeight: '297mm',
-                                    border: 'none',
-                                }}
+                                style={{ height: '297mm', border: 'none', display: 'block' }}
+                                title="CV PDF Preview"
+                            />
+                        ) : previewHtml ? (
+                            // CV_Template: HTML rendered in iframe
+                            <iframe
+                                srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${previewHtml}</body></html>`}
+                                className="w-full pointer-events-auto"
+                                style={{ height: '297mm', border: 'none', display: 'block' }}
                                 title="CV Preview"
                                 sandbox="allow-same-origin allow-scripts"
                             />
-                        )}
-                        <Button 
-                            variant="default" 
-                            size="sm" 
+                        ) : null}
+                        <Button
+                            variant="default"
+                            size="sm"
                             className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
-                            onClick={() => setPreviewOpen(false)}
+                            onClick={handleClosePreview}
                         >
                             Đóng
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
+
         </Sheet>
     );
 }

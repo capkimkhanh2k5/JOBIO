@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCandidateStore } from '@/store/candidateStore';
@@ -24,6 +25,9 @@ import {
     Target,
     Building2,
     Award,
+    AlertCircle,
+    ExternalLink,
+    X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -60,6 +64,51 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
     withdrawn: ['withdrawn'],
 };
 
+/** Fullscreen PDF viewer — blob URL approach, same as ApplicationDetailSheet */
+function PdfBlobViewer({ blobUrl, onClose }: { blobUrl: string; onClose: () => void }) {
+    return (
+        <div className="bg-white mx-auto shadow-2xl relative" style={{ minWidth: '210mm', minHeight: '297mm' }}>
+            <iframe
+                src={blobUrl}
+                className="w-full pointer-events-auto"
+                style={{ height: '297mm', border: 'none', display: 'block' }}
+                title="CV PDF Preview"
+            />
+            <Button
+                variant="default"
+                size="sm"
+                className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
+                onClick={onClose}
+            >
+                Đóng
+            </Button>
+        </div>
+    );
+}
+
+/** HTML CV viewer — same as ApplicationDetailSheet */
+function HtmlCvViewer({ html, onClose }: { html: string; onClose: () => void }) {
+    return (
+        <div className="bg-white mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
+            <iframe
+                srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${html}</body></html>`}
+                className="w-full pointer-events-auto"
+                style={{ height: '297mm', border: 'none', display: 'block' }}
+                title="CV Preview"
+                sandbox="allow-same-origin allow-scripts"
+            />
+            <Button
+                variant="default"
+                size="sm"
+                className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
+                onClick={onClose}
+            >
+                Đóng
+            </Button>
+        </div>
+    );
+}
+
 export function CandidateDetailSheet() {
     const { selectedCandidateId, setSelectedCandidateId } = useCandidateStore();
     const navigate = useNavigate();
@@ -74,8 +123,20 @@ export function CandidateDetailSheet() {
     const [updatingStatus, setUpdatingStatus] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+    const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+    const [previewMode, setPreviewMode] = useState<'pdf' | 'html'>('html');
     const [activityNote, setActivityNote] = useState('');
     const [savingNote, setSavingNote] = useState(false);
+
+    // Reset preview state whenever a new candidate is selected
+    useEffect(() => {
+        setPreviewOpen(false);
+        if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
+        setPdfBlobUrl(null);
+        setPreviewHtml(null);
+        setPreviewMode('html');
+        setDetails(null);
+    }, [selectedCandidateId]); // eslint-disable-line
 
     const currentStatus = details?.status || history[0]?.new_status || history[0]?.status || 'pending';
     const statusOptions = useMemo(
@@ -114,11 +175,28 @@ export function CandidateDetailSheet() {
     const handlePreviewCv = async () => {
         if (!details) return;
 
-        if (details.cv_url) {
-            window.open(details.cv_url, '_blank');
+        const isUploadedCv = !details.cv_template_id && !!details.cv_url;
+
+        if (isUploadedCv) {
+            // CV_Upload: fetch PDF as blob → blob URL is same-origin → PDF viewer works
+            try {
+                toast.loading('Đang tải CV...');
+                const res = await fetch(details.cv_url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                setPdfBlobUrl(blobUrl);
+                setPreviewHtml(null);
+                setPreviewMode('pdf');
+                setPreviewOpen(true);
+                toast.dismiss();
+            } catch {
+                toast.dismiss();
+                toast.error('Không thể tải CV. Vui lòng thử lại sau.');
+            }
             return;
         }
 
+        // CV_Template: call previewCv() to get HTML
         if (!details.cv_id) {
             toast.error('Không tìm thấy dữ liệu CV');
             return;
@@ -128,12 +206,23 @@ export function CandidateDetailSheet() {
             toast.loading('Đang tải dữ liệu CV...');
             const res = await applicationService.previewCv(details.id);
             setPreviewHtml(res.data.html_content);
+            setPdfBlobUrl(null);
+            setPreviewMode('html');
             setPreviewOpen(true);
             toast.dismiss();
         } catch (_error) {
             toast.dismiss();
-            toast.error('Không thể tải bản xem trước CV');
+            toast.error('Không thể tải CV. Vui lòng thử lại sau.');
         }
+    };
+
+    const handleClosePreview = () => {
+        setPreviewOpen(false);
+        if (pdfBlobUrl) {
+            URL.revokeObjectURL(pdfBlobUrl);
+            setPdfBlobUrl(null);
+        }
+        setPreviewHtml(null);
     };
 
     useEffect(() => {
@@ -178,6 +267,8 @@ export function CandidateDetailSheet() {
                     company_name: appData.company_name || appData.job?.company_name || '',
                     cv_name: appData.cv?.file_name || appData.cv_name || 'CV.pdf',
                     cv_id: appData.cv?.id || appData.cv_id || null,
+                    cv_template_id: (appData as any).cv_template_id ?? null,
+                    cv_url: (appData as any).cv_url ?? null,
                     applied_at: appData.applied_at,
                 });
                 setEducation(edu);
@@ -271,6 +362,7 @@ export function CandidateDetailSheet() {
     if (!selectedCandidateId) return null;
 
     return (
+        <>
         <Sheet open={!!selectedCandidateId} onOpenChange={(open) => !open && setSelectedCandidateId(null)}>
             <SheetContent className="w-full sm:max-w-2xl bg-background border-l border-border/50 p-0 flex flex-col hide-scrollbar overflow-hidden z-[200] shadow-2xl">
                 {isLoading ? (
@@ -328,7 +420,31 @@ export function CandidateDetailSheet() {
                                     <Button
                                         size="sm"
                                         className="h-9 text-xs bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20"
-                                        onClick={handlePreviewCv}
+                                        onClick={async () => {
+                                            if (!details) return;
+                                            const url = details.cv_url;
+                                            if (url) {
+                                                try {
+                                                    // Fetch as blob to force download instead of opening in browser
+                                                    const res = await fetch(url);
+                                                    const blob = await res.blob();
+                                                    const blobUrl = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = blobUrl;
+                                                    a.download = (details.cv_name || 'CV') + '.pdf';
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    document.body.removeChild(a);
+                                                    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+                                                } catch {
+                                                    // CORS fallback — open in new tab
+                                                    window.open(url, '_blank');
+                                                }
+                                            } else {
+                                                // No PDF saved yet — show HTML preview
+                                                handlePreviewCv();
+                                            }
+                                        }}
                                     >
                                         <Download className="w-3.5 h-3.5 mr-1.5" />
                                         Tải CV
@@ -618,60 +734,45 @@ export function CandidateDetailSheet() {
                 ) : null}
             </SheetContent>
 
-            <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-                <DialogContent className="max-w-[850px] w-[95vw] h-[90vh] overflow-hidden p-0 bg-transparent border-none shadow-none z-[300] flex justify-center">
-                    <DialogHeader className="sr-only">
-                        <DialogTitle>Xem trước CV</DialogTitle>
-                    </DialogHeader>
-                    <div className="relative w-full h-full overflow-auto flex justify-center items-start pt-4 hide-scrollbar">
-                        <div
-                            className="bg-white shadow-2xl relative rounded overflow-hidden"
-                            style={{
-                                width: '210mm',
-                                height: '297mm',
-                                transform: 'scale(0.8)',
-                                transformOrigin: 'top center',
-                                flexShrink: 0,
-                                marginBottom: '-50mm',
-                            }}
-                        >
-                            {previewHtml && (
-                                <iframe
-                                    srcDoc={`
-                                        <!DOCTYPE html>
-                                        <html>
-                                            <head>
-                                                <style>
-                                                    body { margin: 0; padding: 0; background: white; }
-                                                    ::-webkit-scrollbar { width: 0px; background: transparent; }
-                                                </style>
-                                            </head>
-                                            <body>
-                                                ${previewHtml}
-                                            </body>
-                                        </html>
-                                    `}
-                                    className="w-full pointer-events-auto rounded"
-                                    style={{
-                                        height: '100%',
-                                        border: 'none',
-                                    }}
-                                    title="CV Preview"
-                                    sandbox="allow-same-origin allow-scripts"
-                                />
-                            )}
-                            <Button
-                                variant="default"
-                                size="sm"
-                                className="absolute top-4 right-4 z-50 bg-slate-900/50 hover:bg-slate-900 backdrop-blur-sm transition-opacity"
-                                onClick={() => setPreviewOpen(false)}
-                            >
-                                Đóng
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </Sheet>
+
+        {/* CV preview — portal above Sheet z-[200] */}
+        {previewOpen && createPortal(
+            <div
+                className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+                style={{ backgroundColor: 'rgba(0,0,0,0.7)', pointerEvents: 'all' }}
+            >
+                {/* Close button OUTSIDE iframe so it's always clickable */}
+                <div className="flex justify-end w-full max-w-[210mm] mb-2 px-1">
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="cursor-pointer border border-white/30 bg-slate-900 px-4 font-semibold text-white shadow-lg hover:bg-slate-700"
+                        onClick={handleClosePreview}
+                    >
+                        Đóng
+                    </Button>
+                </div>
+                {/* CV content */}
+                <div style={{ width: '210mm', height: '297mm', position: 'relative' }}>
+                    {previewMode === 'pdf' && pdfBlobUrl ? (
+                        <iframe
+                            src={pdfBlobUrl}
+                            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                            title="CV PDF Preview"
+                        />
+                    ) : previewMode === 'html' && previewHtml ? (
+                        <iframe
+                            srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${previewHtml}</body></html>`}
+                            style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                            title="CV Preview"
+                            sandbox="allow-same-origin allow-scripts"
+                        />
+                    ) : null}
+                </div>
+            </div>,
+            document.body
+        )}
+        </>
     );
 }

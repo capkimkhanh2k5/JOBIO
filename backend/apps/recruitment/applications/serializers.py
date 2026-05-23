@@ -35,6 +35,9 @@ class ApplicationListSerializer(serializers.ModelSerializer):
         source="cv.cv_name", read_only=True, allow_null=True
     )
     cv_id = serializers.IntegerField(source="cv.id", read_only=True, allow_null=True)
+    cv_template_id = serializers.IntegerField(
+        source="cv.template_id", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = Application
@@ -56,6 +59,7 @@ class ApplicationListSerializer(serializers.ModelSerializer):
             "cv_url",
             "cv_name",
             "cv_id",
+            "cv_template_id",
             "applied_at",
             "updated_at",
         ]
@@ -112,6 +116,9 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
         source="cv.cv_name", read_only=True, allow_null=True
     )
     cv_id = serializers.IntegerField(source="cv.id", read_only=True, allow_null=True)
+    cv_template_id = serializers.IntegerField(
+        source="cv.template_id", read_only=True, allow_null=True
+    )
     reviewed_by_name = serializers.CharField(
         source="reviewed_by.full_name", read_only=True, allow_null=True
     )
@@ -139,6 +146,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
             "cv_url",
             "cv_name",
             "cv_id",
+            "cv_template_id",
             "cover_letter",
             "status",
             "rating",
