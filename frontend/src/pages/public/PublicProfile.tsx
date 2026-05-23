@@ -1,4 +1,3 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
@@ -14,7 +13,7 @@ export default function PublicProfile() {
 
     const { data: profile, isLoading } = useQuery({
         queryKey: ['public-profile', id],
-        queryFn: () => candidateService.getById(Number(id)).then(r => r.data),
+        queryFn: () => candidateService.getPublicProfile(Number(id)).then(r => r.data),
         enabled: !!id,
     });
 

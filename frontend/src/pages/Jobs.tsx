@@ -25,7 +25,7 @@ export default function JobsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const filters = useFilterStore();
-    const { search, setSearch, category, setCategory, province, setProvince } = filters;
+    const { category, setCategory, province, setProvince, setSearch } = filters;
     const [searchInput, setSearchInput] = useState(searchParams.get("search") ?? "");
 
     const urlSearch = searchParams.get("search") ?? "";
@@ -107,7 +107,7 @@ export default function JobsPage() {
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.dispatchEvent(new CustomEvent('app:scroll-to-top'));
     };
 
     return (
@@ -233,11 +233,9 @@ export default function JobsPage() {
                                             transition={{ duration: 0.2 }}
                                             className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-2"
                                         >
-                                            <AnimatePresence mode="popLayout">
-                                                {data?.items?.map((job: any) => (
-                                                    <JobCard key={`grid-${job.id}`} job={job} view="grid" />
-                                                ))}
-                                            </AnimatePresence>
+                                            {data?.items?.map((job: any) => (
+                                                <JobCard key={`grid-${job.id}`} job={job} view="grid" />
+                                            ))}
                                         </motion.div>
                                     ) : (
                                         <motion.div
@@ -248,11 +246,9 @@ export default function JobsPage() {
                                             transition={{ duration: 0.2 }}
                                             className="grid gap-4 grid-cols-1"
                                         >
-                                            <AnimatePresence mode="popLayout">
-                                                {data?.items?.map((job: any) => (
-                                                    <JobCard key={`list-${job.id}`} job={job} view="list" />
-                                                ))}
-                                            </AnimatePresence>
+                                            {data?.items?.map((job: any) => (
+                                                <JobCard key={`list-${job.id}`} job={job} view="list" />
+                                            ))}
                                         </motion.div>
                                     )}
                                 </AnimatePresence>

@@ -72,10 +72,11 @@ interface JobDetailHeaderProps {
 }
 
 export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProps) => {
-    const { isAuthenticated } = useUserStore();
+    const { isAuthenticated, user } = useUserStore();
     const queryClient = useQueryClient();
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const isAdminViewer = user?.role === 'admin';
 
     const invalidateSavedJobQueries = () => {
         queryClient.invalidateQueries({ queryKey: ['savedJobs'] });
@@ -84,10 +85,10 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     };
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && !isAdminViewer) {
             savedJobService.isSaved(job.id).then(res => setIsSaved(res.data.is_saved));
         }
-    }, [job.id, isAuthenticated]);
+    }, [job.id, isAuthenticated, isAdminViewer]);
 
     const handleShare = (platform: 'link' | 'facebook' | 'linkedin') => {
         const url = window.location.href;
@@ -102,6 +103,10 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     };
 
     const toggleSave = async () => {
+        if (isAdminViewer) {
+            toast.info('Admin chỉ xem nội dung, không thể lưu việc làm');
+            return;
+        }
         if (!isAuthenticated) {
             toast.error('Vui lòng đăng nhập để lưu việc làm');
             return;
@@ -209,6 +214,8 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                         <div className="flex flex-col gap-3 w-full xl:w-[320px] shrink-0">
                             <Button
                                 onClick={onApply}
+                                disabled={isAdminViewer}
+                                title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể ứng tuyển' : undefined}
                                 className="w-full h-14 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg shadow-md shadow-violet-600/20 transition-all active:scale-[0.98]"
                             >
                                 Ứng tuyển ngay
@@ -216,7 +223,8 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                             <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2">
                                 <Button
                                     onClick={toggleSave}
-                                    disabled={isSaving}
+                                    disabled={isSaving || isAdminViewer}
+                                    title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể lưu việc làm' : undefined}
                                     variant="outline"
                                     className={cn(
                                         'h-12 rounded-xl font-bold transition-all border-slate-200 text-slate-700',

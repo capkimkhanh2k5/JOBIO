@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Reorder, motion, AnimatePresence } from 'framer-motion';
-import { Plus, GripVertical, Trash2, Calendar, GraduationCap, Pencil, X, Check } from 'lucide-react';
+import { Plus, GripVertical, Trash2, Calendar, GraduationCap, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';

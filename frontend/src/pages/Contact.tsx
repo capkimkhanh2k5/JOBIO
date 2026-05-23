@@ -74,7 +74,7 @@ const SUBJECTS = [
 
 /* ─── Component ─── */
 export default function Contact() {
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactForm>({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactForm>({
         resolver: zodResolver(contactSchema),
     });
 

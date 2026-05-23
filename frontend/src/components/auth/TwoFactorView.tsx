@@ -13,7 +13,6 @@ interface TwoFactorViewProps {
 }
 
 export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
-    email,
     rememberMe = false,
     onSuccess
 }) => {

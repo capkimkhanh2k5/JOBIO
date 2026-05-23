@@ -594,7 +594,7 @@ export interface CandidateEducationRequest {
   degree?: string;
   field_of_study?: string;
   start_date?: string;
-  end_date?: string;
+  end_date?: string | null;
   description?: string;
   display_order?: number;
 }
@@ -657,16 +657,18 @@ export interface CandidateCertification {
   expiry_date: string | null;
   credential_id: string | null;
   credential_url: string | null;
+  does_not_expire: boolean;
   display_order: number;
 }
 
 export interface CandidateCertificationRequest {
   certification_name: string;
   issuing_organization?: string;
-  issue_date?: string;
-  expiry_date?: string;
+  issue_date?: string | null;
+  expiry_date?: string | null;
   credential_id?: string;
   credential_url?: string;
+  does_not_expire?: boolean;
   display_order?: number;
 }
 
@@ -699,7 +701,9 @@ export interface CandidateProject {
   project_url: string | null;
   start_date: string | null;
   end_date: string | null;
-  technologies: string[];
+  is_ongoing: boolean;
+  technologies_used: string;
+  technologies?: string[] | string;
   display_order: number;
 }
 
@@ -707,9 +711,10 @@ export interface CandidateProjectRequest {
   project_name: string;
   description?: string;
   project_url?: string;
-  start_date?: string;
-  end_date?: string;
-  technologies?: string[];
+  start_date?: string | null;
+  end_date?: string | null;
+  is_ongoing?: boolean;
+  technologies_used?: string;
   display_order?: number;
 }
 
@@ -1363,5 +1368,3 @@ export interface SubscribeResponse {
   payment_url: string;
   transaction_ref: string;
 }
-
-

@@ -5,7 +5,7 @@ import {
     Wallet, TrendingUp, DollarSign, CreditCard,
     Search, Loader2, Download,
     Mail,
-    ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, CalendarClock
+    ChevronLeft, ChevronRight, CheckCircle2, XCircle, AlertCircle, Clock3, CalendarClock
 } from 'lucide-react';
 import { dashboardService } from '@/services/dashboardService';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,9 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 import { downloadBlob } from '@/lib/download';
+
+const TRANSACTION_PAGE_SIZE = 20;
+const SUBSCRIPTION_PAGE_SIZE = 10;
 
 // Helper for formatting currency
 const formatCurrency = (amount: number) => {
@@ -41,7 +44,7 @@ const statusLabels: Record<string, string> = {
 
 const statusIcons: Record<string, any> = {
     completed: CheckCircle2,
-    pending: Loader2,
+    pending: Clock3,
     failed: XCircle,
     refunded: AlertCircle,
 };
@@ -77,6 +80,7 @@ export default function FinancialManagement() {
         queryKey: ['admin-transactions', page, debouncedSearch, statusFilter],
         queryFn: () => dashboardService.listAdminTransactions({
             page,
+            page_size: TRANSACTION_PAGE_SIZE,
             search: debouncedSearch || undefined,
             status: statusFilter !== 'all' ? statusFilter : undefined
         }).then(r => r.data),
@@ -84,14 +88,14 @@ export default function FinancialManagement() {
 
     const transactions = transactionsData?.results ?? [];
     const totalCount = transactionsData?.count ?? 0;
-    const totalPages = transactionsData?.total_pages ?? 1;
+    const totalPages = Math.max(1, transactionsData?.total_pages ?? Math.ceil(totalCount / TRANSACTION_PAGE_SIZE));
 
     const { data: subscriptionsData, isLoading: loadingSubscriptions } = useQuery({
         queryKey: ['admin-subscriptions', debouncedSearch, page],
         queryFn: () => dashboardService.listAdminSubscriptions({
             search: debouncedSearch || undefined,
             page,
-            page_size: 10,
+            page_size: SUBSCRIPTION_PAGE_SIZE,
         }).then(r => r.data),
     });
 
@@ -239,7 +243,7 @@ export default function FinancialManagement() {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <Badge variant="outline" className={`${statusColors[txn.status] ?? statusColors.pending} flex w-fit items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md`}>
-                                                    <StatusIcon className={`w-3.5 h-3.5 ${txn.status === 'pending' ? 'animate-spin' : ''}`} />
+                                                    <StatusIcon className="w-3.5 h-3.5" />
                                                     {statusLabels[txn.status] ?? txn.status}
                                                 </Badge>
                                             </td>

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Building2, MapPin, Users, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
@@ -55,7 +55,7 @@ export default function CompaniesPage() {
 
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.dispatchEvent(new CustomEvent('app:scroll-to-top'));
     };
 
     const clearFilters = () => {
@@ -153,14 +153,11 @@ export default function CompaniesPage() {
                         </div>
 
                         <motion.div
-                            layout
                             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                         >
-                            <AnimatePresence mode="popLayout">
-                                {data?.items?.map((company: any) => (
-                                    <CompanyCard key={company.id} company={company} />
-                                ))}
-                            </AnimatePresence>
+                            {data?.items?.map((company: any) => (
+                                <CompanyCard key={company.id} company={company} />
+                            ))}
                         </motion.div>
 
                         {/* Pagination */}
@@ -215,7 +212,6 @@ function CompanyCard({ company }: { company: any }) {
 
     return (
         <motion.div
-            layout
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { savedJobService } from "@/services/savedJobService";
 import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
 
 const JOB_TYPE_LABELS: Record<string, string> = {
     "full-time": "Full-time",
@@ -117,8 +118,10 @@ interface JobCardProps {
 export function JobCard({ job, view }: JobCardProps) {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { user } = useUserStore();
     const [optimisticSaved, setOptimisticSaved] = useState(job.is_saved ?? false);
     const [savedJobId, setSavedJobId] = useState<number | null>(job.saved_job_id ?? null);
+    const isAdminViewer = user?.role === "admin";
 
     const companyName = job.company_name ?? job.company?.company_name ?? job.company?.name ?? "Công ty";
     const companyTarget = job.company_slug ?? job.company?.slug ?? job.company_id ?? job.company?.id;
@@ -169,6 +172,14 @@ export function JobCard({ job, view }: JobCardProps) {
 
     const handleToggleSave = (e: MouseEvent) => {
         e.stopPropagation();
+        if (isAdminViewer) {
+            toast.info("Admin chỉ xem nội dung, không thể lưu việc làm");
+            return;
+        }
+        if (!user) {
+            toast.error("Vui lòng đăng nhập để lưu việc làm");
+            return;
+        }
         if (optimisticSaved) {
             unsaveMutation.mutate();
         } else {
@@ -186,7 +197,6 @@ export function JobCard({ job, view }: JobCardProps) {
     if (view === "list") {
         return (
             <motion.div
-                layout
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.97 }}
@@ -321,7 +331,12 @@ export function JobCard({ job, view }: JobCardProps) {
                             <div className="flex gap-2">
                                 <Button
                                     className="flex-1 h-11 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg"
-                                    onClick={e => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        if (!isAdminViewer) navigate(`/jobs/${job.id}`);
+                                    }}
+                                    disabled={isAdminViewer}
+                                    title={isAdminViewer ? "Admin chỉ xem nội dung, không thể ứng tuyển" : undefined}
                                 >
                                     Ứng tuyển ngay
                                 </Button>
@@ -333,7 +348,8 @@ export function JobCard({ job, view }: JobCardProps) {
                                         optimisticSaved && "text-red-500 bg-red-50 border-red-100"
                                     )}
                                     onClick={handleToggleSave}
-                                    disabled={isSaving}
+                                    disabled={isSaving || isAdminViewer}
+                                    title={isAdminViewer ? "Admin chỉ xem nội dung, không thể lưu việc làm" : undefined}
                                     aria-label={optimisticSaved ? "Bỏ lưu việc làm" : "Lưu việc làm"}
                                 >
                                     <Heart className={cn("h-4 w-4", optimisticSaved && "fill-current")} />
@@ -348,7 +364,6 @@ export function JobCard({ job, view }: JobCardProps) {
 
     return (
         <motion.div
-            layout
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97 }}
@@ -400,7 +415,8 @@ export function JobCard({ job, view }: JobCardProps) {
                                 optimisticSaved && "text-red-500 bg-red-50 border-red-100"
                             )}
                             onClick={handleToggleSave}
-                            disabled={isSaving}
+                            disabled={isSaving || isAdminViewer}
+                            title={isAdminViewer ? "Admin chỉ xem nội dung, không thể lưu việc làm" : undefined}
                             aria-label={optimisticSaved ? "Bỏ lưu việc làm" : "Lưu việc làm"}
                         >
                             <Heart className={cn("h-3.5 w-3.5", optimisticSaved && "fill-current")} />
@@ -478,7 +494,12 @@ export function JobCard({ job, view }: JobCardProps) {
                 <div className="px-5 pb-4">
                     <Button
                         className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg transition-colors"
-                        onClick={e => { e.stopPropagation(); navigate(`/jobs/${job.id}`); }}
+                        onClick={e => {
+                            e.stopPropagation();
+                            if (!isAdminViewer) navigate(`/jobs/${job.id}`);
+                        }}
+                        disabled={isAdminViewer}
+                        title={isAdminViewer ? "Admin chỉ xem nội dung, không thể ứng tuyển" : undefined}
                     >
                         Ứng tuyển ngay
                     </Button>

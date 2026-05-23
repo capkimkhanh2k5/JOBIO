@@ -26,28 +26,30 @@ export interface Address {
   is_verified?: boolean;
 }
 
+function asList<T>(data: T[] | { results?: T[] } | null | undefined): T[] {
+  return Array.isArray(data) ? data : (data?.results ?? []);
+}
+
 export const geographyService = {
-  getProvinces: async () => {
+  getProvinces: async (): Promise<Province[]> => {
     try {
-      const response = await api.get<any>('/api/provinces/', {
+      const response = await api.get<Province[] | { results?: Province[] }>('/api/provinces/', {
         params: { page_size: 100 }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results ?? []);
+      return asList(response?.data);
     } catch (error) {
       console.error('Error fetching provinces:', error);
       return [];
     }
   },
 
-  getCommunes: async (provinceId?: number | string) => {
+  getCommunes: async (provinceId?: number | string): Promise<Commune[]> => {
     if (!provinceId) return [];
     try {
-      const response = await api.get<any>('/api/communes/', {
+      const response = await api.get<Commune[] | { results?: Commune[] }>('/api/communes/', {
         params: { province_id: provinceId, page_size: 100 }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      return asList(response?.data);
     } catch (error) {
       console.error('Error fetching communes:', error);
       return [];
@@ -62,11 +64,10 @@ export const geographyService = {
       return created;
     }
 
-    const fallbackResponse = await api.get<any>('/api/addresses/', {
+    const fallbackResponse = await api.get<Address[] | { results?: Address[] }>('/api/addresses/', {
       params: { page_size: 100 }
     });
-    const fallbackData = fallbackResponse?.data;
-    const addresses: Address[] = Array.isArray(fallbackData) ? fallbackData : (fallbackData?.results ?? []);
+    const addresses = asList(fallbackResponse?.data);
 
     const matched = addresses.find((address) =>
       address.address_line === data.address_line &&

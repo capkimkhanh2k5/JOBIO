@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 import api from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { PaginatedResponse } from '@/types/api';
 
 const schema = z.object({
     connectionId: z.string().min(1, 'Vui lòng chọn người bạn muốn xin lời giới thiệu'),
@@ -36,6 +37,18 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+
+interface ConnectionPerson {
+    id: number;
+    full_name: string;
+    current_company?: string | null;
+}
+
+interface ConnectionItem {
+    id: number;
+    requester: ConnectionPerson;
+    recipient: ConnectionPerson;
+}
 
 interface RequestRecommendationModalProps {
     open: boolean;
@@ -48,7 +61,7 @@ export const RequestRecommendationModal = ({ open, onOpenChange, candidateId }: 
     // Fetch connections to populate the dropdown
     const { data: connectionsData, isLoading } = useQuery({
         queryKey: ['connections', candidateId, 'accepted'],
-        queryFn: () => api.get('/api/connections/').then(r => r.data),
+        queryFn: () => api.get<PaginatedResponse<ConnectionItem>>('/api/connections/').then(r => r.data),
         enabled: open,
     });
 
@@ -64,7 +77,7 @@ export const RequestRecommendationModal = ({ open, onOpenChange, candidateId }: 
         },
     });
 
-    const onSubmit = async (data: FormData) => {
+    const onSubmit = async (_data: FormData) => {
         setIsSubmitting(true);
         // Simulate sending a message/request to the connection
         await new Promise(resolve => setTimeout(resolve, 800));

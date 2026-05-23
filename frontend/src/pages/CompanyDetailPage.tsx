@@ -66,6 +66,7 @@ export default function CompanyDetailPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const user = useUserStore((s) => s.user);
+    const isAdminViewer = user?.role === 'admin';
 
     // ── Queries ────────────────────────────────────────────────
     const { data: company, isLoading, isError } = useQuery({
@@ -83,7 +84,7 @@ export default function CompanyDetailPage() {
     const { data: followData } = useQuery({
         queryKey: ['company-following', id],
         queryFn: () => companyService.isFollowing(Number(id)).then(r => r.data),
-        enabled: !!user,
+        enabled: !!user && !isAdminViewer,
     });
 
     // ── Mutations ──────────────────────────────────────────────
@@ -112,6 +113,7 @@ export default function CompanyDetailPage() {
     });
 
     const handleFollowToggle = () => {
+        if (isAdminViewer) return;
         if (!user) { navigate('/auth'); return; }
         if (effectiveFollowing) unfollowMutation.mutate();
         else followMutation.mutate();
@@ -229,7 +231,8 @@ export default function CompanyDetailPage() {
                                     >
                                         <Button
                                             onClick={handleFollowToggle}
-                                            disabled={followMutation.isPending || unfollowMutation.isPending}
+                                            disabled={followMutation.isPending || unfollowMutation.isPending || isAdminViewer}
+                                            title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể theo dõi công ty' : undefined}
                                             className={
                                                 effectiveFollowing
                                                     ? 'bg-gray-50 border border-gray-200 text-gray-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600 rounded-xl px-6 h-11 font-semibold transition-all duration-200 shadow-sm'

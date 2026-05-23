@@ -18,6 +18,8 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
+const PAGE_SIZE = 20;
+
 const tabs = [
     { id: 'skills', label: 'Kỹ năng', icon: Tag },
     { id: 'industries', label: 'Lĩnh vực CNTT', icon: Building2 },
@@ -331,7 +333,7 @@ export default function MasterData() {
 
     const { data: benefitsData, isLoading: loadingBenefits } = useQuery({
         queryKey: ['master-data', 'benefits', page, search],
-        queryFn: () => dashboardService.listBenefitCategories({ search: search || undefined }).then(r => r.data),
+        queryFn: () => dashboardService.listBenefitCategories({ search: search || undefined, page }).then(r => r.data),
         enabled: activeTab === 'benefits',
     });
 
@@ -349,7 +351,7 @@ export default function MasterData() {
     const { raw, loading } = getActiveData();
     const rows = Array.isArray(raw) ? raw : raw?.results ?? [];
     const total = Array.isArray(raw) ? rows.length : raw?.count ?? 0;
-    const totalPages = Math.ceil(total / 20) || 1;
+    const totalPages = Math.max(1, Array.isArray(raw) ? Math.ceil(total / PAGE_SIZE) : raw?.total_pages ?? Math.ceil(total / PAGE_SIZE));
 
     // ── Delete ────────────────────────────────────────────────────────────
 

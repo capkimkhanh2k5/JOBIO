@@ -52,7 +52,7 @@ export function AdminSidebar() {
     const navItems = [
         { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { label: 'Thông báo', path: '/admin/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
-        { label: 'Quản lý Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
+        { label: 'Quản lý Khách hàng', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
         { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-5 h-5" /> },
         { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: pendingReports },

@@ -1,11 +1,19 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GraduationCap, Briefcase, Award, Code, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, Briefcase, Code, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+
+type SkillApiFallback = {
+    skill?: { name?: string } | null;
+    skill_name?: string | null;
+};
+
+const getSkillDisplayName = (skill: SkillApiFallback) => (
+    skill.skill?.name ?? skill.skill_name ?? 'Kỹ năng'
+);
 
 export const ProfileCVDetail = ({ userId }: { userId: number }) => {
     // Lấy dữ liệu học vấn
@@ -59,7 +67,7 @@ export const ProfileCVDetail = ({ userId }: { userId: number }) => {
                                     </div>
                                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-100 bg-white shadow-sm transition-all hover:shadow-md hover:border-orange-200">
                                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1">
-                                            <h3 className="font-bold text-slate-900 text-base">{exp.position}</h3>
+                                            <h3 className="font-bold text-slate-900 text-base">{exp.job_title}</h3>
                                             <time className="text-sm font-medium text-orange-500">
                                                 {formatDate(exp.start_date)} - {formatDate(exp.end_date)}
                                             </time>
@@ -99,7 +107,7 @@ export const ProfileCVDetail = ({ userId }: { userId: number }) => {
                                         <GraduationCap className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900">{edu.institution}</h3>
+                                        <h3 className="font-bold text-slate-900">{edu.school_name}</h3>
                                         <p className="text-slate-600 font-medium text-sm mt-1">{edu.degree} - {edu.field_of_study}</p>
                                         <p className="text-xs text-slate-400 mt-2">
                                             {formatDate(edu.start_date)} - {formatDate(edu.end_date)}
@@ -131,13 +139,16 @@ export const ProfileCVDetail = ({ userId }: { userId: number }) => {
                         </div>
                     ) : skills?.length ? (
                         <div className="flex flex-wrap gap-2">
-                            {skills.map((skill, index) => (
-                                <div key={skill.id || index} className="px-4 py-2 bg-fuchsia-50 text-fuchsia-700 rounded-full border border-fuchsia-100 text-sm font-medium flex items-center gap-2 transition-all hover:shadow-sm hover:border-fuchsia-300">
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                    {skill.skill_name} 
-                                    {skill.proficiency_level && <span className="text-xs opacity-70 ml-1">({skill.proficiency_level})</span>}
-                                </div>
-                            ))}
+                            {skills.map((skill, index) => {
+                                const skillName = getSkillDisplayName(skill);
+                                return (
+                                    <div key={skill.id || index} className="px-4 py-2 bg-fuchsia-50 text-fuchsia-700 rounded-full border border-fuchsia-100 text-sm font-medium flex items-center gap-2 transition-all hover:shadow-sm hover:border-fuchsia-300">
+                                        <CheckCircle2 className="w-3.5 h-3.5" />
+                                        {skillName}
+                                        {skill.proficiency_level && <span className="text-xs opacity-70 ml-1">({skill.proficiency_level})</span>}
+                                    </div>
+                                );
+                            })}
                         </div>
                     ) : (
                         <p className="text-slate-500 text-center py-4 text-sm">Chưa có thông tin kỹ năng.</p>

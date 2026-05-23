@@ -103,8 +103,8 @@ export const Header = () => {
             return;
         }
 
-        // Có yêu cầu role cụ thể (company)
-        if (item.requiresRole && user.role !== item.requiresRole && user.role !== 'admin') {
+        // Có yêu cầu role cụ thể
+        if (item.requiresRole && user.role !== item.requiresRole) {
             toast.warning('Chức năng này không dành cho bạn', {
                 description: 'Tính năng "Đăng Tuyển" chỉ dành cho tài khoản Nhà tuyển dụng.',
             });

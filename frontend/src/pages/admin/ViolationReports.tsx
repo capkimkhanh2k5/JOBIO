@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 import { downloadBlob } from '@/lib/download';
 
+const PAGE_SIZE = 10;
+
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -92,7 +94,7 @@ export default function ViolationReports() {
         queryKey: ['admin-reports', page, debouncedSearch, statusFilter],
         queryFn: () => dashboardService.listAdminReports({
             page,
-            page_size: 10,
+            page_size: PAGE_SIZE,
             search: debouncedSearch || undefined,
             status: statusFilter !== 'all' ? statusFilter : undefined
         }).then(r => r.data),
@@ -145,7 +147,7 @@ export default function ViolationReports() {
 
     const reports = reportsData?.results ?? [];
     const totalCount = reportsData?.count ?? 0;
-    const totalPages = reportsData?.total_pages ?? 1;
+    const totalPages = Math.max(1, reportsData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
     const statCards = [
         { label: 'Tổng báo cáo', value: statsData?.total_reports || 0, icon: Flag, color: 'text-slate-600', bg: 'bg-slate-50' },

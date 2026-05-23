@@ -46,9 +46,10 @@ interface CompanySidebarProps {
 }
 
 export const CompanySidebar = ({ company }: CompanySidebarProps) => {
-    const { isAuthenticated } = useUserStore();
+    const { isAuthenticated, user } = useUserStore();
     const [isFollowing, setIsFollowing] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const isAdminViewer = user?.role === 'admin';
     const industryLabel =
         company.industry_name ||
         (typeof company.industry === 'string' ? company.industry : company.industry?.name) ||
@@ -57,12 +58,16 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
     const description = cleanDescription(company.description);
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && !isAdminViewer) {
             companyService.isFollowing(company.id).then(res => setIsFollowing(res.data.is_following));
         }
-    }, [company.id, isAuthenticated]);
+    }, [company.id, isAuthenticated, isAdminViewer]);
 
     const handleFollowToggle = async () => {
+        if (isAdminViewer) {
+            toast.info('Admin chỉ xem nội dung, không thể theo dõi công ty');
+            return;
+        }
         if (!isAuthenticated) {
             toast.error('Vui lòng đăng nhập để theo dõi công ty');
             return;
@@ -202,7 +207,8 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                 <div className="flex flex-col gap-3">
                     <Button
                         onClick={handleFollowToggle}
-                        disabled={isActionLoading}
+                        disabled={isActionLoading || isAdminViewer}
+                        title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể theo dõi công ty' : undefined}
                         variant={isFollowing ? 'outline' : 'default'}
                         className={cn(
                             'w-full h-12 rounded-xl font-bold text-base transition-all',

@@ -2,19 +2,12 @@ import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    AlertTriangle,
     ArrowRight,
-    Bell,
     Briefcase,
     Building2,
     CreditCard,
-    Database,
-    FileText,
-    LayoutDashboard,
     Loader2,
     Search,
-    Settings,
-    ShieldCheck,
     Users,
     Wallet,
     X,
@@ -23,8 +16,6 @@ import {
 import { Logo } from '@/components/shared/Logo';
 import { NotificationBell } from '@/components/shared/notifications/NotificationBell';
 import { dashboardService } from '@/services/dashboardService';
-import { notificationService } from '@/services/notificationService';
-import { blogService } from '@/services/blogService';
 import { companyService } from '@/services/companyService';
 import { cn } from '@/lib/utils';
 
@@ -40,6 +31,7 @@ type AdminSearchSource = {
     getTitle: (item: SearchItem) => string;
     getSubtitle: (item: SearchItem) => string;
     getSearchValue?: (item: SearchItem, term: string) => string;
+    getImageUrl?: (item: SearchItem) => string;
     getItemRoute?: (item: SearchItem, term: string) => string;
 };
 
@@ -76,16 +68,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const ADMIN_PAGE_LINKS: AdminPageLink[] = [
-    { label: 'Dashboard', route: '/admin/dashboard', aliases: 'tong quan thong ke dashboard bao cao', icon: LayoutDashboard },
-    { label: 'Thông báo', route: '/admin/notifications', aliases: 'thong bao notification inbox tin nhan', icon: Bell },
-    { label: 'Quản lý Users', route: '/admin/users', aliases: 'user nguoi dung ung vien nha tuyen dung tai khoan', icon: Users },
+    { label: 'Quản lý Khách hàng', route: '/admin/users', aliases: 'user nguoi dung ung vien nha tuyen dung tai khoan', icon: Users },
     { label: 'Tài chính', route: '/admin/financial', aliases: 'tai chinh giao dich doanh thu thanh toan billing', icon: Wallet },
     { label: 'Thị trường Việc làm', route: '/admin/jobs', aliases: 'viec lam job tin tuyen dung cong ty', icon: Briefcase },
-    { label: 'Báo cáo vi phạm', route: '/admin/reports', aliases: 'bao cao vi pham khieu nai report', icon: AlertTriangle },
-    { label: 'Duyệt & Kiểm duyệt', route: '/admin/moderation', aliases: 'duyet cong ty xac minh kiem duyet moderation', icon: ShieldCheck },
-    { label: 'Quản lý Blog', route: '/admin/blog', aliases: 'blog bai viet danh muc tag tin tuc', icon: FileText },
-    { label: 'Dữ liệu danh mục', route: '/admin/master-data', aliases: 'du lieu danh muc ky nang linh vuc phuc loi', icon: Database },
-    { label: 'Cài đặt hệ thống', route: '/admin/settings', aliases: 'cai dat he thong audit log file upload goi dich vu', icon: Settings },
+    { label: 'Công ty', route: '/admin/moderation', aliases: 'cong ty nha tuyen dung doanh nghiep xac minh kiem duyet moderation', icon: Building2 },
 ];
 
 function text(value: unknown) {
@@ -134,6 +120,48 @@ function formatMoney(amount: unknown) {
     }).format(value);
 }
 
+function getInitials(value: string) {
+    const words = value.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return '?';
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+}
+
+function SearchResultAvatar({ source, item }: { source: AdminSearchSource; item: SearchItem }) {
+    const [imageFailed, setImageFailed] = useState(false);
+    const imageUrl = source.getImageUrl?.(item);
+    const title = source.getTitle(item);
+    const Icon = source.icon;
+
+    if (imageUrl && !imageFailed) {
+        return (
+            <span className="w-9 h-9 rounded-xl overflow-hidden border border-slate-200 bg-white flex items-center justify-center shrink-0">
+                <img
+                    src={imageUrl}
+                    alt={title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={() => setImageFailed(true)}
+                />
+            </span>
+        );
+    }
+
+    if (source.id === 'users') {
+        return (
+            <span className="w-9 h-9 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center shrink-0 text-xs font-black">
+                {getInitials(title)}
+            </span>
+        );
+    }
+
+    return (
+        <span className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', source.iconClassName)}>
+            <Icon className="w-4 h-4" />
+        </span>
+    );
+}
+
 const SEARCH_SOURCES: AdminSearchSource[] = [
     {
         id: 'users',
@@ -148,6 +176,7 @@ const SEARCH_SOURCES: AdminSearchSource[] = [
         getTitle: (item) => text(item.full_name) || text(item.email) || `User #${item.id}`,
         getSubtitle: (item) => [text(item.email), ROLE_LABELS[text(item.role)] ?? text(item.role)].filter(Boolean).join(' - '),
         getSearchValue: (item, term) => text(item.email) || text(item.full_name) || term,
+        getImageUrl: (item) => text(item.avatar_url),
     },
     {
         id: 'jobs',
@@ -156,7 +185,7 @@ const SEARCH_SOURCES: AdminSearchSource[] = [
         icon: Briefcase,
         iconClassName: 'text-blue-600 bg-blue-50',
         queryFn: async (term) => {
-            const response = await dashboardService.listAdminJobs({ search: term, page: 1 });
+            const response = await dashboardService.listAdminJobs({ search: term, page: 1, page_size: RESULT_LIMIT });
             return response.data;
         },
         getTitle: (item) => text(item.title) || `Tin tuyển dụng #${item.id}`,
@@ -165,34 +194,26 @@ const SEARCH_SOURCES: AdminSearchSource[] = [
             STATUS_LABELS[text(item.status)] ?? text(item.status),
         ].filter(Boolean).join(' - '),
         getSearchValue: (item, term) => text(item.title) || text(item.company_name) || term,
+        getImageUrl: (item) => text(item.logo_url) || text(item.company_logo),
     },
     {
         id: 'companies',
-        label: 'Duyệt công ty',
+        label: 'Công ty',
         route: '/admin/moderation',
         icon: Building2,
         iconClassName: 'text-emerald-600 bg-emerald-50',
         queryFn: async (term) => {
-            const response = await companyService.listPending({ search: term, page: 1, page_size: RESULT_LIMIT });
+            const response = await companyService.list({ search: term, page: 1, page_size: RESULT_LIMIT });
             return response.data;
         },
         getTitle: (item) => text(item.company_name) || `Công ty #${item.id}`,
-        getSubtitle: (item) => [text(item.industry?.name), item.tax_code ? `MST: ${item.tax_code}` : 'Chờ xác minh'].filter(Boolean).join(' - '),
+        getSubtitle: (item) => [
+            text(item.industry?.name) || text(item.industry_name),
+            item.tax_code ? `MST: ${item.tax_code}` : '',
+            STATUS_LABELS[text(item.verification_status)] ?? text(item.verification_status),
+        ].filter(Boolean).join(' - '),
         getSearchValue: (item, term) => text(item.company_name) || text(item.tax_code) || term,
-    },
-    {
-        id: 'reports',
-        label: 'Báo cáo',
-        route: '/admin/reports',
-        icon: AlertTriangle,
-        iconClassName: 'text-orange-600 bg-orange-50',
-        queryFn: async (term) => {
-            const response = await dashboardService.listAdminReports({ search: term, page: 1, page_size: RESULT_LIMIT });
-            return response.data;
-        },
-        getTitle: (item) => text(item.report_type_name) || `Báo cáo #${item.id}`,
-        getSubtitle: (item) => [text(item.reporter_email), text(item.description)].filter(Boolean).join(' - '),
-        getSearchValue: (item, term) => text(item.reporter_email) || text(item.description) || term,
+        getImageUrl: (item) => text(item.logo_url),
     },
     {
         id: 'financial',
@@ -211,71 +232,7 @@ const SEARCH_SOURCES: AdminSearchSource[] = [
             STATUS_LABELS[text(item.status)] ?? text(item.status),
         ].filter(Boolean).join(' - '),
         getSearchValue: (item, term) => text(item.reference_code) || text(item.user_email) || text(item.company_name) || term,
-    },
-    {
-        id: 'blog',
-        label: 'Blog',
-        route: '/admin/blog',
-        icon: FileText,
-        iconClassName: 'text-sky-600 bg-sky-50',
-        queryFn: async (term) => {
-            const response = await blogService.listPosts({ search: term, page: 1, page_size: RESULT_LIMIT });
-            return response.data;
-        },
-        getTitle: (item) => text(item.title) || `Bài viết #${item.id}`,
-        getSubtitle: (item) => [text(item.author_name), STATUS_LABELS[text(item.status)] ?? text(item.status)].filter(Boolean).join(' - '),
-        getSearchValue: (item, term) => text(item.title) || term,
-    },
-    {
-        id: 'notifications',
-        label: 'Thông báo',
-        route: '/admin/notifications',
-        icon: Bell,
-        iconClassName: 'text-indigo-600 bg-indigo-50',
-        queryFn: async (term) => {
-            const response = await notificationService.listAdminNotifications({ search: term, page: 1, page_size: RESULT_LIMIT });
-            return response.data;
-        },
-        getTitle: (item) => text(item.title) || `Thông báo #${item.id}`,
-        getSubtitle: (item) => text(item.content),
-        getSearchValue: (item, term) => text(item.title) || text(item.content) || term,
-    },
-    {
-        id: 'master-data',
-        label: 'Dữ liệu danh mục',
-        route: '/admin/master-data',
-        icon: Database,
-        iconClassName: 'text-fuchsia-600 bg-fuchsia-50',
-        queryFn: async (term) => {
-            const [skills, industries, jobCategories, benefits] = await Promise.all([
-                dashboardService.listSkills({ search: term, page: 1 }),
-                dashboardService.listIndustries({ search: term, page: 1 }),
-                dashboardService.listJobCategories({ search: term, page: 1 }),
-                dashboardService.listBenefitCategories({ search: term }),
-            ]);
-            const pack = (data: unknown, tab: string, typeLabel: string) =>
-                getItems(data).map((item) => ({ ...item, adminSearchTab: tab, adminSearchType: typeLabel }));
-
-            const results = [
-                ...pack(skills.data, 'skills', 'Kỹ năng'),
-                ...pack(industries.data, 'industries', 'Lĩnh vực'),
-                ...pack(jobCategories.data, 'job-categories', 'Danh mục việc làm'),
-                ...pack(benefits.data, 'benefits', 'Phúc lợi'),
-            ];
-
-            return {
-                count:
-                    getTotalCount(skills.data, getItems(skills.data).length) +
-                    getTotalCount(industries.data, getItems(industries.data).length) +
-                    getTotalCount(jobCategories.data, getItems(jobCategories.data).length) +
-                    getTotalCount(benefits.data, getItems(benefits.data).length),
-                results,
-            };
-        },
-        getTitle: (item) => text(item.name) || `Danh mục #${item.id}`,
-        getSubtitle: (item) => [text(item.adminSearchType), text(item.description) || text(item.category_name)].filter(Boolean).join(' - '),
-        getSearchValue: (item, term) => text(item.name) || term,
-        getItemRoute: (item, term) => buildSearchUrl('/admin/master-data', term, { tab: text(item.adminSearchTab) || 'skills' }),
+        getImageUrl: (item) => text(item.logo_url) || text(item.company_logo) || text(item.company_logo_url),
     },
 ];
 
@@ -489,9 +446,7 @@ export function AdminTopNav() {
                                                         onClick={() => handleResultClick(group.source, item)}
                                                         className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-slate-50 transition-colors"
                                                     >
-                                                        <span className={cn('w-9 h-9 rounded-xl flex items-center justify-center shrink-0', group.source.iconClassName)}>
-                                                            <Icon className="w-4 h-4" />
-                                                        </span>
+                                                        <SearchResultAvatar source={group.source} item={item} />
                                                         <span className="min-w-0 flex-1">
                                                             <span className="block text-sm font-bold text-slate-900 truncate">{group.source.getTitle(item)}</span>
                                                             <span className="block text-[11px] font-medium text-slate-400 truncate">{group.source.getSubtitle(item)}</span>

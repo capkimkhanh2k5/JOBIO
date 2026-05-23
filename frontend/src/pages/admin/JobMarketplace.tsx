@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 import { downloadBlob } from '@/lib/download';
 
+const PAGE_SIZE = 20;
+
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -79,6 +81,7 @@ export default function JobMarketplace() {
         queryFn: () => {
             return dashboardService.listAdminJobs({
                 page,
+                page_size: PAGE_SIZE,
                 search: debouncedSearch || undefined,
                 status: statusFilter !== 'all' ? statusFilter : undefined
             }).then(r => r.data);
@@ -87,7 +90,7 @@ export default function JobMarketplace() {
 
     const jobs = jobsData?.results ?? [];
     const totalCount = jobsData?.count ?? 0;
-    const totalPages = jobsData?.total_pages ?? 1;
+    const totalPages = Math.max(1, jobsData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
     // Handle Export Excel
     const handleExportExcel = async () => {

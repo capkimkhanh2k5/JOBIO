@@ -30,6 +30,7 @@ const TYPE_META: Record<string, { label: string; icon: React.ReactNode; color: s
 };
 
 const getMeta = (type: string) => TYPE_META[type] ?? TYPE_META.system;
+const PAGE_SIZE = 10;
 
 const TABS = [
     { key: 'all', label: 'Tất cả', icon: Bell },
@@ -68,7 +69,7 @@ export default function AdminNotificationsPage() {
 
     // ── Build query params ──────────────────────────────────────────────────
     const queryParams = (() => {
-        const p: Record<string, any> = { page_size: 10, page };
+        const p: Record<string, any> = { page_size: PAGE_SIZE, page };
         if (activeTab === 'unread') p.is_read = false;
         if (['report', 'verification', 'billing', 'system'].includes(activeTab)) p.type = activeTab;
         if (debouncedSearch) p.search = debouncedSearch;
@@ -84,7 +85,7 @@ export default function AdminNotificationsPage() {
 
     const notifications = data?.results ?? [];
     const totalCount = data?.count ?? 0;
-    const totalPages = data?.total_pages ?? 1;
+    const totalPages = Math.max(1, data?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
     const unreadCount = activeTab === 'all'
         ? (stats?.total_unread ?? 0)
         : totalCount;
@@ -363,7 +364,7 @@ export default function AdminNotificationsPage() {
                                 <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
                                 <span className="text-xs font-bold text-slate-500">{totalPages}</span>
                             </div>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>

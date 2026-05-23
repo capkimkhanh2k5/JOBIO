@@ -26,7 +26,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
     rating: z.number().min(1, 'Vui lòng chọn đánh giá tổng quan').max(5),
@@ -41,7 +40,7 @@ const formSchema = z.object({
     employment_status: z.enum(['current', 'former', 'intern']),
     position: z.string().optional(),
     employment_duration: z.string().optional(),
-    is_anonymous: z.boolean().default(false),
+    is_anonymous: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;

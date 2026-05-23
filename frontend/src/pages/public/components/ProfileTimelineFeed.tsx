@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '@/services/dashboardService';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,13 +12,13 @@ export const ProfileTimelineFeed = ({ userId }: { userId: number }) => {
     // but ideally the backend supports filtering.
     const { data: postsData, isLoading } = useQuery({
         queryKey: ['public-timeline-posts', userId],
-        queryFn: () => dashboardService.listBlogPosts({ 
+        queryFn: () => dashboardService.listPosts({
             // Attempting to filter by user. Adjust param key if backend differs.
-            // author: userId 
+            // author: userId
         }).then(r => r.data),
     });
 
-    const posts = postsData?.results?.filter(p => true) || []; // We might need to filter locally if backend doesn't support query param yet
+    const posts = postsData?.results || []; // We might need to filter locally if backend doesn't support query param yet
 
     if (isLoading) {
         return (
@@ -74,14 +73,14 @@ export const ProfileTimelineFeed = ({ userId }: { userId: number }) => {
                         <div className="px-5 pb-4">
                             <h4 className="text-lg font-bold text-slate-900 mb-2">{post.title}</h4>
                             <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
-                                {post.excerpt || post.content.replace(/<[^>]+>/g, '')}
+                                {post.summary || post.content.replace(/<[^>]+>/g, '')}
                             </p>
                         </div>
 
                         {/* Post Image (if any) */}
-                        {post.featured_image && (
+                        {post.thumbnail && (
                             <div className="w-full h-64 bg-slate-100 relative">
-                                <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
+                                <img src={post.thumbnail} alt={post.title} className="w-full h-full object-cover" />
                             </div>
                         )}
 

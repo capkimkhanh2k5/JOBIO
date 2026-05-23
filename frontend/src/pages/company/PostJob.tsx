@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -165,6 +165,16 @@ function clearSeoDraft(jobId?: string | number | null) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function PostJob() {
+    const { user } = useUserStore();
+
+    if (user?.role !== 'company') {
+        return <Navigate to="/" replace />;
+    }
+
+    return <PostJobEditor />;
+}
+
+function PostJobEditor() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { user } = useUserStore();

@@ -19,7 +19,7 @@ interface CandidateProfileSheetProps {
     onSelectCandidate?: (id: string) => void;
 }
 
-export const CandidateProfileSheet = ({ candidateId, open, onOpenChange, onSelectCandidate }: CandidateProfileSheetProps) => {
+export const CandidateProfileSheet = ({ candidateId, open, onOpenChange }: CandidateProfileSheetProps) => {
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(false);
 

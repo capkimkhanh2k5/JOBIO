@@ -4,8 +4,8 @@ import {
     Search, MapPin, Briefcase, Building, Users,
     ArrowRight, DollarSign, Clock, Wifi, ChevronRight,
     Monitor, Landmark, Factory, ShoppingBag, Headphones,
-    Laptop, Megaphone, PenTool, PieChart, Stethoscope, GraduationCap,
-    Home as HomeIcon
+    Home as HomeIcon,
+    Bot, Code, Target, Palette, Bug
 } from "lucide-react";
 import { taxonomyService } from "../services/taxonomyService";
 import { jobService } from "../services/jobService";
@@ -22,6 +22,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const FEATURED_JOBS_LIMIT = 8;
+
+const unwrapList = <T,>(value: T[] | { results?: T[] } | null | undefined): T[] => (
+    Array.isArray(value) ? value : (value?.results ?? [])
+);
 
 export default function Home() {
     const mainRef = useRef<HTMLDivElement>(null);
@@ -337,6 +341,7 @@ const FeaturedJobsSection = () => {
         queryKey: ['featuredJobs', FEATURED_JOBS_LIMIT],
         queryFn: () => jobService.featured({ page_size: FEATURED_JOBS_LIMIT }).then(r => r.data)
     });
+    const jobItems = unwrapList(jobs);
 
     return (
         <section className="container mx-auto px-4">
@@ -355,7 +360,7 @@ const FeaturedJobsSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {isLoading
                     ? Array(FEATURED_JOBS_LIMIT).fill(0).map((_, i) => <Skeleton key={i} className="h-64 rounded-2xl" />)
-                    : jobs?.map((job: any) => <JobCard key={job.id} job={job} />)}
+                    : jobItems.map((job: any) => <JobCard key={job.id} job={job} />)}
             </div>
         </section>
     );
@@ -443,11 +448,15 @@ const JobCategoriesSection = () => {
         queryFn: () => taxonomyService.listJobCategories()
     });
 
-    const getCategoryIcon = (name: string) => {
+    const getCategoryIcon = (slug: string) => {
         const map: Record<string, any> = {
-            Laptop, Megaphone, PenTool, PieChart, Stethoscope, GraduationCap
+            'lap-trinh-web': Code,
+            'tri-tue-nhan-tao': Bot,
+            'quan-ly-du-an': Target,
+            'thiet-ke-ui-ux': Palette,
+            'kiem-thu-phan-mem': Bug,
         };
-        const Icon = map[name] || Briefcase;
+        const Icon = map[slug] || Briefcase;
         return <Icon className="w-6 h-6" />;
     };
 
@@ -480,7 +489,7 @@ const JobCategoriesSection = () => {
                                 className="bg-white rounded-2xl p-5 flex flex-col items-center text-center gap-3 cursor-pointer group border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all"
                             >
                                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i % gradients.length]} flex items-center justify-center text-white shadow-sm`}>
-                                    {getCategoryIcon(cat.icon_url)}
+                                    {getCategoryIcon(cat.slug)}
                                 </div>
                                 <div>
                                     <div className="font-bold text-gray-800 text-sm group-hover:text-primary transition-colors">{cat.name}</div>
@@ -501,6 +510,7 @@ const FeaturedCompaniesSection = () => {
         queryKey: ['featuredCompanies'],
         queryFn: () => companyService.featured().then(r => r.data)
     });
+    const companyItems = unwrapList(companies);
     const getJobCountLabel = (count?: number) => (
         count && count > 0 ? `${count} tin tuyển dụng` : 'Chưa có tin tuyển dụng'
     );
@@ -522,7 +532,7 @@ const FeaturedCompaniesSection = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
                 {isLoading
                     ? Array(5).fill(0).map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)
-                    : companies?.map((company: any) => (
+                    : companyItems.map((company: any) => (
                         <motion.div
                             key={company.id}
                             whileHover={{ y: -4 }}
@@ -617,4 +627,3 @@ const IndustriesSection = () => {
         </section>
     );
 };
-

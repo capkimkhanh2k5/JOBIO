@@ -27,6 +27,8 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
+const PAGE_SIZE = 10;
+
 interface User {
     id: number;
     email: string;
@@ -107,7 +109,7 @@ export default function UserManagement() {
             role: roleFilter === 'all' ? undefined : roleFilter,
             status: statusFilter === 'all' ? undefined : statusFilter,
             page,
-            page_size: 10,
+            page_size: PAGE_SIZE,
         }).then(r => r.data),
     });
 
@@ -235,7 +237,7 @@ export default function UserManagement() {
 
     const users = usersData?.results ?? [];
     const totalCount = usersData?.count ?? 0;
-    const totalPages = usersData?.total_pages ?? 1;
+    const totalPages = Math.max(1, usersData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
 
     const stats = [
@@ -252,7 +254,7 @@ export default function UserManagement() {
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                         <UserCog className="w-6 h-6 text-violet-600" />
-                        Quản lý Users
+                        Quản lý Khách hàng
                     </h1>
                     <p className="text-sm text-slate-500 font-medium mt-1">Quản lý và giám sát tất cả tài khoản trong hệ thống</p>
                 </div>
@@ -718,7 +720,7 @@ export default function UserManagement() {
                                 <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
                                 <span className="text-xs font-bold text-slate-500">{totalPages}</span>
                             </div>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>

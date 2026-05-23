@@ -11,15 +11,16 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { toast } from 'sonner';
+import type { CandidateCertificationRequest } from '@/types/api';
 
 interface CertEntry {
-    id: string;
+    id: string | number;
     certification_name: string;
-    issuing_organization: string;
-    issue_date: string;
+    issuing_organization?: string | null;
+    issue_date?: string | null;
     expiry_date?: string | null;
-    credential_id?: string;
-    credential_url?: string;
+    credential_id?: string | null;
+    credential_url?: string | null;
     does_not_expire: boolean;
 }
 
@@ -49,8 +50,12 @@ const CertForm = ({ open, onClose, entry, userId }: CertFormProps) => {
     const mutation = useMutation({
         mutationFn: () => {
             const { issue_date, expiry_date, does_not_expire, ...rest } = formData;
-            const payload = {
+            const payload: CandidateCertificationRequest = {
                 ...rest,
+                certification_name: formData.certification_name || '',
+                issuing_organization: formData.issuing_organization || '',
+                credential_id: formData.credential_id || '',
+                credential_url: formData.credential_url || '',
                 does_not_expire,
                 issue_date: issue_date || null,
                 expiry_date: does_not_expire ? null : (expiry_date || null)
@@ -154,7 +159,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (certId: string) => candidateService.deleteCertification(Number(userId), Number(certId)).then(r => r.data),
+        mutationFn: (certId: string | number) => candidateService.deleteCertification(Number(userId), Number(certId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['certifications', userId] });
             toast.success('Đã xoá chứng chỉ.');

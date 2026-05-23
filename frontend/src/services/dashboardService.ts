@@ -122,6 +122,18 @@ export const dashboardService = {
     return api.patch(`/api/users/${userId}/verify-email/`, { email_verified });
   },
 
+  listSearchHistory() {
+    return api.get('/api/search-history/');
+  },
+
+  deleteSearchHistoryItem(id: number) {
+    return api.delete(`/api/search-history/${id}/`);
+  },
+
+  clearSearchHistory() {
+    return api.delete('/api/search-history/clear/');
+  },
+
   bulkUserAction(action: string, userIds: number[]) {
     return api.post('/api/users/bulk-action/', { action, ids: userIds });
   },
@@ -212,7 +224,7 @@ export const dashboardService = {
     return api.get('/api/jobs/admin-jobs/stats/');
   },
 
-  listAdminJobs(params?: { page?: number; search?: string; status?: string }) {
+  listAdminJobs(params?: { page?: number; page_size?: number; search?: string; status?: string }) {
     return api.get('/api/jobs/admin-jobs/', { params });
   },
 
@@ -239,7 +251,7 @@ export const dashboardService = {
   // ─── Master Data (Admin CRUD) ──────────────────────────────────────────────
 
   listSkillCategories() { return api.get('/api/skills/categories/'); },
-  listSkills(params?: { category?: number; search?: string; page?: number }) {
+  listSkills(params?: { category?: number; search?: string; page?: number; page_size?: number }) {
     return api.get('/api/skills/', { params });
   },
   createSkill(data: { name: string; slug: string; category: number; description?: string }) {
@@ -250,7 +262,7 @@ export const dashboardService = {
   },
   deleteSkill(id: number) { return api.delete(`/api/skills/${id}/`); },
 
-  listIndustries(params?: { search?: string; page?: number }) {
+  listIndustries(params?: { search?: string; page?: number; page_size?: number }) {
     return api.get('/api/industries/', { params });
   },
   createIndustry(data: { name: string; slug: string; description?: string; icon_url?: string }) {
@@ -261,7 +273,7 @@ export const dashboardService = {
   },
   deleteIndustry(id: number) { return api.delete(`/api/industries/${id}/`); },
 
-  listJobCategories(params?: { search?: string; page?: number }) {
+  listJobCategories(params?: { search?: string; page?: number; page_size?: number }) {
     return api.get('/api/job-categories/', { params });
   },
   createJobCategory(data: { name: string; slug: string; parent?: number; icon_url?: string; description?: string }) {
@@ -272,7 +284,7 @@ export const dashboardService = {
   },
   deleteJobCategory(id: number) { return api.delete(`/api/job-categories/${id}/`); },
 
-  listBenefitCategories(params?: { search?: string }) {
+  listBenefitCategories(params?: { search?: string; page?: number; page_size?: number }) {
     return api.get('/api/benefit-categories/', { params });
   },
   createBenefitCategory(data: { name: string; slug: string; icon_url?: string; description?: string }) {
@@ -300,4 +312,3 @@ export const dashboardService = {
     }>('/api/analytics/overview/');
   },
 };
-
