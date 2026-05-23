@@ -50,7 +50,9 @@ class AuthenticationError(Exception):
 # Helper Functions
 
 
-def generate_tokens(user: CustomUser, refresh_lifetime: timedelta | None = None) -> dict:
+def generate_tokens(
+    user: CustomUser, refresh_lifetime: timedelta | None = None
+) -> dict:
     """Helper tạo JWT tokens cho user"""
     if refresh_lifetime is not None:
         CustomRefreshToken = type(

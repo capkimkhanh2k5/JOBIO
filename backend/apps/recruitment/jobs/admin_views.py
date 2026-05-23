@@ -109,9 +109,7 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
                 job.view_count,
                 job.application_count,
                 job.get_status_display(),
-                job.created_at.strftime("%Y-%m-%d %H:%M:%S")
-                if job.created_at
-                else "",
+                job.created_at.strftime("%Y-%m-%d %H:%M:%S") if job.created_at else "",
             ]
             for job in queryset
         )

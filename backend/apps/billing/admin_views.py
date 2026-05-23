@@ -180,9 +180,7 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
                 txn.get_status_display(),
                 txn.amount,
                 txn.currency,
-                txn.created_at.strftime("%Y-%m-%d %H:%M:%S")
-                if txn.created_at
-                else "",
+                txn.created_at.strftime("%Y-%m-%d %H:%M:%S") if txn.created_at else "",
             ]
             for txn in queryset
         )

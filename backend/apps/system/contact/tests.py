@@ -50,7 +50,9 @@ class ContactViewTests(APITestCase):
         self.assertFalse(notification.is_read)
         self.assertIn("Liên hệ mới", notification.title)
         self.assertIn("Khánh Cấp Kim", notification.content)
-        self.assertTrue(notification.link.startswith("https://mail.google.com/mail/u/0/#search/"))
+        self.assertTrue(
+            notification.link.startswith("https://mail.google.com/mail/u/0/#search/")
+        )
         decoded_link = unquote(notification.link)
         self.assertIn("from:admin@jobio.vn", decoded_link)
         self.assertIn('subject:"[JOBIO Contact]"', decoded_link)

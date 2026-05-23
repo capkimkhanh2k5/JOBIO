@@ -306,7 +306,9 @@ class AdminApiContractTests(APITestCase):
         for method, url, payload in checks:
             with self.subTest(url=url):
                 request = getattr(self.client, method)
-                response = request(url, payload, format="json") if payload else request(url)
+                response = (
+                    request(url, payload, format="json") if payload else request(url)
+                )
                 self.assertNotEqual(response.status_code, status.HTTP_403_FORBIDDEN)
                 self.assertLess(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -491,7 +493,9 @@ class AdminApiContractTests(APITestCase):
         files_response = self.client.get("/api/file-uploads/")
         self._assert_paginated_response(files_response)
         self.assertEqual(files_response.data["count"], 1)
-        self.assertEqual(files_response.data["results"][0]["id"], data["file_upload"].id)
+        self.assertEqual(
+            files_response.data["results"][0]["id"], data["file_upload"].id
+        )
 
         self.client.force_authenticate(user=self.company_user)
         files_response = self.client.get("/api/file-uploads/")

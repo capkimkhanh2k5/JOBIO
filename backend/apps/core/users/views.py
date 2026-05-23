@@ -335,9 +335,7 @@ class CustomUserViewSet(
         try:
             excel_content = export_users_excel(filters=request.query_params)
             response = HttpResponse(excel_content, content_type=XLSX_CONTENT_TYPE)
-            response["Content-Disposition"] = (
-                'attachment; filename="users_export.xlsx"'
-            )
+            response["Content-Disposition"] = 'attachment; filename="users_export.xlsx"'
             return response
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

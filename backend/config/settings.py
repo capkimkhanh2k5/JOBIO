@@ -318,12 +318,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": os.getenv(
-            "DRF_THROTTLE_ANON", "2000/hour" if DEBUG else "100/hour"
-        ),
-        "user": os.getenv(
-            "DRF_THROTTLE_USER", "5000/hour" if DEBUG else "1000/hour"
-        ),
+        "anon": os.getenv("DRF_THROTTLE_ANON", "2000/hour" if DEBUG else "100/hour"),
+        "user": os.getenv("DRF_THROTTLE_USER", "5000/hour" if DEBUG else "1000/hour"),
         # Custom throttles
         "login": "5/minute",
         "register": "10/hour",
@@ -387,9 +383,7 @@ SECURE_SSL_REDIRECT = env_bool(
 SESSION_COOKIE_SECURE = env_bool(
     "SESSION_COOKIE_SECURE", default=PRODUCTION_SECURITY_DEFAULT
 )
-CSRF_COOKIE_SECURE = env_bool(
-    "CSRF_COOKIE_SECURE", default=PRODUCTION_SECURITY_DEFAULT
-)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=PRODUCTION_SECURITY_DEFAULT)
 SECURE_HSTS_SECONDS = env_int(
     "SECURE_HSTS_SECONDS", 31536000 if PRODUCTION_SECURITY_DEFAULT else 0
 )
