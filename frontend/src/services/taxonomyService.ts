@@ -1,6 +1,5 @@
 import api from './api';
 import type {
-  PaginatedResponse,
   Province,
   Commune,
   Industry,
@@ -11,16 +10,19 @@ import type {
 
 // ─── Taxonomy & Geography (public, usually cached) ──────────────────────────
 
+function asList<T>(data: T[] | { results?: T[] } | null | undefined): T[] {
+  return Array.isArray(data) ? data : (data?.results || []);
+}
+
 export const taxonomyService = {
   // ─── Geography ────────────────────────────────────────────────────────
 
-  async listProvinces(params?: { region?: string; search?: string }) {
+  async listProvinces(params?: { region?: string; search?: string }): Promise<Province[]> {
     try {
-      const response = await api.get<any>('/api/provinces/', { 
-        params: { ...params, page_size: 100 } 
+      const response = await api.get<Province[] | { results?: Province[] }>('/api/provinces/', {
+        params: { ...params, page_size: 100 }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listProvinces:', e);
       return [];
@@ -31,13 +33,12 @@ export const taxonomyService = {
     return api.get<Province>(`/api/provinces/${id}/`);
   },
 
-  async listCommunes(params?: { province_id?: number; search?: string; page?: number; page_size?: number }) {
+  async listCommunes(params?: { province_id?: number; search?: string; page?: number; page_size?: number }): Promise<Commune[]> {
     try {
-      const response = await api.get<any>('/api/communes/', { 
-        params: { page_size: 100, ...params } 
+      const response = await api.get<Commune[] | { results?: Commune[] }>('/api/communes/', {
+        params: { page_size: 100, ...params }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listCommunes:', e);
       return [];
@@ -50,13 +51,12 @@ export const taxonomyService = {
 
   // ─── Industries ───────────────────────────────────────────────────────
 
-  async listIndustries(params?: { parent_id?: number; is_active?: boolean }) {
+  async listIndustries(params?: { parent_id?: number; is_active?: boolean }): Promise<Industry[]> {
     try {
-      const response = await api.get<any>('/api/industries/', { 
-        params: { page_size: 100, ...params } 
+      const response = await api.get<Industry[] | { results?: Industry[] }>('/api/industries/', {
+        params: { page_size: 100, ...params }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listIndustries:', e);
       return [];
@@ -69,11 +69,10 @@ export const taxonomyService = {
 
   // ─── Job Categories ───────────────────────────────────────────────────
 
-  async listJobCategories(params?: { parent_id?: number; is_active?: boolean }) {
+  async listJobCategories(params?: { parent_id?: number; is_active?: boolean }): Promise<JobCategory[]> {
     try {
-      const response = await api.get<any>('/api/job-categories/', { params });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      const response = await api.get<JobCategory[] | { results?: JobCategory[] }>('/api/job-categories/', { params });
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listJobCategories:', e);
       return [];
@@ -86,7 +85,7 @@ export const taxonomyService = {
 
   // ─── Skills ───────────────────────────────────────────────────────────
 
-  async listSkills(params?: { search?: string; q?: string; category_id?: number; page?: number; page_size?: number }) {
+  async listSkills(params?: { search?: string; q?: string; category_id?: number; page?: number; page_size?: number }): Promise<Skill[]> {
     try {
       const isSearch = !!(params?.search || params?.q);
       const endpoint = isSearch ? '/api/skills/search/' : '/api/skills/';
@@ -95,10 +94,9 @@ export const taxonomyService = {
         queryParams.q = params.search;
         delete queryParams.search;
       }
-      
-      const response = await api.get<any>(endpoint, { params: queryParams });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+
+      const response = await api.get<Skill[] | { results?: Skill[] }>(endpoint, { params: queryParams });
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listSkills:', e);
       return [];
@@ -109,11 +107,10 @@ export const taxonomyService = {
     return api.get<Skill>(`/api/skills/${id}/`);
   },
 
-  async listPopularSkills() {
+  async listPopularSkills(): Promise<Skill[]> {
     try {
-      const response = await api.get<any>('/api/skills/popular/');
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      const response = await api.get<Skill[] | { results?: Skill[] }>('/api/skills/popular/');
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listPopularSkills:', e);
       return [];
@@ -122,13 +119,12 @@ export const taxonomyService = {
 
   // ─── Languages ────────────────────────────────────────────────────────
 
-  async listLanguages() {
+  async listLanguages(): Promise<LanguageRef[]> {
     try {
-      const response = await api.get<any>('/api/languages/', {
+      const response = await api.get<LanguageRef[] | { results?: LanguageRef[] }>('/api/languages/', {
         params: { page_size: 100 }
       });
-      const data = response?.data;
-      return Array.isArray(data) ? data : (data?.results || []);
+      return asList(response?.data);
     } catch (e) {
       console.error('Error listLanguages:', e);
       return [];

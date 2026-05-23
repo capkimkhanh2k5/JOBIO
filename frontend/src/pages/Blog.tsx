@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -19,6 +20,13 @@ export default function Blog() {
     const selectedCategory = searchParams.get('category_id') ? Number(searchParams.get('category_id')) : undefined;
     const selectedTag = searchParams.get('tag_id') ? Number(searchParams.get('tag_id')) : undefined;
 
+    const [limit, setLimit] = useState(6);
+
+    // Reset limit when category or tag changes
+    useEffect(() => {
+        setLimit(6);
+    }, [selectedCategory, selectedTag]);
+
     // ── Queries ──
     const { data: featuredResp } = useQuery({
         queryKey: ['blog-featured'],
@@ -28,11 +36,20 @@ export default function Blog() {
     const featuredPost = featuredResp?.results?.[0];
 
     const { data: postsResp, isLoading: isLoadingPosts } = useQuery({
-        queryKey: ['blog-posts', selectedCategory, selectedTag],
-        queryFn: () => blogService.listPosts({ category_id: selectedCategory, tag_id: selectedTag, page_size: 10 }).then(r => r.data),
+        queryKey: ['blog-posts', selectedCategory, selectedTag, limit],
+        queryFn: () => {
+            const fetchLimit = (!selectedCategory && !selectedTag) ? limit + 1 : limit;
+            return blogService.listPosts({ category_id: selectedCategory, tag_id: selectedTag, page_size: fetchLimit }).then(r => r.data);
+        },
         staleTime: 60_000,
     });
     const posts = postsResp?.results ?? [];
+    const totalCount = postsResp?.count ?? 0;
+
+    // Filter out featured post to avoid duplication, then ensure we only show up to `limit` items
+    const displayPosts = posts
+        .filter(post => !(featuredPost && post.id === featuredPost.id && !selectedCategory && !selectedTag))
+        .slice(0, limit);
 
     const { data: categories } = useQuery({
         queryKey: ['blog-categories'],
@@ -135,12 +152,11 @@ export default function Blog() {
 
                         {isLoadingPosts ? (
                             <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-violet-600" /></div>
-                        ) : posts.length === 0 ? (
+                        ) : displayPosts.length === 0 ? (
                             <div className="text-center py-12"><p className="text-slate-500 font-medium">Không tìm thấy bài viết nào.</p></div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                                {posts.map((post, idx) => {
-                                    if (featuredPost && post.id === featuredPost.id && !selectedCategory && !selectedTag) return null; // Deduplicate
+                                {displayPosts.map((post, idx) => {
                                     return (
                                         <motion.article 
                                             key={post.id} 
@@ -193,10 +209,14 @@ export default function Blog() {
                                 })}
                             </div>
                         )}
-                        
-                        {posts.length > 0 && (
+
+                        {posts.length > 0 && posts.length < totalCount && (
                             <div className="flex justify-center mt-12">
-                                <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold px-8 h-12 shadow-sm">
+                                <Button
+                                    onClick={() => setLimit(prev => prev + 6)}
+                                    variant="outline"
+                                    className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold px-8 h-12 shadow-sm"
+                                >
                                     Tải thêm bài viết
                                 </Button>
                             </div>

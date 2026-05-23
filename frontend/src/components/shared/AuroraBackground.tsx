@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 export const AuroraBackground = () => {
     return (
         <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-[#f8f9fa] dark:bg-background select-none">

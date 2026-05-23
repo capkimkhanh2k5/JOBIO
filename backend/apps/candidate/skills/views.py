@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
+from apps.core.users.permissions import IsAdmin
 
 from .models import Skill
 from .serializers import (
@@ -60,7 +61,7 @@ class SkillViewSet(viewsets.ModelViewSet):
         """
         if self.action in ["list", "retrieve", "search", "popular", "categories"]:
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsAdmin()]
 
     @action(detail=False, methods=["get"])
     def search(self, request):

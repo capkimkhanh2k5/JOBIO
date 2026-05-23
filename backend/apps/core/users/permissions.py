@@ -2,21 +2,28 @@ from rest_framework import permissions
 from .models import CustomUser
 
 
+def is_admin_user(user) -> bool:
+    """
+    Admin thống nhất cho API nội bộ: chấp nhận staff, superuser hoặc role=admin.
+    """
+    return bool(
+        user
+        and user.is_authenticated
+        and (
+            user.is_staff
+            or user.is_superuser
+            or getattr(user, "role", None) == CustomUser.Role.ADMIN
+        )
+    )
+
+
 class IsAdmin(permissions.BasePermission):
     """
     Chỉ cho phép Admin truy cập
     """
 
     def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and (
-                request.user.is_staff
-                or request.user.is_superuser
-                or request.user.role == CustomUser.Role.ADMIN
-            )
-        )
+        return is_admin_user(request.user)
 
 
 class IsAdminOrOwner(permissions.BasePermission):

@@ -5,8 +5,8 @@
         "description": "Hành động Ứng tuyển",
         "severity": "info",
         "is_active": true,
-        "created_at": "2026-04-19T02:39:43.867421Z",
-        "updated_at": "2026-04-19T02:39:43.867421Z"
+        "created_at": "2026-04-13T11:55:21.000Z",
+        "updated_at": "2026-04-13T09:55:21.000Z"
     },
     {
         "id": 2,
@@ -14,8 +14,8 @@
         "description": "Hành động Xem việc",
         "severity": "info",
         "is_active": true,
-        "created_at": "2026-04-19T02:39:43.867421Z",
-        "updated_at": "2026-04-19T02:39:43.867421Z"
+        "created_at": "2026-02-19T10:09:22.000Z",
+        "updated_at": "2026-02-20T00:09:22.000Z"
     },
     {
         "id": 3,
@@ -23,7 +23,7 @@
         "description": "Hành động Đăng việc",
         "severity": "info",
         "is_active": true,
-        "created_at": "2026-04-19T02:39:43.867421Z",
-        "updated_at": "2026-04-19T02:39:43.867421Z"
+        "created_at": "2026-02-25T04:55:18.000Z",
+        "updated_at": "2026-02-26T18:55:18.000Z"
     }
 ]

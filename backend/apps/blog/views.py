@@ -14,16 +14,11 @@ from apps.communication.notifications.models import Notification
 from apps.communication.notification_types.models import NotificationType
 from apps.system.activity_logs.services.activity_logs import log_activity
 from apps.blog.services import BlogService
+from apps.core.users.permissions import is_admin_user
 
 
 def _is_admin_user(user) -> bool:
-    return bool(
-        user
-        and user.is_authenticated
-        and (
-            user.is_staff or user.is_superuser or getattr(user, "role", None) == "admin"
-        )
-    )
+    return is_admin_user(user)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -109,7 +104,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 company = recruiter_profile.current_company
 
         # If Admin, they can force status or it defaults to PUBLISHED if not specified
-        if user.is_staff and "status" not in serializer.validated_data:
+        if _is_admin_user(user) and "status" not in serializer.validated_data:
             status_val = Post.Status.PUBLISHED
 
         serializer.save(author=user, company=company, status=status_val)
@@ -259,7 +254,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def upload_thumbnail(self, request, slug=None):
         """POST /api/blog/posts/:slug/upload-thumbnail/ - Upload thumbnail lên Cloudinary"""
         post = self.get_object()
-        if request.user != post.author and not request.user.is_staff:
+        if request.user != post.author and not _is_admin_user(request.user):
             return Response(
                 {"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
             )

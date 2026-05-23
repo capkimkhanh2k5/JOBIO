@@ -25,6 +25,7 @@ const Auth: React.FC = () => {
     const initialMode = (searchParams.get('mode') as AuthView) || 'login';
     const [view, setView] = useState<AuthView>(initialMode);
     const [email, setEmail] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     const renderView = () => {
         switch (view) {
@@ -32,7 +33,11 @@ const Auth: React.FC = () => {
                 return <LoginForm
                     onSwitchToRegister={() => setView('register')}
                     onForgotPassword={() => setView('forgot-password')}
-                    onRequire2FA={(email: string) => { setEmail(email); setView('2fa'); }}
+                    onRequire2FA={(email: string, rememberMe: boolean) => {
+                        setEmail(email);
+                        setRememberMe(rememberMe);
+                        setView('2fa');
+                    }}
                 />;
             case 'register':
                 return <RegisterForm
@@ -56,12 +61,16 @@ const Auth: React.FC = () => {
             case 'verify-email':
                 return <VerifyEmailView email={email} onVerified={() => setView('login')} />;
             case '2fa':
-                return <TwoFactorView email={email} onSuccess={() => { }} />;
+                return <TwoFactorView email={email} rememberMe={rememberMe} onSuccess={() => { }} />;
             default:
                 return <LoginForm
                     onSwitchToRegister={() => setView('register')}
                     onForgotPassword={() => setView('forgot-password')}
-                    onRequire2FA={(email: string) => { setEmail(email); setView('2fa'); }}
+                    onRequire2FA={(email: string, rememberMe: boolean) => {
+                        setEmail(email);
+                        setRememberMe(rememberMe);
+                        setView('2fa');
+                    }}
                 />;
         }
     };

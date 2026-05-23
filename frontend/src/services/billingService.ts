@@ -41,7 +41,7 @@ export const billingService = {
     },
 
     /** POST /api/billing/company-subscriptions/cancel/ */
-    cancelSubscription(id: number) {
+    cancelSubscription(_id: number) {
         return api.post<BillingSubscription>(`/api/billing/company-subscriptions/cancel/`);
     },
 

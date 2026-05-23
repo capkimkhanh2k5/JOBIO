@@ -57,7 +57,7 @@ class SystemSettingViewSetTests(APITestCase):
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Assuming user sees filtered list or we have a policy.
-        # Based on view implementation: `if not request.user.is_staff: filters['is_public'] = True`
+        # Based on view implementation: non-admin users only see public settings.
         # So user should see public only
         self.assertEqual(
             len(

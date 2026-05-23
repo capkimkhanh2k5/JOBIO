@@ -71,7 +71,7 @@ from .services.users import (
     update_user,
     UserUpdateInput,
 )
-from .selectors.users import list_users, get_user_stats, export_users_csv
+from .selectors.users import list_users, get_user_stats, export_users_excel
 from .serializers import (
     CustomUserSerializer,
     LoginSerializer,
@@ -102,6 +102,7 @@ from .serializers import (
 )
 from django.http import HttpResponse
 from apps.core.pagination import SmallResultsSetPagination
+from apps.core.excel import XLSX_CONTENT_TYPE
 
 from apps.system.activity_logs.models import ActivityLog
 from apps.system.activity_logs.serializers import ActivityLogSerializer
@@ -330,11 +331,11 @@ class CustomUserViewSet(
 
     @action(detail=False, methods=["get"], url_path="export")
     def export(self, request):
-        """GET /api/users/export/ - Export users CSV (admin only)"""
+        """GET /api/users/export/ - Export users Excel (admin only)"""
         try:
-            csv_content = export_users_csv()
-            response = HttpResponse(csv_content, content_type="text/csv")
-            response["Content-Disposition"] = 'attachment; filename="users_export.csv"'
+            excel_content = export_users_excel(filters=request.query_params)
+            response = HttpResponse(excel_content, content_type=XLSX_CONTENT_TYPE)
+            response["Content-Disposition"] = 'attachment; filename="users_export.xlsx"'
             return response
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -373,6 +374,7 @@ class CustomUserViewSet(
                 data=LoginInput(
                     email=serializer.validated_data["email"],
                     password=serializer.validated_data["password"],
+                    remember_me=serializer.validated_data.get("remember_me", False),
                 )
             )
         except AuthenticationError as e:

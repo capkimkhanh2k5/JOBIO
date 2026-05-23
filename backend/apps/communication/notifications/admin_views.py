@@ -250,6 +250,7 @@ def admin_notification_list(request):
         {
             "count": total,
             "page": page,
+            "current_page": page,
             "page_size": page_size,
             "total_pages": math.ceil(total / page_size) if total > 0 else 1,
             "results": results,

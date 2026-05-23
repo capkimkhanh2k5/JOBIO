@@ -114,7 +114,7 @@ export default function CandidateDashboard() {
 
     const totalApplications = normalizedApplications.length || stats?.applied_jobs_count || 0;
     const upcomingInterviewsCount = interviews?.length || stats?.upcoming_interviews_count || 0;
-    const profileViewsCount = profileData?.profile_views_count ?? stats?.profile_views_count ?? 0;
+    const profileViewsCount = stats?.profile_views_count ?? 0;
 
     // Thống kê dựa trên danh sách ứng tuyển thực tế
     const appStats = {
@@ -146,7 +146,7 @@ export default function CandidateDashboard() {
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Tổng quan nghề nghiệp"
-                    description={`Chào mừng bạn trở lại, ${user?.first_name || 'Ứng viên'}! Hãy xem những cơ hội mới nhất dành cho bạn.`}
+                    description={`Chào mừng bạn trở lại, ${user?.full_name || 'Ứng viên'}! Hãy xem những cơ hội mới nhất dành cho bạn.`}
                     icon={LayoutDashboard}
                 />
             </div>

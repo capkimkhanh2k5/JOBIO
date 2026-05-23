@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "type_name": "Integrity",
+        "description": "Mạo danh, Tin ảo, Lừa đảo. Mục đích xử lý: Khóa tài khoản, xác minh pháp lý.",
+        "template": "{}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-27T10:00:00.000000Z"
+    },
+    {
+        "id": 2,
+        "type_name": "Quality",
+        "description": "Sai Tech Stack, Hết hạn, Trùng lặp. Mục đích xử lý: Ẩn tin, nhắc nhở cập nhật nội dung.",
+        "template": "{}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-27T10:00:00.000000Z"
+    },
+    {
+        "id": 3,
+        "type_name": "Safety",
+        "description": "Link độc hại, Thu phí, Thu thập dữ liệu. Mục đích xử lý: Cảnh báo đỏ toàn hệ thống, chặn IP.",
+        "template": "{}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-27T10:00:00.000000Z"
+    },
+    {
+        "id": 4,
+        "type_name": "Policy",
+        "description": "Phân biệt đối xử, Phản cảm. Mục đích xử lý: Kiểm duyệt thủ công, gắn cờ vi phạm tiêu chuẩn cộng đồng.",
+        "template": "{}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:54:14.630671Z",
+        "updated_at": "2026-04-27T10:00:00.000000Z"
+    }
+]

@@ -11,8 +11,6 @@ export { savedJobService } from './savedJobService';
 export { cvService } from './cvService';
 export { alertService } from './alertService';
 export { taxonomyService } from './taxonomyService';
-export { companyService } from './companyService';
 export { dashboardService } from './dashboardService';
 export { notificationService } from './notificationService';
 export { billingService } from './billingService';
-

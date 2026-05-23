@@ -135,6 +135,121 @@ class JobViewTests(APITestCase):
         ):
             self.assertEqual(job["job_type"], "full-time")
 
+    def test_list_jobs_with_multiple_job_type_filters(self):
+        """Test GET /api/jobs/?job_type=... supports CSV multi-select values"""
+        part_time_job = Job.objects.create(
+            company=self.company,
+            title="Part-time QA",
+            slug="part-time-qa-filter-test",
+            job_type="part-time",
+            level="junior",
+            description="Part-time testing work",
+            requirements="Testing basics",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            created_by=self.user,
+        )
+
+        response = self.client.get("/api/jobs/?job_type=full-time,part-time")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        job_ids = {job["id"] for job in jobs}
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.job.id, job_ids)
+        self.assertIn(part_time_job.id, job_ids)
+
+    def test_list_jobs_with_skill_filter(self):
+        """Test GET /api/jobs/?skills=... matches required skills"""
+        response = self.client.get("/api/jobs/?skills=Python")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        job_ids = {job["id"] for job in jobs}
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.job.id, job_ids)
+
+    def test_list_jobs_with_experience_range_filter(self):
+        """Test GET /api/jobs/?experience_min=...&experience_max=... uses overlap logic"""
+        matching_job = Job.objects.create(
+            company=self.company,
+            title="Middle Backend Developer",
+            slug="middle-backend-experience-filter-test",
+            job_type="full-time",
+            level="middle",
+            experience_years_min=3,
+            experience_years_max=5,
+            description="Backend work",
+            requirements="Three to five years of experience",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            created_by=self.user,
+        )
+        non_matching_job = Job.objects.create(
+            company=self.company,
+            title="Principal Backend Developer",
+            slug="principal-backend-experience-filter-test",
+            job_type="full-time",
+            level="lead",
+            experience_years_min=8,
+            experience_years_max=12,
+            description="Principal backend work",
+            requirements="Eight years of experience",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            created_by=self.user,
+        )
+
+        response = self.client.get("/api/jobs/?experience_min=4&experience_max=4")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        job_ids = {job["id"] for job in jobs}
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(matching_job.id, job_ids)
+        self.assertNotIn(non_matching_job.id, job_ids)
+
+    def test_list_jobs_search_matches_company_name(self):
+        """Test GET /api/jobs/?search=... matches the owning company name"""
+        momo_company = Company.objects.create(
+            user=self.user2,
+            company_name="MoMo Labs",
+            slug="momo-labs-job-search-test",
+            verification_status=Company.VerificationStatus.VERIFIED,
+        )
+        momo_job = Job.objects.create(
+            company=momo_company,
+            title="QA Engineer",
+            slug="qa-engineer-momo-search-test",
+            job_type="full-time",
+            level="middle",
+            description="Build payment quality workflows",
+            requirements="Testing experience",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            created_by=self.user2,
+        )
+
+        response = self.client.get("/api/jobs/?search=momo")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        job_ids = {job["id"] for job in jobs}
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(momo_job.id, job_ids)
+
     # ========== RETRIEVE Tests ==========
 
     def test_get_job_by_id(self):

@@ -2,11 +2,11 @@
 
 ###############################################################################
 # JOBIO DATABASE RESET & DATA IMPORT SCRIPT (UNIFIED & ADVANCED)
-# 
+#
 # Purpose: Xóa dữ liệu cũ và import dữ liệu mới hoàn chỉnh.
 #          Hỗ trợ đa nền tảng (Windows Git Bash, macOS, Linux).
 # Usage: ./loadData.sh [options]
-# 
+#
 # Options:
 #   --help              Hiển thị hướng dẫn
 #   --dry-run          Chỉ xem kế hoạch, không thực hiện
@@ -63,10 +63,16 @@ elif [ -f "$PROJECT_ROOT/.venv/Scripts/python.exe" ]; then
     PYTHON_CMD="$PROJECT_ROOT/.venv/Scripts/python.exe"
 elif [ -f "$BACKEND_DIR/venv/bin/python3" ]; then
     PYTHON_CMD="$BACKEND_DIR/venv/bin/python3"
+elif [ -f "$BACKEND_DIR/venv/bin/python3.11" ]; then
+    PYTHON_CMD="$BACKEND_DIR/venv/bin/python3.11"
 elif [ -f "$BACKEND_DIR/.venv/bin/python3" ]; then
     PYTHON_CMD="$BACKEND_DIR/.venv/bin/python3"
+elif [ -f "$BACKEND_DIR/.venv/bin/python3.11" ]; then
+    PYTHON_CMD="$BACKEND_DIR/.venv/bin/python3.11"
 elif [ -f "$PROJECT_ROOT/.venv/bin/python3" ]; then
     PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python3"
+elif [ -f "$PROJECT_ROOT/.venv/bin/python3.11" ]; then
+    PYTHON_CMD="$PROJECT_ROOT/.venv/bin/python3.11"
 else
     PYTHON_CMD="python3"
     # Kiểm tra nếu python3 không tồn tại thì thử dùng python
@@ -141,49 +147,50 @@ parse_args() {
 
 check_prerequisites() {
     log_section "📋 KIỂM TRA HỆ THỐNG"
-    
+
     verbose_log "PROJECT_ROOT: $PROJECT_ROOT"
     log_info "Sử dụng thư mục dữ liệu: $DATA_FIXED_DIR"
-    
+
     # Kiểm tra thư mục backend
     if [ ! -d "$BACKEND_DIR" ]; then
         log_error "Không tìm thấy thư mục backend: $BACKEND_DIR"
         exit 1
     fi
-    
+
     # Kiểm tra thư mục dữ liệu JSON
     if [ ! -d "$DATA_FIXED_DIR" ]; then
         log_error "Không tìm thấy thư mục chứa file JSON: $DATA_FIXED_DIR"
         exit 1
     fi
-    
+
     # Kiểm tra Python
     if ! "$PYTHON_CMD" --version &> /dev/null; then
         log_error "Lệnh Python không hoạt động: $PYTHON_CMD"
         exit 1
     fi
     verbose_log "✓ Python: $($PYTHON_CMD --version)"
-    
-    # Kiểm tra pg_dump (nếu cần backup)
-    if [ $SKIP_BACKUP -eq 0 ] && ! command -v pg_dump &> /dev/null; then
-        log_warn "Không tìm thấy lệnh pg_dump. Sẽ bỏ qua bước backup."
-        SKIP_BACKUP=1
+
+    # Backup là mặc định an toàn. Chỉ bỏ qua khi người dùng chủ động truyền --no-backup.
+    if [ $DRY_RUN -eq 0 ] && [ $SKIP_BACKUP -eq 0 ] && ! command -v pg_dump &> /dev/null; then
+        log_error "Không tìm thấy pg_dump nên không thể backup database."
+        log_error "Cài PostgreSQL client hoặc chạy lại với --no-backup nếu bạn chấp nhận rủi ro."
+        exit 1
     fi
-    
+
     # Kiểm tra các file JSON bắt buộc
     required_files=(
-        "users.json" "addresses.json" "industries.json" 
-        "companies.json" "jobs.json" "applications.json" 
+        "users.json" "addresses.json" "industries.json"
+        "companies.json" "jobs.json" "applications.json"
         "transactions.json" "company_subscriptions.json"
     )
-    
+
     for file in "${required_files[@]}"; do
         if [ ! -f "$DATA_FIXED_DIR/$file" ]; then
             log_error "Thiếu file dữ liệu bắt buộc: $file"
             exit 1
         fi
     done
-    
+
     log_success "Kiểm tra hệ thống hoàn tất ✓"
 }
 
@@ -193,7 +200,7 @@ check_prerequisites() {
 
 validate_unique_seed_data() {
     log_section "🔎 KIỂM TRA TÍNH DUY NHẤT CỦA DỮ LIỆU (SEED DATA)"
-    
+
     # Chạy script Python nhỏ để kiểm tra trùng lặp slug, id...
     set +e
     UNIQUE_OUTPUT=$(DATA_FIXED_DIR="$DATA_FIXED_DIR" "$PYTHON_CMD" 2>&1 << 'EOF'
@@ -245,18 +252,20 @@ EOF
 }
 
 backup_database() {
-    if [ $SKIP_BACKUP -eq 1 ]; then return 0; fi
-    
+    if [ $SKIP_BACKUP -eq 1 ]; then
+        log_warn "Bỏ qua backup database theo tùy chọn --no-backup."
+        return 0
+    fi
+
     log_section "💾 ĐANG SAO LƯU DATABASE"
     mkdir -p "$BACKUP_DIR"
-    BACKUP_FILE="$BACKUP_DIR/jobio_db_$(date +%Y%m%d_%H%M%S).sql"
-    
+    BACKUP_FILE="$BACKUP_DIR/jobio_db_$(date +%Y%m%d_%H%M%S)_before_load.sql"
+
     if [ $DRY_RUN -eq 0 ]; then
-        mkdir -p "$BACKUP_DIR"
         if PGPASSWORD="$DB_PASSWORD" pg_dump -U "$DB_USER" -h "$DB_HOST" -p "$DB_PORT" "$DB_NAME" > "$BACKUP_FILE"; then
             log_success "Đã lưu backup tại: $BACKUP_FILE"
         else
-            log_error "Lỗi khi backup database."
+            log_error "Backup database thất bại. Dừng script để tránh mất dữ liệu."
             exit 1
         fi
     else
@@ -290,17 +299,17 @@ EOF
 flush_database() {
     log_section "🗑️  XÓA DỮ LIỆU CŨ"
     log_warn "HÀNH ĐỘNG NÀY SẼ XÓA TOÀN BỘ DỮ LIỆU TRONG DATABASE!"
-    
+
     if [ $DRY_RUN -eq 0 ]; then
         read -p "Bạn có chắc chắn muốn tiếp tục? (Gõ 'yes' để xác nhận): " confirm
         if [ "$confirm" != "yes" ]; then log_error "Đã hủy bỏ bởi người dùng."; exit 1; fi
-        
+
         cd "$BACKEND_DIR"
         set +e
         FLUSH_OUTPUT=$(DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" manage.py flush --no-input 2>&1)
         EXIT_CODE=$?
         set -e
-        
+
         if [ $EXIT_CODE -eq 0 ]; then
             log_success "Database đã được làm sạch."
         else
@@ -315,14 +324,14 @@ flush_database() {
 import_data() {
     log_section "📥 ĐANG IMPORT DỮ LIỆU MỚI"
     cd "$BACKEND_DIR"
-    
+
     if [ $DRY_RUN -eq 0 ]; then
         IMPORT_LOG="$DATA_DIR/LOAD_IMPORT_$(date +%Y%m%d_%H%M%S).log"
         set +e
         DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" scripts/load_seed_data.py "$DATA_FIXED_DIR" 2>&1 | tee "$IMPORT_LOG"
-        EXIT_CODE=$?
+        EXIT_CODE=${PIPESTATUS[0]}
         set -e
-        
+
         if grep -q "\[ERROR\]" "$IMPORT_LOG" || [ $EXIT_CODE -ne 0 ]; then
             log_error "Quá trình Import thất bại. Xem chi tiết tại: $IMPORT_LOG"
             exit 1
@@ -337,7 +346,7 @@ import_data() {
 sync_sequences() {
     log_section "🔄 ĐỒNG BỘ HÓA SEQUENCE (POSTGRESQL)"
     if [ $DRY_RUN -eq 1 ]; then return 0; fi
-    
+
     cd "$BACKEND_DIR"
     DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" << 'EOF'
 import os, sys, django
@@ -360,7 +369,7 @@ EOF
 verify_data() {
     log_section "✅ KIỂM TRA DỮ LIỆU SAU IMPORT"
     if [ $DRY_RUN -eq 1 ]; then return 0; fi
-    
+
     cd "$BACKEND_DIR"
     DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" << 'EOF'
 import os, sys, django
@@ -389,18 +398,19 @@ EOF
 
 main() {
     log_section "🚀 KHỞI ĐỘNG HỆ THỐNG RESET & IMPORT DỮ LIỆU JOBIO"
-    
+
     parse_args "$@"
     check_prerequisites
     validate_unique_seed_data
+
     backup_database
     flush_database
     import_data
     sync_sequences
     verify_data
-    
+
     log_section "✨ TẤT CẢ ĐÃ HOÀN TẤT!"
-    
+
     if [ $DRY_RUN -eq 1 ]; then
         log_warn "Đây là chế độ DRY-RUN. Không có thay đổi nào thực sự diễn ra."
     else

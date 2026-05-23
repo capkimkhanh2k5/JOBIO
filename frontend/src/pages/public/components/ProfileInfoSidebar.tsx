@@ -1,7 +1,6 @@
-import React from 'react';
 import type { CandidateDetail } from '@/types/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Mail, Phone, Link as LinkIcon, Briefcase } from 'lucide-react';
+import { Mail, Link as LinkIcon, Briefcase } from 'lucide-react';
 
 export const ProfileInfoSidebar = ({ profile }: { profile: CandidateDetail }) => {
     return (
@@ -16,7 +15,7 @@ export const ProfileInfoSidebar = ({ profile }: { profile: CandidateDetail }) =>
                 </CardHeader>
                 <CardContent className="p-5">
                     <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
-                        {profile.introduction || 'Ứng viên chưa cập nhật phần giới thiệu cá nhân.'}
+                        {profile.bio || 'Ứng viên chưa cập nhật phần giới thiệu cá nhân.'}
                     </p>
                 </CardContent>
             </Card>
@@ -29,14 +28,8 @@ export const ProfileInfoSidebar = ({ profile }: { profile: CandidateDetail }) =>
                 <CardContent className="p-5 space-y-4 text-sm">
                     <div className="flex items-center gap-3 text-slate-600">
                         <Mail className="w-4 h-4 text-muted-foreground" />
-                        <span>{profile.user_email || 'Chưa cung cấp'}</span>
+                        <span>{profile.user.email || 'Chưa cung cấp'}</span>
                     </div>
-                    {profile.phone && (
-                        <div className="flex items-center gap-3 text-slate-600">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
-                            <span>{profile.phone}</span>
-                        </div>
-                    )}
                     {profile.portfolio_url && (
                         <div className="flex items-center gap-3 text-slate-600">
                             <LinkIcon className="w-4 h-4 text-muted-foreground" />

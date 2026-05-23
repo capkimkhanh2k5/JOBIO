@@ -6,10 +6,8 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from django.db.models import Count
 
-import csv
-import io
-
 from django.db.models import Q
+from apps.core.excel import build_xlsx
 
 
 class UserFilter(django_filters.FilterSet):
@@ -85,41 +83,34 @@ def get_user_stats() -> dict:
     }
 
 
-def export_users_csv() -> any:
+def export_users_excel(*, filters: dict = None) -> bytes:
     """
-    Xuất danh sách user ra CSV.
-    Returns: file-like object or http response content generator
+    Xuất danh sách user ra file Excel.
     """
-    output = io.StringIO()
-    writer = csv.writer(output)
+    headers = [
+        "ID",
+        "Email",
+        "Họ và tên",
+        "Số điện thoại",
+        "Vai trò",
+        "Trạng thái",
+        "Ngày tham gia",
+        "Đăng nhập cuối",
+    ]
 
-    # Header
-    writer.writerow(
+    users = list_users(filters=filters).iterator()
+    rows = (
         [
-            "ID",
-            "Email",
-            "Full Name",
-            "Phone",
-            "Role",
-            "Status",
-            "Date Joined",
-            "Last Login",
+            user.id,
+            user.email,
+            user.full_name,
+            user.phone or "",
+            user.get_role_display(),
+            user.get_status_display(),
+            user.date_joined.strftime("%d/%m/%Y %H:%M") if user.date_joined else "",
+            user.last_login.strftime("%d/%m/%Y %H:%M") if user.last_login else "",
         ]
+        for user in users
     )
 
-    users = CustomUser.objects.all().iterator()
-    for user in users:
-        writer.writerow(
-            [
-                user.id,
-                user.email,
-                user.full_name,
-                user.phone or "",
-                user.role,
-                user.status,
-                user.date_joined.strftime("%d/%m/%Y %H:%M") if user.date_joined else "",
-                user.last_login.strftime("%d/%m/%Y %H:%M") if user.last_login else "",
-            ]
-        )
-
-    return output.getvalue()
+    return build_xlsx(headers=headers, rows=rows, sheet_name="Quan ly Users")

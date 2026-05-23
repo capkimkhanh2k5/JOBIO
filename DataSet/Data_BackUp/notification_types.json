@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "type_name": "application",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo liên quan đến ứng tuyển",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 2,
+        "type_name": "job_alert",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo việc làm phù hợp",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 3,
+        "type_name": "system",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo hệ thống chung",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 4,
+        "type_name": "interview",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo liên quan đến phỏng vấn",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 5,
+        "type_name": "report",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo báo cáo vi phạm",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 6,
+        "type_name": "verification",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo xác minh công ty",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 7,
+        "type_name": "warning",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Cảnh báo vi phạm tài khoản/nội dung",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    },
+    {
+        "id": 8,
+        "type_name": "billing",
+        "template": "{\"html\": \"\"}",
+        "is_active": true,
+        "created_at": "2026-04-19T02:39:43.867421Z",
+        "description": "Thông báo thanh toán và hoá đơn",
+        "updated_at": "2026-04-19T02:39:43.867421Z"
+    }
+]

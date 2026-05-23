@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 from django.db.models import Count
@@ -10,6 +10,7 @@ from datetime import timedelta
 from .models import ActivityLog
 from .serializers import ActivityLogSerializer
 from .selectors.activity_logs import list_activity_logs
+from apps.core.users.permissions import IsAdmin
 
 
 class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
@@ -17,7 +18,7 @@ class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = ActivityLog.objects.all()
     serializer_class = ActivityLogSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdmin]
 
     def get_queryset(self):
         return list_activity_logs(filters=self.request.query_params.dict())

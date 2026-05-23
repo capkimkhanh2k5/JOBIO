@@ -8,11 +8,12 @@ import { Loader2, ShieldAlert } from 'lucide-react';
 
 interface TwoFactorViewProps {
     email: string;
+    rememberMe?: boolean;
     onSuccess: () => void;
 }
 
 export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
-    email,
+    rememberMe = false,
     onSuccess
 }) => {
     const [code, setCode] = useState('');
@@ -27,7 +28,7 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
 
             // Backend returns tokens + user after successful 2FA
             if (data.access_token && data.user) {
-                setAuth(data.user, data.access_token, data.refresh_token);
+                setAuth(data.user, data.access_token, data.refresh_token, rememberMe);
             }
 
             toast.success("Xác thực 2FA thành công!");

@@ -154,6 +154,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
+    "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardResultsSetPagination",
+    "PAGE_SIZE": 20,
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -180,6 +182,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+REMEMBER_ME_REFRESH_TOKEN_LIFETIME = timedelta(days=7)
 
 FRONTEND_URL = "http://localhost:4000"
 
@@ -196,3 +199,6 @@ VNP_RETURN_URL = (
     "http://localhost:8000/api/billing/company-subscriptions/payment-return/"
 )
 VNP_FRONTEND_RETURN_URL = "http://localhost:4000/company/payment-result"
+
+PAYMENT_PENDING_TIMEOUT_MINUTES = 5
+PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS = 60

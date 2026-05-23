@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.core.pagination import StandardResultsSetPagination
 
 from .models import Recruiter
@@ -43,6 +43,11 @@ class RecruiterViewSet(viewsets.GenericViewSet):
 
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
+
+    def get_permissions(self):
+        if self.action == "public_profile":
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_queryset(self):
         return Recruiter.objects.all()

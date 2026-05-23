@@ -26,6 +26,7 @@ from . import social_auth
 class LoginInput(BaseModel):
     email: EmailStr
     password: str
+    remember_me: bool = False
 
 
 class LogoutInput(BaseModel):
@@ -49,9 +50,20 @@ class AuthenticationError(Exception):
 # Helper Functions
 
 
-def generate_tokens(user: CustomUser) -> dict:
+def generate_tokens(
+    user: CustomUser, refresh_lifetime: timedelta | None = None
+) -> dict:
     """Helper tạo JWT tokens cho user"""
-    refresh = RefreshToken.for_user(user)
+    if refresh_lifetime is not None:
+        CustomRefreshToken = type(
+            "CustomRefreshToken",
+            (RefreshToken,),
+            {"lifetime": refresh_lifetime},
+        )
+        refresh = CustomRefreshToken.for_user(user)
+    else:
+        refresh = RefreshToken.for_user(user)
+
     return {
         "access_token": str(refresh.access_token),
         "refresh_token": str(refresh),
@@ -253,7 +265,13 @@ def login_user(data: LoginInput) -> dict:
     user.last_login = timezone.now()
     user.save(update_fields=["last_login"])
 
-    return generate_tokens(user)
+    refresh_lifetime = (
+        getattr(settings, "REMEMBER_ME_REFRESH_TOKEN_LIFETIME", timedelta(days=7))
+        if data.remember_me
+        else None
+    )
+
+    return generate_tokens(user, refresh_lifetime=refresh_lifetime)
 
 
 def logout_user(data: LogoutInput) -> bool:

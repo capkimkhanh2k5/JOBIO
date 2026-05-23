@@ -14,6 +14,9 @@ import type { BlogPost, BlogCategory, BlogTag } from '@/types/api';
 import { toast } from 'sonner';
 import BlogPostFormModal from './BlogPostFormModal';
 import { CategoryFormModal, TagFormModal } from './BlogCategoryTagModals';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+
+const PAGE_SIZE = 10;
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -43,8 +46,8 @@ const STATUS_LABELS: Record<string, string> = {
 export default function BlogManagement() {
     const [activeTab, setActiveTab] = useState<TabId>('posts');
     const [page, setPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [statusFilter, setStatusFilter] = useState('');
     // Modal states
     const [showPostForm, setShowPostForm] = useState(false);
@@ -73,7 +76,7 @@ export default function BlogManagement() {
             page,
             search: debouncedSearch || undefined,
             status: statusFilter || undefined,
-            page_size: 10
+            page_size: PAGE_SIZE
         }).then(r => r.data),
         enabled: activeTab === 'posts',
     });
@@ -220,7 +223,7 @@ export default function BlogManagement() {
 
     const posts = postsData?.results ?? [];
     const totalCount = postsData?.count ?? 0;
-    const totalPages = Math.ceil(totalCount / 10) || 1;
+    const totalPages = Math.max(1, postsData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
     // Client-side filter for categories and tags by search
     const filteredCats = (categoriesData?.results ?? []).filter(c =>

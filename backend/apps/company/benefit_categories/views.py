@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from django.db import transaction
+from apps.core.users.permissions import IsAdmin, is_admin_user
 
 from .models import BenefitCategory
 from .serializers import (
@@ -29,7 +30,7 @@ class BenefitCategoryViewSet(viewsets.ModelViewSet):
         queryset = BenefitCategory.objects.all()
 
         # Lọc bằng is_active
-        if not self.request.user.is_staff:
+        if not is_admin_user(self.request.user):
             queryset = queryset.filter(is_active=True)
 
         return queryset.order_by("display_order", "name")
@@ -48,7 +49,7 @@ class BenefitCategoryViewSet(viewsets.ModelViewSet):
         """
         if self.action == "list":
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsAdmin()]
 
     @action(detail=False, methods=["patch"])
     @transaction.atomic

@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useUserStore } from '@/store/userStore';
+import { clearStoredAuth, getStoredTokens, replaceStoredTokens } from '@/lib/authStorage';
 
 // Axios Instance
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
@@ -13,53 +14,9 @@ const api = axios.create({
   },
 });
 
-const STORAGE_KEY = 'jobio-user-storage';
-
-function getPersistedTokens(): { accessToken: string | null; refreshToken: string | null } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { accessToken: null, refreshToken: null };
-    const parsed = JSON.parse(raw);
-    return {
-      accessToken: parsed?.state?.accessToken ?? null,
-      refreshToken: parsed?.state?.refreshToken ?? null,
-    };
-  } catch {
-    return { accessToken: null, refreshToken: null };
-  }
-}
-
-function setPersistedTokens(accessToken: string, refreshToken: string) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    parsed.state.accessToken = accessToken;
-    parsed.state.refreshToken = refreshToken;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-  } catch {
-    // silent – the store will re-hydrate on next page load
-  }
-}
-
 function clearPersistedAuth() {
   useUserStore.getState().clearAuth();
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    parsed.state = {
-      ...parsed.state,
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      isAuthenticated: false,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-  }
+  clearStoredAuth();
 }
 
 function redirectToAuthIfNeeded() {
@@ -75,7 +32,7 @@ function clearAuthAndRedirectToLogin() {
 
 // Request Interceptor
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const { accessToken } = getPersistedTokens();
+  const { accessToken } = getStoredTokens();
   if (accessToken && config.headers) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -126,7 +83,7 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { refreshToken } = getPersistedTokens();
+      const { refreshToken } = getStoredTokens();
       if (!refreshToken) {
         processQueue(error, null);
         clearAuthAndRedirectToLogin();
@@ -141,7 +98,7 @@ api.interceptors.response.use(
       const newAccess = data.access;
       const newRefresh = data.refresh ?? refreshToken;
 
-      setPersistedTokens(newAccess, newRefresh);
+      replaceStoredTokens(newAccess, newRefresh);
       processQueue(null, newAccess);
 
       if (originalRequest.headers) {

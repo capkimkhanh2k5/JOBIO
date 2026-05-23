@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from decimal import Decimal, InvalidOperation
 
 from .permissions import IsJobOwnerOrReadOnly
 from .serializers import (
@@ -94,20 +95,48 @@ class JobViewSet(viewsets.GenericViewSet):
         filters = {}
         params = self.request.query_params
 
+        def parse_int(value):
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
+
+        def parse_decimal(value):
+            try:
+                return Decimal(str(value))
+            except (TypeError, InvalidOperation):
+                return None
+
+        def parse_csv(name):
+            values = []
+            for raw_value in params.getlist(name):
+                values.extend(
+                    item.strip() for item in str(raw_value).split(",") if item.strip()
+                )
+            return values
+
         if params.get("company_id"):
-            filters["company_id"] = int(params["company_id"])
+            company_id = parse_int(params["company_id"])
+            if company_id is not None:
+                filters["company_id"] = company_id
 
         if params.get("category_id"):
-            filters["category_id"] = int(params["category_id"])
+            category_id = parse_int(params["category_id"])
+            if category_id is not None:
+                filters["category_id"] = category_id
 
         if params.get("province_id"):
-            filters["province_id"] = int(params["province_id"])
+            province_id = parse_int(params["province_id"])
+            if province_id is not None:
+                filters["province_id"] = province_id
 
-        if params.get("job_type"):
-            filters["job_type"] = params["job_type"]
+        job_types = parse_csv("job_type")
+        if job_types:
+            filters["job_type"] = job_types
 
-        if params.get("level"):
-            filters["level"] = params["level"]
+        levels = parse_csv("level")
+        if levels:
+            filters["level"] = levels
 
         if params.get("status"):
             filters["status"] = params["status"]
@@ -116,10 +145,28 @@ class JobViewSet(viewsets.GenericViewSet):
             filters["is_remote"] = params["is_remote"].lower() == "true"
 
         if params.get("salary_min"):
-            filters["salary_min"] = params["salary_min"]
+            salary_min = parse_decimal(params["salary_min"])
+            if salary_min is not None:
+                filters["salary_min"] = salary_min
 
         if params.get("salary_max"):
-            filters["salary_max"] = params["salary_max"]
+            salary_max = parse_decimal(params["salary_max"])
+            if salary_max is not None:
+                filters["salary_max"] = salary_max
+
+        if params.get("experience_min"):
+            experience_min = parse_int(params["experience_min"])
+            if experience_min is not None:
+                filters["experience_min"] = experience_min
+
+        if params.get("experience_max"):
+            experience_max = parse_int(params["experience_max"])
+            if experience_max is not None:
+                filters["experience_max"] = experience_max
+
+        skills = parse_csv("skills")
+        if skills:
+            filters["skills"] = skills
 
         if params.get("search"):
             filters["search"] = params["search"]
@@ -524,6 +571,11 @@ class JobViewSet(viewsets.GenericViewSet):
                 {"detail": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        if getattr(request.user, "role", None) != "candidate":
+            return Response(
+                {"detail": "Only candidates can save jobs"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         job = get_job_by_id(pk)
         if not job:
@@ -559,6 +611,11 @@ class JobViewSet(viewsets.GenericViewSet):
                 {"detail": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        if getattr(request.user, "role", None) != "candidate":
+            return Response(
+                {"detail": "Only candidates can unsave jobs"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         job = get_job_by_id(pk)
         if not job:
@@ -587,6 +644,8 @@ class JobViewSet(viewsets.GenericViewSet):
         """
 
         if not request.user.is_authenticated:
+            return Response({"is_saved": False})
+        if getattr(request.user, "role", None) != "candidate":
             return Response({"is_saved": False})
 
         job = get_job_by_id(pk)

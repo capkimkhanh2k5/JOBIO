@@ -31,6 +31,10 @@ export const candidateService = {
     return api.get<CandidateDetail>(`/api/candidates/${id}/`);
   },
 
+  getPublicProfile(id: number) {
+    return api.get<CandidateDetail>(`/api/candidates/${id}/public_profile/`);
+  },
+
   /** Shortcut: get the current user's candidate profile */
   getMyProfile() {
     return api.get<CandidateDetail>('/api/candidates/me/');

@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status, mixins
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
 
@@ -8,6 +8,7 @@ from .models import SystemSetting
 from .serializers import SystemSettingSerializer, SystemSettingUpdateSerializer
 from .selectors.system_settings import list_settings
 from .services.system_settings import update_setting
+from apps.core.users.permissions import IsAdmin, is_admin_user
 
 
 class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
@@ -25,7 +26,7 @@ class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
     def get_permissions(self):
         # Chỉ dành cho admin
         if self.action in ["update", "partial_update", "create", "destroy"]:
-            return [IsAuthenticated(), IsAdminUser()]
+            return [IsAuthenticated(), IsAdmin()]
         return [IsAuthenticated()]
 
     def list(self, request):
@@ -33,7 +34,7 @@ class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         Lấy danh sách các setting
         """
         filters = request.query_params.dict()
-        if not request.user.is_staff:
+        if not is_admin_user(request.user):
             filters["is_public"] = True
 
         settings = list_settings(filters=filters)
@@ -46,7 +47,7 @@ class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         """
         try:
             instance = self.get_object()
-            if not request.user.is_staff and not instance.is_public:
+            if not is_admin_user(request.user) and not instance.is_public:
                 return Response(status=status.HTTP_403_FORBIDDEN)
             serializer = self.get_serializer(instance)
             return Response(serializer.data)

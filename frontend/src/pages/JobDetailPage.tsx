@@ -13,11 +13,15 @@ import { JobCard } from '@/components/jobs/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { useUserStore } from '@/store/userStore';
+import { toast } from 'sonner';
 
 export default function JobDetailPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const user = useUserStore((state) => state.user);
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+    const isAdminViewer = user?.role === 'admin';
 
     // Fetch Job Basic Info
     const { data: job, isLoading: isLoadingJob, isError: isJobError } = useQuery({
@@ -94,7 +98,13 @@ export default function JobDetailPage() {
                         <JobDetailHeader
                             job={normalizedJob as any}
                             locations={locations || []}
-                            onApply={() => setIsApplyModalOpen(true)}
+                            onApply={() => {
+                                if (isAdminViewer) {
+                                    toast.info('Admin chỉ xem nội dung, không thể ứng tuyển');
+                                    return;
+                                }
+                                setIsApplyModalOpen(true);
+                            }}
                         />
 
                         <JobDetailContent
@@ -136,7 +146,7 @@ export default function JobDetailPage() {
             <ApplyForm
                 jobId={job.id}
                 jobTitle={job.title}
-                isOpen={isApplyModalOpen}
+                isOpen={!isAdminViewer && isApplyModalOpen}
                 onClose={() => setIsApplyModalOpen(false)}
             />
 
@@ -144,7 +154,15 @@ export default function JobDetailPage() {
             <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                 <Button
                     className="w-full h-14 bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg rounded-2xl shadow-md shadow-violet-600/20 transition-all animate-in fade-in slide-in-from-bottom-10"
-                    onClick={() => setIsApplyModalOpen(true)}
+                    onClick={() => {
+                        if (isAdminViewer) {
+                            toast.info('Admin chỉ xem nội dung, không thể ứng tuyển');
+                            return;
+                        }
+                        setIsApplyModalOpen(true);
+                    }}
+                    disabled={isAdminViewer}
+                    title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể ứng tuyển' : undefined}
                 >
                     Ứng tuyển ngay
                 </Button>

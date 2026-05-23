@@ -1,26 +1,19 @@
 import React from 'react';
 import { Recommendation } from '@/types/api';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Edit, Trash2 } from 'lucide-react';
-import { formatTimeAgo } from '@/lib/utils'; // Verify this exists or create it
 
 interface RecommendationItemProps {
     recommendation: Recommendation;
     isOwner: boolean;
     onToggleVisibility?: (id: number, isVisible: boolean) => void;
-    onEdit?: (recommendation: Recommendation) => void;
-    onDelete?: (id: number) => void;
 }
 
 export const RecommendationItem: React.FC<RecommendationItemProps> = ({
     recommendation,
     isOwner,
     onToggleVisibility,
-    onEdit,
-    onDelete
 }) => {
     return (
         <div className="group relative p-5 bg-card border border-border/50 rounded-2xl hover:border-primary/20 transition-all overflow-hidden flex flex-col gap-4">

@@ -26,44 +26,14 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
     );
 }
 
-/* ─── Animated counter ─── */
-function CountUp({ value, suffix = '' }: { value: number; suffix?: string }) {
-    const ref = useRef(null);
-    const inView = useInView(ref, { once: true });
-    return (
-        <motion.span
-            ref={ref}
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.3 }}
-        >
-            <motion.span
-                initial={{ opacity: 0 }}
-                animate={inView ? { opacity: 1 } : {}}
-            >
-                {inView ? (
-                    <motion.span
-                        initial={{ innerText: 0 } as any}
-                        animate={{ innerText: value } as any}
-                        transition={{ duration: 1.4, ease: 'easeOut' }}
-                    >
-                        {value}
-                    </motion.span>
-                ) : 0}
-            </motion.span>
-            {suffix}
-        </motion.span>
-    );
-}
-
 /* ─── Data ─── */
 const TEAM = [
-    { name: 'Nguyễn Minh Khoa', role: 'CEO & Co-Founder', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Khoa', tag: 'Founder' },
-    { name: 'Trần Thị Lan', role: 'CTO & Co-Founder', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lan', tag: 'Tech' },
-    { name: 'Lê Đức Anh', role: 'Head of Product', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anh', tag: 'Product' },
-    { name: 'Phạm Thu Hà', role: 'Head of Design', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ha', tag: 'Design' },
-    { name: 'Võ Hữu Toàn', role: 'Lead Engineer', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Toan', tag: 'Engineering' },
-    { name: 'Đặng Thị Bích', role: 'Head of Marketing', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bich', tag: 'Marketing' },
+    { name: 'Cáp Kim Khánh', role: 'CEO & Founder', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376053/jobio/team/e23ud1h6n7bumk0kmexb.jpg', tag: 'Founder', gradient: 'from-blue-500 via-cyan-400 to-blue-500' },
+    { name: 'Nguyễn Ngọc Huy', role: 'CTO & Co-Founder', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376052/jobio/team/vnnuwsthbqn8asg9aqdl.jpg', tag: 'Tech', gradient: 'from-violet-500 via-fuchsia-400 to-violet-500' },
+    { name: 'Cáp Kim Khánh', role: 'Head of Product', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376053/jobio/team/e23ud1h6n7bumk0kmexb.jpg', tag: 'Product', gradient: 'from-blue-500 via-cyan-400 to-blue-500' },
+    { name: 'Nguyễn Ngọc Huy', role: 'Head of Design', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376052/jobio/team/vnnuwsthbqn8asg9aqdl.jpg', tag: 'Design', gradient: 'from-violet-500 via-fuchsia-400 to-violet-500' },
+    { name: 'Cáp Kim Khánh', role: 'Lead Engineer', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376053/jobio/team/e23ud1h6n7bumk0kmexb.jpg', tag: 'Engineering', gradient: 'from-blue-500 via-cyan-400 to-blue-500' },
+    { name: 'Nguyễn Ngọc Huy', role: 'Head of Marketing', avatar: 'https://res.cloudinary.com/dbkxwc5gr/image/upload/v1779376052/jobio/team/vnnuwsthbqn8asg9aqdl.jpg', tag: 'Marketing', gradient: 'from-violet-500 via-fuchsia-400 to-violet-500' },
 ];
 
 const TIMELINE = [
@@ -120,8 +90,9 @@ export default function About() {
                 </div>
 
                 {/* Decorative orbs */}
-                <div className="absolute top-20 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute top-16 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-indigo-400/20 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute top-40 -right-20 w-[400px] h-[400px] bg-violet-400/20 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute -bottom-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-fuchsia-400/20 rounded-full blur-[120px] pointer-events-none" />
             </section>
 
             {/* ── Company Stats ── */}
@@ -226,36 +197,47 @@ export default function About() {
             </section>
 
             {/* ── Team ── */}
-            <section className="py-16 px-4">
+            <section className="py-20 px-4 bg-gradient-to-b from-transparent to-gray-50/50">
                 <div className="max-w-5xl mx-auto">
                     <FadeIn>
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-3">Đội ngũ lãnh đạo</h2>
-                            <p className="text-gray-600">Những con người đằng sau JOBIO — đam mê, tầm nhìn và năng lượng không ngừng.</p>
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-3">Đội ngũ sáng lập</h2>
+                            <p className="text-gray-600 text-lg">Những con người đằng sau JOBIO — đam mê, tầm nhìn và năng lượng không ngừng.</p>
                         </div>
                     </FadeIn>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                         {TEAM.map((member, i) => (
-                            <FadeIn key={member.name} delay={i * 0.07}>
+                            <FadeIn key={member.name + i} delay={i * 0.07}>
                                 <motion.div
-                                    whileHover={{ y: -4, scale: 1.02 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm text-center group cursor-default"
+                                    whileHover={{ y: -6, scale: 1.02 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-center group cursor-default relative overflow-hidden"
                                 >
-                                    <div className="relative inline-block mb-4">
-                                        <img
-                                            src={member.avatar}
-                                            alt={member.name}
-                                            className="w-20 h-20 rounded-full border-2 border-indigo-100 bg-gray-50 flex-shrink-0"
-                                        />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center border-2 border-white">
-                                            <Users className="w-3 h-3 text-white" />
+                                    <div className="relative inline-block mb-5">
+                                        {/* Outer glowing ring that spins */}
+                                        <div className={cn("absolute -inset-2 bg-gradient-to-r rounded-full opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 animate-[spin_4s_linear_infinite]", member.gradient)} />
+
+                                        {/* Gradient border ring */}
+                                        <div className={cn("absolute -inset-1 bg-gradient-to-r rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300", member.gradient)} />
+
+                                        {/* Avatar inner wrapper to handle border */}
+                                        <div className="relative rounded-full p-[3px] bg-white z-10 shadow-sm">
+                                            <img
+                                                src={member.avatar}
+                                                alt={member.name}
+                                                className="w-20 h-20 rounded-full object-cover group-hover:scale-105 transition-transform duration-500 bg-gray-50"
+                                            />
+                                        </div>
+
+                                        {/* The Icon badge */}
+                                        <div className={cn("absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center border-2 border-white z-20 shadow-md group-hover:scale-110 group-hover:rotate-12 transition-all duration-300", member.gradient)}>
+                                            <Users className="w-3.5 h-3.5 text-white" />
                                         </div>
                                     </div>
-                                    <h3 className="font-semibold text-gray-900 text-sm mb-1">{member.name}</h3>
-                                    <p className="text-xs text-gray-500 mb-2">{member.role}</p>
-                                    <Badge className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200 font-medium">
+                                    <h3 className="font-bold text-gray-900 text-sm mb-1">{member.name}</h3>
+                                    <p className="text-xs text-gray-500 mb-3">{member.role}</p>
+                                    <Badge className="text-[10px] px-2.5 py-0.5 bg-gray-50 text-gray-600 border border-gray-200 group-hover:border-indigo-200 group-hover:text-indigo-600 transition-colors font-medium">
                                         {member.tag}
                                     </Badge>
                                 </motion.div>

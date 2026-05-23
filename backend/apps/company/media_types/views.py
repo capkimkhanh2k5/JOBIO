@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import AllowAny
+from apps.core.users.permissions import IsAdmin
 
 from .serializers import (
     MediaTypeSerializer,
@@ -30,7 +31,7 @@ class MediaTypeViewSet(viewsets.GenericViewSet):
     def get_permissions(self):
         if self.action == "list":
             return [AllowAny()]
-        return [IsAdminUser()]
+        return [IsAdmin()]
 
     def get_queryset(self):
         is_active = self.request.query_params.get("is_active")

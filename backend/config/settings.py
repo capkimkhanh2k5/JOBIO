@@ -33,6 +33,13 @@ def env_bool(name, default=False):
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def env_int(name, default=0):
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return int(value)
+
+
 def env_list(name, default=None):
     value = os.getenv(name, "")
     if not value.strip():
@@ -56,6 +63,18 @@ ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",
     default=["localhost", "127.0.0.1"] if DEBUG else [],
 )
+
+if not DEBUG:
+    if not ALLOWED_HOSTS:
+        raise RuntimeError("DJANGO_ALLOWED_HOSTS must be set when DEBUG=0")
+    if (
+        SECRET_KEY.startswith("django-insecure-")
+        or len(SECRET_KEY) < 50
+        or len(set(SECRET_KEY)) < 5
+    ):
+        raise RuntimeError(
+            "SECRET_KEY must be strong and at least 50 characters when DEBUG=0"
+        )
 
 
 # Application definition
@@ -299,8 +318,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",
-        "user": "1000/hour",
+        "anon": os.getenv("DRF_THROTTLE_ANON", "2000/hour" if DEBUG else "100/hour"),
+        "user": os.getenv("DRF_THROTTLE_USER", "5000/hour" if DEBUG else "1000/hour"),
         # Custom throttles
         "login": "5/minute",
         "register": "10/hour",
@@ -323,6 +342,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+REMEMBER_ME_REFRESH_TOKEN_LIFETIME = timedelta(days=7)
 
 # ===== WebAuthn / Passkey Configuration =====
 WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")
@@ -356,14 +376,23 @@ CSRF_TRUSTED_ORIGINS = env_list(
 CORS_ALLOW_CREDENTIALS = True
 
 # ===== Production Security Configuration =====
-SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
-SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=False)
-CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=False)
-SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
-    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False
+PRODUCTION_SECURITY_DEFAULT = not DEBUG
+SECURE_SSL_REDIRECT = env_bool(
+    "SECURE_SSL_REDIRECT", default=PRODUCTION_SECURITY_DEFAULT
 )
-SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", default=False)
+SESSION_COOKIE_SECURE = env_bool(
+    "SESSION_COOKIE_SECURE", default=PRODUCTION_SECURITY_DEFAULT
+)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=PRODUCTION_SECURITY_DEFAULT)
+SECURE_HSTS_SECONDS = env_int(
+    "SECURE_HSTS_SECONDS", 31536000 if PRODUCTION_SECURITY_DEFAULT else 0
+)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=PRODUCTION_SECURITY_DEFAULT
+)
+SECURE_HSTS_PRELOAD = env_bool(
+    "SECURE_HSTS_PRELOAD", default=PRODUCTION_SECURITY_DEFAULT
+)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = os.getenv(
     "SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin"
@@ -395,6 +424,10 @@ VNP_RETURN_URL = os.getenv(
 VNP_FRONTEND_RETURN_URL = os.getenv(
     "VNP_FRONTEND_RETURN_URL", "http://localhost:4000/company/payment-result"
 )
+PAYMENT_PENDING_TIMEOUT_MINUTES = env_int("PAYMENT_PENDING_TIMEOUT_MINUTES", 5)
+PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS = env_int(
+    "PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS", 60
+)
 
 # ===== AI Configuration =====
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -407,6 +440,16 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = {
+    "cleanup-expired-transactions": {
+        "task": "apps.billing.tasks.cleanup_expired_transactions",
+        "schedule": PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS,
+    },
+    "cleanup-expired-subscriptions": {
+        "task": "apps.billing.tasks.cleanup_expired_subscriptions",
+        "schedule": 60 * 60,
+    },
+}
 # ===== Redis Cache Configuration =====
 CACHES = {
     "default": {
@@ -414,6 +457,7 @@ CACHES = {
         "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://redis:6379/1"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": env_bool("REDIS_IGNORE_EXCEPTIONS", default=True),
             "SOCKET_CONNECT_TIMEOUT": 5,
             "SOCKET_TIMEOUT": 5,
             "RETRY_ON_TIMEOUT": True,

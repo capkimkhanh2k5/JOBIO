@@ -11,8 +11,8 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const JOB_TYPES = [
-    { id: "full_time", label: "Full-time" },
-    { id: "part_time", label: "Part-time" },
+    { id: "full-time", label: "Full-time" },
+    { id: "part-time", label: "Part-time" },
     { id: "contract", label: "Contract" },
     { id: "internship", label: "Thực tập" },
     { id: "freelance", label: "Freelance" },

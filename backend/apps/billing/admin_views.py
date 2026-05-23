@@ -1,11 +1,10 @@
-import csv
-from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum, Q
 from django.utils import timezone
 
+from apps.core.excel import make_excel_response
 from apps.core.users.permissions import IsAdmin
 from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan
 from apps.billing.serializers import (
@@ -156,44 +155,42 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"], url_path="export")
     def export_csv(self, request):
         """
-        Xuất danh sách giao dịch ra file CSV
+        Xuất danh sách giao dịch ra file Excel.
         """
         queryset = self.get_queryset()
 
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
-
-        writer = csv.writer(response)
-        writer.writerow(
+        headers = [
+            "Mã giao dịch",
+            "Công ty",
+            "Email",
+            "Loại",
+            "Phương thức",
+            "Trạng thái",
+            "Số tiền",
+            "Tiền tệ",
+            "Ngày tạo",
+        ]
+        rows = (
             [
-                "Mã GD",
-                "Công ty",
-                "Email",
-                "Loại",
-                "Phương thức",
-                "Trạng thái",
-                "Số tiền",
-                "Ngày tạo",
+                txn.reference_code or f"TX-{txn.id}",
+                txn.company.company_name if txn.company else "N/A",
+                txn.company.user.email if txn.company and txn.company.user else "N/A",
+                txn.get_type_display(),
+                txn.payment_method.name if txn.payment_method else "N/A",
+                txn.get_status_display(),
+                txn.amount,
+                txn.currency,
+                txn.created_at.strftime("%Y-%m-%d %H:%M:%S") if txn.created_at else "",
             ]
+            for txn in queryset
         )
 
-        for txn in queryset:
-            writer.writerow(
-                [
-                    txn.reference_code or f"TX-{txn.id}",
-                    txn.company.company_name if txn.company else "N/A",
-                    txn.company.user.email
-                    if txn.company and txn.company.user
-                    else "N/A",
-                    txn.get_type_display(),
-                    txn.payment_method.name if txn.payment_method else "N/A",
-                    txn.get_status_display(),
-                    f"{txn.amount} {txn.currency}",
-                    txn.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-                ]
-            )
-
-        return response
+        return make_excel_response(
+            filename="transactions.xlsx",
+            headers=headers,
+            rows=rows,
+            sheet_name="Tai chinh",
+        )
 
 
 class AdminSubscriptionPlanViewSet(viewsets.ModelViewSet):

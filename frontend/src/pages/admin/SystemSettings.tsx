@@ -51,6 +51,9 @@ const fadeUp = (delay: number) => ({
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
 
+const LOG_PAGE_SIZE = 20;
+const FILE_PAGE_SIZE = 20;
+
 const tabs: Array<{ id: TabId; label: string; icon: any }> = [
     { id: 'general', label: 'Cấu hình chung', icon: Settings },
     { id: 'plans', label: 'Quản lý Gói dịch vụ', icon: Wallet },
@@ -120,9 +123,9 @@ export default function SystemSettings() {
 
     const { data: logsData, isLoading: loadingLogs } = useQuery({
         queryKey: ['admin-activity-logs', logPage, logSearch, logType, logDateFrom, logDateTo],
-        queryFn: () => dashboardService.listActivityLogs({ 
-            page: logPage, 
-            page_size: 20, 
+        queryFn: () => dashboardService.listActivityLogs({
+            page: logPage,
+            page_size: LOG_PAGE_SIZE,
             search: logSearch || undefined,
             log_type: logType !== 'all' ? logType : undefined,
             date_from: logDateFrom || undefined,
@@ -133,7 +136,7 @@ export default function SystemSettings() {
 
     const logs: ActivityLog[] = logsData?.results || [];
     const logsCount = logsData?.count || 0;
-    const logsTotalPages = Math.ceil(logsCount / 20);
+    const logsTotalPages = Math.max(1, logsData?.total_pages ?? Math.ceil(logsCount / LOG_PAGE_SIZE));
 
     // --- FILE UPLOADS STATE ---
     const [filePage, setFilePage] = useState(1);
@@ -153,7 +156,7 @@ export default function SystemSettings() {
         queryKey: ['admin-file-uploads', filePage, fileSearch, fileType, fileEntity, fileDateFrom, fileDateTo],
         queryFn: () => dashboardService.listFileUploads({ 
             page: filePage, 
-            page_size: 20,
+            page_size: FILE_PAGE_SIZE,
             search: fileSearch || undefined,
             file_type: fileType !== 'all' ? fileType : undefined,
             entity_type: fileEntity !== 'all' ? fileEntity : undefined,
@@ -165,7 +168,7 @@ export default function SystemSettings() {
 
     const files: FileUpload[] = filesData?.results || [];
     const filesCount = filesData?.count || 0;
-    const filesTotalPages = Math.ceil(filesCount / 20);
+    const filesTotalPages = Math.max(1, filesData?.total_pages ?? Math.ceil(filesCount / FILE_PAGE_SIZE));
 
     const deleteFileMut = useMutation({
         mutationFn: (id: number) => dashboardService.deleteFileUpload(id),

@@ -1,24 +1,6 @@
-import { Suspense, useEffect, useLayoutEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Lenis from '@studio-freight/lenis';
-import Home from '@/pages/Home';
-import CandidateProfile from '@/pages/Profile';
-import PublicProfile from '@/pages/public/PublicProfile';
-import Jobs from '@/pages/Jobs';
-import Companies from '@/pages/Companies';
-import JobDetail from '@/pages/JobDetailPage';
-import Auth from '@/pages/Auth';
-import CompanyDetail from '@/pages/CompanyDetailPage';
-import About from '@/pages/About';
-import Contact from '@/pages/Contact';
-import Pricing from '@/pages/Pricing';
-import FAQ from '@/pages/FAQ';
-import Blog from '@/pages/Blog';
-import BlogDetail from '@/pages/BlogDetailPage';
-import HRSolutions from '@/pages/HRSolutions';
-import Terms from '@/pages/Terms';
-import Privacy from '@/pages/Privacy';
-import Cookie from '@/pages/Cookie';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -27,48 +9,66 @@ import { ProtectedRoute, PublicRoute, NotFoundRedirect, RoleBasedRedirect } from
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
-// Company area – own layout shell (no public Header/Footer)
-import { CompanyLayout } from '@/components/company/CompanyLayout';
-import CompanyDashboard from '@/pages/company/CompanyDashboard';
-import PostJob from '@/pages/company/PostJob';
-import ManageJobs from '@/pages/company/ManageJobs';
-import ManageCandidates from '@/pages/company/ManageCandidates';
-import CompanySupportPage from '@/pages/company/Support/CompanySupportPage';
-import { CompanyAnalyticsPage } from '@/pages/company/CompanyAnalyticsPage';
-import { CompanySettingsPage } from '@/pages/company/CompanySettingsPage';
-import CandidateSettingsPage from '@/pages/candidate/CandidateSettingsPage';
-import PaymentResultPage from '@/pages/company/Billing/PaymentResult';
-import BillingDashboard from '@/pages/company/Billing/BillingDashboard';
+const Home = lazy(() => import('@/pages/Home'));
+const CandidateProfile = lazy(() => import('@/pages/Profile'));
+const PublicProfile = lazy(() => import('@/pages/public/PublicProfile'));
+const Jobs = lazy(() => import('@/pages/Jobs'));
+const Companies = lazy(() => import('@/pages/Companies'));
+const JobDetail = lazy(() => import('@/pages/JobDetailPage'));
+const Auth = lazy(() => import('@/pages/Auth'));
+const CompanyDetail = lazy(() => import('@/pages/CompanyDetailPage'));
+const About = lazy(() => import('@/pages/About'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const Pricing = lazy(() => import('@/pages/Pricing'));
+const FAQ = lazy(() => import('@/pages/FAQ'));
+const Blog = lazy(() => import('@/pages/Blog'));
+const BlogDetail = lazy(() => import('@/pages/BlogDetailPage'));
+const HRSolutions = lazy(() => import('@/pages/HRSolutions'));
+const Terms = lazy(() => import('@/pages/Terms'));
+const Privacy = lazy(() => import('@/pages/Privacy'));
+const Cookie = lazy(() => import('@/pages/Cookie'));
 
-import CompanyCVSearch from '@/pages/company/CompanyCVSearch';
-import CompanyInterviewsPage from '@/pages/company/CompanyInterviews';
-import CompanyProfile from '@/pages/company/CompanyProfile';
+// Company area – own layout shell (no public Header/Footer)
+const CompanyLayout = lazy(() => import('@/components/company/CompanyLayout').then((module) => ({ default: module.CompanyLayout })));
+const CompanyDashboard = lazy(() => import('@/pages/company/CompanyDashboard'));
+const PostJob = lazy(() => import('@/pages/company/PostJob'));
+const ManageJobs = lazy(() => import('@/pages/company/ManageJobs'));
+const ManageCandidates = lazy(() => import('@/pages/company/ManageCandidates'));
+const CompanySupportPage = lazy(() => import('@/pages/company/Support/CompanySupportPage'));
+const CompanyAnalyticsPage = lazy(() => import('@/pages/company/CompanyAnalyticsPage').then((module) => ({ default: module.CompanyAnalyticsPage })));
+const CompanySettingsPage = lazy(() => import('@/pages/company/CompanySettingsPage').then((module) => ({ default: module.CompanySettingsPage })));
+const CandidateSettingsPage = lazy(() => import('@/pages/candidate/CandidateSettingsPage'));
+const PaymentResultPage = lazy(() => import('@/pages/company/Billing/PaymentResult'));
+const BillingDashboard = lazy(() => import('@/pages/company/Billing/BillingDashboard'));
+const CompanyCVSearch = lazy(() => import('@/pages/company/CompanyCVSearch'));
+const CompanyInterviewsPage = lazy(() => import('@/pages/company/CompanyInterviews'));
+const CompanyProfile = lazy(() => import('@/pages/company/CompanyProfile'));
 
 // Candidate area
-import { CandidateLayout } from '@/components/candidate/CandidateLayout';
-import CandidateDashboard from '@/pages/candidate/CandidateDashboard';
-import CVManager from '@/pages/candidate/CVManager';
-import SuggestedJobs from '@/pages/candidate/SuggestedJobs';
-import MyApplications from '@/pages/candidate/MyApplications';
-import SavedJobs from '@/pages/candidate/SavedJobs';
-import CandidateInterviews from '@/pages/candidate/Interviews';
-import NotificationsPage from '@/pages/Notifications';
-import SearchHistory from '@/pages/candidate/SearchHistory';
-import UserBlogManagement from '@/pages/shared/BlogManagement';
-import CreateBlogPost from '@/pages/shared/CreateBlogPost';
+const CandidateLayout = lazy(() => import('@/components/candidate/CandidateLayout').then((module) => ({ default: module.CandidateLayout })));
+const CandidateDashboard = lazy(() => import('@/pages/candidate/CandidateDashboard'));
+const CVManager = lazy(() => import('@/pages/candidate/CVManager'));
+const SuggestedJobs = lazy(() => import('@/pages/candidate/SuggestedJobs'));
+const MyApplications = lazy(() => import('@/pages/candidate/MyApplications'));
+const SavedJobs = lazy(() => import('@/pages/candidate/SavedJobs'));
+const CandidateInterviews = lazy(() => import('@/pages/candidate/Interviews'));
+const NotificationsPage = lazy(() => import('@/pages/Notifications'));
+const SearchHistory = lazy(() => import('@/pages/candidate/SearchHistory'));
+const UserBlogManagement = lazy(() => import('@/pages/shared/BlogManagement'));
+const CreateBlogPost = lazy(() => import('@/pages/shared/CreateBlogPost'));
 
 // Admin area
-import { AdminLayout } from '@/components/admin/AdminLayout';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import UserManagement from '@/pages/admin/UserManagement';
-import SystemSettings from '@/pages/admin/SystemSettings';
-import Moderation from '@/pages/admin/Moderation';
-import BlogManagement from '@/pages/admin/BlogManagement';
-import FinancialManagement from '@/pages/admin/FinancialManagement';
-import JobMarketplace from '@/pages/admin/JobMarketplace';
-import ViolationReports from '@/pages/admin/ViolationReports';
-import MasterData from '@/pages/admin/MasterData';
-import AdminNotificationsPage from '@/pages/admin/AdminNotifications';
+const AdminLayout = lazy(() => import('@/components/admin/AdminLayout').then((module) => ({ default: module.AdminLayout })));
+const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
+const UserManagement = lazy(() => import('@/pages/admin/UserManagement'));
+const SystemSettings = lazy(() => import('@/pages/admin/SystemSettings'));
+const Moderation = lazy(() => import('@/pages/admin/Moderation'));
+const BlogManagement = lazy(() => import('@/pages/admin/BlogManagement'));
+const FinancialManagement = lazy(() => import('@/pages/admin/FinancialManagement'));
+const JobMarketplace = lazy(() => import('@/pages/admin/JobMarketplace'));
+const ViolationReports = lazy(() => import('@/pages/admin/ViolationReports'));
+const MasterData = lazy(() => import('@/pages/admin/MasterData'));
+const AdminNotificationsPage = lazy(() => import('@/pages/admin/AdminNotifications'));
 
 // Inner component – must live inside <BrowserRouter> to access router hooks
 function AppInner() {
@@ -126,6 +126,19 @@ function AppInner() {
 
         return () => cancelAnimationFrame(frameId);
     }, [location.pathname, location.search]);
+
+    useEffect(() => {
+        const handleCustomScroll = () => {
+            const lenis = lenisRef.current;
+            if (lenis) {
+                lenis.scrollTo(0, { duration: 1.2 });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+        window.addEventListener('app:scroll-to-top', handleCustomScroll);
+        return () => window.removeEventListener('app:scroll-to-top', handleCustomScroll);
+    }, []);
 
     // Dark mode class sync
     useEffect(() => {

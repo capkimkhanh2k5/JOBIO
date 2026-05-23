@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .serializers import (
     EducationSerializer,
@@ -19,6 +19,11 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in {"list", "retrieve"}:
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_queryset(self):
         from .selectors.recruiter_education import list_education_by_recruiter
@@ -49,6 +54,15 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
             )
         return None
 
+    def _check_public_or_owner_permission(self, request, recruiter):
+        if recruiter.is_profile_public:
+            return None
+        if request.user.is_authenticated and recruiter.user == request.user:
+            return None
+        return Response(
+            {"detail": "Profile is not public"}, status=status.HTTP_403_FORBIDDEN
+        )
+
     def list(self, request, recruiter_id=None):
         """
         GET /api/recruiters/:recruiter_id/education/
@@ -59,6 +73,9 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_public_or_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         queryset = list_education_by_recruiter(recruiter_id)
         serializer = EducationSerializer(queryset, many=True)
@@ -105,6 +122,9 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_public_or_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         education = get_education_by_id(pk)
         if not education:

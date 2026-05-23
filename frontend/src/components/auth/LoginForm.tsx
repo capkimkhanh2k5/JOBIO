@@ -24,7 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 interface LoginFormProps {
     onSwitchToRegister: () => void;
     onForgotPassword: () => void;
-    onRequire2FA: (email: string) => void;
+    onRequire2FA: (email: string, rememberMe: boolean) => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -47,14 +47,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             const { data } = await authService.login({
                 email: values.email,
                 password: values.password,
+                remember_me: values.rememberMe,
             });
 
             if (data.requires_2fa) {
-                onRequire2FA(values.email);
+                onRequire2FA(values.email, values.rememberMe);
                 return;
             }
 
-            setAuth(data.user, data.access_token, data.refresh_token);
+            setAuth(data.user, data.access_token, data.refresh_token, values.rememberMe);
             toast.success(`Chào mừng trở lại, ${data.user.full_name}!`);
         } catch (error: any) {
             const msg = error.response?.data?.detail
@@ -84,6 +85,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
                                     <Input
+                                        autoComplete="email"
                                         placeholder="name@example.com"
                                         className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
                                         tabIndex={1}
@@ -114,6 +116,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                 <FormControl>
                                     <Input
                                         type="password"
+                                        autoComplete="current-password"
                                         placeholder="••••••••"
                                         className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
                                         tabIndex={2}

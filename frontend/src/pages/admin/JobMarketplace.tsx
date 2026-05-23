@@ -11,6 +11,10 @@ import { dashboardService } from '@/services/dashboardService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+import { downloadBlob } from '@/lib/download';
+
+const PAGE_SIZE = 20;
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -44,8 +48,8 @@ const StatusIcon = ({ status, className }: { status: string, className?: string 
 
 export default function JobMarketplace() {
     const [page, setPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [statusFilter, setStatusFilter] = useState('all');
 
     // Debounce search
@@ -77,6 +81,7 @@ export default function JobMarketplace() {
         queryFn: () => {
             return dashboardService.listAdminJobs({
                 page,
+                page_size: PAGE_SIZE,
                 search: debouncedSearch || undefined,
                 status: statusFilter !== 'all' ? statusFilter : undefined
             }).then(r => r.data);
@@ -85,31 +90,19 @@ export default function JobMarketplace() {
 
     const jobs = jobsData?.results ?? [];
     const totalCount = jobsData?.count ?? 0;
-    const totalPages = jobsData?.total_pages ?? 1;
+    const totalPages = Math.max(1, jobsData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
-    // Handle Export CSV
-    const handleExportCSV = async () => {
+    // Handle Export Excel
+    const handleExportExcel = async () => {
         try {
-            const toastId = toast.loading('Đang xuất dữ liệu CSV...');
+            const toastId = toast.loading('Đang xuất dữ liệu Excel...');
             const response = await dashboardService.exportAdminJobs({
                 search: debouncedSearch,
                 status: statusFilter !== 'all' ? statusFilter : undefined
             });
 
-            const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-
-            link.setAttribute('href', url);
-            link.setAttribute('download', `Viec_Lam_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            toast.success('Đã xuất báo cáo CSV thành công!', { id: toastId });
+            downloadBlob(response.data, `Viec_Lam_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success('Đã xuất Excel thành công!', { id: toastId });
         } catch (error) {
             console.error('Export error:', error);
             toast.error('Có lỗi xảy ra khi xuất báo cáo.');
@@ -136,11 +129,11 @@ export default function JobMarketplace() {
                 </div>
                 <Button
                     variant="outline"
-                    onClick={handleExportCSV}
+                    onClick={handleExportExcel}
                     className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
                 >
                     <Download className="w-4 h-4 mr-2" />
-                    Xuất CSV
+                    Xuất Excel
                 </Button>
             </motion.div>
 

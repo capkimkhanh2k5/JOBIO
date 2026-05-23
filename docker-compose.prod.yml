@@ -50,9 +50,11 @@ services:
     command: celery -A config worker -l info --concurrency=2
     restart: unless-stopped
     env_file:
+      - ./.env
       - ./backend/.env
     environment:
       - DEBUG=0
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
       - REDIS_HOST=redis
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -62,11 +64,44 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_CACHE_URL=redis://redis:6379/1
+      - PAYMENT_PENDING_TIMEOUT_MINUTES=${PAYMENT_PENDING_TIMEOUT_MINUTES:-10}
+      - PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS=${PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS:-60}
     depends_on:
       backend:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - jobio-network
+
+  celery-beat:
+    image: ${BACKEND_IMAGE:-ghcr.io/capkimkhanh2k5/jobio-backend}:${IMAGE_TAG:-latest}
+    command: celery -A config beat -l info --pidfile=
+    restart: unless-stopped
+    env_file:
+      - ./.env
+      - ./backend/.env
+    environment:
+      - DEBUG=0
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - REDIS_HOST=redis
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - PAYMENT_PENDING_TIMEOUT_MINUTES=${PAYMENT_PENDING_TIMEOUT_MINUTES:-5}
+      - PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS=${PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS:-60}
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery-worker:
+        condition: service_started
     networks:
       - jobio-network
 

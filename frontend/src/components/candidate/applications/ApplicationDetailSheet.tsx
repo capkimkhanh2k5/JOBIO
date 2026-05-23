@@ -151,7 +151,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
     const timelineItems = historyItems.length > 0
         ? historyItems
         : (app ? [{
-            id: 0,
+            id: Number(app.id),
             old_status: null,
             new_status: 'pending',
             changed_by: null,

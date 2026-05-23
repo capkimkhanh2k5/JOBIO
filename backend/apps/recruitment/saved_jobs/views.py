@@ -84,6 +84,8 @@ class SavedJobViewSet(viewsets.GenericViewSet):
 
     def _get_recruiter(self, request):
         """Lấy recruiter profile của user hiện tại."""
+        if getattr(request.user, "role", None) != "candidate":
+            return None
         if not hasattr(request.user, "recruiter_profile"):
             return None
         return request.user.recruiter_profile

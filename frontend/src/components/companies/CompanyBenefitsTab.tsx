@@ -92,6 +92,17 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
         return acc;
     }, {});
 
+    const getCategoryIcon = (categoryName: string) => {
+        const lower = categoryName.toLowerCase();
+        if (lower.includes('bảo hiểm') || lower.includes('sức khỏe') || lower.includes('y tế')) return HeartPulse;
+        if (lower.includes('nghỉ') || lower.includes('du lịch')) return Palmtree;
+        if (lower.includes('thưởng') || lower.includes('tiền') || lower.includes('lương')) return DollarSign;
+        if (lower.includes('đào tạo') || lower.includes('học tập')) return GraduationCap;
+        if (lower.includes('laptop') || lower.includes('thiết bị')) return Laptop;
+        if (lower.includes('ăn uống') || lower.includes('cafe')) return Coffee;
+        return Gift;
+    };
+
     return (
         <div className="space-y-8">
             {Object.entries(grouped).map(([category, items], catIdx) => (
@@ -105,9 +116,9 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
                         <span className={`h-2 w-2 rounded-full bg-gradient-to-br ${CATEGORY_COLORS[catIdx % 4].split(' ')[0]} ${CATEGORY_COLORS[catIdx % 4].split(' ')[1]}`} />
                         {category}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className={`grid grid-cols-1 ${items.length > 1 ? 'lg:grid-cols-2' : ''} gap-4`}>
                         {items.map((benefit, bIdx) => {
-                            const Icon = iconMap[benefit.icon_url || benefit.category_icon || ''] || Gift;
+                            const Icon = iconMap[benefit.icon_url || benefit.category_icon || ''] || getCategoryIcon(category);
                             const colorCls = CATEGORY_COLORS[catIdx % 4];
                             return (
                                 <motion.div

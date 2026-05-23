@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,6 @@ import { useCandidateStore } from '@/store/candidateStore';
 import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,9 +24,6 @@ import {
     Target,
     Building2,
     Award,
-    AlertCircle,
-    ExternalLink,
-    X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -63,51 +59,6 @@ const STATUS_TRANSITIONS: Record<string, string[]> = {
     rejected: ['rejected'],
     withdrawn: ['withdrawn'],
 };
-
-/** Fullscreen PDF viewer — blob URL approach, same as ApplicationDetailSheet */
-function PdfBlobViewer({ blobUrl, onClose }: { blobUrl: string; onClose: () => void }) {
-    return (
-        <div className="bg-white mx-auto shadow-2xl relative" style={{ minWidth: '210mm', minHeight: '297mm' }}>
-            <iframe
-                src={blobUrl}
-                className="w-full pointer-events-auto"
-                style={{ height: '297mm', border: 'none', display: 'block' }}
-                title="CV PDF Preview"
-            />
-            <Button
-                variant="default"
-                size="sm"
-                className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
-                onClick={onClose}
-            >
-                Đóng
-            </Button>
-        </div>
-    );
-}
-
-/** HTML CV viewer — same as ApplicationDetailSheet */
-function HtmlCvViewer({ html, onClose }: { html: string; onClose: () => void }) {
-    return (
-        <div className="bg-white mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
-            <iframe
-                srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${html}</body></html>`}
-                className="w-full pointer-events-auto"
-                style={{ height: '297mm', border: 'none', display: 'block' }}
-                title="CV Preview"
-                sandbox="allow-same-origin allow-scripts"
-            />
-            <Button
-                variant="default"
-                size="sm"
-                className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
-                onClick={onClose}
-            >
-                Đóng
-            </Button>
-        </div>
-    );
-}
 
 export function CandidateDetailSheet() {
     const { selectedCandidateId, setSelectedCandidateId } = useCandidateStore();

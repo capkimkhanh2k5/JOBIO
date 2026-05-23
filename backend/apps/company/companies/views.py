@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.conf import settings
 from apps.email.services import EmailService
 from apps.company.companies.services.suggestions import CompanySuggestionService
+from apps.core.users.permissions import is_admin_user
 
 from .models import Company
 from .serializers import (
@@ -77,7 +78,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
         GET /api/companies/ - Danh sách công ty (công khai)
         """
         verification_status = request.query_params.get("verification_status")
-        if verification_status == "pending" and not request.user.is_staff:
+        if verification_status == "pending" and not is_admin_user(request.user):
             return Response(
                 {"detail": "You don't have permission to view pending companies"},
                 status=status.HTTP_403_FORBIDDEN,
@@ -399,7 +400,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         PATCH /api/companies/:id/verification - Duyệt/từ chối xác thực
         """
-        if not request.user.is_staff:
+        if not is_admin_user(request.user):
             return Response(
                 {"detail": "You don't have permission to update this company"},
                 status=status.HTTP_403_FORBIDDEN,
@@ -512,7 +513,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         GET /api/companies/moderation-stats/ - Thống kê kiểm duyệt cho Admin
         """
-        if not request.user.is_staff:
+        if not is_admin_user(request.user):
             return Response(
                 {"detail": "You don't have permission to view moderation stats"},
                 status=status.HTTP_403_FORBIDDEN,

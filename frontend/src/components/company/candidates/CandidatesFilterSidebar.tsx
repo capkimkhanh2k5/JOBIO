@@ -37,9 +37,9 @@ export function CandidatesFilterSidebar() {
 
     const { data: popularSkillsRaw } = useQuery({
         queryKey: ['popular-skills'],
-        queryFn: () => taxonomyService.listSkills({ page_size: 10 }).then(r => r.data),
+        queryFn: () => taxonomyService.listSkills({ page_size: 10 }),
     });
-    const popularSkills: string[] = ((popularSkillsRaw as any)?.results ?? []).map((s: any) => s.name).slice(0, 5);
+    const popularSkills: string[] = (popularSkillsRaw ?? []).map((s) => s.name).slice(0, 5);
 
     const toggleStatus = (status: string) => {
         const current = filters.statuses || [];

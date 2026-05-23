@@ -18,12 +18,16 @@ import {
 import { ConfirmModal } from '@/components/shared/ConfirmModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
+import { downloadBlob } from '@/lib/download';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.45, delay, ease: [0.25, 0.46, 0.45, 0.94] as const },
 });
+
+const PAGE_SIZE = 10;
 
 interface User {
     id: number;
@@ -66,8 +70,8 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function UserManagement() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [searchQuery, setSearchQuery] = useUrlSearchParam();
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const [roleFilter, setRoleFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
@@ -105,7 +109,7 @@ export default function UserManagement() {
             role: roleFilter === 'all' ? undefined : roleFilter,
             status: statusFilter === 'all' ? undefined : statusFilter,
             page,
-            page_size: 10,
+            page_size: PAGE_SIZE,
         }).then(r => r.data),
     });
 
@@ -212,15 +216,13 @@ export default function UserManagement() {
 
     const handleExport = async () => {
         try {
-            const response = await dashboardService.exportUsers();
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            toast.success('Xuất dữ liệu thành công');
+            const response = await dashboardService.exportUsers({
+                search: debouncedSearch || undefined,
+                role: roleFilter === 'all' ? undefined : roleFilter,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+            });
+            downloadBlob(response.data, `users_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success('Xuất Excel thành công');
         } catch (error) {
             toast.error('Không thể xuất dữ liệu');
         }
@@ -235,7 +237,7 @@ export default function UserManagement() {
 
     const users = usersData?.results ?? [];
     const totalCount = usersData?.count ?? 0;
-    const totalPages = usersData?.total_pages ?? 1;
+    const totalPages = Math.max(1, usersData?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
 
 
     const stats = [
@@ -252,7 +254,7 @@ export default function UserManagement() {
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
                         <UserCog className="w-6 h-6 text-violet-600" />
-                        Quản lý Users
+                        Quản lý Khách hàng
                     </h1>
                     <p className="text-sm text-slate-500 font-medium mt-1">Quản lý và giám sát tất cả tài khoản trong hệ thống</p>
                 </div>
@@ -262,7 +264,7 @@ export default function UserManagement() {
                         className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
                         onClick={handleExport}
                     >
-                        <Download className="w-4 h-4 mr-2" /> Xuất CSV
+                        <Download className="w-4 h-4 mr-2" /> Xuất Excel
                     </Button>
                 </div>
             </motion.div>
@@ -718,7 +720,7 @@ export default function UserManagement() {
                                 <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
                                 <span className="text-xs font-bold text-slate-500">{totalPages}</span>
                             </div>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>

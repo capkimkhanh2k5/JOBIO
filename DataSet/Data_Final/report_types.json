@@ -5,8 +5,8 @@
         "description": "Mạo danh, Tin ảo, Lừa đảo. Mục đích xử lý: Khóa tài khoản, xác minh pháp lý.",
         "template": "{}",
         "is_active": true,
-        "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-27T10:00:00.000000Z"
+        "created_at": "2026-04-28T23:57:20.000Z",
+        "updated_at": "2026-04-30T20:57:20.000Z"
     },
     {
         "id": 2,
@@ -14,8 +14,8 @@
         "description": "Sai Tech Stack, Hết hạn, Trùng lặp. Mục đích xử lý: Ẩn tin, nhắc nhở cập nhật nội dung.",
         "template": "{}",
         "is_active": true,
-        "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-27T10:00:00.000000Z"
+        "created_at": "2026-01-14T17:46:14.000Z",
+        "updated_at": "2026-01-15T07:46:14.000Z"
     },
     {
         "id": 3,
@@ -23,8 +23,8 @@
         "description": "Link độc hại, Thu phí, Thu thập dữ liệu. Mục đích xử lý: Cảnh báo đỏ toàn hệ thống, chặn IP.",
         "template": "{}",
         "is_active": true,
-        "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-27T10:00:00.000000Z"
+        "created_at": "2026-01-17T19:03:51.000Z",
+        "updated_at": "2026-01-18T19:03:51.000Z"
     },
     {
         "id": 4,
@@ -32,7 +32,7 @@
         "description": "Phân biệt đối xử, Phản cảm. Mục đích xử lý: Kiểm duyệt thủ công, gắn cờ vi phạm tiêu chuẩn cộng đồng.",
         "template": "{}",
         "is_active": true,
-        "created_at": "2026-04-19T02:54:14.630671Z",
-        "updated_at": "2026-04-27T10:00:00.000000Z"
+        "created_at": "2026-05-16T18:30:01.000Z",
+        "updated_at": "2026-05-17T00:30:01.000Z"
     }
 ]

@@ -13,16 +13,17 @@ import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import { toast } from 'sonner';
 import { formatDate } from '@/lib/utils';
+import type { CandidateProjectRequest } from '@/types/api';
 
 interface ProjectEntry {
-    id: string;
+    id: string | number;
     project_name: string;
-    description?: string;
-    project_url?: string;
-    start_date?: string;
-    end_date?: string;
+    description?: string | null;
+    project_url?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
     is_ongoing: boolean;
-    technologies_used: string[];
+    technologies_used: string;
 }
 
 interface ProjectFormProps {
@@ -65,7 +66,7 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
     const mutation = useMutation({
         mutationFn: () => {
             const { start_date, end_date, is_ongoing, technologies_raw, ...rest } = formData;
-            const data = {
+            const data: CandidateProjectRequest = {
                 ...rest,
                 is_ongoing,
                 start_date: start_date || null,
@@ -170,7 +171,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
     }, [projects]);
 
     const deleteMutation = useMutation({
-        mutationFn: (projectId: string) => candidateService.deleteProject(Number(userId), Number(projectId)).then(r => r.data),
+        mutationFn: (projectId: string | number) => candidateService.deleteProject(Number(userId), Number(projectId)).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['projects', userId] });
             toast.success('Đã xoá dự án.');

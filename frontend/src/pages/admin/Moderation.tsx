@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { companyService } from '@/services/companyService';
 import { dashboardService } from '@/services/dashboardService';
 import { toast } from 'sonner';
+import { useUrlSearchParam } from '@/hooks/useUrlSearchParam';
 
 const fadeUp = (delay: number) => ({
     initial: { opacity: 0, y: 20 },
@@ -27,8 +28,8 @@ type TabId = (typeof tabs)[number]['id'];
 export default function Moderation() {
     const [activeTab,] = useState<TabId>('companies');
     const [companyPage, setCompanyPage] = useState(1);
-    const [companySearch, setCompanySearch] = useState('');
-    const [debouncedCompanySearch, setDebouncedCompanySearch] = useState('');
+    const [companySearch, setCompanySearch] = useUrlSearchParam();
+    const [debouncedCompanySearch, setDebouncedCompanySearch] = useState(companySearch);
     const queryClient = useQueryClient();
 
     useEffect(() => {
