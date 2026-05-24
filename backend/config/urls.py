@@ -20,7 +20,7 @@ def health_check(_request):
 
 urlpatterns = [
     path("health/", health_check, name="health-check"),
-    path("admin/", admin.site.urls),
+    path("django-admin/", admin.site.urls),
     path("api/", include(router.urls)),
     # Users app routes (login, logout, register, user management)
     path("api/users/", include("apps.core.users.urls")),
