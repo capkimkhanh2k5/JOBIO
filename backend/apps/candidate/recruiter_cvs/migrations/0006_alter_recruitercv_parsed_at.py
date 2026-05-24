@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_cvs', '0005_remove_parsed_status'),
+        ("candidate_recruiter_cvs", "0005_remove_parsed_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='recruitercv',
-            name='parsed_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='Thời điểm xử lý'),
+            model_name="recruitercv",
+            name="parsed_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Thời điểm xử lý"
+            ),
         ),
     ]

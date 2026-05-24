@@ -293,9 +293,7 @@ class IsVerifiedCompanyForWrite(permissions.BasePermission):
             return False
 
         if company_profile.verification_status != "verified":
-            self.message = (
-                "Công ty của bạn chưa được xác thực. Vui lòng chờ duyệt trước khi đăng nội dung."
-            )
+            self.message = "Công ty của bạn chưa được xác thực. Vui lòng chờ duyệt trước khi đăng nội dung."
             return False
 
         return True
