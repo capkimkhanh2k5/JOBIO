@@ -150,7 +150,7 @@
         "read_at": null,
         "created_at": "2026-04-14T12:57:46.000Z",
         "notification_type_id": 8,
-        "user_id": 2,
+        "user_id": 24,
         "updated_at": "2026-04-14T12:57:46.000Z"
     },
     {
@@ -206,7 +206,7 @@
         "read_at": null,
         "created_at": "2026-03-31T05:18:37.000Z",
         "notification_type_id": 8,
-        "user_id": 2,
+        "user_id": 24,
         "updated_at": "2026-03-31T05:18:37.000Z"
     },
     {
@@ -1454,5 +1454,61 @@
         "read_at": "2026-05-20T22:23:00Z",
         "created_at": "2026-05-20T17:23:00Z",
         "updated_at": "2026-05-20T22:23:00Z"
+    },
+    {
+        "id": 105,
+        "user_id": 2,
+        "notification_type_id": 3,
+        "title": "Chào mừng quay lại trang quản trị",
+        "content": "Bạn có thể theo dõi hoạt động hệ thống, duyệt báo cáo và quản lý dữ liệu demo từ bảng điều khiển admin.",
+        "link": "/admin/dashboard",
+        "entity_type": "admin_dashboard",
+        "entity_id": null,
+        "is_read": false,
+        "read_at": null,
+        "created_at": "2026-05-24T08:00:00Z",
+        "updated_at": "2026-05-24T08:00:00Z"
+    },
+    {
+        "id": 106,
+        "user_id": 2,
+        "notification_type_id": 5,
+        "title": "Có báo cáo vi phạm cần kiểm tra",
+        "content": "Một số báo cáo demo đang chờ admin xem xét và cập nhật trạng thái xử lý.",
+        "link": "/admin/reports",
+        "entity_type": "report",
+        "entity_id": null,
+        "is_read": false,
+        "read_at": null,
+        "created_at": "2026-05-24T08:05:00Z",
+        "updated_at": "2026-05-24T08:05:00Z"
+    },
+    {
+        "id": 107,
+        "user_id": 2,
+        "notification_type_id": 6,
+        "title": "Có công ty cần duyệt xác minh",
+        "content": "Danh sách kiểm duyệt công ty demo đã sẵn sàng để kiểm tra trong khu vực admin.",
+        "link": "/admin/moderation",
+        "entity_type": "company",
+        "entity_id": null,
+        "is_read": false,
+        "read_at": null,
+        "created_at": "2026-05-24T08:10:00Z",
+        "updated_at": "2026-05-24T08:10:00Z"
+    },
+    {
+        "id": 108,
+        "user_id": 2,
+        "notification_type_id": 8,
+        "title": "Cập nhật dữ liệu giao dịch demo",
+        "content": "Dữ liệu thanh toán và gói dịch vụ demo đã được nạp để kiểm thử màn hình tài chính.",
+        "link": "/admin/financial",
+        "entity_type": "transaction",
+        "entity_id": null,
+        "is_read": false,
+        "read_at": null,
+        "created_at": "2026-05-24T08:15:00Z",
+        "updated_at": "2026-05-24T08:15:00Z"
     }
 ]

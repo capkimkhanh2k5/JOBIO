@@ -286,23 +286,45 @@ export interface JobListItem {
   id: number;
   title: string;
   slug: string;
-  company: CompanyBrief;
-  category: { id: number; name: string } | null;
+  company?: CompanyBrief;
+  company_id?: number;
+  company_name?: string;
+  company_slug?: string | null;
+  logo_url?: string | null;
+  category?: { id: number; name: string } | null;
+  category_id?: number | null;
+  category_name?: string | null;
   job_type: JobType;
   level: JobLevel;
+  experience_years_min?: number | null;
+  experience_years_max?: number | null;
   salary_min: number | null;
   salary_max: number | null;
   salary_currency: string;
+  salary_type?: string;
   salary_negotiable: boolean;
+  is_salary_negotiable?: boolean;
+  is_salary_visible?: boolean;
+  number_of_positions?: number | null;
+  description?: string;
+  requirements?: string;
+  benefits?: string | null;
   is_remote: boolean;
+  location?: string;
+  locations?: string | JobLocation[];
   application_deadline: string | null;
+  deadline?: string | null;
   status: JobStatus;
   view_count: number;
+  views_count?: number;
   application_count: number;
+  applications_count?: number;
   featured: boolean;
+  is_featured?: boolean;
   urgent: boolean;
   published_at: string | null;
   created_at: string;
+  skills?: JobSkill[];
 }
 
 export interface JobDetail extends JobListItem {

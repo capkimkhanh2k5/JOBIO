@@ -368,6 +368,7 @@ const FeaturedJobsSection = () => {
 
 const JobCard = ({ job }: { job: any }) => {
     const navigate = useNavigate();
+    const companyTarget = job.company_slug ?? job.company?.slug ?? job.company_id ?? job.company?.id;
 
     return (
         <motion.div
@@ -400,7 +401,10 @@ const JobCard = ({ job }: { job: any }) => {
                 </h3>
                 <button
                     className="text-sm text-gray-500 hover:text-primary flex items-center gap-1 transition-colors"
-                    onClick={e => { e.stopPropagation(); navigate(`/companies/${job.id}`); }}
+                    onClick={e => {
+                        e.stopPropagation();
+                        if (companyTarget) navigate(`/companies/${companyTarget}`);
+                    }}
                 >
                     <Building className="w-3.5 h-3.5" /> {job.company_name}
                 </button>

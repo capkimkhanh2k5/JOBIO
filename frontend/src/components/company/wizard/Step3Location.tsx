@@ -127,7 +127,7 @@ export function Step3Location({ control }: Step3LocationProps) {
 
                         <p className="text-xs text-slate-400 italic font-medium">
                             💡 Để chỉnh sửa thông tin công ty, vui lòng cập nhật trong{' '}
-                            <a href="/company/company" className="text-violet-600 hover:underline">Hồ sơ công ty</a>.
+                            <a href="/company/profile" className="text-violet-600 hover:underline">Hồ sơ công ty</a>.
                         </p>
                     </div>
                 )}

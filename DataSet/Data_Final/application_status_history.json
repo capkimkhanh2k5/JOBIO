@@ -31,7 +31,7 @@
         "new_status": "rejected",
         "created_at": "2026-05-21T15:14:09.000Z",
         "application_id": 27,
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "old_status": "interview",
         "notes": "Đồng bộ trạng thái cuối cùng của hồ sơ sang rejected."
     },
@@ -58,7 +58,7 @@
         "application_id": 8,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-17T23:27:52Z"
     },
@@ -112,7 +112,7 @@
         "application_id": 5,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-14T06:02:49Z"
     },
@@ -121,7 +121,7 @@
         "application_id": 7,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-31T21:37:28Z"
     },
@@ -130,7 +130,7 @@
         "application_id": 9,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-01-09T05:34:20Z"
     },
@@ -139,7 +139,7 @@
         "application_id": 10,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-02-03T18:11:29Z"
     },
@@ -148,7 +148,7 @@
         "application_id": 12,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-13T16:06:03Z"
     },
@@ -157,7 +157,7 @@
         "application_id": 13,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-07T09:24:35Z"
     },
@@ -382,7 +382,7 @@
         "application_id": 58,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-05-09T17:00:00Z"
     },
@@ -391,7 +391,7 @@
         "application_id": 59,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-01-14T19:00:00Z"
     },
@@ -400,7 +400,7 @@
         "application_id": 60,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-01-22T10:00:00Z"
     },
@@ -409,7 +409,7 @@
         "application_id": 61,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-02-04T11:00:00Z"
     },
@@ -418,7 +418,7 @@
         "application_id": 62,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-02-17T12:00:00Z"
     },
@@ -427,7 +427,7 @@
         "application_id": 63,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-03-02T13:00:00Z"
     },
@@ -436,7 +436,7 @@
         "application_id": 64,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-22T15:00:00Z"
     },
@@ -1192,7 +1192,7 @@
         "application_id": 148,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-03-20T16:00:00Z"
     },
@@ -1201,7 +1201,7 @@
         "application_id": 149,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-04-02T17:00:00Z"
     },
@@ -1210,7 +1210,7 @@
         "application_id": 150,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-04-15T18:00:00Z"
     },
@@ -1219,7 +1219,7 @@
         "application_id": 151,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-04-28T19:00:00Z"
     },
@@ -1228,7 +1228,7 @@
         "application_id": 152,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-05-06T10:00:00Z"
     },
@@ -1237,7 +1237,7 @@
         "application_id": 153,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-05-19T11:00:00Z"
     },
@@ -1246,7 +1246,7 @@
         "application_id": 154,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-01-12T12:00:00Z"
     },
@@ -1255,7 +1255,7 @@
         "application_id": 155,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-01-25T13:00:00Z"
     },
@@ -1264,7 +1264,7 @@
         "application_id": 156,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-02-07T14:00:00Z"
     },
@@ -1273,7 +1273,7 @@
         "application_id": 157,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-02-15T15:00:00Z"
     },
@@ -1282,7 +1282,7 @@
         "application_id": 158,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-03T11:00:00Z"
     },
@@ -1291,7 +1291,7 @@
         "application_id": 159,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-04-20T18:00:00Z"
     },
@@ -1300,7 +1300,7 @@
         "application_id": 160,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-03T19:00:00Z"
     },
@@ -1309,7 +1309,7 @@
         "application_id": 161,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-05-11T10:00:00Z"
     },
@@ -1318,7 +1318,7 @@
         "application_id": 162,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-24T11:00:00Z"
     },
@@ -1327,7 +1327,7 @@
         "application_id": 163,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-01-17T12:00:00Z"
     },
@@ -1336,7 +1336,7 @@
         "application_id": 164,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-30T13:00:00Z"
     },
@@ -1345,7 +1345,7 @@
         "application_id": 165,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-12T14:00:00Z"
     },
@@ -1354,7 +1354,7 @@
         "application_id": 166,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-20T15:00:00Z"
     },
@@ -1363,7 +1363,7 @@
         "application_id": 167,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-05T16:00:00Z"
     },
@@ -2182,7 +2182,7 @@
         "application_id": 258,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-03-25T13:00:00Z"
     },
@@ -2191,7 +2191,7 @@
         "application_id": 259,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-04-07T14:00:00Z"
     },
@@ -2200,7 +2200,7 @@
         "application_id": 260,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-04-15T15:00:00Z"
     },
@@ -2209,7 +2209,7 @@
         "application_id": 261,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-04-28T16:00:00Z"
     },
@@ -2218,7 +2218,7 @@
         "application_id": 262,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-11T17:00:00Z"
     },
@@ -2227,7 +2227,7 @@
         "application_id": 263,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-05-24T18:00:00Z"
     },
@@ -2236,7 +2236,7 @@
         "application_id": 264,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-17T19:00:00Z"
     },
@@ -2245,7 +2245,7 @@
         "application_id": 265,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-01-25T10:00:00Z"
     },
@@ -2254,7 +2254,7 @@
         "application_id": 266,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-07T11:00:00Z"
     },
@@ -2263,7 +2263,7 @@
         "application_id": 267,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-20T12:00:00Z"
     },
@@ -2812,7 +2812,7 @@
         "application_id": 328,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-05-19T17:00:00Z"
     },
@@ -2821,7 +2821,7 @@
         "application_id": 329,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-12T18:00:00Z"
     },
@@ -2830,7 +2830,7 @@
         "application_id": 330,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-25T19:00:00Z"
     },
@@ -2839,7 +2839,7 @@
         "application_id": 331,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-02T10:00:00Z"
     },
@@ -2848,7 +2848,7 @@
         "application_id": 332,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-15T11:00:00Z"
     },
@@ -2857,7 +2857,7 @@
         "application_id": 333,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-02-28T12:00:00Z"
     },
@@ -2866,7 +2866,7 @@
         "application_id": 334,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-03-13T13:00:00Z"
     },
@@ -2875,7 +2875,7 @@
         "application_id": 335,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-03-01T19:00:00Z"
     },
@@ -2884,7 +2884,7 @@
         "application_id": 336,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-03-09T10:00:00Z"
     },
@@ -2893,7 +2893,7 @@
         "application_id": 337,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-03-22T11:00:00Z"
     },
@@ -2902,7 +2902,7 @@
         "application_id": 338,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-04-04T12:00:00Z"
     },
@@ -3181,7 +3181,7 @@
         "application_id": 369,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-04-20T15:00:00Z"
     },
@@ -3190,7 +3190,7 @@
         "application_id": 370,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-05-03T16:00:00Z"
     },
@@ -3199,7 +3199,7 @@
         "application_id": 371,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-05-16T17:00:00Z"
     },
@@ -3208,7 +3208,7 @@
         "application_id": 372,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-05-04T13:00:00Z"
     },
@@ -3217,7 +3217,7 @@
         "application_id": 373,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-05-17T14:00:00Z"
     },
@@ -3226,7 +3226,7 @@
         "application_id": 374,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-05T15:00:00Z"
     },
@@ -3235,7 +3235,7 @@
         "application_id": 375,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-18T16:00:00Z"
     },
@@ -3244,7 +3244,7 @@
         "application_id": 376,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-31T17:00:00Z"
     },
@@ -3253,7 +3253,7 @@
         "application_id": 377,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-02-13T18:00:00Z"
     },
@@ -3721,7 +3721,7 @@
         "application_id": 429,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-04-25T12:00:00Z"
     },
@@ -3730,7 +3730,7 @@
         "application_id": 430,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-08T13:00:00Z"
     },
@@ -3739,7 +3739,7 @@
         "application_id": 431,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-05-21T14:00:00Z"
     },
@@ -3748,7 +3748,7 @@
         "application_id": 432,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-09T15:00:00Z"
     },
@@ -3757,7 +3757,7 @@
         "application_id": 433,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-22T16:00:00Z"
     },
@@ -3766,7 +3766,7 @@
         "application_id": 434,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-04T17:00:00Z"
     },
@@ -3775,7 +3775,7 @@
         "application_id": 435,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-17T18:00:00Z"
     },
@@ -3784,7 +3784,7 @@
         "application_id": 436,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-03-02T19:00:00Z"
     },
@@ -3793,7 +3793,7 @@
         "application_id": 437,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-03-10T10:00:00Z"
     },
@@ -4342,7 +4342,7 @@
         "application_id": 498,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-01-29T16:00:00Z"
     },
@@ -4351,7 +4351,7 @@
         "application_id": 499,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-02-11T17:00:00Z"
     },
@@ -4360,7 +4360,7 @@
         "application_id": 500,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-02-24T18:00:00Z"
     },
@@ -4369,7 +4369,7 @@
         "application_id": 501,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-03-09T19:00:00Z"
     },
@@ -4378,7 +4378,7 @@
         "application_id": 502,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-03-17T10:00:00Z"
     },
@@ -4387,7 +4387,7 @@
         "application_id": 503,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-05T16:00:00Z"
     },
@@ -4396,7 +4396,7 @@
         "application_id": 504,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-03-18T17:00:00Z"
     },
@@ -4405,7 +4405,7 @@
         "application_id": 505,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-31T18:00:00Z"
     },
@@ -4414,7 +4414,7 @@
         "application_id": 506,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-04-13T19:00:00Z"
     },
@@ -4423,7 +4423,7 @@
         "application_id": 507,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-04-21T10:00:00Z"
     },
@@ -4702,7 +4702,7 @@
         "application_id": 538,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-05-24T14:00:00Z"
     },
@@ -4711,7 +4711,7 @@
         "application_id": 539,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-07T10:00:00Z"
     },
@@ -4720,7 +4720,7 @@
         "application_id": 540,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-05-20T11:00:00Z"
     },
@@ -4729,7 +4729,7 @@
         "application_id": 541,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-01-13T12:00:00Z"
     },
@@ -4738,7 +4738,7 @@
         "application_id": 542,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-01-26T13:00:00Z"
     },
@@ -4747,7 +4747,7 @@
         "application_id": 543,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-02-08T14:00:00Z"
     },
@@ -4756,7 +4756,7 @@
         "application_id": 544,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-02-16T15:00:00Z"
     },
@@ -4765,7 +4765,7 @@
         "application_id": 545,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-03-01T16:00:00Z"
     },
@@ -4774,7 +4774,7 @@
         "application_id": 546,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-03-14T17:00:00Z"
     },
@@ -4783,7 +4783,7 @@
         "application_id": 547,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-03-27T18:00:00Z"
     },
@@ -4792,7 +4792,7 @@
         "application_id": 548,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-04-09T19:00:00Z"
     },
@@ -8212,7 +8212,7 @@
         "application_id": 928,
         "old_status": "pending",
         "new_status": "offered",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "created_at": "2026-05-19T15:00:00Z"
     },
@@ -8221,7 +8221,7 @@
         "application_id": 929,
         "old_status": "pending",
         "new_status": "rejected",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "created_at": "2026-01-12T16:00:00Z"
     },
@@ -8230,7 +8230,7 @@
         "application_id": 930,
         "old_status": "pending",
         "new_status": "shortlisted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "created_at": "2026-01-25T17:00:00Z"
     },
@@ -8239,7 +8239,7 @@
         "application_id": 931,
         "old_status": "pending",
         "new_status": "reviewing",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Hồ sơ đang được xem xét.",
         "created_at": "2026-02-19T19:00:00Z"
     },
@@ -8248,7 +8248,7 @@
         "application_id": 932,
         "old_status": "pending",
         "new_status": "interview",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên được mời phỏng vấn.",
         "created_at": "2026-02-27T10:00:00Z"
     },
@@ -8257,7 +8257,7 @@
         "application_id": 933,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-03-12T11:00:00Z"
     },
@@ -8266,7 +8266,7 @@
         "application_id": 934,
         "old_status": "pending",
         "new_status": "accepted",
-        "changed_by_id": 2,
+        "changed_by_id": 24,
         "notes": "Ứng viên đã nhận việc.",
         "created_at": "2026-04-18T14:00:00Z"
     },

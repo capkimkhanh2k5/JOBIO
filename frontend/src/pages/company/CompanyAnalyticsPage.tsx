@@ -148,7 +148,7 @@ function JobTableRow({ job, index }: { job: TopJob; index: number }) {
                     <span className="w-6 h-6 rounded-lg bg-violet-50 text-violet-600 text-xs font-black flex items-center justify-center shrink-0">
                         {index + 1}
                     </span>
-                    <Link to={`/company/jobs/${job.id}`} className="font-semibold text-slate-800 hover:text-violet-600 transition-colors line-clamp-1 text-sm">
+                    <Link to={`/jobs/${job.id}`} className="font-semibold text-slate-800 hover:text-violet-600 transition-colors line-clamp-1 text-sm">
                         {job.title}
                     </Link>
                 </div>

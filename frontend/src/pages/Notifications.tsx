@@ -37,6 +37,8 @@ export default function NotificationsPage() {
 
     // Global store actions to sync state
     const {
+        unreadCount,
+        fetchUnreadCount,
         markAsRead: markReadGlobal,
         markAllAsRead: markAllReadGlobal,
     } = useNotificationStore();
@@ -62,21 +64,28 @@ export default function NotificationsPage() {
         }
     }, [settings]);
 
+    useEffect(() => {
+        fetchUnreadCount();
+    }, [fetchUnreadCount]);
+
     const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
         await markReadGlobal(id);
-        notificationService.markNotificationRead(Number(id)).then(() => refetch());
+        await refetch();
+        await fetchUnreadCount();
     };
 
     const handleMarkAllAsRead = async () => {
         await markAllReadGlobal();
-        notificationService.markAllNotificationsRead().then(() => refetch());
+        await refetch();
+        await fetchUnreadCount();
     };
 
     const handleClearAll = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tất cả thông báo?")) {
             await notificationService.clearAllNotifications();
-            refetch();
+            await refetch();
+            await fetchUnreadCount();
         }
     };
 
@@ -84,7 +93,8 @@ export default function NotificationsPage() {
         e.stopPropagation();
         if (window.confirm("Xóa thông báo này?")) {
             await notificationService.deleteNotification(Number(id));
-            refetch();
+            await refetch();
+            await fetchUnreadCount();
         }
     }
 
@@ -103,7 +113,9 @@ export default function NotificationsPage() {
                         Thông báo của bạn
                     </h1>
                     <p className="text-muted-foreground mt-2">
-                        Quản lý và theo dõi các cập nhật quan trọng từ hệ thống
+                        {unreadCount > 0
+                            ? `Bạn có ${unreadCount > 99 ? '99+' : unreadCount} thông báo chưa đọc`
+                            : 'Quản lý và theo dõi các cập nhật quan trọng từ hệ thống'}
                     </p>
                 </div>
 
@@ -112,6 +124,7 @@ export default function NotificationsPage() {
                         variant="outline"
                         className="bg-background/50 backdrop-blur-sm border-border/50 hover:bg-muted"
                         onClick={handleMarkAllAsRead}
+                        disabled={unreadCount === 0}
                     >
                         <CheckCheck className="w-4 h-4 mr-2" />
                         Đánh dấu tất cả đã đọc
@@ -186,6 +199,11 @@ export default function NotificationsPage() {
                         </TabsTrigger>
                         <TabsTrigger value="unread" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm px-6">
                             Chưa đọc
+                            {unreadCount > 0 && (
+                                <span className="ml-2 min-w-[18px] h-[18px] rounded-full bg-red-100 px-1.5 text-[10px] font-black leading-[18px] text-red-700">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
                         </TabsTrigger>
                     </TabsList>
 

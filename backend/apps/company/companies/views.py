@@ -386,7 +386,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 "requester_name": request.user.full_name,
                 "requester_email": request.user.email,
                 "created_at": company.created_at.strftime("%d/%m/%Y"),
-                "admin_dashboard_link": f"{settings.FRONTEND_URL}/admin/companies/{company.id}",
+                "admin_dashboard_link": f"{settings.FRONTEND_URL}/admin/moderation?id={company.id}",
             },
         )
 

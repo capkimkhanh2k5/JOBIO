@@ -20,6 +20,7 @@ import { savedJobService } from '@/services/savedJobService';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
 import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 
 const JOB_TYPE_LABELS: Record<string, string> = {
     'full-time': 'Toàn thời gian',
@@ -77,6 +78,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const isAdminViewer = user?.role === 'admin';
+    const companyHref = job.company?.id ? `/companies/${job.company.id}` : undefined;
 
     const invalidateSavedJobQueries = () => {
         queryClient.invalidateQueries({ queryKey: ['savedJobs'] });
@@ -165,7 +167,15 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
 
                 <div className="absolute -bottom-10 left-8 p-1.5 bg-white rounded-2xl shadow-xl border border-gray-100 hidden md:block">
                     <div className="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50">
-                        {job.company?.logo_url ? (
+                        {companyHref ? (
+                            <Link to={companyHref} className="w-full h-full flex items-center justify-center" aria-label={`Xem công ty ${job.company?.company_name}`}>
+                                {job.company?.logo_url ? (
+                                    <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain" />
+                                ) : (
+                                    <Building2 className="w-10 h-10 text-gray-300" />
+                                )}
+                            </Link>
+                        ) : job.company?.logo_url ? (
                             <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain" />
                         ) : (
                             <Building2 className="w-10 h-10 text-gray-300" />
@@ -202,12 +212,24 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                                 {job.title}
                             </h1>
                             <div className="flex items-center gap-2 text-gray-600 font-semibold text-base">
-                                <span className="hover:text-sky-700 cursor-pointer flex items-center gap-1.5 transition-colors">
-                                    {job.company?.company_name}
-                                    {job.company?.verification_status === 'verified' && (
-                                        <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-50/50" />
-                                    )}
-                                </span>
+                                {companyHref ? (
+                                    <Link
+                                        to={companyHref}
+                                        className="hover:text-sky-700 flex items-center gap-1.5 transition-colors"
+                                    >
+                                        {job.company?.company_name}
+                                        {job.company?.verification_status === 'verified' && (
+                                            <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-50/50" />
+                                        )}
+                                    </Link>
+                                ) : (
+                                    <span className="flex items-center gap-1.5">
+                                        {job.company?.company_name}
+                                        {job.company?.verification_status === 'verified' && (
+                                            <CheckCircle2 className="w-4 h-4 text-blue-500 fill-blue-50/50" />
+                                        )}
+                                    </span>
+                                )}
                             </div>
                         </div>
 

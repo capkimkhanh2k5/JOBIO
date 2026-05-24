@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { dashboardService } from '@/services/dashboardService';
 import { useNotificationStore } from '@/store/notificationStore';
+import { useEffect } from 'react';
 
 const bottomItems = [
     { label: 'Cài đặt hệ thống', path: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
@@ -47,7 +48,11 @@ export function AdminSidebar() {
     const pendingReports = overview?.reports?.pending ?? 0;
     const pendingCompanies = overview?.companies?.pending_verification ?? 0;
 
-    const { unreadCount } = useNotificationStore();
+    const { unreadCount, fetchUnreadCount } = useNotificationStore();
+
+    useEffect(() => {
+        fetchUnreadCount();
+    }, [fetchUnreadCount]);
 
     const navItems = [
         { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },

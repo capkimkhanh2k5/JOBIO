@@ -62,7 +62,9 @@ function CompanyPageSkeleton() {
 
 /* ── Main Page Component ────────────────────────────────────── */
 export default function CompanyDetailPage() {
-    const { id = '1' } = useParams<{ id: string }>();
+    const { id = '' } = useParams<{ id: string }>();
+    const companyParam = id;
+    const isNumericCompanyParam = /^\d+$/.test(companyParam);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const user = useUserStore((s) => s.user);
@@ -70,21 +72,28 @@ export default function CompanyDetailPage() {
 
     // ── Queries ────────────────────────────────────────────────
     const { data: company, isLoading, isError } = useQuery({
-        queryKey: ['company', id],
-        queryFn: () => companyService.getById(Number(id)).then(r => r.data),
+        queryKey: ['company', companyParam],
+        queryFn: () => (
+            isNumericCompanyParam
+                ? companyService.getById(Number(companyParam))
+                : companyService.getBySlug(companyParam)
+        ).then(r => r.data),
         staleTime: 1000 * 60 * 5,
+        enabled: !!companyParam,
     });
 
+    const companyId = company?.id;
+
     const { data: stats } = useQuery({
-        queryKey: ['company-stats', id],
-        queryFn: () => api.get(`/api/companies/${id}/stats/`).then(r => r.data),
-        enabled: !!company,
+        queryKey: ['company-stats', companyId],
+        queryFn: () => api.get(`/api/companies/${companyId}/stats/`).then(r => r.data),
+        enabled: !!companyId,
     });
 
     const { data: followData } = useQuery({
-        queryKey: ['company-following', id],
-        queryFn: () => companyService.isFollowing(Number(id)).then(r => r.data),
-        enabled: !!user && !isAdminViewer,
+        queryKey: ['company-following', companyId],
+        queryFn: () => companyService.isFollowing(Number(companyId)).then(r => r.data),
+        enabled: !!user && !isAdminViewer && !!companyId,
     });
 
     // ── Mutations ──────────────────────────────────────────────
@@ -95,26 +104,27 @@ export default function CompanyDetailPage() {
     const effectiveCount = followCount ?? company?.follower_count ?? 0;
 
     const followMutation = useMutation({
-        mutationFn: () => companyService.follow(Number(id)),
+        mutationFn: () => companyService.follow(Number(companyId)),
         onSuccess: () => {
             setIsFollowing(true);
             setFollowCount(effectiveCount + 1);
-            queryClient.invalidateQueries({ queryKey: ['company-following', id] });
+            queryClient.invalidateQueries({ queryKey: ['company-following', companyId] });
         },
     });
 
     const unfollowMutation = useMutation({
-        mutationFn: () => companyService.unfollow(Number(id)),
+        mutationFn: () => companyService.unfollow(Number(companyId)),
         onSuccess: () => {
             setIsFollowing(false);
             setFollowCount(Math.max(0, effectiveCount - 1));
-            queryClient.invalidateQueries({ queryKey: ['company-following', id] });
+            queryClient.invalidateQueries({ queryKey: ['company-following', companyId] });
         },
     });
 
     const handleFollowToggle = () => {
         if (isAdminViewer) return;
         if (!user) { navigate('/auth'); return; }
+        if (!companyId) return;
         if (effectiveFollowing) unfollowMutation.mutate();
         else followMutation.mutate();
     };
