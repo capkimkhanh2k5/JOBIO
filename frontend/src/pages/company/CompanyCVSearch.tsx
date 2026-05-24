@@ -74,7 +74,7 @@ export default function CompanyCVSearch() {
                 </div>
 
                 {/* Right Content: Results Grid */}
-                <div className="flex-1 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm">
+                <div className="flex-1 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                         <div className="p-6 lg:p-8 space-y-8 min-h-full">
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">

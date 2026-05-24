@@ -50,7 +50,7 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <Card className="p-5 bg-white/70 backdrop-blur-sm border border-white/60 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-3xl h-full shadow-sm">
+            <Card className="p-5 bg-white border border-slate-200 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-2xl h-full shadow-sm">
                 {/* Header */}
                 <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl border border-slate-100 overflow-hidden shrink-0 bg-white flex items-center justify-center shadow-sm">
@@ -145,7 +145,7 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
     loading: boolean;
 }) {
     return (
-        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white/50 backdrop-blur-xl overflow-y-auto">
+        <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
             <div className="px-5 py-5 border-b border-slate-100 shrink-0">
                 <p className="text-[12px] font-black uppercase tracking-wider text-slate-800">
                     Chọn CV để gợi ý
@@ -176,7 +176,7 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
                             className={`relative rounded-xl border p-3.5 cursor-pointer transition-all duration-200 ${
                                 String(selectedId) === String(cv.id)
                                     ? 'border-violet-300 bg-white shadow-sm ring-1 ring-violet-200'
-                                    : 'border-transparent hover:border-slate-200 hover:bg-white/60'
+                                    : 'border-transparent hover:border-slate-200 hover:bg-slate-50'
                             }`}
                         >
                             {String(selectedId) === String(cv.id) && (
@@ -275,82 +275,88 @@ export default function SuggestedJobs() {
     const selectedCV = (cvList as any[]).find((c: any) => String(c.id) === String(selectedCvId));
 
     return (
-        <div className="flex h-full w-full relative overflow-hidden bg-transparent">
-            {/* LEFT: CV selector */}
-            <CVSelector
-                cvList={cvList as any[]}
-                selectedId={selectedCvId}
-                onSelect={setSelectedCvId}
-                loading={loadingCVs}
-            />
+        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+            {/* Page header — sticky, outside the rounded container */}
+            <div className="sticky top-0 z-20">
+                <PageHeader
+                    title="Việc làm gợi ý"
+                    description={selectedCV
+                        ? selectedCV.template_id
+                            ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
+                            : `Dựa trên hồ sơ của bạn (CV "${selectedCV.cv_name}" là PDF upload)`
+                        : 'Chọn một CV để xem những việc làm phù hợp nhất'
+                    }
+                    icon={Sparkles}
+                    action={
+                        <Button
+                            variant="outline"
+                            className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 h-10 px-4 rounded-xl font-bold shadow-sm"
+                            onClick={() => navigate('/candidate/cv')}
+                        >
+                            <FileText className="w-4 h-4" /> Quản lý CV
+                        </Button>
+                    }
+                />
+            </div>
 
-            {/* RIGHT: Job suggestions */}
-            <div className="flex-1 flex flex-col min-w-0 bg-transparent">
-                {/* Page header */}
-                <div className="sticky top-0 z-20">
-                    <PageHeader
-                        title="Việc làm gợi ý"
-                        description={selectedCV 
-                            ? selectedCV.template_id
-                                ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
-                                : `Dựa trên hồ sơ của bạn (CV "${selectedCV.cv_name}" là PDF upload)`
-                            : "Chọn một CV để xem những việc làm phù hợp nhất"
-                        }
-                        icon={Sparkles}
-                        action={
-                            <Button
-                                variant="outline"
-                                className="gap-2 border-violet-200 text-violet-700 hover:bg-violet-50 h-10 px-4 rounded-xl font-bold shadow-sm"
-                                onClick={() => navigate('/candidate/cv')}
-                            >
-                                <FileText className="w-4 h-4" /> Quản lý CV
-                            </Button>
-                        }
+            {/* Main content — padded, single rounded white container like CVManager */}
+            <div className="flex-1 min-h-0 p-6 lg:p-8">
+                <div className="flex h-[calc(100vh-140px)] w-full bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+
+                    {/* LEFT: CV selector sidebar */}
+                    <CVSelector
+                        cvList={cvList as any[]}
+                        selectedId={selectedCvId}
+                        onSelect={setSelectedCvId}
+                        loading={loadingCVs}
                     />
-                </div>
 
-                {/* Content area */}
-                <div className="p-6 lg:p-8 space-y-6 flex-1 overflow-y-auto relative z-10">
-                    {!selectedCvId ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-20 h-20 rounded-full bg-violet-50 flex items-center justify-center mb-6">
-                                <Sparkles className="w-10 h-10 text-violet-400" />
-                            </div>
-                            <h3 className="text-xl font-black text-slate-900 mb-2">Sẵn sàng để kết nối?</h3>
-                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                Chọn một CV từ danh sách bên trái để khám phá những cơ hội nghề nghiệp được AI gợi ý riêng cho bạn.
-                            </p>
+                    {/* RIGHT: Job suggestions */}
+                    <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                        {/* Content area — scrollable */}
+                        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+                            {!selectedCvId ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                                    <div className="w-20 h-20 rounded-full bg-violet-50 flex items-center justify-center mb-6">
+                                        <Sparkles className="w-10 h-10 text-violet-400" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-2">Sẵn sàng để kết nối?</h3>
+                                    <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                                        Chọn một CV từ danh sách bên trái để khám phá những cơ hội nghề nghiệp được AI gợi ý riêng cho bạn.
+                                    </p>
+                                </div>
+                            ) : loadingSuggestions ? (
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {[...Array(6)].map((_, i) => (
+                                        <Skeleton key={i} className="h-48 rounded-2xl" />
+                                    ))}
+                                </div>
+                            ) : (suggestions as any[]).length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center py-12">
+                                    <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
+                                        <Briefcase className="w-10 h-10 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-900 mb-2">Chưa tìm thấy việc làm phù hợp</h3>
+                                    <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                                        Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào CV của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+                                            Tìm thấy <span className="text-violet-600">{(suggestions as any[]).length}</span> việc làm phù hợp
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4">
+                                        {(suggestions as any[]).map((job: any) => (
+                                            <JobCard key={job.id} job={job} onApply={handleApply} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    ) : loadingSuggestions ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {[...Array(6)].map((_, i) => (
-                                <Skeleton key={i} className="h-48 rounded-3xl" />
-                            ))}
-                        </div>
-                    ) : (suggestions as any[]).length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
-                                <Briefcase className="w-10 h-10 text-slate-300" />
-                            </div>
-                            <h3 className="text-xl font-black text-slate-900 mb-2">Chưa tìm thấy việc làm phù hợp</h3>
-                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào CV của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                    Tìm thấy <span className="text-violet-600">{(suggestions as any[]).length}</span> việc làm phù hợp
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
-                                {(suggestions as any[]).map((job: any) => (
-                                    <JobCard key={job.id} job={job} onApply={handleApply} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

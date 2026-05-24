@@ -2,15 +2,12 @@ import { useState, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Briefcase, Building2, Search, Clock, FileText, CheckCircle2, XCircle, Activity
+    Briefcase, Building2, Search, Clock, FileText, CheckCircle2, XCircle, Activity, Star,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { applicationService } from '@/services/applicationService';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     AlertDialog,
@@ -25,6 +22,8 @@ import {
 import { ApplicationDetailSheet } from '@/components/candidate/applications/ApplicationDetailSheet';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
+import { cn } from '@/lib/utils';
 
 const STATUS_FILTERS = [
     { id: 'all', label: 'Tất cả' },
@@ -166,186 +165,192 @@ export default function MyApplications() {
 
                 {/* Initial Loading Skeleton for Stats */}
                 {isLoading && !applications && (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-3xl" />)}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}
                     </div>
                 )}
 
-                {/* Stats Summary */}
+                {/* Stats Summary — DashboardKpiCard */}
                 {!isLoading && applications && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+                        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
                     >
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
-                            <div className="flex items-center gap-3 text-slate-500 mb-2">
-                                <div className="p-2 rounded-xl bg-gradient-to-br from-slate-400 to-slate-500 text-white shadow-sm"><Briefcase className="w-5 h-5" /></div>
-                                <span className="font-medium text-sm">Tổng số đơn</span>
-                            </div>
-                            <span className="text-3xl font-black">{stats.total}</span>
-                        </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
-                            <div className="flex items-center gap-3 text-blue-600 mb-2">
-                                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white shadow-sm"><Activity className="w-5 h-5" /></div>
-                                <span className="font-medium text-sm">Đang diễn ra</span>
-                            </div>
-                            <span className="text-3xl font-black text-blue-700">{stats.active}</span>
-                        </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
-                            <div className="flex items-center gap-3 text-emerald-600 mb-2">
-                                <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-sm"><CheckCircle2 className="w-5 h-5" /></div>
-                                <span className="font-medium text-sm">Thành công</span>
-                            </div>
-                            <span className="text-3xl font-black text-emerald-700">{stats.success}</span>
-                        </Card>
-                        <Card className="p-5 flex flex-col justify-center border border-white/40 shadow-sm bg-white/60 backdrop-blur-xl rounded-3xl">
-                            <div className="flex items-center gap-3 text-red-600 mb-2">
-                                <div className="p-2 rounded-xl bg-gradient-to-br from-red-400 to-red-500 text-white shadow-sm"><XCircle className="w-5 h-5" /></div>
-                                <span className="font-medium text-sm">Chưa phù hợp</span>
-                            </div>
-                            <span className="text-3xl font-black text-red-700">{stats.failed}</span>
-                        </Card>
+                        <DashboardKpiCard
+                            icon={<Briefcase className="w-5 h-5" />}
+                            label="Tổng số đơn"
+                            value={stats.total}
+                            iconGradient="from-slate-400 to-slate-600"
+                        />
+                        <DashboardKpiCard
+                            icon={<Activity className="w-5 h-5" />}
+                            label="Đang diễn ra"
+                            value={stats.active}
+                            iconGradient="from-blue-500 to-blue-600"
+                        />
+                        <DashboardKpiCard
+                            icon={<CheckCircle2 className="w-5 h-5" />}
+                            label="Thành công"
+                            value={stats.success}
+                            iconGradient="from-emerald-500 to-emerald-600"
+                        />
+                        <DashboardKpiCard
+                            icon={<XCircle className="w-5 h-5" />}
+                            label="Chưa phù hợp"
+                            value={stats.failed}
+                            iconGradient="from-red-400 to-red-600"
+                        />
                     </motion.div>
                 )}
 
-                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden mb-8">
-                    {/* Filters Header */}
-                    <div className="p-4 border-b border-white/20 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white/40">
-                        <div className="relative w-full sm:w-80">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    {/* Filter & Search Bar — notification style */}
+                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-50/50">
+                        {/* Pill status filters */}
+                        <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto w-full sm:w-fit">
+                            {STATUS_FILTERS.map((s) => {
+                                const isActive = activeTab === s.id;
+                                const count = stats.counts?.[s.id] ?? 0;
+                                return (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => setActiveTab(s.id)}
+                                        className={cn(
+                                            'flex-shrink-0 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap',
+                                            isActive
+                                                ? 'bg-violet-600 text-white shadow-md'
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                        )}
+                                    >
+                                        {s.label}
+                                        {applications && count > 0 && (
+                                            <span className={cn(
+                                                'text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center',
+                                                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                            )}>
+                                                {count}
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Search input */}
+                        <div className="relative w-full sm:w-72 shrink-0">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <Input
-                                placeholder="Tìm kiếm theo tên công việc hoặc công ty..."
-                                className="pl-9 bg-white border-slate-200 focus-visible:ring-cyan-500 rounded-xl"
+                            <input
+                                type="text"
+                                placeholder="Tìm theo tên công việc hoặc công ty..."
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-400 bg-white shadow-sm"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                        <div className="px-4 pt-2 border-b border-slate-100 overflow-x-auto no-scrollbar">
-                            <TabsList className="bg-transparent h-12 w-max inline-flex p-0 gap-6">
-                                {STATUS_FILTERS.map((s) => (
-                                    <TabsTrigger
-                                        key={s.id}
-                                        value={s.id}
-                                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-violet-600 data-[state=active]:bg-transparent data-[state=active]:text-violet-700 px-1 py-3 text-sm font-semibold text-slate-500 hover:text-slate-700 shadow-none data-[state=active]:shadow-none transition-colors"
-                                    >
-                                        {s.label}
-                                        {applications && (
-                                            <span className="ml-2 py-0.5 px-2 bg-slate-100 text-slate-600 rounded-full text-xs">
-                                                {stats.counts?.[s.id] || 0}
-                                            </span>
-                                        )}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
+                    {/* Content */}
+                    {isLoading ? (
+                        <div className="p-4 space-y-4">
+                            {[1, 2, 3].map(i => (
+                                <Skeleton key={i} className="w-full h-32 rounded-xl" />
+                            ))}
                         </div>
-
-                        <TabsContent value={activeTab} className="p-0 m-0 outline-none">
-                            {isLoading ? (
-                                <div className="p-4 space-y-4">
-                                    {[1, 2, 3].map(i => (
-                                        <Skeleton key={i} className="w-full h-32 rounded-xl" />
-                                    ))}
-                                </div>
-                            ) : filteredApps.length === 0 ? (
-                                <div className="py-20 text-center flex flex-col items-center">
-                                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                        <FileText className="w-8 h-8 text-slate-300" />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-slate-700 mb-1">Không tìm thấy hồ sơ</h3>
-                                    <p className="text-slate-500 text-sm max-w-sm">
-                                        {searchQuery ? "Không có kết quả nào phù hợp với tìm kiếm của bạn." : "Bạn chưa có đơn ứng tuyển nào ở trạng thái này."}
-                                    </p>
-                                    {!searchQuery && activeTab === 'all' && (
-                                        <Button className="mt-6 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20" asChild>
-                                            <Link to="/jobs">Tìm việc ngay</Link>
-                                        </Button>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="divide-y divide-white/30">
-                                    <AnimatePresence mode="popLayout">
-                                        {filteredApps.map((app: any, idx: number) => (
-                                            <motion.div
-                                                key={app.id}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.95 }}
-                                                transition={{ duration: 0.2, delay: idx * 0.05 }}
-                                                className="p-5 hover:bg-white/50 transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
-                                                onClick={() => setSelectedApp(app.id)}
-                                            >
-                                                {/* Left: Logo & Status */}
-                                                <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-2">
-                                                    <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-2 group-hover:border-cyan-200 transition-colors">
-                                                        <img src={app.logo_url} alt={app.company} className="w-full h-full object-contain" />
-                                                    </div>
-                                                    <Badge className={`${statusColorMap[app.status]} font-medium border hidden sm:inline-flex`}>
-                                                        {app.statusLabel}
-                                                    </Badge>
-                                                </div>
-
-                                                {/* Middle: Job Info */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex justify-between items-start mb-1">
-                                                        <h3 className="text-lg font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
-                                                            {app.job_title}
-                                                        </h3>
-                                                        <Badge className={`${statusColorMap[app.status]} sm:hidden`}>
-                                                            {app.statusLabel}
-                                                        </Badge>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-2 text-slate-600 mb-3 text-sm">
-                                                        <span className="font-medium text-slate-700 flex items-center gap-1.5">
-                                                            <Building2 className="w-4 h-4 text-slate-400" />
-                                                            {app.company}
-                                                        </span>
-                                                        <span className="text-slate-300">•</span>
-                                                        <span className="flex items-center gap-1.5 text-slate-500">
-                                                            <Clock className="w-4 h-4 text-slate-400" />
-                                                            Đã gửi: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="flex flex-wrap gap-2 text-xs">
-                                                        {app.ai_score && (
-                                                            <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 flex items-center gap-1">
-                                                                <StarIcon className="w-3 h-3 text-emerald-500" /> AI Match: {app.ai_score}%
-                                                            </Badge>
-                                                        )}
-                                                        <Badge variant="outline" className="text-slate-500 border-slate-200 flex items-center gap-1 font-normal bg-white">
-                                                            <FileText className="w-3 h-3" /> CV: {app.cv_name}
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-
-                                                {/* Right: Actions */}
-                                                <div className="flex-shrink-0 flex items-center gap-2 sm:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
-                                                        Chi tiết
-                                                    </Button>
-                                                    {['pending', 'reviewing'].includes(app.status) && (
-                                                        <Button
-                                                            variant="ghost" size="sm"
-                                                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                                                            onClick={(e) => { e.stopPropagation(); handleWithdrawRequest(app.id); }}
-                                                            disabled={withdrawMutation.isPending}
-                                                        >
-                                                            Rút đơn
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                </div>
+                    ) : filteredApps.length === 0 ? (
+                        <div className="py-20 text-center flex flex-col items-center">
+                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                                <FileText className="w-8 h-8 text-slate-300" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-700 mb-1">Không tìm thấy hồ sơ</h3>
+                            <p className="text-slate-500 text-sm max-w-sm">
+                                {searchQuery ? "Không có kết quả nào phù hợp với tìm kiếm của bạn." : "Bạn chưa có đơn ứng tuyển nào ở trạng thái này."}
+                            </p>
+                            {!searchQuery && activeTab === 'all' && (
+                                <Button className="mt-6 bg-violet-600 hover:bg-violet-700 text-white shadow-sm" asChild>
+                                    <Link to="/jobs">Tìm việc ngay</Link>
+                                </Button>
                             )}
-                        </TabsContent>
-                    </Tabs>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            <AnimatePresence mode="popLayout">
+                                {filteredApps.map((app: any, idx: number) => (
+                                    <motion.div
+                                        key={app.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.2, delay: idx * 0.05 }}
+                                        className="p-5 hover:bg-slate-50 transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
+                                        onClick={() => setSelectedApp(app.id)}
+                                    >
+                                        {/* Left: Logo & Status */}
+                                        <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-2">
+                                            <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-2 group-hover:border-violet-200 transition-colors">
+                                                <img src={app.logo_url} alt={app.company} className="w-full h-full object-contain" />
+                                            </div>
+                                            <Badge className={`${statusColorMap[app.status]} font-medium border hidden sm:inline-flex`}>
+                                                {app.statusLabel}
+                                            </Badge>
+                                        </div>
+
+                                        {/* Middle: Job Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
+                                                    {app.job_title}
+                                                </h3>
+                                                <Badge className={`${statusColorMap[app.status]} sm:hidden`}>
+                                                    {app.statusLabel}
+                                                </Badge>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-slate-600 mb-3 text-sm">
+                                                <span className="font-medium text-slate-700 flex items-center gap-1.5">
+                                                    <Building2 className="w-4 h-4 text-slate-400" />
+                                                    {app.company}
+                                                </span>
+                                                <span className="text-slate-300">•</span>
+                                                <span className="flex items-center gap-1.5 text-slate-500">
+                                                    <Clock className="w-4 h-4 text-slate-400" />
+                                                    Đã gửi: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-2 text-xs">
+                                                {app.ai_score && (
+                                                    <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 flex items-center gap-1">
+                                                        <Star className="w-3 h-3 text-emerald-500" /> AI Match: {app.ai_score}%
+                                                    </Badge>
+                                                )}
+                                                <Badge variant="outline" className="text-slate-500 border-slate-200 flex items-center gap-1 font-normal bg-white">
+                                                    <FileText className="w-3 h-3" /> CV: {app.cv_name}
+                                                </Badge>
+                                            </div>
+                                        </div>
+
+                                        {/* Right: Actions */}
+                                        <div className="flex-shrink-0 flex items-center gap-2 sm:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
+                                                Chi tiết
+                                            </Button>
+                                            {['pending', 'reviewing'].includes(app.status) && (
+                                                <Button
+                                                    variant="ghost" size="sm"
+                                                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                    onClick={(e) => { e.stopPropagation(); handleWithdrawRequest(app.id); }}
+                                                    disabled={withdrawMutation.isPending}
+                                                >
+                                                    Rút đơn
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -382,23 +387,4 @@ export default function MyApplications() {
             </AlertDialog>
         </div>
     );
-}
-
-function StarIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-    )
 }

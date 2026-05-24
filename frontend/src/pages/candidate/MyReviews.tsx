@@ -34,7 +34,7 @@ function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () =>
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white/60 backdrop-blur-xl rounded-3xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-violet-500/5 group"
+            className="bg-white rounded-2xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-violet-500/5 group"
         >
             <div className="flex justify-between items-start gap-4">
                 <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ export function MyReviews() {
                         <Skeleton className="h-40 w-full rounded-3xl" />
                     </div>
                 ) : data?.results.length === 0 ? (
-                    <div className="text-center py-20 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 border-dashed shadow-sm">
+                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed shadow-sm">
                         <div className="h-20 w-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star className="h-10 w-10 text-white" />
                         </div>

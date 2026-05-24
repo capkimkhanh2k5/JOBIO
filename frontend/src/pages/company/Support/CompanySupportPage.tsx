@@ -147,7 +147,7 @@ export default function CompanySupportPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden"
+                            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
                         >
                             <div className="p-8 md:p-10">
                                 <div className="flex items-center gap-5 mb-10">
@@ -248,7 +248,7 @@ export default function CompanySupportPage() {
                                 </div>
                                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Câu hỏi thường gặp</h3>
                             </div>
-                            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm px-8 divide-y divide-slate-100">
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 divide-y divide-slate-100">
                                 {faqs.map((faq, idx) => (
                                     <FaqItem key={idx} question={faq.question} answer={faq.answer} />
                                 ))}
@@ -262,7 +262,7 @@ export default function CompanySupportPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-8 space-y-8"
+                            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 space-y-8"
                         >
                             <h3 className="text-[11px] font-black text-violet-600 uppercase tracking-[0.2em] px-1">Thông tin liên hệ</h3>
 

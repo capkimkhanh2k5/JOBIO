@@ -94,26 +94,26 @@ export function ManageJobsTable({
                                     checked={allSelected}
                                     ref={el => { if (el) el.indeterminate = someSelected && !allSelected; }}
                                     onChange={e => onSelectAll(e.target.checked)}
-                                    className="w-4 h-4 rounded border-slate-300 bg-white checked:bg-cyan-500 accent-cyan-500 cursor-pointer"
+                                    className="w-4 h-4 rounded border-slate-300 bg-white checked:bg-violet-600 accent-violet-600 cursor-pointer"
                                     aria-label="Select all"
                                 />
                             </th>
-                            <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            <th className="py-3 px-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                 Vị trí tuyển dụng
                             </th>
-                            <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            <th className="py-3 px-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                 Trạng thái
                             </th>
-                            <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap">
+                            <th className="py-3 px-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-wider whitespace-nowrap">
                                 Ngày đăng
                             </th>
-                            <th className="py-3 px-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            <th className="py-3 px-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                 Deadline
                             </th>
-                            <th className="py-3 px-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            <th className="py-3 px-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                 <Eye className="w-3.5 h-3.5 inline" />
                             </th>
-                            <th className="py-3 px-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            <th className="py-3 px-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-wider">
                                 <Users className="w-3.5 h-3.5 inline" />
                             </th>
                             <th className="py-3 px-4 w-10" />
@@ -134,7 +134,7 @@ export function ManageJobsTable({
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.2, delay: i * 0.03 }}
                                         className={`border-b border-slate-100 last:border-0 transition-colors duration-150 group cursor-pointer
-                                            ${isSelected ? 'bg-cyan-50/70' : 'hover:bg-slate-50/80'}`}
+                                            ${isSelected ? 'bg-violet-50/50' : 'hover:bg-slate-50/80'}`}
                                     >
                                         {/* Checkbox */}
                                         <td className="py-3 px-4">
@@ -142,7 +142,7 @@ export function ManageJobsTable({
                                                 type="checkbox"
                                                 checked={isSelected}
                                                 onChange={e => onSelectOne(job.id, e.target.checked)}
-                                                className="w-4 h-4 rounded border-slate-300 bg-white accent-cyan-500 cursor-pointer"
+                                                className="w-4 h-4 rounded border-slate-300 bg-white accent-violet-600 cursor-pointer"
                                                 aria-label={`Select ${job.title}`}
                                                 onClick={e => e.stopPropagation()}
                                             />
@@ -155,15 +155,15 @@ export function ManageJobsTable({
                                         >
                                             <div className="flex items-start gap-2">
                                                 {job.is_featured && (
-                                                    <span className="mt-0.5 shrink-0 text-[9px] font-bold bg-amber-500/20 text-amber-300 rounded px-1 py-0.5 uppercase tracking-wide">
+                                                    <span className="mt-0.5 shrink-0 text-[9px] font-bold bg-amber-100 text-amber-700 rounded px-1 py-0.5 uppercase tracking-wide">
                                                         Featured
                                                     </span>
                                                 )}
                                                 <div>
-                                                    <p className="font-semibold text-foreground group-hover:text-cyan-300 transition-colors line-clamp-1">
+                                                    <p className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors line-clamp-1">
                                                         {job.title}
                                                     </p>
-                                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                                    <p className="text-xs text-slate-500 mt-0.5">
                                                         {JOB_TYPE_MAP[job.job_type] ?? job.job_type} · {job.location}
                                                     </p>
                                                 </div>
@@ -172,31 +172,31 @@ export function ManageJobsTable({
 
                                         {/* Status */}
                                         <td className="py-3 px-4">
-                                            <Badge variant="outline" className={`text-[11px] font-medium border ${cfg.className}`}>
+                                            <Badge variant="outline" className={`text-[11px] font-bold border ${cfg.className}`}>
                                                 {cfg.label}
                                             </Badge>
                                         </td>
 
                                         {/* Posted date */}
-                                        <td className="py-3 px-4 whitespace-nowrap text-slate-600">
+                                        <td className="py-3 px-4 whitespace-nowrap text-sm text-slate-600">
                                             {job.published_at ? format(new Date(job.published_at), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                         </td>
 
                                         {/* Deadline */}
-                                        <td className="py-3 px-4 whitespace-nowrap">
-                                            <span className={isDeadlineSoon && job.status === 'published' ? 'text-amber-400 font-medium' : 'text-muted-foreground'}>
+                                        <td className="py-3 px-4 whitespace-nowrap text-sm">
+                                            <span className={isDeadlineSoon && job.status === 'published' ? 'text-amber-600 font-semibold' : 'text-slate-600'}>
                                                 {job.application_deadline ? format(new Date(job.application_deadline), 'dd/MM/yyyy', { locale: vi }) : '—'}
                                                 {isDeadlineSoon && job.status === 'published' && ' ⚠️'}
                                             </span>
                                         </td>
 
                                         {/* Views */}
-                                        <td className="py-3 px-4 text-right text-muted-foreground">
+                                        <td className="py-3 px-4 text-right text-sm font-semibold text-slate-700">
                                             {job.views_count.toLocaleString()}
                                         </td>
 
                                         {/* Apps */}
-                                        <td className="py-3 px-4 text-right text-muted-foreground">
+                                        <td className="py-3 px-4 text-right text-sm font-semibold text-slate-700">
                                             {job.applications_count}
                                         </td>
 
@@ -214,7 +214,7 @@ export function ManageJobsTable({
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent
                                                     align="end"
-                                                    className="w-52 bg-white border-border shadow-lg"
+                                                    className="w-52 bg-white border-slate-200 shadow-lg rounded-xl"
                                                 >
                                                     <DropdownMenuItem
                                                         className="gap-2 cursor-pointer"
@@ -277,12 +277,12 @@ export function ManageJobsTable({
             {/* Empty state inside table */}
             {!isLoading && jobs.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 flex items-center justify-center">
-                        <Briefcase className="w-7 h-7 text-muted-foreground" />
+                    <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center">
+                        <Briefcase className="w-7 h-7 text-violet-400" />
                     </div>
                     <div className="text-center">
-                        <p className="font-semibold text-foreground">Chưa có tin tuyển dụng</p>
-                        <p className="text-sm text-muted-foreground mt-1">Đăng tin đầu tiên để bắt đầu tuyển dụng!</p>
+                        <p className="font-bold text-slate-900">Chưa có tin tuyển dụng</p>
+                        <p className="text-sm text-slate-500 mt-1">Đăng tin đầu tiên để bắt đầu tuyển dụng!</p>
                     </div>
                 </div>
             )}

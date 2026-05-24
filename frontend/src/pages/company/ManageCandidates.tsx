@@ -99,7 +99,7 @@ export default function ManageCandidates() {
                     icon={UsersIcon}
                     action={
                         <div className="flex items-center gap-3">
-                            <div className="flex gap-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 w-fit rounded-xl">
+                            <div className="flex gap-1 bg-white border border-slate-200 shadow-sm p-1 w-fit rounded-xl">
                                 <Button
                                     variant="ghost"
                                     className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
@@ -160,7 +160,7 @@ export default function ManageCandidates() {
                 </div>
 
                 <main className="flex-1 min-w-0 overflow-hidden">
-                    <div className="bg-white/40 backdrop-blur-sm rounded-3xl border border-white/40 overflow-hidden shadow-sm h-full">
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm h-full">
                         {viewMode === 'kanban' ? (
                             <CandidateBoard
                                 applications={applications as any}

@@ -30,6 +30,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { useUserStore } from '@/store/userStore';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -214,30 +215,33 @@ export default function ManageJobs() {
             </div>
 
             <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6">
-                {/* Summary stat cards */}
+                {/* Summary stat cards — DashboardKpiCard */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+                    className="grid grid-cols-2 sm:grid-cols-4 gap-4"
                 >
                     {(
                         [
-                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, activeClass: 'border-slate-200 bg-white shadow-md ring-2 ring-slate-100', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-white', text: 'text-slate-900' },
-                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, activeClass: 'border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-100 ring-2 ring-emerald-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-emerald-50/50', text: 'text-emerald-600' },
-                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, activeClass: 'border-slate-200 bg-slate-100 shadow-md ring-2 ring-slate-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/50', text: 'text-slate-500' },
-                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, activeClass: 'border-rose-200 bg-rose-50 shadow-md shadow-rose-100 ring-2 ring-rose-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-rose-50/50', text: 'text-rose-600' },
+                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, iconGradient: 'from-slate-400 to-slate-600' },
+                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, iconGradient: 'from-emerald-500 to-emerald-600' },
+                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, iconGradient: 'from-slate-400 to-slate-500' },
+                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, iconGradient: 'from-rose-500 to-rose-600' },
                         ] as const
                     ).map(stat => (
-                        <button
+                        <div
                             key={stat.key}
                             onClick={() => handleStatusChange(stat.key)}
-                            className={`p-5 rounded-3xl border text-left transition-all duration-300
-                                ${statusFilter === stat.key ? stat.activeClass : stat.inactiveClass}`}
+                            className={`cursor-pointer transition-all duration-200 rounded-2xl ${statusFilter === stat.key ? 'ring-2 ring-violet-500 ring-offset-2' : 'hover:scale-[1.02]'}`}
                         >
-                            <p className={`text-2xl font-black ${stat.text}`}>{stat.value}</p>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">{stat.label}</p>
-                        </button>
+                            <DashboardKpiCard
+                                icon={<Briefcase className="w-5 h-5" />}
+                                label={stat.label}
+                                value={stat.value}
+                                iconGradient={stat.iconGradient}
+                            />
+                        </div>
                     ))}
                 </motion.div>
 
@@ -332,7 +336,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage(p => p - 1)}
-                                className="p-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
                                 aria-label="Previous page"
                             >
                                 <ChevronLeft className="w-4 h-4" />
@@ -367,7 +371,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage(p => p + 1)}
-                                className="p-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
                                 aria-label="Next page"
                             >
                                 <ChevronRight className="w-4 h-4" />

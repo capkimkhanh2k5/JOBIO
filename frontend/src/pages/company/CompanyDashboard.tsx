@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Briefcase, Users, Eye, CalendarClock, PlusSquare, Search, User2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { KpiCard } from '@/components/company/KpiCard';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { ApplicationsChart } from '@/components/company/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/company/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/company/UpcomingInterviewsCard';
@@ -134,7 +134,7 @@ export default function CompanyDashboard() {
             <motion.div {...fadeUp(0.1)}>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {kpiCards.map((card) => (
-                        <KpiCard key={card.label} {...card} isLoading={statsLoading} />
+                        <DashboardKpiCard key={card.label} {...card} isLoading={statsLoading} />
                     ))}
                 </div>
             </motion.div>

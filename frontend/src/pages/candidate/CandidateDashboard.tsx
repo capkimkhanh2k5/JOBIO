@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion, Variants } from 'framer-motion';
 import {
     Briefcase, CalendarClock, Eye, CheckCircle2, ChevronRight,
-    ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard, Sparkles
+    ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard, Sparkles,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -12,11 +12,11 @@ import { applicationService } from '@/services/applicationService';
 import { savedJobService } from '@/services/savedJobService';
 import { jobService } from '@/services/jobService';
 import { useUserStore } from '@/store/userStore';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 
 const STATUS_LABEL_MAP: Record<string, string> = {
     pending: 'Mới gửi',
@@ -29,12 +29,28 @@ const STATUS_LABEL_MAP: Record<string, string> = {
     withdrawn: 'Rút đơn',
 };
 
+const STATUS_BADGE: Record<string, string> = {
+    reviewing: 'bg-blue-50 text-blue-700 border-blue-200',
+    shortlisted: 'bg-blue-50 text-blue-700 border-blue-200',
+    interview: 'bg-amber-50 text-amber-700 border-amber-200',
+    offered: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    accepted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    rejected: 'bg-red-50 text-red-700 border-red-200',
+    pending: 'bg-slate-50 text-slate-500 border-slate-200',
+    withdrawn: 'bg-slate-50 text-slate-500 border-slate-200',
+};
+
+const fadeUp = (delay: number) => ({
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
+});
+
 export default function CandidateDashboard() {
     const navigate = useNavigate();
     const { user, updateUser } = useUserStore();
     const isCandidate = user?.role === 'candidate';
 
-    // Data fetching
     const { data: stats, isLoading: loadingStats } = useQuery({
         queryKey: ['candidate', 'stats'],
         queryFn: () => candidateService.getMyStats().then(r => r.data),
@@ -46,25 +62,18 @@ export default function CandidateDashboard() {
         queryKey: ['candidate', 'my-profile', user?.id],
         queryFn: async () => {
             const response = await candidateService.getMyProfile();
-
             if (response.data?.id && user && user.candidate_id !== response.data.id) {
                 updateUser({ candidate_id: response.data.id });
             }
-
             return response.data;
         },
         enabled: isCandidate,
     });
 
     const profileCompleteness = profileData
-        ? {
-            score: profileData.score ?? profileData.profile_completeness_score ?? 0,
-            checklist: profileData.checklist ?? [],
-        }
+        ? { score: profileData.score ?? profileData.profile_completeness_score ?? 0, checklist: profileData.checklist ?? [] }
         : undefined;
-    const loadingCompleteness = loadingProfile;
 
-    // Featured / Highlighted Jobs
     const { data: recommendedJobs, isLoading: loadingRecommended } = useQuery({
         queryKey: ['candidate', 'jobs', 'featured'],
         queryFn: () => jobService.featured({ page_size: 5 }).then(r => r.data),
@@ -116,7 +125,6 @@ export default function CandidateDashboard() {
     const upcomingInterviewsCount = interviews?.length || stats?.upcoming_interviews_count || 0;
     const profileViewsCount = stats?.profile_views_count ?? 0;
 
-    // Thống kê dựa trên danh sách ứng tuyển thực tế
     const appStats = {
         total: totalApplications,
         reviewing: normalizedApplications.filter((a: any) => ['reviewing', 'shortlisted'].includes(a.status)).length,
@@ -126,23 +134,16 @@ export default function CandidateDashboard() {
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
     };
 
     const itemVariants: Variants = {
         hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1, y: 0,
-            transition: { duration: 0.4, ease: "easeOut" }
-        }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
     };
 
     return (
-        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
-            {/* Page header */}
+        <div className="relative flex flex-col w-full h-full min-h-0">
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Tổng quan nghề nghiệp"
@@ -151,89 +152,80 @@ export default function CandidateDashboard() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-8 w-full flex-1 relative z-10">
-
+            <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     className="grid grid-cols-1 md:grid-cols-12 gap-6"
                 >
-                    {/* LEFT COLUMN: Main content */}
+                    {/* LEFT COLUMN */}
                     <div className="md:col-span-8 space-y-6">
 
                         {/* KPI Stats */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            {[
-                                { title: "Việc đã ứng tuyển", value: totalApplications, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats && !allApplications },
-                                { title: "Phỏng vấn sắp tới", value: upcomingInterviewsCount, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats && loadingInterviews },
-                                { title: "Lượt xem hồ sơ", value: profileViewsCount, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats && !profileData },
-                            ].map((stat, i) => (
-                                <motion.div key={i} variants={itemVariants}>
-                                    <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:-translate-y-1 transition-transform duration-300 rounded-3xl hover:shadow-md">
-                                        <div className="flex flex-col gap-3">
-                                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.gradient} text-white flex items-center justify-center shadow-sm`}>
-                                                {stat.icon}
-                                            </div>
-                                            <div>
-                                                {stat.loading ? (
-                                                    <Skeleton className="h-8 w-16 mb-1 rounded-md" />
-                                                ) : (
-                                                    <p className="text-3xl font-black text-slate-900">{stat.value}</p>
-                                                )}
-                                                <p className="text-sm font-medium text-slate-500">{stat.title}</p>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </div>
+                        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <DashboardKpiCard
+                                icon={<Briefcase className="w-5 h-5" />}
+                                label="Việc đã ứng tuyển"
+                                value={totalApplications}
+                                iconGradient="from-violet-500 to-violet-600"
+                                isLoading={loadingStats && !allApplications}
+                            />
+                            <DashboardKpiCard
+                                icon={<CalendarClock className="w-5 h-5" />}
+                                label="Phỏng vấn sắp tới"
+                                value={upcomingInterviewsCount}
+                                iconGradient="from-amber-500 to-amber-600"
+                                isLoading={loadingStats && loadingInterviews}
+                            />
+                            <DashboardKpiCard
+                                icon={<Eye className="w-5 h-5" />}
+                                label="Lượt xem hồ sơ"
+                                value={profileViewsCount}
+                                iconGradient="from-cyan-500 to-cyan-600"
+                                isLoading={loadingStats && !profileData}
+                            />
+                        </motion.div>
 
                         {/* Profile Completion */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-6 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-100/60 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2" />
-
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-50 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2 pointer-events-none" />
                                 <div className="flex flex-col md:flex-row gap-6 items-center relative z-10">
                                     <div className="relative w-28 h-28 flex-shrink-0">
-                                        {loadingCompleteness ? (
+                                        {loadingProfile ? (
                                             <Skeleton className="w-full h-full rounded-full" />
                                         ) : (
                                             <>
                                                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                                    <circle className="text-slate-200 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                                    <circle className="text-slate-200 stroke-current" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent" />
                                                     <circle
-                                                        className="text-cyan-500 stroke-current drop-shadow-md"
+                                                        className="text-cyan-500 stroke-current"
                                                         strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
                                                         strokeDasharray={`${(profileCompleteness?.score ?? 0) * 2.51} 251`}
-                                                    ></circle>
+                                                    />
                                                 </svg>
                                                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                                    <span className="text-2xl font-black text-foreground">{profileCompleteness?.score}%</span>
+                                                    <span className="text-2xl font-black text-slate-900">{profileCompleteness?.score}%</span>
                                                 </div>
                                             </>
                                         )}
                                     </div>
-
                                     <div className="flex-1 space-y-3">
                                         <div>
-                                            <h3 className="text-lg font-bold text-foreground">Hồ sơ gần hoàn thiện!</h3>
-                                            <p className="text-sm text-cyan-500 font-medium">Hoàn thiện hồ sơ để tăng 2x lượt nhà tuyển dụng xem.</p>
+                                            <h3 className="text-base font-bold text-slate-900">Hồ sơ gần hoàn thiện!</h3>
+                                            <p className="text-sm text-cyan-600 font-medium mt-0.5">Hoàn thiện hồ sơ để tăng 2x lượt nhà tuyển dụng xem.</p>
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {loadingCompleteness ? (
-                                                <>
-                                                    <Skeleton className="h-6 w-full" />
-                                                    <Skeleton className="h-6 w-full" />
-                                                </>
+                                            {loadingProfile ? (
+                                                <><Skeleton className="h-6 w-full" /><Skeleton className="h-6 w-full" /></>
                                             ) : (
                                                 profileCompleteness?.checklist.slice(0, 4).map((item: any, i: number) => (
                                                     <div key={i} className="flex items-center gap-2">
-                                                        {item.completed ? (
-                                                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                                        ) : (
-                                                            <div className="w-4 h-4 rounded-full border border-slate-300" />
-                                                        )}
+                                                        {item.completed
+                                                            ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                            : <div className="w-4 h-4 rounded-full border border-slate-300 shrink-0" />
+                                                        }
                                                         <span className={`text-sm ${item.completed ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}>
                                                             {item.task}
                                                         </span>
@@ -242,127 +234,142 @@ export default function CandidateDashboard() {
                                             )}
                                         </div>
                                     </div>
-
                                     <div className="flex-shrink-0">
-                                        <Button className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/25 transition-all" onClick={() => navigate('/candidate/profile')}>
+                                        <Button
+                                            className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm"
+                                            onClick={() => navigate('/candidate/profile')}
+                                        >
                                             Cập nhật ngay
                                         </Button>
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         </motion.div>
 
                         {/* Applications Summary */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
-                                <div className="p-5 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="w-5 h-5 text-violet-400" />
-                                        <h3 className="font-bold">Tiến trình ứng tuyển</h3>
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+                                            <FileText className="w-4 h-4 text-violet-600" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-base text-slate-900">Tiến trình ứng tuyển</h3>
+                                            <p className="text-xs text-slate-500 mt-0.5">Theo dõi trạng thái đơn ứng tuyển</p>
+                                        </div>
                                     </div>
-                                    <Link to="/candidate/applications" className="text-sm text-violet-400 hover:text-violet-300 font-medium flex items-center gap-1 transition-colors">
+                                    <Link to="/candidate/applications" className="text-sm text-violet-600 hover:text-violet-700 font-semibold flex items-center gap-1 transition-colors">
                                         Xem tất cả <ChevronRight className="w-4 h-4" />
                                     </Link>
                                 </div>
-                                <div className="p-5 p-0">
-                                    <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 overflow-x-auto p-4 border-b border-slate-100">
-                                        {[
-                                            { label: `Đã gửi (${appStats.total})`, value: appStats.total, col: 'bg-slate-500' },
-                                            { label: `Đang xem xét (${appStats.reviewing})`, value: appStats.reviewing, col: 'bg-blue-500' },
-                                            { label: `Phỏng vấn (${appStats.interview})`, value: appStats.interview, col: 'bg-amber-500' },
-                                            { label: `Trúng tuyển (${appStats.offered})`, value: appStats.offered, col: 'bg-emerald-500' },
-                                        ].map(s => (
-                                            <div key={s.label} className="flex-1 px-4 py-2 flex flex-col items-center">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className={`w-2 h-2 rounded-full ${s.col}`} />
-                                                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{s.label}</span>
-                                                </div>
-                                                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                                    <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(appStats.total || 1, 1)) * 100}%` }} />
+
+                                {/* Funnel bars */}
+                                <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-slate-100 p-4 border-b border-slate-100">
+                                    {[
+                                        { label: `Đã gửi`, value: appStats.total, color: 'bg-slate-400' },
+                                        { label: `Đang xem xét`, value: appStats.reviewing, color: 'bg-blue-500' },
+                                        { label: `Phỏng vấn`, value: appStats.interview, color: 'bg-amber-500' },
+                                        { label: `Trúng tuyển`, value: appStats.offered, color: 'bg-emerald-500' },
+                                    ].map(s => (
+                                        <div key={s.label} className="flex-1 px-4 py-2 flex flex-col items-center">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className={`w-2 h-2 rounded-full ${s.color}`} />
+                                                <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">{s.label} ({s.value})</span>
+                                            </div>
+                                            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className={`h-full ${s.color} rounded-full`} style={{ width: `${(s.value / Math.max(appStats.total || 1, 1)) * 100}%` }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Recent applications list */}
+                                <div className="divide-y divide-slate-100">
+                                    {loadingApps ? (
+                                        [...Array(3)].map((_, i) => (
+                                            <div key={i} className="p-4 flex gap-4">
+                                                <Skeleton className="w-12 h-12 rounded-xl" />
+                                                <div className="flex-1 space-y-2">
+                                                    <Skeleton className="h-4 w-1/3" />
+                                                    <Skeleton className="h-3 w-1/4" />
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="divide-y divide-slate-100">
-                                        {loadingApps ? (
-                                            [...Array(3)].map((_, i) => (
-                                                <div key={i} className="p-4 flex gap-4"><Skeleton className="w-12 h-12 rounded-xl" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-1/3" /><Skeleton className="h-3 w-1/4" /></div></div>
-                                            ))
-                                        ) : (
-                                            recentApplications.map((app: any) => (
-                                                <div key={app.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate('/candidate/applications')}>
-                                                    <img src={app.logo_url} alt={app.company} className="w-12 h-12 rounded-xl border border-white/10" />
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-semibold text-foreground truncate">{app.job_title}</h4>
-                                                        <p className="text-sm text-muted-foreground truncate">{app.company}</p>
-                                                    </div>
-                                                    <div className="text-right shrink-0">
-                                                        <Badge variant="outline" className={
-                                                            ['reviewing', 'shortlisted'].includes(app.status) ? 'border-blue-500/30 text-blue-400 bg-blue-500/10' :
-                                                                app.status === 'interview' ? 'border-amber-500/30 text-amber-400 bg-amber-500/10' :
-                                                                    ['offered', 'accepted'].includes(app.status) ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' :
-                                                                        app.status === 'rejected' ? 'border-red-500/30 text-red-400 bg-red-500/10' :
-                                                                            'border-slate-500/30 text-slate-400 bg-slate-500/10'
-                                                        }>
-                                                            {app.statusLabel}
-                                                        </Badge>
-                                                        <p className="text-[11px] text-muted-foreground mt-1 text-right">{app.applied_at ? formatDistanceToNow(new Date(app.applied_at), { addSuffix: true, locale: vi }) : ''}</p>
-                                                    </div>
+                                        ))
+                                    ) : (
+                                        recentApplications.map((app: any) => (
+                                            <div
+                                                key={app.id}
+                                                className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                                                onClick={() => navigate('/candidate/applications')}
+                                            >
+                                                <img src={app.logo_url} alt={app.company} className="w-12 h-12 rounded-xl border border-slate-200 object-contain p-1" />
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-semibold text-slate-900 truncate text-sm">{app.job_title}</h4>
+                                                    <p className="text-xs text-slate-500 truncate">{app.company}</p>
                                                 </div>
-                                            ))
-                                        )}
-                                    </div>
+                                                <div className="text-right shrink-0">
+                                                    <Badge className={`text-[10px] font-bold border ${STATUS_BADGE[app.status] || 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                                                        {app.statusLabel}
+                                                    </Badge>
+                                                    <p className="text-[11px] text-slate-400 mt-1">
+                                                        {app.applied_at ? formatDistanceToNow(new Date(app.applied_at), { addSuffix: true, locale: vi }) : ''}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
-                            </Card>
+                            </div>
                         </motion.div>
-
                     </div>
 
-                    {/* RIGHT COLUMN: Secondary content */}
+                    {/* RIGHT COLUMN */}
                     <div className="md:col-span-4 space-y-6">
 
                         {/* AI Recommended Jobs */}
                         <motion.div variants={itemVariants}>
-                            <Card className="p-5 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm relative overflow-hidden h-full rounded-3xl hover:shadow-md transition-shadow">
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-cyan-400/10 blur-[40px] rounded-full pointer-events-none" />
-
-                                <div className="flex items-center justify-between mb-4 relative z-10">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-1.5 rounded-md bg-gradient-to-br from-cyan-400 to-violet-500">
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center shrink-0">
                                             <Sparkles className="w-4 h-4 text-white" />
                                         </div>
-                                        <h3 className="font-bold text-lg">Gợi ý việc làm</h3>
+                                        <div>
+                                            <h3 className="font-bold text-base text-slate-900">Gợi ý việc làm</h3>
+                                            <p className="text-xs text-slate-500 mt-0.5">Phù hợp với hồ sơ của bạn</p>
+                                        </div>
                                     </div>
-                                    <Link to="/jobs" className="p-1 text-muted-foreground hover:text-cyan-400 transition-colors">
+                                    <Link to="/jobs" className="text-slate-400 hover:text-violet-600 transition-colors">
                                         <ArrowUpRight className="w-4 h-4" />
                                     </Link>
                                 </div>
-
                                 <div className="space-y-3">
                                     {loadingRecommended ? (
-                                        [...Array(3)].map((_, i) => (
-                                            <Skeleton key={i} className="h-24 w-full rounded-xl" />
-                                        ))
+                                        [...Array(3)].map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)
                                     ) : (
                                         recommendedJobs?.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 rounded-xl bg-white/40 border border-white/60 hover:border-cyan-300 hover:bg-white/60 transition-all cursor-pointer group shadow-sm" onClick={() => navigate(`/jobs/${job.id}`)}>
+                                            <div
+                                                key={job.id}
+                                                className="p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-violet-200 hover:bg-violet-50/30 transition-all cursor-pointer group"
+                                                onClick={() => navigate(`/jobs/${job.id}`)}
+                                            >
                                                 <div className="flex items-start gap-3">
-                                                    <img src={job.logo_url || '/company-placeholder.png'} alt={job.company_name} className="w-10 h-10 rounded-lg shadow-sm border border-white/50 object-cover" />
+                                                    <img src={job.logo_url || '/company-placeholder.png'} alt={job.company_name} className="w-10 h-10 rounded-lg border border-slate-200 object-contain p-1 bg-white" />
                                                     <div className="flex-1 min-w-0">
-                                                        <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-cyan-400 transition-colors">{job.title}</h4>
-                                                        <p className="text-xs text-muted-foreground line-clamp-1">{job.company_name}</p>
-                                                        <div className="mt-2 flex items-center justify-between">
+                                                        <h4 className="font-semibold text-sm text-slate-900 line-clamp-1 group-hover:text-violet-600 transition-colors">{job.title}</h4>
+                                                        <p className="text-xs text-slate-500 line-clamp-1">{job.company_name}</p>
+                                                        <div className="mt-1.5 flex items-center justify-between">
                                                             {job.match_score != null && job.match_score > 0 ? (
-                                                                <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-100 text-cyan-700">
+                                                                <Badge className="text-[10px] px-1.5 bg-cyan-50 text-cyan-700 border-cyan-200 font-bold">
                                                                     Match {job.match_score}%
                                                                 </Badge>
                                                             ) : (
-                                                                <Badge variant="secondary" className="text-[10px] px-1.5 bg-slate-100 text-slate-500">
+                                                                <Badge className="text-[10px] px-1.5 bg-slate-100 text-slate-500 border-slate-200 font-bold">
                                                                     Gợi ý
                                                                 </Badge>
                                                             )}
-                                                            <span className="text-xs font-medium text-emerald-600">{job.salary}</span>
+                                                            <span className="text-xs font-semibold text-emerald-600">{job.salary}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -370,42 +377,46 @@ export default function CandidateDashboard() {
                                         ))
                                     )}
                                 </div>
-                                <Button variant="ghost" className="w-full mt-3 text-sm text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50" onClick={() => navigate('/jobs')}>
+                                <Button variant="ghost" className="w-full mt-3 text-sm text-violet-600 hover:text-violet-700 hover:bg-violet-50 font-semibold" onClick={() => navigate('/jobs')}>
                                     Xem thêm việc làm
                                 </Button>
-                            </Card>
+                            </div>
                         </motion.div>
 
                         {/* Upcoming Interviews */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
-                                <div className="p-4 border-b border-white/40 bg-white/40 backdrop-blur-md">
-                                    <h3 className="font-bold flex items-center gap-2">
-                                        <CalendarClock className="w-4 h-4 text-amber-500" /> Phỏng vấn sắp tới
-                                    </h3>
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="p-4 border-b border-slate-100 flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                        <CalendarClock className="w-4 h-4 text-amber-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-sm text-slate-900">Phỏng vấn sắp tới</h3>
+                                        <p className="text-xs text-slate-500 mt-0.5">Lịch phỏng vấn của bạn</p>
+                                    </div>
                                 </div>
                                 <div className="p-4">
                                     {loadingInterviews ? (
-                                        <div className="space-y-3"><Skeleton className="h-16 w-full" /></div>
+                                        <Skeleton className="h-16 w-full rounded-xl" />
                                     ) : interviews && interviews.length > 0 ? (
-                                        <div className="p-4 rounded-xl bg-white/60 border border-white/60 shadow-sm backdrop-blur-md">
+                                        <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <h4 className="font-bold text-amber-600 text-sm">
+                                                    <h4 className="font-bold text-amber-700 text-sm">
                                                         {interviews[0].scheduled_at ? format(new Date(interviews[0].scheduled_at), 'dd/MM, HH:mm', { locale: vi }) : ''}
                                                     </h4>
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-amber-600 mt-0.5">
                                                         {interviews[0].interview_type?.name || (interviews[0].type === 'video' ? 'Online Interview' : 'Onsite Interview')}
                                                     </p>
                                                 </div>
-                                                <Badge className="bg-amber-500/20 text-amber-300 hover:bg-amber-500/20 border-amber-500/30">Sắp diễn ra</Badge>
+                                                <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[10px] font-bold">Sắp diễn ra</Badge>
                                             </div>
-                                            <div className="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                                <p className="font-medium text-sm">{interviews[0].application?.job_title || interviews[0].job_title || 'Phỏng vấn'}</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Với {interviews[0].application?.candidate_name || 'Nhà tuyển dụng'}</p>
+                                            <div className="mt-2 bg-white rounded-lg p-3 border border-amber-100">
+                                                <p className="font-semibold text-sm text-slate-900">{interviews[0].application?.job_title || interviews[0].job_title || 'Phỏng vấn'}</p>
+                                                <p className="text-xs text-slate-500 mt-0.5">Với {interviews[0].application?.candidate_name || 'Nhà tuyển dụng'}</p>
                                             </div>
                                             {interviews[0].meeting_link && (
-                                                <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-medium" onClick={() => window.open(interviews[0].meeting_link as string, '_blank')}>
+                                                <Button size="sm" className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white font-semibold" onClick={() => window.open(interviews[0].meeting_link as string, '_blank')}>
                                                     Tham gia <ExternalLink className="w-3 h-3 ml-2" />
                                                 </Button>
                                             )}
@@ -413,46 +424,51 @@ export default function CandidateDashboard() {
                                     ) : (
                                         <div className="text-center py-6">
                                             <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
-                                                <CalendarClock className="w-5 h-5 text-muted-foreground" />
+                                                <CalendarClock className="w-5 h-5 text-slate-400" />
                                             </div>
-                                            <p className="text-sm text-muted-foreground">Không có lịch phỏng vấn nào sắp tới.</p>
+                                            <p className="text-sm text-slate-500">Không có lịch phỏng vấn nào sắp tới.</p>
                                         </div>
                                     )}
                                 </div>
-                            </Card>
+                            </div>
                         </motion.div>
 
                         {/* Saved Jobs Preview */}
                         <motion.div variants={itemVariants}>
-                            <Card className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm overflow-hidden rounded-3xl hover:shadow-md transition-shadow">
-                                <div className="p-4 border-b border-white/40 flex items-center justify-between bg-white/40 backdrop-blur-md">
-                                    <h3 className="font-bold flex items-center gap-2 text-sm">
-                                        <Bookmark className="w-4 h-4 text-rose-400" /> Việc làm đã lưu
-                                    </h3>
-                                    <Link to="/candidate/saved" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                                            <Bookmark className="w-4 h-4 text-rose-600" />
+                                        </div>
+                                        <h3 className="font-bold text-sm text-slate-900">Việc làm đã lưu</h3>
+                                    </div>
+                                    <Link to="/candidate/saved" className="text-xs text-slate-500 hover:text-violet-600 font-semibold transition-colors">
                                         Xem tất cả
                                     </Link>
                                 </div>
                                 <div className="divide-y divide-slate-100">
                                     {loadingSaved ? (
-                                        [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full" /></div>)
+                                        [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full rounded-xl" /></div>)
                                     ) : normalizedSavedJobs.length === 0 ? (
-                                        <div className="p-5 text-center text-sm text-slate-500">
-                                            Chưa có việc làm đã lưu.
-                                        </div>
+                                        <div className="p-5 text-center text-sm text-slate-500">Chưa có việc làm đã lưu.</div>
                                     ) : (
                                         normalizedSavedJobs.slice(0, 3).map((job: any) => (
-                                            <div key={job.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => navigate(`/jobs/${job.jobId}`)}>
-                                                <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded border border-white/10" />
+                                            <div
+                                                key={job.id}
+                                                className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                                                onClick={() => navigate(`/jobs/${job.jobId}`)}
+                                            >
+                                                <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg border border-slate-200 object-contain p-1 bg-white" />
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="font-medium text-sm truncate">{job.title}</h4>
-                                                    <p className="text-xs text-muted-foreground truncate">{job.company}</p>
+                                                    <h4 className="font-semibold text-sm text-slate-900 truncate">{job.title}</h4>
+                                                    <p className="text-xs text-slate-500 truncate">{job.company}</p>
                                                 </div>
                                             </div>
                                         ))
                                     )}
                                 </div>
-                            </Card>
+                            </div>
                         </motion.div>
 
                     </div>

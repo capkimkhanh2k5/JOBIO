@@ -8,9 +8,9 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import {
-    Briefcase, Users, Eye, UserCheck, TrendingUp, TrendingDown, Minus,
+    Briefcase, Users, Eye, UserCheck,
     BarChart3, RefreshCw, CalendarDays, Target, Percent,
-    ChevronRight,
+    ChevronRight, TrendingUp, TrendingDown, Minus,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +43,9 @@ const JOB_STATUS_CONFIG: Record<string, { label: string; className: string }> = 
     expired: { label: 'Hết hạn', className: 'bg-amber-50 text-amber-600 border-amber-200' },
 };
 
-// ─── KPI Card (summary) ───────────────────────────────────────────────────────
+// ─── KPI Card (summary) — delegates to shared DashboardKpiCard ───────────────
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
+
 function SummaryKpiCard({
     icon, label, value, delta, unit, iconGradient, isLoading, note,
 }: {
@@ -56,49 +58,32 @@ function SummaryKpiCard({
     isLoading?: boolean;
     note?: string;
 }) {
+    const numericValue = typeof value === 'number' ? value : undefined;
+    const formattedValue = typeof value === 'string' ? value : undefined;
+
     if (isLoading) {
         return (
-            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-5 space-y-4">
-                <Skeleton className="w-11 h-11 rounded-xl" />
-                <Skeleton className="h-8 w-24" />
-                <Skeleton className="h-4 w-32" />
+            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 space-y-4 h-full">
+                <div className="w-11 h-11 rounded-xl bg-slate-100 animate-pulse" />
+                <div className="h-8 w-24 bg-slate-100 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
             </div>
         );
     }
 
-    const trend = delta === undefined ? null : delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
-
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            whileHover={{ y: -3, transition: { duration: 0.15 } }}
-            className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:shadow-md rounded-3xl p-5 relative overflow-hidden group"
-        >
-            <div className="absolute inset-0 bg-violet-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md transition-shadow`}>
-                <span className="text-white">{icon}</span>
-            </div>
-            <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl font-black text-slate-900 tracking-tight">{value ?? '—'}</span>
-                {unit && <span className="text-sm text-slate-500 font-medium">{unit}</span>}
-            </div>
-            <p className="text-sm text-slate-600 mt-1 font-medium">{label}</p>
-            {delta !== undefined && (
-                <div className={`flex items-center gap-1 mt-2 text-xs font-semibold w-fit px-1.5 py-0.5 rounded-md ${
-                    trend === 'up' ? 'text-emerald-600 bg-emerald-50' :
-                    trend === 'down' ? 'text-red-600 bg-red-50' :
-                    'text-slate-500 bg-slate-50'
-                }`}>
-                    {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> :
-                     trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> :
-                     <Minus className="w-3.5 h-3.5" />}
-                    <span>{delta > 0 ? '+' : ''}{delta}% so với tháng trước</span>
-                </div>
-            )}
-            {note && <p className="text-[11px] text-slate-400 mt-1.5 font-medium">{note}</p>}
-        </motion.div>
+        <DashboardKpiCard
+            icon={icon}
+            label={label}
+            value={numericValue}
+            formattedValue={formattedValue}
+            deltaValue={delta}
+            unit={unit}
+            iconGradient={iconGradient}
+            isLoading={false}
+            note={note}
+            className="h-full"
+        />
     );
 }
 
@@ -281,7 +266,7 @@ export function CompanyAnalyticsPage() {
 
                 {/* ── KPI Summary Cards ─────────────────────────────────────── */}
                 <motion.div {...fadeUp(0.05)}>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 items-stretch">
                         {kpiCards.map((card) => (
                             <SummaryKpiCard
                                 key={card.label}
@@ -299,7 +284,7 @@ export function CompanyAnalyticsPage() {
 
                 {/* ── Time-Series Chart ─────────────────────────────────────── */}
                 <motion.div {...fadeUp(0.12)}>
-                    <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-6">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div>
                                 <h2 className="font-bold text-lg text-slate-900">Xu hướng theo thời gian</h2>
@@ -396,7 +381,7 @@ export function CompanyAnalyticsPage() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     {/* Application Funnel */}
                     <motion.div {...fadeUp(0.18)}>
-                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-6 h-full">
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full">
                             <h2 className="font-bold text-lg text-slate-900 mb-1">Phễu tuyển dụng</h2>
                             <p className="text-sm text-slate-500 font-medium mb-6">Ứng viên qua từng giai đoạn</p>
 
@@ -448,7 +433,7 @@ export function CompanyAnalyticsPage() {
 
                     {/* Status Pie Chart */}
                     <motion.div {...fadeUp(0.22)}>
-                        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-6 h-full">
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full">
                             <h2 className="font-bold text-lg text-slate-900 mb-1">Phân bổ trạng thái</h2>
                             <p className="text-sm text-slate-500 font-medium mb-4">Tỷ lệ hồ sơ theo từng trạng thái</p>
 
@@ -504,7 +489,7 @@ export function CompanyAnalyticsPage() {
 
                 {/* ── Top Jobs Table ────────────────────────────────────────── */}
                 <motion.div {...fadeUp(0.28)}>
-                    <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
                             <div>
                                 <h2 className="font-bold text-lg text-slate-900">Hiệu quả từng tin tuyển dụng</h2>
@@ -596,7 +581,7 @@ export function CompanyAnalyticsPage() {
                                     icon: <Users className="w-5 h-5" />,
                                 },
                             ].map((card) => (
-                                <div key={card.title} className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-5 flex gap-4 items-start">
+                                <div key={card.title} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex gap-4 items-start">
                                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white shadow-sm shrink-0`}>
                                         {card.icon}
                                     </div>

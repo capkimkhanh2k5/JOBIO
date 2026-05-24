@@ -108,7 +108,7 @@ export default function SavedJobs() {
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {displaySavedJobs.length === 0 ? (
-                    <div className="text-center py-16 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm">
+                    <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
                         <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-violet-500/20">
                             <Bookmark className="w-8 h-8" />
                         </div>
@@ -135,7 +135,7 @@ export default function SavedJobs() {
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <Card className="overflow-hidden bg-white/60 backdrop-blur-xl border-white/40 hover:border-violet-300 hover:shadow-md transition-all rounded-3xl group shadow-sm">
+                                    <Card className="overflow-hidden bg-white border-slate-200 hover:border-violet-200 hover:shadow-md transition-all rounded-2xl group shadow-sm">
                                         <div className="p-6 flex flex-col md:flex-row gap-6">
                                             <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                                 {job.logo_url ? (

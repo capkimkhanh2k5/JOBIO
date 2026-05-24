@@ -277,7 +277,7 @@ export default function CVManager() {
 
             <div className="flex-1 min-h-0 p-6 lg:p-8">
                 {/* Main 3-column layout */}
-                <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm rounded-3xl overflow-hidden">
+                <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1 bg-white border border-slate-200 shadow-sm rounded-3xl overflow-hidden">
                     {/* Column 1: CV List Sidebar */}
                     <CVListSidebar
                         cvList={cvList as any}

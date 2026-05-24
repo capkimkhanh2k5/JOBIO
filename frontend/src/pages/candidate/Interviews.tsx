@@ -17,11 +17,11 @@ import type { InterviewListItem } from '@/types/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 type InterviewMode = 'video' | 'phone' | 'onsite';
 
@@ -166,46 +166,55 @@ export default function Interviews() {
             </div>
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                        <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm p-1 rounded-xl">
-                            <TabsTrigger value="upcoming" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
-                                Sắp tới
-                            </TabsTrigger>
-                            <TabsTrigger value="completed" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
-                                Đã xong
-                            </TabsTrigger>
-                            <TabsTrigger value="cancelled" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm">
-                                Đã hủy
-                            </TabsTrigger>
-                        </TabsList>
-
-                        <div className="flex items-center gap-2 text-sm text-slate-500 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200/50">
-                            <Clock size={16} />
-                            <span>Múi giờ: (GMT+07:00) Bangkok, Hanoi, Jakarta</span>
-                        </div>
+                {/* Filter bar — notification style */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        {[
+                            { key: 'upcoming', label: 'Sắp tới' },
+                            { key: 'completed', label: 'Đã xong' },
+                            { key: 'cancelled', label: 'Đã hủy' },
+                        ].map((tab) => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                className={cn(
+                                    'px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer',
+                                    activeTab === tab.key
+                                        ? 'bg-violet-600 text-white shadow-md'
+                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                )}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
 
-                    <TabsContent value={activeTab} className="mt-0 outline-none">
-                        {isLoading ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[240px] rounded-3xl" />)}
-                            </div>
-                        ) : !filteredInterviews.length ? (
-                            <div className="py-20 text-center flex flex-col items-center w-full bg-white/60 backdrop-blur-xl border border-dashed border-white/40 rounded-3xl shadow-sm">
-                                <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mb-6">
-                                    <Calendar className="w-10 h-10 text-white" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-2">Chưa có lịch phỏng vấn</h3>
-                                <p className="text-slate-500 max-w-xl">
-                                    {activeTab === 'upcoming'
-                                        ? 'Hiện tại bạn chưa có lịch phỏng vấn nào sắp tới. Hãy tiếp tục ứng tuyển và chờ phản hồi từ nhà tuyển dụng nhé!'
-                                        : 'Bạn chưa có dữ liệu phỏng vấn ở mục này.'}
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <AnimatePresence mode="popLayout">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
+                        <Clock size={16} />
+                        <span>Múi giờ: (GMT+07:00) Bangkok, Hanoi, Jakarta</span>
+                    </div>
+                </div>
+
+                {/* Content */}
+                {isLoading ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[240px] rounded-2xl" />)}
+                    </div>
+                ) : !filteredInterviews.length ? (
+                    <div className="py-20 text-center flex flex-col items-center w-full bg-white border border-dashed border-slate-200 rounded-2xl shadow-sm">
+                        <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mb-6">
+                            <Calendar className="w-10 h-10 text-white" />
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Chưa có lịch phỏng vấn</h3>
+                        <p className="text-slate-500 max-w-xl">
+                            {activeTab === 'upcoming'
+                                ? 'Hiện tại bạn chưa có lịch phỏng vấn nào sắp tới. Hãy tiếp tục ứng tuyển và chờ phản hồi từ nhà tuyển dụng nhé!'
+                                : 'Bạn chưa có dữ liệu phỏng vấn ở mục này.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <AnimatePresence mode="popLayout">
                                     {filteredInterviews.map((interview: InterviewListItem, idx: number) => {
                                         const mode = getInterviewMode(interview);
                                         const config = modeConfig[mode];
@@ -229,7 +238,7 @@ export default function Interviews() {
                                                 exit={{ opacity: 0, scale: 0.95 }}
                                                 transition={{ duration: 0.3, delay: idx * 0.1 }}
                                             >
-                                                <Card className="group relative bg-white/60 backdrop-blur-xl hover:shadow-xl hover:shadow-violet-500/5 border-white/40 shadow-sm transition-all duration-300 rounded-3xl overflow-hidden p-6">
+                                                <Card className="group relative bg-white hover:shadow-md border-slate-200 shadow-sm transition-all duration-300 rounded-2xl overflow-hidden p-6">
                                                     <div className="flex justify-between items-start gap-4 mb-6">
                                                         <div className="flex gap-4 min-w-0">
                                                             <div className={`w-14 h-14 rounded-xl bg-gradient-to-br border shadow-sm flex items-center justify-center shrink-0 ${config.avatarClass}`}>
@@ -332,8 +341,6 @@ export default function Interviews() {
                                 </AnimatePresence>
                             </div>
                         )}
-                    </TabsContent>
-                </Tabs>
             </div>
         </div>
     );
