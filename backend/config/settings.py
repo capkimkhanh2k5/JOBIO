@@ -22,7 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Use DJANGO_ENV_FILE=/path/to/file for explicit local/production overrides.
 try:
     env_file = os.getenv("DJANGO_ENV_FILE")
-    load_dotenv(env_file or BASE_DIR / ".env", override=True)
+    if env_file:
+        load_dotenv(env_file, override=True)
+    else:
+        load_dotenv(BASE_DIR / ".env", override=False)
 except Exception as e:
     print(f"Warning: Could not load .env file: {e}")
 
