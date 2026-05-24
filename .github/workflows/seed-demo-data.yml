@@ -16,6 +16,9 @@ concurrency:
   group: seed-demo-data-production
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   seed-demo-data:
     name: Seed demo data on GCP VM
@@ -137,44 +140,135 @@ jobs:
 
             cd ~/jobio
 
-            if [ -f .env ]; then
-              set -a
-              . ./.env
-              set +a
+            if [ ! -f .env.production ]; then
+              echo "::error::~/jobio/.env.production is missing. Run CD first or update ROOT_ENV_FILE."
+              exit 1
             fi
+
+            set -a
+            . ./.env.production
+            set +a
 
             if [ -f .deployed-image-tag ]; then
               export IMAGE_TAG="$(cat .deployed-image-tag)"
             fi
 
-            : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env}"
-            : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env}"
+            : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env.production}"
+            : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env.production}"
+            : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in ~/jobio/.env.production}"
+
+            compose() {
+              docker compose --env-file .env.production "$@"
+            }
+
+            wait_for_postgres() {
+              for attempt in $(seq 1 30); do
+                if compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+                  return 0
+                fi
+
+                echo "Waiting for postgres (${attempt}/30)."
+                sleep 2
+              done
+
+              echo "Postgres did not become ready."
+              return 1
+            }
+
+            database_auth_ok() {
+              compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
+                psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select 1" >/dev/null 2>&1
+            }
+
+            backend_runtime_db_env_ok() {
+              compose run --rm --no-deps -T \
+                -e EXPECTED_DB_NAME="$POSTGRES_DB" \
+                -e EXPECTED_DB_USER="$POSTGRES_USER" \
+                -e EXPECTED_DB_PASSWORD="$POSTGRES_PASSWORD" \
+                backend sh -c '
+                  failed=""
+                  [ "$DB_NAME" = "$EXPECTED_DB_NAME" ] || failed="$failed DB_NAME"
+                  [ "$DB_USER" = "$EXPECTED_DB_USER" ] || failed="$failed DB_USER"
+                  [ "$DB_PASSWORD" = "$EXPECTED_DB_PASSWORD" ] || failed="$failed DB_PASSWORD"
+                  [ "$DB_HOST" = "postgres" ] || failed="$failed DB_HOST"
+                  [ "$DB_PORT" = "5432" ] || failed="$failed DB_PORT"
+
+                  if [ -n "$failed" ]; then
+                    echo "::error::Backend runtime database environment does not match production root env:$failed"
+                    exit 1
+                  fi
+
+                  echo "Backend runtime database environment matches production root env."
+                '
+            }
+
+            wait_for_url() {
+              name="$1"
+              url="$2"
+
+              for attempt in $(seq 1 30); do
+                if curl -fsS --resolve jobio.id.vn:443:127.0.0.1 "$url" >/dev/null; then
+                  echo "${name} is healthy."
+                  return 0
+                fi
+
+                echo "Waiting for ${name} healthcheck (${attempt}/30)."
+                sleep 5
+              done
+
+              compose ps
+              compose logs --tail=100 backend frontend caddy
+              return 1
+            }
+
+            verify_health() {
+              wait_for_url "backend" "https://jobio.id.vn/health/"
+              wait_for_url "frontend" "https://jobio.id.vn/health"
+            }
+
+            restore_services() {
+              status=$?
+              trap - EXIT
+              compose up -d || true
+
+              if [ "$status" -eq 0 ]; then
+                verify_health
+              fi
+
+              exit "$status"
+            }
 
             mkdir -p seed
             rm -rf seed/Data_To_Load
             mkdir -p seed/Data_To_Load
             tar -xzf seed/seed-data.tgz -C seed/Data_To_Load
 
-            docker compose up -d postgres redis
+            compose up -d postgres redis
 
-            for attempt in $(seq 1 30); do
-              if docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
-                break
-              fi
+            wait_for_postgres
 
-              if [ "$attempt" -eq 30 ]; then
-                echo "Postgres did not become ready."
-                exit 1
-              fi
-
-              sleep 2
-            done
-
-            if [ "$RESET_EXISTING_DATA" = "true" ]; then
-              docker compose run --rm -T backend python manage.py flush --noinput
+            if ! database_auth_ok; then
+              echo "::error::Postgres is healthy but password authentication failed. Ensure ROOT_ENV_FILE.POSTGRES_PASSWORD matches the database volume password."
+              exit 1
             fi
 
-            docker compose run --rm -T \
+            backend_runtime_db_env_ok
+
+            compose run --rm -T backend python manage.py migrate --check
+
+            mkdir -p backups
+            BACKUP_FILE="backups/pre-seed-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
+            compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
+              pg_dump -h postgres -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$BACKUP_FILE"
+
+            trap restore_services EXIT
+            compose stop backend celery-worker celery-beat || true
+
+            if [ "$RESET_EXISTING_DATA" = "true" ]; then
+              compose run --rm -T backend python manage.py flush --noinput
+            fi
+
+            compose run --rm -T \
               -v "$PWD/seed/Data_To_Load:/seed/Data_Final:ro" \
               -v "$PWD/seed/load_production_seed_data.py:/app/scripts/load_production_seed_data.py:ro" \
               backend python scripts/load_production_seed_data.py /seed/Data_Final
