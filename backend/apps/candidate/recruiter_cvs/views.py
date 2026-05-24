@@ -1,6 +1,9 @@
+import logging
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.conf import settings
 
 from .models import RecruiterCV
 from .serializers import (
@@ -16,8 +19,11 @@ from .services.recruiter_cvs import generate_cv_preview
 from .services.recruiter_cvs import generate_cv_download
 from .services.recruiter_cvs import set_cv_as_default
 from .services.recruiter_cvs import upload_cv_pdf
+from .services.recruiter_cvs import create_cv_direct_upload_signature
+from .services.recruiter_cvs import create_cv_from_direct_upload
 
-MAX_PDF_SIZE = 10 * 1024 * 1024  # 10MB
+DEFAULT_MAX_PDF_SIZE = 10 * 1024 * 1024
+logger = logging.getLogger(__name__)
 
 
 class RecruiterCVViewSet(viewsets.ModelViewSet):
@@ -238,9 +244,10 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if file.size > MAX_PDF_SIZE:
+        max_pdf_size = getattr(settings, "CV_UPLOAD_MAX_BYTES", DEFAULT_MAX_PDF_SIZE)
+        if file.size > max_pdf_size:
             return Response(
-                {"detail": "Kích thước file không được vượt quá 10MB."},
+                {"detail": f"Kích thước file không được vượt quá {max_pdf_size // (1024 * 1024)}MB."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -252,12 +259,60 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
                 RecruiterCVListSerializer(cv).data,
                 status=status.HTTP_201_CREATED,
             )
-        except Exception as e:
+        except ValueError as e:
             return Response(
                 {"detail": f"Upload thất bại: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:
+            logger.exception("Unexpected CV PDF upload failure")
+            return Response(
+                {"detail": "Upload thất bại. Vui lòng thử lại sau."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
+    def upload_signature(self, request, *args, **kwargs):
+        """
+        POST /upload/signature/
+        Return signed Cloudinary params for direct browser upload.
+        """
+        recruiter, error = self._get_recruiter_or_403(request)
+        if error:
+            return error
+
+        cv_name = request.data.get("cv_name", "").strip() or None
+        try:
+            return Response(create_cv_direct_upload_signature(recruiter, cv_name))
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def upload_complete(self, request, *args, **kwargs):
+        """
+        POST /upload/complete/
+        Finalize a signed direct Cloudinary CV upload after backend validation.
+        """
+        recruiter, error = self._get_recruiter_or_403(request)
+        if error:
+            return error
+
+        cv_name = request.data.get("cv_name", "").strip() or None
+        try:
+            cv = create_cv_from_direct_upload(recruiter, request.data, cv_name)
+            return Response(
+                RecruiterCVListSerializer(cv).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except ValueError as e:
+            return Response(
+                {"detail": f"Upload thất bại: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception:
+            logger.exception("Unexpected direct CV upload finalize failure")
+            return Response(
+                {"detail": "Upload thất bại. Vui lòng thử lại sau."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def generate(self, request, *args, **kwargs):
         """

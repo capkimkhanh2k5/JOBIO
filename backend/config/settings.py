@@ -15,15 +15,16 @@ import re
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
-try:
-    load_dotenv()
-except Exception as e:
-    print(f"Warning: Could not load .env file: {e}")
-
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load backend/.env by default, regardless of the shell working directory.
+# Use DJANGO_ENV_FILE=/path/to/file for explicit local/production overrides.
+try:
+    env_file = os.getenv("DJANGO_ENV_FILE")
+    load_dotenv(env_file or BASE_DIR / ".env", override=True)
+except Exception as e:
+    print(f"Warning: Could not load .env file: {e}")
 
 
 def env_bool(name, default=False):
@@ -375,6 +376,12 @@ CSRF_TRUSTED_ORIGINS = env_list(
 
 CORS_ALLOW_CREDENTIALS = True
 
+if not DEBUG:
+    if not CORS_ALLOWED_ORIGINS:
+        raise RuntimeError("CORS_ALLOWED_ORIGINS must be set when DEBUG=0")
+    if not CSRF_TRUSTED_ORIGINS:
+        raise RuntimeError("CSRF_TRUSTED_ORIGINS must be set when DEBUG=0")
+
 # ===== Production Security Configuration =====
 PRODUCTION_SECURITY_DEFAULT = not DEBUG
 SECURE_SSL_REDIRECT = env_bool(
@@ -439,6 +446,17 @@ GROQ_CV_PARSER_MODEL = os.getenv("GROQ_CV_PARSER_MODEL", "openai/gpt-oss-120b")
 GROQ_CV_PARSER_FALLBACK_MODEL = os.getenv(
     "GROQ_CV_PARSER_FALLBACK_MODEL", "llama-3.3-70b-versatile"
 )
+GROQ_CV_MODERATION_ENABLED = env_bool("GROQ_CV_MODERATION_ENABLED", default=True)
+GROQ_CV_MODERATION_MODEL = os.getenv(
+    "GROQ_CV_MODERATION_MODEL", "openai/gpt-oss-safeguard-20b"
+)
+GROQ_CV_PARSER_MAX_INPUT_CHARS = env_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", 15000)
+GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int(
+    "GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 8192
+)
+CV_UPLOAD_MAX_BYTES = env_int("CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024)
+CV_PDF_MAX_PAGES = env_int("CV_PDF_MAX_PAGES", 3)
+CV_PARSE_ALLOWED_HOSTS = env_list("CV_PARSE_ALLOWED_HOSTS", default=["res.cloudinary.com"])
 
 # ===== Celery Configuration =====
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")

@@ -258,8 +258,20 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             queryset = Application.objects.none()
 
         queryset = queryset.select_related(
-            "recruiter", "recruiter__user", "job", "job__company", "cv", "reviewed_by"
-        ).prefetch_related("job__required_skills__skill")
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+            "reviewed_by",
+        ).prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
 
         # Áp dụng filters từ query params nếu cần
         status_filter = request.query_params.get("status")

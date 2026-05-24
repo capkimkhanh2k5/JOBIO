@@ -89,6 +89,14 @@ class ApplicationListSerializer(serializers.ModelSerializer):
 
     def get_skills(self, obj):
         try:
+            prefetched = getattr(obj.recruiter, "_prefetched_objects_cache", {})
+            if "skills" in prefetched:
+                return [
+                    recruiter_skill.skill.name
+                    for recruiter_skill in obj.recruiter.skills.all()
+                    if recruiter_skill.skill_id and recruiter_skill.skill
+                ]
+
             skill_names = RecruiterSkill.objects.filter(
                 recruiter=obj.recruiter
             ).values_list("skill__name", flat=True)
@@ -185,6 +193,14 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
 
     def get_skills(self, obj):
         try:
+            prefetched = getattr(obj.recruiter, "_prefetched_objects_cache", {})
+            if "skills" in prefetched:
+                return [
+                    recruiter_skill.skill.name
+                    for recruiter_skill in obj.recruiter.skills.all()
+                    if recruiter_skill.skill_id and recruiter_skill.skill
+                ]
+
             skill_names = RecruiterSkill.objects.filter(
                 recruiter=obj.recruiter
             ).values_list("skill__name", flat=True)

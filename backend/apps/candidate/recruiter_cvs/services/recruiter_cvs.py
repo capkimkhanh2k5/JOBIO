@@ -1,7 +1,18 @@
-from django.db import transaction
-from django.utils import timezone
-from django.template.loader import render_to_string
+import html
+import json
+import logging
+import os
+import re
+import time
+import uuid
+from urllib.parse import urlparse
+
+import cloudinary.utils
 from django.core.files.base import ContentFile
+from django.conf import settings
+from django.db import transaction
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 from ..models import RecruiterCV
 
@@ -13,6 +24,13 @@ from apps.candidate.recruiter_certifications.models import RecruiterCertificatio
 from apps.candidate.recruiter_projects.models import RecruiterProject
 from apps.candidate.recruiter_languages.models import RecruiterLanguage
 from apps.company.companies.utils.cloudinary import save_raw_file
+
+logger = logging.getLogger(__name__)
+
+CV_DIRECT_UPLOAD_FOLDER = "Jobio/CVs"
+CV_DIRECT_UPLOAD_PUBLIC_ID_RE = re.compile(
+    r"^Jobio/CVs/cv_upload_(?P<recruiter_id>\d+)_[a-f0-9]{32}$"
+)
 
 
 @transaction.atomic
@@ -263,9 +281,134 @@ def generate_cv_preview(cv: RecruiterCV) -> dict:
     try:
         html_content = render_cv_to_html(cv)
     except Exception:
-        html_content = f"<html><body><pre>{cv.cv_data}</pre></body></html>"
+        safe_cv_data = html.escape(
+            json.dumps(cv.cv_data, ensure_ascii=False, default=str)
+        )
+        html_content = f"<html><body><pre>{safe_cv_data}</pre></body></html>"
 
     return {"html_content": html_content, "template_id": cv.template_id}
+
+
+def create_cv_direct_upload_signature(recruiter, cv_name: str = None) -> dict:
+    """
+    Create signed Cloudinary raw-upload params after recruiter ownership is verified.
+    The client uploads directly to Cloudinary, then calls finalize to create CV.
+    """
+    cloud_name, api_key, api_secret = _cloudinary_credentials()
+    timestamp = int(time.time())
+    public_id = f"cv_upload_{recruiter.id}_{uuid.uuid4().hex}"
+    params_to_sign = {
+        "allowed_formats": "pdf",
+        "folder": CV_DIRECT_UPLOAD_FOLDER,
+        "public_id": public_id,
+        "timestamp": timestamp,
+        "overwrite": "false",
+    }
+    signature = cloudinary.utils.api_sign_request(params_to_sign, api_secret)
+
+    return {
+        "cloud_name": cloud_name,
+        "api_key": api_key,
+        "timestamp": timestamp,
+        "signature": signature,
+        "folder": CV_DIRECT_UPLOAD_FOLDER,
+        "public_id": public_id,
+        "resource_type": "raw",
+        "upload_url": f"https://api.cloudinary.com/v1_1/{cloud_name}/raw/upload",
+        "max_bytes": getattr(settings, "CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024),
+        "max_pages": getattr(settings, "CV_PDF_MAX_PAGES", 3),
+        "cv_name": _normalize_cv_name(cv_name or public_id),
+        "overwrite": "false",
+        "allowed_formats": "pdf",
+    }
+
+
+@transaction.atomic
+def create_cv_from_direct_upload(recruiter, upload_data: dict, cv_name: str = None) -> RecruiterCV:
+    """Validate a signed direct Cloudinary upload, then create CV_Upload."""
+    from apps.candidate.recruiter_cvs.tasks import _download_pdf
+
+    public_id = str(upload_data.get("public_id") or "").strip()
+    secure_url = str(upload_data.get("secure_url") or "").strip()
+    resource_type = str(upload_data.get("resource_type") or "").strip()
+    byte_count = upload_data.get("bytes")
+
+    _validate_direct_upload_metadata(recruiter, public_id, secure_url, resource_type, byte_count)
+    pdf_bytes = _download_pdf(secure_url)
+
+    cv = RecruiterCV.objects.create(
+        recruiter=recruiter,
+        template=None,
+        cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
+        cv_data={},
+        cv_url=secure_url,
+        is_default=False,
+        is_public=True,
+    )
+
+    transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+    logger.debug("Validated direct CV upload: cv_id=%s, bytes=%d", cv.id, len(pdf_bytes))
+    return cv
+
+
+def _cloudinary_credentials() -> tuple[str, str, str]:
+    storage = getattr(settings, "CLOUDINARY_STORAGE", {}) or {}
+    cloud_name = storage.get("CLOUD_NAME") or os.getenv("CLOUDINARY_CLOUD_NAME")
+    api_key = storage.get("API_KEY") or os.getenv("CLOUDINARY_API_KEY")
+    api_secret = storage.get("API_SECRET") or os.getenv("CLOUDINARY_API_SECRET")
+
+    if not cloud_name or not api_key or not api_secret:
+        raise ValueError("cloudinary_not_configured")
+    return cloud_name, api_key, api_secret
+
+
+def _normalize_cv_name(cv_name: str) -> str:
+    normalized = os.path.basename(str(cv_name or "").strip())
+    if normalized.lower().endswith(".pdf"):
+        normalized = normalized[:-4]
+    normalized = re.sub(r"[\x00-\x1f\x7f/\\]+", "", normalized).strip()
+    return (normalized or "Uploaded CV")[:255]
+
+
+def _validate_direct_upload_metadata(
+    recruiter,
+    public_id: str,
+    secure_url: str,
+    resource_type: str,
+    byte_count,
+) -> None:
+    if resource_type and resource_type != "raw":
+        raise ValueError("invalid_upload_resource_type")
+
+    full_public_id = public_id if public_id.startswith(f"{CV_DIRECT_UPLOAD_FOLDER}/") else f"{CV_DIRECT_UPLOAD_FOLDER}/{public_id}"
+    match = CV_DIRECT_UPLOAD_PUBLIC_ID_RE.match(full_public_id)
+    if not match or int(match.group("recruiter_id")) != recruiter.id:
+        raise ValueError("invalid_upload_public_id")
+
+    configured_cloud_name, _, _ = _cloudinary_credentials()
+    parsed_url = urlparse(secure_url)
+    path_parts = [part for part in parsed_url.path.split("/") if part]
+    if (
+        parsed_url.scheme != "https"
+        or parsed_url.hostname != "res.cloudinary.com"
+        or len(path_parts) < 4
+        or path_parts[0] != configured_cloud_name
+        or path_parts[1] != "raw"
+        or path_parts[2] != "upload"
+    ):
+        raise ValueError("invalid_upload_url")
+
+    if f"/{full_public_id}" not in secure_url:
+        raise ValueError("invalid_upload_url")
+
+    if byte_count is not None:
+        try:
+            if int(byte_count) > getattr(settings, "CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024):
+                raise ValueError("pdf_too_large")
+        except (TypeError, ValueError) as exc:
+            if str(exc) == "pdf_too_large":
+                raise
+            raise ValueError("invalid_upload_size") from exc
 
 
 @transaction.atomic
@@ -286,20 +429,23 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
     Returns:
         RecruiterCV instance vừa được tạo (CV_Upload, cv_data={} initially).
     """
+    from apps.candidate.recruiter_cvs.services.cv_parser import validate_pdf_bytes
+
+    file_bytes = file.read()
+    validate_pdf_bytes(file_bytes)
+
     # Upload lên Cloudinary
-    content_file = ContentFile(file.read(), name=file.name)
+    content_file = ContentFile(file_bytes, name=file.name)
     cv_url = save_raw_file("CVs", content_file, f"cv_upload_{recruiter.id}")
 
     # Tên CV: dùng cv_name nếu có, ngược lại dùng tên file gốc bỏ phần mở rộng .pdf
     if not cv_name:
         cv_name = file.name
-        if cv_name.lower().endswith(".pdf"):
-            cv_name = cv_name[:-4]
 
     cv = RecruiterCV.objects.create(
         recruiter=recruiter,
         template=None,
-        cv_name=cv_name,
+        cv_name=_normalize_cv_name(cv_name),
         cv_data={},
         cv_url=cv_url,
         is_default=False,
@@ -321,12 +467,9 @@ def _dispatch_cv_parse(cv_id: int):
         from apps.candidate.recruiter_cvs.tasks import parse_cv_task
         parse_cv_task.delay(cv_id)
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.warning(
             f"Could not dispatch async CV parse task for CV {cv_id}: {e}. "
-            "Celery may not be running. CV will stay with empty cv_data "
-            "and scoring will fallback to recruiter profile."
+            "Celery may not be running. Matching will fallback to recruiter profile."
         )
 
 

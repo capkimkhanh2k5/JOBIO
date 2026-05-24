@@ -490,6 +490,10 @@ class JobViewSet(viewsets.GenericViewSet):
             )
 
         cv_id = request.query_params.get("cv_id")
+        try:
+            limit = min(max(int(request.query_params.get("page_size", 20)), 1), 50)
+        except (TypeError, ValueError):
+            limit = 20
 
         if cv_id:
             # CV-based suggestions with match_score
@@ -501,7 +505,7 @@ class JobViewSet(viewsets.GenericViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            suggestions = get_job_suggestions_for_cv(cv_id_int, recruiter)
+            suggestions = get_job_suggestions_for_cv(cv_id_int, recruiter, limit=limit)
 
             result = []
             for item in suggestions:
@@ -514,7 +518,7 @@ class JobViewSet(viewsets.GenericViewSet):
             return Response(result)
 
         # Default: skill-based recommendations (legacy)
-        queryset = get_job_recommendations(recruiter.id)
+        queryset = get_job_recommendations(recruiter.id, limit=limit)
         serializer = JobListSerializer(queryset, many=True)
         return Response(serializer.data)
 

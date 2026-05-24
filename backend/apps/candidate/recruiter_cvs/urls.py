@@ -20,6 +20,16 @@ urlpatterns = [
         RecruiterCVViewSet.as_view({"post": "upload_cv"}),
         name="cv-upload",
     ),
+    path(
+        "upload/signature/",
+        RecruiterCVViewSet.as_view({"post": "upload_signature"}),
+        name="cv-upload-signature",
+    ),
+    path(
+        "upload/complete/",
+        RecruiterCVViewSet.as_view({"post": "upload_complete"}),
+        name="cv-upload-complete",
+    ),
     # Router routes
     path("", include(router.urls)),
     # Extended routes (detail actions)

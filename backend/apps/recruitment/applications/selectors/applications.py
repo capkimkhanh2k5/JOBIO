@@ -20,9 +20,21 @@ def list_applications_by_job(
     queryset = (
         Application.objects.filter(job_id=job_id)
         .select_related(
-            "recruiter", "recruiter__user", "job", "job__company", "cv", "reviewed_by"
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+            "reviewed_by",
         )
-        .prefetch_related("job__required_skills__skill")
+        .prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
         .order_by("-applied_at")
     )
 
@@ -47,12 +59,19 @@ def get_application_by_id(application_id: int) -> Optional[Application]:
             Application.objects.select_related(
                 "recruiter",
                 "recruiter__user",
+                "recruiter__address__province",
                 "job",
                 "job__company",
+                "job__category__parent",
+                "job__address__province",
                 "cv",
                 "reviewed_by",
             )
-            .prefetch_related("job__required_skills__skill")
+            .prefetch_related(
+                "job__required_skills__skill",
+                "job__locations__address__province",
+                "recruiter__skills__skill",
+            )
             .get(id=application_id)
         )
     except Application.DoesNotExist:
@@ -65,8 +84,21 @@ def list_applications_by_recruiter(recruiter_id: int) -> QuerySet[Application]:
     """
     return (
         Application.objects.filter(recruiter_id=recruiter_id)
-        .select_related("recruiter", "recruiter__user", "job", "job__company", "cv")
-        .prefetch_related("job__required_skills__skill")
+        .select_related(
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+        )
+        .prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
         .order_by("-applied_at")
     )
 
@@ -124,9 +156,21 @@ def list_applications_by_status(job_id: int, status: str) -> QuerySet[Applicatio
     return (
         Application.objects.filter(job_id=job_id, status=status)
         .select_related(
-            "recruiter", "recruiter__user", "job", "job__company", "cv", "reviewed_by"
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+            "reviewed_by",
         )
-        .prefetch_related("job__required_skills__skill")
+        .prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
         .order_by("-applied_at")
     )
 
@@ -140,9 +184,21 @@ def list_applications_by_rating(
     queryset = (
         Application.objects.filter(job_id=job_id)
         .select_related(
-            "recruiter", "recruiter__user", "job", "job__company", "cv", "reviewed_by"
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+            "reviewed_by",
         )
-        .prefetch_related("job__required_skills__skill")
+        .prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
     )
 
     if rating is not None:
@@ -170,8 +226,20 @@ def search_applications(job_id: int, query: str) -> QuerySet[Application]:
             | Q(cover_letter__icontains=query)
         )
         .select_related(
-            "recruiter", "recruiter__user", "job", "job__company", "cv", "reviewed_by"
+            "recruiter",
+            "recruiter__user",
+            "recruiter__address__province",
+            "job",
+            "job__company",
+            "job__category__parent",
+            "job__address__province",
+            "cv",
+            "reviewed_by",
         )
-        .prefetch_related("job__required_skills__skill")
+        .prefetch_related(
+            "job__required_skills__skill",
+            "job__locations__address__province",
+            "recruiter__skills__skill",
+        )
         .order_by("-applied_at")
     )

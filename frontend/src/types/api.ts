@@ -754,15 +754,45 @@ export type CVPrivacy = 'public' | 'private' | 'link_only';
 
 export interface CandidateCV {
   id: number;
-  template: number | null;
+  template?: number | null;
+  template_id?: number | string | null;
+  template_name?: string | null;
   cv_name: string;
   cv_data: Record<string, unknown> | null;
-  file_url: string | null;
+  file_url?: string | null;
+  cv_url?: string | null;
   is_default: boolean;
-  privacy: CVPrivacy;
+  is_public?: boolean;
+  privacy?: CVPrivacy;
+  view_count?: number;
   download_count: number;
+  parsed_at?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface CVDirectUploadSignature {
+  cloud_name: string;
+  api_key: string;
+  timestamp: number;
+  signature: string;
+  folder: string;
+  public_id: string;
+  resource_type: 'raw';
+  upload_url: string;
+  max_bytes: number;
+  max_pages: number;
+  cv_name: string;
+  overwrite: 'false';
+  allowed_formats: 'pdf';
+}
+
+export interface CloudinaryRawUploadResponse {
+  secure_url: string;
+  public_id: string;
+  resource_type: string;
+  bytes: number;
+  format?: string;
 }
 
 export interface CVCreateRequest {
