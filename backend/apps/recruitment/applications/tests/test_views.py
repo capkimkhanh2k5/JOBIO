@@ -5,6 +5,7 @@ from apps.company.companies.models import Company
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
 from apps.candidate.recruiters.models import Recruiter
+from apps.candidate.recruiter_cvs.models import RecruiterCV
 
 
 class ApplicationViewTests(APITestCase):
@@ -139,6 +140,52 @@ class ApplicationViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["cover_letter"], "This is my cover letter")
 
+    def test_create_application_with_own_cv_success(self):
+        """POST /api/applications - own cv_id → 201"""
+        cv = RecruiterCV.objects.create(
+            recruiter=self.recruiter,
+            cv_name="Applicant CV",
+            cv_data={"skills": []},
+        )
+        self.client.force_authenticate(user=self.applicant_user)
+
+        response = self.client.post(
+            "/api/applications/",
+            {"job_id": self.job.id, "cv_id": cv.id},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["cv_id"], cv.id)
+
+    def test_create_application_rejects_foreign_cv(self):
+        """POST /api/applications - foreign cv_id → 400"""
+        foreign_cv = RecruiterCV.objects.create(
+            recruiter=self.other_recruiter,
+            cv_name="Foreign CV",
+            cv_data={"skills": []},
+        )
+        self.client.force_authenticate(user=self.applicant_user)
+
+        response = self.client.post(
+            "/api/applications/",
+            {"job_id": self.job.id, "cv_id": foreign_cv.id},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("cv_id", response.data)
+
+    def test_create_application_rejects_missing_cv(self):
+        """POST /api/applications - missing cv_id → 400"""
+        self.client.force_authenticate(user=self.applicant_user)
+
+        response = self.client.post(
+            "/api/applications/",
+            {"job_id": self.job.id, "cv_id": 99999},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("cv_id", response.data)
+
     def test_change_status_pending_company_forbidden(self):
         """PATCH /api/applications/:id/status - company chưa verified → 403"""
         pending_owner = CustomUser.objects.create_user(
@@ -248,6 +295,24 @@ class ApplicationViewTests(APITestCase):
         response = self.client.put(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_application_rejects_foreign_cv(self):
+        """PUT /api/applications/:id - foreign cv_id → 400"""
+        app = Application.objects.create(job=self.job, recruiter=self.recruiter)
+        foreign_cv = RecruiterCV.objects.create(
+            recruiter=self.other_recruiter,
+            cv_name="Foreign CV",
+            cv_data={"skills": []},
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.put(
+            f"/api/applications/{app.id}/",
+            {"cv_id": foreign_cv.id, "cover_letter": "Updated"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("cv_id", response.data)
 
     def test_update_application_unauthenticated(self):
         """PUT /api/applications/:id - không login → 401"""

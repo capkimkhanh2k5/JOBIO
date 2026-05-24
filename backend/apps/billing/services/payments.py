@@ -19,6 +19,10 @@ class PaymentService:
             (Transaction, payment_url)
         """
 
+        VNPayService.ensure_configured(
+            "VNP_TMN_CODE", "VNP_HASH_SECRET", "VNP_URL", "VNP_RETURN_URL"
+        )
+
         # 1. Create Pending Transaction
         with transaction.atomic():
             txn = Transaction.objects.create(

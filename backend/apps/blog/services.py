@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 from apps.blog.models import Post
-
+from apps.core.users.permissions import is_admin_user
 
 class BlogService:
     @staticmethod
@@ -10,17 +10,23 @@ class BlogService:
         Create a new blog post.
 
         Args:
-            author: The user creating the post (must have 'blog.add_post' permission)
+            author: The user creating the post (must be verified company or admin)
             data: Validated dict of post fields
 
         Raises:
-            PermissionDenied: If user lacks permission to create posts
+            PermissionDenied: If user is not a verified company or admin
         """
-        # Strict ownership: Only users with blog.add_post permission can create
-        if not author.has_perm("blog.add_post"):
-            raise PermissionDenied("You do not have permission to create blog posts.")
 
-        return Post.objects.create(author=author, **data)
+        if is_admin_user(author):
+            return Post.objects.create(author=author, **data)
+
+        company_profile = getattr(author, "company_profile", None)
+        if not company_profile or company_profile.verification_status != "verified":
+            raise PermissionDenied(
+                "Chỉ công ty đã xác thực mới được đăng bài blog."
+            )
+
+        return Post.objects.create(author=author, company=company_profile, **data)
 
     @staticmethod
     def publish_post(post: Post) -> Post:

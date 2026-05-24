@@ -139,8 +139,8 @@ const Profile = () => {
                     </div>
 
                     {/* ── Sidebar ── */}
-                    <div className="space-y-6">
-                        {/* Profile Completeness Card */}
+                    <div>
+                        {/* Profile Completeness + Navigation Card (combined & sticky) */}
                         <Card className="glass-effect p-6 rounded-[28px] border-none sticky top-24">
                             <div className="flex items-center gap-3 mb-5">
                                 <div className="p-2 bg-violet-100 rounded-xl">
@@ -219,43 +219,29 @@ const Profile = () => {
                                         </p>
                                     </div>
                                 )}
-                            </div>
-                        </Card>
 
-                        {/* Navigation Shortcuts */}
-                        <Card className="glass-effect p-5 rounded-[24px] border-none">
-                            <h4 className="font-bold text-sm mb-4 text-muted-foreground uppercase tracking-wider text-xs">Điều hướng nhanh</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                                {SECTION_NAV.map(({ id, label, icon: Icon }) => (
-                                    <a
-                                        key={id}
-                                        href={`#${id}`}
-                                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background/40 hover:bg-violet-100 hover:text-violet-600 text-[11px] font-semibold uppercase tracking-wider transition-all group"
-                                    >
-                                        <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-violet-600 transition-colors shrink-0" />
-                                        <span className="truncate">{label}</span>
-                                    </a>
-                                ))}
+                                {/* ── Navigation Shortcuts (inside same card) ── */}
+                                <div className="pt-4 border-t border-border/50">
+                                    <h4 className="font-bold text-muted-foreground uppercase tracking-wider text-[10px] mb-3">Điều hướng nhanh</h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {SECTION_NAV.map(({ id, label, icon: Icon }) => (
+                                            <button
+                                                key={id}
+                                                onClick={() => {
+                                                    const el = document.getElementById(id);
+                                                    if (el) {
+                                                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                    }
+                                                }}
+                                                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background/40 hover:bg-violet-100 hover:text-violet-600 text-[11px] font-semibold uppercase tracking-wider transition-all group text-left cursor-pointer"
+                                            >
+                                                <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-violet-600 transition-colors shrink-0" />
+                                                <span className="truncate">{label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                        </Card>
-
-                        {/* Quick tips */}
-                        <Card className="glass-effect p-5 rounded-[24px] border-none">
-                            <h4 className="font-bold text-sm mb-3">💡 Mẹo tăng cơ hội</h4>
-                            <ul className="space-y-2.5 text-xs text-muted-foreground leading-relaxed">
-                                <li className="flex items-start gap-2">
-                                    <span className="text-violet-600 font-bold shrink-0">→</span>
-                                    Giữ trạng thái <strong className="text-foreground">Đang tìm việc</strong> để xuất hiện trong tìm kiếm của nhà tuyển dụng.
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-violet-600 font-bold shrink-0">→</span>
-                                    Thêm ít nhất <strong className="text-foreground">5 kỹ năng</strong> với mức độ chính xác để tăng điểm match.
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-violet-600 font-bold shrink-0">→</span>
-                                    Hồ sơ có <strong className="text-foreground">ảnh đại diện</strong> được xem nhiều hơn 14 lần so với hồ sơ không có ảnh.
-                                </li>
-                            </ul>
                         </Card>
                     </div>
                 </div>

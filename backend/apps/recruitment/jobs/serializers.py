@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from .models import Job
 
@@ -29,7 +30,7 @@ class JobListSerializer(serializers.ModelSerializer):
         source="is_salary_negotiable", read_only=True
     )
     is_salary_visible = serializers.SerializerMethodField()
-    is_featured = serializers.BooleanField(source="featured", read_only=True)
+    is_featured = serializers.SerializerMethodField()
     deadline = serializers.DateField(
         source="application_deadline", read_only=True, allow_null=True
     )
@@ -87,6 +88,11 @@ class JobListSerializer(serializers.ModelSerializer):
         return not obj.is_salary_negotiable and (
             obj.salary_min is not None or obj.salary_max is not None
         )
+
+    def get_is_featured(self, obj):
+        if not obj.featured:
+            return False
+        return obj.featured_until is None or obj.featured_until >= timezone.now().date()
 
     def get_location(self, obj):
         return self.get_locations(obj)

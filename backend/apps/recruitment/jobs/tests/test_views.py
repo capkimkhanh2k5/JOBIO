@@ -3,6 +3,8 @@ from rest_framework import status
 from datetime import timedelta
 from django.utils import timezone
 from apps.core.users.models import CustomUser
+from apps.candidate.recruiter_cvs.models import RecruiterCV
+from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.skill_categories.models import SkillCategory
 from apps.candidate.skills.models import Skill
 from apps.company.companies.models import Company
@@ -134,6 +136,226 @@ class JobViewTests(APITestCase):
             else response.data
         ):
             self.assertEqual(job["job_type"], "full-time")
+
+    def test_list_jobs_prioritizes_featured_jobs_by_default(self):
+        """Featured published jobs appear first in public listing."""
+        newer_regular_job = Job.objects.create(
+            company=self.company,
+            title="Newer Regular Job",
+            slug="newer-regular-job-test",
+            job_type="full-time",
+            level="senior",
+            description="Regular job",
+            requirements="Regular requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=False,
+            created_by=self.user,
+        )
+        featured_job = Job.objects.create(
+            company=self.company,
+            title="Featured Job",
+            slug="featured-job-default-order-test",
+            job_type="full-time",
+            level="senior",
+            description="Featured job",
+            requirements="Featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            created_by=self.user,
+        )
+        expired_featured_job = Job.objects.create(
+            company=self.company,
+            title="Expired Featured Job",
+            slug="expired-featured-job-default-order-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired featured job",
+            requirements="Expired featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            featured_until=timezone.now().date() - timedelta(days=1),
+            created_by=self.user,
+        )
+        Job.objects.filter(id=featured_job.id).update(
+            published_at=timezone.now() - timedelta(days=2),
+            created_at=timezone.now() - timedelta(days=2),
+        )
+        Job.objects.filter(id=expired_featured_job.id).update(
+            published_at=timezone.now() + timedelta(minutes=1),
+            created_at=timezone.now() + timedelta(minutes=1),
+        )
+        Job.objects.filter(id=newer_regular_job.id).update(
+            published_at=timezone.now(),
+            created_at=timezone.now(),
+        )
+
+        response = self.client.get("/api/jobs/")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(jobs[0]["id"], featured_job.id)
+        self.assertTrue(jobs[0]["is_featured"])
+        expired_item = next(job for job in jobs if job["id"] == expired_featured_job.id)
+        self.assertFalse(expired_item["is_featured"])
+
+    def test_list_jobs_prioritizes_featured_before_requested_sort(self):
+        """Featured priority stays above secondary public sort options."""
+        high_salary_regular_job = Job.objects.create(
+            company=self.company,
+            title="High Salary Regular Job",
+            slug="high-salary-regular-job-test",
+            job_type="full-time",
+            level="senior",
+            salary_max=5000,
+            description="Regular high salary job",
+            requirements="Regular high salary requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=False,
+            created_by=self.user,
+        )
+        featured_job = Job.objects.create(
+            company=self.company,
+            title="Featured Lower Salary Job",
+            slug="featured-lower-salary-job-test",
+            job_type="full-time",
+            level="senior",
+            salary_max=1000,
+            description="Featured lower salary job",
+            requirements="Featured lower salary requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            created_by=self.user,
+        )
+
+        response = self.client.get("/api/jobs/?ordering=-salary_max")
+        jobs = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        job_ids = [job["id"] for job in jobs]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertLess(
+            job_ids.index(featured_job.id), job_ids.index(high_salary_regular_job.id)
+        )
+
+    def test_featured_endpoint_prioritizes_only_active_featured_jobs(self):
+        """Expired featured jobs do not outrank active featured jobs."""
+        active_featured_job = Job.objects.create(
+            company=self.company,
+            title="Active Featured Job",
+            slug="active-featured-endpoint-test",
+            job_type="full-time",
+            level="senior",
+            description="Active featured job",
+            requirements="Active featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            featured_until=timezone.now().date() + timedelta(days=1),
+            created_by=self.user,
+        )
+        expired_featured_job = Job.objects.create(
+            company=self.company,
+            title="Expired Featured Endpoint Job",
+            slug="expired-featured-endpoint-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired featured job",
+            requirements="Expired featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            featured_until=timezone.now().date() - timedelta(days=1),
+            created_by=self.user,
+        )
+        Job.objects.filter(id=active_featured_job.id).update(
+            published_at=timezone.now() - timedelta(days=2),
+            created_at=timezone.now() - timedelta(days=2),
+        )
+        Job.objects.filter(id=expired_featured_job.id).update(
+            published_at=timezone.now(),
+            created_at=timezone.now(),
+        )
+
+        response = self.client.get("/api/jobs/featured/?page_size=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["id"], active_featured_job.id)
+        self.assertTrue(response.data[0]["is_featured"])
+
+    def test_cv_recommendations_prioritize_active_featured_over_expired_featured(self):
+        """CV suggestions use active featured ordering, not raw featured."""
+        candidate_user = CustomUser.objects.create_user(
+            email="candidate-featured@example.com",
+            password="password123",
+            full_name="Candidate Featured",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(user=candidate_user)
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            cv_name="Empty Signal CV",
+            cv_data={},
+        )
+        active_featured_job = Job.objects.create(
+            company=self.company,
+            title="Active Featured Suggestion Job",
+            slug="active-featured-suggestion-test",
+            job_type="full-time",
+            level="senior",
+            description="Active featured job",
+            requirements="Active featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            featured_until=timezone.now().date() + timedelta(days=1),
+            created_by=self.user,
+        )
+        expired_featured_job = Job.objects.create(
+            company=self.company,
+            title="Expired Featured Suggestion Job",
+            slug="expired-featured-suggestion-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired featured job",
+            requirements="Expired featured requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            featured=True,
+            featured_until=timezone.now().date() - timedelta(days=1),
+            created_by=self.user,
+        )
+        Job.objects.filter(id=active_featured_job.id).update(
+            published_at=timezone.now() - timedelta(days=2),
+            created_at=timezone.now() - timedelta(days=2),
+        )
+        Job.objects.filter(id=expired_featured_job.id).update(
+            published_at=timezone.now(),
+            created_at=timezone.now(),
+        )
+
+        self.client.force_authenticate(user=candidate_user)
+        response = self.client.get(
+            f"/api/jobs/recommendations/?cv_id={cv.id}&page_size=10"
+        )
+        job_ids = [job["id"] for job in response.data]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertLess(
+            job_ids.index(active_featured_job.id),
+            job_ids.index(expired_featured_job.id),
+        )
 
     def test_list_jobs_with_multiple_job_type_filters(self):
         """Test GET /api/jobs/?job_type=... supports CSV multi-select values"""

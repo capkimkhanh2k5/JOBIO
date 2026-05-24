@@ -233,7 +233,12 @@ class ApplicationCreateSerializer(serializers.Serializer):
         if value is None:
             return value
 
-        if not RecruiterCV.objects.filter(id=value).exists():
+        recruiter = self.context.get("recruiter")
+        queryset = RecruiterCV.objects.filter(id=value)
+        if recruiter:
+            queryset = queryset.filter(recruiter=recruiter)
+
+        if not queryset.exists():
             raise serializers.ValidationError("CV not found!")
         return value
 
@@ -252,7 +257,12 @@ class ApplicationUpdateSerializer(serializers.Serializer):
         if value is None:
             return value
 
-        if not RecruiterCV.objects.filter(id=value).exists():
+        recruiter = self.context.get("recruiter")
+        queryset = RecruiterCV.objects.filter(id=value)
+        if recruiter:
+            queryset = queryset.filter(recruiter=recruiter)
+
+        if not queryset.exists():
             raise serializers.ValidationError("CV not found!")
         return value
 

@@ -7,12 +7,13 @@ import hmac
 import hashlib
 import urllib.parse
 from django.conf import settings
+from django.test import override_settings
 from django.utils import timezone
 from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
-from apps.billing.services.vnpay import VNPayService
+from apps.billing.services.vnpay import VNPaySecurityError, VNPayService
 from apps.billing.tasks import cleanup_expired_transactions
 from apps.billing.models import (
     Transaction,
@@ -65,6 +66,50 @@ class TestVNPayIntegration(APITestCase):
         self.assertRegex(query["vnp_ExpireDate"][0], r"^\d{14}$")
         self.assertEqual(query["vnp_IpAddr"][0], "127.0.0.1")
         self.assertEqual(query["vnp_OrderType"][0], "other")
+
+    @override_settings(VNP_HASH_SECRET="")
+    def test_vnpay_url_generation_fails_when_secret_missing(self):
+        """VNPay URL generation fails fast when required config is missing."""
+        with self.assertRaises(VNPaySecurityError):
+            VNPayService.get_payment_url(
+                order_id="TEST_REF",
+                amount=Decimal("100000"),
+                order_desc="Subscribe",
+                ip_addr="127.0.0.1",
+            )
+
+    def test_vnpay_url_generation_does_not_log_secure_hash(self):
+        """VNPay logs must not contain signed payment URL or secure hash."""
+        with self.assertLogs("apps.billing.services.vnpay", level="INFO") as logs:
+            VNPayService.get_payment_url(
+                order_id="TEST_REF",
+                amount=Decimal("100000"),
+                order_desc="Subscribe",
+                ip_addr="127.0.0.1",
+            )
+
+        log_output = "\n".join(logs.output)
+        self.assertNotIn("vnp_SecureHash", log_output)
+        self.assertNotIn("TEST_REF&", log_output)
+
+    @override_settings(VNP_QUERY_URL="https://vnpay.example.test/query")
+    @patch("apps.billing.services.vnpay.requests.post")
+    def test_query_vnpay_transaction_uses_configured_url(self, mock_post):
+        """QueryDR uses configured URL instead of hardcoded sandbox URL."""
+        mock_post.return_value.json.return_value = {"vnp_ResponseCode": "00"}
+        Transaction.objects.create(
+            company=self.company_profile,
+            amount=self.plan.price,
+            reference_code="ORDER_QUERY_URL_TEST",
+        )
+
+        result = VNPayService.query_vnpay_transaction("ORDER_QUERY_URL_TEST")
+
+        self.assertEqual(result["vnp_ResponseCode"], "00")
+        mock_post.assert_called_once()
+        self.assertEqual(
+            mock_post.call_args.args[0], "https://vnpay.example.test/query"
+        )
 
     def test_subscribe_api_auto_creates_payment_method(self):
         """Test that subscribe API auto-seeds 'vnpay' payment method"""

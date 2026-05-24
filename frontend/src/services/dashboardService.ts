@@ -122,17 +122,6 @@ export const dashboardService = {
     return api.patch(`/api/users/${userId}/verify-email/`, { email_verified });
   },
 
-  listSearchHistory() {
-    return api.get('/api/search-history/');
-  },
-
-  deleteSearchHistoryItem(id: number) {
-    return api.delete(`/api/search-history/${id}/`);
-  },
-
-  clearSearchHistory() {
-    return api.delete('/api/search-history/clear/');
-  },
 
   bulkUserAction(action: string, userIds: number[]) {
     return api.post('/api/users/bulk-action/', { action, ids: userIds });

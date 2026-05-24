@@ -63,11 +63,11 @@ export default function Blog() {
         staleTime: 1000 * 60 * 60,
     });
 
-    const resolveAuthorName = (post: { author_name?: string | null; author?: number }) =>
-        post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'Tác giả JOBIO';
+    const resolveAuthorName = (post: { company_name?: string | null; author_name?: string | null; author?: number }) =>
+        post.company_name || post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'JOBIO VN';
 
-    const resolveAuthorAvatar = (post: { author_avatar?: string | null; author?: number }) =>
-        post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
+    const resolveAuthorAvatar = (post: { company_logo?: string | null; author_avatar?: string | null; author?: number }) =>
+        post.company_logo || post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
 
     const setCategoryFilter = (categoryId?: number) => {
         if (categoryId) setSearchParams({ category_id: String(categoryId) });

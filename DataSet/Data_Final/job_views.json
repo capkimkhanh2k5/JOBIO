@@ -191,7 +191,7 @@
     {
         "id": 22,
         "job_id": 4,
-        "user_id": 2,
+        "user_id": 1,
         "ip_address": "10.0.1.6",
         "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.3.0 Safari/537.36",
         "referrer": "https://jobio.vn/",
@@ -1419,7 +1419,7 @@
         "referrer": "https://direct",
         "viewed_at": "2026-02-23T08:38:00Z",
         "job_id": 15,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 159,
@@ -3399,7 +3399,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-09T07:47:00Z",
         "job_id": 32,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 379,
@@ -4749,7 +4749,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-09T10:37:00Z",
         "job_id": 42,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 529,
@@ -6864,7 +6864,7 @@
         "referrer": "https://facebook.com",
         "viewed_at": "2026-02-23T09:46:00Z",
         "job_id": 59,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 764,
@@ -9114,7 +9114,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-04T09:12:00Z",
         "job_id": 137,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 1014,
@@ -11229,7 +11229,7 @@
         "referrer": "https://facebook.com",
         "viewed_at": "2026-02-18T08:21:00Z",
         "job_id": 154,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 1249,
@@ -14478,7 +14478,7 @@
         "referrer": "https://google.com",
         "viewed_at": "2026-01-04T08:04:00Z",
         "job_id": 93,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 1610,
@@ -17124,7 +17124,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-01-29T13:53:00Z",
         "job_id": 3,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 1904,
@@ -18339,7 +18339,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-02-19T19:31:00Z",
         "job_id": 4,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 2039,
@@ -22290,7 +22290,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-30T19:59:00Z",
         "job_id": 10,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 2478,
@@ -23352,7 +23352,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-05-21T10:37:00Z",
         "job_id": 11,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 2596,
@@ -25404,7 +25404,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-02-02T10:51:00Z",
         "job_id": 14,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 2824,
@@ -26673,7 +26673,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-02-23T16:29:00Z",
         "job_id": 15,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 2965,
@@ -27834,7 +27834,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-03-16T22:07:00Z",
         "job_id": 16,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 3094,
@@ -28536,7 +28536,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-03-30T16:43:00Z",
         "job_id": 18,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 3172,
@@ -32424,7 +32424,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-02T22:35:00Z",
         "job_id": 22,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 3604,
@@ -33396,7 +33396,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-23T13:13:00Z",
         "job_id": 23,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 3712,
@@ -34449,7 +34449,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-02-06T22:49:00Z",
         "job_id": 25,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 3829,
@@ -37014,7 +37014,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-04-03T13:41:00Z",
         "job_id": 29,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 4114,
@@ -37824,7 +37824,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-04-24T19:19:00Z",
         "job_id": 30,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 4204,
@@ -39777,7 +39777,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-06T19:33:00Z",
         "job_id": 33,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 4421,
@@ -41361,7 +41361,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-27T10:11:00Z",
         "job_id": 34,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 4597,
@@ -43584,7 +43584,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-03-03T10:25:00Z",
         "job_id": 37,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 4844,
@@ -46329,7 +46329,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-04-28T16:17:00Z",
         "job_id": 41,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 5149,
@@ -48597,7 +48597,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-01-10T16:31:00Z",
         "job_id": 44,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 5401,
@@ -52044,7 +52044,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-03-07T22:23:00Z",
         "job_id": 48,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 5784,
@@ -55338,7 +55338,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-05-02T13:15:00Z",
         "job_id": 52,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 6150,
@@ -58182,7 +58182,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-02-04T19:07:00Z",
         "job_id": 56,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 6466,
@@ -59127,7 +59127,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-02-25T09:45:00Z",
         "job_id": 57,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 6571,
@@ -59658,7 +59658,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-03-11T19:21:00Z",
         "job_id": 59,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 6630,
@@ -62529,7 +62529,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-05-06T10:13:00Z",
         "job_id": 63,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 6949,
@@ -63447,7 +63447,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-01-04T15:51:00Z",
         "job_id": 64,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 7051,
@@ -66327,7 +66327,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-03-01T21:43:00Z",
         "job_id": 68,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 7371,
@@ -68235,7 +68235,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-04-05T21:57:00Z",
         "job_id": 71,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 7583,
@@ -70287,7 +70287,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-05-10T22:11:00Z",
         "job_id": 74,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 7811,
@@ -72852,7 +72852,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-02-12T13:03:00Z",
         "job_id": 78,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 8096,
@@ -74670,7 +74670,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-03-26T09:19:00Z",
         "job_id": 80,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 8298,
@@ -76290,7 +76290,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-04-09T18:55:00Z",
         "job_id": 82,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 8478,
@@ -77577,7 +77577,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-04-30T09:33:00Z",
         "job_id": 83,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 8621,
@@ -79530,7 +79530,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-01-12T09:47:00Z",
         "job_id": 86,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 8838,
@@ -81177,7 +81177,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-02T15:25:00Z",
         "job_id": 87,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9021,
@@ -81357,7 +81357,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-02-16T10:01:00Z",
         "job_id": 89,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9041,
@@ -84660,7 +84660,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-04-13T15:53:00Z",
         "job_id": 93,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9408,
@@ -85587,7 +85587,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-05-04T21:31:00Z",
         "job_id": 94,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9511,
@@ -87270,7 +87270,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-01-16T21:45:00Z",
         "job_id": 97,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9698,
@@ -88593,7 +88593,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-06T12:23:00Z",
         "job_id": 98,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 9845,
@@ -90600,7 +90600,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-03-13T12:37:00Z",
         "job_id": 101,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10068,
@@ -92346,7 +92346,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-03T18:15:00Z",
         "job_id": 102,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10262,
@@ -94335,7 +94335,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-05-08T18:29:00Z",
         "job_id": 105,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10483,
@@ -95955,7 +95955,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-01-06T09:07:00Z",
         "job_id": 106,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10663,
@@ -97170,7 +97170,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-01-20T18:43:00Z",
         "job_id": 108,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10798,
@@ -98277,7 +98277,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-10T09:21:00Z",
         "job_id": 109,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 10921,
@@ -100752,7 +100752,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-03-17T09:35:00Z",
         "job_id": 112,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 11196,
@@ -101760,7 +101760,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-07T15:13:00Z",
         "job_id": 113,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 11308,
@@ -104370,7 +104370,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-05-12T15:27:00Z",
         "job_id": 116,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 11598,
@@ -105621,7 +105621,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-01-10T21:05:00Z",
         "job_id": 117,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 11737,
@@ -107853,7 +107853,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-14T21:19:00Z",
         "job_id": 120,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 11985,
@@ -110472,7 +110472,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-11T12:11:00Z",
         "job_id": 124,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 12276,
@@ -111804,7 +111804,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-05-02T17:49:00Z",
         "job_id": 125,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 12424,
@@ -112758,7 +112758,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-05-16T12:25:00Z",
         "job_id": 127,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 12530,
@@ -115593,7 +115593,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-18T18:17:00Z",
         "job_id": 131,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 12845,
@@ -116763,7 +116763,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-03-11T08:55:00Z",
         "job_id": 132,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 12975,
@@ -119004,7 +119004,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-15T09:09:00Z",
         "job_id": 135,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 13224,
@@ -120039,7 +120039,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-05-06T14:47:00Z",
         "job_id": 136,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 13339,
@@ -122550,7 +122550,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-01-18T15:01:00Z",
         "job_id": 139,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 13618,
@@ -124890,7 +124890,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-02-22T15:15:00Z",
         "job_id": 142,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 13878,
@@ -125880,7 +125880,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-03-15T20:53:00Z",
         "job_id": 143,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 13988,
@@ -128049,7 +128049,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-19T21:07:00Z",
         "job_id": 146,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 14229,
@@ -129021,7 +129021,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-05-10T11:45:00Z",
         "job_id": 147,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 14337,
@@ -130668,7 +130668,7 @@
         "referrer": "https://linkedin.com",
         "viewed_at": "2026-01-22T11:59:00Z",
         "job_id": 150,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 14520,
@@ -134448,7 +134448,7 @@
         "referrer": "https://zalo.me",
         "viewed_at": "2026-03-19T17:51:00Z",
         "job_id": 154,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 14940,
@@ -136545,7 +136545,7 @@
         "referrer": "https://jobio.vn/jobs",
         "viewed_at": "2026-04-23T18:05:00Z",
         "job_id": 157,
-        "user_id": 2
+        "user_id": 1
     },
     {
         "id": 15173,

@@ -138,8 +138,9 @@ export function JobCard({ job, view }: JobCardProps) {
     const positionsText = getPositionsText(job.number_of_positions);
     const categoryText = job.category_name ?? "Chưa phân loại";
     const summary = getShortText(job.description, 180);
-    const requirementSummary = getShortText(job.requirements, 140);
     const benefitsSummary = getShortText(job.benefits, 120);
+    const requirementSummary = getShortText(job.requirements, benefitsSummary ? 140 : 280);
+    const hasBothDetailSummaries = Boolean(requirementSummary && benefitsSummary);
     const postedAt = job.published_at ?? job.created_at;
 
     const saveMutation = useMutation({
@@ -287,14 +288,17 @@ export function JobCard({ job, view }: JobCardProps) {
                                 </div>
 
                                 {(requirementSummary || benefitsSummary) && (
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 text-xs text-gray-500">
+                                    <div className={cn(
+                                        "grid grid-cols-1 gap-2 text-xs text-gray-500",
+                                        hasBothDetailSummaries && "lg:grid-cols-2"
+                                    )}>
                                         {requirementSummary && (
-                                            <p className="line-clamp-2">
+                                            <p className={cn(hasBothDetailSummaries ? "line-clamp-2" : "line-clamp-3")}>
                                                 <span className="font-semibold text-gray-700">Yêu cầu: </span>{requirementSummary}
                                             </p>
                                         )}
                                         {benefitsSummary && (
-                                            <p className="line-clamp-2">
+                                            <p className={cn(hasBothDetailSummaries ? "line-clamp-2" : "line-clamp-3")}>
                                                 <span className="font-semibold text-gray-700">Quyền lợi: </span>{benefitsSummary}
                                             </p>
                                         )}

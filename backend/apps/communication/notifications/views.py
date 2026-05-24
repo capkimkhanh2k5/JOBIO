@@ -60,10 +60,12 @@ class NotificationViewSet(
         GET /api/notifications/
 
         List all notifications for the current user.
-        Supports filtering by is_read and notification_type_id.
+        Supports filtering by is_read, notification_type_id, type (type_name), and search.
         """
         is_read = request.query_params.get("is_read")
         notification_type_id = request.query_params.get("notification_type_id")
+        type_name = request.query_params.get("type")
+        search = request.query_params.get("search")
 
         # Convert is_read string to boolean
         is_read_filter = None
@@ -82,6 +84,8 @@ class NotificationViewSet(
             user_id=request.user.id,
             is_read=is_read_filter,
             notification_type_id=type_filter,
+            type_name=type_name,
+            search=search,
         )
 
         # Pagination

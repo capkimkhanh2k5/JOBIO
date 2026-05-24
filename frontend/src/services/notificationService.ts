@@ -4,7 +4,7 @@ import type { PaginatedResponse, Notification, NotificationSettings } from '@/ty
 // ─── Unified Notification services (Shared by Candidate & Company) ────────────
 
 export const notificationService = {
-    listNotifications(params?: { is_read?: boolean; page?: number; page_size?: number }) {
+    listNotifications(params?: { is_read?: boolean; type?: string; search?: string; page?: number; page_size?: number }) {
         return api.get<PaginatedResponse<Notification>>('/api/notifications/', { params });
     },
 

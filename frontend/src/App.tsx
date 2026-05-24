@@ -52,8 +52,9 @@ const SuggestedJobs = lazy(() => import('@/pages/candidate/SuggestedJobs'));
 const MyApplications = lazy(() => import('@/pages/candidate/MyApplications'));
 const SavedJobs = lazy(() => import('@/pages/candidate/SavedJobs'));
 const CandidateInterviews = lazy(() => import('@/pages/candidate/Interviews'));
-const NotificationsPage = lazy(() => import('@/pages/Notifications'));
-const SearchHistory = lazy(() => import('@/pages/candidate/SearchHistory'));
+const CandidateNotifications = lazy(() => import('@/pages/candidate/CandidateNotifications'));
+const CompanyNotifications = lazy(() => import('@/pages/company/CompanyNotifications'));
+
 const UserBlogManagement = lazy(() => import('@/pages/shared/BlogManagement'));
 const CreateBlogPost = lazy(() => import('@/pages/shared/CreateBlogPost'));
 
@@ -174,9 +175,9 @@ function AppInner() {
                         <Route path="saved" element={<SavedJobs />} />
                         <Route path="interviews" element={<CandidateInterviews />} />
 
-                        <Route path="notifications" element={<NotificationsPage />} />
+                        <Route path="notifications" element={<CandidateNotifications />} />
                         <Route path="settings" element={<CandidateSettingsPage />} />
-                        <Route path="search-history" element={<SearchHistory />} />
+
                     </Route>
 
                     {/* ── Admin area ── */}
@@ -213,7 +214,7 @@ function AppInner() {
                         <Route path="interviews" element={<CompanyInterviewsPage />} />
 
                         <Route path="analytics" element={<CompanyAnalyticsPage />} />
-                        <Route path="notifications" element={<NotificationsPage />} />
+                        <Route path="notifications" element={<CompanyNotifications />} />
                         <Route path="subscription" element={<Navigate to="/pricing" replace />} />
                         <Route path="billing" element={<BillingDashboard />} />
                         <Route path="payment-result" element={<PaymentResultPage />} />

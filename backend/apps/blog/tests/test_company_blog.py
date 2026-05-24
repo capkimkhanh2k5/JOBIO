@@ -47,8 +47,8 @@ class CompanyBlogTest(TestCase):
         self.assertEqual(post.company, self.company)
         self.assertEqual(post.status, Post.Status.DRAFT)
 
-    def test_create_post_freelancer(self):
-        """Freelancer's post has no company"""
+    def test_create_post_freelancer_forbidden(self):
+        """Freelancer (non-company user) cannot create blog posts"""
         self.client.force_authenticate(user=self.freelancer)
         data = {
             "title": "My Freelance Journey",
@@ -56,12 +56,7 @@ class CompanyBlogTest(TestCase):
             "summary": "Summary",
         }
         response = self.client.post("/api/blog/posts/", data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        post = Post.objects.get(id=response.data["id"])
-        self.assertEqual(post.author, self.freelancer)
-        self.assertIsNone(post.company)
-        self.assertEqual(post.status, Post.Status.DRAFT)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_post_admin(self):
         """Admin can publish immediately"""
@@ -102,3 +97,36 @@ class CompanyBlogTest(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_response_contains_company_name(self):
+        """Verified company post should return company_name in API response"""
+        self.client.force_authenticate(user=self.owner)
+        data = {
+            "title": "Company Blog Post",
+            "content": "Content about our company.",
+            "summary": "Summary",
+        }
+        response = self.client.post("/api/blog/posts/", data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["company_name"], "Owner Co")
+
+    def test_post_list_shows_company_name(self):
+        """Published company post should show company_name in list view"""
+        self.client.force_authenticate(user=self.owner)
+        post = Post.objects.create(
+            title="Listed Post",
+            content="Content",
+            author=self.owner,
+            company=self.company,
+            status=Post.Status.PUBLISHED,
+        )
+
+        # Unauthenticated list should also see company_name
+        self.client.force_authenticate(user=None)
+        response = self.client.get("/api/blog/posts/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data.get("results", response.data)
+        found = [p for p in results if p["id"] == post.id]
+        self.assertTrue(len(found) > 0)
+        self.assertEqual(found[0]["company_name"], "Owner Co")

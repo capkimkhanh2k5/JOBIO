@@ -93,7 +93,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.1, 0.9, 0.2, 1] }}
             id="header"
-            className="bg-white border border-slate-200 shadow-sm p-8 rounded-[32px] relative overflow-hidden"
+            className="bg-white border border-slate-200 shadow-sm p-8 rounded-[32px] relative overflow-hidden scroll-mt-32"
         >
             {/* Decorative Gradient */}
             <div className="absolute inset-0 pointer-events-none">

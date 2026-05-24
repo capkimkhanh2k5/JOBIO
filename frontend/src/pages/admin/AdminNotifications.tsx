@@ -86,9 +86,7 @@ export default function AdminNotificationsPage() {
     const notifications = data?.results ?? [];
     const totalCount = data?.count ?? 0;
     const totalPages = Math.max(1, data?.total_pages ?? Math.ceil(totalCount / PAGE_SIZE));
-    const unreadCount = activeTab === 'all'
-        ? (stats?.total_unread ?? 0)
-        : totalCount;
+    const unreadCount = stats?.total_unread ?? 0;
 
     // ── Mutations ─────────────────────────────────────────────────────────────
     const markReadMut = useMutation({

@@ -158,6 +158,7 @@ CLOUDINARY_API_SECRET=
 VNP_TMN_CODE=
 VNP_HASH_SECRET=
 VNP_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+VNP_QUERY_URL=https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
 VNP_RETURN_URL=http://localhost:3000/billing/payment-return
 
 # WebAuthn / Passkey

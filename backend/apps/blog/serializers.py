@@ -28,6 +28,8 @@ class PostSerializer(serializers.ModelSerializer):
     author = serializers.IntegerField(source="author_id", read_only=True)
     author_name = serializers.SerializerMethodField()
     author_avatar = serializers.SerializerMethodField()
+    company_name = serializers.SerializerMethodField()
+    company_logo = serializers.SerializerMethodField()
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
@@ -54,6 +56,8 @@ class PostSerializer(serializers.ModelSerializer):
             "author",
             "author_name",
             "author_avatar",
+            "company_name",
+            "company_logo",
             "category",
             "category_id",
             "tags",
@@ -79,6 +83,9 @@ class PostSerializer(serializers.ModelSerializer):
         ]
 
     def get_author_name(self, obj):
+        if obj.company:
+            return obj.company.company_name
+
         if not obj.author:
             return ""
 
@@ -89,7 +96,20 @@ class PostSerializer(serializers.ModelSerializer):
         )
 
     def get_author_avatar(self, obj):
+        if obj.company:
+            return getattr(obj.company, "logo_url", None)
+
         if not obj.author:
             return None
 
         return getattr(obj.author, "avatar_url", None)
+
+    def get_company_name(self, obj):
+        if obj.company:
+            return obj.company.company_name
+        return None
+
+    def get_company_logo(self, obj):
+        if obj.company:
+            return getattr(obj.company, "logo_url", None)
+        return None
