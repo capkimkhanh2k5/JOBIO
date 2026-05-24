@@ -63,3 +63,10 @@ __logs__/
 **.log
 
 Secret/
+
+# ========================
+# Test Fixtures (personal data)
+# ========================
+**/tests/fixtures/*.pdf
+**/tests/fixtures/*.doc
+**/tests/fixtures/*.docx

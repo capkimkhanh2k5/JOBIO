@@ -87,6 +87,15 @@ jobs:
             exit 1
           fi
 
+          case "${{ vars.VITE_API_BASE_URL }}" in
+            https://*)
+              ;;
+            *)
+              echo "::error::VITE_API_BASE_URL must use HTTPS in production"
+              exit 1
+              ;;
+          esac
+
           if [ -z "${{ vars.VITE_GOOGLE_CLIENT_ID }}" ]; then
             echo "::error::VITE_GOOGLE_CLIENT_ID must be set in repository variables (Settings → Variables)"
             exit 1
@@ -149,8 +158,8 @@ jobs:
           ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" 'mkdir -p ~/jobio/backend'
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new docker-compose.prod.yml "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/docker-compose.yml"
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new Caddyfile "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/Caddyfile"
-          printf '%s\n' "$ROOT_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/.env"
-          printf '%s\n' "$BACKEND_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env"
+          printf '%s\n' "$ROOT_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/.env.production"
+          printf '%s\n' "$BACKEND_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env.production"
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -164,9 +173,9 @@ jobs:
 
             cd ~/jobio
 
-            if [ -f .env ]; then
+            if [ -f .env.production ]; then
               set -a
-              . ./.env
+              . ./.env.production
               set +a
             fi
 
@@ -220,8 +229,8 @@ jobs:
 
             trap rollback ERR
 
-            : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env}"
-            : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env}"
+            : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env.production}"
+            : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env.production}"
 
             docker compose pull
             docker compose up -d postgres redis

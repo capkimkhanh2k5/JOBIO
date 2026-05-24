@@ -33,3 +33,7 @@ google-genai>=1.0.0
 
 # Redis Cache
 django-redis>=5.4.0
+
+# CV Parsing — LLM-powered extraction
+PyMuPDF>=1.24.0
+groq>=0.9.0

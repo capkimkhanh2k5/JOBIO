@@ -30,6 +30,9 @@ class RecruiterCV(models.Model):
     is_public = models.BooleanField(default=True, verbose_name="CV công khai")
     view_count = models.IntegerField(default=0, verbose_name="Lượt xem")
     download_count = models.IntegerField(default=0, verbose_name="Lượt tải")
+    parsed_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Thời điểm xử lý"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
 
@@ -40,3 +43,8 @@ class RecruiterCV(models.Model):
 
     def __str__(self):
         return f"{self.cv_name} - {self.recruiter.user.full_name}"
+
+    @property
+    def is_parsed(self) -> bool:
+        """CV đã được parse thành công (có cv_data)."""
+        return bool(self.cv_data)

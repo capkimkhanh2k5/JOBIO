@@ -1,8 +1,11 @@
+import axios from 'axios';
 import api from './api';
 import type {
   PaginatedResponse,
   CandidateCV,
+  CloudinaryRawUploadResponse,
   CVCreateRequest,
+  CVDirectUploadSignature,
   CVUpdateRequest,
   CVTemplate,
   CVTemplateCategory,
@@ -43,16 +46,59 @@ export const cvService = {
     });
   },
 
-  /** Upload a PDF file directly as a CV_Upload (backend: upload endpoint) */
-  uploadPdfFile(candidateId: number, file: File, cvName?: string) {
+  createDirectUploadSignature(candidateId: number, cvName?: string) {
+    return api.post<CVDirectUploadSignature>(
+      `/api/candidates/${candidateId}/cvs/upload/signature/`,
+      { cv_name: cvName }
+    );
+  },
+
+  completeDirectUpload(
+    candidateId: number,
+    upload: CloudinaryRawUploadResponse,
+    cvName?: string
+  ) {
+    return api.post<CandidateCV>(
+      `/api/candidates/${candidateId}/cvs/upload/complete/`,
+      {
+        cv_name: cvName,
+        secure_url: upload.secure_url,
+        public_id: upload.public_id,
+        resource_type: upload.resource_type,
+        bytes: upload.bytes,
+        format: upload.format,
+      }
+    );
+  },
+
+  /** Signed direct upload to Cloudinary, then backend validation/finalization. */
+  async uploadPdfFile(candidateId: number, file: File, cvName?: string) {
+    const { data: signature } = await this.createDirectUploadSignature(candidateId, cvName);
+
+    if (file.size > signature.max_bytes) {
+      throw new Error(`PDF exceeds ${signature.max_bytes} bytes`);
+    }
+
     const formData = new FormData();
     formData.append('file', file);
-    if (cvName) formData.append('cv_name', cvName);
-    return api.post<CandidateCV>(
-      `/api/candidates/${candidateId}/cvs/upload/`,
+    formData.append('api_key', signature.api_key);
+    formData.append('timestamp', String(signature.timestamp));
+    formData.append('signature', signature.signature);
+    formData.append('folder', signature.folder);
+    formData.append('public_id', signature.public_id);
+    formData.append('overwrite', signature.overwrite);
+    formData.append('allowed_formats', signature.allowed_formats);
+
+    const upload = await axios.post<CloudinaryRawUploadResponse>(
+      signature.upload_url,
       formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60_000,
+      }
     );
+
+    return this.completeDirectUpload(candidateId, upload.data, cvName ?? signature.cv_name);
   },
 
   /** Save a CV_Template as PDF (force regenerate) */
