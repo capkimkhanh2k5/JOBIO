@@ -370,7 +370,7 @@ export default function BlogManagement() {
                                                             <span className="font-bold text-slate-900 text-sm truncate">{post.title}</span>
                                                             {post.is_featured && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />}
                                                         </div>
-                                                        <span className="text-[10px] text-slate-400 font-medium truncate">Tác giả: {post.author_name}</span>
+                                                        <span className="text-[10px] text-slate-400 font-medium truncate">{post.company_name ? `Công ty: ${post.company_name}` : `Tác giả: ${post.author_name}`}</span>
                                                     </div>
                                                 </div>
                                             </td>

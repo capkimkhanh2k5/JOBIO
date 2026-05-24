@@ -4,6 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.candidate.recruiters.models import Recruiter
+from apps.candidate.recruiter_cvs.models import RecruiterCV
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
 from apps.recruitment.application_status_history.services.application_status_history import (
@@ -37,6 +38,14 @@ class ApplicationUpdateInput(BaseModel):
     cover_letter: Optional[str] = None
 
 
+def _ensure_recruiter_owns_cv(recruiter: Recruiter, cv_id: int | None) -> None:
+    if cv_id is None:
+        return
+
+    if not RecruiterCV.objects.filter(id=cv_id, recruiter=recruiter).exists():
+        raise ValueError("CV not found!")
+
+
 @transaction.atomic
 def create_application(
     recruiter: Recruiter, data: ApplicationCreateInput
@@ -55,6 +64,8 @@ def create_application(
     # Kiểm tra job status
     if job.status != "published":
         raise ValueError("This job is no longer recruiting!")
+
+    _ensure_recruiter_owns_cv(recruiter, data.cv_id)
 
     application = Application.objects.create(
         recruiter=recruiter,
@@ -88,6 +99,7 @@ def update_application(
         raise ValueError("You cannot update this application!")
 
     if data.cv_id is not None:
+        _ensure_recruiter_owns_cv(application.recruiter, data.cv_id)
         application.cv_id = data.cv_id
 
     if data.cover_letter is not None:

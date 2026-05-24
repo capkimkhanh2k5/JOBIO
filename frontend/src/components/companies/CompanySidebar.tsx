@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { companyService } from '@/services/companyService';
 import { useUserStore } from '@/store/userStore';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface CompanySidebarProps {
     company: {
@@ -56,6 +57,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
         'Lĩnh vực chưa cập nhật';
     const addressLabel = company.headquarters || formatAddress(company.address);
     const description = cleanDescription(company.description);
+    const companyHref = `/companies/${company.id}`;
 
     useEffect(() => {
         if (isAuthenticated && !isAdminViewer) {
@@ -99,19 +101,21 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
             >
                 <div className="flex items-center gap-5 mb-7">
                     <div className="h-20 w-20 rounded-2xl bg-slate-50 p-2 border border-slate-200 flex items-center justify-center shrink-0">
-                        {company.logo_url ? (
-                            <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
-                        ) : (
-                            <Building className="w-9 h-9 text-slate-300" />
-                        )}
+                        <Link to={companyHref} className="w-full h-full flex items-center justify-center" aria-label={`Xem công ty ${company.company_name}`}>
+                            {company.logo_url ? (
+                                <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
+                            ) : (
+                                <Building className="w-9 h-9 text-slate-300" />
+                            )}
+                        </Link>
                     </div>
                     <div className="min-w-0">
-                        <h4 className="font-black text-lg text-slate-900 flex items-center gap-1.5 leading-snug">
+                        <Link to={companyHref} className="font-black text-lg text-slate-900 hover:text-sky-700 flex items-center gap-1.5 leading-snug transition-colors">
                             <span className="truncate">{company.company_name}</span>
                             {company.verification_status === 'verified' && (
                                 <CheckCircle2 size={17} className="text-sky-600 fill-sky-50 shrink-0" />
                             )}
-                        </h4>
+                        </Link>
                         <p className="text-sm text-slate-500 truncate mt-1">{industryLabel}</p>
                     </div>
                 </div>

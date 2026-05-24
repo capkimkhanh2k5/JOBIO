@@ -332,7 +332,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = ApplicationCreateSerializer(data=request.data)
+        serializer = ApplicationCreateSerializer(
+            data=request.data, context={"recruiter": recruiter}
+        )
         serializer.is_valid(raise_exception=True)
 
         try:
@@ -379,7 +381,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
-        serializer = ApplicationUpdateSerializer(data=request.data)
+        serializer = ApplicationUpdateSerializer(
+            data=request.data, context={"recruiter": application.recruiter}
+        )
         serializer.is_valid(raise_exception=True)
 
         try:

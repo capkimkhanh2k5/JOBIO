@@ -7,7 +7,6 @@ const SORT_OPTIONS = [
     { value: "-created_at", label: "Mới nhất" },
     { value: "-salary_max", label: "Lương: Cao đến thấp" },
     { value: "-applications_count", label: "Nhiều ứng tuyển nhất" },
-    { value: "-is_featured", label: "Featured trước" },
 ];
 
 interface JobSortProps {

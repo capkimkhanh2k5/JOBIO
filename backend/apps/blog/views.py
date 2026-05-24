@@ -94,14 +94,10 @@ class PostViewSet(viewsets.ModelViewSet):
         # Get status from serializer or default to DRAFT
         status_val = serializer.validated_data.get("status", Post.Status.DRAFT)
 
-        # Determine Company
+        # Chỉ company đã xác thực mới có company profile gán vào post
         company_profile = getattr(user, "company_profile", None)
         if company_profile:
             company = company_profile
-        else:
-            recruiter_profile = getattr(user, "recruiter_profile", None)
-            if recruiter_profile:
-                company = recruiter_profile.current_company
 
         # If Admin, they can force status or it defaults to PUBLISHED if not specified
         if _is_admin_user(user) and "status" not in serializer.validated_data:
@@ -254,7 +250,15 @@ class PostViewSet(viewsets.ModelViewSet):
     def upload_thumbnail(self, request, slug=None):
         """POST /api/blog/posts/:slug/upload-thumbnail/ - Upload thumbnail lên Cloudinary"""
         post = self.get_object()
-        if request.user != post.author and not _is_admin_user(request.user):
+
+        # Cho phép: admin, tác giả gốc, hoặc user thuộc cùng company
+        is_owner = request.user == post.author
+        is_company_member = (
+            post.company
+            and hasattr(request.user, "company_profile")
+            and request.user.company_profile == post.company
+        )
+        if not is_owner and not is_company_member and not _is_admin_user(request.user):
             return Response(
                 {"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
             )

@@ -19,6 +19,21 @@ def _as_list(value):
     return [value]
 
 
+def _with_active_featured(queryset: QuerySet[Job]) -> QuerySet[Job]:
+    today = timezone.now().date()
+    return queryset.annotate(
+        active_featured=Case(
+            When(
+                Q(featured=True)
+                & (Q(featured_until__isnull=True) | Q(featured_until__gte=today)),
+                then=Value(1),
+            ),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
+
+
 def list_jobs(filters: dict = None) -> QuerySet[Job]:
     """
     Lấy danh sách jobs với filter logic.
@@ -42,7 +57,9 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     ).prefetch_related("required_skills__skill")
 
     if not filters:
-        return queryset.order_by("-published_at", "-created_at")
+        return _with_active_featured(queryset.filter(status="published")).order_by(
+            "-active_featured", "-published_at", "-created_at"
+        )
 
     # Filter by company
     if filters.get("company_id"):
@@ -126,22 +143,56 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
                 | Q(required_skills__skill__name__icontains=search)
             ).distinct()
 
+    featured_priority = (
+        [] if filters.get("include_all_statuses") else ["-active_featured"]
+    )
+    featured_order = (
+        "-featured" if filters.get("include_all_statuses") else "-active_featured"
+    )
     ordering_map = {
-        "-created_at": ["-created_at"],
-        "created_at": ["created_at"],
-        "-posted_at": ["-published_at", "-created_at"],
-        "posted_at": ["published_at", "created_at"],
-        "deadline": ["application_deadline", "-published_at", "-created_at"],
-        "-salary_max": ["-salary_max", "-published_at", "-created_at"],
-        "salary_max": ["salary_max", "-published_at", "-created_at"],
-        "-is_featured": ["-featured", "-published_at", "-created_at"],
-        "-featured": ["-featured", "-published_at", "-created_at"],
-        "-views_count": ["-view_count", "-published_at", "-created_at"],
-        "-applications_count": ["-application_count", "-published_at", "-created_at"],
+        "-created_at": [*featured_priority, "-created_at"],
+        "created_at": [*featured_priority, "created_at"],
+        "-posted_at": [*featured_priority, "-published_at", "-created_at"],
+        "posted_at": [*featured_priority, "published_at", "created_at"],
+        "deadline": [
+            *featured_priority,
+            "application_deadline",
+            "-published_at",
+            "-created_at",
+        ],
+        "-salary_max": [
+            *featured_priority,
+            "-salary_max",
+            "-published_at",
+            "-created_at",
+        ],
+        "salary_max": [
+            *featured_priority,
+            "salary_max",
+            "-published_at",
+            "-created_at",
+        ],
+        "-is_featured": [featured_order, "-published_at", "-created_at"],
+        "-featured": [featured_order, "-published_at", "-created_at"],
+        "-views_count": [
+            *featured_priority,
+            "-view_count",
+            "-published_at",
+            "-created_at",
+        ],
+        "-applications_count": [
+            *featured_priority,
+            "-application_count",
+            "-published_at",
+            "-created_at",
+        ],
     }
     ordering = ordering_map.get(
-        filters.get("ordering"), ["-featured", "-published_at", "-created_at"]
+        filters.get("ordering"), [featured_order, "-published_at", "-created_at"]
     )
+
+    if not filters.get("include_all_statuses"):
+        queryset = _with_active_featured(queryset)
 
     return queryset.order_by(*ordering)
 
@@ -209,14 +260,15 @@ def list_featured_jobs(limit: int = 8) -> QuerySet[Job]:
         .prefetch_related("required_skills__skill")
     )
 
-    featured_queryset = base_queryset.filter(
-        featured=True,
-    ).order_by("-published_at", "-created_at")[:limit]
+    annotated_queryset = _with_active_featured(base_queryset)
+    featured_queryset = annotated_queryset.filter(active_featured=1).order_by(
+        "-published_at", "-created_at"
+    )[:limit]
 
     if featured_queryset.exists():
         return featured_queryset
 
-    return base_queryset.order_by(
+    return annotated_queryset.order_by(
         "-view_count",
         "-application_count",
         "-published_at",
@@ -985,34 +1037,36 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     candidate = _extract_candidate_data(cv, recruiter)
 
     # Step 2: Pre-filter jobs (DB level — reduce scoring candidates)
-    base_query = Job.objects.filter(status="published")
+    base_query = _with_active_featured(Job.objects.filter(status="published"))
 
     # Build OR filter: at least 1 relevance signal
     relevance_filter = Q()
+    has_relevance_signal = False
 
     if candidate["skill_ids"]:
         relevance_filter |= Q(
             required_skills__skill_id__in=list(candidate["skill_ids"])
         )
+        has_relevance_signal = True
 
     if candidate["category_ids"]:
         relevance_filter |= Q(category_id__in=list(candidate["category_ids"]))
+        has_relevance_signal = True
 
     if candidate["province_id"]:
         relevance_filter |= Q(address__province_id=candidate["province_id"]) | Q(
             locations__address__province_id=candidate["province_id"]
         )
+        has_relevance_signal = True
 
-    # Always include remote jobs
-    relevance_filter |= Q(is_remote=True)
-
-    if relevance_filter:
+    if has_relevance_signal:
+        relevance_filter |= Q(is_remote=True)
         jobs = (
             base_query.filter(relevance_filter)
             .distinct()
             .select_related("company", "category__parent", "address__province")
             .prefetch_related("required_skills__skill", "locations__address__province")
-            .order_by("-featured", "-published_at", "-created_at")[: limit * 4]
+            .order_by("-active_featured", "-published_at", "-created_at")[: limit * 4]
         )
     else:
         # No signals at all → fallback to recent jobs
@@ -1021,7 +1075,7 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
                 "company", "category__parent", "address__province"
             )
             .prefetch_related("required_skills__skill", "locations__address__province")
-            .order_by("-published_at")[: limit * 3]
+            .order_by("-active_featured", "-published_at")[: limit * 3]
         )
 
     # Step 3: Score each job
@@ -1080,6 +1134,7 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     scored.sort(
         key=lambda x: (
             -x["match_score"],
+            -getattr(x["job"], "active_featured", 0),
             -(x["job"].published_at.timestamp() if x["job"].published_at else 0),
         )
     )
@@ -1087,10 +1142,10 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     # Fallback: if no scored results → trending jobs
     if not scored:
         trending = (
-            Job.objects.filter(status="published")
+            _with_active_featured(Job.objects.filter(status="published"))
             .select_related("company", "category__parent", "address__province")
             .prefetch_related("required_skills__skill", "locations__address__province")
-            .order_by("-view_count", "-published_at")[:limit]
+            .order_by("-active_featured", "-view_count", "-published_at")[:limit]
         )
         scored = [
             {"job": j, "match_score": 0, "match_reasons": ["Việc làm phổ biến"]}

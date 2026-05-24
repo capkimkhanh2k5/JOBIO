@@ -2,7 +2,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    CalendarClock, Settings, Sparkles, Bell, History
+    CalendarClock, Settings, Sparkles, Bell
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useNotificationStore } from '@/store/notificationStore';
@@ -31,12 +31,12 @@ export function CandidateSidebar() {
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
         { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
         { label: 'Thông báo', path: '/candidate/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
-        { label: 'Lịch sử tìm kiếm', path: '/candidate/search-history', icon: <History className="w-5 h-5" /> },
+
         { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
     ];
 
-    const mainItems = navItems.slice(0, 9);
-    const bottomItems = navItems.slice(9);
+    const mainItems = navItems.slice(0, 8);
+    const bottomItems = navItems.slice(8);
 
     return (
         <aside

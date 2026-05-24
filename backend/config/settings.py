@@ -427,6 +427,9 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:4000")
 VNP_TMN_CODE = os.getenv("VNP_TMN_CODE", "")
 VNP_HASH_SECRET = os.getenv("VNP_HASH_SECRET", "")
 VNP_URL = os.getenv("VNP_URL", "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html")
+VNP_QUERY_URL = os.getenv(
+    "VNP_QUERY_URL", "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+)
 VNP_RETURN_URL = os.getenv(
     "VNP_RETURN_URL",
     "http://localhost:8000/api/billing/company-subscriptions/payment-return/",

@@ -31,6 +31,15 @@ class VNPayService:
     """
 
     @staticmethod
+    def ensure_configured(*names: str) -> None:
+        missing = [
+            name for name in names if not str(getattr(settings, name, "")).strip()
+        ]
+        if missing:
+            logger.error("VNPay configuration missing: %s", ", ".join(missing))
+            raise VNPaySecurityError("Payment gateway not properly configured")
+
+    @staticmethod
     def _normalize_vnpay_order_info(order_desc: str) -> str:
         """Normalize order info to ASCII text accepted by VNPay."""
         normalized = (
@@ -62,6 +71,10 @@ class VNPayService:
         Returns:
             str: Full redirect URL to VNPay.
         """
+
+        VNPayService.ensure_configured(
+            "VNP_TMN_CODE", "VNP_HASH_SECRET", "VNP_URL", "VNP_RETURN_URL"
+        )
 
         # 1. Prepare Base Params
         clean_desc = VNPayService._normalize_vnpay_order_info(order_desc)
@@ -108,7 +121,12 @@ class VNPayService:
         # 5. Build Final URL
         payment_url = f"{settings.VNP_URL}?{hasData}&vnp_SecureHash={vnp_SecureHash}"
 
-        logger.info("Generated VNPay payment URL for txn %s: %s", order_id, payment_url)
+        logger.info(
+            "Generated VNPay payment URL for txn %s amount=%s gateway=%s",
+            order_id,
+            amount,
+            settings.VNP_URL,
+        )
 
         return payment_url
 
@@ -229,10 +247,8 @@ class VNPayService:
                 hasData = str(key) + "=" + urllib.parse.quote_plus(str(val))
 
         # Verify
+        VNPayService.ensure_configured("VNP_HASH_SECRET")
         vnp_HashSecret = settings.VNP_HASH_SECRET
-        if not vnp_HashSecret:
-            logger.error("VNP_HASH_SECRET not configured!")
-            raise VNPaySecurityError("Payment gateway not properly configured")
 
         secureHash = hmac.new(
             vnp_HashSecret.encode("utf-8"), hasData.encode("utf-8"), hashlib.sha512
@@ -479,6 +495,10 @@ class VNPayService:
             dict: Kết quả trả về từ VNPay API.
         """
 
+        VNPayService.ensure_configured(
+            "VNP_TMN_CODE", "VNP_HASH_SECRET", "VNP_QUERY_URL"
+        )
+
         try:
             txn = Transaction.objects.get(reference_code=txn_ref)
         except Transaction.DoesNotExist:
@@ -516,12 +536,8 @@ class VNPayService:
             "vnp_SecureHash": vnp_SecureHash,
         }
 
-        # VNPay Query API URL (Sandbox)
-        # Thực tế nên lấy từ settings
-        query_url = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
-
         try:
-            response = requests.post(query_url, json=data, timeout=10)
+            response = requests.post(settings.VNP_QUERY_URL, json=data, timeout=10)
             return response.json()
         except Exception as e:
             logger.error(f"Error calling VNPay QueryDR API: {e}")

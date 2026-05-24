@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.conf import settings
 from django.shortcuts import redirect
 from django.utils import timezone
-from django.db import models
+from django.db import models, transaction
 
 from apps.billing.models import (
     SubscriptionPlan,
@@ -86,87 +86,98 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             ip = request.META.get("REMOTE_ADDR")
 
         try:
-            active_sub = SubscriptionService.get_active_subscription(company_profile.id)
-            is_same_family = active_sub and SubscriptionService.is_same_plan_family(
-                active_sub.plan, plan
-            )
-            if active_sub and not is_same_family:
-                return Response(
-                    {
-                        "error": "Bạn đang có gói hoạt động. Vui lòng gia hạn cùng gói hiện tại hoặc chờ hết hạn để đổi gói.",
-                        "code": "ACTIVE_SUBSCRIPTION_EXISTS",
-                        "current_plan": active_sub.plan.name,
-                        "current_end_date": str(active_sub.end_date),
+            with transaction.atomic():
+                locked_company = (
+                    company_profile.__class__.objects.select_for_update().get(
+                        pk=company_profile.pk
+                    )
+                )
+                active_sub = SubscriptionService.get_active_subscription(
+                    locked_company.id
+                )
+                is_same_family = active_sub and SubscriptionService.is_same_plan_family(
+                    active_sub.plan, plan
+                )
+                if active_sub and not is_same_family:
+                    return Response(
+                        {
+                            "error": "Bạn đang có gói hoạt động. Vui lòng gia hạn cùng gói hiện tại hoặc chờ hết hạn để đổi gói.",
+                            "code": "ACTIVE_SUBSCRIPTION_EXISTS",
+                            "current_plan": active_sub.plan.name,
+                            "current_end_date": str(active_sub.end_date),
+                        },
+                        status=status.HTTP_409_CONFLICT,
+                    )
+
+                # Default to VNPay, auto-create if missing (Robustness)
+                pm, created = PaymentMethod.objects.get_or_create(
+                    code="vnpay",
+                    defaults={
+                        "name": "VNPay Gateway",
+                        "is_active": True,
+                        "config": {},
                     },
-                    status=status.HTTP_409_CONFLICT,
                 )
 
-            # Default to VNPay, auto-create if missing (Robustness)
-            pm, created = PaymentMethod.objects.get_or_create(
-                code="vnpay",
-                defaults={"name": "VNPay Gateway", "is_active": True, "config": {}},
-            )
-
-            # Reuse pending transaction for same plan to avoid duplicate checkout creation.
-            pending_txn = (
-                Transaction.objects.filter(
-                    company=company_profile,
-                    status=Transaction.Status.PENDING,
-                    type=Transaction.Type.SUBSCRIPTION,
-                    metadata__plan_id=plan.id,
-                    created_at__gte=timezone.now()
-                    - timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES),
+                pending_txn = (
+                    Transaction.objects.select_for_update()
+                    .filter(
+                        company=locked_company,
+                        status=Transaction.Status.PENDING,
+                        type=Transaction.Type.SUBSCRIPTION,
+                        metadata__plan_id=plan.id,
+                        created_at__gte=timezone.now()
+                        - timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES),
+                    )
+                    .order_by("-created_at")
+                    .first()
                 )
-                .order_by("-created_at")
-                .first()
-            )
-            if pending_txn:
-                reused_payment_url = VNPayService.get_payment_url(
-                    order_id=pending_txn.reference_code,
-                    amount=pending_txn.amount,
-                    order_desc=f"Subscribe to {plan.name}",
+                if pending_txn:
+                    reused_payment_url = VNPayService.get_payment_url(
+                        order_id=pending_txn.reference_code,
+                        amount=pending_txn.amount,
+                        order_desc=f"Subscribe to {plan.name}",
+                        ip_addr=ip,
+                    )
+                    return Response(
+                        {
+                            "payment_url": reused_payment_url,
+                            "transaction_ref": pending_txn.reference_code,
+                            "reused": True,
+                        },
+                        status=status.HTTP_200_OK,
+                    )
+
+                amount = plan.price
+                txn_metadata = {
+                    "plan_id": plan.id,
+                    "plan_slug": plan.slug,
+                    "plan_name": plan.name,
+                    "payment_method_code": pm.code,
+                    "action": "renew" if is_same_family else "new",
+                    "company_id": locked_company.id,
+                }
+
+                txn, payment_url = PaymentService.process_payment(
+                    company=locked_company,
+                    amount=amount,
+                    payment_method=pm,
+                    description=f"Subscribe to {plan.name}",
                     ip_addr=ip,
+                    metadata=txn_metadata,
                 )
+
+                action = txn_metadata["action"]
+                txn.description = (
+                    f"Subscribe to {plan.name}|PLAN_ID:{plan.id}|ACTION:{action}"
+                )
+                txn.metadata = txn_metadata
+                txn.save()
+
                 return Response(
-                    {
-                        "payment_url": reused_payment_url,
-                        "transaction_ref": pending_txn.reference_code,
-                        "reused": True,
-                    },
+                    {"payment_url": payment_url, "transaction_ref": txn.reference_code},
                     status=status.HTTP_200_OK,
                 )
-
-            # Calculate Amount (Check Plan Logic)
-            amount = plan.price  # Simplification
-            txn_metadata = {
-                "plan_id": plan.id,
-                "plan_slug": plan.slug,
-                "plan_name": plan.name,
-                "payment_method_code": pm.code,
-                "action": "renew" if is_same_family else "new",
-                "company_id": company_profile.id,
-            }
-
-            txn, payment_url = PaymentService.process_payment(
-                company=company_profile,
-                amount=amount,
-                payment_method=pm,
-                description=f"Subscribe to {plan.name}",
-                ip_addr=ip,
-                metadata=txn_metadata,
-            )
-
-            action = txn_metadata["action"]
-            txn.description = (
-                f"Subscribe to {plan.name}|PLAN_ID:{plan.id}|ACTION:{action}"
-            )
-            txn.metadata = txn_metadata
-            txn.save()
-
-            return Response(
-                {"payment_url": payment_url, "transaction_ref": txn.reference_code},
-                status=status.HTTP_200_OK,
-            )
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

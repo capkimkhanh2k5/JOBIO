@@ -107,8 +107,8 @@ class TestBlogViews(APITestCase):
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_regular_user_can_create_draft_post(self):
-        """Regular users can create posts (as draft for review)"""
+    def test_regular_user_cannot_create_post(self):
+        """Regular users (non-company) cannot create posts - expect 403"""
         self.client.force_authenticate(user=self.public_user)
         url = reverse("posts-list")
         data = {
@@ -117,10 +117,7 @@ class TestBlogViews(APITestCase):
             "category_id": self.category.id,
         }
         response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # Verify it's created as draft
-        created_post = Post.objects.get(title="User Post")
-        self.assertEqual(created_post.status, Post.Status.DRAFT)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_view_count_increment(self):
         """View count increments when action is called"""

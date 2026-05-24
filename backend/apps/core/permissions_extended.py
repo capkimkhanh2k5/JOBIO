@@ -265,13 +265,13 @@ class IsAuthenticatedOrReadOnly(permissions.BasePermission):
 
 class IsVerifiedCompanyForWrite(permissions.BasePermission):
     """
-    Chỉ chặn request ghi dữ liệu của role company khi công ty chưa được verified.
+    Chỉ cho phép admin hoặc công ty đã xác thực ghi dữ liệu.
     - SAFE_METHODS: luôn cho phép
-    - Non-company users: không bị ảnh hưởng
     - Admin: luôn cho phép
+    - Non-company users: không được phép ghi
     """
 
-    message = "Công ty của bạn chưa được xác thực. Vui lòng chờ duyệt trước khi đăng nội dung."
+    message = "Chỉ công ty đã xác thực mới được đăng nội dung."
 
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
@@ -285,11 +285,17 @@ class IsVerifiedCompanyForWrite(permissions.BasePermission):
             return True
 
         if getattr(user, "role", None) != "company":
-            return True
+            return False
 
         company_profile = getattr(user, "company_profile", None)
         if not company_profile:
             self.message = "Tài khoản công ty chưa có hồ sơ công ty."
             return False
 
-        return company_profile.verification_status == "verified"
+        if company_profile.verification_status != "verified":
+            self.message = (
+                "Công ty của bạn chưa được xác thực. Vui lòng chờ duyệt trước khi đăng nội dung."
+            )
+            return False
+
+        return True

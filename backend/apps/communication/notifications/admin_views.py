@@ -115,14 +115,13 @@ def broadcast_notification(request):
 def admin_notification_stats(request):
     """
     GET /api/notifications/admin-stats/
-    Thống kê tổng quan thông báo hệ thống.
+    Thống kê thông báo của admin đang đăng nhập.
     """
     now = timezone.now()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_start = now - timedelta(days=7)
 
-    # Only count notifications targeted at admin users
-    admin_qs = Notification.objects.filter(user__role="admin")
+    admin_qs = Notification.objects.filter(user=request.user)
 
     total = admin_qs.count()
     total_read = admin_qs.filter(is_read=True).count()
@@ -155,7 +154,7 @@ def admin_notification_stats(request):
 def admin_notification_list(request):
     """
     GET /api/notifications/admin-list/?page=1&page_size=20&search=&type=&type_id=&is_read=
-    Danh sách tất cả thông báo đã gửi — phân trang.
+    Danh sách thông báo của admin đang đăng nhập — phân trang.
     """
     page = _parse_int_param(
         request.query_params.get("page", 1), default=1, min_value=1, max_value=100000
@@ -170,7 +169,7 @@ def admin_notification_list(request):
 
     qs = (
         Notification.objects.select_related("user", "notification_type")
-        .filter(user__role="admin")
+        .filter(user=request.user)
         .order_by("-created_at")
     )
 
@@ -266,7 +265,7 @@ def admin_mark_as_read(request, pk):
     Đánh dấu 1 thông báo là đã đọc.
     """
     try:
-        notification = Notification.objects.get(pk=pk, user__role="admin")
+        notification = Notification.objects.get(pk=pk, user=request.user)
     except Notification.DoesNotExist:
         return Response(
             {"detail": "Thông báo không tồn tại."}, status=status.HTTP_404_NOT_FOUND
@@ -293,10 +292,10 @@ def admin_bulk_mark_as_read(request):
 
     if ids:
         count = Notification.objects.filter(
-            id__in=ids, user__role="admin", is_read=False
+            id__in=ids, user=request.user, is_read=False
         ).update(is_read=True, read_at=timezone.now())
     else:
-        count = Notification.objects.filter(user__role="admin", is_read=False).update(
+        count = Notification.objects.filter(user=request.user, is_read=False).update(
             is_read=True, read_at=timezone.now()
         )
     return Response({"detail": f"Đã đánh dấu {count} thông báo là đã đọc."})
@@ -309,7 +308,7 @@ def admin_delete_notification(request, pk):
     DELETE /api/notifications/admin-list/:id/delete/
     Xóa 1 thông báo bất kỳ trong danh sách admin.
     """
-    deleted, _ = Notification.objects.filter(pk=pk, user__role="admin").delete()
+    deleted, _ = Notification.objects.filter(pk=pk, user=request.user).delete()
     if deleted == 0:
         return Response(
             {"detail": "Thông báo không tồn tại."}, status=status.HTTP_404_NOT_FOUND

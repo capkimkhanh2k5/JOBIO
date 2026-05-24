@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion, Variants } from 'framer-motion';
 import {
-    Briefcase, CalendarClock, Eye, Star, CheckCircle2,
-    ChevronRight, ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard
+    Briefcase, CalendarClock, Eye, CheckCircle2, ChevronRight,
+    ExternalLink, FileText, ArrowUpRight, Bookmark, LayoutDashboard, Sparkles
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatDistanceToNow, format } from 'date-fns';
@@ -64,10 +64,10 @@ export default function CandidateDashboard() {
         : undefined;
     const loadingCompleteness = loadingProfile;
 
-    // AI Recommended Jobs
+    // Featured / Highlighted Jobs
     const { data: recommendedJobs, isLoading: loadingRecommended } = useQuery({
-        queryKey: ['candidate', 'jobs', 'recommended'],
-        queryFn: () => jobService.recommendations({ page_size: 5 }).then(r => r.data),
+        queryKey: ['candidate', 'jobs', 'featured'],
+        queryFn: () => jobService.featured({ page_size: 5 }).then(r => r.data),
     });
 
     const { data: applications, isLoading: loadingApps } = useQuery({
@@ -164,7 +164,7 @@ export default function CandidateDashboard() {
 
                         {/* KPI Stats */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            {[ 
+                            {[
                                 { title: "Việc đã ứng tuyển", value: totalApplications, icon: <Briefcase className="w-5 h-5" />, gradient: "from-violet-500 to-violet-600", loading: loadingStats && !allApplications },
                                 { title: "Phỏng vấn sắp tới", value: upcomingInterviewsCount, icon: <CalendarClock className="w-5 h-5" />, gradient: "from-amber-500 to-amber-600", loading: loadingStats && loadingInterviews },
                                 { title: "Lượt xem hồ sơ", value: profileViewsCount, icon: <Eye className="w-5 h-5" />, gradient: "from-cyan-500 to-cyan-600", loading: loadingStats && !profileData },
@@ -278,10 +278,10 @@ export default function CandidateDashboard() {
                                                     <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{s.label}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                                <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(appStats.total || 1, 1)) * 100}%` }} />
+                                                    <div className={`h-full ${s.col}`} style={{ width: `${(s.value / Math.max(appStats.total || 1, 1)) * 100}%` }} />
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                     </div>
 
                                     <div className="divide-y divide-slate-100">
@@ -330,9 +330,9 @@ export default function CandidateDashboard() {
                                 <div className="flex items-center justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-2">
                                         <div className="p-1.5 rounded-md bg-gradient-to-br from-cyan-400 to-violet-500">
-                                            <Star className="w-4 h-4 text-white" />
+                                            <Sparkles className="w-4 h-4 text-white" />
                                         </div>
-                                        <h3 className="font-bold text-lg">AI Đề xuất</h3>
+                                        <h3 className="font-bold text-lg">Gợi ý việc làm</h3>
                                     </div>
                                     <Link to="/jobs" className="p-1 text-muted-foreground hover:text-cyan-400 transition-colors">
                                         <ArrowUpRight className="w-4 h-4" />
@@ -353,9 +353,15 @@ export default function CandidateDashboard() {
                                                         <h4 className="font-semibold text-sm line-clamp-1 group-hover:text-cyan-400 transition-colors">{job.title}</h4>
                                                         <p className="text-xs text-muted-foreground line-clamp-1">{job.company_name}</p>
                                                         <div className="mt-2 flex items-center justify-between">
-                                                            <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-100 text-cyan-700">
-                                                                Match {job.match_score || 95}%
-                                                            </Badge>
+                                                            {job.match_score != null && job.match_score > 0 ? (
+                                                                <Badge variant="secondary" className="text-[10px] px-1.5 bg-cyan-100 text-cyan-700">
+                                                                    Match {job.match_score}%
+                                                                </Badge>
+                                                            ) : (
+                                                                <Badge variant="secondary" className="text-[10px] px-1.5 bg-slate-100 text-slate-500">
+                                                                    Gợi ý
+                                                                </Badge>
+                                                            )}
                                                             <span className="text-xs font-medium text-emerald-600">{job.salary}</span>
                                                         </div>
                                                     </div>

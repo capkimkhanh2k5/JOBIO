@@ -195,6 +195,7 @@ PASSWORD_HASHERS = [
 VNP_TMN_CODE = "EMBIL7EU"
 VNP_HASH_SECRET = "FP2480JF752TUW5PZWV8MSHCE4FAWB2V"
 VNP_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+VNP_QUERY_URL = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
 VNP_RETURN_URL = (
     "http://localhost:8000/api/billing/company-subscriptions/payment-return/"
 )

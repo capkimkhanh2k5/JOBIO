@@ -135,8 +135,8 @@ export default function BlogDetailPage() {
         .filter((item, index, arr) => item.id !== post.id && arr.findIndex(other => other.id === item.id) === index)
         .slice(0, 2);
 
-    const authorName = post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'Tác giả JOBIO';
-    const authorAvatar = post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
+    const authorName = post.company_name || post.author_name?.trim() || (post.author === user?.id ? user?.full_name : '') || 'JOBIO VN';
+    const authorAvatar = post.company_logo || post.author_avatar || (post.author === user?.id ? user?.avatar_url : null);
     const authorInitial = authorName.charAt(0).toUpperCase();
 
     return (
@@ -251,7 +251,7 @@ export default function BlogDetailPage() {
                                 </div>
                                 <div>
                                     <p className="font-bold text-slate-900 text-base">{authorName}</p>
-                                    <p className="text-sm text-slate-500 font-medium">Tác giả</p>
+                                    <p className="text-sm text-slate-500 font-medium">Đăng bởi</p>
                                 </div>
                             </div>
 

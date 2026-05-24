@@ -3,6 +3,7 @@
 
 from typing import Optional
 from django.db.models import QuerySet
+from django.db.models import Q
 from apps.communication.notifications.models import Notification
 
 
@@ -10,6 +11,8 @@ def list_notifications(
     user_id: int,
     is_read: Optional[bool] = None,
     notification_type_id: Optional[int] = None,
+    type_name: Optional[str] = None,
+    search: Optional[str] = None,
 ) -> QuerySet:
     """
     Get list of notifications for a user with optional filters.
@@ -31,6 +34,14 @@ def list_notifications(
 
     if notification_type_id:
         queryset = queryset.filter(notification_type_id=notification_type_id)
+
+    if type_name:
+        queryset = queryset.filter(notification_type__type_name=type_name)
+
+    if search:
+        queryset = queryset.filter(
+            Q(title__icontains=search) | Q(content__icontains=search)
+        )
 
     return queryset.order_by("-created_at")
 
