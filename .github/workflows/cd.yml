@@ -246,6 +246,22 @@ jobs:
                 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select 1" >/dev/null 2>&1
             }
 
+            backend_db_password_matches_root() {
+              backend_db_password="$(
+                sed -n 's/^DB_PASSWORD=//p' backend/.env.production | tail -n 1
+              )"
+
+              if [ -z "$backend_db_password" ]; then
+                echo "::error::DB_PASSWORD is missing in ~/jobio/backend/.env.production."
+                return 1
+              fi
+
+              if [ "$backend_db_password" != "$POSTGRES_PASSWORD" ]; then
+                echo "::error::DB_PASSWORD in BACKEND_ENV_FILE must match POSTGRES_PASSWORD in ROOT_ENV_FILE."
+                return 1
+              fi
+            }
+
             reset_postgres_volume() {
               echo "Resetting postgres volume because POSTGRES_RESET_VOLUME_ON_AUTH_FAILURE=1."
               postgres_container="$(docker compose ps -q postgres)"
@@ -268,6 +284,8 @@ jobs:
             : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env.production}"
             : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env.production}"
             : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in ~/jobio/.env.production}"
+
+            backend_db_password_matches_root
 
             docker compose pull
             docker compose up -d postgres redis
