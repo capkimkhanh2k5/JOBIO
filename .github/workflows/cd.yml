@@ -227,30 +227,66 @@ jobs:
               wait_for_url "frontend" "https://jobio.id.vn/health"
             }
 
+            wait_for_postgres() {
+              for attempt in $(seq 1 30); do
+                if docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+                  return 0
+                fi
+
+                echo "Waiting for postgres (${attempt}/30)."
+                sleep 2
+              done
+
+              echo "Postgres did not become ready."
+              return 1
+            }
+
+            database_auth_ok() {
+              docker compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
+                psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select 1" >/dev/null 2>&1
+            }
+
+            reset_postgres_volume() {
+              echo "Resetting postgres volume because POSTGRES_RESET_VOLUME_ON_AUTH_FAILURE=1."
+              postgres_container="$(docker compose ps -q postgres)"
+              postgres_volume="$(docker inspect "$postgres_container" --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}')"
+              if [ -z "$postgres_volume" ]; then
+                echo "::error::Could not determine postgres data volume name."
+                exit 1
+              fi
+
+              docker compose stop backend celery-worker celery-beat postgres || true
+              docker compose rm -sf postgres
+              docker volume rm "$postgres_volume"
+              docker compose up -d postgres redis
+              wait_for_postgres
+              database_auth_ok
+            }
+
             trap rollback ERR
 
             : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env.production}"
             : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env.production}"
+            : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in ~/jobio/.env.production}"
 
             docker compose pull
             docker compose up -d postgres redis
 
-            for attempt in $(seq 1 30); do
-              if docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
-                break
-              fi
+            wait_for_postgres
 
-              if [ "$attempt" -eq 30 ]; then
-                echo "Postgres did not become ready."
+            if ! database_auth_ok; then
+              if [ "${POSTGRES_RESET_VOLUME_ON_AUTH_FAILURE:-0}" = "1" ]; then
+                reset_postgres_volume
+              else
+                echo "::error::Postgres is healthy but authentication failed. The existing postgres_data volume was initialized with a different password. Rotate the DB password manually, or set POSTGRES_RESET_VOLUME_ON_AUTH_FAILURE=1 in ROOT_ENV_FILE for a one-time destructive reset before reloading data."
                 exit 1
               fi
-
-              sleep 2
-            done
+            fi
 
             mkdir -p backups
             BACKUP_FILE="backups/pre-deploy-${IMAGE_TAG}-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
-            docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' | gzip > "$BACKUP_FILE"
+            docker compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
+              pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$BACKUP_FILE"
 
             docker compose run --rm backend python manage.py migrate --noinput
             docker compose up -d
