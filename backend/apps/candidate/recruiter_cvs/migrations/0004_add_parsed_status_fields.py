@@ -4,20 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_cvs', '0003_add_default_cv_data'),
+        ("candidate_recruiter_cvs", "0003_add_default_cv_data"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='recruitercv',
-            name='parsed_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='Thời điểm parse'),
+            model_name="recruitercv",
+            name="parsed_at",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="Thời điểm parse"
+            ),
         ),
         migrations.AddField(
-            model_name='recruitercv',
-            name='parsed_status',
-            field=models.CharField(choices=[('none', 'Không cần parse'), ('pending', 'Đang xử lý'), ('parsed', 'Đã parse'), ('failed', 'Parse thất bại')], db_index=True, default='none', max_length=20, verbose_name='Trạng thái parse CV'),
+            model_name="recruitercv",
+            name="parsed_status",
+            field=models.CharField(
+                choices=[
+                    ("none", "Không cần parse"),
+                    ("pending", "Đang xử lý"),
+                    ("parsed", "Đã parse"),
+                    ("failed", "Parse thất bại"),
+                ],
+                db_index=True,
+                default="none",
+                max_length=20,
+                verbose_name="Trạng thái parse CV",
+            ),
         ),
     ]

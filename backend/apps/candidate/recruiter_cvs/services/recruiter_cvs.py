@@ -324,7 +324,9 @@ def create_cv_direct_upload_signature(recruiter, cv_name: str = None) -> dict:
 
 
 @transaction.atomic
-def create_cv_from_direct_upload(recruiter, upload_data: dict, cv_name: str = None) -> RecruiterCV:
+def create_cv_from_direct_upload(
+    recruiter, upload_data: dict, cv_name: str = None
+) -> RecruiterCV:
     """Validate a signed direct Cloudinary upload, then create CV_Upload."""
     from apps.candidate.recruiter_cvs.tasks import _download_pdf
 
@@ -333,7 +335,9 @@ def create_cv_from_direct_upload(recruiter, upload_data: dict, cv_name: str = No
     resource_type = str(upload_data.get("resource_type") or "").strip()
     byte_count = upload_data.get("bytes")
 
-    _validate_direct_upload_metadata(recruiter, public_id, secure_url, resource_type, byte_count)
+    _validate_direct_upload_metadata(
+        recruiter, public_id, secure_url, resource_type, byte_count
+    )
     pdf_bytes = _download_pdf(secure_url)
 
     cv = RecruiterCV.objects.create(
@@ -347,7 +351,9 @@ def create_cv_from_direct_upload(recruiter, upload_data: dict, cv_name: str = No
     )
 
     transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
-    logger.debug("Validated direct CV upload: cv_id=%s, bytes=%d", cv.id, len(pdf_bytes))
+    logger.debug(
+        "Validated direct CV upload: cv_id=%s, bytes=%d", cv.id, len(pdf_bytes)
+    )
     return cv
 
 
@@ -380,7 +386,11 @@ def _validate_direct_upload_metadata(
     if resource_type and resource_type != "raw":
         raise ValueError("invalid_upload_resource_type")
 
-    full_public_id = public_id if public_id.startswith(f"{CV_DIRECT_UPLOAD_FOLDER}/") else f"{CV_DIRECT_UPLOAD_FOLDER}/{public_id}"
+    full_public_id = (
+        public_id
+        if public_id.startswith(f"{CV_DIRECT_UPLOAD_FOLDER}/")
+        else f"{CV_DIRECT_UPLOAD_FOLDER}/{public_id}"
+    )
     match = CV_DIRECT_UPLOAD_PUBLIC_ID_RE.match(full_public_id)
     if not match or int(match.group("recruiter_id")) != recruiter.id:
         raise ValueError("invalid_upload_public_id")
@@ -403,7 +413,9 @@ def _validate_direct_upload_metadata(
 
     if byte_count is not None:
         try:
-            if int(byte_count) > getattr(settings, "CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024):
+            if int(byte_count) > getattr(
+                settings, "CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024
+            ):
                 raise ValueError("pdf_too_large")
         except (TypeError, ValueError) as exc:
             if str(exc) == "pdf_too_large":
@@ -454,9 +466,7 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
 
     # Dispatch async CV parsing task via Celery
     # The task will download the PDF, extract text, parse with LLM, and update cv_data
-    transaction.on_commit(
-        lambda: _dispatch_cv_parse(cv.id)
-    )
+    transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
 
     return cv
 
@@ -465,6 +475,7 @@ def _dispatch_cv_parse(cv_id: int):
     """Dispatch CV parsing task, with graceful fallback if Celery is unavailable."""
     try:
         from apps.candidate.recruiter_cvs.tasks import parse_cv_task
+
         parse_cv_task.delay(cv_id)
     except Exception as e:
         logger.warning(

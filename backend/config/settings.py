@@ -451,12 +451,12 @@ GROQ_CV_MODERATION_MODEL = os.getenv(
     "GROQ_CV_MODERATION_MODEL", "openai/gpt-oss-safeguard-20b"
 )
 GROQ_CV_PARSER_MAX_INPUT_CHARS = env_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", 15000)
-GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int(
-    "GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 8192
-)
+GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int("GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 8192)
 CV_UPLOAD_MAX_BYTES = env_int("CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024)
 CV_PDF_MAX_PAGES = env_int("CV_PDF_MAX_PAGES", 3)
-CV_PARSE_ALLOWED_HOSTS = env_list("CV_PARSE_ALLOWED_HOSTS", default=["res.cloudinary.com"])
+CV_PARSE_ALLOWED_HOSTS = env_list(
+    "CV_PARSE_ALLOWED_HOSTS", default=["res.cloudinary.com"]
+)
 
 # ===== Celery Configuration =====
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")

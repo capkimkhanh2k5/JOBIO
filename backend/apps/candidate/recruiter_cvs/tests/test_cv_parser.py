@@ -57,7 +57,9 @@ def _mock_completion(content: str, refusal: str | None = None):
 
 
 class FakeResponse:
-    def __init__(self, content: bytes, status_error: Exception | None = None, headers=None):
+    def __init__(
+        self, content: bytes, status_error: Exception | None = None, headers=None
+    ):
         self.content = content
         self.status_error = status_error
         self.headers = headers or {"Content-Length": str(len(content))}
@@ -84,7 +86,9 @@ class ExtractTextFromPdfTest(TestCase):
         cls.pdf_bytes = _build_test_cv_bytes()
 
     def test_extract_returns_expected_synthetic_cv_text(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import extract_text_from_pdf
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            extract_text_from_pdf,
+        )
 
         text = extract_text_from_pdf(self.pdf_bytes)
 
@@ -107,7 +111,9 @@ class ExtractTextFromPdfTest(TestCase):
 
     @override_settings(GROQ_CV_PARSER_MAX_INPUT_CHARS=120)
     def test_extract_truncates_to_configured_input_limit(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import extract_text_from_pdf
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            extract_text_from_pdf,
+        )
 
         pdf_bytes = _build_test_cv_bytes(text=LONG_ENOUGH_CV_TEXT)
         text = extract_text_from_pdf(pdf_bytes)
@@ -115,7 +121,9 @@ class ExtractTextFromPdfTest(TestCase):
         self.assertLessEqual(len(text), 120)
 
     def test_extract_empty_pdf_returns_empty(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import extract_text_from_pdf
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            extract_text_from_pdf,
+        )
 
         empty_pdf = _build_test_cv_bytes(text="")
 
@@ -124,7 +132,9 @@ class ExtractTextFromPdfTest(TestCase):
 
 class NormalizeParsedDataTest(TestCase):
     def test_fills_missing_sections(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import _normalize_parsed_data
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _normalize_parsed_data,
+        )
 
         result = _normalize_parsed_data({"personal": {"full_name": "Test User"}})
 
@@ -142,7 +152,9 @@ class NormalizeParsedDataTest(TestCase):
             self.assertIn(key, result)
 
     def test_normalizes_skill_strings_and_filters_empty_values(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import _normalize_parsed_data
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _normalize_parsed_data,
+        )
 
         result = _normalize_parsed_data(
             {"skills": ["Python", {"name": "React", "proficiency_level": "bad"}, ""]}
@@ -165,7 +177,9 @@ class NormalizeParsedDataTest(TestCase):
         )
 
     def test_normalizes_dates_years_and_list_sizes(self):
-        from apps.candidate.recruiter_cvs.services.cv_parser import _normalize_parsed_data
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _normalize_parsed_data,
+        )
 
         result = _normalize_parsed_data(
             {
@@ -258,9 +272,7 @@ class ParseCvWithLlmTest(TestCase):
         from apps.candidate.recruiter_cvs.services.cv_parser import parse_cv_with_llm
 
         mock_client = MagicMock()
-        mock_client.chat.completions.create.return_value = _mock_completion(
-            "not json"
-        )
+        mock_client.chat.completions.create.return_value = _mock_completion("not json")
         MockGroq.return_value = mock_client
 
         self.assertEqual(parse_cv_with_llm(LONG_ENOUGH_CV_TEXT), {})
@@ -420,7 +432,9 @@ class DownloadPdfTest(TestCase):
 
         with patch(
             "requests.get",
-            return_value=FakeResponse(b"%PDF-fake", headers={"Content-Length": "2000000"}),
+            return_value=FakeResponse(
+                b"%PDF-fake", headers={"Content-Length": "2000000"}
+            ),
         ):
             with self.assertRaisesMessage(ValueError, "pdf_too_large"):
                 _download_pdf("https://res.cloudinary.com/demo/raw/upload/cv.pdf")
@@ -448,7 +462,9 @@ class SilentParseTaskTest(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
     @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
-    def test_parse_task_saves_cv_data_and_timestamp_only(self, mock_download, mock_process):
+    def test_parse_task_saves_cv_data_and_timestamp_only(
+        self, mock_download, mock_process
+    ):
         from apps.candidate.recruiter_cvs.tasks import parse_cv_task
 
         pdf_bytes = _build_test_cv_bytes()
@@ -470,7 +486,9 @@ class SilentParseTaskTest(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
     @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
-    def test_parse_task_blocked_cv_stays_silent_and_empty(self, mock_download, mock_process):
+    def test_parse_task_blocked_cv_stays_silent_and_empty(
+        self, mock_download, mock_process
+    ):
         from apps.candidate.recruiter_cvs.services.cv_parser import CVModerationBlocked
         from apps.candidate.recruiter_cvs.tasks import parse_cv_task
 
@@ -556,7 +574,9 @@ class UploadCvPdfServiceTest(TestCase):
         self.assertEqual(signature["api_key"], "api-key")
         self.assertEqual(signature["folder"], "Jobio/CVs")
         self.assertEqual(signature["resource_type"], "raw")
-        self.assertTrue(signature["public_id"].startswith(f"cv_upload_{self.recruiter.id}_"))
+        self.assertTrue(
+            signature["public_id"].startswith(f"cv_upload_{self.recruiter.id}_")
+        )
         self.assertEqual(signature["max_pages"], 3)
         self.assertEqual(signature["max_bytes"], 10 * 1024 * 1024)
         self.assertNotIn("api-secret", json.dumps(signature))
@@ -582,10 +602,7 @@ class UploadCvPdfServiceTest(TestCase):
         )
 
         public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'a' * 32}"
-        secure_url = (
-            "https://res.cloudinary.com/demo/raw/upload/v123/"
-            f"{public_id}.pdf"
-        )
+        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
         mock_download.return_value = _build_test_cv_bytes()
 
         with self.captureOnCommitCallbacks(execute=True):

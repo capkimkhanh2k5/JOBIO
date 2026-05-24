@@ -5,14 +5,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_cvs', '0004_add_parsed_status_fields'),
+        ("candidate_recruiter_cvs", "0004_add_parsed_status_fields"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='recruitercv',
-            name='parsed_status',
+            model_name="recruitercv",
+            name="parsed_status",
         ),
     ]

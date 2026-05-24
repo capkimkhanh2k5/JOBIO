@@ -168,7 +168,9 @@ def _setting_bool(name: str, default: bool) -> bool:
 
 
 def _max_text_chars() -> int:
-    return _setting_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", MAX_TEXT_CHARS) or MAX_TEXT_CHARS
+    return (
+        _setting_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", MAX_TEXT_CHARS) or MAX_TEXT_CHARS
+    )
 
 
 def _max_pdf_pages() -> int:
@@ -297,7 +299,9 @@ class SkillData(CVSchemaModel):
     @field_validator("proficiency_level", mode="before")
     @classmethod
     def clean_skill_level(cls, value: Any) -> str:
-        return _clean_level(value, {"basic", "intermediate", "advanced", "expert"}, "intermediate")
+        return _clean_level(
+            value, {"basic", "intermediate", "advanced", "expert"}, "intermediate"
+        )
 
     @field_validator("years_of_experience", mode="before")
     @classmethod
@@ -438,7 +442,9 @@ class LanguageData(CVSchemaModel):
     @field_validator("proficiency_level", mode="before")
     @classmethod
     def clean_language_level(cls, value: Any) -> str:
-        return _clean_level(value, {"basic", "intermediate", "advanced", "native"}, "intermediate")
+        return _clean_level(
+            value, {"basic", "intermediate", "advanced", "native"}, "intermediate"
+        )
 
 
 class ParsedCVData(CVSchemaModel):
@@ -468,7 +474,14 @@ class ParsedCVData(CVSchemaModel):
                 cleaned.append(item)
         return cleaned
 
-    @field_validator("education", "experience", "certifications", "projects", "languages", mode="before")
+    @field_validator(
+        "education",
+        "experience",
+        "certifications",
+        "projects",
+        "languages",
+        mode="before",
+    )
     @classmethod
     def clean_list_section(cls, value: Any) -> list:
         return [item for item in _as_list(value, 50) if isinstance(item, dict)]
@@ -477,6 +490,7 @@ class ParsedCVData(CVSchemaModel):
 # ---------------------------------------------------------------------------
 # PDF Text Extraction (with OCR fallback)
 # ---------------------------------------------------------------------------
+
 
 def validate_pdf_bytes(file_bytes: bytes) -> int:
     """
@@ -621,6 +635,7 @@ def _ocr_page(page: fitz.Page, page_num: int) -> Optional[str]:
 # LLM Parsing via Groq
 # ---------------------------------------------------------------------------
 
+
 def parse_cv_with_llm(raw_text: str, user_identifier: Optional[str] = None) -> dict:
     """
     Send raw CV text to Groq LLM and receive structured JSON.
@@ -639,7 +654,9 @@ def parse_cv_with_llm(raw_text: str, user_identifier: Optional[str] = None) -> d
         return {}
 
     primary_model = getattr(settings, "GROQ_CV_PARSER_MODEL", "openai/gpt-oss-120b")
-    fallback_model = getattr(settings, "GROQ_CV_PARSER_FALLBACK_MODEL", "llama-3.3-70b-versatile")
+    fallback_model = getattr(
+        settings, "GROQ_CV_PARSER_FALLBACK_MODEL", "llama-3.3-70b-versatile"
+    )
     user = _safe_user_identifier(user_identifier)
     client = Groq(api_key=groq_api_key)
 
@@ -659,7 +676,7 @@ def parse_cv_with_llm(raw_text: str, user_identifier: Optional[str] = None) -> d
 
 def _sanitize_cv_text(raw_text: str) -> str:
     sanitized_text = CONTROL_CHARS_RE.sub("", raw_text or "").strip()
-    return sanitized_text[:_max_text_chars()]
+    return sanitized_text[: _max_text_chars()]
 
 
 def _safe_user_identifier(user_identifier: Optional[str]) -> str:
@@ -716,7 +733,9 @@ def _moderate_cv_text(client: Groq, raw_text: str, user_identifier: str) -> None
         return
 
     if moderation_result.get("blocked") is True:
-        reason = _clean_text(moderation_result.get("reason"), 80) or "blocked_by_moderation"
+        reason = (
+            _clean_text(moderation_result.get("reason"), 80) or "blocked_by_moderation"
+        )
         logger.warning("CV text blocked by Groq safeguard: %s", reason)
         raise CVModerationBlocked(reason)
 
@@ -731,7 +750,9 @@ def _build_cv_prompt(raw_text: str) -> str:
     )
 
 
-def _call_groq(client: Groq, model: str, raw_text: str, user_identifier: str) -> Optional[dict]:
+def _call_groq(
+    client: Groq, model: str, raw_text: str, user_identifier: str
+) -> Optional[dict]:
     """
     Make a single Groq API call for CV parsing.
     Returns parsed dict or None on failure.
@@ -834,10 +855,14 @@ def _normalize_parsed_data(data: dict) -> dict:
 
     parsed["skills"] = [skill for skill in parsed["skills"] if skill.get("name")]
     parsed["education"] = [
-        item for item in parsed["education"] if item.get("school_name") or item.get("degree")
+        item
+        for item in parsed["education"]
+        if item.get("school_name") or item.get("degree")
     ]
     parsed["experience"] = [
-        item for item in parsed["experience"] if item.get("company_name") or item.get("job_title")
+        item
+        for item in parsed["experience"]
+        if item.get("company_name") or item.get("job_title")
     ]
     parsed["certifications"] = [
         item for item in parsed["certifications"] if item.get("name")
@@ -851,6 +876,7 @@ def _normalize_parsed_data(data: dict) -> dict:
 # ---------------------------------------------------------------------------
 # Main Pipeline
 # ---------------------------------------------------------------------------
+
 
 def process_cv_pdf(file_bytes: bytes, user_identifier: Optional[str] = None) -> dict:
     """

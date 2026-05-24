@@ -24,10 +24,10 @@ logger = logging.getLogger(__name__)
     bind=True,
     name="apps.candidate.recruiter_cvs.tasks.parse_cv_task",
     max_retries=3,
-    default_retry_delay=15,   # 15 seconds between retries
-    soft_time_limit=60,       # 60 seconds soft limit
-    time_limit=90,            # 90 seconds hard limit
-    acks_late=True,           # Re-queue if worker crashes mid-task
+    default_retry_delay=15,  # 15 seconds between retries
+    soft_time_limit=60,  # 60 seconds soft limit
+    time_limit=90,  # 90 seconds hard limit
+    acks_late=True,  # Re-queue if worker crashes mid-task
 )
 def parse_cv_task(self, cv_id: int):
     """
@@ -140,7 +140,9 @@ def _download_pdf(cv_url: str) -> bytes:
     host = (parsed.hostname or "").lower()
     allowed_hosts = [
         host_name.lower()
-        for host_name in getattr(settings, "CV_PARSE_ALLOWED_HOSTS", ["res.cloudinary.com"])
+        for host_name in getattr(
+            settings, "CV_PARSE_ALLOWED_HOSTS", ["res.cloudinary.com"]
+        )
     ]
     if parsed.scheme != "https" or not _is_allowed_download_host(host, allowed_hosts):
         raise ValueError("cv_url_host_not_allowed")
@@ -171,7 +173,9 @@ def _download_pdf(cv_url: str) -> bytes:
 
 
 def _is_allowed_download_host(host: str, allowed_hosts: list[str]) -> bool:
-    return any(host == allowed or host.endswith(f".{allowed}") for allowed in allowed_hosts)
+    return any(
+        host == allowed or host.endswith(f".{allowed}") for allowed in allowed_hosts
+    )
 
 
 def _parse_error_code(exc: Exception) -> str:

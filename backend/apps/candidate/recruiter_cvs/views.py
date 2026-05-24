@@ -247,7 +247,9 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         max_pdf_size = getattr(settings, "CV_UPLOAD_MAX_BYTES", DEFAULT_MAX_PDF_SIZE)
         if file.size > max_pdf_size:
             return Response(
-                {"detail": f"Kích thước file không được vượt quá {max_pdf_size // (1024 * 1024)}MB."},
+                {
+                    "detail": f"Kích thước file không được vượt quá {max_pdf_size // (1024 * 1024)}MB."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -284,7 +286,9 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         try:
             return Response(create_cv_direct_upload_signature(recruiter, cv_name))
         except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return Response(
+                {"detail": str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
     def upload_complete(self, request, *args, **kwargs):
         """

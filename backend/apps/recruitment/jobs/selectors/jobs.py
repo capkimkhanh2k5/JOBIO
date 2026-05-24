@@ -354,16 +354,26 @@ WEIGHT_JOB_TYPE = 0.05
 
 # ── Experience Level Mapping ─────────────────────────────────────────────────
 LEVEL_ORDER = {
-    "intern": 0, "fresher": 1, "junior": 2,
-    "middle": 3, "senior": 4, "lead": 5,
-    "manager": 6, "director": 7,
+    "intern": 0,
+    "fresher": 1,
+    "junior": 2,
+    "middle": 3,
+    "senior": 4,
+    "lead": 5,
+    "manager": 6,
+    "director": 7,
 }
 
 # Years of experience → estimated level
 _YEARS_THRESHOLDS = [
-    (0, "intern"), (1, "fresher"), (2, "junior"),
-    (4, "middle"), (6, "senior"), (9, "lead"),
-    (12, "manager"), (15, "director"),
+    (0, "intern"),
+    (1, "fresher"),
+    (2, "junior"),
+    (4, "middle"),
+    (6, "senior"),
+    (9, "lead"),
+    (12, "manager"),
+    (15, "director"),
 ]
 
 # Job type compatibility matrix
@@ -398,6 +408,7 @@ _SKILL_ALIASES = {
 
 # ── Helper: Normalize cv_data ────────────────────────────────────────────────
 
+
 def _normalize_cv_data(cv_data) -> dict:
     if isinstance(cv_data, dict):
         return cv_data
@@ -416,6 +427,7 @@ def _normalize_cv_data(cv_data) -> dict:
 
 # ── Helper: Years → Level ────────────────────────────────────────────────────
 
+
 def _years_to_level(years: int) -> str:
     """Convert years of experience to estimated career level."""
     if years is None:
@@ -430,6 +442,7 @@ def _years_to_level(years: int) -> str:
 
 
 # ── Helper: Resolve CV skill names → Skill IDs ──────────────────────────────
+
 
 def _normalize_skill_key(value: str) -> str:
     text = str(value or "").strip().lower()
@@ -480,8 +493,7 @@ def _resolve_cv_skill_ids(cv_data: dict) -> set:
     for skill in raw_skills:
         if isinstance(skill, dict):
             name = (
-                skill.get("name") or skill.get("skill_name")
-                or skill.get("title") or ""
+                skill.get("name") or skill.get("skill_name") or skill.get("title") or ""
             )
         else:
             name = str(skill or "")
@@ -536,6 +548,7 @@ def _recruiter_skill_ids(recruiter) -> set:
 
 # ── Helper: Extract candidate data (unified for CV_Template + CV_Upload) ─────
 
+
 def _extract_candidate_data(cv, recruiter, exclude_job_id: int = None) -> dict:
     """
     Extract all candidate data needed for scoring.
@@ -566,12 +579,13 @@ def _extract_candidate_data(cv, recruiter, exclude_job_id: int = None) -> dict:
             pass
 
     # ── Category IDs from past applications ──
-    applied_categories_query = (
-        Application.objects.filter(recruiter=recruiter)
-        .exclude(job__category_id__isnull=True)
+    applied_categories_query = Application.objects.filter(recruiter=recruiter).exclude(
+        job__category_id__isnull=True
     )
     if exclude_job_id:
-        applied_categories_query = applied_categories_query.exclude(job_id=exclude_job_id)
+        applied_categories_query = applied_categories_query.exclude(
+            job_id=exclude_job_id
+        )
 
     applied_categories = applied_categories_query.values_list(
         "job__category_id",
@@ -613,6 +627,7 @@ def _extract_candidate_data(cv, recruiter, exclude_job_id: int = None) -> dict:
 
 # ── Scoring Function 1: Skill Match (35%) ────────────────────────────────────
 
+
 def _skill_match_score(candidate_skill_ids: set, job) -> float:
     """
     ID-based skill matching: compare candidate Skill IDs with job required Skill IDs.
@@ -643,12 +658,8 @@ def _skill_match_score(candidate_skill_ids: set, job) -> float:
     required_matched = len(candidate_skill_ids & required_ids)
     optional_matched = len(candidate_skill_ids & optional_ids)
 
-    required_score = (
-        required_matched / len(required_ids) if required_ids else 1.0
-    )
-    optional_score = (
-        optional_matched / len(optional_ids) if optional_ids else 0.0
-    )
+    required_score = required_matched / len(required_ids) if required_ids else 1.0
+    optional_score = optional_matched / len(optional_ids) if optional_ids else 0.0
 
     # If no required skills defined, treat all as required
     if not required_ids:
@@ -659,6 +670,7 @@ def _skill_match_score(candidate_skill_ids: set, job) -> float:
 
 
 # ── Scoring Function 2: Experience Level (20%) ──────────────────────────────
+
 
 def _experience_level_score(
     candidate_years: int,
@@ -716,6 +728,7 @@ def _experience_level_score(
 
 # ── Scoring Function 3: Category/Domain (15%) ───────────────────────────────
 
+
 def _category_score(
     candidate_category_ids: set,
     job,
@@ -755,6 +768,7 @@ def _category_score(
 
 # ── Scoring Function 4: Salary (15%) ────────────────────────────────────────
 
+
 def _salary_match_score(
     desired_min,
     desired_max,
@@ -788,6 +802,7 @@ def _salary_match_score(
 
 
 # ── Scoring Function 5: Location (10%) ──────────────────────────────────────
+
 
 def _location_score(candidate_province_id, job) -> float:
     """
@@ -838,6 +853,7 @@ def _job_location_province_ids(job) -> set:
 
 # ── Scoring Function 6: Job Type (5%) ───────────────────────────────────────
 
+
 def _job_type_score(candidate_years: int, job_type: str) -> float:
     """
     Job type compatibility based on candidate profile.
@@ -874,6 +890,7 @@ def _job_type_score(candidate_years: int, job_type: str) -> float:
 
 
 # ── Main: Calculate Match Score ──────────────────────────────────────────────
+
 
 def _score_cv_job(candidate: dict, recruiter, job) -> dict:
     skill = _skill_match_score(candidate["skill_ids"], job)
@@ -942,6 +959,7 @@ def calculate_cv_job_match_score(cv, recruiter, job) -> int:
 
 # ── Main: Job Suggestions for CV ─────────────────────────────────────────────
 
+
 def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     """
     Gợi ý việc làm cho một CV cụ thể với 6-factor weighted scoring.
@@ -957,9 +975,9 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     from apps.candidate.recruiter_cvs.models import RecruiterCV
 
     try:
-        cv = RecruiterCV.objects.select_related(
-            "recruiter__address__province"
-        ).get(id=cv_id, recruiter=recruiter)
+        cv = RecruiterCV.objects.select_related("recruiter__address__province").get(
+            id=cv_id, recruiter=recruiter
+        )
     except RecruiterCV.DoesNotExist:
         return []
 
@@ -981,9 +999,8 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
         relevance_filter |= Q(category_id__in=list(candidate["category_ids"]))
 
     if candidate["province_id"]:
-        relevance_filter |= (
-            Q(address__province_id=candidate["province_id"])
-            | Q(locations__address__province_id=candidate["province_id"])
+        relevance_filter |= Q(address__province_id=candidate["province_id"]) | Q(
+            locations__address__province_id=candidate["province_id"]
         )
 
     # Always include remote jobs
@@ -995,17 +1012,16 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
             .distinct()
             .select_related("company", "category__parent", "address__province")
             .prefetch_related("required_skills__skill", "locations__address__province")
-            .order_by("-featured", "-published_at", "-created_at")
-            [:limit * 4]
+            .order_by("-featured", "-published_at", "-created_at")[: limit * 4]
         )
     else:
         # No signals at all → fallback to recent jobs
         jobs = (
-            base_query
-            .select_related("company", "category__parent", "address__province")
+            base_query.select_related(
+                "company", "category__parent", "address__province"
+            )
             .prefetch_related("required_skills__skill", "locations__address__province")
-            .order_by("-published_at")
-            [:limit * 3]
+            .order_by("-published_at")[: limit * 3]
         )
 
     # Step 3: Score each job
@@ -1052,11 +1068,13 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
         match_score = score["score"]
 
         if match_score > 0:
-            scored.append({
-                "job": job,
-                "match_score": match_score,
-                "match_reasons": reasons if reasons else ["Việc làm gợi ý"],
-            })
+            scored.append(
+                {
+                    "job": job,
+                    "match_score": match_score,
+                    "match_reasons": reasons if reasons else ["Việc làm gợi ý"],
+                }
+            )
 
     # Step 4: Sort by score desc, then freshness
     scored.sort(
