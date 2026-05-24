@@ -158,8 +158,8 @@ jobs:
           ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" 'mkdir -p ~/jobio/backend'
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new docker-compose.prod.yml "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/docker-compose.yml"
           scp -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new Caddyfile "$GCP_VM_USERNAME@$GCP_VM_HOST:~/jobio/Caddyfile"
-          printf '%s\n' "$ROOT_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/.env.production"
-          printf '%s\n' "$BACKEND_ENV_FILE" | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env.production"
+          printf '%s\n' "$ROOT_ENV_FILE" | tr -d '\r' | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/.env.production"
+          printf '%s\n' "$BACKEND_ENV_FILE" | tr -d '\r' | ssh -i ~/.ssh/jobio_deploy_key -o StrictHostKeyChecking=accept-new "$GCP_VM_USERNAME@$GCP_VM_HOST" "umask 177 && cat > ~/jobio/backend/.env.production"
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -243,7 +243,7 @@ jobs:
 
             database_auth_ok() {
               docker compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
-                psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select 1" >/dev/null 2>&1
+                psql -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select 1" >/dev/null 2>&1
             }
 
             backend_db_password_matches_root() {
@@ -304,7 +304,7 @@ jobs:
             mkdir -p backups
             BACKUP_FILE="backups/pre-deploy-${IMAGE_TAG}-$(date -u +%Y%m%dT%H%M%SZ).sql.gz"
             docker compose exec -T -e PGPASSWORD="$POSTGRES_PASSWORD" postgres \
-              pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$BACKUP_FILE"
+              pg_dump -h 127.0.0.1 -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$BACKUP_FILE"
 
             docker compose run --rm backend python manage.py migrate --noinput
             docker compose up -d
