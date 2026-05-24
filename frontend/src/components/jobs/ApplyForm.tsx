@@ -224,7 +224,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                                             <div className="p-4 text-center">
                                                                 <p className="text-sm text-gray-500 mb-2">Bạn chưa có CV nào</p>
                                                                 <Button variant="link" className="text-indigo-600 p-0 h-auto font-bold" asChild>
-                                                                    <a href="/profile/cv">Tải CV ngay</a>
+                                                                    <Link to="/candidate/cv">Tải CV ngay</Link>
                                                                 </Button>
                                                             </div>
                                                         )}
@@ -293,4 +293,3 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
         </Dialog>
     );
 };
-

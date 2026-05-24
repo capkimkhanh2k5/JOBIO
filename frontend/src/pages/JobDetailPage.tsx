@@ -18,6 +18,8 @@ import { toast } from 'sonner';
 
 export default function JobDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const jobParam = id ?? '';
+    const isNumericJobParam = /^\d+$/.test(jobParam);
     const navigate = useNavigate();
     const user = useUserStore((state) => state.user);
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
@@ -25,36 +27,45 @@ export default function JobDetailPage() {
 
     // Fetch Job Basic Info
     const { data: job, isLoading: isLoadingJob, isError: isJobError } = useQuery({
-        queryKey: ['job', id],
-        queryFn: () => jobService.getById(Number(id)).then(r => r.data),
+        queryKey: ['job', jobParam],
+        queryFn: () => (
+            isNumericJobParam
+                ? jobService.getById(Number(jobParam))
+                : jobService.getBySlug(jobParam)
+        ).then(r => r.data),
+        enabled: !!jobParam,
     });
+
+    const jobId = job?.id;
 
     // Fetch Job Skills
     const { data: skills } = useQuery({
-        queryKey: ['job-skills', id],
-        queryFn: () => jobService.listSkills(Number(id)).then(r => r.data),
-        enabled: !!job
+        queryKey: ['job-skills', jobId],
+        queryFn: () => jobService.listSkills(Number(jobId)).then(r => r.data),
+        enabled: !!jobId
     });
 
     // Fetch Job Locations
     const { data: locations } = useQuery({
-        queryKey: ['job-locations', id],
-        queryFn: () => jobService.listLocations(Number(id)).then(r => r.data),
-        enabled: !!job
+        queryKey: ['job-locations', jobId],
+        queryFn: () => jobService.listLocations(Number(jobId)).then(r => r.data),
+        enabled: !!jobId
     });
+
+    const companyId = (job as any)?.company?.id ?? (job as any)?.company_id;
 
     // Fetch Company Info
     const { data: company } = useQuery({
-        queryKey: ['company', (job as any)?.company?.id ?? (job as any)?.company_id],
-        queryFn: () => companyService.getById(Number((job as any)?.company?.id ?? (job as any)?.company_id)).then(r => r.data),
-        enabled: !!((job as any)?.company?.id ?? (job as any)?.company_id)
+        queryKey: ['company', companyId],
+        queryFn: () => companyService.getById(Number(companyId)).then(r => r.data),
+        enabled: !!companyId
     });
 
     // Fetch Related Jobs
     const { data: relatedJobs } = useQuery({
-        queryKey: ['related-jobs', id],
-        queryFn: () => jobService.similar(Number(id)).then(r => r.data),
-        enabled: !!job
+        queryKey: ['related-jobs', jobId],
+        queryFn: () => jobService.similar(Number(jobId)).then(r => r.data),
+        enabled: !!jobId
     });
 
     if (isLoadingJob) return <JobDetailSkeleton />;

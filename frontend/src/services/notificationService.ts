@@ -8,6 +8,10 @@ export const notificationService = {
         return api.get<PaginatedResponse<Notification>>('/api/notifications/', { params });
     },
 
+    getUnreadCount() {
+        return api.get<{ unread_count: number }>('/api/notifications/count/');
+    },
+
     listAdminNotifications(params?: {
         is_read?: boolean;
         type?: string;
@@ -67,4 +71,3 @@ export const notificationService = {
         return api.delete('/api/notifications/clear-all/');
     },
 };
-

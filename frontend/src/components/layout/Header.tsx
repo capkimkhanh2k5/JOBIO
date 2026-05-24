@@ -23,6 +23,8 @@ interface NavItem {
     path: string;
     requiresAuth?: boolean;
     requiresRole?: 'company' | 'candidate' | 'admin';
+    restrictedTitle?: string;
+    restrictedDescription?: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -30,9 +32,21 @@ const NAV_ITEMS: NavItem[] = [
     { name: 'Việc Làm', path: '/jobs' },
     { name: 'Công Ty', path: '/companies' },
     { name: 'Blog', path: '/blog' },
-    { name: 'Đăng Tuyển', path: '/company/jobs/create', requiresAuth: true, requiresRole: 'company' },
+    {
+        name: 'Đăng Tuyển',
+        path: '/company/jobs/create',
+        requiresAuth: true,
+        requiresRole: 'company',
+        restrictedDescription: 'Tính năng "Đăng Tuyển" chỉ dành cho tài khoản Nhà tuyển dụng.',
+    },
     { name: 'Giá Dịch Vụ', path: '/pricing' },
-    { name: 'Tạo CV', path: '/cv-builder', requiresAuth: true },
+    {
+        name: 'Tạo CV',
+        path: '/candidate/cv',
+        requiresAuth: true,
+        requiresRole: 'candidate',
+        restrictedDescription: 'Tính năng "Tạo CV" chỉ dành cho tài khoản Người tìm việc.',
+    },
 ];
 
 export const Header = () => {
@@ -105,8 +119,8 @@ export const Header = () => {
 
         // Có yêu cầu role cụ thể
         if (item.requiresRole && user.role !== item.requiresRole) {
-            toast.warning('Chức năng này không dành cho bạn', {
-                description: 'Tính năng "Đăng Tuyển" chỉ dành cho tài khoản Nhà tuyển dụng.',
+            toast.warning(item.restrictedTitle ?? 'Chức năng này không dành cho bạn', {
+                description: item.restrictedDescription,
             });
             return;
         }

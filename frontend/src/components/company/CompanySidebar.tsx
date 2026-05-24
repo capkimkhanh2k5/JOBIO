@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, PlusSquare, Briefcase, Users,
     CalendarClock, BarChart3, Building2,
-    Settings, LifeBuoy, Search, History, BookOpen
+    Settings, LifeBuoy, Search, History, BookOpen, Bell
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
+import { useNotificationStore } from '@/store/notificationStore';
 
 interface NavItem {
     label: string;
@@ -14,26 +15,6 @@ interface NavItem {
     badge?: number;
 }
 
-const navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/company/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { label: 'Đăng tin', path: '/company/jobs/create', icon: <PlusSquare className="w-5 h-5" /> },
-    { label: 'Quản lý tin', path: '/company/jobs', icon: <Briefcase className="w-5 h-5" /> },
-    { label: 'Ứng viên', path: '/company/candidates', icon: <Users className="w-5 h-5" /> },
-    { label: 'Tìm CV', path: '/company/cv-search', icon: <Search className="w-5 h-5" /> },
-    { label: 'Phỏng vấn', path: '/company/interviews', icon: <CalendarClock className="w-5 h-5" /> },
-
-    { label: 'Báo cáo', path: '/company/analytics', icon: <BarChart3 className="w-5 h-5" /> },
-    { label: 'Hồ sơ công ty', path: '/company/profile', icon: <Building2 className="w-5 h-5" /> },
-    { label: 'Lịch sử giao dịch', path: '/company/billing', icon: <History className="w-5 h-5" /> },
-    { label: 'Cài đặt', path: '/company/settings', icon: <Settings className="w-5 h-5" /> },
-    { label: 'Hỗ trợ', path: '/company/support', icon: <LifeBuoy className="w-5 h-5" /> },
-    { label: 'Blog', path: '/company/blog', icon: <BookOpen className="w-5 h-5" /> },
-];
-
-// Split into main and bottom sections
-const mainItems = navItems.slice(0, 13);
-const bottomItems = navItems.slice(13);
-
 const itemVariants = {
     hidden: { opacity: 0, x: -12 },
     visible: (i: number) => ({ opacity: 1, x: 0, transition: { delay: i * 0.04, duration: 0.3 } }),
@@ -41,6 +22,27 @@ const itemVariants = {
 
 export function CompanySidebar() {
     const location = useLocation();
+    const unreadCount = useNotificationStore((state) => state.unreadCount);
+
+    const navItems: NavItem[] = [
+        { label: 'Dashboard', path: '/company/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { label: 'Đăng tin', path: '/company/jobs/create', icon: <PlusSquare className="w-5 h-5" /> },
+        { label: 'Quản lý tin', path: '/company/jobs', icon: <Briefcase className="w-5 h-5" /> },
+        { label: 'Ứng viên', path: '/company/candidates', icon: <Users className="w-5 h-5" /> },
+        { label: 'Tìm CV', path: '/company/cv-search', icon: <Search className="w-5 h-5" /> },
+        { label: 'Phỏng vấn', path: '/company/interviews', icon: <CalendarClock className="w-5 h-5" /> },
+        { label: 'Thông báo', path: '/company/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
+        { label: 'Báo cáo', path: '/company/analytics', icon: <BarChart3 className="w-5 h-5" /> },
+        { label: 'Hồ sơ công ty', path: '/company/profile', icon: <Building2 className="w-5 h-5" /> },
+        { label: 'Lịch sử giao dịch', path: '/company/billing', icon: <History className="w-5 h-5" /> },
+        { label: 'Cài đặt', path: '/company/settings', icon: <Settings className="w-5 h-5" /> },
+        { label: 'Hỗ trợ', path: '/company/support', icon: <LifeBuoy className="w-5 h-5" /> },
+        { label: 'Blog', path: '/company/blog', icon: <BookOpen className="w-5 h-5" /> },
+    ];
+
+    // Split into main and bottom sections
+    const mainItems = navItems.slice(0, 13);
+    const bottomItems = navItems.slice(13);
 
     const checkIsActive = (path: string) => {
         if (path === '/company/dashboard') return location.pathname === path;
@@ -97,9 +99,9 @@ export function CompanySidebar() {
                                     {item.icon}
                                 </span>
                                 <span className="flex-1">{item.label}</span>
-                                {item.badge && (
-                                    <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-100 text-violet-700 rounded-full flex items-center justify-center px-1.5">
-                                        {item.badge}
+                                {item.badge !== undefined && item.badge > 0 && (
+                                    <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
+                                        {item.badge > 99 ? '99+' : item.badge}
                                     </span>
                                 )}
                             </Link>
@@ -160,4 +162,3 @@ export function CompanySidebar() {
         </aside>
     );
 }
-

@@ -51,7 +51,7 @@ export default function AdminNotificationsPage() {
     const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { markAllAsRead: markAllStore, fetchUnreadCount } = useNotificationStore();
+    const { fetchUnreadCount } = useNotificationStore();
 
     useEffect(() => {
         const handler = window.setTimeout(() => {
@@ -105,9 +105,9 @@ export default function AdminNotificationsPage() {
             return notificationService.bulkMarkAdminNotificationsRead([]);
         },
         onSuccess: () => {
-            markAllStore();
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
             queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
+            fetchUnreadCount();
             toast.success('Hộp thư đã được cập nhật');
         },
     });
@@ -117,6 +117,7 @@ export default function AdminNotificationsPage() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-notifications'] });
             queryClient.invalidateQueries({ queryKey: ['admin-notification-stats'] });
+            fetchUnreadCount();
             toast.success('Đã xóa thông báo');
         },
     });

@@ -54,13 +54,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => {
 
         fetchUnreadCount: async () => {
             try {
-                // Use count endpoint (lighter) if available, fallback to list
-                const data = await notificationService
-                    .listNotifications({ page_size: 1, is_read: false })
-                    .then(r => r.data);
-                set({ unreadCount: data.count ?? 0 });
+                const data = await notificationService.getUnreadCount().then(r => r.data);
+                set({ unreadCount: data.unread_count ?? 0 });
             } catch (error) {
-                console.error('Failed to fetch unread count', error);
+                try {
+                    const data = await notificationService
+                        .listNotifications({ page_size: 1, is_read: false })
+                        .then(r => r.data);
+                    set({ unreadCount: data.count ?? 0 });
+                } catch (fallbackError) {
+                    console.error('Failed to fetch unread count', fallbackError || error);
+                }
             }
         },
 

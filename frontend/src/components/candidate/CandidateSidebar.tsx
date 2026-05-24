@@ -1,10 +1,11 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, UserCircle, FileText, Briefcase, Bookmark,
-    CalendarClock, Settings, Sparkles
+    CalendarClock, Settings, Sparkles, Bell, History
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
+import { useNotificationStore } from '@/store/notificationStore';
 
 interface NavItem {
     label: string;
@@ -19,6 +20,8 @@ const itemVariants = {
 };
 
 export function CandidateSidebar() {
+    const unreadCount = useNotificationStore((state) => state.unreadCount);
+
     const navItems: NavItem[] = [
         { label: 'Dashboard', path: '/candidate/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { label: 'Chỉnh sửa hồ sơ', path: '/candidate/profile', icon: <UserCircle className="w-5 h-5" /> },
@@ -27,11 +30,13 @@ export function CandidateSidebar() {
         { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
         { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
+        { label: 'Thông báo', path: '/candidate/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
+        { label: 'Lịch sử tìm kiếm', path: '/candidate/search-history', icon: <History className="w-5 h-5" /> },
         { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
     ];
 
-    const mainItems = navItems.slice(0, 7);
-    const bottomItems = navItems.slice(7);
+    const mainItems = navItems.slice(0, 9);
+    const bottomItems = navItems.slice(9);
 
     return (
         <aside
@@ -79,9 +84,9 @@ export function CandidateSidebar() {
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
-                                    {item.badge && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-100 text-violet-700 rounded-full flex items-center justify-center px-1.5">
-                                            {item.badge}
+                                    {item.badge !== undefined && item.badge > 0 && (
+                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
+                                            {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
                                 </>
@@ -122,9 +127,9 @@ export function CandidateSidebar() {
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
-                                    {item.badge && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-violet-100 text-violet-700 rounded-full flex items-center justify-center px-1.5">
-                                            {item.badge}
+                                    {item.badge !== undefined && item.badge > 0 && (
+                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
+                                            {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
                                 </>
@@ -137,9 +142,9 @@ export function CandidateSidebar() {
             <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-violet-50 via-cyan-50 to-transparent border border-violet-100">
                 <p className="text-xs font-bold text-foreground mb-1">Kiến tạo sự nghiệp</p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">Tạo CV chuyên nghiệp bật nhất chỉ với 1 click.</p>
-                <button className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors">
+                <Link to="/candidate/cv" className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition-colors">
                     Cập nhật CV ngay
-                </button>
+                </Link>
             </div>
         </aside>
     );

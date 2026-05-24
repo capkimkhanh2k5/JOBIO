@@ -61,7 +61,7 @@
         "address_id": 1,
         "category_id": 1,
         "company_id": 2,
-        "created_by_id": 2
+        "created_by_id": 24
     },
     {
         "id": 3,
@@ -93,7 +93,7 @@
         "address_id": 1,
         "category_id": 1,
         "company_id": 2,
-        "created_by_id": 2
+        "created_by_id": 24
     },
     {
         "id": 4,
@@ -125,7 +125,7 @@
         "address_id": 1,
         "category_id": 1,
         "company_id": 2,
-        "created_by_id": 2
+        "created_by_id": 24
     },
     {
         "id": 5,

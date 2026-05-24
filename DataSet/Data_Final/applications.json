@@ -67,7 +67,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-14T06:02:49Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 6,
@@ -95,7 +95,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-31T21:37:28Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 8,
@@ -109,7 +109,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-17T23:27:52Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 9,
@@ -123,7 +123,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-01-09T05:34:20Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 10,
@@ -137,7 +137,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-02-03T18:11:29Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 11,
@@ -165,7 +165,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-13T16:06:03Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 13,
@@ -179,7 +179,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-07T09:24:35Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 14,
@@ -375,7 +375,7 @@
         "notes": "",
         "reviewed_at": "2026-05-21T15:14:09.000Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 28,
@@ -501,7 +501,7 @@
         "notes": "",
         "reviewed_at": "2026-04-10T02:11:42.000Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 37,
@@ -809,7 +809,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-05-09T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 59,
@@ -823,7 +823,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-01-14T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 60,
@@ -837,7 +837,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-01-22T10:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 61,
@@ -851,7 +851,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-02-04T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 62,
@@ -865,7 +865,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-02-17T12:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 63,
@@ -879,7 +879,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-03-02T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 64,
@@ -893,7 +893,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-22T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 65,
@@ -2069,7 +2069,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-03-20T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 149,
@@ -2083,7 +2083,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-04-02T17:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 150,
@@ -2097,7 +2097,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-04-15T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 151,
@@ -2111,7 +2111,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-04-28T19:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 152,
@@ -2125,7 +2125,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-05-06T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 153,
@@ -2139,7 +2139,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-05-19T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 154,
@@ -2153,7 +2153,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-01-12T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 155,
@@ -2167,7 +2167,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-01-25T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 156,
@@ -2181,7 +2181,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-02-07T14:00:00Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 157,
@@ -2195,7 +2195,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-02-15T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 158,
@@ -2209,7 +2209,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-03T11:00:00Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 159,
@@ -2223,7 +2223,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-04-20T18:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 160,
@@ -2237,7 +2237,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-03T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 161,
@@ -2251,7 +2251,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-05-11T10:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 162,
@@ -2265,7 +2265,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-24T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 163,
@@ -2279,7 +2279,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-01-17T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 164,
@@ -2293,7 +2293,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-30T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 165,
@@ -2307,7 +2307,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-12T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 166,
@@ -2321,7 +2321,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-20T15:00:00Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 167,
@@ -2335,7 +2335,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-05T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 168,
@@ -3609,7 +3609,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-03-25T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 259,
@@ -3623,7 +3623,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-04-07T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 260,
@@ -3637,7 +3637,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-04-15T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 261,
@@ -3651,7 +3651,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-04-28T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 262,
@@ -3665,7 +3665,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-11T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 263,
@@ -3679,7 +3679,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-05-24T18:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 264,
@@ -3693,7 +3693,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-17T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 265,
@@ -3707,7 +3707,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-01-25T10:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 266,
@@ -3721,7 +3721,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-07T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 267,
@@ -3735,7 +3735,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-20T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 268,
@@ -4589,7 +4589,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-05-19T17:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 329,
@@ -4603,7 +4603,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-12T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 330,
@@ -4617,7 +4617,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-25T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 331,
@@ -4631,7 +4631,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-02T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 332,
@@ -4645,7 +4645,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-15T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 333,
@@ -4659,7 +4659,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-02-28T12:00:00Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 334,
@@ -4673,7 +4673,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-03-13T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 335,
@@ -4687,7 +4687,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-03-01T19:00:00Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 336,
@@ -4701,7 +4701,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-03-09T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 337,
@@ -4715,7 +4715,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-03-22T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 338,
@@ -4729,7 +4729,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-04-04T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 339,
@@ -5163,7 +5163,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-04-20T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 370,
@@ -5177,7 +5177,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-05-03T16:00:00Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 371,
@@ -5191,7 +5191,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-05-16T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 372,
@@ -5205,7 +5205,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-05-04T13:00:00Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 373,
@@ -5219,7 +5219,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-05-17T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 374,
@@ -5233,7 +5233,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-05T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 375,
@@ -5247,7 +5247,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-18T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 376,
@@ -5261,7 +5261,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-31T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 377,
@@ -5275,7 +5275,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-02-13T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 378,
@@ -6003,7 +6003,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-04-25T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 430,
@@ -6017,7 +6017,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-08T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 431,
@@ -6031,7 +6031,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-05-21T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 432,
@@ -6045,7 +6045,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-09T15:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 433,
@@ -6059,7 +6059,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-22T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 434,
@@ -6073,7 +6073,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-04T17:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 435,
@@ -6087,7 +6087,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-17T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 436,
@@ -6101,7 +6101,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-03-02T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 437,
@@ -6115,7 +6115,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-03-10T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 438,
@@ -6969,7 +6969,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-01-29T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 499,
@@ -6983,7 +6983,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-02-11T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 500,
@@ -6997,7 +6997,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-02-24T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 501,
@@ -7011,7 +7011,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-03-09T19:00:00Z",
         "cv_id": 2,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 502,
@@ -7025,7 +7025,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-03-17T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 503,
@@ -7039,7 +7039,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-05T16:00:00Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 504,
@@ -7053,7 +7053,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-03-18T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 505,
@@ -7067,7 +7067,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-31T18:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 506,
@@ -7081,7 +7081,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-04-13T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 507,
@@ -7095,7 +7095,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-04-21T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 508,
@@ -7529,7 +7529,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-05-24T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 539,
@@ -7543,7 +7543,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-07T10:00:00Z",
         "cv_id": 3,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 540,
@@ -7557,7 +7557,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-05-20T11:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 541,
@@ -7571,7 +7571,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-01-13T12:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 542,
@@ -7585,7 +7585,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-01-26T13:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 543,
@@ -7599,7 +7599,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-02-08T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 544,
@@ -7613,7 +7613,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-02-16T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 545,
@@ -7627,7 +7627,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-03-01T16:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 546,
@@ -7641,7 +7641,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-03-14T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 547,
@@ -7655,7 +7655,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-03-27T18:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 548,
@@ -7669,7 +7669,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-04-09T19:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 549,
@@ -12989,7 +12989,7 @@
         "notes": "Đã gửi đề xuất offer cho ứng viên.",
         "reviewed_at": "2026-05-19T15:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 929,
@@ -13003,7 +13003,7 @@
         "notes": "Hồ sơ chưa phù hợp với yêu cầu hiện tại.",
         "reviewed_at": "2026-01-12T16:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 930,
@@ -13017,7 +13017,7 @@
         "notes": "Ứng viên đã vào danh sách rút gọn.",
         "reviewed_at": "2026-01-25T17:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 931,
@@ -13031,7 +13031,7 @@
         "notes": "Hồ sơ đang được xem xét.",
         "reviewed_at": "2026-02-19T19:00:00Z",
         "cv_id": 1,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 932,
@@ -13045,7 +13045,7 @@
         "notes": "Ứng viên được mời phỏng vấn.",
         "reviewed_at": "2026-02-27T10:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 933,
@@ -13059,7 +13059,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-03-12T11:00:00Z",
         "cv_id": 4,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 934,
@@ -13073,7 +13073,7 @@
         "notes": "Ứng viên đã nhận việc.",
         "reviewed_at": "2026-04-18T14:00:00Z",
         "cv_id": null,
-        "reviewed_by_id": 2
+        "reviewed_by_id": 24
     },
     {
         "id": 935,
