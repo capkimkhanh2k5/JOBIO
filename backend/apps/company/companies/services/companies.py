@@ -10,6 +10,7 @@ from apps.core.users.models import CustomUser
 from apps.company.industries.models import Industry
 
 from ..utils.cloudinary import (
+    delete_company_file,
     save_company_file,
     validate_image_file,
 )
@@ -136,8 +137,12 @@ def upload_company_logo(company: Company, file: UploadedFile) -> str:
     validate_image_file(file, max_size_mb=2)
 
     new_url = save_company_file(company.id, file, "logo")
-    company.logo_url = new_url
-    company.save(update_fields=["logo_url"])
+    try:
+        company.logo_url = new_url
+        company.save(update_fields=["logo_url"])
+    except Exception:
+        delete_company_file(new_url, "image")
+        raise
 
     return new_url
 
@@ -149,7 +154,11 @@ def upload_company_banner(company: Company, file: UploadedFile) -> str:
     validate_image_file(file, max_size_mb=5)
 
     new_url = save_company_file(company.id, file, "banner")
-    company.banner_url = new_url
-    company.save(update_fields=["banner_url"])
+    try:
+        company.banner_url = new_url
+        company.save(update_fields=["banner_url"])
+    except Exception:
+        delete_company_file(new_url, "image")
+        raise
 
     return new_url

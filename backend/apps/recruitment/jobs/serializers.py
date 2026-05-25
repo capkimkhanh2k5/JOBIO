@@ -3,6 +3,14 @@ from rest_framework import serializers
 from .models import Job
 
 
+def _is_effectively_expired(job: Job) -> bool:
+    if job.status == Job.Status.EXPIRED:
+        return True
+    if job.status != Job.Status.PUBLISHED or not job.application_deadline:
+        return False
+    return job.application_deadline < timezone.now().date()
+
+
 class JobListSerializer(serializers.ModelSerializer):
     """
     Serializer cho danh sách jobs (compact, cho listing)
@@ -31,6 +39,8 @@ class JobListSerializer(serializers.ModelSerializer):
     )
     is_salary_visible = serializers.SerializerMethodField()
     is_featured = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    is_expired = serializers.SerializerMethodField()
     deadline = serializers.DateField(
         source="application_deadline", read_only=True, allow_null=True
     )
@@ -67,6 +77,7 @@ class JobListSerializer(serializers.ModelSerializer):
             "benefits",
             "is_remote",
             "status",
+            "is_expired",
             "published_at",
             "created_at",
             "application_deadline",
@@ -93,6 +104,12 @@ class JobListSerializer(serializers.ModelSerializer):
         if not obj.featured:
             return False
         return obj.featured_until is None or obj.featured_until >= timezone.now().date()
+
+    def get_status(self, obj):
+        return "expired" if _is_effectively_expired(obj) else obj.status
+
+    def get_is_expired(self, obj):
+        return _is_effectively_expired(obj)
 
     def get_location(self, obj):
         return self.get_locations(obj)
@@ -135,6 +152,8 @@ class JobDetailSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(
         source="created_by.full_name", read_only=True
     )
+    status = serializers.SerializerMethodField()
+    is_expired = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
@@ -166,6 +185,7 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "is_remote",
             "application_deadline",
             "status",
+            "is_expired",
             "view_count",
             "application_count",
             "featured",
@@ -184,6 +204,12 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_status(self, obj):
+        return "expired" if _is_effectively_expired(obj) else obj.status
+
+    def get_is_expired(self, obj):
+        return _is_effectively_expired(obj)
 
 
 class JobCreateSerializer(serializers.Serializer):

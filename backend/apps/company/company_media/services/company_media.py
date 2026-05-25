@@ -4,6 +4,7 @@ from django.db import transaction
 from django.core.files.uploadedfile import UploadedFile
 
 from apps.company.companies.utils.cloudinary import (
+    delete_company_file,
     save_company_file,
 )
 from apps.company.companies.models import Company
@@ -77,14 +78,18 @@ def upload_company_media_service(
         raise ValueError(f"Lỗi khi upload lên Cloudinary: {str(e)}")
 
     # Lưu vào database
-    media = CompanyMedia.objects.create(
-        company=company,
-        media_type=media_type,
-        media_url=media_url,
-        title=data.title,
-        caption=data.caption,
-        display_order=data.display_order,
-    )
+    try:
+        media = CompanyMedia.objects.create(
+            company=company,
+            media_type=media_type,
+            media_url=media_url,
+            title=data.title,
+            caption=data.caption,
+            display_order=data.display_order,
+        )
+    except Exception:
+        delete_company_file(media_url, resource_type=resource_type)
+        raise
 
     return media
 

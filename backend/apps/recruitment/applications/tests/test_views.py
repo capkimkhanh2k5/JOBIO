@@ -1,5 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from datetime import timedelta
+from django.utils import timezone
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
 from apps.recruitment.jobs.models import Job
@@ -126,6 +128,26 @@ class ApplicationViewTests(APITestCase):
         url = "/api/applications/"
         data = {"job_id": self.closed_job.id}
         response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_application_job_deadline_expired(self):
+        """POST /api/applications - job quá hạn nộp hồ sơ → 400"""
+        expired_job = Job.objects.create(
+            company=self.company,
+            title="Expired Deadline Job",
+            slug="expired-deadline-application-test",
+            job_type="full-time",
+            level="junior",
+            description="Expired job",
+            requirements="Requirements",
+            application_deadline=timezone.now().date() - timedelta(days=1),
+            status="published",
+            created_by=self.job_owner,
+        )
+        self.client.force_authenticate(user=self.applicant_user)
+
+        response = self.client.post("/api/applications/", {"job_id": expired_job.id})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

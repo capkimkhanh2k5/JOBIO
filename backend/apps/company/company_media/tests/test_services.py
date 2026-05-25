@@ -50,6 +50,29 @@ class CompanyMediaServiceTest(TestCase):
         self.assertEqual(media.media_url, "http://cloudinary.com/image.jpg")
         self.assertEqual(media.title, "Test Media")
 
+    @patch("apps.company.company_media.services.company_media.delete_company_file")
+    @patch("apps.company.company_media.models.CompanyMedia.objects.create")
+    @patch("apps.company.company_media.services.company_media.save_company_file")
+    def test_upload_company_media_cleans_up_when_db_create_fails(
+        self, mock_save_file, mock_create, mock_delete_file
+    ):
+        media_url = "https://res.cloudinary.com/demo/image/upload/v1/media.jpg"
+        mock_save_file.return_value = media_url
+        mock_create.side_effect = RuntimeError("db down")
+        file = SimpleUploadedFile(
+            "test.jpg", b"file_content", content_type="image/jpeg"
+        )
+        input_data = CompanyMediaCreateInput(
+            media_file=file,
+            media_type_id=self.media_type.id,
+            title="Test Media",
+        )
+
+        with self.assertRaisesMessage(RuntimeError, "db down"):
+            upload_company_media_service(self.company.id, self.user, input_data)
+
+        mock_delete_file.assert_called_once_with(media_url, resource_type="image")
+
     def test_update_company_media_service(self):
         media = CompanyMedia.objects.create(
             company=self.company,

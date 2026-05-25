@@ -139,7 +139,7 @@ class TestCloudinarySignals(TestCase):
 
         self.assertTrue(delete_cloudinary_file(url, "image"))
         mock_destroy.assert_called_once_with(
-            "Jobio/Avatars/1/avatar", resource_type="image"
+            "Jobio/Avatars/1/avatar", resource_type="image", invalidate=True
         )
 
     @override_settings(CLOUDINARY_STORAGE={"CLOUD_NAME": "demo"})
@@ -155,7 +155,7 @@ class TestCloudinarySignals(TestCase):
 
         self.assertTrue(delete_cloudinary_file(url, "image"))
         mock_destroy.assert_called_once_with(
-            "Jobio/Avatars/1/avatar", resource_type="image"
+            "Jobio/Avatars/1/avatar", resource_type="image", invalidate=True
         )
 
     @override_settings(CLOUDINARY_STORAGE={"CLOUD_NAME": "demo"})
@@ -168,7 +168,26 @@ class TestCloudinarySignals(TestCase):
 
         self.assertTrue(delete_cloudinary_file(url, "raw"))
         mock_destroy.assert_called_once_with(
-            "Jobio/CVs/cv_123.pdf", resource_type="raw"
+            "Jobio/CVs/cv_123.pdf", resource_type="raw", invalidate=True
+        )
+
+    @override_settings(CLOUDINARY_STORAGE={"CLOUD_NAME": "demo"})
+    @patch("cloudinary.uploader.destroy")
+    def test_cloudinary_utils_raw_extraction_retries_without_extension(
+        self, mock_destroy
+    ):
+        from apps.system.file_uploads.cloudinary_utils import delete_cloudinary_file
+
+        mock_destroy.side_effect = [{"result": "not found"}, {"result": "ok"}]
+        url = "https://res.cloudinary.com/demo/raw/upload/v1234/Jobio/CVs/cv_123.pdf"
+
+        self.assertTrue(delete_cloudinary_file(url, "raw"))
+        self.assertEqual(mock_destroy.call_count, 2)
+        mock_destroy.assert_any_call(
+            "Jobio/CVs/cv_123.pdf", resource_type="raw", invalidate=True
+        )
+        mock_destroy.assert_any_call(
+            "Jobio/CVs/cv_123", resource_type="raw", invalidate=True
         )
 
     @override_settings(CLOUDINARY_STORAGE={"CLOUD_NAME": "demo"})
