@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
 import api from '@/services/api';
 import { useUserStore } from '@/store/userStore';
+import { getCandidateId } from '@/lib/candidateIdentity';
 import { Button } from '@/components/ui/button';
 import { CVListSidebar } from '@/components/candidate/cv/CVListSidebar';
 import { CVBuilder } from '@/components/candidate/cv/CVBuilder';
@@ -33,7 +34,7 @@ export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
 
 export default function CVManager() {
     const { user } = useUserStore();
-    const candidateId = user?.candidate_id;
+    const candidateId = getCandidateId(user);
     const queryClient = useQueryClient();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(null);
     const [showNewDialog, setShowNewDialog] = useState(false);

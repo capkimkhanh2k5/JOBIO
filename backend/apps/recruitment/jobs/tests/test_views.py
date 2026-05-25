@@ -357,6 +357,37 @@ class JobViewTests(APITestCase):
             job_ids.index(expired_featured_job.id),
         )
 
+    def test_cv_recommendations_include_match_metadata(self):
+        """CV suggestions return score and human-readable reasons."""
+        candidate_user = CustomUser.objects.create_user(
+            email="candidate-match@example.com",
+            password="password123",
+            full_name="Candidate Match",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(
+            user=candidate_user,
+            address=self.address,
+            years_of_experience=4,
+        )
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            cv_name="Python CV",
+            cv_data={
+                "personal": {"years_of_experience": 4},
+                "skills": [{"name": "Python"}],
+            },
+        )
+
+        self.client.force_authenticate(user=candidate_user)
+        response = self.client.get(f"/api/jobs/recommendations/?cv_id={cv.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        matched_job = next(job for job in response.data if job["id"] == self.job.id)
+        self.assertGreater(matched_job["match_score"], 0)
+        self.assertIsInstance(matched_job["match_reasons"], list)
+        self.assertGreater(len(matched_job["match_reasons"]), 0)
+
     def test_list_jobs_with_multiple_job_type_filters(self):
         """Test GET /api/jobs/?job_type=... supports CSV multi-select values"""
         part_time_job = Job.objects.create(
