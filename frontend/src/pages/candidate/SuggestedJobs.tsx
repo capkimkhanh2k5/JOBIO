@@ -10,6 +10,7 @@ import { cvService } from '@/services/cvService';
 import { jobService } from '@/services/jobService';
 import { applicationService } from '@/services/applicationService';
 import { useUserStore } from '@/store/userStore';
+import { getCandidateId } from '@/lib/candidateIdentity';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -219,7 +220,7 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function SuggestedJobs() {
     const { user } = useUserStore();
-    const candidateId = user?.candidate_id;
+    const candidateId = getCandidateId(user);
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(searchParams.get('cv_id'));

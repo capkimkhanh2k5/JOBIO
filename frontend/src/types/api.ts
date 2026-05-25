@@ -35,6 +35,7 @@ export interface User {
   social_provider?: SocialProvider;
   has_usable_password?: boolean;
   candidate_id?: number;
+  recruiter_id?: number;
   company_id?: number;
   subscription_plan?: string;
 }

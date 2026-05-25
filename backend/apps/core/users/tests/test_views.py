@@ -7,6 +7,7 @@ from rest_framework import status
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from apps.candidate.recruiters.models import Recruiter
 from apps.core.users.models import CustomUser
 
 
@@ -27,6 +28,7 @@ class TestLoginAPI(APITestCase):
             role="candidate",
             status="active",
         )
+        cls.recruiter = Recruiter.objects.create(user=cls.active_user)
 
     def test_login_success(self):
         """Test successful login"""
@@ -41,6 +43,8 @@ class TestLoginAPI(APITestCase):
         self.assertIn("refresh_token", response.data)
         self.assertIn("user", response.data)
         self.assertEqual(response.data["user"]["email"], "test@example.com")
+        self.assertEqual(response.data["user"]["candidate_id"], self.recruiter.id)
+        self.assertEqual(response.data["user"]["recruiter_id"], self.recruiter.id)
 
         refresh = RefreshToken(response.data["refresh_token"])
         lifetime_seconds = refresh["exp"] - refresh["iat"]
@@ -327,6 +331,7 @@ class TestUserMeAPI(APITestCase):
             role="candidate",
             status="active",
         )
+        self.recruiter = Recruiter.objects.create(user=self.user)
         refresh = RefreshToken.for_user(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
@@ -337,6 +342,16 @@ class TestUserMeAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], "me@example.com")
         self.assertEqual(response.data["role"], "candidate")
+        self.assertEqual(response.data["candidate_id"], self.recruiter.id)
+        self.assertEqual(response.data["recruiter_id"], self.recruiter.id)
+
+    def test_get_auth_me_returns_candidate_profile_id(self):
+        """Test getting current auth user info"""
+        response = self.client.get("/api/users/auth/me/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["candidate_id"], self.recruiter.id)
+        self.assertEqual(response.data["recruiter_id"], self.recruiter.id)
 
     def test_get_me_without_authentication(self):
         """Test getting user info without login"""

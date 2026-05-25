@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { SocialAuth } from './SocialAuth';
 import { authService } from '@/services/authService';
 import { useUserStore, UserState } from '@/store/userStore';
+import { getCandidateId } from '@/lib/candidateIdentity';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -55,7 +56,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 return;
             }
 
-            setAuth(data.user, data.access_token, data.refresh_token, values.rememberMe);
+            const userData = { ...data.user };
+            const candidateId = getCandidateId(userData);
+            if (userData.role === 'candidate' && candidateId) {
+                userData.candidate_id = candidateId;
+            }
+
+            setAuth(userData, data.access_token, data.refresh_token, values.rememberMe);
             toast.success(`Chào mừng trở lại, ${data.user.full_name}!`);
         } catch (error: any) {
             const msg = error.response?.data?.detail

@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 CV_DIRECT_UPLOAD_FOLDER = "Jobio/CVs"
 CV_DIRECT_UPLOAD_PUBLIC_ID_RE = re.compile(
-    r"^Jobio/CVs/cv_upload_(?P<recruiter_id>\d+)_[a-f0-9]{32}$"
+    r"^Jobio/CVs/cv_upload_(?P<recruiter_id>\d+)_[a-f0-9]{32}(\.pdf)?$"
 )
 
 

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cvService } from '@/services/cvService';
 import { useUserStore } from '@/store/userStore';
+import { getCandidateId } from '@/lib/candidateIdentity';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,7 +43,7 @@ const TEMPLATE_ICONS: Record<string, string> = {
 
 export function NewCVDialog({ onClose, onCreated }: Props) {
     const user = useUserStore(s => s.user);
-    const candidateId = user?.candidate_id;  // candidate profile ID, not user.id
+    const candidateId = getCandidateId(user);
 
     const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates-picker'],
