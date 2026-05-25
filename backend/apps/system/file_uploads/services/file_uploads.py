@@ -1,9 +1,13 @@
 import os
 import uuid
+import logging
+
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
 from ..models import FileUpload
+
+logger = logging.getLogger(__name__)
 
 
 def save_upload(
@@ -27,8 +31,17 @@ def save_upload(
             import cloudinary.uploader
 
             image_exts = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
-            resource_type = "image" if ext in image_exts else "raw"
-            public_id = f"Jobio/Uploads/{sub_folder}/{unique_name}"
+            video_exts = {".mp4", ".mov", ".avi", ".webm", ".mkv"}
+            if ext in image_exts:
+                resource_type = "image"
+                public_name = os.path.splitext(unique_name)[0]
+            elif ext in video_exts:
+                resource_type = "video"
+                public_name = os.path.splitext(unique_name)[0]
+            else:
+                resource_type = "raw"
+                public_name = unique_name
+            public_id = f"Jobio/Uploads/{sub_folder}/{public_name}"
             result = cloudinary.uploader.upload(
                 file_obj,
                 public_id=public_id,
@@ -37,12 +50,14 @@ def save_upload(
             )
             file_url = result["secure_url"]
             saved_path = public_id
-        except Exception:
-            # Fallback on error
+        except Exception as exc:
+            logger.warning("Cloudinary upload failed; falling back to storage: %s", exc)
             file_url = None
 
     if file_url is None:
         # Fallback: use Django default_storage (local or Cloudinary via django-cloudinary-storage)
+        if hasattr(file_obj, "seek"):
+            file_obj.seek(0)
         file_path = f"uploads/{sub_folder}/{unique_name}"
         saved_path = default_storage.save(file_path, ContentFile(file_obj.read()))
         try:

@@ -5,7 +5,6 @@ from django.core.files.uploadedfile import UploadedFile
 
 from apps.company.companies.utils.cloudinary import (
     save_company_file,
-    delete_company_file,
 )
 from apps.company.companies.models import Company
 from apps.company.media_types.models import MediaType
@@ -124,14 +123,6 @@ def delete_company_media_service(media_id: int, user) -> None:
     if media.company.user_id != user.id:
         raise ValueError("Bạn không có quyền xóa media này")
 
-    resource_type = (
-        "video" if "video" in media.media_type.type_name.lower() else "image"
-    )
-
-    # Xóa trên Cloudinary
-    delete_company_file(media.media_url, resource_type=resource_type)
-
-    # Xóa trong DB
     media.delete()
 
 

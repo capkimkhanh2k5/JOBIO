@@ -11,7 +11,6 @@ from apps.company.industries.models import Industry
 
 from ..utils.cloudinary import (
     save_company_file,
-    delete_company_file,
     validate_image_file,
 )
 
@@ -136,9 +135,6 @@ def upload_company_logo(company: Company, file: UploadedFile) -> str:
     """
     validate_image_file(file, max_size_mb=2)
 
-    if company.logo_url:
-        delete_company_file(company.logo_url)
-
     new_url = save_company_file(company.id, file, "logo")
     company.logo_url = new_url
     company.save(update_fields=["logo_url"])
@@ -151,9 +147,6 @@ def upload_company_banner(company: Company, file: UploadedFile) -> str:
     Upload banner cho công ty
     """
     validate_image_file(file, max_size_mb=5)
-
-    if company.banner_url:
-        delete_company_file(company.banner_url)
 
     new_url = save_company_file(company.id, file, "banner")
     company.banner_url = new_url
