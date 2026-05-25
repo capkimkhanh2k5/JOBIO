@@ -158,7 +158,7 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                     />
 
                     {/* Job search status badge */}
-                    <div className={`mt-3 text-center px-3 py-1.5 rounded-full text-xs font-bold border ${currentStatus.borderColor} bg-background/50 flex items-center gap-1.5 justify-center w-full`}>
+                    <div className={`mt-3 text-center px-3 py-1.5 rounded-full text-xs font-bold border ${currentStatus.borderColor} bg-white border border-slate-200 flex items-center gap-1.5 justify-center w-full`}>
                         <span className={`w-2 h-2 rounded-full ${currentStatus.color} shrink-0`} />
                         <span className={currentStatus.textColor}>{currentStatus.label}</span>
                     </div>
@@ -239,15 +239,15 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                 </div>
 
                 {/* Privacy & Status Controls */}
-                <div className="w-full md:w-56 space-y-4 bg-slate-50 border border-slate-200 p-5 rounded-2xl shrink-0">
+                <div className="w-full md:w-56 space-y-4 bg-white border border-slate-200 shadow-sm p-5 rounded-2xl shrink-0">
                     {/* Profile visibility */}
                     <div className="flex items-center justify-between gap-4">
                         <div className="space-y-0.5 flex-1 min-w-0">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                                 {profile?.is_profile_public ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                                 Công khai hồ sơ
                             </Label>
-                            <p className="text-[10px] text-muted-foreground leading-tight">
+                            <p className="text-[10px] text-slate-400 leading-tight">
                                 {profile?.is_profile_public ? 'Nhà tuyển dụng có thể tìm thấy' : 'Ẩn khỏi nhà tuyển dụng'}
                             </p>
                         </div>
@@ -259,11 +259,11 @@ export const ProfileHeader = ({ profile, onUpdateStatus, onTogglePrivacy }: Prof
                         />
                     </div>
 
-                    <div className="h-px bg-border/50" />
+                    <div className="h-px bg-slate-100" />
 
                     {/* Job search status */}
                     <div>
-                        <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block">Chế độ tìm việc</Label>
+                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 block">Chế độ tìm việc</Label>
                         <div className="flex flex-col gap-1.5">
                             {JOB_SEARCH_STATUSES.map((status) => (
                                 <button

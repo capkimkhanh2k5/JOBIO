@@ -156,7 +156,7 @@ export default function Interviews() {
     });
 
     return (
-        <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
+        <div className="relative flex flex-col w-full h-full min-h-0">
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Lịch phỏng vấn"
