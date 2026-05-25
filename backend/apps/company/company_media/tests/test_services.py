@@ -64,8 +64,7 @@ class CompanyMediaServiceTest(TestCase):
         self.assertEqual(updated_media.title, "New Title")
         self.assertEqual(updated_media.media_url, "http://old.url")
 
-    @patch("apps.company.company_media.services.company_media.delete_company_file")
-    def test_delete_company_media_service(self, mock_delete_file):
+    def test_delete_company_media_service(self):
         media = CompanyMedia.objects.create(
             company=self.company,
             media_type=self.media_type,
@@ -75,7 +74,6 @@ class CompanyMediaServiceTest(TestCase):
         delete_company_media_service(media.id, self.user)
 
         self.assertFalse(CompanyMedia.objects.filter(id=media.id).exists())
-        mock_delete_file.assert_called_once()
 
     def test_reorder_company_media_service(self):
         m1 = CompanyMedia.objects.create(

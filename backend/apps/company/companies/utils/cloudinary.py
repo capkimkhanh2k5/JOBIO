@@ -1,5 +1,4 @@
 import time
-import re
 import uuid
 
 import cloudinary
@@ -67,20 +66,9 @@ def delete_company_file(file_url: str, resource_type: str = "image") -> bool:
     Returns:
         True nếu xóa thành công, False nếu thất bại
     """
-    if not file_url:
-        return False
+    from apps.system.file_uploads.cloudinary_utils import delete_cloudinary_file
 
-    # Extract public_id từ URL
-    match = re.search(r"/upload/(?:v\d+/)?(.+)\.[^.]+$", file_url)
-    if not match:
-        return False
-
-    public_id = match.group(1)
-    try:
-        result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
-        return result.get("result") == "ok"
-    except Exception:
-        return False
+    return delete_cloudinary_file(file_url, resource_type=resource_type)
 
 
 def save_raw_file(folder: str, file, prefix: str) -> str:
