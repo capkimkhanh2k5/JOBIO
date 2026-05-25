@@ -166,12 +166,12 @@ export function CandidateBoard({
                         {COLUMNS.map((column) => (
                             <div
                                 key={column}
-                                className="w-[300px] flex-shrink-0 bg-secondary/30 rounded-xl p-3 border border-border/50 animate-pulse h-full"
+                                className="w-[300px] flex-shrink-0 bg-slate-100 rounded-xl p-3 border border-slate-200 animate-pulse h-full"
                             >
-                                <div className="h-4 w-24 bg-secondary rounded mb-4"></div>
+                                <div className="h-4 w-24 bg-slate-200 rounded mb-4"></div>
                                 <div className="space-y-3">
                                     {[1, 2].map((item) => (
-                                        <div key={item} className="h-32 bg-secondary rounded-lg"></div>
+                                        <div key={item} className="h-32 bg-slate-200 rounded-lg"></div>
                                     ))}
                                 </div>
                             </div>
@@ -192,7 +192,7 @@ export function CandidateBoard({
                         return (
                             <div
                                 key={status}
-                                className="w-[320px] flex-shrink-0 flex flex-col max-h-full bg-secondary/30 rounded-xl p-3 border border-border/50 backdrop-blur-sm"
+                                className="w-[320px] flex-shrink-0 flex flex-col max-h-full bg-slate-50 rounded-xl p-3 border border-slate-200"
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, status)}
                             >
@@ -201,7 +201,7 @@ export function CandidateBoard({
                                         {STATUS_LABELS[status] || status}
                                         <Badge
                                             variant="secondary"
-                                            className="px-1.5 py-0 min-w-5 justify-center rounded-full text-xs bg-background"
+                                            className="px-1.5 py-0 min-w-5 justify-center rounded-full text-xs bg-white text-slate-700 border border-slate-200"
                                         >
                                             {columnApps.length}
                                         </Badge>
@@ -227,7 +227,7 @@ export function CandidateBoard({
                                                 onDragEnd={(e: any) => handleDragEnd(e, app.id)}
                                                 onClick={() => setSelectedCandidateId(app.id)}
                                                 className={cn(
-                                                    'bg-card border border-border/50 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-border transition-all cursor-grab active:cursor-grabbing group',
+                                                    'bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-violet-200 transition-all cursor-grab active:cursor-grabbing group',
                                                     draggedCandidateId === app.id ? 'opacity-50 scale-95' : ''
                                                 )}
                                             >
@@ -256,7 +256,7 @@ export function CandidateBoard({
                                                         <Badge
                                                             key={skill}
                                                             variant="outline"
-                                                            className="text-[10px] px-1.5 py-0 h-4 bg-secondary/50 border-border/50"
+                                                            className="text-[10px] px-1.5 py-0 h-4 bg-slate-100 border-slate-200 text-slate-600"
                                                         >
                                                             {skill}
                                                         </Badge>
@@ -264,15 +264,15 @@ export function CandidateBoard({
                                                     {(app.skills || []).length > 3 && (
                                                         <Badge
                                                             variant="outline"
-                                                            className="text-[10px] px-1.5 py-0 h-4 bg-secondary/50 border-border/50"
+                                                            className="text-[10px] px-1.5 py-0 h-4 bg-slate-100 border-slate-200 text-slate-600"
                                                         >
                                                             +{(app.skills || []).length - 3}
                                                         </Badge>
                                                     )}
                                                 </div>
 
-                                                <div className="flex items-center justify-between text-xs pt-3 border-t border-border/50">
-                                                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                                                <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
+                                                    <div className="flex items-center gap-1.5 text-slate-500">
                                                         <Calendar className="w-3 h-3" />
                                                         <span>
                                                             {new Date(app.applied_at).toLocaleDateString('vi-VN', {
@@ -297,7 +297,7 @@ export function CandidateBoard({
                                     </AnimatePresence>
 
                                     {columnApps.length === 0 && (
-                                        <div className="h-24 border-2 border-dashed border-border/50 rounded-xl flex items-center justify-center text-xs text-muted-foreground">
+                                        <div className="h-24 border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-xs text-slate-400 bg-slate-50/50">
                                             Kéo thả vào đây
                                         </div>
                                     )}

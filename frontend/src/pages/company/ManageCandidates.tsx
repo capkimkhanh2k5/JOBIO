@@ -160,7 +160,7 @@ export default function ManageCandidates() {
                 </div>
 
                 <main className="flex-1 min-w-0 overflow-hidden">
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm h-full">
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm h-full p-4">
                         {viewMode === 'kanban' ? (
                             <CandidateBoard
                                 applications={applications as any}
