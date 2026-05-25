@@ -106,9 +106,9 @@ def ensure_cv_templates_seeded():
         category = category_map.get(meta["category"], category_map["professional"])
         template = CVTemplate.objects.filter(file_name=file_name).order_by("id").first()
         if template:
-            CVTemplate.objects.filter(file_name=file_name).exclude(pk=template.pk).update(
-                is_active=False
-            )
+            CVTemplate.objects.filter(file_name=file_name).exclude(
+                pk=template.pk
+            ).update(is_active=False)
             for field, value in {
                 "name": meta["name"],
                 "category": category,

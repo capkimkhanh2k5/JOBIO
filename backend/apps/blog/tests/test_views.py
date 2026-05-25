@@ -138,7 +138,9 @@ class TestBlogViews(APITestCase):
 
         self.assertEqual(category_response.status_code, status.HTTP_200_OK)
         self.assertEqual(tag_response.status_code, status.HTTP_200_OK)
-        self.assertEqual(category_response.data["results"][0]["id"], self.published_post.id)
+        self.assertEqual(
+            category_response.data["results"][0]["id"], self.published_post.id
+        )
         self.assertEqual(tag_response.data["results"][0]["id"], self.published_post.id)
 
     @patch("apps.blog.views.EmailService.send_email")

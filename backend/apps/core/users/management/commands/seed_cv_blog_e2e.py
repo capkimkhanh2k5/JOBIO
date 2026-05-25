@@ -42,7 +42,9 @@ PASSWORD = "JobioE2E!123"
 
 
 class Command(BaseCommand):
-    help = "Seed disposable local data for CV upload, suggested jobs, and blog E2E tests."
+    help = (
+        "Seed disposable local data for CV upload, suggested jobs, and blog E2E tests."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -135,7 +137,9 @@ class Command(BaseCommand):
             },
         )
 
-        template = CVTemplate.objects.filter(file_name="modern.html").order_by("id").first()
+        template = (
+            CVTemplate.objects.filter(file_name="modern.html").order_by("id").first()
+        )
         if template:
             if not template.is_active:
                 template.is_active = True
@@ -245,7 +249,9 @@ class Command(BaseCommand):
         )
 
     def _reset(self):
-        users = list(CustomUser.objects.filter(email__in=[*EMAILS.values(), *LEGACY_EMAILS]))
+        users = list(
+            CustomUser.objects.filter(email__in=[*EMAILS.values(), *LEGACY_EMAILS])
+        )
         user_ids = [user.id for user in users]
 
         Application.objects.filter(recruiter__user_id__in=user_ids).delete()
