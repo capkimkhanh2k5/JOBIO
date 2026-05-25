@@ -13,6 +13,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
+from apps.company.companies.services.companies import upload_company_logo
 
 
 # ============================================================================
@@ -64,6 +65,29 @@ class BaseCompanyTestCase(TestCase):
         self.orphan_company = Company.objects.create(
             user=None, company_name="Orphan Company", slug="orphan-company"
         )
+
+
+class CompanyCloudinaryCleanupTests(BaseCompanyTestCase):
+    @patch("apps.company.companies.services.companies.delete_company_file")
+    @patch("apps.company.companies.services.companies.save_company_file")
+    @patch.object(Company, "save")
+    def test_upload_logo_cleans_up_when_db_save_fails(
+        self, mock_company_save, mock_save_file, mock_delete_file
+    ):
+        logo_url = "https://res.cloudinary.com/demo/image/upload/v1/logo.jpg"
+        mock_save_file.return_value = logo_url
+        mock_company_save.side_effect = RuntimeError("db down")
+        file = io.BytesIO()
+        image = Image.new("RGB", (100, 100), "red")
+        image.save(file, "jpeg")
+        image = SimpleUploadedFile(
+            "logo.jpg", file.getvalue(), content_type="image/jpeg"
+        )
+
+        with self.assertRaisesMessage(RuntimeError, "db down"):
+            upload_company_logo(self.company, image)
+
+        mock_delete_file.assert_called_once_with(logo_url, "image")
 
 
 # ============================================================================

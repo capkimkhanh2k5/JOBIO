@@ -17,24 +17,59 @@ def delete_cloudinary_file(
     Xóa file từ Cloudinary dựa trên URL.
     Tự động xử lý public_id cho các resource_type khác nhau.
     """
-    public_id = extract_cloudinary_public_id(file_url, resource_type)
-    if not public_id:
+    public_ids = extract_cloudinary_public_id_candidates(file_url, resource_type)
+    if not public_ids:
         return False
 
+    last_error = None
     try:
-        result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
-        logger.info(
-            "Deleted Cloudinary file: %s (%s) -> %s",
-            public_id,
-            resource_type,
-            result,
-        )
-        return result.get("result") == "ok"
+        for public_id in public_ids:
+            result = cloudinary.uploader.destroy(
+                public_id, resource_type=resource_type, invalidate=True
+            )
+            logger.info(
+                "Deleted Cloudinary file: %s (%s) -> %s",
+                public_id,
+                resource_type,
+                result,
+            )
+            if result.get("result") == "ok":
+                return True
     except Exception as e:
+        last_error = e
         logger.error("Failed to delete Cloudinary file %s: %s", file_url, e)
-        if raise_on_error:
-            raise
+
+    if last_error and raise_on_error:
+        raise last_error
+    if raise_on_error:
+        logger.warning(
+            "Cloudinary file was not deleted url=%s resource_type=%s public_ids=%s",
+            file_url,
+            resource_type,
+            public_ids,
+        )
         return False
+
+    return False
+
+
+def extract_cloudinary_public_id_candidates(
+    file_url: str, resource_type: str = "image"
+) -> list[str]:
+    public_id = extract_cloudinary_public_id(file_url, resource_type)
+    if not public_id:
+        return []
+
+    candidates = [public_id]
+
+    if resource_type == "raw":
+        dirname, _, filename = public_id.rpartition("/")
+        stem, dot, _extension = filename.rpartition(".")
+        if dot and stem:
+            raw_public_id_without_extension = f"{dirname}/{stem}" if dirname else stem
+            candidates.append(raw_public_id_without_extension)
+
+    return list(dict.fromkeys(candidates))
 
 
 def extract_cloudinary_public_id(file_url: str, resource_type: str = "image") -> str:

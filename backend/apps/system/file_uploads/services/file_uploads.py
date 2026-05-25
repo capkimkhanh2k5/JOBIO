@@ -21,6 +21,7 @@ def save_upload(
     sub_folder = "public" if is_public else "private"
 
     file_url = None
+    cloudinary_resource_type = None
 
     # Try Cloudinary first
     cloudinary_cloud_name = getattr(settings, "CLOUDINARY_STORAGE", {}).get(
@@ -49,6 +50,7 @@ def save_upload(
                 overwrite=False,
             )
             file_url = result["secure_url"]
+            cloudinary_resource_type = resource_type
             saved_path = public_id
         except Exception as exc:
             logger.warning("Cloudinary upload failed; falling back to storage: %s", exc)
@@ -65,17 +67,24 @@ def save_upload(
         except Exception:
             file_url = saved_path
 
-    upload = FileUpload.objects.create(
-        user=user,
-        file_name=unique_name,
-        original_name=file_obj.name,
-        file_path=file_url,
-        file_type=ext.replace(".", ""),
-        file_size=file_obj.size,
-        mime_type=file_obj.content_type,
-        entity_type=entity_type,
-        entity_id=entity_id,
-        is_public=is_public,
-    )
+    try:
+        upload = FileUpload.objects.create(
+            user=user,
+            file_name=unique_name,
+            original_name=file_obj.name,
+            file_path=file_url,
+            file_type=ext.replace(".", ""),
+            file_size=file_obj.size,
+            mime_type=file_obj.content_type,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            is_public=is_public,
+        )
+    except Exception:
+        if cloudinary_resource_type and "res.cloudinary.com" in str(file_url):
+            from apps.system.file_uploads.cloudinary_utils import delete_cloudinary_file
+
+            delete_cloudinary_file(file_url, cloudinary_resource_type)
+        raise
 
     return upload

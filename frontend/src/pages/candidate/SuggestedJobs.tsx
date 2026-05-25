@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -257,6 +257,10 @@ export default function SuggestedJobs() {
         enabled: !!selectedCvId,
         staleTime: 60_000,
     });
+    const activeSuggestions = useMemo(
+        () => (suggestions as any[]).filter((job: any) => !isJobExpired(job)),
+        [suggestions]
+    );
 
     // Quick apply
     const handleApply = async (jobId: number) => {
@@ -328,7 +332,7 @@ export default function SuggestedJobs() {
                                 <Skeleton key={i} className="h-48 rounded-3xl" />
                             ))}
                         </div>
-                    ) : (suggestions as any[]).length === 0 ? (
+                    ) : activeSuggestions.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-24 text-center">
                             <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
                                 <Briefcase className="w-10 h-10 text-slate-300" />
@@ -342,11 +346,11 @@ export default function SuggestedJobs() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between mb-2">
                                 <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                    Tìm thấy <span className="text-violet-600">{(suggestions as any[]).length}</span> việc làm phù hợp
+                                    Tìm thấy <span className="text-violet-600">{activeSuggestions.length}</span> việc làm phù hợp
                                 </p>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
-                                {(suggestions as any[]).map((job: any) => (
+                                {activeSuggestions.map((job: any) => (
                                     <JobCard key={job.id} job={job} onApply={handleApply} />
                                 ))}
                             </div>
@@ -356,4 +360,17 @@ export default function SuggestedJobs() {
             </div>
         </div>
     );
+}
+
+function isJobExpired(job: any) {
+    if (job?.is_expired || job?.status === 'expired') return true;
+    const deadline = job?.application_deadline ?? job?.deadline;
+    if (!deadline) return false;
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(deadline));
+    const target = match
+        ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+        : new Date(deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Number.isFinite(target.getTime()) && target.getTime() < today.getTime();
 }

@@ -77,3 +77,21 @@ class SaveUploadServiceTests(TestCase):
         saved_files = list(Path(MEDIA_ROOT).rglob("*.txt"))
         self.assertEqual(len(saved_files), 1)
         self.assertEqual(saved_files[0].read_bytes(), b"file_content")
+
+    @patch("apps.system.file_uploads.cloudinary_utils.delete_cloudinary_file")
+    @patch("apps.system.file_uploads.models.FileUpload.objects.create")
+    @patch("cloudinary.uploader.upload")
+    def test_cloudinary_file_is_cleaned_up_when_db_create_fails(
+        self, mock_upload, mock_create, mock_delete
+    ):
+        cloudinary_url = "https://res.cloudinary.com/demo/raw/upload/v1/file.pdf"
+        mock_upload.return_value = {"secure_url": cloudinary_url}
+        mock_create.side_effect = RuntimeError("db down")
+        file_obj = SimpleUploadedFile(
+            "resume.pdf", b"%PDF", content_type="application/pdf"
+        )
+
+        with self.assertRaisesMessage(RuntimeError, "db down"):
+            save_upload(self.user, file_obj, is_public=False)
+
+        mock_delete.assert_called_once_with(cloudinary_url, "raw")

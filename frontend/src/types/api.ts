@@ -316,6 +316,7 @@ export interface JobListItem {
   application_deadline: string | null;
   deadline?: string | null;
   status: JobStatus;
+  is_expired?: boolean;
   view_count: number;
   views_count?: number;
   application_count: number;
