@@ -163,46 +163,41 @@ export default function MyApplications() {
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
 
-                {/* Initial Loading Skeleton for Stats */}
-                {isLoading && !applications && (
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)}
-                    </div>
-                )}
-
-                {/* Stats Summary — DashboardKpiCard */}
-                {!isLoading && applications && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-                    >
-                        <DashboardKpiCard
-                            icon={<Briefcase className="w-5 h-5" />}
-                            label="Tổng số đơn"
-                            value={stats.total}
-                            iconGradient="from-slate-400 to-slate-600"
-                        />
-                        <DashboardKpiCard
-                            icon={<Activity className="w-5 h-5" />}
-                            label="Đang diễn ra"
-                            value={stats.active}
-                            iconGradient="from-blue-500 to-blue-600"
-                        />
-                        <DashboardKpiCard
-                            icon={<CheckCircle2 className="w-5 h-5" />}
-                            label="Thành công"
-                            value={stats.success}
-                            iconGradient="from-emerald-500 to-emerald-600"
-                        />
-                        <DashboardKpiCard
-                            icon={<XCircle className="w-5 h-5" />}
-                            label="Chưa phù hợp"
-                            value={stats.failed}
-                            iconGradient="from-red-400 to-red-600"
-                        />
-                    </motion.div>
-                )}
+                {/* Stats Summary — DashboardKpiCard (always visible, shows 0 when no data) */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+                >
+                    <DashboardKpiCard
+                        icon={<Briefcase className="w-5 h-5" />}
+                        label="Tổng số đơn"
+                        value={stats.total}
+                        iconGradient="from-slate-400 to-slate-600"
+                        isLoading={isLoading}
+                    />
+                    <DashboardKpiCard
+                        icon={<Activity className="w-5 h-5" />}
+                        label="Đang diễn ra"
+                        value={stats.active}
+                        iconGradient="from-blue-500 to-blue-600"
+                        isLoading={isLoading}
+                    />
+                    <DashboardKpiCard
+                        icon={<CheckCircle2 className="w-5 h-5" />}
+                        label="Thành công"
+                        value={stats.success}
+                        iconGradient="from-emerald-500 to-emerald-600"
+                        isLoading={isLoading}
+                    />
+                    <DashboardKpiCard
+                        icon={<XCircle className="w-5 h-5" />}
+                        label="Chưa phù hợp"
+                        value={stats.failed}
+                        iconGradient="from-red-400 to-red-600"
+                        isLoading={isLoading}
+                    />
+                </motion.div>
 
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     {/* Filter & Search Bar — notification style */}
