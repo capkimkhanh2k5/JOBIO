@@ -5,7 +5,6 @@ import {
     CalendarClock, BarChart3, Building2,
     Settings, LifeBuoy, Search, History, BookOpen, Bell,
 } from 'lucide-react';
-import { Logo } from '@/components/shared/Logo';
 import { useNotificationStore } from '@/store/notificationStore';
 
 interface NavItem {
@@ -149,16 +148,7 @@ export function CompanySidebar() {
             className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-slate-200 bg-white"
             aria-label="Company Navigation"
         >
-            <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
-                {/* Logo */}
-                <div className="px-6 mb-6">
-                    <Logo
-                        to="/company/dashboard"
-                        imageClassName="h-10 w-auto object-contain drop-shadow"
-                        textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
-                    />
-                </div>
-
+            <div className="flex-1 pt-5 pb-4 flex flex-col gap-1 overflow-y-auto">
                 {/* Section label */}
                 <div className="px-6 mb-2">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
