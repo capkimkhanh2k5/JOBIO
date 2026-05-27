@@ -349,7 +349,7 @@ export default function CandidateDashboard() {
                                             <p className="text-xs text-slate-500 mt-0.5">Phù hợp với hồ sơ của bạn</p>
                                         </div>
                                     </div>
-                                    <Link to="/jobs" className="text-slate-400 hover:text-violet-600 transition-colors">
+                                    <Link to="/candidate/suggested-jobs" className="text-slate-400 hover:text-violet-600 transition-colors">
                                         <ArrowUpRight className="w-4 h-4" />
                                     </Link>
                                 </div>
@@ -386,7 +386,7 @@ export default function CandidateDashboard() {
                                         ))
                                     )}
                                 </div>
-                                <Button variant="ghost" className="w-full mt-3 text-sm text-violet-600 hover:text-violet-700 hover:bg-violet-50 font-semibold" onClick={() => navigate('/jobs')}>
+                                <Button variant="ghost" className="w-full mt-3 text-sm text-violet-600 hover:text-violet-700 hover:bg-violet-50 font-semibold" onClick={() => navigate('/candidate/suggested-jobs')}>
                                     Xem thêm việc làm
                                 </Button>
                             </div>

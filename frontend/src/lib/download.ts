@@ -14,3 +14,14 @@ export function downloadBlob(data: BlobPart, filename: string, mimeType = EXCEL_
     link.remove();
     window.URL.revokeObjectURL(url);
 }
+
+export async function downloadFileFromUrl(url: string, filename: string) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Download failed: ${response.status}`);
+        const blob = await response.blob();
+        downloadBlob(blob, filename, blob.type || 'application/pdf');
+    } catch {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+}

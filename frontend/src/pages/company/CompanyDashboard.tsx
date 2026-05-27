@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Briefcase, Users, Eye, CalendarClock, PlusSquare, Search, User2 } from 'lucide-react';
+import { Briefcase, Users, Eye, CalendarClock, PlusSquare, ListChecks, User2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
@@ -115,7 +115,7 @@ export default function CompanyDashboard() {
 
     const quickActions = [
         { icon: <PlusSquare className="w-6 h-6" />, label: 'Đăng tin mới', to: '/company/jobs/create', gradient: 'from-violet-500 to-indigo-600' },
-        { icon: <Search className="w-6 h-6" />, label: 'Tìm CV', to: '/company/cv-search', gradient: 'from-indigo-500 to-violet-600' },
+        { icon: <ListChecks className="w-6 h-6" />, label: 'Quản lý tin', to: '/company/jobs', gradient: 'from-indigo-500 to-violet-600' },
         { icon: <User2 className="w-6 h-6" />, label: 'Xem ứng viên', to: '/company/candidates', gradient: 'from-violet-400 to-indigo-500' },
     ];
 
@@ -174,7 +174,7 @@ export default function CompanyDashboard() {
                         <div className="flex flex-col gap-1.5 flex-1">
                             {[
                                 { label: '📋 Đăng tin mới', to: '/company/jobs/create', desc: 'Tạo tin ngay' },
-                                { label: '🔍 Tìm CV', to: '/company/cv-search', desc: 'Khám phá hồ sơ' },
+                                { label: '🗂️ Quản lý tin', to: '/company/jobs', desc: 'Theo dõi tin đăng' },
                                 { label: '👥 Xem ứng viên', to: '/company/candidates', desc: 'Quản lý danh sách' },
                                 { label: '📊 Báo cáo', to: '/company/analytics', desc: 'Phân tích hiệu quả' },
                                 { label: '⚙️ Cài đặt', to: '/company/settings', desc: 'Tùy chỉnh' },
@@ -194,10 +194,10 @@ export default function CompanyDashboard() {
                                 </Link>
                             ))}
                         </div>
-                        <div className="mt-4 py-3 px-3 bg-violet-50 rounded-xl border border-violet-100">
+                        <Link to="/pricing" className="mt-4 block py-3 px-3 bg-violet-50 rounded-xl border border-violet-100 hover:bg-violet-100/70 hover:border-violet-200 transition-colors">
                             <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-1 text-center font-bold">Nâng cấp Pro</p>
                             <p className="text-[9px] text-violet-400 text-center font-bold leading-relaxed">Mở khóa tính năng cao cấp</p>
-                        </div>
+                        </Link>
                     </div>
                 </motion.div>
             </div>

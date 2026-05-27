@@ -2,12 +2,12 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Sparkles, FileText, Lightbulb, Upload, Loader2 } from 'lucide-react';
+import { Plus, FileText, Lightbulb, Upload, Loader2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
-import api from '@/services/api';
 import { useUserStore } from '@/store/userStore';
 import { getCandidateId } from '@/lib/candidateIdentity';
+import { downloadFileFromUrl } from '@/lib/download';
 import { Button } from '@/components/ui/button';
 import { CVListSidebar } from '@/components/candidate/cv/CVListSidebar';
 import { CVBuilder } from '@/components/candidate/cv/CVBuilder';
@@ -25,6 +25,7 @@ export interface CVItem {
     is_public: boolean;
     view_count: number;
     download_count: number;
+    pdf_generated_at?: string | null;
     updated_at: string;
     thumbnail_url?: string;
     cv_url?: string | null;        // URL of uploaded PDF for CV_Upload
@@ -42,9 +43,12 @@ export default function CVManager() {
     const [selectedTemplateId, setSelectedTemplateId] = useState('tpl-1');
     const [cvData, setCvData] = useState<Record<string, any>>({});
     const [autoSaveStatus, setAutoSaveStatus] = useState<AutoSaveStatus>('idle');
+    const [pdfDirtyCvIds, setPdfDirtyCvIds] = useState<Set<string>>(() => new Set());
+    const [pdfCache, setPdfCache] = useState<Record<string, { cv_url: string; pdf_generated_at: string }>>({});
     const [previewKey, setPreviewKey] = useState(0); // increments after save to trigger preview refresh
     const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [downloadingCvId, setDownloadingCvId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // ── Upload handlers ───────────────────────────────────────────────────────
@@ -126,26 +130,12 @@ export default function CVManager() {
         },
     });
 
-    const downloadMutation = useMutation({
-        mutationFn: (cvId: string) => cvService.downloadPdf(Number(candidateId), Number(cvId)),
-        onSuccess: () => toast.success('CV đang được tải xuống...'),
-    });
-
     const privacyMutation = useMutation({
         mutationFn: ({ cvId, is_public }: { cvId: string; is_public: boolean }) =>
             cvService.update(Number(candidateId), Number(cvId), { is_public } as any).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
         },
-    });
-
-    const aiGenMutation = useMutation({
-        mutationFn: () => api.post(`/api/candidates/${candidateId}/cvs/ai-generate/`).then(r => r.data),
-        onSuccess: (data) => {
-            setCvData(data.cv_data);
-            toast.success('AI đã tạo nội dung CV cho bạn!');
-        },
-        onError: () => toast.error('Không thể tạo CV bằng AI, thử lại sau.'),
     });
 
     // ── Auto-save logic ───────────────────────────────────────────────────────
@@ -206,12 +196,104 @@ export default function CVManager() {
             setCvData(newData);
             overrides.cv_data = newData;
         }
+        if (selectedCvId) {
+            setPdfDirtyCvIds(prev => new Set(prev).add(selectedCvId));
+        }
         setAutoSaveStatus('saving');
         triggerAutoSave(overrides);
     };
 
     const navigate = useNavigate();
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
+
+    const getDownloadFilename = (cv: CVItem) => {
+        const rawName = (cv.cv_name || 'CV').trim() || 'CV';
+        return rawName.toLowerCase().endsWith('.pdf') ? rawName : `${rawName}.pdf`;
+    };
+
+    const isPdfStale = (cv: CVItem) => {
+        if (!cv.template_id) return false;
+        if (pdfDirtyCvIds.has(cv.id)) return true;
+        if (!cv.cv_url || !cv.pdf_generated_at) return true;
+
+        const cvUpdatedAt = new Date(cv.updated_at).getTime();
+        const pdfGeneratedAt = new Date(cv.pdf_generated_at).getTime();
+        return Number.isFinite(cvUpdatedAt) && Number.isFinite(pdfGeneratedAt)
+            ? cvUpdatedAt > pdfGeneratedAt
+            : true;
+    };
+
+    const saveSelectedCvNow = async () => {
+        if (!selectedCvId) return;
+        if (autoSaveTimer.current) {
+            clearTimeout(autoSaveTimer.current);
+            autoSaveTimer.current = null;
+        }
+
+        setAutoSaveStatus('saving');
+        await updateMutation.mutateAsync({
+            cv_name: cvName,
+            template_id: selectedTemplateId,
+            cv_data: cvData,
+        });
+    };
+
+    const handleDownloadCV = async (cv?: CVItem | null) => {
+        const baseTarget = cv ?? selectedCV;
+        const target = baseTarget
+            ? { ...baseTarget, ...(pdfCache[baseTarget.id] || {}) }
+            : null;
+        if (!target || !candidateId) {
+            toast.error('Vui lòng chọn CV cần tải');
+            return;
+        }
+
+        setDownloadingCvId(target.id);
+        try {
+            let downloadUrl = target.cv_url || '';
+            let pdfGeneratedAt = target.pdf_generated_at || '';
+
+            if (downloadUrl && !isPdfStale(target)) {
+                await downloadFileFromUrl(downloadUrl, getDownloadFilename(target));
+                toast.success('CV đang được tải xuống...');
+                return;
+            }
+
+            if (target.id === selectedCvId) {
+                await saveSelectedCvNow();
+                const res = await cvService.savePdf(Number(candidateId), Number(target.id));
+                downloadUrl = res.data.download_url;
+                pdfGeneratedAt = res.data.pdf_generated_at || '';
+            } else {
+                const res = await cvService.downloadPdf(Number(candidateId), Number(target.id));
+                downloadUrl = res.data.download_url;
+                pdfGeneratedAt = res.data.pdf_generated_at || '';
+            }
+
+            if (!downloadUrl) throw new Error('missing_download_url');
+
+            await downloadFileFromUrl(downloadUrl, getDownloadFilename(target));
+            setPdfCache(prev => ({
+                ...prev,
+                [target.id]: {
+                    cv_url: downloadUrl,
+                    pdf_generated_at: pdfGeneratedAt || new Date().toISOString(),
+                },
+            }));
+            setPdfDirtyCvIds(prev => {
+                const next = new Set(prev);
+                next.delete(target.id);
+                return next;
+            });
+            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
+            setPreviewKey(k => k + 1);
+            toast.success('CV đang được tải xuống...');
+        } catch {
+            toast.error('Không thể tải CV. Vui lòng thử lại.');
+        } finally {
+            setDownloadingCvId(null);
+        }
+    };
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
@@ -243,12 +325,16 @@ export default function CVManager() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-violet-200 text-violet-700 hover:bg-violet-100 bg-white/50 backdrop-blur-sm gap-2 h-11 px-6 rounded-xl"
-                                onClick={() => aiGenMutation.mutate()}
-                                disabled={aiGenMutation.isPending || !selectedCvId}
+                                className="border-violet-200 text-violet-700 hover:bg-violet-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl font-semibold"
+                                onClick={() => handleDownloadCV()}
+                                disabled={!selectedCV || downloadingCvId === selectedCV?.id}
                             >
-                                <Sparkles className={`w-4 h-4 ${aiGenMutation.isPending ? 'animate-spin text-violet-400' : ''}`} />
-                                {aiGenMutation.isPending ? 'AI đang tạo...' : 'AI Generate'}
+                                {downloadingCvId === selectedCV?.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Download className="w-4 h-4" />
+                                )}
+                                {downloadingCvId === selectedCV?.id ? 'Đang tải...' : 'Tải CV'}
                             </Button>
                             <Button
                                 variant="outline"
@@ -287,7 +373,10 @@ export default function CVManager() {
                         onSelect={handleSelectCV}
                         onDelete={(id) => deleteMutation.mutate(id)}
                         onSetDefault={(id) => defaultMutation.mutate(id)}
-                        onDownload={(id) => downloadMutation.mutate(id)}
+                        onDownload={(id) => {
+                            const cv = (cvList as any).find((item: CVItem) => item.id === id);
+                            void handleDownloadCV(cv);
+                        }}
                         onTogglePrivacy={(id, is_public) => privacyMutation.mutate({ cvId: id, is_public })}
                         onCreateNew={() => setShowNewDialog(true)}
                     />
@@ -302,7 +391,21 @@ export default function CVManager() {
                             onFieldChange={handleFieldChange}
                             selectedCV={selectedCV}
                             candidateId={Number(candidateId)}
-                            onCvUrlUpdated={() => {
+                            onCvUrlUpdated={(downloadUrl, pdfGeneratedAt) => {
+                                if (selectedCvId) {
+                                    setPdfCache(prev => ({
+                                        ...prev,
+                                        [selectedCvId]: {
+                                            cv_url: downloadUrl,
+                                            pdf_generated_at: pdfGeneratedAt || new Date().toISOString(),
+                                        },
+                                    }));
+                                    setPdfDirtyCvIds(prev => {
+                                        const next = new Set(prev);
+                                        next.delete(selectedCvId);
+                                        return next;
+                                    });
+                                }
                                 queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
                             }}
                         />

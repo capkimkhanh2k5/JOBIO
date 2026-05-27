@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, PlusSquare, Briefcase, Users,
     CalendarClock, BarChart3, Building2,
-    Settings, LifeBuoy, Search, History, BookOpen, Bell,
+    Settings, LifeBuoy, History, BookOpen, Bell,
 } from 'lucide-react';
 import { useNotificationStore } from '@/store/notificationStore';
 
@@ -36,7 +36,6 @@ export function CompanySidebar() {
         { label: 'Đăng tin', path: '/company/jobs/create', icon: <PlusSquare className="w-5 h-5" /> },
         { label: 'Quản lý tin', path: '/company/jobs', icon: <Briefcase className="w-5 h-5" /> },
         { label: 'Ứng viên', path: '/company/candidates', icon: <Users className="w-5 h-5" /> },
-        { label: 'Tìm CV', path: '/company/cv-search', icon: <Search className="w-5 h-5" /> },
         { label: 'Phỏng vấn', path: '/company/interviews', icon: <CalendarClock className="w-5 h-5" /> },
         {
             label: 'Thông báo',

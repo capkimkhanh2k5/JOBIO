@@ -30,6 +30,9 @@ class RecruiterCV(models.Model):
     is_public = models.BooleanField(default=True, verbose_name="CV công khai")
     view_count = models.IntegerField(default=0, verbose_name="Lượt xem")
     download_count = models.IntegerField(default=0, verbose_name="Lượt tải")
+    pdf_generated_at = models.DateTimeField(
+        null=True, blank=True, verbose_name="Thời điểm tạo PDF"
+    )
     parsed_at = models.DateTimeField(
         null=True, blank=True, verbose_name="Thời điểm xử lý"
     )

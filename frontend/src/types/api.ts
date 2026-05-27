@@ -790,6 +790,7 @@ export interface CandidateCV {
   privacy?: CVPrivacy;
   view_count?: number;
   download_count: number;
+  pdf_generated_at?: string | null;
   parsed_at?: string | null;
   created_at: string;
   updated_at: string;

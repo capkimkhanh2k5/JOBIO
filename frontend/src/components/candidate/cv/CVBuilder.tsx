@@ -10,7 +10,6 @@ import {
     ChevronUp,
     Clock,
     Code,
-    Download,
     FileText,
     FolderOpen,
     Globe,
@@ -52,7 +51,7 @@ interface Props {
     onFieldChange: (field: string, value: any) => void;
     selectedCV: CVItem | null;
     candidateId?: number;
-    onCvUrlUpdated?: (url: string) => void;
+    onCvUrlUpdated?: (url: string, pdfGeneratedAt?: string) => void;
 }
 
 interface SuggestionOption {
@@ -384,7 +383,7 @@ export function CVBuilder({
         setIsSavingPdf(true);
         try {
             const res = await cvService.savePdf(candidateId, Number(selectedCV.id));
-            onCvUrlUpdated?.(res.data.download_url);
+            onCvUrlUpdated?.(res.data.download_url, res.data.pdf_generated_at);
             toast.success('Đã lưu PDF thành công', { duration: 3000 });
         } catch {
             toast.error('Lưu PDF thất bại. Vui lòng thử lại.');
@@ -490,14 +489,14 @@ export function CVBuilder({
                             variant="outline"
                             onClick={handleSavePdf}
                             disabled={isSavingPdf}
-                            className="gap-2 h-7 text-xs"
+                            className="h-9 gap-2 rounded-xl border-violet-200 bg-violet-50 px-4 text-xs font-bold text-violet-700 shadow-sm shadow-violet-100/70 transition-all hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800 disabled:opacity-70"
                         >
                             {isSavingPdf ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : (
-                                <Download className="h-3.5 w-3.5" />
+                                <Save className="h-3.5 w-3.5" />
                             )}
-                            {isSavingPdf ? 'Đang lưu...' : 'Lưu PDF'}
+                            {isSavingPdf ? 'Đang lưu...' : 'Lưu'}
                         </Button>
                     )}
                 </div>
