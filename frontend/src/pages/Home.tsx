@@ -281,7 +281,7 @@ const StatsSection = () => {
             value: counters.jobs,
             color: "from-violet-500 to-primary",
             bg: "bg-violet-50",
-            iconBg: "bg-gradient-to-br from-violet-500 to-primary",
+            iconTone: "border-violet-100 bg-violet-50 text-violet-600",
         },
         {
             icon: Building,
@@ -289,7 +289,7 @@ const StatsSection = () => {
             value: counters.companies,
             color: "from-cyan-500 to-blue-500",
             bg: "bg-cyan-50",
-            iconBg: "bg-gradient-to-br from-cyan-500 to-blue-500",
+            iconTone: "border-cyan-100 bg-cyan-50 text-cyan-600",
         },
         {
             icon: Users,
@@ -297,7 +297,7 @@ const StatsSection = () => {
             value: counters.users,
             color: "from-emerald-500 to-teal-500",
             bg: "bg-emerald-50",
-            iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+            iconTone: "border-emerald-100 bg-emerald-50 text-emerald-600",
         },
     ];
 
@@ -319,7 +319,7 @@ const StatsSection = () => {
                         transition={{ duration: 0.2 }}
                         className={`${stat.bg} rounded-2xl p-8 flex items-center gap-6 border border-white shadow-sm`}
                     >
-                        <div className={`${stat.iconBg} w-14 h-14 rounded-xl flex items-center justify-center text-white shadow-md shrink-0`}>
+                        <div className={`${stat.iconTone} w-14 h-14 rounded-xl border flex items-center justify-center shadow-sm shrink-0`}>
                             <stat.icon className="w-7 h-7" />
                         </div>
                         <div>
@@ -464,13 +464,13 @@ const JobCategoriesSection = () => {
         return <Icon className="w-6 h-6" />;
     };
 
-    const gradients = [
-        "from-violet-500 to-primary",
-        "from-cyan-500 to-blue-500",
-        "from-emerald-500 to-teal-500",
-        "from-orange-500 to-amber-500",
-        "from-rose-500 to-pink-500",
-        "from-indigo-500 to-violet-500",
+    const categoryIconTones = [
+        "border-violet-100 bg-violet-50 text-violet-600",
+        "border-cyan-100 bg-cyan-50 text-cyan-600",
+        "border-emerald-100 bg-emerald-50 text-emerald-600",
+        "border-orange-100 bg-orange-50 text-orange-600",
+        "border-rose-100 bg-rose-50 text-rose-600",
+        "border-indigo-100 bg-indigo-50 text-indigo-600",
     ];
 
     return (
@@ -492,7 +492,7 @@ const JobCategoriesSection = () => {
                                 onClick={() => navigate(`/jobs?category_id=${cat.id}`)}
                                 className="bg-white rounded-2xl p-5 flex flex-col items-center text-center gap-3 cursor-pointer group border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all"
                             >
-                                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradients[i % gradients.length]} flex items-center justify-center text-white shadow-sm`}>
+                                <div className={`w-12 h-12 rounded-xl border ${categoryIconTones[i % categoryIconTones.length]} flex items-center justify-center shadow-sm`}>
                                     {getCategoryIcon(cat.slug)}
                                 </div>
                                 <div>
@@ -615,7 +615,7 @@ const IndustriesSection = () => {
                                         }
                                     }}
                                 >
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-primary/80 group-hover:text-white transition-all shrink-0">
+                                    <div className="w-10 h-10 rounded-lg border border-violet-100 bg-violet-50 flex items-center justify-center text-violet-600 group-hover:border-violet-200 group-hover:bg-violet-100 transition-all shrink-0 shadow-sm">
                                         {getIcon(ind.icon_url)}
                                     </div>
                                     <div className="min-w-0">
