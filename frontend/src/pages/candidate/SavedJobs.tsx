@@ -179,7 +179,7 @@ export default function SavedJobs() {
                                                     </div>
                                                 </div>
 
-                                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 relative">
+                                                <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative">
                                                     {editingNoteId === String(job.id) ? (
                                                         <div className="space-y-3">
                                                             <textarea
@@ -212,9 +212,9 @@ export default function SavedJobs() {
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div className="group/note flex items-start justify-between gap-4">
+                                                        <div className="group/note flex items-start justify-between gap-4 min-h-[48px]">
                                                             <div className="flex-1">
-                                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Ghi chú cá nhân</span>
+                                                                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Ghi chú cá nhân</span>
                                                                 <p className={`text-sm ${job.notes ? 'text-slate-700' : 'text-slate-400 italic'}`}>
                                                                     {job.notes || 'Chưa có ghi chú...'}
                                                                 </p>
@@ -222,31 +222,37 @@ export default function SavedJobs() {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-8 w-8 text-violet-400 opacity-40 group-hover/note:opacity-100 hover:text-violet-600 hover:bg-violet-50 transition-all rounded-full shrink-0"
+                                                                className="h-8 w-8 rounded-lg border border-violet-200 bg-white text-violet-600 shadow-sm opacity-80 hover:opacity-100 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-700 transition-all shrink-0"
                                                                 onClick={() => handleEditNote(String(job.id), job.notes)}
+                                                                aria-label="Chỉnh sửa ghi chú"
                                                             >
-                                                                <Edit3 className="w-4 h-4" />
+                                                                <Edit3 className="w-3.5 h-3.5" />
                                                             </Button>
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            <div className="flex md:flex-col items-center gap-3 shrink-0 pt-1">
+                                            <div className="flex md:flex-col items-center md:items-end gap-3 shrink-0 pt-1">
                                                 <Link to={`/jobs/${job.job_id}`} className="w-full md:w-auto flex-1">
                                                     <Button className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
                                                         Ứng tuyển <ExternalLink className="w-4 h-4 ml-2" />
                                                     </Button>
                                                 </Link>
-                                                <Button
-                                                    variant="outline"
-                                                    className="w-full md:w-auto flex-1 border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 rounded-xl"
-                                                    onClick={() => removeMutation.mutate(String(job.id))}
-                                                    disabled={removeMutation.isPending}
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-2" />
-                                                    Bỏ lưu
-                                                </Button>
+                                                <div className="w-full md:w-auto md:mt-[76px]">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="group/unsave w-full md:w-auto md:flex-none h-9 px-3 border-rose-200 bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 rounded-lg font-semibold shadow-sm hover:shadow transition-all"
+                                                        onClick={() => removeMutation.mutate(String(job.id))}
+                                                        disabled={removeMutation.isPending}
+                                                    >
+                                                        <span className="mr-1.5 flex h-5 w-5 items-center justify-center rounded-md bg-rose-50 text-rose-500 group-hover/unsave:bg-rose-100 group-hover/unsave:text-rose-600 transition-colors">
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </span>
+                                                        Bỏ lưu
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
                                     </Card>
