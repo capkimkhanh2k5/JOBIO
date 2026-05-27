@@ -5,6 +5,7 @@ from django.utils import timezone
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiter_cvs.models import RecruiterCV
 from apps.candidate.recruiters.models import Recruiter
+from apps.candidate.recruiter_skills.models import RecruiterSkill
 from apps.candidate.skill_categories.models import SkillCategory
 from apps.candidate.skills.models import Skill
 from apps.company.companies.models import Company
@@ -249,6 +250,51 @@ class JobViewTests(APITestCase):
             job_ids.index(featured_job.id), job_ids.index(high_salary_regular_job.id)
         )
 
+    def test_list_jobs_marks_deadline_expired_and_moves_to_end(self):
+        """Published jobs past deadline stay visible, marked expired, and sorted last."""
+        expired_job = Job.objects.create(
+            company=self.company,
+            title="Deadline Expired Job",
+            slug="deadline-expired-job-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired by deadline",
+            requirements="Expired requirements",
+            application_deadline=timezone.now().date() - timedelta(days=1),
+            status="published",
+            created_by=self.user,
+        )
+        active_job = Job.objects.create(
+            company=self.company,
+            title="Active Deadline Job",
+            slug="active-deadline-job-test",
+            job_type="full-time",
+            level="senior",
+            description="Active job",
+            requirements="Active requirements",
+            application_deadline=timezone.now().date() + timedelta(days=7),
+            status="published",
+            created_by=self.user,
+        )
+        Job.objects.filter(id=expired_job.id).update(
+            published_at=timezone.now() + timedelta(minutes=5),
+            created_at=timezone.now() + timedelta(minutes=5),
+        )
+        Job.objects.filter(id=active_job.id).update(
+            published_at=timezone.now() - timedelta(days=1),
+            created_at=timezone.now() - timedelta(days=1),
+        )
+
+        response = self.client.get("/api/jobs/?status=published&page_size=50")
+        jobs = response.data.get("results", response.data)
+        job_ids = [job["id"] for job in jobs]
+        expired_item = next(job for job in jobs if job["id"] == expired_job.id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertLess(job_ids.index(active_job.id), job_ids.index(expired_job.id))
+        self.assertEqual(expired_item["status"], "expired")
+        self.assertTrue(expired_item["is_expired"])
+
     def test_featured_endpoint_prioritizes_only_active_featured_jobs(self):
         """Expired featured jobs do not outrank active featured jobs."""
         active_featured_job = Job.objects.create(
@@ -356,6 +402,105 @@ class JobViewTests(APITestCase):
             job_ids.index(active_featured_job.id),
             job_ids.index(expired_featured_job.id),
         )
+
+    def test_cv_recommendations_include_match_metadata(self):
+        """CV suggestions return score and human-readable reasons."""
+        candidate_user = CustomUser.objects.create_user(
+            email="candidate-match@example.com",
+            password="password123",
+            full_name="Candidate Match",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(
+            user=candidate_user,
+            address=self.address,
+            years_of_experience=4,
+        )
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            cv_name="Python CV",
+            cv_data={
+                "personal": {"years_of_experience": 4},
+                "skills": [{"name": "Python"}],
+            },
+        )
+
+        self.client.force_authenticate(user=candidate_user)
+        response = self.client.get(f"/api/jobs/recommendations/?cv_id={cv.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        matched_job = next(job for job in response.data if job["id"] == self.job.id)
+        self.assertGreater(matched_job["match_score"], 0)
+        self.assertIsInstance(matched_job["match_reasons"], list)
+        self.assertGreater(len(matched_job["match_reasons"]), 0)
+
+    def test_recommendations_exclude_deadline_expired_jobs(self):
+        candidate_user = CustomUser.objects.create_user(
+            email="candidate-no-expired@example.com",
+            password="password123",
+            full_name="Candidate No Expired",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(user=candidate_user)
+        RecruiterSkill.objects.create(recruiter=recruiter, skill=self.skill)
+        expired_job = Job.objects.create(
+            company=self.company,
+            title="Expired Python Recommendation",
+            slug="expired-python-recommendation-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired job",
+            requirements="Python",
+            application_deadline=timezone.now().date() - timedelta(days=1),
+            status="published",
+            created_by=self.user,
+        )
+        JobSkill.objects.create(job=expired_job, skill=self.skill, is_required=True)
+
+        self.client.force_authenticate(user=candidate_user)
+        response = self.client.get("/api/jobs/recommendations/?page_size=20")
+        job_ids = [job["id"] for job in response.data]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.job.id, job_ids)
+        self.assertNotIn(expired_job.id, job_ids)
+
+    def test_cv_recommendations_exclude_deadline_expired_jobs(self):
+        candidate_user = CustomUser.objects.create_user(
+            email="candidate-cv-no-expired@example.com",
+            password="password123",
+            full_name="Candidate CV No Expired",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(user=candidate_user)
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            cv_name="Python CV No Expired",
+            cv_data={"skills": [{"name": "Python"}]},
+        )
+        expired_job = Job.objects.create(
+            company=self.company,
+            title="Expired Python CV Suggestion",
+            slug="expired-python-cv-suggestion-test",
+            job_type="full-time",
+            level="senior",
+            description="Expired job",
+            requirements="Python",
+            application_deadline=timezone.now().date() - timedelta(days=1),
+            status="published",
+            created_by=self.user,
+        )
+        JobSkill.objects.create(job=expired_job, skill=self.skill, is_required=True)
+
+        self.client.force_authenticate(user=candidate_user)
+        response = self.client.get(
+            f"/api/jobs/recommendations/?cv_id={cv.id}&page_size=20"
+        )
+        job_ids = [job["id"] for job in response.data]
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.job.id, job_ids)
+        self.assertNotIn(expired_job.id, job_ids)
 
     def test_list_jobs_with_multiple_job_type_filters(self):
         """Test GET /api/jobs/?job_type=... supports CSV multi-select values"""

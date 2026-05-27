@@ -34,6 +34,36 @@ def _with_active_featured(queryset: QuerySet[Job]) -> QuerySet[Job]:
     )
 
 
+def _not_deadline_expired_q():
+    today = timezone.now().date()
+    return Q(application_deadline__isnull=True) | Q(application_deadline__gte=today)
+
+
+def _expired_job_q():
+    today = timezone.now().date()
+    return Q(status=Job.Status.EXPIRED) | (
+        Q(status=Job.Status.PUBLISHED)
+        & Q(application_deadline__isnull=False)
+        & Q(application_deadline__lt=today)
+    )
+
+
+def _with_effective_expired(queryset: QuerySet[Job]) -> QuerySet[Job]:
+    return queryset.annotate(
+        effective_is_expired=Case(
+            When(_expired_job_q(), then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
+
+
+def _active_published_jobs(queryset: QuerySet[Job]) -> QuerySet[Job]:
+    return queryset.filter(status=Job.Status.PUBLISHED).filter(
+        _not_deadline_expired_q()
+    )
+
+
 def list_jobs(filters: dict = None) -> QuerySet[Job]:
     """
     Lấy danh sách jobs với filter logic.
@@ -57,8 +87,10 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     ).prefetch_related("required_skills__skill")
 
     if not filters:
-        return _with_active_featured(queryset.filter(status="published")).order_by(
-            "-active_featured", "-published_at", "-created_at"
+        return _with_effective_expired(
+            _with_active_featured(queryset.filter(status=Job.Status.PUBLISHED))
+        ).order_by(
+            "effective_is_expired", "-active_featured", "-published_at", "-created_at"
         )
 
     # Filter by company
@@ -86,10 +118,13 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
 
     # Filter by status
     if filters.get("status"):
-        queryset = queryset.filter(status=filters["status"])
+        if filters["status"] == Job.Status.EXPIRED:
+            queryset = queryset.filter(_expired_job_q())
+        else:
+            queryset = queryset.filter(status=filters["status"])
     elif not filters.get("include_all_statuses"):
         # Default: only show published jobs for public
-        queryset = queryset.filter(status="published")
+        queryset = queryset.filter(status=Job.Status.PUBLISHED)
 
     # Filter by is_remote
     if filters.get("is_remote") is not None:
@@ -143,8 +178,13 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
                 | Q(required_skills__skill__name__icontains=search)
             ).distinct()
 
+    public_priority = (
+        [] if filters.get("include_all_statuses") else ["effective_is_expired"]
+    )
     featured_priority = (
-        [] if filters.get("include_all_statuses") else ["-active_featured"]
+        []
+        if filters.get("include_all_statuses")
+        else [*public_priority, "-active_featured"]
     )
     featured_order = (
         "-featured" if filters.get("include_all_statuses") else "-active_featured"
@@ -172,8 +212,18 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
             "-published_at",
             "-created_at",
         ],
-        "-is_featured": [featured_order, "-published_at", "-created_at"],
-        "-featured": [featured_order, "-published_at", "-created_at"],
+        "-is_featured": [
+            *public_priority,
+            featured_order,
+            "-published_at",
+            "-created_at",
+        ],
+        "-featured": [
+            *public_priority,
+            featured_order,
+            "-published_at",
+            "-created_at",
+        ],
         "-views_count": [
             *featured_priority,
             "-view_count",
@@ -188,11 +238,12 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
         ],
     }
     ordering = ordering_map.get(
-        filters.get("ordering"), [featured_order, "-published_at", "-created_at"]
+        filters.get("ordering"),
+        [*public_priority, featured_order, "-published_at", "-created_at"],
     )
 
     if not filters.get("include_all_statuses"):
-        queryset = _with_active_featured(queryset)
+        queryset = _with_effective_expired(_with_active_featured(queryset))
 
     return queryset.order_by(*ordering)
 
@@ -255,7 +306,7 @@ def list_featured_jobs(limit: int = 8) -> QuerySet[Job]:
     Ưu tiên featured=True; fallback sang published jobs theo traffic nếu chưa có featured.
     """
     base_queryset = (
-        Job.objects.filter(status=Job.Status.PUBLISHED)
+        _active_published_jobs(Job.objects.all())
         .select_related("company", "category", "address", "address__province")
         .prefetch_related("required_skills__skill")
     )
@@ -285,11 +336,10 @@ def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
     deadline_threshold = timezone.now().date() + timedelta(days=days)
 
     return (
-        Job.objects.filter(
-            status="published",
+        _active_published_jobs(Job.objects.all())
+        .filter(
             application_deadline__isnull=False,
             application_deadline__lte=deadline_threshold,
-            application_deadline__gte=timezone.now().date(),
         )
         .select_related("company", "category", "address", "address__province")
         .prefetch_related("required_skills__skill")
@@ -311,7 +361,7 @@ def get_similar_jobs(job_id: int, limit: int = 10) -> QuerySet[Job]:
 
     # Build similarity query với scoring
     queryset = (
-        Job.objects.filter(status="published")
+        _active_published_jobs(Job.objects.all())
         .exclude(id=job_id)
         .annotate(
             similarity_score=Case(
@@ -366,7 +416,7 @@ def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]
         )
 
         queryset = (
-            Job.objects.filter(id__in=matching_job_ids, status="published")
+            _active_published_jobs(Job.objects.filter(id__in=matching_job_ids))
             .select_related("company", "category", "address", "address__province")
             .prefetch_related("required_skills__skill")
             .order_by("-published_at")[:limit]
@@ -377,7 +427,7 @@ def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]
 
     # Fallback: Trending jobs (high views, recent published)
     return (
-        Job.objects.filter(status="published")
+        _active_published_jobs(Job.objects.all())
         .select_related("company", "category", "address", "address__province")
         .prefetch_related("required_skills__skill")
         .order_by("-view_count", "-published_at")[:limit]
@@ -1037,7 +1087,7 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     candidate = _extract_candidate_data(cv, recruiter)
 
     # Step 2: Pre-filter jobs (DB level — reduce scoring candidates)
-    base_query = _with_active_featured(Job.objects.filter(status="published"))
+    base_query = _with_active_featured(_active_published_jobs(Job.objects.all()))
 
     # Build OR filter: at least 1 relevance signal
     relevance_filter = Q()
@@ -1142,7 +1192,7 @@ def get_job_suggestions_for_cv(cv_id: int, recruiter, limit: int = 20) -> list:
     # Fallback: if no scored results → trending jobs
     if not scored:
         trending = (
-            _with_active_featured(Job.objects.filter(status="published"))
+            _with_active_featured(_active_published_jobs(Job.objects.all()))
             .select_related("company", "category__parent", "address__province")
             .prefetch_related("required_skills__skill", "locations__address__province")
             .order_by("-active_featured", "-view_count", "-published_at")[:limit]

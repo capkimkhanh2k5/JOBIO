@@ -104,9 +104,12 @@ def ensure_cv_templates_seeded():
             },
         )
         category = category_map.get(meta["category"], category_map["professional"])
-        CVTemplate.objects.update_or_create(
-            file_name=file_name,
-            defaults={
+        template = CVTemplate.objects.filter(file_name=file_name).order_by("id").first()
+        if template:
+            CVTemplate.objects.filter(file_name=file_name).exclude(
+                pk=template.pk
+            ).update(is_active=False)
+            for field, value in {
                 "name": meta["name"],
                 "category": category,
                 "is_premium": False,
@@ -116,8 +119,32 @@ def ensure_cv_templates_seeded():
                     "tags": meta["tags"],
                     "description": meta["description"],
                 },
-            },
-        )
+            }.items():
+                setattr(template, field, value)
+            template.save(
+                update_fields=[
+                    "name",
+                    "category",
+                    "is_premium",
+                    "price",
+                    "is_active",
+                    "template_data",
+                    "updated_at",
+                ]
+            )
+        else:
+            CVTemplate.objects.create(
+                file_name=file_name,
+                name=meta["name"],
+                category=category,
+                is_premium=False,
+                price=0,
+                is_active=True,
+                template_data={
+                    "tags": meta["tags"],
+                    "description": meta["description"],
+                },
+            )
 
 
 class CVTemplateViewSet(viewsets.ModelViewSet):

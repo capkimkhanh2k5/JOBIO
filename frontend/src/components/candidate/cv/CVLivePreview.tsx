@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cvService } from '@/services/cvService';
 import { useUserStore } from '@/store/userStore';
+import { getCandidateId } from '@/lib/candidateIdentity';
 
 interface Props {
     cvId: string | null;
@@ -197,7 +198,7 @@ function PdfIframePreview({ url }: { url: string }) {
 // ─── Main export ──────────────────────────────────────────────────────────────
 export function CVLivePreview({ cvId, cvName, templateId, cvUrl, previewKey = 0 }: Props) {
     const { user } = useUserStore();
-    const candidateId = user?.candidate_id;
+    const candidateId = getCandidateId(user);
 
     // CV_Upload: no template, but has a cv_url (uploaded PDF)
     // CV_Template: has templateId (even if cv_url is also set after saving PDF)

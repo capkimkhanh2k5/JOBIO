@@ -64,6 +64,8 @@ def create_application(
     # Kiểm tra job status
     if job.status != "published":
         raise ValueError("This job is no longer recruiting!")
+    if job.application_deadline and job.application_deadline < timezone.now().date():
+        raise ValueError("This job is no longer recruiting!")
 
     _ensure_recruiter_owns_cv(recruiter, data.cv_id)
 

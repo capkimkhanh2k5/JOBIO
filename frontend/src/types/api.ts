@@ -35,6 +35,7 @@ export interface User {
   social_provider?: SocialProvider;
   has_usable_password?: boolean;
   candidate_id?: number;
+  recruiter_id?: number;
   company_id?: number;
   subscription_plan?: string;
 }
@@ -315,6 +316,7 @@ export interface JobListItem {
   application_deadline: string | null;
   deadline?: string | null;
   status: JobStatus;
+  is_expired?: boolean;
   view_count: number;
   views_count?: number;
   application_count: number;

@@ -101,6 +101,8 @@ interface JobCardProps {
         application_deadline?: string | null;
         created_at?: string;
         published_at?: string | null;
+        status?: string;
+        is_expired?: boolean;
         featured?: boolean;
         is_featured?: boolean;
         skills?: JobSkillItem[];
@@ -132,6 +134,8 @@ export function JobCard({ job, view }: JobCardProps) {
     const applicationCount = job.applications_count ?? job.application_count ?? 0;
     const salaryText = formatSalary(job);
     const deadline = getDeadlineDiff(deadlineDate);
+    const isExpired =
+        job.is_expired === true || job.status === "expired" || deadline?.expired === true;
     const skills = getSkills(job.skills);
     const locationText = getLocationText(job);
     const experienceText = getExperienceText(job);
@@ -208,7 +212,8 @@ export function JobCard({ job, view }: JobCardProps) {
                 <div className={cn(
                     "relative bg-white border border-gray-200 rounded-xl p-5 sm:p-6",
                     "hover:border-primary/35 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
-                    isFeatured && "border-l-4 border-l-primary"
+                    isFeatured && !isExpired && "border-l-4 border-l-primary",
+                    isExpired && "border-l-4 border-l-rose-300 bg-rose-50/30"
                 )}>
                     <div className="flex flex-col xl:flex-row gap-5">
                         <div className="flex min-w-0 flex-1 gap-4">
@@ -234,7 +239,12 @@ export function JobCard({ job, view }: JobCardProps) {
                                     </div>
 
                                     <div className="flex flex-wrap items-center gap-1.5 lg:justify-end shrink-0">
-                                        {isFeatured && (
+                                        {isExpired && (
+                                            <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[11px] px-2">
+                                                <CalendarDays className="w-3 h-3 mr-1" /> Đã hết hạn
+                                            </Badge>
+                                        )}
+                                        {isFeatured && !isExpired && (
                                             <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[11px] px-2">
                                                 <Star className="w-3 h-3 mr-1 fill-current" /> Nổi bật
                                             </Badge>
@@ -337,12 +347,18 @@ export function JobCard({ job, view }: JobCardProps) {
                                     className="flex-1 h-11 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg"
                                     onClick={e => {
                                         e.stopPropagation();
-                                        if (!isAdminViewer) navigate(`/jobs/${job.id}`);
+                                        if (!isAdminViewer && !isExpired) navigate(`/jobs/${job.id}`);
                                     }}
-                                    disabled={isAdminViewer}
-                                    title={isAdminViewer ? "Admin chỉ xem nội dung, không thể ứng tuyển" : undefined}
+                                    disabled={isAdminViewer || isExpired}
+                                    title={
+                                        isExpired
+                                            ? "Việc làm đã hết hạn"
+                                            : isAdminViewer
+                                                ? "Admin chỉ xem nội dung, không thể ứng tuyển"
+                                                : undefined
+                                    }
                                 >
-                                    Ứng tuyển ngay
+                                    {isExpired ? "Đã hết hạn" : "Ứng tuyển ngay"}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -378,9 +394,10 @@ export function JobCard({ job, view }: JobCardProps) {
             <div className={cn(
                 "relative bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col h-full",
                 "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
-                isFeatured && "border-t-2 border-t-primary"
+                isFeatured && !isExpired && "border-t-2 border-t-primary",
+                isExpired && "border-t-2 border-t-rose-300 bg-rose-50/30"
             )}>
-                {isFeatured && (
+                {isFeatured && !isExpired && (
                     <div className="absolute top-3 right-3 z-10">
                         <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-white border-0 text-[10px] shadow-sm">
                             <Star className="w-2.5 h-2.5 mr-0.5 fill-current" /> Nổi bật
@@ -407,6 +424,11 @@ export function JobCard({ job, view }: JobCardProps) {
                                 {job.has_applied && (
                                     <Badge className="bg-green-50 text-green-700 border-green-200 text-[10px] h-4 px-1.5 mt-0.5">
                                         Đã ứng tuyển
+                                    </Badge>
+                                )}
+                                {isExpired && (
+                                    <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[10px] h-4 px-1.5 mt-0.5">
+                                        Đã hết hạn
                                     </Badge>
                                 )}
                             </div>
@@ -500,12 +522,18 @@ export function JobCard({ job, view }: JobCardProps) {
                         className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg transition-colors"
                         onClick={e => {
                             e.stopPropagation();
-                            if (!isAdminViewer) navigate(`/jobs/${job.id}`);
+                            if (!isAdminViewer && !isExpired) navigate(`/jobs/${job.id}`);
                         }}
-                        disabled={isAdminViewer}
-                        title={isAdminViewer ? "Admin chỉ xem nội dung, không thể ứng tuyển" : undefined}
+                        disabled={isAdminViewer || isExpired}
+                        title={
+                            isExpired
+                                ? "Việc làm đã hết hạn"
+                                : isAdminViewer
+                                    ? "Admin chỉ xem nội dung, không thể ứng tuyển"
+                                    : undefined
+                        }
                     >
-                        Ứng tuyển ngay
+                        {isExpired ? "Đã hết hạn" : "Ứng tuyển ngay"}
                     </Button>
                 </div>
             </div>
@@ -617,12 +645,21 @@ function getTimeAgo(date?: string | null) {
 
 function getDeadlineDiff(deadline?: string | null) {
     if (!deadline) return null;
-    const diff = Math.ceil((new Date(deadline).getTime() - Date.now()) / 86400000);
+    const target = parseDateOnly(deadline);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = Math.round((target.getTime() - today.getTime()) / 86400000);
     if (isNaN(diff)) return null;
-    if (diff < 0) return { label: "Hết hạn", urgent: true };
+    if (diff < 0) return { label: "Hết hạn", urgent: true, expired: true };
     if (diff === 0) return { label: "Hôm nay", urgent: true };
     if (diff <= 3) return { label: `Còn ${diff} ngày`, urgent: true };
     return { label: `Còn ${diff} ngày`, urgent: false };
+}
+
+function parseDateOnly(value: string) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+    if (!match) return new Date(value);
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
 }
 
 function getShortText(value?: string | null, limit = 140) {

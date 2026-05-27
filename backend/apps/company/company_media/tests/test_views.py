@@ -77,8 +77,7 @@ class CompanyMediaViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], "Updated Title")
 
-    @patch("apps.company.company_media.services.company_media.delete_company_file")
-    def test_delete_media(self, mock_delete):
+    def test_delete_media(self):
         media = CompanyMedia.objects.create(
             company=self.company, media_type=self.media_type, media_url="u1"
         )

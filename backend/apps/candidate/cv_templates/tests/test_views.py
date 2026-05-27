@@ -54,6 +54,23 @@ class CVTemplateViewSetTests(TestCase):
             1,
         )
 
+    def test_list_templates_recovers_duplicate_file_names(self):
+        """Duplicate seeded file names should not make the public API return 500."""
+        duplicate = CVTemplate.objects.create(
+            name="Duplicate Modern",
+            file_name="modern.html",
+            category=self.category,
+            template_data={"sections": []},
+            is_premium=False,
+            is_active=True,
+        )
+
+        response = self.client.get("/api/cv-templates/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        duplicate.refresh_from_db()
+        self.assertFalse(duplicate.is_active)
+
     def test_retrieve_template(self):
         """Test GET /api/cv-templates/:id/ - Get template detail"""
         response = self.client.get(f"/api/cv-templates/{self.template.id}/")

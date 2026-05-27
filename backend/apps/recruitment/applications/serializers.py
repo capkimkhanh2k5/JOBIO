@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.utils import timezone
+
 from .models import Application
 
 from apps.recruitment.jobs.models import Job
@@ -224,6 +226,11 @@ class ApplicationCreateSerializer(serializers.Serializer):
         try:
             job = Job.objects.get(id=value)
             if job.status != "published":
+                raise serializers.ValidationError("This job is not available!")
+            if (
+                job.application_deadline
+                and job.application_deadline < timezone.now().date()
+            ):
                 raise serializers.ValidationError("This job is not available!")
             return value
         except Job.DoesNotExist:

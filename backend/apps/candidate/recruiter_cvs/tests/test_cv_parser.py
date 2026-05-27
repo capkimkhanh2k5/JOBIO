@@ -632,6 +632,47 @@ class UploadCvPdfServiceTest(TestCase):
         CV_UPLOAD_MAX_BYTES=10 * 1024 * 1024,
         CV_PDF_MAX_PAGES=3,
     )
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs._dispatch_cv_parse")
+    @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
+    def test_create_cv_from_direct_upload_accepts_public_id_with_pdf_extension(
+        self,
+        mock_download,
+        mock_dispatch,
+    ):
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import (
+            create_cv_from_direct_upload,
+        )
+
+        public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'b' * 32}.pdf"
+        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}"
+        mock_download.return_value = _build_test_cv_bytes()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            cv = create_cv_from_direct_upload(
+                self.recruiter,
+                {
+                    "public_id": public_id,
+                    "secure_url": secure_url,
+                    "resource_type": "raw",
+                    "bytes": 12345,
+                },
+                "alex-cv.pdf",
+            )
+
+        self.assertEqual(cv.cv_name, "alex-cv")
+        self.assertEqual(cv.cv_url, secure_url)
+        mock_download.assert_called_once_with(secure_url)
+        mock_dispatch.assert_called_once_with(cv.id)
+
+    @override_settings(
+        CLOUDINARY_STORAGE={
+            "CLOUD_NAME": "demo",
+            "API_KEY": "api-key",
+            "API_SECRET": "api-secret",
+        },
+        CV_UPLOAD_MAX_BYTES=10 * 1024 * 1024,
+        CV_PDF_MAX_PAGES=3,
+    )
     @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
     def test_create_cv_from_direct_upload_rejects_wrong_recruiter_public_id(
         self,
@@ -690,6 +731,47 @@ class UploadCvPdfServiceTest(TestCase):
             )
 
         mock_download.assert_not_called()
+
+    @override_settings(
+        CLOUDINARY_STORAGE={
+            "CLOUD_NAME": "demo",
+            "API_KEY": "api-key",
+            "API_SECRET": "api-secret",
+        },
+        CV_UPLOAD_MAX_BYTES=10 * 1024 * 1024,
+        CV_PDF_MAX_PAGES=3,
+    )
+    @patch(
+        "apps.candidate.recruiter_cvs.services.recruiter_cvs."
+        "_delete_orphan_cloudinary_file"
+    )
+    @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
+    def test_create_cv_from_direct_upload_cleans_up_when_validation_download_fails(
+        self,
+        mock_download,
+        mock_cleanup,
+    ):
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import (
+            create_cv_from_direct_upload,
+        )
+
+        public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'c' * 32}"
+        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
+        mock_download.side_effect = ValueError("download failed")
+
+        with self.assertRaisesMessage(ValueError, "download failed"):
+            create_cv_from_direct_upload(
+                self.recruiter,
+                {
+                    "public_id": public_id,
+                    "secure_url": secure_url,
+                    "resource_type": "raw",
+                    "bytes": 12345,
+                },
+                "alex-cv.pdf",
+            )
+
+        mock_cleanup.assert_called_once_with(secure_url, "raw")
 
 
 @override_settings(

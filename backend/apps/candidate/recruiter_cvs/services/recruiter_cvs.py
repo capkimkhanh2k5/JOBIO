@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 CV_DIRECT_UPLOAD_FOLDER = "Jobio/CVs"
 CV_DIRECT_UPLOAD_PUBLIC_ID_RE = re.compile(
-    r"^Jobio/CVs/cv_upload_(?P<recruiter_id>\d+)_[a-f0-9]{32}$"
+    r"^Jobio/CVs/cv_upload_(?P<recruiter_id>\d+)_[a-f0-9]{32}(\.pdf)?$"
 )
 
 
@@ -265,7 +265,11 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
 
     cv.cv_url = cv_url
     cv.download_count += 1
-    cv.save(update_fields=["cv_url", "download_count"])
+    try:
+        cv.save(update_fields=["cv_url", "download_count"])
+    except Exception:
+        _delete_orphan_cloudinary_file(cv_url, "raw")
+        raise
 
     return {"download_url": cv_url, "format": "pdf", "message": "Generated new PDF"}
 
@@ -338,17 +342,21 @@ def create_cv_from_direct_upload(
     _validate_direct_upload_metadata(
         recruiter, public_id, secure_url, resource_type, byte_count
     )
-    pdf_bytes = _download_pdf(secure_url)
+    try:
+        pdf_bytes = _download_pdf(secure_url)
 
-    cv = RecruiterCV.objects.create(
-        recruiter=recruiter,
-        template=None,
-        cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
-        cv_data={},
-        cv_url=secure_url,
-        is_default=False,
-        is_public=True,
-    )
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            template=None,
+            cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
+            cv_data={},
+            cv_url=secure_url,
+            is_default=False,
+            is_public=True,
+        )
+    except Exception:
+        _delete_orphan_cloudinary_file(secure_url, "raw")
+        raise
 
     transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
     logger.debug(
@@ -454,19 +462,23 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
     if not cv_name:
         cv_name = file.name
 
-    cv = RecruiterCV.objects.create(
-        recruiter=recruiter,
-        template=None,
-        cv_name=_normalize_cv_name(cv_name),
-        cv_data={},
-        cv_url=cv_url,
-        is_default=False,
-        is_public=True,
-    )
+    try:
+        cv = RecruiterCV.objects.create(
+            recruiter=recruiter,
+            template=None,
+            cv_name=_normalize_cv_name(cv_name),
+            cv_data={},
+            cv_url=cv_url,
+            is_default=False,
+            is_public=True,
+        )
 
-    # Dispatch async CV parsing task via Celery
-    # The task will download the PDF, extract text, parse with LLM, and update cv_data
-    transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+        # Dispatch async CV parsing task via Celery
+        # The task will download the PDF, extract text, parse with LLM, and update cv_data
+        transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+    except Exception:
+        _delete_orphan_cloudinary_file(cv_url, "raw")
+        raise
 
     return cv
 
@@ -481,6 +493,23 @@ def _dispatch_cv_parse(cv_id: int):
         logger.warning(
             f"Could not dispatch async CV parse task for CV {cv_id}: {e}. "
             "Celery may not be running. Matching will fallback to recruiter profile."
+        )
+
+
+def _delete_orphan_cloudinary_file(file_url: str, resource_type: str = "raw") -> None:
+    if "res.cloudinary.com" not in str(file_url or ""):
+        return
+
+    try:
+        from apps.system.file_uploads.cloudinary_utils import delete_cloudinary_file
+
+        delete_cloudinary_file(file_url, resource_type=resource_type)
+    except Exception as exc:
+        logger.warning(
+            "Could not cleanup orphan Cloudinary file url=%s resource_type=%s error=%s",
+            file_url,
+            resource_type,
+            exc,
         )
 
 
