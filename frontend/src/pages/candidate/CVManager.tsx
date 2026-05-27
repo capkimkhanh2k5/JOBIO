@@ -14,6 +14,7 @@ import { CVBuilder } from '@/components/candidate/cv/CVBuilder';
 import { CVLivePreview } from '@/components/candidate/cv/CVLivePreview';
 import { NewCVDialog } from '@/components/candidate/cv/NewCVDialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { ConfirmModal } from '@/components/shared/ConfirmModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface CVItem {
@@ -49,6 +50,9 @@ export default function CVManager() {
     const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [downloadingCvId, setDownloadingCvId] = useState<string | null>(null);
+    const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
+    const [showLeaveSavePrompt, setShowLeaveSavePrompt] = useState(false);
+    const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // ── Upload handlers ───────────────────────────────────────────────────────
@@ -122,22 +126,6 @@ export default function CVManager() {
         },
     });
 
-    const defaultMutation = useMutation({
-        mutationFn: (cvId: string) => cvService.setDefault(Number(candidateId), Number(cvId)),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
-            toast.success('Đã đặt làm CV mặc định.');
-        },
-    });
-
-    const privacyMutation = useMutation({
-        mutationFn: ({ cvId, is_public }: { cvId: string; is_public: boolean }) =>
-            cvService.update(Number(candidateId), Number(cvId), { is_public } as any).then(r => r.data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
-        },
-    });
-
     // ── Auto-save logic ───────────────────────────────────────────────────────
     const triggerAutoSave = useCallback((overrides?: { cv_name?: string, template_id?: string, cv_data?: any }) => {
         if (!selectedCvId) return;
@@ -205,6 +193,9 @@ export default function CVManager() {
 
     const navigate = useNavigate();
     const selectedCV = (cvList as any).find((c: any) => c.id === selectedCvId) ?? null;
+    const hasUnsavedPdfChanges = Boolean(
+        selectedCV?.template_id && selectedCvId && pdfDirtyCvIds.has(selectedCvId)
+    );
 
     const getDownloadFilename = (cv: CVItem) => {
         const rawName = (cv.cv_name || 'CV').trim() || 'CV';
@@ -236,6 +227,104 @@ export default function CVManager() {
             template_id: selectedTemplateId,
             cv_data: cvData,
         });
+    };
+
+    const saveSelectedPdf = async () => {
+        if (!selectedCV || !selectedCvId || !candidateId) {
+            throw new Error('missing_selected_cv');
+        }
+
+        await saveSelectedCvNow();
+        const res = await cvService.savePdf(Number(candidateId), Number(selectedCvId));
+        const downloadUrl = res.data.download_url;
+        if (!downloadUrl) throw new Error('missing_download_url');
+
+        setPdfCache(prev => ({
+            ...prev,
+            [selectedCvId]: {
+                cv_url: downloadUrl,
+                pdf_generated_at: res.data.pdf_generated_at || new Date().toISOString(),
+            },
+        }));
+        setPdfDirtyCvIds(prev => {
+            const next = new Set(prev);
+            next.delete(selectedCvId);
+            return next;
+        });
+        queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] });
+        setPreviewKey(k => k + 1);
+        return res.data;
+    };
+
+    useEffect(() => {
+        if (!hasUnsavedPdfChanges) return;
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [hasUnsavedPdfChanges]);
+
+    useEffect(() => {
+        if (!hasUnsavedPdfChanges) return;
+
+        const handleDocumentClick = (event: MouseEvent) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            const anchor = (event.target as Element | null)?.closest('a[href]') as HTMLAnchorElement | null;
+            if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+
+            const nextUrl = new URL(anchor.href, window.location.href);
+            if (nextUrl.origin !== window.location.origin) return;
+
+            const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+            const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            if (nextPath === currentPath) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            setPendingNavigation(nextPath);
+            setShowLeaveSavePrompt(true);
+        };
+
+        document.addEventListener('click', handleDocumentClick, true);
+        return () => document.removeEventListener('click', handleDocumentClick, true);
+    }, [hasUnsavedPdfChanges]);
+
+    const handleCancelLeave = () => {
+        setShowLeaveSavePrompt(false);
+        setPendingNavigation(null);
+    };
+
+    const handleSaveBeforeLeave = async () => {
+        setIsSavingBeforeLeave(true);
+        try {
+            await saveSelectedPdf();
+            toast.success('Đã lưu bản PDF mới nhất.');
+            setShowLeaveSavePrompt(false);
+            if (pendingNavigation) {
+                navigate(pendingNavigation);
+            }
+            setPendingNavigation(null);
+        } catch {
+            toast.error('Không thể lưu PDF. Vui lòng thử lại.');
+        } finally {
+            setIsSavingBeforeLeave(false);
+        }
+    };
+
+    const requestPageNavigation = (to: string) => {
+        if (hasUnsavedPdfChanges) {
+            setPendingNavigation(to);
+            setShowLeaveSavePrompt(true);
+            return;
+        }
+        navigate(to);
     };
 
     const handleDownloadCV = async (cv?: CVItem | null) => {
@@ -317,7 +406,7 @@ export default function CVManager() {
                                 variant="outline"
                                 size="sm"
                                 className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-4 rounded-xl"
-                                onClick={() => navigate(`/candidate/suggested-jobs${selectedCvId ? `?cv_id=${selectedCvId}` : ''}`)}
+                                onClick={() => requestPageNavigation(`/candidate/suggested-jobs${selectedCvId ? `?cv_id=${selectedCvId}` : ''}`)}
                             >
                                 <Lightbulb className="w-4 h-4" />
                                 Gợi ý việc làm
@@ -372,12 +461,10 @@ export default function CVManager() {
                         selectedId={selectedCvId}
                         onSelect={handleSelectCV}
                         onDelete={(id) => deleteMutation.mutate(id)}
-                        onSetDefault={(id) => defaultMutation.mutate(id)}
                         onDownload={(id) => {
                             const cv = (cvList as any).find((item: CVItem) => item.id === id);
                             void handleDownloadCV(cv);
                         }}
-                        onTogglePrivacy={(id, is_public) => privacyMutation.mutate({ cvId: id, is_public })}
                         onCreateNew={() => setShowNewDialog(true)}
                     />
 
@@ -438,6 +525,18 @@ export default function CVManager() {
                     />
                 )}
             </AnimatePresence>
+
+            <ConfirmModal
+                isOpen={showLeaveSavePrompt}
+                onClose={handleCancelLeave}
+                onConfirm={handleSaveBeforeLeave}
+                title="Lưu trước khi rời trang?"
+                description="CV đã có thay đổi mới. Hãy lưu để bản CV được dùng hoặc được tải về là bản mới nhất."
+                confirmText="Lưu"
+                cancelText="Hủy"
+                type="warning"
+                isLoading={isSavingBeforeLeave}
+            />
         </div>
     );
 }

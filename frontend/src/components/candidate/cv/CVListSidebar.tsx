@@ -16,15 +16,13 @@ interface Props {
     selectedId: string | null;
     onSelect: (cv: CVItem) => void;
     onDelete: (id: string) => void;
-    onSetDefault: (id: string) => void;
     onDownload: (id: string) => void;
-    onTogglePrivacy: (id: string, is_public: boolean) => void;
     onCreateNew: () => void;
 }
 
 export function CVListSidebar({
     cvList, loading, selectedId, onSelect,
-    onDelete, onSetDefault, onDownload, onTogglePrivacy, onCreateNew
+    onDelete, onDownload, onCreateNew
 }: Props) {
     return (
         <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white/40 backdrop-blur-md overflow-hidden">
@@ -134,23 +132,8 @@ export function CVListSidebar({
                                                 </button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-44 bg-white border border-slate-200 shadow-lg">
-                                                {!cv.is_default && (
-                                                    <DropdownMenuItem onClick={() => onSetDefault(cv.id)} className="text-xs">
-                                                        <Star className="w-3.5 h-3.5 mr-2 text-amber-500" /> Đặt làm mặc định
-                                                    </DropdownMenuItem>
-                                                )}
                                                 <DropdownMenuItem onClick={() => onDownload(cv.id)} className="text-xs">
                                                     <Download className="w-3.5 h-3.5 mr-2 text-blue-500" /> Tải xuống PDF
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => onTogglePrivacy(cv.id, !cv.is_public)}
-                                                    className="text-xs"
-                                                >
-                                                    {cv.is_public ? (
-                                                        <><Lock className="w-3.5 h-3.5 mr-2 text-slate-400" /> Đặt riêng tư</>
-                                                    ) : (
-                                                        <><Globe className="w-3.5 h-3.5 mr-2 text-emerald-500" /> Công khai</>
-                                                    )}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
