@@ -7,6 +7,7 @@ import {
     MoreHorizontal, Briefcase,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuSeparator, DropdownMenuTrigger,
@@ -55,6 +56,8 @@ const JOB_TYPE_MAP: Record<string, string> = {
     freelance: 'Freelance',
 };
 
+const CHECKBOX_CLASS = 'border-slate-300 bg-white data-[state=checked]:border-violet-600 data-[state=checked]:bg-violet-600 data-[state=checked]:text-white';
+
 function TableSkeleton({ rows }: { rows: number }) {
     return (
         <>
@@ -79,8 +82,7 @@ export function ManageJobsTable({
     onDelete, onDuplicate, onToggleStatus, pageSize,
 }: ManageJobsTableProps) {
     const navigate = useNavigate();
-    const allSelected = jobs.length > 0 && jobs.every(j => selectedIds.includes(j.id));
-    const someSelected = jobs.some(j => selectedIds.includes(j.id));
+    const allSelected = jobs.length > 0 && jobs.every(j => selectedIds.includes(String(j.id)));
 
     return (
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300">
@@ -89,12 +91,10 @@ export function ManageJobsTable({
                     <thead>
                         <tr className="border-b border-slate-100 bg-slate-50/50">
                             <th className="py-3 px-4 text-left w-10">
-                                <input
-                                    type="checkbox"
+                                <Checkbox
                                     checked={allSelected}
-                                    ref={el => { if (el) el.indeterminate = someSelected && !allSelected; }}
-                                    onChange={e => onSelectAll(e.target.checked)}
-                                    className="w-4 h-4 rounded border-slate-300 bg-white checked:bg-violet-600 accent-violet-600 cursor-pointer"
+                                    onCheckedChange={checked => onSelectAll(checked === true)}
+                                    className={CHECKBOX_CLASS}
                                     aria-label="Select all"
                                 />
                             </th>
@@ -125,7 +125,8 @@ export function ManageJobsTable({
                         ) : (
                             jobs.map((job, i) => {
                                 const cfg = STATUS_CONFIG[job.status] ?? STATUS_CONFIG.draft;
-                                const isSelected = selectedIds.includes(job.id);
+                                const jobId = String(job.id);
+                                const isSelected = selectedIds.includes(jobId);
                                 const isDeadlineSoon = job.application_deadline ? new Date(job.application_deadline).getTime() - Date.now() < 3 * 86400000 : false;
                                 return (
                                     <motion.tr
@@ -138,11 +139,10 @@ export function ManageJobsTable({
                                     >
                                         {/* Checkbox */}
                                         <td className="py-3 px-4">
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
                                                 checked={isSelected}
-                                                onChange={e => onSelectOne(job.id, e.target.checked)}
-                                                className="w-4 h-4 rounded border-slate-300 bg-white accent-violet-600 cursor-pointer"
+                                                onCheckedChange={checked => onSelectOne(jobId, checked === true)}
+                                                className={CHECKBOX_CLASS}
                                                 aria-label={`Select ${job.title}`}
                                                 onClick={e => e.stopPropagation()}
                                             />
@@ -236,7 +236,7 @@ export function ManageJobsTable({
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         className="gap-2 cursor-pointer"
-                                                        onClick={() => navigate(`/company/jobs/${job.id}/candidates`)}
+                                                        onClick={() => navigate(`/company/candidates?job_id=${job.id}`)}
                                                     >
                                                         <Users className="w-4 h-4" /> Xem ứng viên
                                                         {job.applications_count > 0 && (

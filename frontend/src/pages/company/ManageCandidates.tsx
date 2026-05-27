@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useCandidateStore } from '@/store/candidateStore';
 import { applicationService } from '@/services/applicationService';
 import { CandidateBoard } from '@/components/company/candidates/CandidateBoard';
@@ -11,8 +13,18 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Kanban, List, RefreshCw, Mail, UserX, CheckCircle2, Users as UsersIcon } from 'lucide-react';
 
 export default function ManageCandidates() {
-    const { viewMode, setViewMode, filters, selectedCandidatesForBulk, clearBulkSelection } = useCandidateStore();
+    const [searchParams] = useSearchParams();
+    const { viewMode, setViewMode, filters, setFilters, clearFilters, selectedCandidatesForBulk, clearBulkSelection } = useCandidateStore();
     const queryClient = useQueryClient();
+    const jobIdParam = searchParams.get('job_id');
+
+    useEffect(() => {
+        clearBulkSelection();
+        clearFilters();
+        if (jobIdParam) {
+            setFilters({ jobId: jobIdParam });
+        }
+    }, [clearBulkSelection, clearFilters, jobIdParam, setFilters]);
 
     const { data: applicationsRes, isLoading, refetch } = useQuery({
         queryKey: ['company-candidates', filters],

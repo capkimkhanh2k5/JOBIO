@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Briefcase, PlusSquare, ListChecks, Radio, Fi
 import { Link } from 'react-router-dom';
 import { companyService } from '@/services/companyService';
 import { jobService } from '@/services/jobService';
-import api from '@/services/api';
 import {
     ManageJobsActionBar,
     type ViewMode,
@@ -34,6 +33,7 @@ import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { useUserStore } from '@/store/userStore';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+type BulkAction = 'close' | 'delete';
 
 export default function ManageJobs() {
     const queryClient = useQueryClient();
@@ -47,6 +47,7 @@ export default function ManageJobs() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+    const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
     // Bulk selection
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -111,6 +112,7 @@ export default function ManageJobs() {
     // ── Mutations ──────────────────────────────────────────────────────────
     const invalidate = () => {
         queryClient.invalidateQueries({ queryKey: ['company-jobs'] });
+        queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] });
         queryClient.invalidateQueries({ queryKey: ['company-stats'] });
     };
 
@@ -142,18 +144,25 @@ export default function ManageJobs() {
     });
 
     const bulkMutation = useMutation({
-        mutationFn: ({ ids, action }: { ids: number[]; action: 'close' | 'delete' | 'extend' }) =>
-            api.post('/api/jobs/bulk-action/', { ids, action }).then(r => r.data),
+        mutationFn: async ({ ids, action }: { ids: number[]; action: BulkAction }) => {
+            if (action === 'delete') {
+                await Promise.all(ids.map(id => jobService.delete(id)));
+            } else if (action === 'close') {
+                await Promise.all(ids.map(id => jobService.update(id, { status: 'closed' } as any)));
+            }
+
+            return { affected: ids.length };
+        },
         onSuccess: (data, { action }) => {
             const msg = action === 'close'
                 ? `Đã đóng ${data.affected} tin tuyển dụng`
-                : action === 'delete'
-                    ? `Đã xóa ${data.affected} tin tuyển dụng`
-                    : `Đã gia hạn ${data.affected} tin tuyển dụng`;
+                : `Đã xóa ${data.affected} tin tuyển dụng`;
             toast.success(msg);
             setSelectedIds([]);
+            if (action === 'delete') setIsBulkDeleteOpen(false);
             invalidate();
         },
+        onError: () => toast.error('Thao tác hàng loạt thất bại. Vui lòng thử lại.'),
     });
 
     // ── Selection handlers ─────────────────────────────────────────────────
@@ -179,9 +188,18 @@ export default function ManageJobs() {
     };
 
     // ── Bulk handlers ──────────────────────────────────────────────────────
-    const handleBulkClose = () => bulkMutation.mutate({ ids: selectedIds, action: 'close' });
-    const handleBulkDelete = () => bulkMutation.mutate({ ids: selectedIds, action: 'delete' });
-    const handleBulkExtend = () => bulkMutation.mutate({ ids: selectedIds, action: 'extend' });
+    const handleBulkClose = () => {
+        if (selectedIds.length === 0) return;
+        bulkMutation.mutate({ ids: selectedIds, action: 'close' });
+    };
+    const handleBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        setIsBulkDeleteOpen(true);
+    };
+    const confirmBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        bulkMutation.mutate({ ids: selectedIds, action: 'delete' });
+    };
 
     // Shared view props
     const viewProps = {
@@ -263,7 +281,6 @@ export default function ManageJobs() {
                         selectedIds={selectedIds.map(String)}
                         onBulkClose={handleBulkClose}
                         onBulkDelete={handleBulkDelete}
-                        onBulkExtend={handleBulkExtend}
                     />
                 </motion.div>
 
@@ -406,6 +423,31 @@ export default function ManageJobs() {
                             className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm"
                         >
                             Xóa tin
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
+                <AlertDialogContent className="rounded-3xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa tin đã chọn</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {`Bạn đang chọn ${selectedIds.length} tin tuyển dụng. Các tin này sẽ bị xóa khỏi hệ thống và không thể khôi phục.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            className="rounded-xl border-slate-200"
+                            onClick={() => setIsBulkDeleteOpen(false)}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmBulkDelete}
+                            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm"
+                        >
+                            Xóa đã chọn
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
