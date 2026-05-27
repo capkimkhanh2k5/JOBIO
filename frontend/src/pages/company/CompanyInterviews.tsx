@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, List, Plus, Search, Filter } from 'lucide-react';
+import { Calendar, List, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -37,6 +37,7 @@ export default function CompanyInterviewsPage() {
     const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
     const [selectedEditInterviewId, setSelectedEditInterviewId] = useState<string | null>(null);
     const [cancelInterviewId, setCancelInterviewId] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const queryClient = useQueryClient();
     const setSelectedCandidateId = useCandidateStore((state) => state.setSelectedCandidateId);
 
@@ -44,6 +45,30 @@ export default function CompanyInterviewsPage() {
         queryKey: ['companyInterviews'],
         queryFn: () => companyService.listInterviews().then(r => r.data.results)
     });
+
+    const filteredInterviews = useMemo(() => {
+        const source = Array.isArray(interviews) ? interviews : [];
+        const query = searchTerm.trim().toLowerCase();
+
+        if (!query) return source;
+
+        return source.filter((interview: any) => {
+            const searchable = [
+                interview.applicant_name,
+                interview.candidate_name,
+                interview.applicant_email,
+                interview.candidate_email,
+                interview.job_title,
+                interview.type,
+                interview.interview_type_name,
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+            return searchable.includes(query);
+        });
+    }, [interviews, searchTerm]);
 
     useEffect(() => {
         const state = location.state as
@@ -128,14 +153,15 @@ export default function CompanyInterviewsPage() {
                         </TabsList>
 
                         <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-                            <div className="relative min-w-[200px] flex-1">
+                            <div className="relative min-w-[300px] md:w-[360px] flex-1">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <Input placeholder="Tìm kiếm ứng viên hoặc vị trí..." className="pl-9 bg-white border-slate-200 rounded-xl" />
+                                <Input
+                                    value={searchTerm}
+                                    onChange={(event) => setSearchTerm(event.target.value)}
+                                    placeholder="Tìm kiếm ứng viên hoặc vị trí..."
+                                    className="pl-9 bg-white border-slate-200 rounded-xl"
+                                />
                             </div>
-                            <Button variant="outline" className="bg-white border-slate-200 rounded-xl whitespace-nowrap">
-                                <Filter className="w-4 h-4 mr-2" />
-                                Bộ lọc
-                            </Button>
                         </div>
                     </div>
 
@@ -150,7 +176,8 @@ export default function CompanyInterviewsPage() {
                         >
                             <TabsContent value="calendar" className="mt-0 outline-none">
                                 <CompanyCalendar
-                                    interviews={(interviews as any) || []}
+                                    interviews={(filteredInterviews as any) || []}
+                                    focusDate={searchTerm.trim() ? filteredInterviews[0]?.scheduled_at : null}
                                     isLoading={isLoading}
                                     onInterviewClick={handleInterviewClick}
                                     onEditInterview={setSelectedEditInterviewId}
@@ -160,7 +187,7 @@ export default function CompanyInterviewsPage() {
 
                             <TabsContent value="list" className="mt-0 outline-none">
                                 <CompanyInterviewList
-                                    interviews={(interviews as any) || []}
+                                    interviews={(filteredInterviews as any) || []}
                                     isLoading={isLoading}
                                     onInterviewClick={handleInterviewClick}
                                     onEditInterview={setSelectedEditInterviewId}
