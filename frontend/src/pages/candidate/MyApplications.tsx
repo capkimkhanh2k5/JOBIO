@@ -173,28 +173,48 @@ export default function MyApplications() {
                         icon={<Briefcase className="w-5 h-5" />}
                         label="Tổng số đơn"
                         value={stats.total}
-                        iconGradient="from-slate-400 to-slate-600"
+                        iconTone={{
+                            bg: 'bg-slate-50',
+                            text: 'text-slate-600',
+                            border: 'border-slate-200',
+                            hoverBg: 'bg-slate-50/50',
+                        }}
                         isLoading={isLoading}
                     />
                     <DashboardKpiCard
                         icon={<Activity className="w-5 h-5" />}
                         label="Đang diễn ra"
                         value={stats.active}
-                        iconGradient="from-blue-500 to-blue-600"
+                        iconTone={{
+                            bg: 'bg-blue-50',
+                            text: 'text-blue-600',
+                            border: 'border-blue-200',
+                            hoverBg: 'bg-blue-50/40',
+                        }}
                         isLoading={isLoading}
                     />
                     <DashboardKpiCard
                         icon={<CheckCircle2 className="w-5 h-5" />}
                         label="Thành công"
                         value={stats.success}
-                        iconGradient="from-emerald-500 to-emerald-600"
+                        iconTone={{
+                            bg: 'bg-emerald-50',
+                            text: 'text-emerald-600',
+                            border: 'border-emerald-200',
+                            hoverBg: 'bg-emerald-50/40',
+                        }}
                         isLoading={isLoading}
                     />
                     <DashboardKpiCard
                         icon={<XCircle className="w-5 h-5" />}
                         label="Chưa phù hợp"
                         value={stats.failed}
-                        iconGradient="from-red-400 to-red-600"
+                        iconTone={{
+                            bg: 'bg-red-50',
+                            text: 'text-red-600',
+                            border: 'border-red-200',
+                            hoverBg: 'bg-red-50/40',
+                        }}
                         isLoading={isLoading}
                     />
                 </motion.div>

@@ -40,12 +40,6 @@ const STATUS_BADGE: Record<string, string> = {
     withdrawn: 'bg-slate-50 text-slate-500 border-slate-200',
 };
 
-const fadeUp = (delay: number) => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { delay, duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
-});
-
 export default function CandidateDashboard() {
     const navigate = useNavigate();
     const { user, updateUser } = useUserStore();
@@ -168,21 +162,36 @@ export default function CandidateDashboard() {
                                 icon={<Briefcase className="w-5 h-5" />}
                                 label="Việc đã ứng tuyển"
                                 value={totalApplications}
-                                iconGradient="from-violet-500 to-violet-600"
+                                iconTone={{
+                                    bg: 'bg-indigo-50',
+                                    text: 'text-indigo-600',
+                                    border: 'border-indigo-100',
+                                    hoverBg: 'bg-indigo-50/40',
+                                }}
                                 isLoading={loadingStats && !allApplications}
                             />
                             <DashboardKpiCard
                                 icon={<CalendarClock className="w-5 h-5" />}
                                 label="Phỏng vấn sắp tới"
                                 value={upcomingInterviewsCount}
-                                iconGradient="from-amber-500 to-amber-600"
+                                iconTone={{
+                                    bg: 'bg-amber-50',
+                                    text: 'text-amber-600',
+                                    border: 'border-amber-100',
+                                    hoverBg: 'bg-amber-50/40',
+                                }}
                                 isLoading={loadingStats && loadingInterviews}
                             />
                             <DashboardKpiCard
                                 icon={<Eye className="w-5 h-5" />}
                                 label="Lượt xem hồ sơ"
                                 value={profileViewsCount}
-                                iconGradient="from-cyan-500 to-cyan-600"
+                                iconTone={{
+                                    bg: 'bg-cyan-50',
+                                    text: 'text-cyan-600',
+                                    border: 'border-cyan-100',
+                                    hoverBg: 'bg-cyan-50/40',
+                                }}
                                 isLoading={loadingStats && !profileData}
                             />
                         </motion.div>
@@ -332,8 +341,8 @@ export default function CandidateDashboard() {
                             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center shrink-0">
-                                            <Sparkles className="w-4 h-4 text-white" />
+                                        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                                            <Sparkles className="w-4 h-4" />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-base text-slate-900">Gợi ý việc làm</h3>

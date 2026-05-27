@@ -336,7 +336,7 @@ export default function SuggestedJobs() {
                                         <Skeleton key={i} className="h-48 rounded-2xl" />
                                     ))}
                                 </div>
-                            ) : (suggestions as any[]).length === 0 ? (
+                            ) : activeSuggestions.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
                                     <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
                                         <Briefcase className="w-10 h-10 text-slate-300" />
@@ -350,51 +350,18 @@ export default function SuggestedJobs() {
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                            Tìm thấy <span className="text-violet-600">{(suggestions as any[]).length}</span> việc làm phù hợp
+                                            Tìm thấy <span className="text-violet-600">{activeSuggestions.length}</span> việc làm phù hợp
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4">
-                                        {(suggestions as any[]).map((job: any) => (
+                                        {activeSuggestions.map((job: any) => (
                                             <JobCard key={job.id} job={job} onApply={handleApply} />
                                         ))}
                                     </div>
                                 </div>
                             )}
                         </div>
-<<<<<<< HEAD
                     </div>
-=======
-                    ) : loadingSuggestions ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {[...Array(6)].map((_, i) => (
-                                <Skeleton key={i} className="h-48 rounded-3xl" />
-                            ))}
-                        </div>
-                    ) : activeSuggestions.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-center">
-                            <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6">
-                                <Briefcase className="w-10 h-10 text-slate-300" />
-                            </div>
-                            <h3 className="text-xl font-black text-slate-900 mb-2">Chưa tìm thấy việc làm phù hợp</h3>
-                            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào CV của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                    Tìm thấy <span className="text-violet-600">{activeSuggestions.length}</span> việc làm phù hợp
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
-                                {activeSuggestions.map((job: any) => (
-                                    <JobCard key={job.id} job={job} onApply={handleApply} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
->>>>>>> main
                 </div>
             </div>
         </div>

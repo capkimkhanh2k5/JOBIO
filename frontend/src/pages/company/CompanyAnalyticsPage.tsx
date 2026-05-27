@@ -10,7 +10,7 @@ import {
 import {
     Briefcase, Users, Eye, UserCheck,
     BarChart3, RefreshCw, CalendarDays, Target, Percent,
-    ChevronRight, TrendingUp, TrendingDown, Minus,
+    ChevronRight, TrendingUp,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -47,14 +47,19 @@ const JOB_STATUS_CONFIG: Record<string, { label: string; className: string }> = 
 import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 
 function SummaryKpiCard({
-    icon, label, value, delta, unit, iconGradient, isLoading, note,
+    icon, label, value, delta, unit, iconTone, isLoading, note,
 }: {
     icon: React.ReactNode;
     label: string;
     value: number | string | undefined;
     delta?: number;
     unit?: string;
-    iconGradient: string;
+    iconTone: {
+        bg: string;
+        text: string;
+        border: string;
+        hoverBg?: string;
+    };
     isLoading?: boolean;
     note?: string;
 }) {
@@ -79,7 +84,7 @@ function SummaryKpiCard({
             formattedValue={formattedValue}
             deltaValue={delta}
             unit={unit}
-            iconGradient={iconGradient}
+            iconTone={iconTone}
             isLoading={false}
             note={note}
             className="h-full"
@@ -192,7 +197,7 @@ export function CompanyAnalyticsPage() {
             icon: <Briefcase className="w-5 h-5" />,
             label: 'Tin đang tuyển',
             value: summary?.active_jobs,
-            iconGradient: 'from-cyan-500 to-sky-600',
+            iconTone: { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-200', hoverBg: 'bg-cyan-50/40' },
             note: `Tổng ${summary?.total_jobs ?? 0} tin tất cả`,
         },
         {
@@ -200,32 +205,32 @@ export function CompanyAnalyticsPage() {
             label: 'Ứng tuyển mới (30 ngày)',
             value: summary?.new_applications_30d,
             delta: summary?.applications_delta,
-            iconGradient: 'from-violet-500 to-purple-600',
+            iconTone: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-200', hoverBg: 'bg-violet-50/40' },
         },
         {
             icon: <Eye className="w-5 h-5" />,
             label: 'Tổng lượt xem tin',
             value: summary?.total_views?.toLocaleString('vi-VN'),
-            iconGradient: 'from-pink-500 to-rose-600',
+            iconTone: { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200', hoverBg: 'bg-rose-50/40' },
         },
         {
             icon: <UserCheck className="w-5 h-5" />,
             label: 'Tuyển thành công',
             value: summary?.hired_count,
-            iconGradient: 'from-emerald-500 to-teal-600',
+            iconTone: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', hoverBg: 'bg-emerald-50/40' },
             note: `${summary?.hire_rate ?? 0}% tỷ lệ tuyển dụng`,
         },
         {
             icon: <Target className="w-5 h-5" />,
             label: 'Tổng ứng tuyển',
             value: summary?.total_applications,
-            iconGradient: 'from-amber-500 to-orange-500',
+            iconTone: { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200', hoverBg: 'bg-amber-50/40' },
         },
         {
             icon: <CalendarDays className="w-5 h-5" />,
             label: 'Đang phỏng vấn',
             value: summary?.interview_count,
-            iconGradient: 'from-indigo-500 to-violet-600',
+            iconTone: { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-200', hoverBg: 'bg-indigo-50/40' },
         },
     ];
 
@@ -274,7 +279,7 @@ export function CompanyAnalyticsPage() {
                                 label={card.label}
                                 value={card.value}
                                 delta={(card as any).delta}
-                                iconGradient={card.iconGradient}
+                                iconTone={card.iconTone}
                                 isLoading={isLoading}
                                 note={(card as any).note}
                             />
@@ -563,26 +568,26 @@ export function CompanyAnalyticsPage() {
                                     title: 'Tỷ lệ chuyển đổi tổng',
                                     value: `${summary?.hire_rate ?? 0}%`,
                                     desc: 'Từ ứng tuyển → tuyển dụng thành công',
-                                    color: 'from-emerald-500 to-teal-600',
+                                    tone: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200' },
                                     icon: <TrendingUp className="w-5 h-5" />,
                                 },
                                 {
                                     title: 'Phỏng vấn đang diễn ra',
                                     value: summary?.interview_count ?? 0,
                                     desc: 'Ứng viên đang ở vòng phỏng vấn',
-                                    color: 'from-violet-500 to-indigo-600',
+                                    tone: { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-200' },
                                     icon: <CalendarDays className="w-5 h-5" />,
                                 },
                                 {
                                     title: 'Tổng ứng viên tiếp cận',
                                     value: (summary?.total_applications ?? 0).toLocaleString('vi-VN'),
                                     desc: 'Hồ sơ nhận được từ trước đến nay',
-                                    color: 'from-pink-500 to-rose-600',
+                                    tone: { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200' },
                                     icon: <Users className="w-5 h-5" />,
                                 },
                             ].map((card) => (
-                                <div key={card.title} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex gap-4 items-start">
-                                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center text-white shadow-sm shrink-0`}>
+                                <div key={card.title} className={`bg-white rounded-2xl border ${card.tone.border} shadow-sm p-5 flex gap-4 items-start`}>
+                                    <div className={`w-10 h-10 rounded-xl ${card.tone.bg} ${card.tone.text} flex items-center justify-center shadow-sm shrink-0`}>
                                         {card.icon}
                                     </div>
                                     <div>

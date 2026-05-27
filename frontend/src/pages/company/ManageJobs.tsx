@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Briefcase, PlusSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Briefcase, PlusSquare, ListChecks, Radio, FilePenLine, CircleX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { companyService } from '@/services/companyService';
 import { jobService } from '@/services/jobService';
@@ -224,10 +224,10 @@ export default function ManageJobs() {
                 >
                     {(
                         [
-                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, iconGradient: 'from-slate-400 to-slate-600' },
-                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, iconGradient: 'from-emerald-500 to-emerald-600' },
-                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, iconGradient: 'from-slate-400 to-slate-500' },
-                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, iconGradient: 'from-rose-500 to-rose-600' },
+                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, icon: ListChecks, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, icon: Radio, iconTone: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', hoverBg: 'bg-emerald-50/40' } },
+                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, icon: FilePenLine, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, icon: CircleX, iconTone: { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200', hoverBg: 'bg-rose-50/40' } },
                         ] as const
                     ).map(stat => (
                         <div
@@ -236,10 +236,10 @@ export default function ManageJobs() {
                             className={`cursor-pointer transition-all duration-200 rounded-2xl ${statusFilter === stat.key ? 'ring-2 ring-violet-500 ring-offset-2' : 'hover:scale-[1.02]'}`}
                         >
                             <DashboardKpiCard
-                                icon={<Briefcase className="w-5 h-5" />}
+                                icon={<stat.icon className="w-5 h-5" />}
                                 label={stat.label}
                                 value={stat.value}
-                                iconGradient={stat.iconGradient}
+                                iconTone={stat.iconTone}
                             />
                         </div>
                     ))}

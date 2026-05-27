@@ -18,6 +18,13 @@ interface DashboardKpiCardProps {
     unit?: string;
     /** Tailwind gradient classes for the icon background (e.g. "from-violet-500 to-violet-600") */
     iconGradient?: string;
+    /** Admin-style tinted icon and matching card border classes */
+    iconTone?: {
+        bg: string;
+        text: string;
+        border: string;
+        hoverBg?: string;
+    };
     /** Show skeleton loading state */
     isLoading?: boolean;
     /** Optional sub-note rendered inside the card below the delta indicator */
@@ -42,6 +49,7 @@ export function DashboardKpiCard({
     deltaValue,
     unit,
     iconGradient = 'from-violet-500 to-violet-600',
+    iconTone,
     isLoading,
     note,
     className,
@@ -79,21 +87,27 @@ export function DashboardKpiCard({
             transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}
             className={cn(
-                'bg-white border border-slate-200 shadow-sm hover:shadow-md rounded-2xl p-5 relative overflow-hidden group cursor-default',
+                'bg-white border shadow-sm hover:shadow-md rounded-2xl p-5 relative overflow-hidden group cursor-default',
+                iconTone ? iconTone.border : 'border-slate-200',
                 className
             )}
         >
             {/* Hover glow */}
-            <div className="absolute inset-0 bg-violet-50/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+            <div
+                className={cn(
+                    'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none',
+                    iconTone?.hoverBg ?? 'bg-violet-50/40'
+                )}
+            />
 
             {/* Icon */}
             <div
                 className={cn(
-                    'w-11 h-11 rounded-xl bg-gradient-to-br flex items-center justify-center mb-4 relative z-10 shadow-sm group-hover:shadow-md transition-shadow',
-                    iconGradient
+                    'w-11 h-11 rounded-xl flex items-center justify-center mb-4 relative z-10 shadow-sm group-hover:shadow-md transition-shadow',
+                    iconTone ? iconTone.bg : cn('bg-gradient-to-br', iconGradient)
                 )}
             >
-                <span className="text-white">{icon}</span>
+                <span className={cn(iconTone ? iconTone.text : 'text-white')}>{icon}</span>
             </div>
 
             {/* Value */}

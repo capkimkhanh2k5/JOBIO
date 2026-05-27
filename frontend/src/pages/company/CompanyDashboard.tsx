@@ -68,28 +68,48 @@ export default function CompanyDashboard() {
             label: 'Tin đang tuyển',
             value: stats?.active_jobs,
             deltaValue: stats?.active_jobs_delta,
-            iconGradient: 'from-cyan-500 to-sky-600',
+            iconTone: {
+                bg: 'bg-cyan-50',
+                text: 'text-cyan-600',
+                border: 'border-cyan-200',
+                hoverBg: 'bg-cyan-50/40',
+            },
         },
         {
             icon: <Users className="w-5 h-5" />,
             label: 'Lượt ứng tuyển mới',
             value: stats?.new_applications,
             deltaValue: stats?.new_applications_delta,
-            iconGradient: 'from-violet-500 to-purple-600',
+            iconTone: {
+                bg: 'bg-violet-50',
+                text: 'text-violet-600',
+                border: 'border-violet-200',
+                hoverBg: 'bg-violet-50/40',
+            },
         },
         {
             icon: <Eye className="w-5 h-5" />,
             label: 'Lượt xem tin',
             value: stats?.job_views,
             deltaValue: stats?.job_views_delta,
-            iconGradient: 'from-pink-500 to-rose-600',
+            iconTone: {
+                bg: 'bg-rose-50',
+                text: 'text-rose-600',
+                border: 'border-rose-200',
+                hoverBg: 'bg-rose-50/40',
+            },
         },
         {
             icon: <CalendarClock className="w-5 h-5" />,
             label: 'Phỏng vấn sắp tới',
             value: stats?.upcoming_interviews,
             deltaValue: stats?.upcoming_interviews_delta,
-            iconGradient: 'from-lime-500 to-emerald-600',
+            iconTone: {
+                bg: 'bg-emerald-50',
+                text: 'text-emerald-600',
+                border: 'border-emerald-200',
+                hoverBg: 'bg-emerald-50/40',
+            },
         },
     ];
 
