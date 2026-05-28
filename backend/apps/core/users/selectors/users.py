@@ -25,9 +25,7 @@ class UserFilter(django_filters.FilterSet):
         query = Q(email__icontains=value) | Q(full_name__icontains=value)
         cleaned_value = value.strip()
         if cleaned_value.isdigit():
-            query |= Q(id=int(cleaned_value)) | Q(
-                recruiter_profile__id=int(cleaned_value)
-            )
+            query |= Q(id=int(cleaned_value)) | Q(recruiter_profile__id=int(cleaned_value))
         return queryset.filter(query)
 
 

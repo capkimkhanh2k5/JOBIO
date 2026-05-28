@@ -70,11 +70,7 @@ def location_candidates(value: object) -> list[str]:
             simplify_location_key(piece),
             compact_location_key(piece),
         ):
-            if (
-                candidate
-                and candidate not in LOCATION_STOP_WORDS
-                and candidate not in seen
-            ):
+            if candidate and candidate not in LOCATION_STOP_WORDS and candidate not in seen:
                 seen.add(candidate)
                 candidates.append(candidate)
     return candidates
@@ -224,6 +220,9 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
     return recruiter
 
 
+
+
+
 @transaction.atomic
 def delete_recruiter_service(recruiter: Recruiter) -> None:
     """
@@ -363,9 +362,7 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
         {
             "task": "Thêm kinh nghiệm làm việc",
             "completed": (
-                recruiter.experiences.count()
-                if hasattr(recruiter, "experiences")
-                else 0
+                recruiter.experiences.count() if hasattr(recruiter, "experiences") else 0
             )
             >= 2,
         },

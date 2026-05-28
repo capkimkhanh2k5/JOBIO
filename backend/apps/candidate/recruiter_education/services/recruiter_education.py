@@ -48,11 +48,12 @@ def create_education_service(
     degree = fields.get("degree")
     if school_name:
         qs = RecruiterEducation.objects.filter(
-            recruiter=recruiter, school_name__iexact=school_name
+            recruiter=recruiter,
+            school_name__iexact=school_name
         )
         if degree:
             qs = qs.filter(degree__iexact=degree)
-
+            
         existing = qs.first()
         if existing:
             for field, value in fields.items():
