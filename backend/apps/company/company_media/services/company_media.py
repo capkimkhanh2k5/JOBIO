@@ -14,7 +14,8 @@ from ..selectors import get_company_media
 
 
 class CompanyMediaCreateInput(BaseModel):
-    media_file: UploadedFile
+    media_file: Optional[UploadedFile] = None
+    media_url: Optional[str] = None
     media_type_id: int
     title: Optional[str] = None
     caption: Optional[str] = None
@@ -46,7 +47,7 @@ class CompanyMediaBulkUploadInput(BaseModel):
 
 
 @transaction.atomic
-def upload_company_media_service(
+def _upload_company_media_service_legacy(
     company_id: int, user, data: CompanyMediaCreateInput
 ) -> CompanyMedia:
     """Xử lý upload media đơn lẻ lên Cloudinary và lưu DB"""
@@ -173,3 +174,58 @@ def bulk_upload_company_media_service(
         media_list.append(media)
 
     return media_list
+
+
+@transaction.atomic
+def upload_company_media_service(
+    company_id: int, user, data: CompanyMediaCreateInput
+) -> CompanyMedia:
+    """Create company media from an uploaded file or an external link."""
+    try:
+        company = Company.objects.get(id=company_id)
+    except Company.DoesNotExist:
+        raise ValueError("Công ty không tồn tại")
+
+    if company.user_id != user.id:
+        raise ValueError("Bạn không có quyền cập nhật media của công ty này")
+
+    try:
+        media_type = MediaType.objects.get(id=data.media_type_id)
+    except MediaType.DoesNotExist:
+        raise ValueError("Loại media không tồn tại")
+
+    media_type_name = media_type.type_name.lower()
+    is_link = "link" in media_type_name
+
+    if is_link:
+        if not data.media_url:
+            raise ValueError("Vui lòng nhập link media")
+        media_url = data.media_url
+        resource_type = None
+    else:
+        if not data.media_file:
+            raise ValueError("Vui lòng chọn file media")
+        resource_type = "video" if "video" in media_type_name else "image"
+        try:
+            media_url = save_company_file(
+                company_id=company_id,
+                file=data.media_file,
+                file_type="office_media",
+                resource_type=resource_type,
+            )
+        except Exception as e:
+            raise ValueError(f"Lỗi khi upload lên Cloudinary: {str(e)}")
+
+    try:
+        return CompanyMedia.objects.create(
+            company=company,
+            media_type=media_type,
+            media_url=media_url,
+            title=data.title,
+            caption=data.caption,
+            display_order=data.display_order,
+        )
+    except Exception:
+        if resource_type:
+            delete_company_file(media_url, resource_type=resource_type)
+        raise

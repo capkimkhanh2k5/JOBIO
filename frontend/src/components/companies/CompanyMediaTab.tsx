@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { companyService } from '@/services/companyService';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Play, Image, X } from 'lucide-react';
+import { Image, Link as LinkIcon, Play, Video } from 'lucide-react';
 
 interface Props {
     companyId: string;
@@ -12,10 +11,11 @@ interface Props {
 
 interface MediaItem {
     id: string | number;
-    media_type: 'image' | 'video';
+    media_type: 'image' | 'video' | 'link';
     url: string;
     thumbnail?: string | null;
     title?: string | null;
+    caption?: string | null;
 }
 
 type RawMediaItem = {
@@ -35,7 +35,46 @@ const getMediaKind = (item: RawMediaItem): MediaItem['media_type'] => {
         ? item.media_type?.type_name
         : item.media_type;
     const typeName = String(item.media_type_name ?? rawType ?? '').toLowerCase();
-    return typeName.includes('video') ? 'video' : 'image';
+
+    if (typeName.includes('link')) return 'link';
+    if (typeName.includes('video')) return 'video';
+    return 'image';
+};
+
+const getYoutubeVideoId = (url?: string) => {
+    if (!url) return '';
+
+    try {
+        const parsedUrl = new URL(url);
+        const hostname = parsedUrl.hostname.replace(/^www\./, '');
+
+        if (hostname === 'youtu.be') {
+            return parsedUrl.pathname.split('/').filter(Boolean)[0] || '';
+        }
+        if (hostname.includes('youtube.com')) {
+            if (parsedUrl.pathname === '/watch') {
+                return parsedUrl.searchParams.get('v') || '';
+            }
+            const parts = parsedUrl.pathname.split('/').filter(Boolean);
+            if (['embed', 'shorts'].includes(parts[0])) {
+                return parts[1] || '';
+            }
+        }
+    } catch {
+        return '';
+    }
+
+    return '';
+};
+
+const getYoutubeThumbnailUrl = (url?: string) => {
+    const videoId = getYoutubeVideoId(url);
+    return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+};
+
+const getYoutubeEmbedUrl = (url?: string) => {
+    const videoId = getYoutubeVideoId(url);
+    return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
 };
 
 const normalizeMediaItem = (item: RawMediaItem): MediaItem | null => {
@@ -47,61 +86,13 @@ const normalizeMediaItem = (item: RawMediaItem): MediaItem | null => {
         media_type: getMediaKind(item),
         url,
         thumbnail: item.thumbnail || item.thumbnail_url,
-        title: item.title || item.caption || null,
+        title: item.title || null,
+        caption: item.caption || null,
     };
 };
 
-function MediaLightbox({ item, onClose }: { item: MediaItem; onClose: () => void }) {
-    return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="relative max-w-4xl w-full max-h-[85vh] rounded-2xl overflow-hidden shadow-2xl"
-                    onClick={e => e.stopPropagation()}
-                >
-                    <button
-                        onClick={onClose}
-                        className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition-colors"
-                    >
-                        <X size={16} className="text-white" />
-                    </button>
-                    {item.media_type === 'video' ? (
-                        <video
-                            src={item.url}
-                            controls
-                            autoPlay
-                            className="w-full h-full object-contain bg-black"
-                        />
-                    ) : (
-                        <img
-                            src={item.url}
-                            alt={item.title ?? 'Media'}
-                            className="w-full h-full object-contain bg-black"
-                        />
-                    )}
-                    {item.title && (
-                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                            <p className="text-white font-medium text-sm">{item.title}</p>
-                        </div>
-                    )}
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
-    );
-}
-
 export function CompanyMediaTab({ companyId }: Props) {
-    const [lightboxItem, setLightboxItem] = useState<MediaItem | null>(null);
+    const [playingLinkId, setPlayingLinkId] = useState<string | number | null>(null);
 
     const { data: rawMedia, isLoading } = useQuery({
         queryKey: ['company-media', companyId],
@@ -115,9 +106,16 @@ export function CompanyMediaTab({ companyId }: Props) {
 
     if (isLoading) {
         return (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {Array(6).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="aspect-video rounded-xl bg-gray-100" />
+            <div className="space-y-4">
+                {Array(3).fill(0).map((_, i) => (
+                    <div key={i} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 sm:flex-row">
+                        <Skeleton className="aspect-video w-full rounded-xl bg-gray-100 sm:w-72 lg:w-80" />
+                        <div className="flex-1 space-y-3 py-2">
+                            <Skeleton className="h-5 w-2/5 bg-gray-100" />
+                            <Skeleton className="h-4 w-full bg-gray-100" />
+                            <Skeleton className="h-4 w-4/5 bg-gray-100" />
+                        </div>
+                    </div>
                 ))}
             </div>
         );
@@ -134,86 +132,86 @@ export function CompanyMediaTab({ companyId }: Props) {
         );
     }
 
-    const images = media.filter(m => m.media_type === 'image');
-    const videos = media.filter(m => m.media_type === 'video');
-
     return (
-        <>
-            {videos.length > 0 && (
-                <div className="mb-6">
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-1.5">
-                        <Play size={12} /> Video ({videos.length})
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {videos.map((item, i) => (
-                            <motion.div
-                                key={item.id}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.08 }}
-                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
-                                onClick={() => setLightboxItem(item)}
-                            >
-                                <img
-                                    src={item.thumbnail || item.url}
-                                    alt={item.title ?? 'Media'}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                                    <div className="h-14 w-14 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Play size={22} className="text-gray-900 fill-gray-900 ml-1" />
-                                    </div>
-                                </div>
-                                <Badge className="absolute bottom-3 left-3 bg-black/50 text-white border-0 text-xs">
-                                    Video
-                                </Badge>
-                                {item.title && (
-                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                                        <p className="text-white text-xs font-medium">{item.title}</p>
-                                    </div>
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            )}
+        <div className="space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                <Image size={12} /> Media ({media.length})
+            </h3>
 
-            {images.length > 0 && (
-                <div>
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1.5">
-                        <Image size={12} /> Ảnh ({images.length})
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {images.map((item, i) => (
-                            <motion.div
-                                key={item.id}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: i * 0.06 }}
-                                className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group border border-gray-200 hover:border-primary/50 hover:shadow-md transition-all"
-                                onClick={() => setLightboxItem(item)}
-                            >
-                                <img
-                                    src={item.url}
-                                    alt={item.title ?? 'Media'}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                />
-                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                                {item.title && (
-                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 pt-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                                        <p className="text-white text-xs font-medium">{item.title}</p>
-                                    </div>
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <div className="space-y-4">
+                {media.map((item, index) => {
+                    const isLink = item.media_type === 'link';
+                    const isVideo = item.media_type === 'video';
+                    const youtubeThumbnailUrl = isLink ? getYoutubeThumbnailUrl(item.url) : '';
+                    const youtubeEmbedUrl = isLink ? getYoutubeEmbedUrl(item.url) : '';
+                    const isPlaying = playingLinkId === item.id && Boolean(youtubeEmbedUrl);
+                    const thumbnailUrl = youtubeThumbnailUrl || item.thumbnail || item.url;
+                    const title = item.title || 'Không có tiêu đề';
+                    const caption = item.caption || (isLink ? item.url : 'Chưa có caption');
 
-            {/* Lightbox */}
-            {lightboxItem && (
-                <MediaLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
-            )}
-        </>
+                    return (
+                        <motion.article
+                            key={item.id}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="flex flex-col gap-5 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row"
+                        >
+                            <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:w-72 lg:w-80 xl:w-96">
+                                {isLink ? (
+                                    isPlaying ? (
+                                        <iframe
+                                            src={youtubeEmbedUrl}
+                                            title={title}
+                                            className="h-full w-full"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowFullScreen
+                                        />
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="group h-full w-full"
+                                            onClick={() => setPlayingLinkId(item.id)}
+                                        >
+                                            {youtubeThumbnailUrl ? (
+                                                <img
+                                                    src={youtubeThumbnailUrl}
+                                                    alt={title}
+                                                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-gray-500">
+                                                    <LinkIcon size={34} />
+                                                    <span className="text-xs font-semibold">YouTube link</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
+                                                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition group-hover:scale-105">
+                                                    <Play size={26} className="ml-1 fill-gray-900 text-gray-900" />
+                                                </span>
+                                            </div>
+                                        </button>
+                                    )
+                                ) : isVideo ? (
+                                    <>
+                                        <video src={item.url} className="h-full w-full object-cover" muted preload="metadata" />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                                            <Video size={34} className="text-white" />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
+                                )}
+                            </div>
+
+                            <div className="min-w-0 flex-1 py-1">
+                                <h3 className="line-clamp-2 text-lg font-bold text-gray-950">{title}</h3>
+                                <p className="mt-2 line-clamp-4 text-sm leading-6 text-gray-600">{caption}</p>
+                            </div>
+                        </motion.article>
+                    );
+                })}
+            </div>
+        </div>
     );
 }
