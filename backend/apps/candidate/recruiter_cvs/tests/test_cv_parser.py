@@ -269,13 +269,17 @@ class ParseCvWithLlmTest(TestCase):
 
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
     def test_parse_returns_empty_for_invalid_model_responses(self, MockGroq):
-        from apps.candidate.recruiter_cvs.services.cv_parser import parse_cv_with_llm
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            CVParserUnavailable,
+            parse_cv_with_llm,
+        )
 
         mock_client = MagicMock()
         mock_client.chat.completions.create.return_value = _mock_completion("not json")
         MockGroq.return_value = mock_client
 
-        self.assertEqual(parse_cv_with_llm(LONG_ENOUGH_CV_TEXT), {})
+        with self.assertRaisesMessage(CVParserUnavailable, "groq_parser_unavailable"):
+            parse_cv_with_llm(LONG_ENOUGH_CV_TEXT)
 
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
     def test_parse_returns_empty_for_short_text_or_missing_key(self, MockGroq):
@@ -287,9 +291,13 @@ class ParseCvWithLlmTest(TestCase):
     @override_settings(GROQ_API_KEY="")
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
     def test_parse_returns_empty_without_api_key(self, MockGroq):
-        from apps.candidate.recruiter_cvs.services.cv_parser import parse_cv_with_llm
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            CVParserUnavailable,
+            parse_cv_with_llm,
+        )
 
-        self.assertEqual(parse_cv_with_llm(LONG_ENOUGH_CV_TEXT), {})
+        with self.assertRaisesMessage(CVParserUnavailable, "groq_api_key_missing"):
+            parse_cv_with_llm(LONG_ENOUGH_CV_TEXT)
         MockGroq.assert_not_called()
 
 
@@ -398,7 +406,8 @@ class ProcessCvPdfTest(TestCase):
     def test_invalid_or_empty_pdf_returns_empty(self):
         from apps.candidate.recruiter_cvs.services.cv_parser import process_cv_pdf
 
-        self.assertEqual(process_cv_pdf(b"not pdf"), {})
+        with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
+            process_cv_pdf(b"not pdf")
         self.assertEqual(process_cv_pdf(_build_test_cv_bytes(text="")), {})
 
 

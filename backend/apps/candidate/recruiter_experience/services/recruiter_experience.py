@@ -55,6 +55,23 @@ def create_experience_service(
         )
         address_id = address.id
 
+    # Check for existing experience with same company and job title
+    company_name = fields.get("company_name")
+    job_title = fields.get("job_title")
+    if company_name and job_title:
+        existing = RecruiterExperience.objects.filter(
+            recruiter=recruiter,
+            company_name__iexact=company_name,
+            job_title__iexact=job_title
+        ).first()
+        if existing:
+            existing.industry_id = industry_id
+            existing.address_id = address_id
+            for field, value in fields.items():
+                setattr(existing, field, value)
+            existing.save()
+            return existing
+
     experience = RecruiterExperience.objects.create(
         recruiter=recruiter,
         display_order=next_order,

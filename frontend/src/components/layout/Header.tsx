@@ -279,7 +279,7 @@ export const Header = () => {
                                             </Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                            <Link to={user.role === 'company' ? '/company/profile' : (user.candidate_id ? `/profile/${user.candidate_id}` : '/candidate/profile')} className="flex items-center w-full">
+                                            <Link to={user.role === 'company' ? '/company/profile' : '/candidate/profile'} className="flex items-center w-full">
                                                 <User className="mr-3 h-4 w-4" />
                                                 <span>Trang cá nhân</span>
                                             </Link>

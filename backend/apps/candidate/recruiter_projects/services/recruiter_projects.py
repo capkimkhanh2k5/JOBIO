@@ -40,6 +40,17 @@ def create_project(recruiter: Recruiter, data: ProjectInput) -> RecruiterProject
 
     fields = data.model_dump(exclude_unset=True)
 
+    if "project_name" in fields:
+        existing = RecruiterProject.objects.filter(
+            recruiter=recruiter, 
+            project_name__iexact=fields["project_name"]
+        ).first()
+        if existing:
+            for field, value in fields.items():
+                setattr(existing, field, value)
+            existing.save()
+            return existing
+
     project = RecruiterProject.objects.create(
         recruiter=recruiter, display_order=next_order, **fields
     )

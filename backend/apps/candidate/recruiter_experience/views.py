@@ -53,12 +53,15 @@ class RecruiterExperienceViewSet(viewsets.GenericViewSet):
         return None
 
     def _check_public_or_owner_permission(self, request, recruiter):
-        if recruiter.is_profile_public:
-            return None
-        if request.user.is_authenticated and recruiter.user == request.user:
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication required"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        if recruiter.user == request.user:
             return None
         return Response(
-            {"detail": "Profile is not public"}, status=status.HTTP_403_FORBIDDEN
+            {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
         )
 
     def list(self, request, recruiter_id=None):

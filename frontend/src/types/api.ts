@@ -542,7 +542,7 @@ export interface SavedJobUpdateRequest {
 // Candidate / Candidate Profile
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type JobSearchStatus = 'actively_looking' | 'open' | 'not_looking';
+
 export type Gender = 'male' | 'female' | 'other';
 
 export interface CandidateListItem {
@@ -551,7 +551,7 @@ export interface CandidateListItem {
   current_position: string | null;
   current_company: CompanyBrief | null;
   years_of_experience: number | null;
-  job_search_status: JobSearchStatus;
+
   profile_completeness_score: number;
 }
 
@@ -567,7 +567,6 @@ export interface CandidateDetail extends CandidateListItem {
   desired_salary_max: number | null;
   salary_currency: string | null;
   highest_education_level: string | null;
-  is_profile_public: boolean;
   score: number;
   checklist: Array<{ task: string; completed: boolean }>;
   skills: CandidateSkill[];
@@ -590,12 +589,11 @@ export interface CandidateUpdateRequest {
   linkedin_url?: string;
   github_url?: string;
   portfolio_url?: string;
-  job_search_status?: JobSearchStatus;
+
   salary_expectation_min?: number;
   salary_expectation_max?: number;
   salary_currency?: string;
   highest_education_level?: string;
-  is_profile_public?: boolean;
 }
 
 // ─── Education ───────────────────────────────────────────────────────────────
@@ -659,14 +657,18 @@ export interface CandidateExperienceRequest {
 
 export interface CandidateSkill {
   id: number;
-  skill: Skill;
+  skill?: Skill;
+  skill_id?: number;
+  skill_name?: string;
   proficiency_level: string | null;
   years_of_experience: number | null;
   endorsement_count: number;
+  is_verified?: boolean;
 }
 
 export interface CandidateSkillRequest {
-  skill_id: number;
+  skill_id?: number;
+  skill_name?: string;
   proficiency_level?: string;
   years_of_experience?: number;
 }
@@ -711,8 +713,9 @@ export interface CandidateLanguage {
 }
 
 export interface CandidateLanguageRequest {
-  language_id: number;
-  proficiency_level: LanguageProficiency;
+  language_id?: number;
+  language_name?: string;
+  proficiency_level?: LanguageProficiency;
   is_native?: boolean;
 }
 
@@ -824,6 +827,7 @@ export interface CVCreateRequest {
   template_id?: number;
   cv_name: string;
   cv_data?: Record<string, unknown>;
+  create_mode?: 'manual' | 'from_profile';
 }
 
 export interface CVUpdateRequest {
@@ -1008,7 +1012,6 @@ export interface CandidateBrief {
   full_name: string;
   avatar_url: string | null;
   headline: string | null;
-  job_search_status: string;
 }
 
 export interface Connection {

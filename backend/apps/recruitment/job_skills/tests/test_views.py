@@ -167,6 +167,47 @@ class JobSkillViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_job_skill_by_name_creates_pending_master_skill(self):
+        """POST /api/jobs/:job_id/skills/ - skill_name mới → tạo skill chờ duyệt"""
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            f"/api/jobs/{self.job.id}/skills/",
+            {
+                "skill_name": " GraphQL ",
+                "is_required": True,
+                "proficiency_level": "advanced",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        skill = Skill.objects.get(name="GraphQL")
+        self.assertEqual(skill.category.slug, "khac")
+        self.assertFalse(skill.is_verified)
+        self.assertEqual(response.data["skill_id"], skill.id)
+
+    def test_create_job_skill_by_name_reuses_existing_case_insensitive_skill(self):
+        """POST /api/jobs/:job_id/skills/ - skill_name trùng khác hoa thường → reuse"""
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            f"/api/jobs/{self.job.id}/skills/", {"skill_name": "python"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["skill_id"], self.skill.id)
+        self.assertEqual(Skill.objects.filter(name__iexact="python").count(), 1)
+
+    def test_create_job_skill_rejects_blank_name(self):
+        """POST /api/jobs/:job_id/skills/ - skill_name rỗng → 400"""
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            f"/api/jobs/{self.job.id}/skills/", {"skill_name": "   "}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_job_skill_invalid_proficiency(self):
         """POST /api/jobs/:job_id/skills/ - proficiency không hợp lệ → 400"""
         self.client.force_authenticate(user=self.owner)

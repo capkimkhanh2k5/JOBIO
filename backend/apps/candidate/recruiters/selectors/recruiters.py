@@ -50,11 +50,10 @@ def search_recruiters(filters: dict) -> QuerySet:
     - location: Province/City name
     - min_experience / experience_min: Minimum years of experience
     - max_experience / experience_max: Maximum years of experience
-    - job_status / search_status: Job search status
     - education_level: Highest education level
     - salary_min / salary_max: Desired salary range
     """
-    queryset = Recruiter.objects.filter(is_profile_public=True).select_related(
+    queryset = Recruiter.objects.select_related(
         "user", "address", "address__province"
     )
 
@@ -78,10 +77,7 @@ def search_recruiters(filters: dict) -> QuerySet:
             .order_by("-rank")
         )
 
-    # Normalize and Filter by job_status
-    job_status = filters.get("job_status") or filters.get("search_status")
-    if job_status and job_status.lower() != "all":
-        queryset = queryset.filter(job_search_status=job_status)
+
 
     # Normalize and Filter by experience range
     min_exp = filters.get("min_experience") or filters.get("experience_min")

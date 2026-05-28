@@ -29,7 +29,6 @@ class RecruiterSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "job_search_status",
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
@@ -37,7 +36,7 @@ class RecruiterSerializer(serializers.ModelSerializer):
             "years_of_experience",
             "highest_education_level",
             "profile_completeness_score",
-            "is_profile_public",
+
             "profile_views_count",
             "created_at",
             "updated_at",
@@ -123,7 +122,7 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "job_search_status",
+
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
@@ -131,7 +130,7 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             "years_of_experience",
             "highest_education_level",
             "profile_completeness_score",
-            "is_profile_public",
+
             "profile_views_count",
             "created_at",
             "updated_at",
@@ -170,14 +169,13 @@ class RecruiterCreateSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "job_search_status",
+
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
-            "is_profile_public",
         ]
 
 
@@ -199,22 +197,13 @@ class RecruiterUpdateSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "job_search_status",
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
-            "is_profile_public",
         ]
-
-
-class JobSearchStatusSerializer(serializers.Serializer):
-    job_search_status = serializers.ChoiceField(
-        choices=Recruiter.JobSearchStatus.choices
-    )
-
 
 class ProfileCompletenessSerializer(serializers.Serializer):
     score = serializers.IntegerField(read_only=True)
@@ -227,32 +216,6 @@ class RecruiterAvatarSerializer(serializers.Serializer):
     avatar = serializers.ImageField(max_length=None, use_url=True)
 
 
-class RecruiterPublicProfileSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer(read_only=True)
-
-    class Meta:
-        model = Recruiter
-        fields = [
-            "id",
-            "user",
-            "current_company",
-            "current_position",
-            "bio",
-            "linkedin_url",
-            "github_url",
-            "portfolio_url",
-            "years_of_experience",
-            "highest_education_level",
-        ]
-        read_only_fields = ["id"]
-
-
-class RecruiterPrivacySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recruiter
-        fields = ["is_profile_public"]
-
-
 class RecruiterStatsSerializer(serializers.Serializer):
     profile_views = serializers.IntegerField(read_only=True)
     following_companies = serializers.IntegerField(read_only=True)
@@ -262,7 +225,6 @@ class RecruiterSearchFilterSerializer(serializers.Serializer):
     skills = serializers.ListField(child=serializers.CharField())
     location = serializers.CharField()
     min_experience = serializers.IntegerField()
-    job_status = serializers.CharField()
 
 
 class RecruiterApplicationSerializer(serializers.Serializer):

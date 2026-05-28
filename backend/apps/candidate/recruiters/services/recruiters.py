@@ -1,10 +1,119 @@
 from typing import Optional
 from datetime import date
+import re
+
 from pydantic import BaseModel, ConfigDict
 from django.db import transaction
 from apps.candidate.recruiters.models import Recruiter
 from apps.company.companies.models import Company
 from apps.geography.addresses.models import Address
+from apps.core.utils import remove_accents
+
+
+LOCATION_ALIAS_MAP = {
+    "hanoi": "ha noi",
+    "hn": "ha noi",
+    "danang": "da nang",
+    "da nang city": "da nang",
+    "hcm": "ho chi minh",
+    "hcmc": "ho chi minh",
+    "tp hcm": "ho chi minh",
+    "tphcm": "ho chi minh",
+    "tp ho chi minh": "ho chi minh",
+    "ho chi minh city": "ho chi minh",
+    "sai gon": "ho chi minh",
+    "saigon": "ho chi minh",
+    "hue": "hue",
+    "hue city": "hue",
+}
+LOCATION_STOP_WORDS = {
+    "viet nam",
+    "vietnam",
+    "vn",
+    "city",
+    "province",
+    "tinh",
+    "thanh pho",
+    "tp",
+}
+
+
+def normalize_location_key(value: object) -> str:
+    text = remove_accents(str(value or "")).lower()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return LOCATION_ALIAS_MAP.get(text, text)
+
+
+def compact_location_key(value: object) -> str:
+    return normalize_location_key(value).replace(" ", "")
+
+
+def simplify_location_key(value: object) -> str:
+    text = normalize_location_key(value)
+    for stop_word in LOCATION_STOP_WORDS:
+        text = re.sub(rf"\b{re.escape(stop_word)}\b", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return LOCATION_ALIAS_MAP.get(text, text)
+
+
+def location_candidates(value: object) -> list[str]:
+    text = str(value or "")
+    pieces = [text]
+    pieces.extend(re.split(r"[,;/|\\-]+", text))
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for piece in pieces:
+        for candidate in (
+            normalize_location_key(piece),
+            simplify_location_key(piece),
+            compact_location_key(piece),
+        ):
+            if candidate and candidate not in LOCATION_STOP_WORDS and candidate not in seen:
+                seen.add(candidate)
+                candidates.append(candidate)
+    return candidates
+
+
+def resolve_province_from_location(value: object):
+    from apps.geography.provinces.models import Province
+
+    if isinstance(value, int):
+        return Province.objects.filter(id=value, is_active=True).first()
+    if isinstance(value, str) and value.strip().isdigit():
+        return Province.objects.filter(id=int(value.strip()), is_active=True).first()
+
+    candidates = location_candidates(value)
+    if not candidates:
+        return None
+
+    provinces = list(Province.objects.filter(is_active=True))
+    exact_map = {}
+    for province in provinces:
+        for key in (
+            normalize_location_key(province.province_name),
+            simplify_location_key(province.province_name),
+            compact_location_key(province.province_name),
+        ):
+            if key:
+                exact_map[key] = province
+
+    for candidate in candidates:
+        province = exact_map.get(LOCATION_ALIAS_MAP.get(candidate, candidate))
+        if province:
+            return province
+
+    normalized_full = f" {normalize_location_key(value)} "
+    matches = []
+    for key, province in exact_map.items():
+        if len(key) >= 4 and f" {key} " in normalized_full:
+            matches.append((len(key), province))
+    if not matches:
+        return None
+
+    matches.sort(key=lambda item: item[0], reverse=True)
+    return matches[0][1]
 
 
 class RecruiterInput(BaseModel):
@@ -18,14 +127,14 @@ class RecruiterInput(BaseModel):
     facebook_url: Optional[str] = None
     github_url: Optional[str] = None
     portfolio_url: Optional[str] = None
-    job_search_status: Optional[str] = None
+
     desired_salary_min: Optional[float] = None
     desired_salary_max: Optional[float] = None
     salary_currency: Optional[str] = None
     available_from_date: Optional[date] = None
     years_of_experience: Optional[int] = None
     highest_education_level: Optional[str] = None
-    is_profile_public: Optional[bool] = None
+
     full_name: Optional[str] = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -59,22 +168,25 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
 
         if field == "address" and isinstance(value, dict):
             from apps.geography.addresses.models import Address
-            from apps.geography.provinces.models import Province
             from apps.geography.communes.models import Commune
 
             addr_data = value.copy()
             province_name = addr_data.pop("province", None)
             commune_name = addr_data.pop("commune", None)
+            allowed_address_fields = {
+                "address_line",
+                "latitude",
+                "longitude",
+                "is_verified",
+            }
+            addr_data = {
+                key: val
+                for key, val in addr_data.items()
+                if key in allowed_address_fields and val is not None
+            }
 
             # Find province
-            province = None
-            if province_name:
-                if isinstance(province_name, int):
-                    province = Province.objects.filter(id=province_name).first()
-                else:
-                    province = Province.objects.filter(
-                        province_name__icontains=province_name
-                    ).first()
+            province = resolve_province_from_location(province_name)
 
             # Find commune
             commune = None
@@ -96,6 +208,7 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
                     recruiter.address.commune = commune
                 recruiter.address.save()
             elif province:  # Only create if we have a valid province
+                addr_data.setdefault("address_line", "")
                 addr_data["province"] = province
                 addr_data["commune"] = commune
                 recruiter.address = Address.objects.create(**addr_data)
@@ -107,17 +220,7 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
     return recruiter
 
 
-@transaction.atomic
-def update_job_search_status_service(recruiter: Recruiter, status: str) -> Recruiter:
-    """
-    Cập nhật trạng thái tìm việc.
-    """
-    if status not in Recruiter.JobSearchStatus.values:
-        raise ValueError("Invalid job search status")
 
-    recruiter.job_search_status = status
-    recruiter.save()
-    return recruiter
 
 
 @transaction.atomic
@@ -171,7 +274,7 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
 
     # 3. Experience > 1 item (20 pts)
     experience_count = (
-        recruiter.experience.count() if hasattr(recruiter, "experience") else 0
+        recruiter.experiences.count() if hasattr(recruiter, "experiences") else 0
     )
     if experience_count >= 2:
         score += 20
@@ -212,12 +315,12 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
 
     # 6. Contact Info - Links (10 pts)
     contact_score = 0
-    if recruiter.linkedin_url:
-        contact_score += 4
-    if recruiter.github_url or recruiter.portfolio_url:
-        contact_score += 3
+    if recruiter.linkedin_url or recruiter.github_url or recruiter.portfolio_url:
+        contact_score += 7
+
     if recruiter.address:
         contact_score += 3
+
     score += contact_score
     details["contact_info"] = contact_score
     if contact_score < 10:
@@ -250,16 +353,16 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     checklist = [
         {
             "task": "Thêm ảnh đại diện",
-            "completed": recruiter.user.avatar_url is not None,
+            "completed": bool(recruiter.user.avatar_url),
         },
         {
-            "task": "Cập nhật giới thiệu bản thân (>50 ký tự)",
+            "task": "Cập nhật giới thiệu bản thân",
             "completed": len(recruiter.bio or "") >= 50,
         },
         {
-            "task": "Thêm kinh nghiệm làm việc (>=2 mục)",
+            "task": "Thêm kinh nghiệm làm việc",
             "completed": (
-                recruiter.experience.count() if hasattr(recruiter, "experience") else 0
+                recruiter.experiences.count() if hasattr(recruiter, "experiences") else 0
             )
             >= 2,
         },
@@ -271,15 +374,19 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
             >= 1,
         },
         {
-            "task": "Thêm kỹ năng (>=4 kỹ năng)",
+            "task": "Thêm kỹ năng",
             "completed": (
                 recruiter.skills.count() if hasattr(recruiter, "skills") else 0
             )
             >= 4,
         },
         {
-            "task": "Liên kết mạng xã hội (LinkedIn/Github)",
-            "completed": (recruiter.linkedin_url or recruiter.github_url) is not None,
+            "task": "Liên kết mạng xã hội (LinkedIn/Github/Portfolio)",
+            "completed": bool(
+                recruiter.linkedin_url
+                or recruiter.github_url
+                or recruiter.portfolio_url
+            ),
         },
     ]
 
@@ -301,15 +408,4 @@ def upload_recruiter_avatar_service(recruiter: Recruiter, file_data: dict) -> Re
     if avatar_file:
         upload_user_avatar(recruiter.user, avatar_file)
 
-    return recruiter
-
-
-def update_recruiter_privacy_service(
-    recruiter: Recruiter, is_public: bool
-) -> Recruiter:
-    """
-    Cập nhật trạng thái riêng tư của hồ sơ ứng viên.
-    """
-    recruiter.is_profile_public = is_public
-    recruiter.save()
     return recruiter

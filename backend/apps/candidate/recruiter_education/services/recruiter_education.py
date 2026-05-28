@@ -43,6 +43,24 @@ def create_education_service(
 
     fields = data.model_dump(exclude_unset=True)
 
+    # Check for existing education with same school and degree
+    school_name = fields.get("school_name")
+    degree = fields.get("degree")
+    if school_name:
+        qs = RecruiterEducation.objects.filter(
+            recruiter=recruiter,
+            school_name__iexact=school_name
+        )
+        if degree:
+            qs = qs.filter(degree__iexact=degree)
+            
+        existing = qs.first()
+        if existing:
+            for field, value in fields.items():
+                setattr(existing, field, value)
+            existing.save()
+            return existing
+
     education = RecruiterEducation.objects.create(
         recruiter=recruiter, display_order=next_order, **fields
     )

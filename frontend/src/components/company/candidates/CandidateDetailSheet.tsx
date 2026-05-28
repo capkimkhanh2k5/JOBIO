@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCandidateStore } from '@/store/candidateStore';
-import { candidateService } from '@/services/candidateService';
 import { applicationService } from '@/services/applicationService';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -185,7 +184,10 @@ export function CandidateDetailSheet() {
             setIsLoading(true);
             try {
                 const applicationId = Number(selectedCandidateId);
-                const appRes = await applicationService.getById(applicationId);
+                const [appRes, statusHistory] = await Promise.all([
+                    applicationService.getById(applicationId),
+                    applicationService.getStatusHistory(applicationId).then((r) => r.data),
+                ]);
                 const appData = appRes.data;
                 const candidateId = Number(appData.recruiter_id);
 
@@ -195,19 +197,9 @@ export function CandidateDetailSheet() {
                     return;
                 }
 
-                const [profile, edu, exp, skillList, certificationList, statusHistory] = await Promise.all([
-                    candidateService.getById(candidateId).then((r) => r.data),
-                    candidateService.listEducation(candidateId).then((r) => r.data),
-                    candidateService.listExperience(candidateId).then((r) => r.data),
-                    candidateService.listSkills(candidateId).then((r) => r.data),
-                    candidateService.listCertifications(candidateId).then((r) => r.data),
-                    applicationService.getStatusHistory(applicationId).then((r) => r.data),
-                ]);
-
                 if (!mounted) return;
 
                 setDetails({
-                    ...profile,
                     ...appData,
                     candidate_id: appData.recruiter_id,
                     candidate_name: appData.recruiter_name,
@@ -222,10 +214,13 @@ export function CandidateDetailSheet() {
                     cv_url: (appData as any).cv_url ?? null,
                     applied_at: appData.applied_at,
                 });
-                setEducation(edu);
-                setExperience(exp);
-                setSkills(skillList);
-                setCertifications(certificationList);
+                setEducation([]);
+                setExperience([]);
+                setSkills((appData.skills || []).map((skill: any, index: number) => ({
+                    id: `application-skill-${index}`,
+                    name: typeof skill === 'string' ? skill : skill?.name || skill?.skill_name || '',
+                })));
+                setCertifications([]);
                 setHistory(statusHistory || []);
             } catch (error) {
                 console.error(error);

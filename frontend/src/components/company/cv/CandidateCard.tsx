@@ -20,10 +20,7 @@ export interface Candidate {
     skills?: Array<{ skill: { name: string } }>;
     education_summary?: string;
     highest_education_level?: string;
-    job_search_status: string;
-    profile_completeness?: number;
     profile_completeness_score?: number;
-    is_profile_public: boolean;
     location?: string;
     address?: { province_name?: string; province?: { province_name: string } };
 }
@@ -46,34 +43,11 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
         candidate.address?.province?.province_name || 
         'N/A';
     
-    const completeness = candidate.profile_completeness ?? candidate.profile_completeness_score ?? 0;
+    const completeness = candidate.profile_completeness_score ?? 0;
     
     // Skill normalization
     const displaySkills = candidate.top_skills || candidate.skills?.map(s => s.skill.name) || [];
 
-    const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'active': 
-            case 'actively_looking': return 'bg-green-500/10 text-green-500 border-green-500/20';
-            case 'passive': 
-            case 'open': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
-            case 'closed': 
-            case 'not_looking': return 'bg-red-500/10 text-red-500 border-red-500/20';
-            default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
-        }
-    };
-
-    const getStatusLabel = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'active':
-            case 'actively_looking': return 'Đang tìm việc';
-            case 'passive':
-            case 'open': return 'Sẵn sàng cơ hội tốt';
-            case 'closed':
-            case 'not_looking': return 'Không tìm việc';
-            default: return status || 'N/A';
-        }
-    };
 
     return (
         <motion.div
@@ -103,11 +77,6 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
                                 <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-violet-600 transition-colors">
                                     {name}
                                 </h3>
-                                {candidate.is_profile_public && (
-                                    <Badge variant="outline" className="shrink-0 bg-primary/5 text-primary text-[10px] px-1.5 border-primary/20">
-                                        Verified
-                                    </Badge>
-                                )}
                             </div>
                             <p className="text-sm font-medium text-foreground/80 truncate">
                                 {candidate.current_position || 'Chưa cập nhật vị trí'}
@@ -150,11 +119,8 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
                     </div>
                 </CardContent>
 
-                {/* Footer with status & score */}
-                <div className="px-6 py-3 border-t border-border/40 bg-muted/20 flex justify-between items-center group-hover:bg-muted/40 transition-colors">
-                    <Badge variant="outline" className={`font-normal ${getStatusColor(candidate.job_search_status)}`}>
-                        {getStatusLabel(candidate.job_search_status)}
-                    </Badge>
+                {/* Footer with score */}
+                <div className="px-6 py-3 border-t border-border/40 bg-muted/20 flex justify-end items-center group-hover:bg-muted/40 transition-colors">
 
                     <div className="flex items-center gap-2">
                         <div className="text-xs text-muted-foreground whitespace-nowrap">Độ hoàn thiện</div>

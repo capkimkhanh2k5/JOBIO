@@ -970,7 +970,6 @@ class Recruiters(models.Model):
     facebook_url = models.CharField(max_length=255, blank=True, null=True)
     github_url = models.CharField(max_length=255, blank=True, null=True)
     portfolio_url = models.CharField(max_length=255, blank=True, null=True)
-    job_search_status = models.CharField(max_length=20)
     desired_salary_min = models.DecimalField(
         max_digits=15, decimal_places=2, blank=True, null=True
     )
@@ -982,7 +981,6 @@ class Recruiters(models.Model):
     years_of_experience = models.IntegerField()
     highest_education_level = models.CharField(max_length=20, blank=True, null=True)
     profile_completeness_score = models.IntegerField()
-    is_profile_public = models.BooleanField()
     profile_views_count = models.IntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()

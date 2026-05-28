@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from apps.core.pagination import StandardResultsSetPagination
 
 from .models import Recruiter
@@ -9,10 +9,7 @@ from .serializers import (
     RecruiterSerializer,
     RecruiterCreateSerializer,
     RecruiterUpdateSerializer,
-    JobSearchStatusSerializer,
     RecruiterAvatarSerializer,
-    RecruiterPublicProfileSerializer,
-    RecruiterPrivacySerializer,
     RecruiterStatsSerializer,
     RecruiterApplicationSerializer,
     SavedJobSerializer,
@@ -21,10 +18,8 @@ from .services.recruiters import (
     create_recruiter_service,
     update_recruiter_service,
     delete_recruiter_service,
-    update_job_search_status_service,
     calculate_profile_completeness_service,
     upload_recruiter_avatar_service,
-    update_recruiter_privacy_service,
     RecruiterInput,
 )
 from .selectors.recruiters import (
@@ -44,13 +39,15 @@ class RecruiterViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
-    def get_permissions(self):
-        if self.action == "public_profile":
-            return [AllowAny()]
-        return super().get_permissions()
-
     def get_queryset(self):
         return Recruiter.objects.all()
+
+    def _check_owner_permission(self, request, recruiter):
+        if recruiter.user != request.user:
+            return Response(
+                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+        return None
 
     def list(self, request):
         """
@@ -91,6 +88,10 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
+
         from .serializers import RecruiterDetailSerializer
 
         return Response(RecruiterDetailSerializer(recruiter).data)
@@ -114,10 +115,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         serializer = RecruiterUpdateSerializer(data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -139,10 +139,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         delete_recruiter_service(recruiter)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -168,10 +167,15 @@ class RecruiterViewSet(viewsets.GenericViewSet):
 
         return Response(RecruiterDetailSerializer(recruiter).data)
 
-    @action(detail=True, methods=["patch"], url_path="job-search-status")
-    def update_status(self, request, pk=None):
+    @action(detail=True, methods=["post"], url_path="parse-cv")
+    def parse_cv(self, request, pk=None):
         """
-        PATCH /api/recruiters/:id/job-search-status - Cập nhật trạng thái tìm việc
+        POST /api/recruiters/:id/parse-cv - Parse CV PDF and return structured data.
+
+        Accepts a PDF file upload, extracts text, parses with Groq LLM,
+        and returns structured JSON immediately (synchronous).
+        Does NOT create a RecruiterCV record — only returns parsed data
+        for the frontend to review and apply to the profile.
         """
         recruiter = get_recruiter_by_id(pk)
         if not recruiter:
@@ -179,21 +183,111 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
+
+        cv_file = request.FILES.get("file")
+        if not cv_file:
             return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+                {"detail": "No file provided. Please upload a PDF file."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = JobSearchStatusSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not cv_file.name.lower().endswith(".pdf"):
+            return Response(
+                {"detail": "Only PDF files are supported."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
-            updated = update_job_search_status_service(
-                recruiter, serializer.validated_data["job_search_status"]
+            from apps.candidate.recruiter_cvs.services.cv_parser import (
+                process_cv_pdf,
+                CVModerationBlocked,
+                CVModerationUnavailable,
+                CVParserUnavailable,
             )
-            return Response(RecruiterSerializer(updated).data)
+
+            file_bytes = cv_file.read()
+            user_identifier = f"recruiter:{recruiter.id}"
+            parsed_data = process_cv_pdf(file_bytes, user_identifier=user_identifier)
+
+            if not parsed_data:
+                return Response(
+                    {"detail": "Could not extract data from the PDF. The file may be empty, corrupted, or image-only without OCR support."},
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                )
+
+            return Response(parsed_data, status=status.HTTP_200_OK)
+
+        except CVModerationBlocked as e:
+            return Response(
+                {"detail": f"CV content was blocked by safety filter: {e.reason}"},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        except CVModerationUnavailable:
+            return Response(
+                {
+                    "detail": (
+                        "Content safety check is temporarily unavailable. "
+                        "Please try again later."
+                    )
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except CVParserUnavailable:
+            return Response(
+                {
+                    "detail": (
+                        "CV parser is temporarily unavailable. "
+                        "Please try again later."
+                    )
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            error_code = str(e)
+            error_map = {
+                "pdf_empty": (
+                    "The uploaded PDF is empty.",
+                    status.HTTP_400_BAD_REQUEST,
+                ),
+                "pdf_too_large": (
+                    "The uploaded PDF is too large.",
+                    status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                ),
+                "invalid_pdf_magic": (
+                    "The uploaded file is not a valid PDF.",
+                    status.HTTP_400_BAD_REQUEST,
+                ),
+                "pdf_no_pages": (
+                    "The uploaded PDF has no pages.",
+                    status.HTTP_400_BAD_REQUEST,
+                ),
+                "pdf_too_many_pages": (
+                    "The uploaded PDF has too many pages.",
+                    status.HTTP_400_BAD_REQUEST,
+                ),
+                "invalid_pdf": (
+                    "The uploaded PDF is invalid or corrupted.",
+                    status.HTTP_400_BAD_REQUEST,
+                ),
+            }
+            detail, response_status = error_map.get(
+                error_code, (error_code, status.HTTP_400_BAD_REQUEST)
+            )
+            return Response(
+                {"detail": detail},
+                status=response_status,
+            )
+        except Exception:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.exception("Unexpected error during CV parsing for recruiter %s", pk)
+            return Response(
+                {"detail": "An unexpected error occurred while parsing the CV. Please try again."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     @action(detail=True, methods=["get"], url_path="profile-completeness")
     def get_completeness(self, request, pk=None):
@@ -206,10 +300,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         completeness = calculate_profile_completeness_service(recruiter)
         return Response(completeness)
@@ -225,10 +318,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         serializer = RecruiterAvatarSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -236,51 +328,6 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         try:
             updated = upload_recruiter_avatar_service(
                 recruiter, serializer.validated_data
-            )
-            return Response(RecruiterSerializer(updated).data)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=True, methods=["get"], url_path="public_profile")
-    def public_profile(self, request, pk=None):
-        """
-        GET /api/recruiters/:id/public_profile - Lấy hồ sơ công khai
-        """
-        recruiter = get_recruiter_by_id(pk)
-        if not recruiter:
-            return Response(
-                {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        if not recruiter.is_profile_public:
-            return Response(
-                {"detail": "Profile is not public"}, status=status.HTTP_403_FORBIDDEN
-            )
-
-        return Response(RecruiterPublicProfileSerializer(recruiter).data)
-
-    @action(detail=True, methods=["patch"], url_path="privacy")
-    def update_privacy(self, request, pk=None):
-        """
-        PATCH /api/recruiters/:id/privacy - Cập nhật trạng thái riêng tư
-        """
-        recruiter = get_recruiter_by_id(pk)
-        if not recruiter:
-            return Response(
-                {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
-
-        serializer = RecruiterPrivacySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        try:
-            updated = update_recruiter_privacy_service(
-                recruiter, serializer.validated_data["is_profile_public"]
             )
             return Response(RecruiterSerializer(updated).data)
         except ValueError as e:
@@ -297,10 +344,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         stats = get_recruiter_stats(recruiter)
         return Response(RecruiterStatsSerializer(stats).data)
@@ -331,10 +377,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         applications = get_recruiter_applications(recruiter)
         return Response(RecruiterApplicationSerializer(applications, many=True).data)
@@ -350,10 +395,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if recruiter.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         # Logic giả định xác thực số điện thoại (thường qua OTP)
         # Ở đây chỉ cập nhật trạng thái đã xác thực

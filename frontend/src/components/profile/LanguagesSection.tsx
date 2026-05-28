@@ -19,7 +19,7 @@ const PROFICIENCY_LEVELS = [
     { value: 'intermediate', label: 'Giao tiếp' },
     { value: 'advanced', label: 'Thành thạo' },
     { value: 'fluent', label: 'Lưu loát' },
-    { value: 'native', label: 'Ngôn ngữ mẹ đẻ' },
+    { value: 'native', label: 'Ngôn ngữ chính' },
 ];
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -110,7 +110,7 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
                     <div className="flex items-center gap-3">
                         <Switch id="is-native" checked={isNative}
                             onCheckedChange={v => { setIsNative(v); if (v) setProficiency('native'); else setProficiency('fluent'); }} />
-                        <Label htmlFor="is-native" className="cursor-pointer">Đây là ngôn ngữ mẹ đẻ</Label>
+                        <Label htmlFor="is-native" className="cursor-pointer">Đây là ngôn ngữ chính</Label>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">

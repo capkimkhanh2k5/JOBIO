@@ -63,7 +63,6 @@ export default function Connections() {
                     full_name: candidate.user?.full_name || 'Candidate',
                     avatar_url: candidate.user?.avatar_url || null,
                     headline: candidate.current_position || null,
-                    job_search_status: candidate.job_search_status || 'open',
                 },
                 mutual_connections: 0,
                 common_skills: [],

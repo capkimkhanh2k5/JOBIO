@@ -74,7 +74,7 @@ export const jobService = {
     return api.get<JobSkill[]>(`/api/jobs/${jobId}/skills/`);
   },
 
-  addSkill(jobId: number, data: { skill_id: number; is_required?: boolean; proficiency_level?: string }) {
+  addSkill(jobId: number, data: { skill_id?: number | null; skill_name?: string; is_required?: boolean; proficiency_level?: string }) {
     return api.post<JobSkill>(`/api/jobs/${jobId}/skills/`, data);
   },
 

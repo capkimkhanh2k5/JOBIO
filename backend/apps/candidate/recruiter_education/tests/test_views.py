@@ -60,20 +60,17 @@ class RecruiterEducationViewTest(APITestCase):
             "DUT",
         )
 
-    def test_list_public_education_unauthenticated(self):
-        """Public profiles expose education read endpoints without login."""
+    def test_list_education_unauthenticated(self):
+        """Education read endpoints require authentication."""
         self.client.logout()
 
         response = self.client.get(f"/api/candidates/{self.recruiter.id}/education/")
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]["school_name"], "DUT")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_list_private_education_unauthenticated_forbidden(self):
-        """Private profiles do not expose education read endpoints publicly."""
-        self.recruiter.is_profile_public = False
-        self.recruiter.save(update_fields=["is_profile_public"])
-        self.client.logout()
+    def test_list_education_not_owner(self):
+        """Education read endpoints are owner-only."""
+        self.client.force_authenticate(user=self.user2)
 
         response = self.client.get(f"/api/candidates/{self.recruiter.id}/education/")
 
