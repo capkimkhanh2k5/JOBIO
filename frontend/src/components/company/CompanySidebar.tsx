@@ -46,12 +46,12 @@ export function CompanySidebar() {
         { label: 'Báo cáo', path: '/company/analytics', icon: <BarChart3 className="w-5 h-5" /> },
         { label: 'Hồ sơ công ty', path: '/company/profile', icon: <Building2 className="w-5 h-5" /> },
         { label: 'Lịch sử giao dịch', path: '/company/billing', icon: <History className="w-5 h-5" /> },
+        { label: 'Blog', path: '/company/blog', icon: <BookOpen className="w-5 h-5" /> },
     ];
 
     const bottomItems: NavItem[] = [
         { label: 'Cài đặt', path: '/company/settings', icon: <Settings className="w-5 h-5" /> },
         { label: 'Hỗ trợ', path: '/company/support', icon: <LifeBuoy className="w-5 h-5" /> },
-        { label: 'Blog', path: '/company/blog', icon: <BookOpen className="w-5 h-5" /> },
     ];
 
     const checkIsActive = (path: string) => {
