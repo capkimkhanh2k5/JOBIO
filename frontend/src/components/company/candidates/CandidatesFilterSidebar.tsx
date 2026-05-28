@@ -55,7 +55,7 @@ export function CandidatesFilterSidebar() {
     };
 
     return (
-        <div className="w-full flex-shrink-0 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm rounded-3xl p-6 flex flex-col h-full sticky top-0 hide-scrollbar overflow-y-auto">
+        <div className="w-full flex-shrink-0 bg-white border border-slate-200 shadow-sm rounded-2xl p-6 flex flex-col h-full sticky top-0 hide-scrollbar overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600">
@@ -76,7 +76,7 @@ export function CandidatesFilterSidebar() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder="Tên, email, kỹ năng..."
-                            className="pl-9 h-10 border-border/50 bg-secondary/20"
+                            className="pl-9 h-10 border-slate-200 bg-white"
                             value={filters.searchQuery || ''}
                             onChange={(e) => setFilters({ searchQuery: e.target.value })}
                         />
@@ -91,10 +91,10 @@ export function CandidatesFilterSidebar() {
                         value={filters.jobId || 'all'}
                         onValueChange={(val) => setFilters({ jobId: val === 'all' ? null : val })}
                     >
-                        <SelectTrigger className="w-full h-10 border-border/50 bg-secondary/20 truncate">
+                        <SelectTrigger className="w-full h-10 border-slate-200 bg-white truncate">
                             <SelectValue placeholder="Chọn tin tuyển dụng" />
                         </SelectTrigger>
-                        <SelectContent className="bg-card">
+                        <SelectContent className="bg-white">
                             {jobs.map(job => (
                                 <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>
                             ))}
@@ -161,7 +161,7 @@ export function CandidatesFilterSidebar() {
                                     }}
                                     className={`px-3 py-1.5 rounded-full text-xs transition-colors border ${active
                                             ? 'bg-violet-100 border-violet-200 text-violet-600 font-medium'
-                                            : 'bg-secondary/30 border-border/50 text-muted-foreground hover:bg-secondary'
+                                            : 'bg-secondary/30 border-slate-200 text-muted-foreground hover:bg-secondary'
                                         }`}
                                 >
                                     {skill}
@@ -172,7 +172,7 @@ export function CandidatesFilterSidebar() {
                 </div>
             </div>
 
-            <div className="mt-8 pt-4 border-t border-border/50">
+            <div className="mt-8 pt-4 border-t border-slate-200">
                 <Button className="w-full font-medium bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/20" onClick={() => {
                     // Force refresh logic could be triggered here if needed
                 }}>

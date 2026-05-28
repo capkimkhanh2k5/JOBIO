@@ -525,7 +525,7 @@ function PostJobEditor() {
             <div className="w-full mx-auto relative z-10 space-y-8 p-6 lg:p-8 animate-in fade-in duration-700">
 
                 {/* Main Content Area */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="p-6 md:p-10 space-y-10">
                         {/* Progress Stepper with subtle styling */}
                         <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
@@ -605,7 +605,7 @@ function PostJobEditor() {
                 </div>
 
                 {/* Enhancement Tips with modern look */}
-                <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
                     <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
                             <Clock size={20} />

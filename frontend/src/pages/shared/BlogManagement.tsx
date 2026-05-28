@@ -8,7 +8,6 @@ import {
   Clock,
   Edit3,
   Eye,
-  Filter,
   MoreVertical,
   Plus,
   Search,
@@ -131,12 +130,6 @@ export default function BlogManagement() {
           </div>
 
           <div className="flex w-full items-center gap-2 md:w-auto">
-            <Button
-              variant="outline"
-              className="h-11 flex-1 gap-2 rounded-xl border-slate-200 bg-white/50 font-bold hover:bg-white md:flex-none"
-            >
-              <Filter className="h-4 w-4" /> Lọc
-            </Button>
             <Badge variant="outline" className="h-11 rounded-xl border-slate-200 bg-white/10 px-4 font-bold text-slate-500">
               Tổng: {posts.length} bài viết
             </Badge>

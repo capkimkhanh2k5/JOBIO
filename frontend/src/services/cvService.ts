@@ -103,7 +103,7 @@ export const cvService = {
 
   /** Save a CV_Template as PDF (force regenerate) */
   savePdf(candidateId: number, cvId: number) {
-    return api.post<{ download_url: string; format: string; message: string }>(
+    return api.post<{ download_url: string; format: string; message: string; pdf_generated_at?: string }>(
       `/api/candidates/${candidateId}/cvs/${cvId}/download/`,
       { force: true }
     );
@@ -116,9 +116,10 @@ export const cvService = {
 
   /** Download / generate PDF */
   downloadPdf(candidateId: number, cvId: number) {
-    return api.post(`/api/candidates/${candidateId}/cvs/${cvId}/download/`, {}, {
-      responseType: 'blob',
-    });
+    return api.post<{ download_url: string; format: string; message: string; pdf_generated_at?: string }>(
+      `/api/candidates/${candidateId}/cvs/${cvId}/download/`,
+      {}
+    );
   },
 
   // ─── CV Templates ─────────────────────────────────────────────────────

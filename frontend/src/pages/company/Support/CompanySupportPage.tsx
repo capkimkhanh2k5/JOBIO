@@ -39,6 +39,10 @@ const faqs = [
     }
 ];
 
+const OFFICE_NAME = 'Trường Đại học Bách Khoa - Đại học Đà Nẵng';
+const OFFICE_ADDRESS = '54 Nguyễn Lương Bằng, Liên Chiểu, Đà Nẵng 550000, Việt Nam';
+const OFFICE_MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${OFFICE_NAME}, ${OFFICE_ADDRESS}`)}`;
+
 function FaqItem({ question, answer }: { question: string; answer: string }) {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -147,7 +151,7 @@ export default function CompanySupportPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden"
+                            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
                         >
                             <div className="p-8 md:p-10">
                                 <div className="flex items-center gap-5 mb-10">
@@ -248,7 +252,7 @@ export default function CompanySupportPage() {
                                 </div>
                                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Câu hỏi thường gặp</h3>
                             </div>
-                            <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm px-8 divide-y divide-slate-100">
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 divide-y divide-slate-100">
                                 {faqs.map((faq, idx) => (
                                     <FaqItem key={idx} question={faq.question} answer={faq.answer} />
                                 ))}
@@ -262,13 +266,13 @@ export default function CompanySupportPage() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm p-8 space-y-8"
+                            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 space-y-8"
                         >
                             <h3 className="text-[11px] font-black text-violet-600 uppercase tracking-[0.2em] px-1">Thông tin liên hệ</h3>
 
                             <div className="space-y-5">
                                 {[
-                                    { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '', color: 'text-emerald-600 bg-emerald-50' },
+                                    { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '0123 456 789', color: 'text-emerald-600 bg-emerald-50' },
                                     { icon: <Mail className="w-6 h-6" />, label: 'Email hỗ trợ', value: 'support@jobio.vn', color: 'text-violet-600 bg-violet-50' },
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-5 p-5 rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 group">
@@ -319,10 +323,15 @@ export default function CompanySupportPage() {
                                     <h4 className="text-xl font-black tracking-tight">Văn phòng JOBIO</h4>
                                 </div>
                                 <p className="text-slate-300 text-sm font-bold leading-relaxed opacity-90 mb-8">
-                                    Tầng 15, Keangnam Landmark 72, Đường Phạm Hùng, Quận Nam Từ Liêm, Hà Nội.
+                                    {OFFICE_ADDRESS}
                                 </p>
-                                <Button className="w-full bg-violet-600 hover:bg-violet-700 text-white border-0 rounded-2xl h-14 font-black gap-2 transition-all shadow-lg shadow-violet-600/30">
-                                    Xem Google Maps <ArrowRight className="w-5 h-5" />
+                                <Button
+                                    asChild
+                                    className="w-full bg-violet-600 hover:bg-violet-700 text-white border-0 rounded-2xl h-14 font-black gap-2 transition-all shadow-lg shadow-violet-600/30"
+                                >
+                                    <a href={OFFICE_MAP_URL} target="_blank" rel="noopener noreferrer">
+                                        Xem Google Maps <ArrowRight className="w-5 h-5" />
+                                    </a>
                                 </Button>
                             </div>
                         </motion.div>

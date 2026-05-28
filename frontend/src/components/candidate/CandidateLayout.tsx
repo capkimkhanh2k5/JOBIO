@@ -10,7 +10,7 @@ import { MiniFooter } from '@/components/layout/MiniFooter';
  */
 export function CandidateLayout() {
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50/30">
+        <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
             <ScrollProgress />
 
             <Header />

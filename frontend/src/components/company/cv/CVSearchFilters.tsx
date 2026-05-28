@@ -89,9 +89,9 @@ export const CVSearchFiltersPanel = () => {
     }, 0);
 
     return (
-        <div className="w-full flex flex-col h-full bg-white/60 backdrop-blur-xl rounded-3xl border border-white/40 shadow-sm overflow-hidden">
+        <div className="w-full flex flex-col h-full bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
             {/* Header Sticky */}
-            <div className="p-6 border-b border-border/40 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-20">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
                     <SlidersHorizontal className="w-5 h-5 text-violet-600" />
                     Bộ lọc tìm kiếm
@@ -120,7 +120,7 @@ export const CVSearchFiltersPanel = () => {
                         <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
                         <Input
                             placeholder="Tên, vị trí công việc..."
-                            className="pl-9 bg-background/50 border-border/50 focus-visible:ring-primary/30"
+                            className="pl-9 bg-white border-slate-200 focus-visible:ring-violet-500/20"
                             value={filters.q}
                             onChange={(e) => updateCVSearchFilter({ q: e.target.value })}
                         />
@@ -134,7 +134,7 @@ export const CVSearchFiltersPanel = () => {
                     </Label>
                     <Popover open={skillsOpen} onOpenChange={setSkillsOpen}>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" role="combobox" aria-expanded={skillsOpen} className="w-full justify-between bg-background/50 border-border/50 text-muted-foreground hover:bg-card">
+                            <Button variant="outline" role="combobox" aria-expanded={skillsOpen} className="w-full justify-between bg-white border-slate-200 text-muted-foreground hover:bg-slate-50">
                                 {filters.skills.length > 0 ? `${filters.skills.length} kỹ năng đã chọn` : "Thêm kỹ năng..."}
                             </Button>
                         </PopoverTrigger>
@@ -160,7 +160,7 @@ export const CVSearchFiltersPanel = () => {
                         <AnimatePresence>
                             {filters.skills.map((skill: string) => (
                                 <motion.div key={skill} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}>
-                                    <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1 items-center bg-secondary/40 border border-secondary/20 hover:bg-secondary/60">
+                                    <Badge variant="secondary" className="pl-2 pr-1 py-1 gap-1 items-center bg-slate-100 border border-slate-200 hover:bg-slate-200">
                                         <span className="text-xs font-medium">{skill}</span>
                                         <button type="button" onClick={() => handleSkillRemove(skill)} className="rounded-full hover:bg-destructive/20 hover:text-destructive p-0.5 transition-colors">
                                             <X className="w-3 h-3" />
@@ -177,7 +177,7 @@ export const CVSearchFiltersPanel = () => {
 
                 {/* Location */}
                 <div className="space-y-3">
-                    <button onClick={() => toggleSection('location')} className="w-full flex justify-between items-center group font-semibold text-sm text-foreground/80 hover:text-foreground transition-colors">
+                    <button onClick={() => toggleSection('location')} className="w-full flex justify-between items-center group font-semibold text-sm text-slate-700 hover:text-slate-900 transition-colors">
                         <span className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Địa điểm</span>
                         {sections.location ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>
@@ -187,7 +187,7 @@ export const CVSearchFiltersPanel = () => {
                                 value={filters.location}
                                 onValueChange={(val) => updateCVSearchFilter({ location: val })}
                             >
-                                <SelectTrigger className="w-full h-10 bg-background/50 border-border/50 focus-visible:ring-primary/30">
+                                <SelectTrigger className="w-full h-10 bg-white border-slate-200 focus-visible:ring-violet-500/20">
                                     <SelectValue placeholder="Chọn địa điểm..." />
                                 </SelectTrigger>
                                 <SelectContent className="max-h-[300px] bg-white">
@@ -205,7 +205,7 @@ export const CVSearchFiltersPanel = () => {
 
                 {/* Experience */}
                 <div className="space-y-4">
-                    <button onClick={() => toggleSection('experience')} className="w-full flex justify-between items-center group font-semibold text-sm text-foreground/80 hover:text-foreground transition-colors">
+                    <button onClick={() => toggleSection('experience')} className="w-full flex justify-between items-center group font-semibold text-sm text-slate-700 hover:text-slate-900 transition-colors">
                         <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> Kinh nghiệm tối thiểu</span>
                         {sections.experience ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>
@@ -229,7 +229,7 @@ export const CVSearchFiltersPanel = () => {
 
                 {/* Search Status */}
                 <div className="space-y-3">
-                    <button onClick={() => toggleSection('status')} className="w-full flex justify-between items-center group font-semibold text-sm text-foreground/80 hover:text-foreground transition-colors">
+                    <button onClick={() => toggleSection('status')} className="w-full flex justify-between items-center group font-semibold text-sm text-slate-700 hover:text-slate-900 transition-colors">
                         <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4" /> Trạng thái tìm việc</span>
                         {sections.status ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>
@@ -255,7 +255,7 @@ export const CVSearchFiltersPanel = () => {
 
                 {/* Salary */}
                 <div className="space-y-4">
-                    <button onClick={() => toggleSection('salary')} className="w-full flex justify-between items-center group font-semibold text-sm text-foreground/80 hover:text-foreground transition-colors">
+                    <button onClick={() => toggleSection('salary')} className="w-full flex justify-between items-center group font-semibold text-sm text-slate-700 hover:text-slate-900 transition-colors">
                         <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Mức lương mong đợi (VNĐ)</span>
                         {sections.salary ? <ChevronUp className="w-4 h-4 text-muted-foreground group-hover:text-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />}
                     </button>

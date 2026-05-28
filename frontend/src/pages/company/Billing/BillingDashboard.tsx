@@ -12,6 +12,13 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -125,17 +132,21 @@ const BillingDashboard: React.FC = () => {
                                 />
                             </div>
 
-                            <select
+                            <Select
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="h-11 px-4 border border-slate-200 bg-white text-sm font-bold text-slate-700 rounded-xl focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none cursor-pointer shadow-sm transition-all"
+                                onValueChange={setStatusFilter}
                             >
-                                <option value="all">Tất cả trạng thái</option>
-                                <option value="completed">Thành công</option>
-                                <option value="pending">Đang xử lý</option>
-                                <option value="failed">Thất bại</option>
-                                <option value="refunded">Hoàn tiền</option>
-                            </select>
+                                <SelectTrigger className="h-11 w-[180px] rounded-xl border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all focus:border-violet-500 focus:ring-violet-500/20">
+                                    <SelectValue placeholder="Trạng thái" />
+                                </SelectTrigger>
+                                <SelectContent align="end" className="rounded-xl border-slate-200 bg-white p-1 shadow-xl">
+                                    <SelectItem value="all" className="rounded-lg font-medium">Tất cả trạng thái</SelectItem>
+                                    <SelectItem value="completed" className="rounded-lg font-medium">Thành công</SelectItem>
+                                    <SelectItem value="pending" className="rounded-lg font-medium">Đang xử lý</SelectItem>
+                                    <SelectItem value="failed" className="rounded-lg font-medium">Thất bại</SelectItem>
+                                    <SelectItem value="refunded" className="rounded-lg font-medium">Hoàn tiền</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 

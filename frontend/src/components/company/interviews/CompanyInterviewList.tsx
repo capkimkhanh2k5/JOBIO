@@ -151,7 +151,11 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
                                     <td className="px-6 py-4 text-right">
                                         <DropdownMenu modal={false}>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-lg border border-transparent text-slate-500 transition-colors hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700 focus-visible:border-slate-200 focus-visible:bg-slate-100"
+                                                >
                                                     <span className="sr-only">Open menu</span>
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>

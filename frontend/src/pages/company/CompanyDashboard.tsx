@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Briefcase, Users, Eye, CalendarClock, PlusSquare, Search, User2 } from 'lucide-react';
+import { Briefcase, Users, Eye, CalendarClock, PlusSquare, ListChecks, User2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { KpiCard } from '@/components/company/KpiCard';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { ApplicationsChart } from '@/components/company/ApplicationsChart';
 import { RecentApplicationsTable } from '@/components/company/RecentApplicationsTable';
 import { UpcomingInterviewsCard } from '@/components/company/UpcomingInterviewsCard';
@@ -68,34 +68,54 @@ export default function CompanyDashboard() {
             label: 'Tin đang tuyển',
             value: stats?.active_jobs,
             deltaValue: stats?.active_jobs_delta,
-            iconGradient: 'from-cyan-500 to-sky-600',
+            iconTone: {
+                bg: 'bg-cyan-50',
+                text: 'text-cyan-600',
+                border: 'border-cyan-200',
+                hoverBg: 'bg-cyan-50/40',
+            },
         },
         {
             icon: <Users className="w-5 h-5" />,
             label: 'Lượt ứng tuyển mới',
             value: stats?.new_applications,
             deltaValue: stats?.new_applications_delta,
-            iconGradient: 'from-violet-500 to-purple-600',
+            iconTone: {
+                bg: 'bg-violet-50',
+                text: 'text-violet-600',
+                border: 'border-violet-200',
+                hoverBg: 'bg-violet-50/40',
+            },
         },
         {
             icon: <Eye className="w-5 h-5" />,
             label: 'Lượt xem tin',
             value: stats?.job_views,
             deltaValue: stats?.job_views_delta,
-            iconGradient: 'from-pink-500 to-rose-600',
+            iconTone: {
+                bg: 'bg-rose-50',
+                text: 'text-rose-600',
+                border: 'border-rose-200',
+                hoverBg: 'bg-rose-50/40',
+            },
         },
         {
             icon: <CalendarClock className="w-5 h-5" />,
             label: 'Phỏng vấn sắp tới',
             value: stats?.upcoming_interviews,
             deltaValue: stats?.upcoming_interviews_delta,
-            iconGradient: 'from-lime-500 to-emerald-600',
+            iconTone: {
+                bg: 'bg-emerald-50',
+                text: 'text-emerald-600',
+                border: 'border-emerald-200',
+                hoverBg: 'bg-emerald-50/40',
+            },
         },
     ];
 
     const quickActions = [
         { icon: <PlusSquare className="w-6 h-6" />, label: 'Đăng tin mới', to: '/company/jobs/create', gradient: 'from-violet-500 to-indigo-600' },
-        { icon: <Search className="w-6 h-6" />, label: 'Tìm CV', to: '/company/cv-search', gradient: 'from-indigo-500 to-violet-600' },
+        { icon: <ListChecks className="w-6 h-6" />, label: 'Quản lý tin', to: '/company/jobs', gradient: 'from-indigo-500 to-violet-600' },
         { icon: <User2 className="w-6 h-6" />, label: 'Xem ứng viên', to: '/company/candidates', gradient: 'from-violet-400 to-indigo-500' },
     ];
 
@@ -134,7 +154,7 @@ export default function CompanyDashboard() {
             <motion.div {...fadeUp(0.1)}>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {kpiCards.map((card) => (
-                        <KpiCard key={card.label} {...card} isLoading={statsLoading} />
+                        <DashboardKpiCard key={card.label} {...card} isLoading={statsLoading} />
                     ))}
                 </div>
             </motion.div>
@@ -154,7 +174,7 @@ export default function CompanyDashboard() {
                         <div className="flex flex-col gap-1.5 flex-1">
                             {[
                                 { label: '📋 Đăng tin mới', to: '/company/jobs/create', desc: 'Tạo tin ngay' },
-                                { label: '🔍 Tìm CV', to: '/company/cv-search', desc: 'Khám phá hồ sơ' },
+                                { label: '🗂️ Quản lý tin', to: '/company/jobs', desc: 'Theo dõi tin đăng' },
                                 { label: '👥 Xem ứng viên', to: '/company/candidates', desc: 'Quản lý danh sách' },
                                 { label: '📊 Báo cáo', to: '/company/analytics', desc: 'Phân tích hiệu quả' },
                                 { label: '⚙️ Cài đặt', to: '/company/settings', desc: 'Tùy chỉnh' },
@@ -174,10 +194,10 @@ export default function CompanyDashboard() {
                                 </Link>
                             ))}
                         </div>
-                        <div className="mt-4 py-3 px-3 bg-violet-50 rounded-xl border border-violet-100">
+                        <Link to="/pricing" className="mt-4 block py-3 px-3 bg-violet-50 rounded-xl border border-violet-100 hover:bg-violet-100/70 hover:border-violet-200 transition-colors">
                             <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-1 text-center font-bold">Nâng cấp Pro</p>
                             <p className="text-[9px] text-violet-400 text-center font-bold leading-relaxed">Mở khóa tính năng cao cấp</p>
-                        </div>
+                        </Link>
                     </div>
                 </motion.div>
             </div>

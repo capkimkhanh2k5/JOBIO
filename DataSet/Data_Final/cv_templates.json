@@ -3,7 +3,7 @@
         "id": 1,
         "name": "Modern Classic",
         "file_name": "modern.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896503/ModernClassic_vk1tek.png",
         "preview_url": "",
         "template_data": {
             "tags": [
@@ -26,7 +26,7 @@
         "id": 2,
         "name": "ATS Prime",
         "file_name": "ATS_Prime.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896556/ATSPrime_sutmnv.png",
         "preview_url": "",
         "template_data": {
             "tags": [
@@ -49,7 +49,7 @@
         "id": 3,
         "name": "Editorial Bold",
         "file_name": "editorialBold.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896503/EditorialBold_foquyc.png",
         "preview_url": "",
         "template_data": {
             "tags": [
@@ -72,7 +72,7 @@
         "id": 4,
         "name": "Modern Hybrid",
         "file_name": "modernHybird.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896503/ModernHybrid_id2661.png",
         "preview_url": "",
         "template_data": {
             "tags": [
@@ -95,7 +95,7 @@
         "id": 5,
         "name": "Modern Hybrid Pro",
         "file_name": "modernHybird2.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896503/ModernHybridPro_gwypmx.png",
         "preview_url": "",
         "template_data": {
             "tags": [
@@ -118,7 +118,7 @@
         "id": 6,
         "name": "Modern Luxury",
         "file_name": "modernLuxury.html",
-        "thumbnail_url": "",
+        "thumbnail_url": "https://res.cloudinary.com/dwjwhmnb6/image/upload/v1779896503/ModernLuxury_rtqzxy.png",
         "preview_url": "",
         "template_data": {
             "tags": [

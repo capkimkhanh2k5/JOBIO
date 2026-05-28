@@ -42,15 +42,15 @@ export default function PublicProfile() {
                 className="container mx-auto px-4 max-w-6xl mt-6 relative z-10"
             >
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column: Personal Info Sidebar */}
+                    {/* Left Column: Personal Info Sidebar + CV Details */}
                     <div className="lg:col-span-1 space-y-6">
                         <ProfileInfoSidebar profile={profile} />
+                        <ProfileCVDetail userId={Number(id)} />
                     </div>
 
-                    {/* Right Column: Timeline & CV Details */}
+                    {/* Right Column: Timeline Feed */}
                     <div className="lg:col-span-2 space-y-8">
                         <ProfileTimelineFeed userId={Number(id)} />
-                        <ProfileCVDetail userId={Number(id)} />
                     </div>
                 </div>
             </motion.div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Clock, MapPin, Video, Phone, MoreHorizontal, Eye, Edit, XCircle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -36,14 +36,19 @@ export interface Interview {
 
 interface CompanyCalendarProps {
     interviews: Interview[];
+    focusDate?: string | null;
     isLoading: boolean;
     onInterviewClick: (id: string) => void;
     onEditInterview: (id: string) => void;
     onCancelInterview: (id: string) => void;
 }
 
-export function CompanyCalendar({ interviews, isLoading, onInterviewClick, onEditInterview, onCancelInterview }: CompanyCalendarProps) {
+export function CompanyCalendar({ interviews, focusDate, isLoading, onInterviewClick, onEditInterview, onCancelInterview }: CompanyCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
+
+    useEffect(() => {
+        setCurrentDate(focusDate ? parseISO(focusDate) : new Date());
+    }, [focusDate]);
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));

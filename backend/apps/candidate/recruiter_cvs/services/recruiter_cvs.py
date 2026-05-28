@@ -239,14 +239,21 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
     Uses dedicated WeasyPrint-compatible PDF templates (no Tailwind CDN, no Google Fonts CDN).
     Uploads to Cloudinary and returns URL.
     """
-    # Use cached URL if exists and not forced
-    if cv.cv_url and not force_regenerate:
+    pdf_is_current = not cv.template_id or (
+        cv.pdf_generated_at is not None
+        and cv.updated_at is not None
+        and cv.updated_at <= cv.pdf_generated_at
+    )
+
+    # Use cached URL if exists, not forced, and the PDF still reflects current CV data.
+    if cv.cv_url and not force_regenerate and pdf_is_current:
         cv.download_count += 1
         cv.save(update_fields=["download_count"])
         return {
             "download_url": cv.cv_url,
             "format": "pdf",
             "message": "Retrieved from cache",
+            "pdf_generated_at": cv.pdf_generated_at,
         }
 
     try:
@@ -264,14 +271,20 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
         cv_url = f"/media/generated/cv_{cv.id}.pdf"
 
     cv.cv_url = cv_url
+    cv.pdf_generated_at = timezone.now()
     cv.download_count += 1
     try:
-        cv.save(update_fields=["cv_url", "download_count"])
+        cv.save(update_fields=["cv_url", "pdf_generated_at", "download_count"])
     except Exception:
         _delete_orphan_cloudinary_file(cv_url, "raw")
         raise
 
-    return {"download_url": cv_url, "format": "pdf", "message": "Generated new PDF"}
+    return {
+        "download_url": cv_url,
+        "format": "pdf",
+        "message": "Generated new PDF",
+        "pdf_generated_at": cv.pdf_generated_at,
+    }
 
 
 def generate_cv_preview(cv: RecruiterCV) -> dict:
@@ -351,6 +364,7 @@ def create_cv_from_direct_upload(
             cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
             cv_data={},
             cv_url=secure_url,
+            pdf_generated_at=timezone.now(),
             is_default=False,
             is_public=True,
         )
@@ -469,6 +483,7 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
             cv_name=_normalize_cv_name(cv_name),
             cv_data={},
             cv_url=cv_url,
+            pdf_generated_at=timezone.now(),
             is_default=False,
             is_public=True,
         )

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Search, ChevronDown, LayoutGrid, AlignJustify, Table2,
-    Trash2, XCircle, CalendarClock,
+    Trash2, XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +27,6 @@ interface ManageJobsActionBarProps {
     selectedIds: string[];
     onBulkClose: () => void;
     onBulkDelete: () => void;
-    onBulkExtend: () => void;
 }
 
 const STATUS_LABELS: Record<JobStatusFilter, string> = {
@@ -51,7 +50,7 @@ export function ManageJobsActionBar({
     statusFilter, onStatusFilterChange,
     sortOption, onSortChange,
     searchValue, onSearchChange,
-    selectedIds, onBulkClose, onBulkDelete, onBulkExtend,
+    selectedIds, onBulkClose, onBulkDelete,
 }: ManageJobsActionBarProps) {
     const navigate = useNavigate();
     const searchTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -161,14 +160,6 @@ export function ManageJobsActionBar({
                             Đã chọn {selectedIds.length} tin
                         </span>
                         <div className="flex-1" />
-                        <Button
-                            size="sm" variant="outline"
-                            onClick={onBulkExtend}
-                            className="gap-1.5 border-violet-200 hover:bg-white text-violet-600 text-xs font-bold rounded-lg h-8"
-                        >
-                            <CalendarClock className="w-3.5 h-3.5" />
-                            Gia hạn deadline
-                        </Button>
                         <Button
                             size="sm" variant="outline"
                             onClick={onBulkClose}

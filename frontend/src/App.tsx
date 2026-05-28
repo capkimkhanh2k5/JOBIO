@@ -40,7 +40,6 @@ const CompanySettingsPage = lazy(() => import('@/pages/company/CompanySettingsPa
 const CandidateSettingsPage = lazy(() => import('@/pages/candidate/CandidateSettingsPage'));
 const PaymentResultPage = lazy(() => import('@/pages/company/Billing/PaymentResult'));
 const BillingDashboard = lazy(() => import('@/pages/company/Billing/BillingDashboard'));
-const CompanyCVSearch = lazy(() => import('@/pages/company/CompanyCVSearch'));
 const CompanyInterviewsPage = lazy(() => import('@/pages/company/CompanyInterviews'));
 const CompanyProfile = lazy(() => import('@/pages/company/CompanyProfile'));
 
@@ -208,9 +207,9 @@ function AppInner() {
                         {/* Legacy route redirects */}
                         <Route path="post-job" element={<Navigate to="/company/jobs/create" replace />} />
                         <Route path="manage-jobs" element={<Navigate to="/company/jobs" replace />} />
+                        <Route path="cv-search" element={<Navigate to="/company/jobs" replace />} />
                         <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                         <Route path="candidates" element={<ManageCandidates />} />
-                        <Route path="cv-search" element={<CompanyCVSearch />} />
                         <Route path="interviews" element={<CompanyInterviewsPage />} />
 
                         <Route path="analytics" element={<CompanyAnalyticsPage />} />

@@ -22,6 +22,7 @@ interface ConfirmModalProps {
     cancelText?: string;
     type?: 'danger' | 'success' | 'warning' | 'info';
     isLoading?: boolean;
+    className?: string;
 }
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -33,7 +34,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     confirmText = "Xác nhận",
     cancelText = "Hủy bỏ",
     type = 'info',
-    isLoading = false
+    isLoading = false,
+    className = ''
 }) => {
     const getTypeStyles = () => {
         switch (type) {
@@ -91,7 +93,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                                 left: '50%',
                                 top: '50%',
                             }}
-                            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-2xl w-full max-w-[400px]"
+                            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-2xl w-full max-w-[400px] font-['Plus_Jakarta_Sans','Inter',sans-serif] ${className}`}
                         >
                             <AlertDialogHeader>
                                 <AlertDialogTitle className="text-xl font-black text-slate-900 flex items-center gap-3">

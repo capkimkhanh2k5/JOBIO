@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { X, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, Loader2, FilePlus2, FileText } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,30 +32,21 @@ const TEMPLATE_GRADIENTS: Record<string, string> = {
     'modernLuxury.html':  'from-amber-500 to-orange-600',
 };
 
-const TEMPLATE_ICONS: Record<string, string> = {
-    'modern.html':        '📄',
-    'ATS_Prime.html':     '🎯',
-    'editorialBold.html': '✏️',
-    'modernHybird.html':  '🎨',
-    'modernHybird2.html': '💼',
-    'modernLuxury.html':  '✨',
-};
-
 export function NewCVDialog({ onClose, onCreated }: Props) {
     const user = useUserStore(s => s.user);
     const candidateId = getCandidateId(user);
 
     const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates-picker'],
-        queryFn: () => cvService.listTemplates({ page_size: 12 }).then(r => r.data),
+        queryFn: () => cvService.listTemplates({ page_size: 6 }).then(r => r.data),
     });
     const templateItems = Array.isArray(templatesRaw) ? templatesRaw : (templatesRaw?.results ?? []);
     const templates = templateItems.map((t) => ({
         id: String(t.id),
         name: t.name,
         file_name: (t as any).file_name || '',
+        thumbnailUrl: (t as any).thumbnail_url || (t as any).thumbnail || '',
         color: TEMPLATE_GRADIENTS[(t as any).file_name || ''] || 'from-violet-400 to-cyan-400',
-        icon: TEMPLATE_ICONS[(t as any).file_name || ''] || '📄',
         tags: (t as any).tags || [],
     }));
 
@@ -96,12 +87,12 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                 className="fixed inset-0 flex items-center justify-center z-50 p-4"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="bg-white rounded-2xl shadow-2xl shadow-black/20 w-full max-w-md overflow-hidden border border-slate-100">
+                <div className="bg-white rounded-2xl shadow-2xl shadow-black/20 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-slate-100">
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-slate-100">
                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 flex items-center justify-center shadow-md text-white text-lg">
-                                📄
+                            <div className="w-9 h-9 rounded-xl border border-violet-100 bg-violet-50 text-violet-600 flex items-center justify-center shadow-sm">
+                                <FilePlus2 className="w-5 h-5 text-violet-600" strokeWidth={2.2} />
                             </div>
                             <div>
                                 <h3 className="text-base font-bold text-slate-900">Tạo CV mới</h3>
@@ -137,22 +128,33 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                             {loadingTemplates ? (
                                 <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
                             ) : (
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-3 gap-4">
                                 {templates.map((t) => (
                                     <button
                                         key={t.id}
                                         type="button"
                                         onClick={() => setSelectedTemplate(t.id)}
-                                        className={`relative rounded-xl border-2 overflow-hidden transition-all duration-150 cursor-pointer ${selectedTemplate === t.id
+                                        className={`relative rounded-xl border-2 overflow-hidden bg-white transition-all duration-150 cursor-pointer ${selectedTemplate === t.id
                                                 ? 'border-violet-500 shadow-md shadow-violet-200'
-                                                : 'border-slate-200 hover:border-violet-300'
+                                                : 'border-slate-200 hover:border-violet-300 hover:shadow-sm'
                                             }`}
                                     >
-                                        <div className={`h-16 bg-gradient-to-br ${t.color} flex flex-col items-center justify-center gap-1`}>
-                                            <span className="text-2xl">{t.icon}</span>
+                                        <div className="aspect-[4/5] bg-slate-100 border-b border-slate-100 flex items-center justify-center overflow-hidden">
+                                            {t.thumbnailUrl ? (
+                                                <img
+                                                    src={t.thumbnailUrl}
+                                                    alt={t.name}
+                                                    className="w-full h-full object-cover object-top"
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className={`w-full h-full bg-gradient-to-br ${t.color} flex items-center justify-center`}>
+                                                    <FileText className="w-8 h-8 text-white" strokeWidth={2.2} />
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="py-2 px-1 bg-white">
-                                            <p className="text-[10px] font-semibold text-slate-700 line-clamp-1 text-center">{t.name}</p>
+                                        <div className="py-3 px-2 bg-white">
+                                            <p className="text-xs font-semibold text-slate-800 line-clamp-1 text-center">{t.name}</p>
                                         </div>
                                         {selectedTemplate === t.id && (
                                             <div className="absolute top-1.5 right-1.5">

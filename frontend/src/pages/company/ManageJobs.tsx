@@ -2,11 +2,10 @@ import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, Briefcase, PlusSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Briefcase, PlusSquare, ListChecks, Radio, FilePenLine, CircleX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { companyService } from '@/services/companyService';
 import { jobService } from '@/services/jobService';
-import api from '@/services/api';
 import {
     ManageJobsActionBar,
     type ViewMode,
@@ -30,9 +29,11 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { useUserStore } from '@/store/userStore';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+type BulkAction = 'close' | 'delete';
 
 export default function ManageJobs() {
     const queryClient = useQueryClient();
@@ -46,6 +47,7 @@ export default function ManageJobs() {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+    const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
     // Bulk selection
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -110,6 +112,7 @@ export default function ManageJobs() {
     // ── Mutations ──────────────────────────────────────────────────────────
     const invalidate = () => {
         queryClient.invalidateQueries({ queryKey: ['company-jobs'] });
+        queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] });
         queryClient.invalidateQueries({ queryKey: ['company-stats'] });
     };
 
@@ -141,18 +144,25 @@ export default function ManageJobs() {
     });
 
     const bulkMutation = useMutation({
-        mutationFn: ({ ids, action }: { ids: number[]; action: 'close' | 'delete' | 'extend' }) =>
-            api.post('/api/jobs/bulk-action/', { ids, action }).then(r => r.data),
+        mutationFn: async ({ ids, action }: { ids: number[]; action: BulkAction }) => {
+            if (action === 'delete') {
+                await Promise.all(ids.map(id => jobService.delete(id)));
+            } else if (action === 'close') {
+                await Promise.all(ids.map(id => jobService.update(id, { status: 'closed' } as any)));
+            }
+
+            return { affected: ids.length };
+        },
         onSuccess: (data, { action }) => {
             const msg = action === 'close'
                 ? `Đã đóng ${data.affected} tin tuyển dụng`
-                : action === 'delete'
-                    ? `Đã xóa ${data.affected} tin tuyển dụng`
-                    : `Đã gia hạn ${data.affected} tin tuyển dụng`;
+                : `Đã xóa ${data.affected} tin tuyển dụng`;
             toast.success(msg);
             setSelectedIds([]);
+            if (action === 'delete') setIsBulkDeleteOpen(false);
             invalidate();
         },
+        onError: () => toast.error('Thao tác hàng loạt thất bại. Vui lòng thử lại.'),
     });
 
     // ── Selection handlers ─────────────────────────────────────────────────
@@ -178,9 +188,18 @@ export default function ManageJobs() {
     };
 
     // ── Bulk handlers ──────────────────────────────────────────────────────
-    const handleBulkClose = () => bulkMutation.mutate({ ids: selectedIds, action: 'close' });
-    const handleBulkDelete = () => bulkMutation.mutate({ ids: selectedIds, action: 'delete' });
-    const handleBulkExtend = () => bulkMutation.mutate({ ids: selectedIds, action: 'extend' });
+    const handleBulkClose = () => {
+        if (selectedIds.length === 0) return;
+        bulkMutation.mutate({ ids: selectedIds, action: 'close' });
+    };
+    const handleBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        setIsBulkDeleteOpen(true);
+    };
+    const confirmBulkDelete = () => {
+        if (selectedIds.length === 0) return;
+        bulkMutation.mutate({ ids: selectedIds, action: 'delete' });
+    };
 
     // Shared view props
     const viewProps = {
@@ -214,30 +233,33 @@ export default function ManageJobs() {
             </div>
 
             <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 space-y-6">
-                {/* Summary stat cards */}
+                {/* Summary stat cards — DashboardKpiCard */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.1 }}
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+                    className="grid grid-cols-2 sm:grid-cols-4 gap-4"
                 >
                     {(
                         [
-                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, activeClass: 'border-slate-200 bg-white shadow-md ring-2 ring-slate-100', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-white', text: 'text-slate-900' },
-                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, activeClass: 'border-emerald-200 bg-emerald-50 shadow-md shadow-emerald-100 ring-2 ring-emerald-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-emerald-50/50', text: 'text-emerald-600' },
-                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, activeClass: 'border-slate-200 bg-slate-100 shadow-md ring-2 ring-slate-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/50', text: 'text-slate-500' },
-                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, activeClass: 'border-rose-200 bg-rose-50 shadow-md shadow-rose-100 ring-2 ring-rose-50', inactiveClass: 'border-slate-100 bg-slate-50/50 hover:bg-rose-50/50', text: 'text-rose-600' },
+                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, icon: ListChecks, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, icon: Radio, iconTone: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', hoverBg: 'bg-emerald-50/40' } },
+                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, icon: FilePenLine, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, icon: CircleX, iconTone: { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200', hoverBg: 'bg-rose-50/40' } },
                         ] as const
                     ).map(stat => (
-                        <button
+                        <div
                             key={stat.key}
                             onClick={() => handleStatusChange(stat.key)}
-                            className={`p-5 rounded-3xl border text-left transition-all duration-300
-                                ${statusFilter === stat.key ? stat.activeClass : stat.inactiveClass}`}
+                            className={`cursor-pointer transition-all duration-200 rounded-2xl ${statusFilter === stat.key ? 'ring-2 ring-violet-500 ring-offset-2' : 'hover:scale-[1.02]'}`}
                         >
-                            <p className={`text-2xl font-black ${stat.text}`}>{stat.value}</p>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">{stat.label}</p>
-                        </button>
+                            <DashboardKpiCard
+                                icon={<stat.icon className="w-5 h-5" />}
+                                label={stat.label}
+                                value={stat.value}
+                                iconTone={stat.iconTone}
+                            />
+                        </div>
                     ))}
                 </motion.div>
 
@@ -259,7 +281,6 @@ export default function ManageJobs() {
                         selectedIds={selectedIds.map(String)}
                         onBulkClose={handleBulkClose}
                         onBulkDelete={handleBulkDelete}
-                        onBulkExtend={handleBulkExtend}
                     />
                 </motion.div>
 
@@ -332,7 +353,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage(p => p - 1)}
-                                className="p-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
                                 aria-label="Previous page"
                             >
                                 <ChevronLeft className="w-4 h-4" />
@@ -367,7 +388,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage(p => p + 1)}
-                                className="p-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
                                 aria-label="Next page"
                             >
                                 <ChevronRight className="w-4 h-4" />
@@ -402,6 +423,31 @@ export default function ManageJobs() {
                             className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm"
                         >
                             Xóa tin
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isBulkDeleteOpen} onOpenChange={setIsBulkDeleteOpen}>
+                <AlertDialogContent className="rounded-3xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa tin đã chọn</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {`Bạn đang chọn ${selectedIds.length} tin tuyển dụng. Các tin này sẽ bị xóa khỏi hệ thống và không thể khôi phục.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            className="rounded-xl border-slate-200"
+                            onClick={() => setIsBulkDeleteOpen(false)}
+                        >
+                            Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmBulkDelete}
+                            className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm"
+                        >
+                            Xóa đã chọn
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

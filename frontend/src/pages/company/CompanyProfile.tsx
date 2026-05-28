@@ -76,7 +76,7 @@ export default function CompanyProfile() {
                     description="Quản lý thông tin, hình ảnh và văn hóa doanh nghiệp để thu hút ứng viên chất lượng."
                     icon={Building2}
                     action={
-                        <div className="flex items-center gap-4 bg-white/60 backdrop-blur-xl p-3 rounded-2xl border border-white/40 shadow-sm">
+                        <div className="flex items-center gap-4 bg-white p-3 rounded-2xl border border-white/40 shadow-sm">
                             <div className="flex flex-col items-start px-2">
                                 <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Mức độ hoàn thiện</span>
                                 <div className="flex items-center gap-3">

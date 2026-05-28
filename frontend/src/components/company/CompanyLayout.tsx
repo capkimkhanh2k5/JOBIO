@@ -12,7 +12,7 @@ export function CompanyLayout() {
     const location = useLocation();
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50/30 font-sans">
+        <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
             <ScrollProgress />
 
             <Header />
