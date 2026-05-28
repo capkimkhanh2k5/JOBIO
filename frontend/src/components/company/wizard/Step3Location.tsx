@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useMemo } from 'react';
 import { Controller, type Control } from 'react-hook-form';
 import { companyService } from '@/services/companyService';
 import { LocationBuilder } from './LocationBuilder';
@@ -16,6 +17,46 @@ const inputClass = cn(
 
 interface Step3LocationProps {
     control: Control<PostJobFormData>;
+}
+
+function isEmptyLocation(row: PostJobFormData['locations'][number] | undefined) {
+    return !row || (!row.province_id && !row.commune_id && !row.address_line);
+}
+
+function buildCompanyLocation(company: any): PostJobFormData['locations'][number] | null {
+    const address = company?.address;
+    if (!address?.province) return null;
+
+    return {
+        id: 'company_headquarters',
+        province_id: String(address.province),
+        province_name: address.province_name || '',
+        commune_id: address.commune ? String(address.commune) : '',
+        commune_name: address.commune_name || '',
+        address_line: address.address_line || company?.headquarters || '',
+        is_primary: true,
+    };
+}
+
+function CompanySeededLocationBuilder({
+    value,
+    onChange,
+    company,
+}: {
+    value: PostJobFormData['locations'];
+    onChange: (rows: PostJobFormData['locations']) => void;
+    company: any;
+}) {
+    const companyLocation = useMemo(() => buildCompanyLocation(company), [company]);
+
+    useEffect(() => {
+        if (!companyLocation) return;
+        if (value.length === 0 || (value.length === 1 && isEmptyLocation(value[0]))) {
+            onChange([companyLocation]);
+        }
+    }, [companyLocation, onChange, value]);
+
+    return <LocationBuilder value={value} onChange={onChange} />;
 }
 
 export function Step3Location({ control }: Step3LocationProps) {
@@ -39,7 +80,7 @@ export function Step3Location({ control }: Step3LocationProps) {
                     name="locations"
                     control={control}
                     render={({ field }) => (
-                        <LocationBuilder value={field.value} onChange={field.onChange} />
+                        <CompanySeededLocationBuilder value={field.value} onChange={field.onChange} company={company} />
                     )}
                 />
             </div>

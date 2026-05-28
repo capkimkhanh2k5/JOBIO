@@ -258,6 +258,7 @@ export default function ManageJobs() {
                                 label={stat.label}
                                 value={stat.value}
                                 iconTone={stat.iconTone}
+                                layout="inlineValue"
                             />
                         </div>
                     ))}

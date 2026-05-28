@@ -154,7 +154,7 @@ export default function CompanyDashboard() {
             <motion.div {...fadeUp(0.1)}>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {kpiCards.map((card) => (
-                        <DashboardKpiCard key={card.label} {...card} isLoading={statsLoading} />
+                        <DashboardKpiCard key={card.label} {...card} layout="inlineValue" isLoading={statsLoading} />
                     ))}
                 </div>
             </motion.div>

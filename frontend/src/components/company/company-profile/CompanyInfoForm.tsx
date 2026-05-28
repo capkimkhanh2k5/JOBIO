@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { companyService } from '@/services/companyService';
+import { geographyService } from '@/services/geographyService';
 import { toast } from 'sonner';
 import { useUserStore } from '@/store/userStore';
 
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react';
+import { Combobox } from '@/components/ui/combobox';
 
 const formSchema = z.object({
     company_name: z.string().min(2, 'Tên công ty phải có ít nhất 2 ký tự.'),
@@ -28,6 +30,9 @@ const formSchema = z.object({
     founded_year: z.number().int().min(1800).max(new Date().getFullYear()),
     description: z.string().min(10, 'Mô tả cần ít nhất 10 ký tự.'),
     headquarters: z.string().min(5, 'Địa chỉ trụ sở chính không hợp lệ.'),
+    province_id: z.string().min(1, 'Vui lòng chọn tỉnh/thành phố.'),
+    commune_id: z.string().min(1, 'Vui lòng chọn quận/huyện.'),
+    address_line: z.string().min(5, 'Địa chỉ cụ thể không hợp lệ.'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,6 +56,9 @@ const getDefaultValues = (company: any): FormValues => ({
     founded_year: company?.founded_year || new Date().getFullYear(),
     description: company?.description || '',
     headquarters: company?.headquarters || '',
+    province_id: company?.address?.province ? String(company.address.province) : '',
+    commune_id: company?.address?.commune ? String(company.address.commune) : '',
+    address_line: company?.address?.address_line || company?.headquarters || '',
 });
 
 export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
@@ -70,10 +78,29 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
         resolver: zodResolver(formSchema),
         defaultValues: getDefaultValues(company),
     });
+    const selectedProvinceId = form.watch('province_id');
+    const addressLine = form.watch('address_line');
+    const { data: provinces = [], isLoading: provinceLoading } = useQuery({
+        queryKey: ['company-profile-provinces'],
+        queryFn: () => geographyService.getProvinces(),
+        staleTime: 60_000,
+    });
+    const { data: communes = [], isLoading: communeLoading } = useQuery({
+        queryKey: ['company-profile-communes', selectedProvinceId],
+        queryFn: () => geographyService.getCommunes(selectedProvinceId),
+        enabled: !!selectedProvinceId,
+        staleTime: 60_000,
+    });
 
     useEffect(() => {
         form.reset(getDefaultValues(company));
     }, [company?.id, company?.updated_at, form]);
+
+    useEffect(() => {
+        if (addressLine) {
+            form.setValue('headquarters', addressLine, { shouldDirty: false, shouldValidate: false });
+        }
+    }, [addressLine, form]);
 
     useEffect(() => {
         return () => {
@@ -83,10 +110,32 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     }, [localLogoUrl, localBannerUrl]);
 
     const updateMutation = useMutation({
-        mutationFn: (data: FormValues) => companyService.update(Number(company.id), {
-            ...data,
-            industry_id: Number(data.industry_id),
-        } as any).then(r => r.data),
+        mutationFn: async (data: FormValues) => {
+            const province = provinces.find((item) => String(item.id) === data.province_id);
+            const commune = communes.find((item) => String(item.id) === data.commune_id);
+            const address = await geographyService.createAddress({
+                address_line: data.address_line,
+                province: Number(data.province_id),
+                commune: Number(data.commune_id),
+            });
+            const headquarters = [
+                data.address_line,
+                commune?.commune_name,
+                province?.province_name,
+            ].filter(Boolean).join(', ');
+
+            return companyService.update(Number(company.id), {
+                company_name: data.company_name,
+                tax_code: data.tax_code,
+                industry_id: Number(data.industry_id),
+                company_size: data.company_size,
+                website: data.website,
+                founded_year: data.founded_year,
+                description: data.description,
+                address_id: address.id,
+                headquarters,
+            } as any).then(r => r.data);
+        },
         onSuccess: (updatedCompany) => {
             queryClient.setQueryData(['companyProfile'], updatedCompany);
             form.reset(getDefaultValues(updatedCompany));
@@ -161,6 +210,14 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
 
     const bannerImageUrl = localBannerUrl || company?.banner_url;
     const logoImageUrl = localLogoUrl || company?.logo_url;
+    const provinceOptions = provinces.map((province) => ({
+        value: String(province.id),
+        label: province.province_name,
+    }));
+    const communeOptions = communes.map((commune) => ({
+        value: String(commune.id),
+        label: commune.commune_name,
+    }));
 
     return (
         <div className="space-y-8">
@@ -403,7 +460,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 control={form.control}
                                 name="website"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="col-span-1 md:col-span-2">
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><Globe className="w-3.5 h-3.5" /> Website Công ty</FormLabel>
                                         <FormControl>
                                             <Input type="url" placeholder="https://example.com" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
@@ -417,11 +474,75 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 control={form.control}
                                 name="headquarters"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-1 md:col-span-2">
+                                    <FormItem className="hidden">
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Địa chỉ trụ sở chính</FormLabel>
                                         <FormControl>
                                             <Input placeholder="Tầng 12, Tòa nhà ABC, Phường X, Quận Y, TP.HCM" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="province_id"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Tỉnh / Thành phố</FormLabel>
+                                        <FormControl>
+                                            <Combobox
+                                                options={provinceOptions}
+                                                value={field.value}
+                                                onChange={(value) => {
+                                                    field.onChange(String(value));
+                                                    form.setValue('commune_id', '', { shouldDirty: true, shouldValidate: true });
+                                                }}
+                                                disabled={provinceLoading}
+                                                placeholder="-- Chọn tỉnh/thành phố --"
+                                                searchPlaceholder="Tìm tỉnh/thành phố..."
+                                                emptyMessage="Không tìm thấy tỉnh/thành phố phù hợp."
+                                                className="h-12 justify-between rounded-xl border border-slate-200 bg-white px-3 font-bold text-slate-800 shadow-sm"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="commune_id"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Quận / Huyện</FormLabel>
+                                        <FormControl>
+                                            <Combobox
+                                                options={communeOptions}
+                                                value={field.value}
+                                                onChange={(value) => field.onChange(String(value))}
+                                                disabled={!selectedProvinceId || communeLoading}
+                                                placeholder="-- Chọn quận/huyện --"
+                                                searchPlaceholder="Tìm quận/huyện..."
+                                                emptyMessage="Không tìm thấy quận/huyện phù hợp."
+                                                className="h-12 justify-between rounded-xl border border-slate-200 bg-white px-3 font-bold text-slate-800 shadow-sm"
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="address_line"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-1 md:col-span-2">
+                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Địa chỉ cụ thể</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Số nhà, tên đường, tòa nhà, tầng..." className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                        </FormControl>
+                                        <FormDescription className="text-[10px] font-black text-slate-400 italic opacity-80 mt-2">Địa chỉ này sẽ được dùng mặc định khi tạo tin tuyển dụng mới.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
