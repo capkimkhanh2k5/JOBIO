@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiter_languages', '0003_recruiterlanguage_updated_at'),
+        ("candidate_recruiter_languages", "0003_recruiterlanguage_updated_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='recruiterlanguage',
-            name='is_native',
-            field=models.BooleanField(default=False, verbose_name='Ngôn ngữ chính'),
+            model_name="recruiterlanguage",
+            name="is_native",
+            field=models.BooleanField(default=False, verbose_name="Ngôn ngữ chính"),
         ),
     ]

@@ -47,6 +47,7 @@ class JobSkillCreateSerializer(serializers.Serializer):
             attrs["skill_name"] = skill_name
         if attrs.get("skill_id"):
             from apps.candidate.skills.models import Skill
+
             if not Skill.objects.filter(id=attrs["skill_id"]).exists():
                 raise serializers.ValidationError("Skill is not exist!")
         return attrs

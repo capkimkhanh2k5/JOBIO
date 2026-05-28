@@ -157,7 +157,6 @@ class RecruiterServiceTest(TestCase):
         recruiter.refresh_from_db()
         self.assertIsNone(recruiter.address)
 
-
     def test_delete_recruiter_service(self):
         recruiter = Recruiter.objects.create(user=self.user)
         self.assertEqual(Recruiter.objects.count(), 1)

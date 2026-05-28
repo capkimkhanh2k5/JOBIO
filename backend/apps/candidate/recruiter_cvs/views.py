@@ -102,16 +102,24 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
         # Auto-populate cv_data from recruiter profile if empty (or create manual)
         create_mode = request.data.get("create_mode", "from_profile")
         cv_data = serializer.validated_data.get("cv_data", {})
-        
+
         if not cv_data:
             if create_mode == "manual":
                 serializer.validated_data["cv_data"] = {
-                    "personal": {}, "skills": [], "education": [], "experience": [],
-                    "projects": [], "certifications": [], "languages": []
+                    "personal": {},
+                    "skills": [],
+                    "education": [],
+                    "experience": [],
+                    "projects": [],
+                    "certifications": [],
+                    "languages": [],
                 }
             else:
                 from .services.recruiter_cvs import build_cv_data_from_profile
-                serializer.validated_data["cv_data"] = build_cv_data_from_profile(recruiter)
+
+                serializer.validated_data["cv_data"] = build_cv_data_from_profile(
+                    recruiter
+                )
 
         serializer.save(recruiter=recruiter)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
