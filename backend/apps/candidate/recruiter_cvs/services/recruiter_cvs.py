@@ -239,13 +239,10 @@ def generate_cv_download(cv: RecruiterCV, force_regenerate: bool = False) -> dic
     Uses dedicated WeasyPrint-compatible PDF templates (no Tailwind CDN, no Google Fonts CDN).
     Uploads to Cloudinary and returns URL.
     """
-    pdf_is_current = (
-        not cv.template_id
-        or (
-            cv.pdf_generated_at is not None
-            and cv.updated_at is not None
-            and cv.updated_at <= cv.pdf_generated_at
-        )
+    pdf_is_current = not cv.template_id or (
+        cv.pdf_generated_at is not None
+        and cv.updated_at is not None
+        and cv.updated_at <= cv.pdf_generated_at
     )
 
     # Use cached URL if exists, not forced, and the PDF still reflects current CV data.
