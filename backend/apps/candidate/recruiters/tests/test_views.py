@@ -89,7 +89,6 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Recruiter.objects.count(), 1)
 
-
     # ========== Tests for Avatar Upload API ==========
 
     @patch("cloudinary.uploader.upload")
@@ -245,9 +244,7 @@ class RecruiterViewTest(APITestCase):
         from django.core.files.uploadedfile import SimpleUploadedFile
 
         recruiter = Recruiter.objects.create(user=self.user)
-        upload = SimpleUploadedFile(
-            "cv.txt", b"plain text", content_type="text/plain"
-        )
+        upload = SimpleUploadedFile("cv.txt", b"plain text", content_type="text/plain")
 
         response = self.client.post(
             f"/api/candidates/{recruiter.id}/parse-cv/",
@@ -352,9 +349,7 @@ class RecruiterViewTest(APITestCase):
         self.client.force_authenticate(user=company_user)
 
         # Create some public recruiters
-        Recruiter.objects.create(
-            user=self.user
-        )
+        Recruiter.objects.create(user=self.user)
 
         url = "/api/candidates/search/"
         response = self.client.get(url)

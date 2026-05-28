@@ -62,7 +62,7 @@ def create_experience_service(
         existing = RecruiterExperience.objects.filter(
             recruiter=recruiter,
             company_name__iexact=company_name,
-            job_title__iexact=job_title
+            job_title__iexact=job_title,
         ).first()
         if existing:
             existing.industry_id = industry_id

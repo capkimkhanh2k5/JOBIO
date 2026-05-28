@@ -214,7 +214,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
 
             if not parsed_data:
                 return Response(
-                    {"detail": "Could not extract data from the PDF. The file may be empty, corrupted, or image-only without OCR support."},
+                    {
+                        "detail": "Could not extract data from the PDF. The file may be empty, corrupted, or image-only without OCR support."
+                    },
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 )
 
@@ -239,8 +241,7 @@ class RecruiterViewSet(viewsets.GenericViewSet):
             return Response(
                 {
                     "detail": (
-                        "CV parser is temporarily unavailable. "
-                        "Please try again later."
+                        "CV parser is temporarily unavailable. Please try again later."
                     )
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -282,10 +283,13 @@ class RecruiterViewSet(viewsets.GenericViewSet):
             )
         except Exception:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.exception("Unexpected error during CV parsing for recruiter %s", pk)
             return Response(
-                {"detail": "An unexpected error occurred while parsing the CV. Please try again."},
+                {
+                    "detail": "An unexpected error occurred while parsing the CV. Please try again."
+                },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

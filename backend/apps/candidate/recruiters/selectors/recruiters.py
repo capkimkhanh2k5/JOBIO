@@ -53,9 +53,7 @@ def search_recruiters(filters: dict) -> QuerySet:
     - education_level: Highest education level
     - salary_min / salary_max: Desired salary range
     """
-    queryset = Recruiter.objects.select_related(
-        "user", "address", "address__province"
-    )
+    queryset = Recruiter.objects.select_related("user", "address", "address__province")
 
     # Full Text Search (q parameter)
     search_query = filters.get("q") or filters.get("search")
@@ -76,8 +74,6 @@ def search_recruiters(filters: dict) -> QuerySet:
             .filter(search=query)
             .order_by("-rank")
         )
-
-
 
     # Normalize and Filter by experience range
     min_exp = filters.get("min_experience") or filters.get("experience_min")

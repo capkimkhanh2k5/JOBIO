@@ -42,8 +42,7 @@ def create_project(recruiter: Recruiter, data: ProjectInput) -> RecruiterProject
 
     if "project_name" in fields:
         existing = RecruiterProject.objects.filter(
-            recruiter=recruiter, 
-            project_name__iexact=fields["project_name"]
+            recruiter=recruiter, project_name__iexact=fields["project_name"]
         ).first()
         if existing:
             for field, value in fields.items():
