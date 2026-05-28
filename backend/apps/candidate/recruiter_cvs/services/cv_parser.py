@@ -65,7 +65,7 @@ JSON SCHEMA BẮT BUỘC:
     "email": "string",
     "phone": "string",
     "current_position": "string (vị trí/chức danh hiện tại hoặc gần nhất)",
-    "bio": "string (mục tiêu nghề nghiệp / tóm tắt bản thân nếu có)",
+    "bio": "string (BẮT BUỘC trích xuất toàn bộ mục giới thiệu bản thân / tóm tắt / mục tiêu nghề nghiệp / profile)",
     "years_of_experience": null
   },
   "location": {
@@ -153,6 +153,10 @@ class CVModerationBlocked(RuntimeError):
 
 class CVModerationUnavailable(RuntimeError):
     """Raised when CV moderation cannot complete safely."""
+
+
+class CVParserUnavailable(RuntimeError):
+    """Raised when the LLM parser cannot complete due to provider/config failure."""
 
 
 def _setting_int(name: str, default: int) -> int:
@@ -651,7 +655,7 @@ def parse_cv_with_llm(raw_text: str, user_identifier: Optional[str] = None) -> d
     groq_api_key = getattr(settings, "GROQ_API_KEY", "") or ""
     if not groq_api_key:
         logger.error("GROQ_API_KEY not configured in settings")
-        return {}
+        raise CVParserUnavailable("groq_api_key_missing")
 
     primary_model = getattr(settings, "GROQ_CV_PARSER_MODEL", "openai/gpt-oss-120b")
     fallback_model = getattr(
@@ -671,7 +675,7 @@ def parse_cv_with_llm(raw_text: str, user_identifier: Optional[str] = None) -> d
         logger.warning("Model %s failed, trying next...", model_name)
 
     logger.error("All Groq models failed for CV parsing")
-    return {}
+    raise CVParserUnavailable("groq_parser_unavailable")
 
 
 def _sanitize_cv_text(raw_text: str) -> str:
@@ -889,9 +893,11 @@ def process_cv_pdf(file_bytes: bytes, user_identifier: Optional[str] = None) -> 
     # Step 1: Extract text from PDF
     try:
         raw_text = extract_text_from_pdf(file_bytes)
+    except ValueError:
+        raise
     except Exception as e:
         logger.error(f"PDF text extraction failed: {e}")
-        return {}
+        raise ValueError("invalid_pdf") from e
 
     if not raw_text.strip():
         logger.warning(

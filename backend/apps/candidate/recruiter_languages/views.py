@@ -60,6 +60,9 @@ class RecruiterLanguageViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         queryset = list_languages_by_recruiter(recruiter_id)
         serializer = RecruiterLanguageSerializer(queryset, many=True)
@@ -97,6 +100,9 @@ class RecruiterLanguageViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         language = get_language_by_id(pk)
         if not language:

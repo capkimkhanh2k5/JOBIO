@@ -29,7 +29,8 @@ class JobSkillCreateSerializer(serializers.Serializer):
     Serializer cho tạo/cập nhật job skill
     """
 
-    skill_id = serializers.IntegerField(required=True)
+    skill_id = serializers.IntegerField(required=False, allow_null=True)
+    skill_name = serializers.CharField(required=False, allow_blank=True, max_length=100)
     is_required = serializers.BooleanField(required=False, default=True)
     proficiency_level = serializers.ChoiceField(
         choices=["basic", "intermediate", "advanced", "expert"],
@@ -38,9 +39,15 @@ class JobSkillCreateSerializer(serializers.Serializer):
     )
     years_required = serializers.IntegerField(required=False, allow_null=True)
 
-    def validate_skill_id(self, value):
-        from apps.candidate.skills.models import Skill
+    def validate(self, attrs):
+        skill_name = (attrs.get("skill_name") or "").strip()
+        if not attrs.get("skill_id") and not skill_name:
+            raise serializers.ValidationError("Phải cung cấp skill_id hoặc skill_name")
+        if skill_name:
+            attrs["skill_name"] = skill_name
+        if attrs.get("skill_id"):
+            from apps.candidate.skills.models import Skill
 
-        if not Skill.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Skill is not exist!")
-        return value
+            if not Skill.objects.filter(id=attrs["skill_id"]).exists():
+                raise serializers.ValidationError("Skill is not exist!")
+        return attrs

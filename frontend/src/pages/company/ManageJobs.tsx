@@ -258,7 +258,10 @@ export default function ManageJobs() {
                                 label={stat.label}
                                 value={stat.value}
                                 iconTone={stat.iconTone}
+<<<<<<< HEAD
                                 layout="inlineValue"
+=======
+>>>>>>> main
                             />
                         </div>
                     ))}

@@ -23,16 +23,12 @@ import type {
 export const candidateService = {
   // ─── Profile ──────────────────────────────────────────────────────────
 
-  list(params?: { search?: string; job_search_status?: string; ordering?: string; page?: number; page_size?: number }) {
+  list(params?: { search?: string; ordering?: string; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<CandidateListItem>>('/api/candidates/', { params });
   },
 
   getById(id: number) {
     return api.get<CandidateDetail>(`/api/candidates/${id}/`);
-  },
-
-  getPublicProfile(id: number) {
-    return api.get<CandidateDetail>(`/api/candidates/${id}/public_profile/`);
   },
 
   /** Shortcut: get the current user's candidate profile */
@@ -170,6 +166,21 @@ export const candidateService = {
 
   listInterviews(params?: { status?: string; application_id?: number; page?: number; page_size?: number }) {
     return api.get<PaginatedResponse<any>>('/api/interviews/', { params });
+  },
+
+  // ─── CV Parsing for Profile Auto-fill ─────────────────────────────────
+
+  /**
+   * Upload a CV PDF and get structured parsed data back (synchronous).
+   * Does NOT create a RecruiterCV — only parses and returns JSON for review.
+   */
+  parseCVForProfile(candidateId: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post<Record<string, any>>(`/api/candidates/${candidateId}/parse-cv/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120_000, // LLM parsing can take time
+    });
   },
 };
 

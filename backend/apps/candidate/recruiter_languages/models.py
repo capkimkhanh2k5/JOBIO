@@ -27,7 +27,7 @@ class RecruiterLanguage(models.Model):
     proficiency_level = models.CharField(
         max_length=20, choices=ProficiencyLevel.choices, verbose_name="Trình độ"
     )
-    is_native = models.BooleanField(default=False, verbose_name="Ngôn ngữ mẹ đẻ")
+    is_native = models.BooleanField(default=False, verbose_name="Ngôn ngữ chính")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
 

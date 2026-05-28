@@ -29,8 +29,11 @@ interface DashboardKpiCardProps {
     isLoading?: boolean;
     /** Optional sub-note rendered inside the card below the delta indicator */
     note?: string;
+<<<<<<< HEAD
     /** Visual layout. Use inlineValue for compact cards with value aligned right. */
     layout?: 'stacked' | 'inlineValue';
+=======
+>>>>>>> main
     /** Additional container class names */
     className?: string;
 }
@@ -54,12 +57,16 @@ export function DashboardKpiCard({
     iconTone,
     isLoading,
     note,
+<<<<<<< HEAD
     layout = 'stacked',
+=======
+>>>>>>> main
     className,
 }: DashboardKpiCardProps) {
     if (isLoading) {
         return (
             <div className={cn(
+<<<<<<< HEAD
                 'bg-white border border-slate-200 shadow-sm rounded-2xl p-4 space-y-3',
                 className
             )}>
@@ -68,6 +75,14 @@ export function DashboardKpiCard({
                     <Skeleton className="h-4 w-28" />
                 </div>
                 <Skeleton className="h-7 w-20" />
+=======
+                'bg-white border border-slate-200 shadow-sm rounded-2xl p-5 space-y-4',
+                className
+            )}>
+                <Skeleton className="w-11 h-11 rounded-xl" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-32" />
+>>>>>>> main
             </div>
         );
     }
@@ -85,6 +100,7 @@ export function DashboardKpiCard({
                     ? 'down'
                     : 'flat';
 
+<<<<<<< HEAD
     const deltaIndicator = deltaValue !== undefined && (
         <div
             className={cn(
@@ -158,6 +174,8 @@ export function DashboardKpiCard({
         );
     }
 
+=======
+>>>>>>> main
     return (
         <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -165,7 +183,11 @@ export function DashboardKpiCard({
             transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}
             className={cn(
+<<<<<<< HEAD
                 'bg-white border shadow-sm hover:shadow-md rounded-2xl p-4 relative overflow-hidden group cursor-default',
+=======
+                'bg-white border shadow-sm hover:shadow-md rounded-2xl p-5 relative overflow-hidden group cursor-default',
+>>>>>>> main
                 iconTone ? iconTone.border : 'border-slate-200',
                 className
             )}
@@ -178,6 +200,7 @@ export function DashboardKpiCard({
                 )}
             />
 
+<<<<<<< HEAD
             {/* Header */}
             <div className="relative z-10 flex min-w-0 items-center gap-3">
                 <div
@@ -204,6 +227,31 @@ export function DashboardKpiCard({
                     )}
                 </div>
 
+=======
+            {/* Icon */}
+            <div
+                className={cn(
+                    'w-11 h-11 rounded-xl flex items-center justify-center mb-4 relative z-10 shadow-sm group-hover:shadow-md transition-shadow',
+                    iconTone ? iconTone.bg : cn('bg-gradient-to-br', iconGradient)
+                )}
+            >
+                <span className={cn(iconTone ? iconTone.text : 'text-white')}>{icon}</span>
+            </div>
+
+            {/* Value */}
+            <div className="relative z-10">
+                <div className="flex items-baseline gap-1.5">
+                    <span className="text-3xl font-black text-slate-900 tracking-tight leading-none">
+                        {displayValue}
+                    </span>
+                    {unit && (
+                        <span className="text-sm text-slate-500 font-medium">{unit}</span>
+                    )}
+                </div>
+
+                <p className="text-sm text-slate-600 mt-1.5 font-medium">{label}</p>
+
+>>>>>>> main
                 {/* Delta indicator */}
                 {deltaValue !== undefined && (
                     <div

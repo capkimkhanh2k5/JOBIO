@@ -1,6 +1,6 @@
 
 import { motion } from 'framer-motion';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
 import { useUserStore } from '@/store/userStore';
 import { Card } from '@/components/ui/card';
@@ -18,7 +18,7 @@ import { CertificationsSection } from '@/components/profile/CertificationsSectio
 import { LanguagesSection } from '@/components/profile/LanguagesSection';
 import { ProjectsSection } from '@/components/profile/ProjectsSection';
 import { SectionWrapper } from '@/components/profile/SectionWrapper';
-import { toast } from 'sonner';
+
 
 const SECTION_NAV = [
     { id: 'header', label: 'Tổng quan', icon: User },
@@ -47,7 +47,6 @@ const ProfileSkeleton = () => (
 );
 
 const Profile = () => {
-    const queryClient = useQueryClient();
     const { user, updateUser } = useUserStore();
     const userId = user?.id;
 
@@ -74,22 +73,7 @@ const Profile = () => {
 
     const candidateId = profile?.id;
 
-    const updatePrivacyMutation = useMutation({
-        mutationFn: (isPublic: boolean) => candidateService.update(Number(candidateId), { is_profile_public: isPublic }).then(r => r.data),
-        onSuccess: (updatedProfile) => {
-            queryClient.setQueryData(['profile', userId], updatedProfile);
-            queryClient.invalidateQueries({ queryKey: ['profile', userId] });
-            toast.success("Đã cập nhật cài đặt quyền riêng tư");
-        }
-    });
 
-    const updateStatusMutation = useMutation({
-        mutationFn: (status: string) => candidateService.update(Number(candidateId), { job_search_status: status } as any).then(r => r.data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['profile', userId] });
-            toast.success("Đã cập nhật trạng thái tìm việc");
-        }
-    });
 
     if (profileLoading || completenessLoading) return <ProfileSkeleton />;
 
@@ -116,8 +100,6 @@ const Profile = () => {
                     <div className="lg:col-span-2 space-y-6">
                         <ProfileHeader
                             profile={profile}
-                            onUpdateStatus={(s) => updateStatusMutation.mutate(s)}
-                            onTogglePrivacy={(p) => updatePrivacyMutation.mutate(p)}
                         />
 
                         <SectionWrapper title="Thông tin cá nhân" id="personal-info">

@@ -42,6 +42,16 @@ def create_certification(
 
     fields = data.model_dump(exclude_unset=True)
 
+    if "certification_name" in fields:
+        existing = RecruiterCertification.objects.filter(
+            recruiter=recruiter, certification_name__iexact=fields["certification_name"]
+        ).first()
+        if existing:
+            for field, value in fields.items():
+                setattr(existing, field, value)
+            existing.save()
+            return existing
+
     certification = RecruiterCertification.objects.create(
         recruiter=recruiter, display_order=next_order, **fields
     )

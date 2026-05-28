@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+<<<<<<< HEAD
 import { X, CheckCircle2, Loader2, FilePlus2, FileText } from 'lucide-react';
+=======
+import { X, CheckCircle2, Loader2, FilePlus2, FileText, Sparkles } from 'lucide-react';
+>>>>>>> main
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +23,7 @@ interface Props {
 
 const schema = z.object({
     cv_name: z.string().min(1, 'Vui lòng nhập tên CV').max(80, 'Tên quá dài'),
+    create_mode: z.enum(['manual', 'from_profile']),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -55,15 +60,21 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
     const {
         register,
         handleSubmit,
+        setValue,
+        watch,
         formState: { errors },
     } = useForm<FormValues>({
         resolver: zodResolver(schema),
-        defaultValues: { cv_name: '' },
+        defaultValues: { cv_name: '', create_mode: 'from_profile' },
     });
 
     const createMutation = useMutation({
         mutationFn: (data: FormValues) =>
-            cvService.create(candidateId!, { cv_name: data.cv_name, template_id: Number(selectedTemplate) || undefined } as any).then(r => r.data),
+            cvService.create(candidateId!, { 
+                cv_name: data.cv_name, 
+                template_id: Number(selectedTemplate) || undefined,
+                create_mode: data.create_mode
+            } as any).then(r => r.data),
         onSuccess: (newCV) => onCreated(newCV),
     });
 
@@ -120,6 +131,47 @@ export function NewCVDialog({ onClose, onCreated }: Props) {
                             {errors.cv_name && (
                                 <p className="text-xs text-destructive mt-1">{errors.cv_name.message}</p>
                             )}
+                        </div>
+
+                        {/* Create Mode Selection */}
+                        <div>
+                            <Label className="text-sm font-semibold text-slate-700 mb-3 block">Phương thức tạo</Label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setValue('create_mode', 'from_profile')}
+                                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                        watch('create_mode') === 'from_profile' 
+                                        ? 'border-violet-500 bg-violet-50/50 shadow-sm' 
+                                        : 'border-slate-200 hover:border-violet-300'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <div className="p-1.5 bg-violet-100 rounded-lg text-violet-600">
+                                            <Sparkles className="w-4 h-4" />
+                                        </div>
+                                        <p className="font-bold text-slate-800 text-sm">Tạo từ Hồ sơ</p>
+                                    </div>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Tự động điền dữ liệu đã có từ trang cá nhân của bạn (đề xuất).</p>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setValue('create_mode', 'manual')}
+                                    className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                        watch('create_mode') === 'manual' 
+                                        ? 'border-violet-500 bg-violet-50/50 shadow-sm' 
+                                        : 'border-slate-200 hover:border-violet-300'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <div className="p-1.5 bg-slate-100 rounded-lg text-slate-600">
+                                            <FileText className="w-4 h-4" />
+                                        </div>
+                                        <p className="font-bold text-slate-800 text-sm">Tạo thủ công</p>
+                                    </div>
+                                    <p className="text-xs text-slate-500 leading-relaxed">Bắt đầu từ một trang CV trống hoàn toàn.</p>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Template picker */}

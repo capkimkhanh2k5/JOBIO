@@ -22,9 +22,13 @@ class UserFilter(django_filters.FilterSet):
         }
 
     def filter_search(self, queryset, name, value):
-        return queryset.filter(
-            Q(email__icontains=value) | Q(full_name__icontains=value)
-        )
+        query = Q(email__icontains=value) | Q(full_name__icontains=value)
+        cleaned_value = value.strip()
+        if cleaned_value.isdigit():
+            query |= Q(id=int(cleaned_value)) | Q(
+                recruiter_profile__id=int(cleaned_value)
+            )
+        return queryset.filter(query)
 
 
 def list_users(*, filters: dict = None) -> QuerySet[CustomUser]:

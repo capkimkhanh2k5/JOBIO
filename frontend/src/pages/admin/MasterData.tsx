@@ -369,7 +369,14 @@ export default function MasterData() {
     const getColumns = () => {
         switch (activeTab) {
             case 'skills': return [
-                { key: 'name', label: 'Tên kỹ năng', render: (r: any) => <span className="font-bold text-slate-900">{r.name}</span> },
+                { key: 'name', label: 'Tên kỹ năng', render: (r: any) => (
+                    <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-900">{r.name}</span>
+                        {r.is_verified === false && (
+                            <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 text-[9px] px-1.5 py-0 uppercase">Chờ duyệt</Badge>
+                        )}
+                    </div>
+                )},
                 { key: 'category', label: 'Danh mục', render: (r: any) => <Badge className="bg-violet-50 text-violet-700 border-violet-200 text-[10px] font-bold">{r.category_name ?? r.category ?? '—'}</Badge> },
                 { key: 'usage_count', label: 'Lượt dùng', render: (r: any) => <span className="font-bold text-slate-600">{r.usage_count ?? 0}</span> },
             ];
