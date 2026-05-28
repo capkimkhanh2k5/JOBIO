@@ -53,7 +53,7 @@ const getEntityUrl = (entityType: string, entityId: number) => {
         case 'user':
         case 'candidate':
         case 'recruiter':
-            return `/profile/${entityId}`;
+            return `/admin/users?search=${entityId}`;
         case 'company':
             return `/companies/${entityId}`;
         case 'job':
@@ -240,68 +240,68 @@ export default function ViolationReports() {
                                 const meta = entityTypeMeta(report.entity_type);
                                 const EntityIcon = meta.icon;
                                 return (
-                                <tr key={report.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="py-4 px-6">
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-slate-900 text-sm">{report.reporter_email}</span>
-                                            <span className="text-[10px] text-slate-400 font-medium mt-0.5">{report.reporter_name || 'N/A'}</span>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <div className="flex flex-col gap-1">
-                                            <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200 text-[9px] font-black px-1.5 py-0 w-fit">
-                                                <EntityIcon className="w-3 h-3 mr-1" />
-                                                {meta.label}
-                                            </Badge>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-xs font-bold text-slate-700">ID: #{report.entity_id}</span>
-                                                {report.entity_id && (
-                                                    <a 
-                                                        href={getEntityUrl(report.entity_type, report.entity_id)}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-violet-600 hover:text-violet-700 flex items-center gap-1 text-[10px] font-bold bg-violet-50 px-2 py-0.5 rounded transition-colors"
-                                                    >
-                                                        <ExternalLink className="w-3 h-3" />
-                                                        Xem
-                                                    </a>
-                                                )}
+                                    <tr key={report.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="py-4 px-6">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-slate-900 text-sm">{report.reporter_email}</span>
+                                                <span className="text-[10px] text-slate-400 font-medium mt-0.5">{report.reporter_name || 'N/A'}</span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <div className="max-w-[300px]">
-                                            <div className="flex items-center gap-1.5 mb-1">
-                                                <Badge className="bg-red-50 text-red-700 border-red-100 text-[9px] font-black px-1.5 py-0">
-                                                    {report.report_type_name || 'KHÁC'}
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="flex flex-col gap-1">
+                                                <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-200 text-[9px] font-black px-1.5 py-0 w-fit">
+                                                    <EntityIcon className="w-3 h-3 mr-1" />
+                                                    {meta.label}
                                                 </Badge>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs font-bold text-slate-700">ID: #{report.entity_id}</span>
+                                                    {report.entity_id && getEntityUrl(report.entity_type, report.entity_id) !== '#' && (
+                                                        <a
+                                                            href={getEntityUrl(report.entity_type, report.entity_id)}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-violet-600 hover:text-violet-700 flex items-center gap-1 text-[10px] font-bold bg-violet-50 px-2 py-0.5 rounded transition-colors"
+                                                        >
+                                                            <ExternalLink className="w-3 h-3" />
+                                                            Xem
+                                                        </a>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <p className="text-xs text-slate-600 line-clamp-2 italic">"{report.description}"</p>
-                                        </div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <Badge className={`${statusColors[report.status] || ''} text-[10px] font-black border rounded-md px-2 py-0.5`}>
-                                            {statusLabels[report.status] || report.status}
-                                        </Badge>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <span className="text-xs font-bold text-slate-700">{new Date(report.created_at).toLocaleString('vi-VN')}</span>
-                                    </td>
-                                    <td className="py-4 px-6 text-right">
-                                        {(report.status === 'pending' || report.status === 'reviewing') ? (
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Button
-                                                    onClick={() => setSelectedReport(report)}
-                                                    className="h-8 px-4 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold"
-                                                >
-                                                    Xử lý
-                                                </Button>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <div className="max-w-[300px]">
+                                                <div className="flex items-center gap-1.5 mb-1">
+                                                    <Badge className="bg-red-50 text-red-700 border-red-100 text-[9px] font-black px-1.5 py-0">
+                                                        {report.report_type_name || 'KHÁC'}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-xs text-slate-600 line-clamp-2 italic">"{report.description}"</p>
                                             </div>
-                                        ) : (
-                                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Đã xử lý</span>
-                                        )}
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <Badge className={`${statusColors[report.status] || ''} text-[10px] font-black border rounded-md px-2 py-0.5`}>
+                                                {statusLabels[report.status] || report.status}
+                                            </Badge>
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <span className="text-xs font-bold text-slate-700">{new Date(report.created_at).toLocaleString('vi-VN')}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            {(report.status === 'pending' || report.status === 'reviewing') ? (
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        onClick={() => setSelectedReport(report)}
+                                                        className="h-8 px-4 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-[10px] font-bold"
+                                                    >
+                                                        Xử lý
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Đã xử lý</span>
+                                            )}
+                                        </td>
+                                    </tr>
                                 );
                             })}
                         </tbody>
@@ -346,7 +346,7 @@ export default function ViolationReports() {
                                 <X className="w-4 h-4" />
                             </button>
                         </div>
-                        
+
                         <form onSubmit={handleResolveSubmit} className="p-6 space-y-6">
                             <div className="space-y-3">
                                 <label className="text-xs font-bold text-slate-900 uppercase tracking-wider">Hành động xử lý</label>

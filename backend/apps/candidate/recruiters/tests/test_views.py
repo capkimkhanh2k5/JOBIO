@@ -46,6 +46,12 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(response.data["bio"], "Test")
         self.assertEqual(response.data["user"]["email"], "test@example.com")
 
+    def test_retrieve_recruiter_not_owner(self):
+        recruiter2 = Recruiter.objects.create(user=self.user2, bio="User 2")
+        url = f"/api/candidates/{recruiter2.id}/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_update_recruiter_owner(self):
         recruiter = Recruiter.objects.create(user=self.user, bio="Old")
         url = f"/api/candidates/{recruiter.id}/"
@@ -83,23 +89,6 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Recruiter.objects.count(), 1)
 
-    def test_update_job_search_status(self):
-        recruiter = Recruiter.objects.create(user=self.user, job_search_status="active")
-        url = f"/api/candidates/{recruiter.id}/job-search-status/"
-
-        data = {"job_search_status": "not_looking"}
-        response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        recruiter.refresh_from_db()
-        self.assertEqual(recruiter.job_search_status, "not_looking")
-
-    def test_update_job_search_status_invalid(self):
-        recruiter = Recruiter.objects.create(user=self.user, job_search_status="active")
-        url = f"/api/candidates/{recruiter.id}/job-search-status/"
-
-        data = {"job_search_status": "invalid_status"}
-        response = self.client.patch(url, data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # ========== Tests for Avatar Upload API ==========
 
@@ -227,57 +216,64 @@ class RecruiterViewTest(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_public_profile_visible(self):
-        """Test GET /api/candidates/:id/public_profile when profile is public"""
-        recruiter = Recruiter.objects.create(
-            user=self.user, bio="Public Bio", is_profile_public=True
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
+    def test_parse_cv_returns_data_without_creating_cv(self, mock_process):
+        """POST parse-cv parses PDF for review without creating a RecruiterCV."""
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.candidate.recruiter_cvs.models import RecruiterCV
+
+        mock_process.return_value = {
+            "personal": {"full_name": "Test User"},
+            "skills": [{"name": "Python"}],
+        }
+        recruiter = Recruiter.objects.create(user=self.user)
+        upload = SimpleUploadedFile(
+            "cv.pdf", b"%PDF-1.4\nfake", content_type="application/pdf"
         )
-        url = f"/api/candidates/{recruiter.id}/public_profile/"
-        response = self.client.get(url)
+
+        response = self.client.post(
+            f"/api/candidates/{recruiter.id}/parse-cv/",
+            {"file": upload},
+            format="multipart",
+        )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["bio"], "Public Bio")
+        self.assertEqual(response.data["skills"][0]["name"], "Python")
+        self.assertEqual(RecruiterCV.objects.count(), 0)
 
-    def test_public_profile_visible_unauthenticated(self):
-        """Public profile endpoint can be viewed without login."""
-        recruiter = Recruiter.objects.create(
-            user=self.user, bio="Public Bio", is_profile_public=True
+    def test_parse_cv_rejects_non_pdf_extension(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        recruiter = Recruiter.objects.create(user=self.user)
+        upload = SimpleUploadedFile(
+            "cv.txt", b"plain text", content_type="text/plain"
         )
-        self.client.logout()
 
-        response = self.client.get(f"/api/candidates/{recruiter.id}/public_profile/")
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["bio"], "Public Bio")
-
-    def test_public_profile_hidden(self):
-        """Test GET /api/candidates/:id/public_profile when profile is private"""
-        recruiter2 = Recruiter.objects.create(
-            user=self.user2, bio="Private Bio", is_profile_public=False
+        response = self.client.post(
+            f"/api/candidates/{recruiter.id}/parse-cv/",
+            {"file": upload},
+            format="multipart",
         )
-        url = f"/api/candidates/{recruiter2.id}/public_profile/"
-        response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_update_privacy(self):
-        """Test PATCH /api/candidates/:id/privacy"""
-        recruiter = Recruiter.objects.create(user=self.user, is_profile_public=True)
-        url = f"/api/candidates/{recruiter.id}/privacy/"
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
+    def test_parse_cv_empty_result_returns_422(self, mock_process):
+        from django.core.files.uploadedfile import SimpleUploadedFile
 
-        response = self.client.patch(url, {"is_profile_public": False})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_process.return_value = {}
+        recruiter = Recruiter.objects.create(user=self.user)
+        upload = SimpleUploadedFile(
+            "cv.pdf", b"%PDF-1.4\nfake", content_type="application/pdf"
+        )
 
-        recruiter.refresh_from_db()
-        self.assertFalse(recruiter.is_profile_public)
+        response = self.client.post(
+            f"/api/candidates/{recruiter.id}/parse-cv/",
+            {"file": upload},
+            format="multipart",
+        )
 
-    def test_update_privacy_not_owner(self):
-        """Only owner can update privacy"""
-        recruiter2 = Recruiter.objects.create(user=self.user2, is_profile_public=True)
-        url = f"/api/candidates/{recruiter2.id}/privacy/"
-
-        response = self.client.patch(url, {"is_profile_public": False})
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     def test_get_stats(self):
         """Test GET /api/candidates/:id/stats"""
@@ -357,7 +353,7 @@ class RecruiterViewTest(APITestCase):
 
         # Create some public recruiters
         Recruiter.objects.create(
-            user=self.user, is_profile_public=True, job_search_status="active"
+            user=self.user
         )
 
         url = "/api/candidates/search/"

@@ -9,11 +9,6 @@ class Recruiter(models.Model):
         FEMALE = "female", "Nữ"
         OTHER = "other", "Khác"
 
-    class JobSearchStatus(models.TextChoices):
-        ACTIVE = "active", "Đang tìm việc"
-        PASSIVE = "passive", "Sẵn sàng cơ hội mới"
-        NOT_LOOKING = "not_looking", "Không tìm việc"
-
     class EducationLevel(models.TextChoices):
         THPT = "thpt", "THPT"
         TRUNG_CAP = "trung_cap", "Trung cấp"
@@ -69,13 +64,7 @@ class Recruiter(models.Model):
     portfolio_url = models.URLField(
         max_length=255, null=True, blank=True, verbose_name="Portfolio URL"
     )
-    job_search_status = models.CharField(
-        max_length=20,
-        choices=JobSearchStatus.choices,
-        default=JobSearchStatus.PASSIVE,
-        db_index=True,
-        verbose_name="Trạng thái tìm việc",
-    )
+
     desired_salary_min = models.DecimalField(
         max_digits=15,
         decimal_places=2,
@@ -109,9 +98,7 @@ class Recruiter(models.Model):
     profile_completeness_score = models.IntegerField(
         default=0, verbose_name="Điểm hoàn thiện hồ sơ"
     )
-    is_profile_public = models.BooleanField(
-        default=True, verbose_name="Hồ sơ công khai"
-    )
+
     profile_views_count = models.IntegerField(default=0, verbose_name="Lượt xem hồ sơ")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")

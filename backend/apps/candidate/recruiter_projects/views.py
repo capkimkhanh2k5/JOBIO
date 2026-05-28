@@ -60,6 +60,9 @@ class RecruiterProjectViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         queryset = list_projects_by_recruiter(recruiter_id)
         serializer = ProjectSerializer(queryset, many=True)
@@ -96,6 +99,9 @@ class RecruiterProjectViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         project = get_project_by_id(pk)
         if not project:

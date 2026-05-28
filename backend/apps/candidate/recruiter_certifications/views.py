@@ -63,6 +63,9 @@ class RecruiterCertificationViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         queryset = list_certifications_by_recruiter(recruiter_id)
         serializer = CertificationSerializer(queryset, many=True)
@@ -100,6 +103,9 @@ class RecruiterCertificationViewSet(viewsets.GenericViewSet):
         recruiter, error = self._get_recruiter_or_404(recruiter_id)
         if error:
             return error
+        permission_error = self._check_owner_permission(request, recruiter)
+        if permission_error:
+            return permission_error
 
         certification = get_certification_by_id(pk)
         if not certification:

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Award, TrendingUp, Pencil, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
 import { taxonomyService } from '@/services/taxonomyService';
@@ -10,16 +10,12 @@ import { SectionWrapper } from './SectionWrapper';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
-const PROFICIENCY_LEVELS = [
-    { value: 'basic', label: 'Cơ bản', color: 'bg-slate-500/10 text-slate-500 border-slate-500/20' },
-    { value: 'intermediate', label: 'Trung cấp', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-    { value: 'expert', label: 'Chuyên gia', color: 'bg-violet-100 text-violet-600 border-violet-200' },
-];
+
 
 interface SkillEntry {
     id: string;
@@ -36,7 +32,7 @@ interface SkillEditDialogProps {
     onClose: () => void;
     skill: SkillEntry | null;
     userId: number;
-    selectedSkillInfo?: { id: number; name: string } | null;
+    selectedSkillInfo?: { id: number | null; name: string } | null;
 }
 
 const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: SkillEditDialogProps) => {
@@ -59,15 +55,20 @@ const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: Sk
 
     const mutation = useMutation({
         mutationFn: () => {
-            const payload: any = { 
-                proficiency_level: level, 
+            const skillName = name.trim();
+            const payload: any = {
+                proficiency_level: level,
                 years_of_experience: Number(yearsExp) || 0,
             };
             if (!isEdit) {
-                payload.skill_id = Number(skillId);
+                if (skillId) {
+                    payload.skill_id = Number(skillId);
+                } else {
+                    payload.skill_name = skillName;
+                }
             }
-            return isEdit 
-                ? candidateService.updateSkill(Number(userId), Number(skill!.id), payload).then(r => r.data) 
+            return isEdit
+                ? candidateService.updateSkill(Number(userId), Number(skill!.id), payload).then(r => r.data)
                 : candidateService.addSkill(Number(userId), payload).then(r => r.data);
         },
         onSuccess: () => {
@@ -90,22 +91,9 @@ const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: Sk
                         <Label>Tên kỹ năng</Label>
                         <Input className="" value={name} onChange={e => setName(e.target.value)} placeholder="ReactJS, Python, Figma..." />
                     </div>
-                    <div className="space-y-2">
-                        <Label>Mức độ thành thạo</Label>
-                        <Select value={level} onValueChange={setLevel}>
-                            <SelectTrigger className=""><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {PROFICIENCY_LEVELS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Số năm sử dụng</Label>
-                        <Input type="number" min={0} max={30} className="" value={yearsExp} onChange={e => setYearsExp(e.target.value)} />
-                    </div>
                     <div className="flex justify-end gap-3">
                         <Button variant="outline" onClick={onClose} className="rounded-full">Huỷ</Button>
-                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8" disabled={mutation.isPending || !name}>
+                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8" disabled={mutation.isPending || !name.trim()}>
                             {mutation.isPending ? 'Lưu...' : 'Lưu kỹ năng'}
                         </Button>
                     </div>
@@ -122,7 +110,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editSkill, setEditSkill] = useState<SkillEntry | null>(null);
     const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [addSkillInfo, setAddSkillInfo] = useState<{ id: number; name: string } | null>(null);
+    const [addSkillInfo, setAddSkillInfo] = useState<{ id: number | null; name: string } | null>(null);
 
     const { data: skills = [], isLoading } = useQuery({
         queryKey: ['skills', userId],
@@ -154,13 +142,14 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
     });
 
     const handleSelectSearchResult = (skill: any) => {
+        const skillName = (skill.name || '').trim();
+        if (!skillName) return;
         setSearchOpen(false);
         setSearchValue('');
-        setAddSkillInfo({ id: skill.id, name: skill.name });
+        setAddSkillInfo({ id: skill.id, name: skillName });
         setAddDialogOpen(true);
     };
 
-    const getProficiencyInfo = (level: string) => PROFICIENCY_LEVELS.find(p => p.value === level) || PROFICIENCY_LEVELS[1];
 
     if (isLoading) return (
         <SectionWrapper title="Kỹ năng" id="skills">
@@ -176,7 +165,6 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                 <div className="flex flex-wrap gap-3">
                     <AnimatePresence>
                         {(skills as any[]).map((skill) => {
-                            const profInfo = getProficiencyInfo(skill.proficiency_level);
                             return (
                                 <motion.div
                                     key={skill.id}
@@ -194,20 +182,16 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                         </div>
                                     )}
 
-                                    <div className="min-w-0">
-                                        <h4 className="font-bold text-sm truncate">{skill.skill_name || skill.name}</h4>
-                                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                            <Badge variant="outline" className={`text-[9px] px-2 py-0 h-[18px] font-semibold ${profInfo.color}`}>
-                                                {profInfo.label}
-                                            </Badge>
-                                            <span className="text-[10px] text-muted-foreground">{skill.years_of_experience} năm</span>
-                                            {skill.endorsement_count > 0 && (
-                                                <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                                                    <Users className="w-2.5 h-2.5" />
-                                                    {skill.endorsement_count}
+                                    <div className="min-w-0 pr-2">
+                                        <h4 className="font-semibold text-[15px] truncate text-slate-800">{skill.skill_name || skill.name}</h4>
+                                        {skill.endorsement_count > 0 && (
+                                            <div className="mt-1">
+                                                <span className="text-[10px] text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 w-fit font-medium">
+                                                    <Users className="w-3 h-3" />
+                                                    {skill.endorsement_count} lượt xác thực
                                                 </span>
-                                            )}
-                                        </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex gap-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -243,7 +227,20 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     onValueChange={setSearchValue}
                                 />
                                 <CommandList>
-                                    <CommandEmpty>Không tìm thấy kỹ năng phù hợp.</CommandEmpty>
+                                    <CommandEmpty className="py-5 text-center px-4">
+                                        <p className="text-sm text-slate-500 mb-3">Không tìm thấy kỹ năng phù hợp.</p>
+                                        {searchValue.trim() && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800"
+                                                onClick={() => handleSelectSearchResult({ id: null, name: searchValue })}
+                                            >
+                                                <Plus className="w-4 h-4 mr-1.5" />
+                                                Thêm "{searchValue.trim()}"
+                                            </Button>
+                                        )}
+                                    </CommandEmpty>
                                     <CommandGroup heading={searchValue.length > 1 ? "Kết quả tìm kiếm" : "Kỹ năng phổ biến"}>
                                         {(displaySuggestions as any[]).map((s) => (
                                             <CommandItem
@@ -267,7 +264,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                     <div>
                         <h5 className="font-bold text-sm text-violet-600">Mẹo cho bạn</h5>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                            Kỹ năng có mức <strong>Chuyên gia</strong> được xác thực sẽ giúp hồ sơ nổi bật hơn <strong>40%</strong> trong mắt nhà tuyển dụng.
+                            Thêm nhiều kỹ năng thực tế sẽ có nhiều <strong>cơ hội</strong> với nhà tuyển dụng.
                         </p>
                     </div>
                 </div>

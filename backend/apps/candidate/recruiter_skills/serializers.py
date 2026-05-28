@@ -38,7 +38,8 @@ class RecruiterSkillCreateSerializer(serializers.Serializer):
     Serializer cho tạo mới skill
     """
 
-    skill_id = serializers.IntegerField(required=True)
+    skill_id = serializers.IntegerField(required=False, allow_null=True)
+    skill_name = serializers.CharField(required=False, allow_blank=True, max_length=100)
     proficiency_level = serializers.ChoiceField(
         choices=["basic", "intermediate", "advanced", "expert"],
         required=False,
@@ -46,6 +47,14 @@ class RecruiterSkillCreateSerializer(serializers.Serializer):
     )
     years_of_experience = serializers.IntegerField(required=False, allow_null=True)
     last_used_date = serializers.DateField(required=False, allow_null=True)
+
+    def validate(self, attrs):
+        skill_name = (attrs.get("skill_name") or "").strip()
+        if not attrs.get("skill_id") and not skill_name:
+            raise serializers.ValidationError("Phải cung cấp skill_id hoặc skill_name")
+        if skill_name:
+            attrs["skill_name"] = skill_name
+        return attrs
 
 
 class RecruiterSkillUpdateSerializer(serializers.Serializer):
@@ -69,13 +78,16 @@ class BulkAddSkillSerializer(serializers.Serializer):
 
     def validate_skills(self, value):
         """
-        Validate each skill item has skill_id
+        Validate each skill item has skill_id or skill_name
         """
         for item in value:
-            if "skill_id" not in item:
+            skill_name = (item.get("skill_name") or "").strip()
+            if not item.get("skill_id") and not skill_name:
                 raise serializers.ValidationError(
-                    "Each skill must have 'skill_id' field"
+                    "Each skill must have 'skill_id' or 'skill_name' field"
                 )
+            if skill_name:
+                item["skill_name"] = skill_name
         return value
 
 

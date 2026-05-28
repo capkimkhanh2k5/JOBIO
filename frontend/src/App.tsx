@@ -11,7 +11,6 @@ import { SuspenseFallback } from '@/components/shared/PageSkeleton';
 
 const Home = lazy(() => import('@/pages/Home'));
 const CandidateProfile = lazy(() => import('@/pages/Profile'));
-const PublicProfile = lazy(() => import('@/pages/public/PublicProfile'));
 const Jobs = lazy(() => import('@/pages/Jobs'));
 const Companies = lazy(() => import('@/pages/Companies'));
 const JobDetail = lazy(() => import('@/pages/JobDetailPage'));
@@ -247,7 +246,6 @@ function AppInner() {
                                         <Route path="/jobs/:id" element={<JobDetail />} />
                                         <Route path="/companies" element={<Companies />} />
                                         <Route path="/companies/:id" element={<CompanyDetail />} />
-                                        <Route path="/profile/:id" element={<PublicProfile />} />
                                         {/* Profile is now under /candidate/profile */}
                                         <Route path="/about" element={<About />} />
                                         <Route path="/contact" element={<Contact />} />

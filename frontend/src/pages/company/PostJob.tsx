@@ -200,8 +200,10 @@ function PostJobEditor() {
         await Promise.all(
             data.skills.map(async (skill) => {
                 const existingSkill = existingSkills.find((item) => String(item.skill_id) === String(skill.skill_id));
+                const isCustom = String(skill.skill_id).startsWith('custom_');
                 const payload = {
-                    skill_id: Number(skill.skill_id),
+                    skill_id: isCustom ? null : Number(skill.skill_id),
+                    skill_name: isCustom ? skill.skill_name : undefined,
                     is_required: skill.is_required,
                     proficiency_level: toBackendProficiency(skill.proficiency_level),
                 };

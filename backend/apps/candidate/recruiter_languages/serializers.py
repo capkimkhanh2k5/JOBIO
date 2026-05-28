@@ -34,13 +34,26 @@ class RecruiterLanguageCreateSerializer(serializers.Serializer):
     Serializer cho tạo mới ngôn ngữ
     """
 
-    language_id = serializers.IntegerField(required=True)
+    language_id = serializers.IntegerField(required=False, allow_null=True)
+    language_name = serializers.CharField(
+        required=False, allow_blank=True, max_length=50
+    )
     proficiency_level = serializers.ChoiceField(
-        choices=["basic", "intermediate", "advanced", "fluent", "native"], required=True
+        choices=["native", "fluent", "advanced", "intermediate", "basic"],
+        required=False,
+        default="intermediate",
     )
     is_native = serializers.BooleanField(required=False, default=False)
 
     def validate(self, attrs):
+        language_name = (attrs.get("language_name") or "").strip()
+        if not attrs.get("language_id") and not language_name:
+            raise serializers.ValidationError(
+                "Phải cung cấp language_id hoặc language_name"
+            )
+        if language_name:
+            attrs["language_name"] = language_name
+
         # Nếu proficiency_level = 'native' thì is_native = True
         if attrs.get("proficiency_level") == "native":
             attrs["is_native"] = True
