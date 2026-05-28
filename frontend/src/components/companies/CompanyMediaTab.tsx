@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { companyService } from '@/services/companyService';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Image, Link as LinkIcon, Play, Video } from 'lucide-react';
 
 interface Props {
@@ -93,6 +94,7 @@ const normalizeMediaItem = (item: RawMediaItem): MediaItem | null => {
 
 export function CompanyMediaTab({ companyId }: Props) {
     const [playingLinkId, setPlayingLinkId] = useState<string | number | null>(null);
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     const { data: rawMedia, isLoading } = useQuery({
         queryKey: ['company-media', companyId],
@@ -200,7 +202,14 @@ export function CompanyMediaTab({ companyId }: Props) {
                                         </div>
                                     </>
                                 ) : (
-                                    <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
+                                    <button
+                                        type="button"
+                                        className="group h-full w-full cursor-pointer"
+                                        onClick={() => setPreviewImage({ url: thumbnailUrl, title })}
+                                        aria-label={`Xem ảnh ${title}`}
+                                    >
+                                        <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                    </button>
                                 )}
                             </div>
 
@@ -212,6 +221,23 @@ export function CompanyMediaTab({ companyId }: Props) {
                     );
                 })}
             </div>
+
+            <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+                <DialogContent className="max-w-5xl border-none bg-transparent p-0 shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{previewImage?.title || 'Preview media'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
+                        {previewImage && (
+                            <img
+                                src={previewImage.url}
+                                alt={previewImage.title}
+                                className="max-h-[82vh] w-full object-contain"
+                            />
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

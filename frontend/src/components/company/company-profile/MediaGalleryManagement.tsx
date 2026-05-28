@@ -71,6 +71,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
     const [editingMedia, setEditingMedia] = useState<any>(null);
     const [editData, setEditData] = useState({ title: '', caption: '', display_order: 0 });
     const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     const { data: mediaItems, isLoading } = useQuery({
         queryKey: ['companyMedia', companyId],
@@ -334,7 +335,14 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                     )}
                                                 </>
                                             ) : imageUrl ? (
-                                                <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    className="group h-full w-full cursor-pointer"
+                                                    onClick={() => setPreviewImage({ url: imageUrl, title })}
+                                                    aria-label={`Xem ảnh ${title}`}
+                                                >
+                                                    <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                                </button>
                                             ) : (
                                                 <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-8 w-8 opacity-30" /></div>
                                             )}
@@ -527,6 +535,23 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                             Lưu thay đổi
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+                <DialogContent className="max-w-5xl border-none bg-transparent p-0 shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{previewImage?.title || 'Preview media'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
+                        {previewImage && (
+                            <img
+                                src={previewImage.url}
+                                alt={previewImage.title}
+                                className="max-h-[82vh] w-full object-contain"
+                            />
+                        )}
+                    </div>
                 </DialogContent>
             </Dialog>
 
