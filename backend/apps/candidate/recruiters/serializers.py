@@ -36,7 +36,6 @@ class RecruiterSerializer(serializers.ModelSerializer):
             "years_of_experience",
             "highest_education_level",
             "profile_completeness_score",
-
             "profile_views_count",
             "created_at",
             "updated_at",
@@ -122,7 +121,6 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
@@ -130,7 +128,6 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             "years_of_experience",
             "highest_education_level",
             "profile_completeness_score",
-
             "profile_views_count",
             "created_at",
             "updated_at",
@@ -169,7 +166,6 @@ class RecruiterCreateSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-
             "desired_salary_min",
             "desired_salary_max",
             "salary_currency",
@@ -204,6 +200,7 @@ class RecruiterUpdateSerializer(serializers.ModelSerializer):
             "years_of_experience",
             "highest_education_level",
         ]
+
 
 class ProfileCompletenessSerializer(serializers.Serializer):
     score = serializers.IntegerField(read_only=True)

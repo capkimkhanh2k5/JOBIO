@@ -44,8 +44,7 @@ def create_certification(
 
     if "certification_name" in fields:
         existing = RecruiterCertification.objects.filter(
-            recruiter=recruiter, 
-            certification_name__iexact=fields["certification_name"]
+            recruiter=recruiter, certification_name__iexact=fields["certification_name"]
         ).first()
         if existing:
             for field, value in fields.items():

@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('candidate_recruiters', '0003_remove_recruiter_ai_assessment_result'),
+        ("candidate_recruiters", "0003_remove_recruiter_ai_assessment_result"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='recruiter',
-            name='is_profile_public',
+            model_name="recruiter",
+            name="is_profile_public",
         ),
         migrations.RemoveField(
-            model_name='recruiter',
-            name='job_search_status',
+            model_name="recruiter",
+            name="job_search_status",
         ),
     ]
