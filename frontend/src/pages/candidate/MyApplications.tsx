@@ -173,10 +173,7 @@ export default function MyApplications() {
                         icon={<Briefcase className="w-5 h-5" />}
                         label="Tổng số đơn"
                         value={stats.total}
-<<<<<<< HEAD
                         layout="inlineValue"
-=======
->>>>>>> main
                         iconTone={{
                             bg: 'bg-slate-50',
                             text: 'text-slate-600',
@@ -189,10 +186,7 @@ export default function MyApplications() {
                         icon={<Activity className="w-5 h-5" />}
                         label="Đang diễn ra"
                         value={stats.active}
-<<<<<<< HEAD
                         layout="inlineValue"
-=======
->>>>>>> main
                         iconTone={{
                             bg: 'bg-blue-50',
                             text: 'text-blue-600',
@@ -205,10 +199,7 @@ export default function MyApplications() {
                         icon={<CheckCircle2 className="w-5 h-5" />}
                         label="Thành công"
                         value={stats.success}
-<<<<<<< HEAD
                         layout="inlineValue"
-=======
->>>>>>> main
                         iconTone={{
                             bg: 'bg-emerald-50',
                             text: 'text-emerald-600',
@@ -221,10 +212,7 @@ export default function MyApplications() {
                         icon={<XCircle className="w-5 h-5" />}
                         label="Chưa phù hợp"
                         value={stats.failed}
-<<<<<<< HEAD
                         layout="inlineValue"
-=======
->>>>>>> main
                         iconTone={{
                             bg: 'bg-red-50',
                             text: 'text-red-600',

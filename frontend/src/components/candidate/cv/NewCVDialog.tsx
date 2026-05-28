@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-<<<<<<< HEAD
-import { X, CheckCircle2, Loader2, FilePlus2, FileText } from 'lucide-react';
-=======
 import { X, CheckCircle2, Loader2, FilePlus2, FileText, Sparkles } from 'lucide-react';
->>>>>>> main
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';

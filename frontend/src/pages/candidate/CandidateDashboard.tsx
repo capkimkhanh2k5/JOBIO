@@ -162,10 +162,7 @@ export default function CandidateDashboard() {
                                 icon={<Briefcase className="w-5 h-5" />}
                                 label="Việc đã ứng tuyển"
                                 value={totalApplications}
-<<<<<<< HEAD
                                 layout="inlineValue"
-=======
->>>>>>> main
                                 iconTone={{
                                     bg: 'bg-indigo-50',
                                     text: 'text-indigo-600',
@@ -178,10 +175,7 @@ export default function CandidateDashboard() {
                                 icon={<CalendarClock className="w-5 h-5" />}
                                 label="Phỏng vấn sắp tới"
                                 value={upcomingInterviewsCount}
-<<<<<<< HEAD
                                 layout="inlineValue"
-=======
->>>>>>> main
                                 iconTone={{
                                     bg: 'bg-amber-50',
                                     text: 'text-amber-600',
@@ -194,10 +188,7 @@ export default function CandidateDashboard() {
                                 icon={<Eye className="w-5 h-5" />}
                                 label="Lượt xem hồ sơ"
                                 value={profileViewsCount}
-<<<<<<< HEAD
                                 layout="inlineValue"
-=======
->>>>>>> main
                                 iconTone={{
                                     bg: 'bg-cyan-50',
                                     text: 'text-cyan-600',
