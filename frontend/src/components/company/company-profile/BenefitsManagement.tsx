@@ -177,6 +177,84 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                 </Button>
             </CardHeader>
             <CardContent className="space-y-4">
+                {isAdding && (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                        <h4 className="font-medium text-sm">Thêm phúc lợi mới</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Select value={newBenefit.category_id} onValueChange={(val) => setNewBenefit({ ...newBenefit, category_id: val })}>
+                                <SelectTrigger className="bg-white">
+                                    <SelectValue placeholder="Chọn danh mục" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    {benefitCategories.map((cat: any) => (
+                                        <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Input
+                                placeholder="Tên phúc lợi (VD: Bảo hiểm sức khỏe)"
+                                value={newBenefit.benefit_name}
+                                onChange={(e) => setNewBenefit({ ...newBenefit, benefit_name: e.target.value })}
+                                className="bg-white"
+                            />
+                            <div className="md:col-span-2">
+                                <Input
+                                    placeholder="Mô tả chi tiết"
+                                    value={newBenefit.description}
+                                    onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
+                                    className="bg-white"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 pt-2">
+                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Hủy</Button>
+                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
+                                {addMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-2" />}
+                                Thêm
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {false && isAdding && (
+                    <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                        <h4 className="font-medium text-sm">ThÃªm phÃºc lá»£i má»›i</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Select value={newBenefit.category_id} onValueChange={(val) => setNewBenefit({ ...newBenefit, category_id: val })}>
+                                <SelectTrigger className="bg-white">
+                                    <SelectValue placeholder="Chá»n danh má»¥c" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    {benefitCategories.map((cat: any) => (
+                                        <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Input
+                                placeholder="TÃªn phÃºc lá»£i (VD: Báº£o hiá»ƒm sá»©c khá»e)"
+                                value={newBenefit.benefit_name}
+                                onChange={(e) => setNewBenefit({ ...newBenefit, benefit_name: e.target.value })}
+                                className="bg-white"
+                            />
+                            <div className="md:col-span-2">
+                                <Input
+                                    placeholder="MÃ´ táº£ chi tiáº¿t"
+                                    value={newBenefit.description}
+                                    onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
+                                    className="bg-white"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 pt-2">
+                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Há»§y</Button>
+                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
+                                {addMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-2" />}
+                                ThÃªm
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 {isLoading ? (
                     <div className="flex items-center justify-center py-12">
                         <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
@@ -262,7 +340,7 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                     </div>
                 )}
 
-                {isAdding && (
+                {false && isAdding && (
                     <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 mt-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
                         <h4 className="font-medium text-sm">Thêm phúc lợi mới</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

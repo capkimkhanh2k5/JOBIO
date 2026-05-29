@@ -590,9 +590,15 @@ export function CompanyAnalyticsPage() {
                                     <div className={`w-10 h-10 rounded-xl ${card.tone.bg} ${card.tone.text} flex items-center justify-center shadow-sm shrink-0`}>
                                         {card.icon}
                                     </div>
-                                    <div>
-                                        <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide">{card.title}</p>
-                                        <p className="text-2xl font-black text-slate-900 mt-0.5">{card.value}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <p className="min-w-0 text-xs text-slate-500 font-semibold uppercase tracking-wide leading-snug">
+                                                {card.title}
+                                            </p>
+                                            <p className="shrink-0 text-2xl font-black text-slate-900 leading-none text-right">
+                                                {card.value}
+                                            </p>
+                                        </div>
                                         <p className="text-xs text-slate-400 font-medium mt-0.5">{card.desc}</p>
                                     </div>
                                 </div>

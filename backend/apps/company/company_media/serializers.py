@@ -29,7 +29,8 @@ class CompanyMediaSerializer(serializers.ModelSerializer):
 class CompanyMediaCreateSerializer(serializers.Serializer):
     """Serializer xử lý upload media mới"""
 
-    media_file = serializers.FileField(required=True)
+    media_file = serializers.FileField(required=False)
+    media_url = serializers.URLField(required=False, allow_blank=True)
     media_type_id = serializers.IntegerField(required=True)
     title = serializers.CharField(max_length=255, required=False, allow_blank=True)
     caption = serializers.CharField(required=False, allow_blank=True)
