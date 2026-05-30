@@ -74,7 +74,12 @@ test('company can create, edit, attach thumbnail, and delete its own post', asyn
   const card = page.getByText(title).locator('xpath=ancestor::div[contains(@class, "group")][1]');
   await card.locator('button').last().click();
   await page.getByRole('menuitem', { name: /Xóa bài viết/ }).click();
+  const deleteResponsePromise = page.waitForResponse(response =>
+    response.url().includes(`/api/blog/posts/${post.slug}/`) && response.request().method() === 'DELETE',
+  );
   await page.getByRole('button', { name: /^Xóa bài viết$/ }).click();
+  const deleteResponse = await deleteResponsePromise;
+  expect(deleteResponse.status()).toBe(204);
   await expect(page.getByText('Đã xóa bài viết thành công')).toBeVisible();
   await expect(page.getByText(title)).toHaveCount(0);
   watcher.assertClean();

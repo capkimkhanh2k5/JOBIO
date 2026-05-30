@@ -130,6 +130,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<CandidateLanguage | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: userLangs = [], isLoading: langsLoading } = useQuery({
         queryKey: ['user-languages', userId],
@@ -173,7 +174,9 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center group"
+                                    className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center"
+                                    onMouseEnter={() => setHoveredId(String(lang.id))}
+                                    onMouseLeave={() => setHoveredId(null)}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600">
@@ -197,7 +200,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-1 transition-opacity" style={{ opacity: hoveredId === String(lang.id) ? 1 : 0, pointerEvents: hoveredId === String(lang.id) ? 'auto' : 'none' }}>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                             onClick={() => { setEditEntry(lang); setDialogOpen(true); }}>
                                             <Pencil className="w-3.5 h-3.5" />

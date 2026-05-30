@@ -20,7 +20,7 @@ class SubscriptionService:
         1. status is 'ACTIVE'
         2. end_date is >= today
         """
-        now = timezone.now().date()
+        now = timezone.localdate()
 
         return (
             CompanySubscription.objects.filter(
@@ -54,7 +54,7 @@ class SubscriptionService:
         Dates are calculated based on plan.duration_days.
         """
         now = timezone.now()
-        today = now.date()
+        today = timezone.localdate(now)
         CompanySubscription.objects.filter(
             company=company,
             status=CompanySubscription.Status.ACTIVE,
@@ -74,7 +74,7 @@ class SubscriptionService:
             updated_at=now,
         )
 
-        start_date = timezone.now().date()
+        start_date = timezone.localdate()
         end_date = start_date + timedelta(days=plan.duration_days)
 
         sub = CompanySubscription.objects.create(
@@ -109,8 +109,8 @@ class SubscriptionService:
             CompanySubscription.objects.filter(
                 company=company,
                 status=CompanySubscription.Status.ACTIVE,
-                start_date__lte=timezone.now().date(),
-                end_date__gte=timezone.now().date(),
+                start_date__lte=timezone.localdate(),
+                end_date__gte=timezone.localdate(),
             )
             .order_by("-end_date", "-created_at")
             .first()
@@ -171,7 +171,7 @@ class SubscriptionService:
             .first()
         )
 
-        today = now.date()
+        today = timezone.localdate(now)
         if current_sub and plan.price > current_sub.plan.price:
             CompanySubscription.objects.filter(
                 company=company,
@@ -281,7 +281,7 @@ class SubscriptionService:
         - If company has active different plan: replace it immediately (fallback safety).
         - If no active plan: create a new active subscription.
         """
-        today = timezone.now().date()
+        today = timezone.localdate()
         now = timezone.now()
         active_sub = (
             CompanySubscription.objects.filter(

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -57,34 +57,39 @@ const CURRENCIES = ['VND', 'USD', 'EUR', 'SGD'];
 
 export const PersonalForm = ({ profile }: { profile: any }) => {
     const queryClient = useQueryClient();
+    const getDefaultValues = (nextProfile: any): PersonalFormValues => ({
+        full_name: nextProfile?.user?.full_name || nextProfile?.full_name || "",
+        bio: nextProfile?.bio || "",
+        dob: nextProfile?.date_of_birth || "",
+        gender: nextProfile?.gender || "other",
+        address: {
+            province: nextProfile?.address?.province || nextProfile?.address?.province_name || "",
+            commune: nextProfile?.address?.commune || nextProfile?.address?.commune_name || "",
+            address_line: nextProfile?.address?.address_line || "",
+        },
+        social_links: {
+            linkedin: nextProfile?.linkedin_url || "",
+            github: nextProfile?.github_url || "",
+            facebook: nextProfile?.facebook_url || "",
+            portfolio: nextProfile?.portfolio_url || "",
+        },
+        desired_salary: {
+            min: nextProfile?.desired_salary_min ? Number(nextProfile.desired_salary_min) : undefined,
+            max: nextProfile?.desired_salary_max ? Number(nextProfile.desired_salary_max) : undefined,
+            currency: nextProfile?.salary_currency || "VND",
+        },
+        available_from: nextProfile?.available_from_date || "",
+        years_of_experience: nextProfile?.years_of_experience || 0,
+        highest_education: nextProfile?.highest_education_level || "dai_hoc",
+    });
     const form = useForm<PersonalFormValues>({
         resolver: zodResolver(personalSchema),
-        defaultValues: {
-            full_name: (profile as any)?.user?.full_name || (profile as any)?.full_name || "",
-            bio: profile?.bio || "",
-            dob: profile?.date_of_birth || "",
-            gender: profile?.gender || "other",
-            address: {
-                province: (profile?.address as any)?.province || (profile?.address as any)?.province_name || "",
-                commune: (profile?.address as any)?.commune || (profile?.address as any)?.commune_name || "",
-                address_line: (profile?.address as any)?.address_line || "",
-            },
-            social_links: {
-                linkedin: profile?.linkedin_url || "",
-                github: profile?.github_url || "",
-                facebook: profile?.facebook_url || "",
-                portfolio: profile?.portfolio_url || "",
-            },
-            desired_salary: {
-                min: profile?.desired_salary_min ? Number(profile.desired_salary_min) : undefined,
-                max: profile?.desired_salary_max ? Number(profile.desired_salary_max) : undefined,
-                currency: profile?.salary_currency || "VND",
-            },
-            available_from: profile?.available_from_date || "",
-            years_of_experience: profile?.years_of_experience || 0,
-            highest_education: profile?.highest_education_level || "dai_hoc",
-        }
+        defaultValues: getDefaultValues(profile)
     });
+
+    useEffect(() => {
+        form.reset(getDefaultValues(profile));
+    }, [profile?.id, profile?.updated_at]);
 
     const selectedProvinceId = form.watch('address.province');
 
@@ -309,14 +314,14 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                         <FormField control={form.control} name="address.commune"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>Quận / Huyện</FormLabel>
+                                    <FormLabel>Phường / Xã</FormLabel>
                                     <FormControl>
                                         <Combobox 
                                             options={communeOptions}
                                             value={field.value}
                                             onChange={field.onChange}
-                                            placeholder={selectedProvinceId ? "Chọn Quận / Huyện" : "Chọn tỉnh trước"}
-                                            searchPlaceholder="Tìm kiếm quận/huyện..."
+                                            placeholder={selectedProvinceId ? "Chọn Phường / Xã" : "Chọn tỉnh trước"}
+                                            searchPlaceholder="Tìm kiếm phường/xã..."
                                             disabled={!selectedProvinceId || isLoadingCommunes}
                                         />
                                     </FormControl>

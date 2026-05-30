@@ -181,6 +181,7 @@ export const EducationSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<EducationEntry | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: educations = [], isLoading } = useQuery({
         queryKey: ['education', userId],
@@ -239,12 +240,14 @@ export const EducationSection = ({ userId }: { userId: number }) => {
                                 <Reorder.Item
                                     key={edu.id}
                                     value={edu}
-                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group select-none cursor-default"
+                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start select-none cursor-default"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20, height: 0 }}
+                                    onMouseEnter={() => setHoveredId(String(edu.id))}
+                                    onMouseLeave={() => setHoveredId(null)}
                                 >
-                                    <div className="mt-1.5 text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="mt-1.5 text-muted-foreground cursor-grab active:cursor-grabbing transition-opacity" style={{ opacity: hoveredId === String(edu.id) ? 1 : 0 }}>
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
@@ -255,10 +258,10 @@ export const EducationSection = ({ userId }: { userId: number }) => {
                                     <div className="flex-1 space-y-1 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
-                                                <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors truncate">{edu.school_name}</h3>
+                                                <h3 className="text-base font-bold transition-colors truncate" style={{ color: hoveredId === String(edu.id) ? 'rgb(124 58 237)' : undefined }}>{edu.school_name}</h3>
                                                 <p className="text-sm text-violet-500 font-medium">{edu.degree} — {edu.field_of_study}</p>
                                             </div>
-                                            <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-1 shrink-0 transition-opacity" style={{ opacity: hoveredId === String(edu.id) ? 1 : 0, pointerEvents: hoveredId === String(edu.id) ? 'auto' : 'none' }}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => handleEdit(edu)}>
                                                     <Pencil className="w-3.5 h-3.5" />

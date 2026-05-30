@@ -229,7 +229,7 @@ class ApplicationCreateSerializer(serializers.Serializer):
                 raise serializers.ValidationError("This job is not available!")
             if (
                 job.application_deadline
-                and job.application_deadline < timezone.now().date()
+                and job.application_deadline < timezone.localdate()
             ):
                 raise serializers.ValidationError("This job is not available!")
             return value

@@ -120,6 +120,77 @@ def resolve_province_from_location(value: object):
     return matches[0][1]
 
 
+def resolve_commune_from_location(value: object, province=None, *extra_values: object):
+    from apps.geography.communes.models import Commune
+
+    if isinstance(value, int):
+        queryset = Commune.objects.filter(id=value, is_active=True)
+        if province:
+            queryset = queryset.filter(province=province)
+        return queryset.first()
+    if isinstance(value, str) and value.strip().isdigit():
+        queryset = Commune.objects.filter(id=int(value.strip()), is_active=True)
+        if province:
+            queryset = queryset.filter(province=province)
+        return queryset.first()
+
+    province_keys: set[str] = set()
+    if province:
+        province_keys.update(location_candidates(province.province_name))
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for source in (value, *extra_values):
+        for candidate in location_candidates(source):
+            if candidate in seen or candidate in province_keys:
+                continue
+            seen.add(candidate)
+            candidates.append(candidate)
+
+    if not candidates:
+        return None
+
+    queryset = Commune.objects.filter(is_active=True)
+    if province:
+        queryset = queryset.filter(province=province)
+    communes = list(queryset)
+
+    scored_matches = []
+    for index, candidate in enumerate(candidates):
+        if len(candidate) < 3:
+            continue
+
+        candidate_matches = []
+        for commune in communes:
+            keys = {
+                normalize_location_key(commune.commune_name),
+                simplify_location_key(commune.commune_name),
+                compact_location_key(commune.commune_name),
+            }
+            if any(
+                candidate == key
+                or f" {candidate} " in f" {key} "
+                or f" {key} " in f" {candidate} "
+                for key in keys
+                if key
+            ):
+                candidate_matches.append(commune)
+
+        # A district-only value such as "Lien Chieu" can match many wards.
+        # Only auto-select when the value identifies exactly one commune.
+        unique_matches = {commune.id: commune for commune in candidate_matches}
+        if len(unique_matches) == 1:
+            scored_matches.append(
+                (len(candidate), -index, next(iter(unique_matches.values())))
+            )
+
+    if not scored_matches:
+        return None
+
+    scored_matches.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return scored_matches[0][2]
+
+
 class RecruiterInput(BaseModel):
     current_company: Optional[Company] = None
     current_position: Optional[str] = None
@@ -172,7 +243,6 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
 
         if field == "address" and isinstance(value, dict):
             from apps.geography.addresses.models import Address
-            from apps.geography.communes.models import Commune
 
             addr_data = value.copy()
             province_name = addr_data.pop("province", None)
@@ -192,15 +262,12 @@ def update_recruiter_service(recruiter: Recruiter, data: RecruiterInput) -> Recr
             # Find province
             province = resolve_province_from_location(province_name)
 
-            # Find commune
-            commune = None
-            if commune_name:
-                if isinstance(commune_name, int):
-                    commune = Commune.objects.filter(id=commune_name).first()
-                else:
-                    commune = Commune.objects.filter(
-                        commune_name__icontains=commune_name, province=province
-                    ).first()
+            # Find commune/ward. CVs often put the ward inside address_line
+            # and may provide a district in the commune field, so resolve from
+            # both values and require a unique commune match.
+            commune = resolve_commune_from_location(
+                commune_name, province, addr_data.get("address_line")
+            )
 
             if recruiter.address:
                 for addr_key, addr_val in addr_data.items():

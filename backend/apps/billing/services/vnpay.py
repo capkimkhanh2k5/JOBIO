@@ -504,14 +504,14 @@ class VNPayService:
         except Transaction.DoesNotExist:
             return {"success": False, "message": "Transaction not found"}
 
-        vnp_RequestId = datetime.now().strftime("%H%M%S")  # Example request ID
+        vnp_RequestId = timezone.localtime().strftime("%H%M%S")
         vnp_Version = "2.1.0"
         vnp_Command = "querydr"
         vnp_TmnCode = settings.VNP_TMN_CODE
         vnp_TxnRef = txn_ref
         vnp_OrderInfo = f"Query transaction {txn_ref}"
-        vnp_TransactionDate = txn.created_at.strftime("%Y%m%d%H%M%S")
-        vnp_CreateDate = datetime.now().strftime("%Y%m%d%H%M%S")
+        vnp_TransactionDate = VNPayService._format_vnpay_datetime(txn.created_at)
+        vnp_CreateDate = VNPayService._format_vnpay_datetime(timezone.now())
         vnp_IpAddr = "127.0.0.1"  # Thường là IP của server
 
         # Tạo chuỗi Hash cho QueryDR:

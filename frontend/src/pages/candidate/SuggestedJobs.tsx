@@ -9,8 +9,10 @@ import {
 import { cvService } from '@/services/cvService';
 import { jobService } from '@/services/jobService';
 import { applicationService } from '@/services/applicationService';
+import { candidateService } from '@/services/candidateService';
 import { useUserStore } from '@/store/userStore';
 import { getCandidateId } from '@/lib/candidateIdentity';
+import { PROFILE_RECOMMENDATION_MIN_SCORE } from '@/lib/jobRecommendationPolicy';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -51,7 +53,11 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <Card className="p-5 bg-white border border-slate-200 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-2xl h-full shadow-sm">
+            <Card
+                role="article"
+                aria-label={`Gợi ý việc làm ${job.title}`}
+                className="p-5 bg-white border border-slate-200 hover:border-violet-200 hover:shadow-md transition-all duration-200 flex flex-col gap-4 group rounded-2xl h-full shadow-sm"
+            >
                 {/* Header */}
                 <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl border border-slate-100 overflow-hidden shrink-0 bg-white flex items-center justify-center shadow-sm">
@@ -139,20 +145,29 @@ function JobCard({ job, onApply }: { job: any; onApply: (id: number) => void }) 
 }
 
 // ─── CV Selector Sidebar ───────────────────────────────────────────────────────
-function CVSelector({ cvList, selectedId, onSelect, loading }: {
+function CVSelector({
+    cvList,
+    selectedId,
+    onSelect,
+    loading,
+    profileScore,
+    canUseProfileRecommendations,
+}: {
     cvList: any[];
     selectedId: string | null;
     onSelect: (id: string) => void;
     loading: boolean;
+    profileScore: number;
+    canUseProfileRecommendations: boolean;
 }) {
     return (
         <aside className="w-72 shrink-0 flex flex-col border-r border-slate-200 bg-white overflow-y-auto">
             <div className="px-5 py-5 border-b border-slate-100 shrink-0">
                 <p className="text-[12px] font-black uppercase tracking-wider text-slate-800">
-                    Chọn CV để gợi ý
+                    Nguồn gợi ý
                 </p>
                 <p className="text-[11px] text-slate-500 mt-1 font-medium leading-relaxed">
-                    Hệ thống sẽ gợi ý việc làm dựa trên CV được chọn
+                    Chọn CV để tăng độ chính xác, hoặc dùng hồ sơ khi đã đủ dữ liệu
                 </p>
             </div>
 
@@ -167,7 +182,11 @@ function CVSelector({ cvList, selectedId, onSelect, loading }: {
                             <FileText className="w-5 h-5 text-slate-400" />
                         </div>
                         <p className="text-sm text-muted-foreground font-medium">Chưa có CV nào</p>
-                        <p className="text-xs text-muted-foreground mt-1">Hãy tạo CV để nhận gợi ý việc làm!</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {canUseProfileRecommendations
+                                ? `Đang gợi ý theo hồ sơ ${profileScore}%`
+                                : `Hoàn thiện hồ sơ tối thiểu ${PROFILE_RECOMMENDATION_MIN_SCORE}% để nhận gợi ý`}
+                        </p>
                     </div>
                 ) : (
                     cvList.map((cv) => (
@@ -225,6 +244,15 @@ export default function SuggestedJobs() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [selectedCvId, setSelectedCvId] = useState<string | null>(searchParams.get('cv_id'));
 
+    const { data: profile } = useQuery({
+        queryKey: ['candidate', 'my-profile', user?.id],
+        queryFn: () => candidateService.getMyProfile().then(r => r.data),
+        enabled: !!candidateId,
+        staleTime: 60_000,
+    });
+    const profileScore = Number(profile?.score ?? profile?.profile_completeness_score ?? 0);
+    const canUseProfileRecommendations = profileScore >= PROFILE_RECOMMENDATION_MIN_SCORE;
+
     // Sync URL param when CV selection changes
     useEffect(() => {
         if (selectedCvId) {
@@ -250,11 +278,13 @@ export default function SuggestedJobs() {
         }
     }, [cvList, selectedCvId]);
 
-    // Load suggestions for selected CV
+    // Load suggestions by selected CV first; otherwise use profile once it is reasonably complete.
     const { data: suggestions = [], isLoading: loadingSuggestions } = useQuery({
-        queryKey: ['candidate', 'job-suggestions', selectedCvId],
-        queryFn: () => jobService.recommendations({ cv_id: selectedCvId } as any).then(r => r.data),
-        enabled: !!selectedCvId,
+        queryKey: ['candidate', 'job-suggestions', selectedCvId ?? 'profile', profileScore],
+        queryFn: () => jobService.recommendations(
+            selectedCvId ? { cv_id: selectedCvId, page_size: 20 } : { page_size: 20 }
+        ).then(r => r.data),
+        enabled: !!selectedCvId || canUseProfileRecommendations,
         staleTime: 60_000,
     });
     const activeSuggestions = useMemo(
@@ -265,7 +295,7 @@ export default function SuggestedJobs() {
     // Quick apply
     const handleApply = async (jobId: number) => {
         if (!selectedCvId) {
-            toast.error('Vui lòng chọn CV trước khi ứng tuyển');
+            toast.error('Vui lòng chọn hoặc tạo CV trước khi ứng tuyển');
             return;
         }
         try {
@@ -278,6 +308,7 @@ export default function SuggestedJobs() {
     };
 
     const selectedCV = (cvList as any[]).find((c: any) => String(c.id) === String(selectedCvId));
+    const usingProfileRecommendations = !selectedCvId && canUseProfileRecommendations;
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
@@ -289,7 +320,9 @@ export default function SuggestedJobs() {
                         ? selectedCV.template_id
                             ? `Dựa trên CV "${selectedCV.cv_name}" của bạn`
                             : `Dựa trên hồ sơ của bạn (CV "${selectedCV.cv_name}" là PDF upload)`
-                        : 'Chọn một CV để xem những việc làm phù hợp nhất'
+                        : usingProfileRecommendations
+                            ? `Dựa trên hồ sơ đã hoàn thiện ${profileScore}% của bạn`
+                            : `Hoàn thiện hồ sơ tối thiểu ${PROFILE_RECOMMENDATION_MIN_SCORE}% để nhận gợi ý`
                     }
                     icon={Sparkles}
                     action={
@@ -314,21 +347,26 @@ export default function SuggestedJobs() {
                         selectedId={selectedCvId}
                         onSelect={setSelectedCvId}
                         loading={loadingCVs}
+                        profileScore={profileScore}
+                        canUseProfileRecommendations={canUseProfileRecommendations}
                     />
 
                     {/* RIGHT: Job suggestions */}
                     <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                         {/* Content area — scrollable */}
                         <div className="flex-1 overflow-y-auto p-6 lg:p-8">
-                            {!selectedCvId ? (
+                            {!selectedCvId && !canUseProfileRecommendations ? (
                                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
                                     <div className="w-20 h-20 rounded-full bg-violet-50 flex items-center justify-center mb-6">
                                         <Sparkles className="w-10 h-10 text-violet-400" />
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-900 mb-2">Sẵn sàng để kết nối?</h3>
+                                    <h3 className="text-xl font-black text-slate-900 mb-2">Hoàn thiện hồ sơ để nhận gợi ý</h3>
                                     <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                        Chọn một CV từ danh sách bên trái để khám phá những cơ hội nghề nghiệp được AI gợi ý riêng cho bạn.
+                                        Hồ sơ của bạn đang ở mức {profileScore}%. Khi đạt tối thiểu {PROFILE_RECOMMENDATION_MIN_SCORE}%, hệ thống có thể gợi ý việc làm dựa trên kỹ năng, kinh nghiệm và địa điểm ngay cả khi bạn chưa có CV.
                                     </p>
+                                    <Button className="mt-5 rounded-xl bg-violet-600 hover:bg-violet-700" onClick={() => navigate('/candidate/profile')}>
+                                        Hoàn thiện hồ sơ
+                                    </Button>
                                 </div>
                             ) : loadingSuggestions ? (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -343,7 +381,7 @@ export default function SuggestedJobs() {
                                     </div>
                                     <h3 className="text-xl font-black text-slate-900 mb-2">Chưa tìm thấy việc làm phù hợp</h3>
                                     <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                                        Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào CV của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
+                                        Hãy thử cập nhật thêm kỹ năng hoặc kinh nghiệm vào {selectedCvId ? 'CV' : 'hồ sơ'} của bạn để AI có thể đưa ra những gợi ý chính xác hơn nhé!
                                     </p>
                                 </div>
                             ) : (
@@ -351,6 +389,7 @@ export default function SuggestedJobs() {
                                     <div className="flex items-center justify-between">
                                         <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
                                             Tìm thấy <span className="text-violet-600">{activeSuggestions.length}</span> việc làm phù hợp
+                                            {usingProfileRecommendations && <span className="ml-2 normal-case tracking-normal text-slate-400">theo hồ sơ</span>}
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-4">

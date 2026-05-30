@@ -67,7 +67,7 @@ def company_dashboard_stats(request):
             status=404,
         )
 
-    now = timezone.now()
+    now = timezone.localtime()
     current_start = now - timedelta(days=30)
     previous_start = now - timedelta(days=60)
 
@@ -133,7 +133,7 @@ def company_dashboard_analytics(request):
             status=404,
         )
 
-    now = timezone.now()
+    now = timezone.localtime()
     current_start = now - timedelta(days=30)
     previous_start = now - timedelta(days=60)
     series_start = now - timedelta(days=89)

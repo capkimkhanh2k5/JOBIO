@@ -1,12 +1,13 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FileUp, X, CheckCircle2, AlertCircle, Loader2, Sparkles,
-    User, GraduationCap, Briefcase, Zap, Award, Languages, FolderGit2,
-    ChevronDown, ChevronUp, Upload
+    X, CheckCircle2, AlertCircle, Loader2, Sparkles,
+    User, GraduationCap, Briefcase, Zap, Award, Languages, FolderGit2, Upload
 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
+import { cvService } from '@/services/cvService';
 
 import { toast } from 'sonner';
 
@@ -39,6 +40,67 @@ const cleanText = (value: unknown) => {
     return text.toLowerCase() === 'n/a' ? '' : text;
 };
 
+const cleanUrl = (value: unknown) => {
+    const text = cleanText(value);
+    if (!text) return '';
+    if (/^https?:\/\//i.test(text)) return text;
+    if (/^(linkedin\.com|github\.com|www\.|[a-z0-9-]+\.[a-z]{2,})/i.test(text)) {
+        return `https://${text}`;
+    }
+    return text;
+};
+
+const hasParsedLinks = (data: any) =>
+    Boolean(cleanUrl(data?.links?.linkedin) || cleanUrl(data?.links?.github) || cleanUrl(data?.links?.portfolio));
+
+const getParsedProvince = (location: any) =>
+    cleanText(location?.province) || cleanText(location?.city);
+
+const normalizeNameKey = (value: unknown) =>
+    cleanText(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+
+const LANGUAGE_ALIASES: Record<string, string> = {
+    vietnamese: 'vi',
+    'tieng viet': 'vi',
+    'viet nam': 'vi',
+    english: 'en',
+    'tieng anh': 'en',
+    japanese: 'ja',
+    'tieng nhat': 'ja',
+    korean: 'ko',
+    'tieng han': 'ko',
+    chinese: 'zh',
+    'tieng trung': 'zh',
+    french: 'fr',
+    'tieng phap': 'fr',
+    german: 'de',
+    'tieng duc': 'de',
+};
+
+const getLanguageKey = (value: unknown) => {
+    const key = normalizeNameKey(value);
+    return LANGUAGE_ALIASES[key] || key;
+};
+
+const getErrorDetail = (error: unknown) => {
+    const data = (error as any)?.response?.data;
+    if (!data) return '';
+    if (typeof data === 'string') return data;
+    if (typeof data.detail === 'string') return data.detail;
+    return JSON.stringify(data);
+};
+
+const isDuplicateError = (error: unknown) => {
+    const detail = getErrorDetail(error);
+    const normalized = normalizeNameKey(detail);
+    return normalized.includes('da duoc them') || normalized.includes('already') || normalized.includes('duplicate');
+};
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFillDialogProps) => {
@@ -50,9 +112,17 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [parsedData, setParsedData] = useState<any>(null);
     const [sections, setSections] = useState<ParsedSection[]>([]);
-    const [expandedSection, setExpandedSection] = useState<string | null>(null);
     const [isApplying, setIsApplying] = useState(false);
     const [dragActive, setDragActive] = useState(false);
+
+    useEffect(() => {
+        if (!open) return;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [open]);
 
     // ─── Parse mutation ─────────────────────────────────────────────────
 
@@ -62,11 +132,15 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
             setParsedData(data);
             buildSections(data);
             setStep('review');
+            toast.success('Phân tích CV thành công.');
         },
-        onError: (error: any) => {
-            const detail = error?.response?.data?.detail || 'Không thể phân tích CV. Vui lòng thử lại.';
-            toast.error(detail);
+        onError: () => {
+            toast.error('File CV không hợp lệ.');
             setStep('upload');
+            setSelectedFile(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         },
     });
 
@@ -75,12 +149,24 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
     const buildSections = (data: any) => {
         const result: ParsedSection[] = [];
 
-        if (data?.personal && (data.personal.full_name || data.personal.current_position || data.personal.bio || data.location?.city)) {
+        const hasPersonalData = Boolean(
+            data?.personal?.full_name ||
+            data?.personal?.current_position ||
+            data?.personal?.bio ||
+            getParsedProvince(data?.location) ||
+            cleanText(data?.location?.address_line) ||
+            hasParsedLinks(data)
+        );
+
+        if (data?.personal && hasPersonalData) {
             result.push({
                 key: 'personal',
                 label: 'Thông tin cá nhân',
                 icon: User,
-                count: Object.values(data.personal).filter((v: any) => v && v !== '').length + (data.location?.city ? 1 : 0),
+                count: Object.values(data.personal).filter((v: any) => v && v !== '').length
+                    + (getParsedProvince(data.location) ? 1 : 0)
+                    + (cleanText(data.location?.address_line) ? 1 : 0)
+                    + Object.values(data.links || {}).filter((v: any) => cleanUrl(v)).length,
                 items: [data.personal],
                 checked: true,
             });
@@ -159,15 +245,19 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
 
     const validateAndSetFile = useCallback((file: File) => {
         if (!file.name.toLowerCase().endsWith('.pdf')) {
-            toast.error('Chỉ hỗ trợ file PDF');
+            toast.error('File CV không hợp lệ.');
             return;
         }
         if (file.size > MAX_FILE_SIZE) {
-            toast.error('File quá lớn. Tối đa 10MB.');
+            toast.error('File CV không hợp lệ.');
             return;
         }
         setSelectedFile(file);
-    }, []);
+        setParsedData(null);
+        setSections([]);
+        setStep('processing');
+        parseMutation.mutate(file);
+    }, [parseMutation]);
 
     const handleDrag = useCallback((e: React.DragEvent) => {
         e.preventDefault();
@@ -192,18 +282,6 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
         if (file) validateAndSetFile(file);
     };
 
-    const handleUploadAndParse = () => {
-        if (!selectedFile) return;
-        setStep('processing');
-        parseMutation.mutate(selectedFile);
-    };
-
-    // ─── Section toggling ───────────────────────────────────────────────
-
-    const toggleSection = (key: string) => {
-        setSections(prev => prev.map(s => s.key === key ? { ...s, checked: !s.checked } : s));
-    };
-
     // ─── Apply parsed data ──────────────────────────────────────────────
 
     const handleApply = async () => {
@@ -218,8 +296,39 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
         setIsApplying(true);
         let successCount = 0;
         let errorCount = 0;
+        let skippedCount = 0;
+        let cvSaved = false;
+        let cvSaveError = false;
 
         try {
+            const existingSkillKeys = new Set<string>();
+            const existingLanguageKeys = new Set<string>();
+            const skillsSection = selectedSections.find(s => s.key === 'skills');
+            const languagesSection = selectedSections.find(s => s.key === 'languages');
+
+            await Promise.all([
+                skillsSection
+                    ? candidateService.listSkills(candidateId)
+                        .then(response => {
+                            response.data.forEach(skill => {
+                                const key = normalizeNameKey(skill.skill_name);
+                                if (key) existingSkillKeys.add(key);
+                            });
+                        })
+                        .catch(() => undefined)
+                    : Promise.resolve(),
+                languagesSection
+                    ? candidateService.listLanguages(candidateId)
+                        .then(response => {
+                            response.data.forEach(language => {
+                                const key = getLanguageKey(language.language_name);
+                                if (key) existingLanguageKeys.add(key);
+                            });
+                        })
+                        .catch(() => undefined)
+                    : Promise.resolve(),
+            ]);
+
             // 1. Update personal info
             const personalSection = selectedSections.find(s => s.key === 'personal');
             if (personalSection && parsedData.personal) {
@@ -232,20 +341,30 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                     if (p.full_name) updateData.full_name = p.full_name;
 
                     // Links
-                    if (parsedData.links?.linkedin) updateData.linkedin_url = parsedData.links.linkedin;
-                    if (parsedData.links?.github) updateData.github_url = parsedData.links.github;
-                    if (parsedData.links?.portfolio) updateData.portfolio_url = parsedData.links.portfolio;
+                    const linkedinUrl = cleanUrl(parsedData.links?.linkedin);
+                    const githubUrl = cleanUrl(parsedData.links?.github);
+                    const portfolioUrl = cleanUrl(parsedData.links?.portfolio);
+                    if (linkedinUrl) updateData.linkedin_url = linkedinUrl;
+                    if (githubUrl) updateData.github_url = githubUrl;
+                    if (portfolioUrl) updateData.portfolio_url = portfolioUrl;
 
                     // Address / Location
-                    const city = cleanText(parsedData.location?.city);
-                    if (city) {
+                    const province = getParsedProvince(parsedData.location);
+                    const commune = cleanText(parsedData.location?.commune);
+                    const addressLine = cleanText(parsedData.location?.address_line);
+                    if (province || addressLine) {
                         updateData.address = {
-                            province: city,
+                            province,
+                            commune,
+                            address_line: addressLine,
                         };
                     }
 
                     if (Object.keys(updateData).length > 0) {
-                        await candidateService.update(candidateId, updateData);
+                        const response = await candidateService.update(candidateId, updateData);
+                        queryClient.setQueriesData({ queryKey: ['profile'] }, (current: any) => (
+                            current ? { ...current, ...response.data } : response.data
+                        ));
                         successCount++;
                     }
                 } catch {
@@ -348,11 +467,16 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
             }
 
             // 6. Add skills
-            const skillsSection = selectedSections.find(s => s.key === 'skills');
             if (skillsSection && parsedData.skills?.length > 0) {
                 for (const skill of parsedData.skills) {
                     const skillName = cleanText(skill.name);
                     if (!skillName) continue;
+
+                    const skillKey = normalizeNameKey(skillName);
+                    if (skillKey && existingSkillKeys.has(skillKey)) {
+                        skippedCount++;
+                        continue;
+                    }
 
                     try {
                         await candidateService.addSkill(candidateId, {
@@ -360,19 +484,30 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                             proficiency_level: skill.proficiency_level || 'intermediate',
                             years_of_experience: skill.years_of_experience || 0,
                         });
+                        if (skillKey) existingSkillKeys.add(skillKey);
                         successCount++;
-                    } catch {
-                        errorCount++;
+                    } catch (error) {
+                        if (isDuplicateError(error)) {
+                            if (skillKey) existingSkillKeys.add(skillKey);
+                            skippedCount++;
+                        } else {
+                            errorCount++;
+                        }
                     }
                 }
             }
 
             // 7. Add languages
-            const languagesSection = selectedSections.find(s => s.key === 'languages');
             if (languagesSection && parsedData.languages?.length > 0) {
                 for (const lang of parsedData.languages) {
                     const languageName = cleanText(lang.name);
                     if (!languageName) continue;
+
+                    const languageKey = getLanguageKey(languageName);
+                    if (languageKey && existingLanguageKeys.has(languageKey)) {
+                        skippedCount++;
+                        continue;
+                    }
 
                     try {
                         let level = 'intermediate';
@@ -384,10 +519,29 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                             proficiency_level: level as any,
                             is_native: level === 'native',
                         });
+                        if (languageKey) existingLanguageKeys.add(languageKey);
                         successCount++;
-                    } catch {
-                        errorCount++;
+                    } catch (error) {
+                        if (isDuplicateError(error)) {
+                            if (languageKey) existingLanguageKeys.add(languageKey);
+                            skippedCount++;
+                        } else {
+                            errorCount++;
+                        }
                     }
+                }
+            }
+
+            if (selectedFile) {
+                try {
+                    const cvName = selectedFile.name.replace(/\.pdf$/i, '') || 'Uploaded CV';
+                    const savedCv = await cvService.uploadPdfFile(candidateId, selectedFile, cvName);
+                    if (savedCv.data?.id) {
+                        await cvService.update(candidateId, savedCv.data.id, { cv_data: parsedData });
+                    }
+                    cvSaved = true;
+                } catch {
+                    cvSaveError = true;
                 }
             }
 
@@ -400,14 +554,17 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                 queryClient.invalidateQueries({ queryKey: ['certifications', candidateId] }),
                 queryClient.invalidateQueries({ queryKey: ['user-languages', candidateId] }),
                 queryClient.invalidateQueries({ queryKey: ['projects', candidateId] }),
+                queryClient.invalidateQueries({ queryKey: ['candidate', 'cvs', candidateId] }),
             ]);
 
-            if (successCount === 0 && errorCount === 0) {
-                toast.warning('Không có dữ liệu hợp lệ để cập nhật từ CV.');
-            } else if (errorCount === 0) {
-                toast.success(`Đã cập nhật ${successCount} mục thành công từ CV!`);
+            const skippedMessage = skippedCount > 0 ? ` Bỏ qua ${skippedCount} mục đã có.` : '';
+
+            if (successCount === 0 && errorCount === 0 && !cvSaved) {
+                toast.warning(`Không có dữ liệu mới hợp lệ để cập nhật từ CV.${skippedMessage}`);
+            } else if (errorCount === 0 && !cvSaveError) {
+                toast.success(`Đã cập nhật ${successCount} mục thành công từ CV${cvSaved ? ' và lưu CV vào hồ sơ!' : '!'}${skippedMessage}`);
             } else {
-                toast.warning(`Đã cập nhật ${successCount} mục. ${errorCount} mục bị lỗi.`);
+                toast.warning(`Đã cập nhật ${successCount} mục. ${errorCount} mục bị lỗi.${skippedMessage}${cvSaveError ? ' Lưu file CV thất bại.' : ''}`);
             }
             handleClose();
         } catch {
@@ -424,22 +581,21 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
         setSelectedFile(null);
         setParsedData(null);
         setSections([]);
-        setExpandedSection(null);
         onOpenChange(false);
     };
 
-    if (!open) return null;
+    if (!open || typeof document === 'undefined') return null;
 
     // ─── Render ─────────────────────────────────────────────────────────
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex min-h-dvh items-center justify-center p-4">
             {/* Backdrop */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/55 backdrop-blur-sm"
                 onClick={handleClose}
             />
 
@@ -449,7 +605,7 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.3, ease: [0.1, 0.9, 0.2, 1] }}
-                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col"
+                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[88dvh] overflow-hidden flex flex-col"
             >
                 {/* Header */}
                 <div className="p-6 pb-4 border-b border-slate-100 shrink-0">
@@ -459,9 +615,9 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                             <div>
                                 <h2 className="text-lg font-bold text-slate-900">Hoàn thiện hồ sơ bằng CV</h2>
                                 <p className="text-xs text-slate-500">
-                                    {step === 'upload' && 'Tải lên file PDF để AI phân tích'}
+                                    {step === 'upload' && 'Chọn hoặc kéo thả file PDF để AI tự phân tích'}
                                     {step === 'processing' && 'Đang phân tích CV của bạn...'}
-                                    {step === 'review' && 'Xem lại và chọn mục muốn cập nhật'}
+                                    {step === 'review' && 'Phân tích thành công, hãy kiểm tra trước khi cập nhật'}
                                 </p>
                             </div>
                         </div>
@@ -472,21 +628,6 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                         >
                             <X className="w-5 h-5 text-slate-400" />
                         </button>
-                    </div>
-
-                    {/* Step indicator */}
-                    <div className="flex items-center gap-2 mt-4">
-                        {(['upload', 'processing', 'review'] as DialogStep[]).map((s, i) => (
-                            <React.Fragment key={s}>
-                                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${step === s ? 'text-violet-600' : sections.length > 0 && i < ['upload', 'processing', 'review'].indexOf(step) ? 'text-emerald-500' : 'text-slate-300'}`}>
-                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step === s ? 'bg-violet-600 text-white' : sections.length > 0 && i < ['upload', 'processing', 'review'].indexOf(step) ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                        {sections.length > 0 && i < ['upload', 'processing', 'review'].indexOf(step) ? '✓' : i + 1}
-                                    </div>
-                                    <span className="hidden sm:inline">{s === 'upload' ? 'Tải lên' : s === 'processing' ? 'Phân tích' : 'Xác nhận'}</span>
-                                </div>
-                                {i < 2 && <div className={`flex-1 h-0.5 rounded ${i < ['upload', 'processing', 'review'].indexOf(step) ? 'bg-emerald-400' : 'bg-slate-100'}`} />}
-                            </React.Fragment>
-                        ))}
                     </div>
                 </div>
 
@@ -522,36 +663,15 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                                         onChange={handleFileSelect}
                                     />
 
-                                    {selectedFile ? (
-                                        <div className="space-y-3">
-                                            <div className="mx-auto w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                                                <CheckCircle2 className="w-7 h-7 text-emerald-500" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-bold text-slate-900 truncate max-w-[280px] mx-auto">{selectedFile.name}</p>
-                                                <p className="text-xs text-slate-400 mt-1">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                            </div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedFile(null);
-                                                }}
-                                                className="text-xs text-slate-400 hover:text-red-500 transition-colors underline"
-                                            >
-                                                Chọn file khác
-                                            </button>
+                                    <div className="space-y-3">
+                                        <div className="mx-auto w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center">
+                                            <Upload className="w-7 h-7 text-violet-500" />
                                         </div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            <div className="mx-auto w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center">
-                                                <Upload className="w-7 h-7 text-violet-500" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-slate-700">Kéo thả file CV vào đây</p>
-                                                <p className="text-xs text-slate-400 mt-1">hoặc bấm để chọn file • PDF • Tối đa 10MB</p>
-                                            </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-700">Kéo thả file CV vào đây</p>
+                                            <p className="text-xs text-slate-400 mt-1">hoặc bấm để chọn file • PDF • Tối đa 10MB</p>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
 
                                 {/* Info box */}
@@ -598,124 +718,22 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                             </motion.div>
                         )}
 
-                        {/* Step 3: Review */}
+                        {/* Step 3: Success */}
                         {step === 'review' && (
                             <motion.div
                                 key="review"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: 20 }}
-                                className="space-y-3"
+                                className="flex flex-col items-center justify-center py-12 text-center"
                             >
-                                {sections.length === 0 ? (
-                                    <div className="text-center py-8">
-                                        <AlertCircle className="w-12 h-12 text-amber-400 mx-auto mb-3" />
-                                        <h3 className="text-base font-bold text-slate-900">Không tìm thấy thông tin</h3>
-                                        <p className="text-sm text-slate-500 mt-1">CV có thể là ảnh scan hoặc không có đủ nội dung text.</p>
-                                    </div>
-                                ) : (
-                                    sections.map((section) => {
-                                        const Icon = section.icon;
-                                        const isExpanded = expandedSection === section.key;
-
-                                        return (
-                                            <div
-                                                key={section.key}
-                                                className={`rounded-2xl border transition-all ${section.checked ? 'border-violet-200 bg-violet-50/30' : 'border-slate-100 bg-white opacity-60'}`}
-                                            >
-                                                {/* Section header */}
-                                                <div className="flex items-center gap-3 p-4">
-                                                    <button
-                                                        onClick={() => toggleSection(section.key)}
-                                                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${section.checked ? 'bg-violet-600 border-violet-600' : 'border-slate-300'}`}
-                                                    >
-                                                        {section.checked && <CheckCircle2 className="w-3 h-3 text-white" />}
-                                                    </button>
-                                                    <Icon className={`w-4 h-4 shrink-0 ${section.checked ? 'text-violet-500' : 'text-slate-400'}`} />
-                                                    <div className="flex-1 min-w-0">
-                                                        <span className="text-sm font-semibold text-slate-800">{section.label}</span>
-                                                        <span className="text-xs text-slate-400 ml-2">({section.count} mục)</span>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => setExpandedSection(isExpanded ? null : section.key)}
-                                                        className="p-1 hover:bg-white rounded-lg transition-colors"
-                                                    >
-                                                        {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                                                    </button>
-                                                </div>
-
-                                                {/* Expanded items */}
-                                                <AnimatePresence>
-                                                    {isExpanded && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: 'auto', opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="overflow-hidden"
-                                                        >
-                                                            <div className="px-4 pb-4 space-y-2">
-                                                                {section.key === 'personal' && section.items[0] && (
-                                                                    <div className="text-xs space-y-1 bg-white p-3 rounded-xl border border-slate-100">
-                                                                        {section.items[0].full_name && <p><span className="font-semibold text-slate-600">Họ tên:</span> {section.items[0].full_name}</p>}
-                                                                        {section.items[0].current_position && <p><span className="font-semibold text-slate-600">Vị trí:</span> {section.items[0].current_position}</p>}
-                                                                        {section.items[0].email && <p><span className="font-semibold text-slate-600">Email:</span> {section.items[0].email}</p>}
-                                                                        {section.items[0].phone && <p><span className="font-semibold text-slate-600">SĐT:</span> {section.items[0].phone}</p>}
-                                                                        {section.items[0].bio && <p className="text-slate-500 line-clamp-2">{section.items[0].bio}</p>}
-                                                                    </div>
-                                                                )}
-                                                                {section.key === 'experience' && section.items.map((exp: any, i: number) => (
-                                                                    <div key={i} className="text-xs bg-white p-3 rounded-xl border border-slate-100">
-                                                                        <p className="font-semibold text-slate-800">{exp.job_title || exp.position}</p>
-                                                                        <p className="text-slate-500">{exp.company_name} {exp.start_date && `• ${exp.start_date}`}{exp.end_date ? ` → ${exp.end_date}` : exp.is_current ? ' → Hiện tại' : ''}</p>
-                                                                    </div>
-                                                                ))}
-                                                                {section.key === 'education' && section.items.map((edu: any, i: number) => (
-                                                                    <div key={i} className="text-xs bg-white p-3 rounded-xl border border-slate-100">
-                                                                        <p className="font-semibold text-slate-800">{edu.school_name}</p>
-                                                                        <p className="text-slate-500">{edu.degree} {edu.field_of_study && `— ${edu.field_of_study}`}</p>
-                                                                    </div>
-                                                                ))}
-                                                                {section.key === 'skills' && (
-                                                                    <div className="flex flex-wrap gap-1.5">
-                                                                        {section.items.map((skill: any, i: number) => (
-                                                                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-slate-100 text-xs font-medium text-slate-700">
-                                                                                {skill.name}
-                                                                                {skill.proficiency_level && <span className="ml-1 text-slate-400">• {skill.proficiency_level}</span>}
-                                                                            </span>
-                                                                        ))}
-                                                                    </div>
-                                                                )}
-                                                                {section.key === 'certifications' && section.items.map((cert: any, i: number) => (
-                                                                    <div key={i} className="text-xs bg-white p-3 rounded-xl border border-slate-100">
-                                                                        <p className="font-semibold text-slate-800">{cert.name}</p>
-                                                                        <p className="text-slate-500">{cert.issuing_organization}</p>
-                                                                    </div>
-                                                                ))}
-                                                                {section.key === 'languages' && (
-                                                                    <div className="flex flex-wrap gap-1.5">
-                                                                        {section.items.map((lang: any, i: number) => (
-                                                                            <span key={i} className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white border border-slate-100 text-xs font-medium text-slate-700">
-                                                                                {lang.name} <span className="ml-1 text-slate-400">• {lang.proficiency_level}</span>
-                                                                            </span>
-                                                                        ))}
-                                                                    </div>
-                                                                )}
-                                                                {section.key === 'projects' && section.items.map((proj: any, i: number) => (
-                                                                    <div key={i} className="text-xs bg-white p-3 rounded-xl border border-slate-100">
-                                                                        <p className="font-semibold text-slate-800">{proj.name}</p>
-                                                                        {proj.description && <p className="text-slate-500 line-clamp-2">{proj.description}</p>}
-                                                                        {proj.technologies?.length > 0 && <p className="text-violet-500 mt-0.5">{proj.technologies.join(', ')}</p>}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-                                            </div>
-                                        );
-                                    })
-                                )}
+                                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                                    <CheckCircle2 className="h-8 w-8" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-900">Phân tích CV thành công</h3>
+                                <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
+                                    AI có thể sai sót, hãy kiểm tra lại hồ sơ sau khi cập nhật.
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -724,22 +742,12 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                 {/* Footer */}
                 <div className="p-6 pt-4 border-t border-slate-100 shrink-0">
                     {step === 'upload' && (
-                        <div className="flex gap-3">
-                            <button
-                                onClick={handleClose}
-                                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-                            >
-                                Huỷ
-                            </button>
-                            <button
-                                onClick={handleUploadAndParse}
-                                disabled={!selectedFile}
-                                className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-bold hover:from-violet-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
-                            >
-                                <FileUp className="w-4 h-4" />
-                                Phân tích CV
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleClose}
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                            Huỷ
+                        </button>
                     )}
 
                     {step === 'processing' && (
@@ -752,39 +760,27 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                     )}
 
                     {step === 'review' && (
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => {
-                                    setStep('upload');
-                                    setSelectedFile(null);
-                                    setParsedData(null);
-                                    setSections([]);
-                                }}
-                                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-                            >
-                                Tải CV khác
-                            </button>
-                            <button
-                                onClick={handleApply}
-                                disabled={isApplying || sections.filter(s => s.checked).length === 0}
-                                className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-bold hover:from-emerald-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
-                            >
-                                {isApplying ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Đang cập nhật...
-                                    </>
-                                ) : (
-                                    <>
-                                        <CheckCircle2 className="w-4 h-4" />
-                                        Cập nhật hồ sơ
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleApply}
+                            disabled={isApplying || sections.filter(s => s.checked).length === 0}
+                            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-bold hover:from-emerald-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
+                        >
+                            {isApplying ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Đang cập nhật...
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    Đồng ý
+                                </>
+                            )}
+                        </button>
                     )}
                 </div>
             </motion.div>
-        </div>
+        </div>,
+        document.body
     );
 };

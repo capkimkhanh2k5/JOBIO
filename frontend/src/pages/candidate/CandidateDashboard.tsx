@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
+import { PROFILE_RECOMMENDATION_MIN_SCORE } from '@/lib/jobRecommendationPolicy';
 
 const STATUS_LABEL_MAP: Record<string, string> = {
     pending: 'Mới gửi',
@@ -67,10 +68,16 @@ export default function CandidateDashboard() {
     const profileCompleteness = profileData
         ? { score: profileData.score ?? profileData.profile_completeness_score ?? 0, checklist: profileData.checklist ?? [] }
         : undefined;
+    const canUseProfileRecommendations = (profileCompleteness?.score ?? 0) >= PROFILE_RECOMMENDATION_MIN_SCORE;
 
     const { data: recommendedJobs, isLoading: loadingRecommended } = useQuery({
-        queryKey: ['candidate', 'jobs', 'featured'],
-        queryFn: () => jobService.featured({ page_size: 5 }).then(r => r.data),
+        queryKey: ['candidate', 'jobs', canUseProfileRecommendations ? 'recommendations' : 'featured', user?.id],
+        queryFn: () => (
+            canUseProfileRecommendations
+                ? jobService.recommendations({ page_size: 5 })
+                : jobService.featured({ page_size: 5 })
+        ).then(r => r.data),
+        enabled: isCandidate && !!profileCompleteness,
     });
 
     const { data: applications, isLoading: loadingApps } = useQuery({
@@ -339,7 +346,7 @@ export default function CandidateDashboard() {
                     {/* RIGHT COLUMN */}
                     <div className="md:col-span-4 space-y-6">
 
-                        {/* AI Recommended Jobs */}
+                        {/* Job Recommendations / Featured fallback */}
                         <motion.div variants={itemVariants}>
                             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
                                 <div className="flex items-center justify-between mb-4">
@@ -348,8 +355,14 @@ export default function CandidateDashboard() {
                                             <Sparkles className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-base text-slate-900">Gợi ý việc làm</h3>
-                                            <p className="text-xs text-slate-500 mt-0.5">Phù hợp với hồ sơ của bạn</p>
+                                            <h3 className="font-bold text-base text-slate-900">
+                                                {canUseProfileRecommendations ? 'Gợi ý việc làm' : 'Việc làm nổi bật'}
+                                            </h3>
+                                            <p className="text-xs text-slate-500 mt-0.5">
+                                                {canUseProfileRecommendations
+                                                    ? `Dựa trên hồ sơ đã hoàn thiện ${profileCompleteness?.score ?? 0}%`
+                                                    : `Hoàn thiện hồ sơ tối thiểu ${PROFILE_RECOMMENDATION_MIN_SCORE}% để cá nhân hóa gợi ý`}
+                                            </p>
                                         </div>
                                     </div>
                                     <Link to="/candidate/suggested-jobs" className="text-slate-400 hover:text-violet-600 transition-colors">

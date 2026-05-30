@@ -89,18 +89,18 @@ export default function Moderation() {
             </motion.div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {statCards.map((stat, i) => (
-                    <motion.div key={stat.label} {...fadeUp(0.05 + i * 0.05)} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
-                        <div className="relative">
-                            <div className="mb-4">
-                                <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color} shadow-inner`}>
-                                    <stat.icon className="w-6 h-6" />
-                                </div>
+                    <motion.div key={stat.label} {...fadeUp(0.05 + i * 0.05)} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 -mr-4 -mt-4 w-20 h-20 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
+                        <div className="relative flex items-center gap-3.5">
+                            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color} shadow-inner shrink-0`}>
+                                <stat.icon className="w-5 h-5" />
                             </div>
-                            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{stat.label}</p>
-                            <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stat.value.toLocaleString('vi-VN')}</h3>
+                            <div className="min-w-0">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{stat.label}</p>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">{stat.value.toLocaleString('vi-VN')}</h3>
+                            </div>
                         </div>
                     </motion.div>
                 ))}

@@ -271,6 +271,7 @@ class RecruiterViewTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertIn("không giống CV/Resume", response.data["detail"])
 
     def test_get_stats(self):
         """Test GET /api/candidates/:id/stats"""

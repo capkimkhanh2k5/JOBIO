@@ -215,7 +215,10 @@ class RecruiterViewSet(viewsets.GenericViewSet):
             if not parsed_data:
                 return Response(
                     {
-                        "detail": "Could not extract data from the PDF. The file may be empty, corrupted, or image-only without OCR support."
+                        "detail": (
+                            "PDF này không giống CV/Resume hoặc không thể trích xuất "
+                            "dữ liệu hồ sơ từ file đã tải lên."
+                        )
                     },
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 )

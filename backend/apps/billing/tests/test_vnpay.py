@@ -9,7 +9,8 @@ import urllib.parse
 from django.conf import settings
 from django.test import override_settings
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
@@ -97,10 +98,13 @@ class TestVNPayIntegration(APITestCase):
     def test_query_vnpay_transaction_uses_configured_url(self, mock_post):
         """QueryDR uses configured URL instead of hardcoded sandbox URL."""
         mock_post.return_value.json.return_value = {"vnp_ResponseCode": "00"}
-        Transaction.objects.create(
+        txn = Transaction.objects.create(
             company=self.company_profile,
             amount=self.plan.price,
             reference_code="ORDER_QUERY_URL_TEST",
+        )
+        Transaction.objects.filter(id=txn.id).update(
+            created_at=datetime(2026, 1, 1, 18, 30, 0, tzinfo=ZoneInfo("UTC"))
         )
 
         result = VNPayService.query_vnpay_transaction("ORDER_QUERY_URL_TEST")
@@ -110,6 +114,9 @@ class TestVNPayIntegration(APITestCase):
         self.assertEqual(
             mock_post.call_args.args[0], "https://vnpay.example.test/query"
         )
+        payload = mock_post.call_args.kwargs["json"]
+        self.assertEqual(payload["vnp_TransactionDate"], "20260102013000")
+        self.assertRegex(payload["vnp_CreateDate"], r"^\d{14}$")
 
     def test_subscribe_api_auto_creates_payment_method(self):
         """Test that subscribe API auto-seeds 'vnpay' payment method"""

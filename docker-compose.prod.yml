@@ -12,6 +12,8 @@ services:
       - ./backend/.env.production
     environment:
       - DEBUG=0
+      - TZ=Asia/Ho_Chi_Minh
+      - DJANGO_TIME_ZONE=Asia/Ho_Chi_Minh
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DB_HOST=postgres
@@ -51,6 +53,8 @@ services:
       - ./backend/.env.production
     environment:
       - DEBUG=0
+      - TZ=Asia/Ho_Chi_Minh
+      - DJANGO_TIME_ZONE=Asia/Ho_Chi_Minh
       - REDIS_HOST=redis
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -79,6 +83,8 @@ services:
       - ./backend/.env.production
     environment:
       - DEBUG=0
+      - TZ=Asia/Ho_Chi_Minh
+      - DJANGO_TIME_ZONE=Asia/Ho_Chi_Minh
       - REDIS_HOST=redis
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -107,6 +113,9 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env.production
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - PGTZ=Asia/Ho_Chi_Minh
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER:-postgres}\" -d \"$${POSTGRES_DB:-postgres}\"" ]
       interval: 10s

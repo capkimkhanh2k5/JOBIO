@@ -9,7 +9,17 @@ const venvPython = path.join(backendDir, '.venv/bin/python');
 const python = process.env.E2E_BACKEND_PYTHON ?? (existsSync(venvPython) ? venvPython : 'python');
 
 export default async function globalSetup() {
-  const env = { ...process.env, DEBUG: '1' };
+  const env = {
+    ...process.env,
+    DEBUG: '1',
+    CELERY_BROKER_URL: 'memory://',
+    CELERY_RESULT_BACKEND: 'cache+memory://',
+  };
+  execFileSync(python, ['manage.py', 'migrate', '--noinput'], {
+    cwd: backendDir,
+    stdio: 'inherit',
+    env,
+  });
   execFileSync(python, ['manage.py', 'seed_cv_blog_e2e', '--reset'], {
     cwd: backendDir,
     stdio: 'inherit',

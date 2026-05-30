@@ -151,6 +151,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<CertEntry | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: certifications = [], isLoading } = useQuery({
         queryKey: ['certifications', userId],
@@ -195,7 +196,9 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group"
+                                className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start"
+                                onMouseEnter={() => setHoveredId(String(cert.id))}
+                                onMouseLeave={() => setHoveredId(null)}
                             >
                                 <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
                                     <Award className="w-6 h-6 text-violet-600" />
@@ -210,7 +213,7 @@ export const CertificationsSection = ({ userId }: { userId: number }) => {
                                                 {cert.issuing_organization}
                                             </p>
                                         </div>
-                                        <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex gap-1 shrink-0 transition-opacity" style={{ opacity: hoveredId === String(cert.id) ? 1 : 0, pointerEvents: hoveredId === String(cert.id) ? 'auto' : 'none' }}>
                                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                 onClick={() => { setEditEntry(cert); setDialogOpen(true); }}>
                                                 <Pencil className="w-3.5 h-3.5" />

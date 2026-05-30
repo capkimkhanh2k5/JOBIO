@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Award, TrendingUp, Pencil, Users } from 'lucide-react';
+import { SkillIcon } from '@/components/ui/SkillIcon';
 import { Button } from '@/components/ui/button';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -109,8 +110,8 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
     const [searchValue, setSearchValue] = useState('');
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editSkill, setEditSkill] = useState<SkillEntry | null>(null);
-    const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [addSkillInfo, setAddSkillInfo] = useState<{ id: number | null; name: string } | null>(null);
+    // Track which skill chip is currently hovered (by id)
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: skills = [], isLoading } = useQuery({
         queryKey: ['skills', userId],
@@ -141,13 +142,35 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
         }
     });
 
+    // Direct-add mutation — skips the confirmation dialog
+    const addMutation = useMutation({
+        mutationFn: (info: { id: number | null; name: string }) => {
+            const payload: any = {
+                proficiency_level: 'intermediate',
+                years_of_experience: 0,
+            };
+            if (info.id) {
+                payload.skill_id = Number(info.id);
+            } else {
+                payload.skill_name = info.name;
+            }
+            return candidateService.addSkill(Number(userId), payload).then(r => r.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['skills', userId] });
+            queryClient.invalidateQueries({ queryKey: ['profile-completeness'] });
+            toast.success('Đã thêm kỹ năng!');
+        },
+        onError: () => toast.error('Không thể thêm kỹ năng.')
+    });
+
     const handleSelectSearchResult = (skill: any) => {
         const skillName = (skill.name || '').trim();
         if (!skillName) return;
         setSearchOpen(false);
         setSearchValue('');
-        setAddSkillInfo({ id: skill.id, name: skillName });
-        setAddDialogOpen(true);
+        // Add skill directly — no confirmation dialog
+        addMutation.mutate({ id: skill.id, name: skillName });
     };
 
 
@@ -161,10 +184,11 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
 
     return (
         <SectionWrapper title="Kỹ năng" id="skills">
-            <div className="space-y-6">
-                <div className="flex flex-wrap gap-3">
+            <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
                     <AnimatePresence>
                         {(skills as any[]).map((skill) => {
+                            const isHovered = hoveredId === String(skill.id);
                             return (
                                 <motion.div
                                     key={skill.id}
@@ -173,7 +197,9 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     animate={{ scale: 1, opacity: 1 }}
                                     exit={{ scale: 0.85, opacity: 0 }}
                                     whileHover={{ scale: 1.03, y: -2 }}
-                                    className="bg-white border border-slate-200 shadow-sm p-4 rounded-2xl flex items-center gap-3 group relative overflow-hidden cursor-default select-none"
+                                    onMouseEnter={() => setHoveredId(String(skill.id))}
+                                    onMouseLeave={() => setHoveredId(null)}
+                                    className="bg-white border border-slate-200 shadow-sm px-3 py-2 rounded-xl flex items-center gap-2 relative overflow-hidden cursor-default select-none"
                                 >
                                     {/* Verified badge */}
                                     {skill.is_verified && (
@@ -182,8 +208,11 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                         </div>
                                     )}
 
-                                    <div className="min-w-0 pr-2">
-                                        <h4 className="font-semibold text-[15px] truncate text-slate-800">{skill.skill_name || skill.name}</h4>
+                                    {/* Skill icon */}
+                                    <SkillIcon skillName={skill.skill_name || skill.name || ''} size={22} />
+
+                                    <div className="min-w-0">
+                                        <h4 className="font-semibold text-sm truncate text-slate-800">{skill.skill_name || skill.name}</h4>
                                         {skill.endorsement_count > 0 && (
                                             <div className="mt-1">
                                                 <span className="text-[10px] text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 w-fit font-medium">
@@ -194,7 +223,10 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                         )}
                                     </div>
 
-                                    <div className="flex gap-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div
+                                        className="flex gap-1 ml-1 transition-opacity duration-150"
+                                        style={{ opacity: isHovered ? 1 : 0, pointerEvents: isHovered ? 'auto' : 'none' }}
+                                    >
                                         <button className="p-1 hover:text-violet-600 transition-colors rounded"
                                             onClick={() => { setEditSkill(skill); setEditDialogOpen(true); }}
                                             aria-label="Chỉnh sửa kỹ năng">
@@ -215,7 +247,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                     <Popover open={searchOpen} onOpenChange={setSearchOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline"
-                                className="h-[64px] px-5 rounded-2xl border-dashed border-2 hover:border-violet-600 hover:text-violet-600 transition-all">
+                                className="h-auto py-2 px-4 rounded-xl border-dashed border-2 hover:border-violet-600 hover:text-violet-600 transition-all">
                                 <Plus className="w-5 h-5 mr-2" />
                                 Thêm kỹ năng
                             </Button>
@@ -248,6 +280,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                                 onSelect={() => handleSelectSearchResult(s)}
                                                 className="cursor-pointer hover:bg-violet-100"
                                             >
+                                                <SkillIcon skillName={s.name || ''} size={20} className="mr-2" />
                                                 {s.name}
                                             </CommandItem>
                                         ))}
@@ -270,20 +303,12 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                 </div>
             </div>
 
-            {/* Edit skill dialog */}
+            {/* Edit skill dialog (only for editing existing skills) */}
             <SkillEditDialog
                 open={editDialogOpen}
                 onClose={() => { setEditDialogOpen(false); setEditSkill(null); }}
                 skill={editSkill}
                 userId={userId}
-            />
-            {/* Add new skill dialog */}
-            <SkillEditDialog
-                open={addDialogOpen}
-                onClose={() => { setAddDialogOpen(false); setAddSkillInfo(null); }}
-                skill={null}
-                userId={userId}
-                selectedSkillInfo={addSkillInfo}
             />
         </SectionWrapper>
     );

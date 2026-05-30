@@ -212,7 +212,7 @@ def cleanup_expired_subscriptions():
     Quét các gói dịch vụ ACTIVE đã quá hạn (end_date < today)
     và chuyển sang trạng thái EXPIRED, đồng thời gỡ nhãn featured của các jobs.
     """
-    now = timezone.now().date()
+    now = timezone.localdate()
     expired_subs = CompanySubscription.objects.filter(
         status=CompanySubscription.Status.ACTIVE, end_date__lt=now
     )
