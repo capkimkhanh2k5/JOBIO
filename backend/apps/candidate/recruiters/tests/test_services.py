@@ -2,6 +2,7 @@ from django.test import TestCase
 from apps.core.users.models import CustomUser
 from apps.candidate.recruiters.models import Recruiter
 from apps.geography.addresses.models import Address
+from apps.geography.communes.models import Commune
 from apps.geography.provinces.models import Province
 from apps.candidate.recruiters.services.recruiters import (
     create_recruiter_service,
@@ -112,6 +113,72 @@ class RecruiterServiceTest(TestCase):
         recruiter.refresh_from_db()
         self.assertIsNotNone(recruiter.address)
         self.assertEqual(recruiter.address.province_id, province.id)
+
+    def test_update_recruiter_address_resolves_commune_from_unaccented_cv_address(self):
+        province = Province.objects.create(
+            province_name="Đà Nẵng",
+            province_type="municipality",
+            region="central",
+            is_active=True,
+        )
+        commune = Commune.objects.create(
+            province=province,
+            commune_name="Phường Hòa Khánh Bắc - Quận Liên Chiểu (Đà Nẵng)",
+            commune_type=Commune.CommuneType.WARD,
+            is_active=True,
+        )
+        Commune.objects.create(
+            province=province,
+            commune_name="Phường Hòa Khánh Nam - Quận Liên Chiểu (Đà Nẵng)",
+            commune_type=Commune.CommuneType.WARD,
+            is_active=True,
+        )
+        recruiter = Recruiter.objects.create(user=self.user)
+
+        data = RecruiterInput(
+            address={
+                "province": "Danang",
+                "commune": "Lien Chieu",
+                "address_line": "Hoa Khanh Bac, Lien Chieu, Danang",
+            }
+        )
+        update_recruiter_service(recruiter, data)
+
+        recruiter.refresh_from_db()
+        self.assertIsNotNone(recruiter.address)
+        self.assertEqual(recruiter.address.province_id, province.id)
+        self.assertEqual(recruiter.address.commune_id, commune.id)
+
+    def test_update_recruiter_address_does_not_guess_ambiguous_district_as_commune(
+        self,
+    ):
+        province = Province.objects.create(
+            province_name="Đà Nẵng",
+            province_type="municipality",
+            region="central",
+            is_active=True,
+        )
+        Commune.objects.create(
+            province=province,
+            commune_name="Phường Hòa Khánh Bắc - Quận Liên Chiểu (Đà Nẵng)",
+            commune_type=Commune.CommuneType.WARD,
+            is_active=True,
+        )
+        Commune.objects.create(
+            province=province,
+            commune_name="Phường Hòa Khánh Nam - Quận Liên Chiểu (Đà Nẵng)",
+            commune_type=Commune.CommuneType.WARD,
+            is_active=True,
+        )
+        recruiter = Recruiter.objects.create(user=self.user)
+
+        data = RecruiterInput(address={"province": "Danang", "commune": "Lien Chieu"})
+        update_recruiter_service(recruiter, data)
+
+        recruiter.refresh_from_db()
+        self.assertIsNotNone(recruiter.address)
+        self.assertEqual(recruiter.address.province_id, province.id)
+        self.assertIsNone(recruiter.address.commune_id)
 
     def test_update_recruiter_address_resolves_saigon_alias_to_db_province(self):
         province = Province.objects.create(

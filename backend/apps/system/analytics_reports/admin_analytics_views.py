@@ -75,7 +75,7 @@ def user_growth(request):
     months = _parse_limited_int(
         request.query_params.get("months", 7), default=7, min_value=1, max_value=12
     )
-    now = timezone.now()
+    now = timezone.localtime()
     months_seq = _month_sequence(now, months)
     start_year, start_month = months_seq[0]
     start = now.replace(
@@ -161,7 +161,7 @@ def revenue_trend(request):
     days = _parse_limited_int(
         request.query_params.get("days", 7), default=7, min_value=1, max_value=30
     )
-    now = timezone.now()
+    now = timezone.localtime()
     start = now - timedelta(days=days - 1)
 
     qs = (
@@ -217,7 +217,7 @@ def application_stats(request):
     ).count()
 
     # Mới trong 30 ngày
-    thirty_days_ago = timezone.now() - timedelta(days=30)
+    thirty_days_ago = timezone.localtime() - timedelta(days=30)
     new_30d = Application.objects.filter(applied_at__gte=thirty_days_ago).count()
 
     # Interviews
@@ -376,7 +376,7 @@ def admin_overview_stats(request):
     GET /api/analytics/overview/
     Thống kê tổng quan nhanh cho Dashboard (mở rộng từ stats hiện có).
     """
-    now = timezone.now()
+    now = timezone.localtime()
     thirty_ago = now - timedelta(days=30)
 
     return Response(

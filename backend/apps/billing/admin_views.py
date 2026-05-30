@@ -126,7 +126,7 @@ class AdminFinancialViewSet(viewsets.ReadOnlyModelViewSet):
                 | Q(plan__name__icontains=search)
             )
 
-        now_date = timezone.now().date()
+        now_date = timezone.localdate()
 
         def map_item(sub):
             days_left = (sub.end_date - now_date).days

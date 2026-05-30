@@ -38,6 +38,7 @@ MAX_TEXT_CHARS = 15_000
 MAX_PDF_PAGES = 3
 MIN_LLM_TEXT_LENGTH = 50
 DEFAULT_MAX_OUTPUT_TOKENS = 8192
+DEFAULT_MODERATION_MAX_OUTPUT_TOKENS = 1024
 
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 DATE_RE = re.compile(r"^\d{4}(-\d{2}){0,2}$")
@@ -65,17 +66,20 @@ JSON SCHEMA BẮT BUỘC:
     "email": "string",
     "phone": "string",
     "current_position": "string (vị trí/chức danh hiện tại hoặc gần nhất)",
-    "bio": "string (BẮT BUỘC trích xuất toàn bộ mục giới thiệu bản thân / tóm tắt / mục tiêu nghề nghiệp / profile)",
+    "bio": "string (BẮT BUỘC viết bằng tiếng Việt; trích xuất và dịch toàn bộ mục giới thiệu bản thân / tóm tắt / mục tiêu nghề nghiệp / profile nếu CV dùng ngôn ngữ khác)",
     "years_of_experience": null
   },
   "location": {
+    "address_line": "string (địa chỉ cụ thể/raw address nếu có; không dùng để chứa riêng tỉnh/thành phố)",
+    "province": "string (tỉnh/thành phố của Việt Nam nếu xác định được, ví dụ: Đà Nẵng, Hà Nội, TP. Hồ Chí Minh)",
+    "commune": "string (phường/xã/thị trấn nếu xác định được; không điền quận/huyện vào trường này)",
     "city": "string",
     "country": "string"
   },
   "links": {
-    "linkedin": "string",
-    "github": "string",
-    "portfolio": "string"
+    "linkedin": "string (URL đầy đủ bắt đầu bằng https:// nếu có)",
+    "github": "string (URL đầy đủ bắt đầu bằng https:// nếu có)",
+    "portfolio": "string (URL đầy đủ bắt đầu bằng https:// nếu có)"
   },
   "skills": [
     {
@@ -127,7 +131,7 @@ JSON SCHEMA BẮT BUỘC:
   ],
   "languages": [
     {
-      "name": "string",
+      "name": "string (BẮT BUỘC dùng tên tiếng Anh chuẩn: Vietnamese, English, Japanese, Korean, Chinese, French, German, v.v. Ví dụ: 'Tiếng Việt' → 'Vietnamese', 'Tiếng Anh' → 'English')",
       "proficiency_level": "basic|intermediate|advanced|native"
     }
   ]
@@ -189,6 +193,16 @@ def _max_output_tokens() -> int:
     return (
         _setting_int("GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS)
         or DEFAULT_MAX_OUTPUT_TOKENS
+    )
+
+
+def _max_moderation_output_tokens() -> int:
+    return (
+        _setting_int(
+            "GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS",
+            DEFAULT_MODERATION_MAX_OUTPUT_TOKENS,
+        )
+        or DEFAULT_MODERATION_MAX_OUTPUT_TOKENS
     )
 
 
@@ -270,10 +284,20 @@ class PersonalData(CVSchemaModel):
 
 
 class LocationData(CVSchemaModel):
+    address_line: str = ""
+    province: str = ""
+    commune: str = ""
     city: str = ""
     country: str = ""
 
-    @field_validator("city", "country", mode="before")
+    @field_validator(
+        "address_line",
+        "province",
+        "commune",
+        "city",
+        "country",
+        mode="before",
+    )
     @classmethod
     def clean_location_text(cls, value: Any) -> str:
         return _clean_text(value, 255)
@@ -708,9 +732,9 @@ def _moderate_cv_text(client: Groq, raw_text: str, user_identifier: str) -> None
         # Groq safeguard moderation is implemented as a chat completion. Groq
         # has no client.moderations.create(), and max_tokens is deprecated.
         create_completion = _groq_completion_create(client)
-        completion = create_completion(
-            model=moderation_model,
-            messages=[
+        kwargs = {
+            "model": moderation_model,
+            "messages": [
                 {"role": "system", "content": CV_MODERATION_SYSTEM_PROMPT},
                 {
                     "role": "user",
@@ -720,12 +744,16 @@ def _moderate_cv_text(client: Groq, raw_text: str, user_identifier: str) -> None
                     ),
                 },
             ],
-            max_completion_tokens=128,
-            response_format={"type": "json_object"},
-            temperature=0,
-            stream=False,
-            user=user_identifier,
-        )
+            "max_completion_tokens": _max_moderation_output_tokens(),
+            "response_format": {"type": "json_object"},
+            "temperature": 0,
+            "stream": False,
+            "user": user_identifier,
+        }
+        if "gpt-oss" in moderation_model:
+            kwargs["reasoning_effort"] = "low"
+
+        completion = create_completion(**kwargs)
         message = completion.choices[0].message
         content = getattr(message, "content", None)
         moderation_result = json.loads(content or "{}")
@@ -877,6 +905,29 @@ def _normalize_parsed_data(data: dict) -> dict:
     return parsed
 
 
+def _has_cv_semantic_signal(data: dict) -> bool:
+    """Return True when parsed data contains enough resume-like information."""
+    personal = data.get("personal") or {}
+    personal_signal_count = sum(
+        1
+        for key in ("full_name", "email", "phone", "current_position", "bio")
+        if _clean_text(personal.get(key), 20)
+    )
+    section_item_count = sum(
+        len(data.get(key) or [])
+        for key in (
+            "skills",
+            "education",
+            "experience",
+            "certifications",
+            "projects",
+            "languages",
+        )
+    )
+
+    return section_item_count > 0 or personal_signal_count >= 2
+
+
 # ---------------------------------------------------------------------------
 # Main Pipeline
 # ---------------------------------------------------------------------------
@@ -911,13 +962,16 @@ def process_cv_pdf(file_bytes: bytes, user_identifier: Optional[str] = None) -> 
     # Step 2: Parse with LLM
     cv_data = parse_cv_with_llm(raw_text, user_identifier=user_identifier)
 
-    if cv_data:
+    if cv_data and _has_cv_semantic_signal(cv_data):
         skill_count = len(cv_data.get("skills", []))
         exp_count = len(cv_data.get("experience", []))
         logger.info(
             f"CV parsed successfully: "
             f"{skill_count} skills, {exp_count} experiences extracted"
         )
+    elif cv_data:
+        logger.warning("Parsed PDF does not contain enough resume-like information")
+        return {}
     else:
         logger.warning("LLM parsing returned empty result")
 

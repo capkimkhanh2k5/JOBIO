@@ -77,9 +77,7 @@ test('suggested jobs auto-select a CV and quick apply uses that CV', async ({ pa
   await page.goto('/candidate/suggested-jobs');
   await suggestionsPromise;
 
-  const jobCard = page
-    .getByRole('heading', { name: 'E2E Python Developer' })
-    .locator('xpath=ancestor::div[contains(@class, "rounded-3xl")][1]');
+  const jobCard = page.getByRole('article', { name: /Gợi ý việc làm E2E Python Developer/ });
   await expect(jobCard).toBeVisible();
   await expect(jobCard.getByText(/Match \d+%/)).toBeVisible();
   await expect(jobCard.getByText(/kỹ năng phù hợp/)).toBeVisible();

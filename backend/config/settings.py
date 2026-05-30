@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 import re
+import time
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -260,7 +261,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = os.getenv("DJANGO_TIME_ZONE", "Asia/Ho_Chi_Minh")
+os.environ["TZ"] = TIME_ZONE
+if hasattr(time, "tzset"):
+    time.tzset()
 
 USE_I18N = True
 
@@ -455,6 +459,9 @@ GROQ_CV_PARSER_FALLBACK_MODEL = os.getenv(
 GROQ_CV_MODERATION_ENABLED = env_bool("GROQ_CV_MODERATION_ENABLED", default=True)
 GROQ_CV_MODERATION_MODEL = os.getenv(
     "GROQ_CV_MODERATION_MODEL", "openai/gpt-oss-safeguard-20b"
+)
+GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS = env_int(
+    "GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS", 1024
 )
 GROQ_CV_PARSER_MAX_INPUT_CHARS = env_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", 15000)
 GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int("GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 8192)

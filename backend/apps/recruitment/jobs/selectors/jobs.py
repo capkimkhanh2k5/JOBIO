@@ -20,7 +20,7 @@ def _as_list(value):
 
 
 def _with_active_featured(queryset: QuerySet[Job]) -> QuerySet[Job]:
-    today = timezone.now().date()
+    today = timezone.localdate()
     return queryset.annotate(
         active_featured=Case(
             When(
@@ -35,12 +35,12 @@ def _with_active_featured(queryset: QuerySet[Job]) -> QuerySet[Job]:
 
 
 def _not_deadline_expired_q():
-    today = timezone.now().date()
+    today = timezone.localdate()
     return Q(application_deadline__isnull=True) | Q(application_deadline__gte=today)
 
 
 def _expired_job_q():
-    today = timezone.now().date()
+    today = timezone.localdate()
     return Q(status=Job.Status.EXPIRED) | (
         Q(status=Job.Status.PUBLISHED)
         & Q(application_deadline__isnull=False)
@@ -333,7 +333,7 @@ def list_urgent_jobs(days: int = 7) -> QuerySet[Job]:
     Deadline trong N ngày tới, status=published
     """
 
-    deadline_threshold = timezone.now().date() + timedelta(days=days)
+    deadline_threshold = timezone.localdate() + timedelta(days=days)
 
     return (
         _active_published_jobs(Job.objects.all())

@@ -232,6 +232,7 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<ExperienceEntry | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: experiences = [], isLoading } = useQuery({
         queryKey: ['experience', userId],
@@ -281,9 +282,11 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
-                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group select-none cursor-default"
+                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start select-none cursor-default"
+                                    onMouseEnter={() => setHoveredId(String(exp.id))}
+                                    onMouseLeave={() => setHoveredId(null)}
                                 >
-                                    <div className="mt-1.5 text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="mt-1.5 text-muted-foreground cursor-grab active:cursor-grabbing transition-opacity" style={{ opacity: hoveredId === String(exp.id) ? 1 : 0 }}>
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
@@ -294,13 +297,13 @@ export const ExperienceSection = ({ userId }: { userId: number }) => {
                                     <div className="flex-1 space-y-1.5 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
-                                                <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors">{exp.job_title}</h3>
+                                                <h3 className="text-base font-bold transition-colors" style={{ color: hoveredId === String(exp.id) ? 'rgb(124 58 237)' : undefined }}>{exp.job_title}</h3>
                                                 <p className="text-sm text-violet-500 font-medium flex items-center gap-1.5">
                                                     <Building2 className="w-3.5 h-3.5" /> {exp.company_name}
                                                     {exp.industry_name && <span className="text-muted-foreground">· {exp.industry_name}</span>}
                                                 </p>
                                             </div>
-                                            <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-1 shrink-0 transition-opacity" style={{ opacity: hoveredId === String(exp.id) ? 1 : 0, pointerEvents: hoveredId === String(exp.id) ? 'auto' : 'none' }}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => { setEditEntry(exp); setDialogOpen(true); }}>
                                                     <Pencil className="w-3.5 h-3.5" />

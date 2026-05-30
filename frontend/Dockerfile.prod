@@ -21,7 +21,7 @@ ARG VITE_SYSTEM_LOGO_URL=https://res.cloudinary.com/dbkxwc5gr/image/upload/v1773
 ENV VITE_SYSTEM_LOGO_URL=$VITE_SYSTEM_LOGO_URL
 
 
-RUN test -n "$VITE_GOOGLE_CLIENT_ID" || (echo "VITE_GOOGLE_CLIENT_ID is required" && exit 1)
+RUN node -e "if (!process.env.VITE_GOOGLE_CLIENT_ID) { console.error('VITE_GOOGLE_CLIENT_ID is required'); process.exit(1) }"
 RUN npm run build
 
 # ──────────────────────────────────────────────

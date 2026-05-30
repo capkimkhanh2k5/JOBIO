@@ -2,6 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 
 const frontendUrl = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
 const apiUrl = process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:8011';
+const backendEnv = {
+  ...process.env,
+  CORS_ALLOWED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
+  CSRF_TRUSTED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
+  CELERY_BROKER_URL: 'memory://',
+  CELERY_RESULT_BACKEND: 'cache+memory://',
+};
 
 export default defineConfig({
   testDir: './e2e',
@@ -21,14 +28,10 @@ export default defineConfig({
   webServer: [
     {
       command: 'cd ../backend && DEBUG=1 .venv/bin/python manage.py runserver 127.0.0.1:8011',
-      url: `${apiUrl}/api/blog/posts/`,
+      url: `${apiUrl}/health/`,
       reuseExistingServer: true,
       timeout: 120_000,
-      env: {
-        ...process.env,
-        CORS_ALLOWED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
-        CSRF_TRUSTED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
-      },
+      env: backendEnv,
     },
     {
       command: 'npm run dev -- --host localhost --port 5173',

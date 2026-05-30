@@ -77,6 +77,13 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
     };
 
     const isUploadingAvatar = avatarMutation.isPending;
+    const provinceLabel = profile?.address?.province_name || profile?.address?.province;
+    const socialLinks = {
+        linkedin: profile?.linkedin_url || profile?.social_links?.linkedin,
+        github: profile?.github_url || profile?.social_links?.github,
+        facebook: profile?.facebook_url || profile?.social_links?.facebook,
+        portfolio: profile?.portfolio_url || profile?.social_links?.portfolio,
+    };
 
     return (
         <>
@@ -170,10 +177,10 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                                     {profile?.user?.phone || profile?.phone}
                                 </a>
                             )}
-                            {profile?.address?.province && (
+                            {provinceLabel && (
                                 <div className="flex items-center gap-2 text-violet-500">
                                     <MapPin className="w-4 h-4" />
-                                    {profile.address.province}
+                                    {provinceLabel}
                                 </div>
                             )}
                             {profile?.years_of_experience > 0 && (
@@ -184,29 +191,29 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                         </div>
 
                         <div className="flex gap-2 flex-wrap">
-                            {profile?.social_links?.linkedin && (
-                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={profile.social_links.linkedin} target="_blank" rel="noreferrer"
+                            {socialLinks.linkedin && (
+                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.linkedin} target="_blank" rel="noreferrer"
                                     className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-[#0077b5] hover:border-[#0077b5]/30 hover:bg-blue-50 transition-all text-slate-600"
                                     aria-label="LinkedIn">
                                     <Linkedin className="w-4 h-4" />
                                 </motion.a>
                             )}
-                            {profile?.social_links?.github && (
-                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={profile.social_links.github} target="_blank" rel="noreferrer"
+                            {socialLinks.github && (
+                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.github} target="_blank" rel="noreferrer"
                                     className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-slate-900 hover:bg-slate-100 transition-all text-slate-600"
                                     aria-label="GitHub">
                                     <Github className="w-4 h-4" />
                                 </motion.a>
                             )}
-                            {profile?.social_links?.facebook && (
-                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={profile.social_links.facebook} target="_blank" rel="noreferrer"
+                            {socialLinks.facebook && (
+                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.facebook} target="_blank" rel="noreferrer"
                                     className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-[#1877f2] hover:border-[#1877f2]/30 hover:bg-blue-50 transition-all text-slate-600"
                                     aria-label="Facebook">
                                     <Facebook className="w-4 h-4" />
                                 </motion.a>
                             )}
-                            {profile?.social_links?.portfolio && (
-                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={profile.social_links.portfolio} target="_blank" rel="noreferrer"
+                            {socialLinks.portfolio && (
+                                <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.portfolio} target="_blank" rel="noreferrer"
                                     className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-violet-600 hover:border-violet-200 hover:bg-violet-50 transition-all text-slate-600"
                                     aria-label="Portfolio">
                                     <Globe className="w-4 h-4" />

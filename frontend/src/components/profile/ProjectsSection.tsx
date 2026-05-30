@@ -158,6 +158,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
     const queryClient = useQueryClient();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editEntry, setEditEntry] = useState<ProjectEntry | null>(null);
+    const [hoveredId, setHoveredId] = useState<string | null>(null);
 
     const { data: projects = [], isLoading } = useQuery({
         queryKey: ['projects', userId],
@@ -206,12 +207,14 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start group select-none cursor-default relative overflow-hidden"
+                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start select-none cursor-default relative overflow-hidden"
+                                    onMouseEnter={() => setHoveredId(String(project.id))}
+                                    onMouseLeave={() => setHoveredId(null)}
                                 >
                                     {/* Subtle gradient accent */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent transition-opacity pointer-events-none" style={{ opacity: hoveredId === String(project.id) ? 1 : 0 }} />
 
-                                    <div className="mt-1 text-muted-foreground cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="mt-1 text-muted-foreground cursor-grab active:cursor-grabbing transition-opacity" style={{ opacity: hoveredId === String(project.id) ? 1 : 0 }}>
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
@@ -223,7 +226,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                         <div className="flex justify-between items-start gap-2">
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <h3 className="text-base font-bold group-hover:text-violet-600 transition-colors">{project.project_name}</h3>
+                                                    <h3 className="text-base font-bold transition-colors" style={{ color: hoveredId === String(project.id) ? 'rgb(124 58 237)' : undefined }}>{project.project_name}</h3>
                                                     {project.is_ongoing && (
                                                         <Badge variant="outline" className="text-[10px] h-[18px] px-2 text-emerald-500 border-emerald-500/20 flex items-center gap-1">
                                                             <Zap className="w-2.5 h-2.5" /> Đang thực hiện
@@ -239,7 +242,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                                     </p>
                                                 )}
                                             </div>
-                                            <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-1 shrink-0 transition-opacity" style={{ opacity: hoveredId === String(project.id) ? 1 : 0, pointerEvents: hoveredId === String(project.id) ? 'auto' : 'none' }}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
                                                     onClick={() => { setEditEntry(project); setDialogOpen(true); }}>
                                                     <Pencil className="w-3.5 h-3.5" />

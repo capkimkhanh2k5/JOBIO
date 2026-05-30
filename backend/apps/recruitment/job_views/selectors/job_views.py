@@ -21,7 +21,7 @@ def get_view_stats(job_id: int) -> dict:
             "views_this_month": int
         }
     """
-    today = timezone.now().date()
+    today = timezone.localdate()
     week_ago = today - timedelta(days=7)
     month_ago = today - timedelta(days=30)
 
@@ -75,7 +75,7 @@ def get_view_chart_data(job_id: int, period: str = "7d") -> dict:
     days_map = {"7d": 7, "30d": 30, "90d": 90}
     days = days_map.get(period, 7)
 
-    start_date = timezone.now().date() - timedelta(days=days - 1)
+    start_date = timezone.localdate() - timedelta(days=days - 1)
 
     # Lấy lượt xem theo ngày
     queryset = (
@@ -91,7 +91,7 @@ def get_view_chart_data(job_id: int, period: str = "7d") -> dict:
 
     data = []
     current_date = start_date
-    end_date = timezone.now().date()
+    end_date = timezone.localdate()
 
     while current_date <= end_date:
         data.append(

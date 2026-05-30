@@ -321,6 +321,28 @@ flush_database() {
     fi
 }
 
+run_migrations() {
+    log_section "🔧 CHẠY MIGRATIONS (TẠO LẠI BẢNG)"
+    cd "$BACKEND_DIR"
+
+    if [ $DRY_RUN -eq 0 ]; then
+        set +e
+        MIGRATE_OUTPUT=$(DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" manage.py migrate --no-input 2>&1)
+        EXIT_CODE=$?
+        set -e
+
+        if [ $EXIT_CODE -eq 0 ]; then
+            log_success "Migrations hoàn tất. Tất cả bảng đã được tạo."
+        else
+            log_error "Migrations thất bại. Chi tiết:"
+            echo "$MIGRATE_OUTPUT"
+            exit 1
+        fi
+    else
+        log_info "(DRY-RUN) Sẽ chạy python manage.py migrate"
+    fi
+}
+
 import_data() {
     log_section "📥 ĐANG IMPORT DỮ LIỆU MỚI"
     cd "$BACKEND_DIR"
@@ -405,6 +427,7 @@ main() {
 
     backup_database
     flush_database
+    run_migrations
     import_data
     sync_sequences
     verify_data

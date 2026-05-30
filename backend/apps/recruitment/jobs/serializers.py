@@ -8,7 +8,7 @@ def _is_effectively_expired(job: Job) -> bool:
         return True
     if job.status != Job.Status.PUBLISHED or not job.application_deadline:
         return False
-    return job.application_deadline < timezone.now().date()
+    return job.application_deadline < timezone.localdate()
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -103,7 +103,7 @@ class JobListSerializer(serializers.ModelSerializer):
     def get_is_featured(self, obj):
         if not obj.featured:
             return False
-        return obj.featured_until is None or obj.featured_until >= timezone.now().date()
+        return obj.featured_until is None or obj.featured_until >= timezone.localdate()
 
     def get_status(self, obj):
         return "expired" if _is_effectively_expired(obj) else obj.status

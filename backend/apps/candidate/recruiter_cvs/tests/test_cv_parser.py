@@ -195,6 +195,45 @@ class NormalizeParsedDataTest(TestCase):
         self.assertEqual(result["education"][0]["start_date"], "2023-01-01")
         self.assertEqual(len(result["projects"][0]["technologies"]), 30)
 
+    def test_normalizes_location_fields_for_profile_address_mapping(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _normalize_parsed_data,
+        )
+
+        result = _normalize_parsed_data(
+            {
+                "location": {
+                    "address_line": "123 Nguyen Van Linh",
+                    "province": "Da Nang",
+                    "commune": "Hai Chau",
+                    "city": "Da Nang",
+                    "country": "Viet Nam",
+                }
+            }
+        )
+
+        self.assertEqual(result["location"]["address_line"], "123 Nguyen Van Linh")
+        self.assertEqual(result["location"]["province"], "Da Nang")
+        self.assertEqual(result["location"]["commune"], "Hai Chau")
+
+    def test_detects_resume_semantic_signal(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _has_cv_semantic_signal,
+        )
+
+        self.assertTrue(
+            _has_cv_semantic_signal(
+                {"personal": {"full_name": "Alex"}, "skills": [{"name": "Python"}]}
+            )
+        )
+        self.assertTrue(
+            _has_cv_semantic_signal(
+                {"personal": {"full_name": "Alex", "email": "alex@example.test"}}
+            )
+        )
+        self.assertFalse(_has_cv_semantic_signal({"personal": {"full_name": "Alex"}}))
+        self.assertFalse(_has_cv_semantic_signal({"personal": {}, "skills": []}))
+
 
 @override_settings(
     GROQ_API_KEY="test-api-key",
@@ -330,7 +369,7 @@ class GroqModerationTest(TestCase):
         first_call = mock_client.chat.completions.create.call_args_list[0].kwargs
         second_call = mock_client.chat.completions.create.call_args_list[1].kwargs
         self.assertEqual(first_call["model"], "test-safeguard")
-        self.assertEqual(first_call["max_completion_tokens"], 128)
+        self.assertEqual(first_call["max_completion_tokens"], 1024)
         self.assertEqual(first_call["user"], "recruiter:1:cv:2")
         self.assertEqual(second_call["user"], "recruiter:1:cv:2")
 
@@ -409,6 +448,18 @@ class ProcessCvPdfTest(TestCase):
         with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
             process_cv_pdf(b"not pdf")
         self.assertEqual(process_cv_pdf(_build_test_cv_bytes(text="")), {})
+
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
+    def test_non_resume_like_parse_result_returns_empty(self, MockGroq):
+        from apps.candidate.recruiter_cvs.services.cv_parser import process_cv_pdf
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = _mock_completion(
+            json.dumps({"personal": {}, "skills": []})
+        )
+        MockGroq.return_value = mock_client
+
+        self.assertEqual(process_cv_pdf(self.pdf_bytes), {})
 
 
 @override_settings(

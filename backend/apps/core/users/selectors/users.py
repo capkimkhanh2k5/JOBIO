@@ -76,7 +76,7 @@ def get_user_stats() -> dict:
     )
 
     # New users today
-    today = timezone.now().date()
+    today = timezone.localdate()
     new_users_today = CustomUser.objects.filter(date_joined__date=today).count()
 
     return {
