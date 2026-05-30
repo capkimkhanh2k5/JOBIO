@@ -45,25 +45,25 @@ export function VerificationSection({ company }: { company: any }) {
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
             <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-violet-600/5 blur-[100px] pointer-events-none" />
 
-            <CardHeader className="relative z-10">
-                <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-800">
-                    <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
-                        <ShieldCheck className="w-5 h-5" />
+            <CardHeader className="relative z-10 px-5 py-4">
+                <CardTitle className="flex items-center gap-2.5 text-lg font-black text-slate-800">
+                    <div className="p-1.5 rounded-lg bg-violet-600/10 text-violet-600">
+                        <ShieldCheck className="w-4 h-4" />
                     </div>
                     Xác minh Doanh nghiệp
                 </CardTitle>
-                <CardDescription className="text-slate-500 font-medium leading-relaxed">Tăng độ tin cậy và thu hút ứng viên tài năng nhất qua quy trình xác thực chính danh.</CardDescription>
+                <CardDescription className="text-xs text-slate-500 font-medium leading-relaxed">Tăng độ tin cậy và thu hút ứng viên tài năng nhất qua quy trình xác thực chính danh.</CardDescription>
             </CardHeader>
-            <CardContent className="relative z-10">
-                <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-5">
-                        <div className={`p-4 rounded-2xl ${statusStyle.bg} ${statusStyle.border} border shadow-sm`}>
-                            <StatusIcon className={`w-8 h-8 ${statusStyle.color}`} />
+            <CardContent className="relative z-10 px-5 pb-4">
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2.5 rounded-xl ${statusStyle.bg} ${statusStyle.border} border shadow-sm`}>
+                            <StatusIcon className={`w-6 h-6 ${statusStyle.color}`} />
                         </div>
                         <div>
                             <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Trạng thái hiện tại</p>
                             <div className="flex items-center gap-2">
-                                <span className={`text-lg font-black ${statusStyle.color}`}>
+                                <span className={`text-base font-black ${statusStyle.color}`}>
                                     {statusStyle.label}
                                 </span>
                                 {company?.verification_status === 'verified' && (
@@ -75,7 +75,7 @@ export function VerificationSection({ company }: { company: any }) {
                         </div>
                     </div>
 
-                    <div className="max-w-sm text-sm text-slate-600 leading-relaxed font-semibold">
+                    <div className="max-w-xl text-xs text-slate-600 leading-relaxed font-semibold">
                         {company?.verification_status === 'verified' && (
                             "Tuyệt vời! Doanh nghiệp của bạn đã được xác minh toàn diện. Huy hiệu uy tín sẽ hiển thị trên tất cả các tin tuyển dụng và trang cá nhân."
                         )}
@@ -89,28 +89,28 @@ export function VerificationSection({ company }: { company: any }) {
                 </div>
 
                 {/* Benefits of verification with better icons */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {[
                         "Huy hiệu xác minh Trust+",
                         "Ưu tiên vị trí hiển thị TOP",
                         "Tăng 300% tỷ lệ nộp hồ sơ",
                     ].map((benefit, i) => (
                         <div key={i} className="flex gap-3 items-center group/benefit">
-                            <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover/benefit:scale-110 transition-transform shadow-sm">
-                                <CheckCircle2 className="w-4 h-4" />
+                            <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover/benefit:scale-110 transition-transform shadow-sm">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-sm font-black text-slate-700">{benefit}</span>
+                            <span className="text-xs font-black text-slate-700">{benefit}</span>
                         </div>
                     ))}
                 </div>
             </CardContent>
 
             {(company?.verification_status === 'unverified' || !company?.verification_status) && (
-                <CardFooter className="bg-slate-50/50 border-t border-slate-100 justify-end py-4">
+                <CardFooter className="bg-slate-50/50 border-t border-slate-100 justify-end py-3">
                     <Button
                         onClick={handleRequest}
                         disabled={isRequesting}
-                        className="bg-violet-600 hover:bg-violet-700 text-white border-none shadow-lg shadow-violet-500/20 h-11 px-8 rounded-xl font-black transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="bg-violet-600 hover:bg-violet-700 text-white border-none shadow-lg shadow-violet-500/20 h-9 px-5 rounded-lg text-xs font-black transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isRequesting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
                         Bắt đầu xác minh ngay

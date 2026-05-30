@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { Calendar, List, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { companyService } from '@/services/companyService';
 import { useCandidateStore } from '@/store/candidateStore';
@@ -30,20 +29,21 @@ import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function CompanyInterviewsPage() {
     const location = useLocation();
-    const navigate = useNavigate();
     const [view, setView] = useState('calendar');
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [prefilledApplicationId, setPrefilledApplicationId] = useState<string | null>(null);
     const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
     const [selectedEditInterviewId, setSelectedEditInterviewId] = useState<string | null>(null);
     const [cancelInterviewId, setCancelInterviewId] = useState<string | null>(null);
+    const [isCandidateSheetOpen, setIsCandidateSheetOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const queryClient = useQueryClient();
+    const selectedCandidateId = useCandidateStore((state) => state.selectedCandidateId);
     const setSelectedCandidateId = useCandidateStore((state) => state.setSelectedCandidateId);
 
     const { data: interviews, isLoading } = useQuery({
         queryKey: ['companyInterviews'],
-        queryFn: () => companyService.listInterviews().then(r => r.data.results)
+        queryFn: () => companyService.listInterviews({ page_size: 100 }).then(r => r.data.results)
     });
 
     const filteredInterviews = useMemo(() => {
@@ -79,8 +79,11 @@ export default function CompanyInterviewsPage() {
 
         setIsCreateOpen(true);
         setPrefilledApplicationId(state.preselectedApplicationId ? String(state.preselectedApplicationId) : null);
-        navigate(location.pathname, { replace: true, state: null });
-    }, [location.pathname, location.state, navigate]);
+    }, [location.state]);
+
+    useEffect(() => {
+        setSelectedCandidateId(null);
+    }, [setSelectedCandidateId]);
 
     const handleInterviewClick = (id: string) => {
         setSelectedInterviewId(id);
@@ -165,37 +168,26 @@ export default function CompanyInterviewsPage() {
                         </div>
                     </div>
 
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={view}
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mt-8"
-                        >
-                            <TabsContent value="calendar" className="mt-0 outline-none">
-                                <CompanyCalendar
-                                    interviews={(filteredInterviews as any) || []}
-                                    focusDate={searchTerm.trim() ? filteredInterviews[0]?.scheduled_at : null}
-                                    isLoading={isLoading}
-                                    onInterviewClick={handleInterviewClick}
-                                    onEditInterview={setSelectedEditInterviewId}
-                                    onCancelInterview={setCancelInterviewId}
-                                />
-                            </TabsContent>
-
-                            <TabsContent value="list" className="mt-0 outline-none">
-                                <CompanyInterviewList
-                                    interviews={(filteredInterviews as any) || []}
-                                    isLoading={isLoading}
-                                    onInterviewClick={handleInterviewClick}
-                                    onEditInterview={setSelectedEditInterviewId}
-                                    onCancelInterview={setCancelInterviewId}
-                                />
-                            </TabsContent>
-                        </motion.div>
-                    </AnimatePresence>
+                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm mt-8">
+                        {view === 'calendar' ? (
+                            <CompanyCalendar
+                                interviews={(filteredInterviews as any) || []}
+                                focusDate={searchTerm.trim() ? filteredInterviews[0]?.scheduled_at : null}
+                                isLoading={isLoading}
+                                onInterviewClick={handleInterviewClick}
+                                onEditInterview={setSelectedEditInterviewId}
+                                onCancelInterview={setCancelInterviewId}
+                            />
+                        ) : (
+                            <CompanyInterviewList
+                                interviews={(filteredInterviews as any) || []}
+                                isLoading={isLoading}
+                                onInterviewClick={handleInterviewClick}
+                                onEditInterview={setSelectedEditInterviewId}
+                                onCancelInterview={setCancelInterviewId}
+                            />
+                        )}
+                    </div>
                 </Tabs>
             </div>
 
@@ -210,7 +202,10 @@ export default function CompanyInterviewsPage() {
                 interviewId={selectedInterviewId}
                 open={!!selectedInterviewId}
                 onOpenChange={(open) => !open && setSelectedInterviewId(null)}
-                onViewCandidate={(applicationId) => setSelectedCandidateId(applicationId)}
+                onViewCandidate={(applicationId) => {
+                    setSelectedCandidateId(applicationId);
+                    setIsCandidateSheetOpen(true);
+                }}
             />
 
             {selectedEditInterviewId && (
@@ -222,7 +217,7 @@ export default function CompanyInterviewsPage() {
                 />
             )}
 
-            <CandidateDetailSheet />
+            {isCandidateSheetOpen && selectedCandidateId && <CandidateDetailSheet />}
 
             <AlertDialog open={!!cancelInterviewId} onOpenChange={(open) => !open && setCancelInterviewId(null)}>
                 <AlertDialogContent className="rounded-3xl">

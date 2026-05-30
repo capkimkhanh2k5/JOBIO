@@ -94,6 +94,10 @@ export const companyService = {
     return api.get<PaginatedResponse<InterviewListItem>>('/api/interviews/', { params });
   },
 
+  listUpcomingInterviews(days?: number) {
+    return api.get<InterviewListItem[]>('/api/interviews/upcoming/', { params: days === undefined ? undefined : { days } });
+  },
+
   getInterview(id: number) {
     return api.get<InterviewDetail>(`/api/interviews/${id}/`);
   },

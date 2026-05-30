@@ -28,6 +28,7 @@ from .services.interviews import (
     create_interview,
     InterviewUpdateInput,
     InterviewCreateInput,
+    sync_overdue_interviews,
 )
 
 from .selectors.interviews import (
@@ -78,6 +79,8 @@ class InterviewViewSet(viewsets.GenericViewSet):
             queryset = Interview.objects.filter(application__job__company__user=user)
         else:
             queryset = Interview.objects.none()
+
+        sync_overdue_interviews(queryset)
 
         queryset = queryset.select_related(
             "application__recruiter__user",
@@ -188,6 +191,8 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
+        sync_overdue_interviews(Interview.objects.filter(pk=interview.pk))
+        interview.refresh_from_db()
         return Response(InterviewDetailSerializer(interview).data)
 
     def update(self, request, pk=None):
@@ -449,11 +454,16 @@ class InterviewViewSet(viewsets.GenericViewSet):
         Danh sách phỏng vấn sắp tới
         """
 
-        days = request.query_params.get("days", 7)
-        try:
-            days = int(days)
-        except ValueError:
-            days = 7
+        days_param = request.query_params.get("days")
+        days = None
+        if days_param is not None:
+            try:
+                days = int(days_param)
+            except ValueError:
+                return Response(
+                    {"detail": "days must be an integer"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         interviews = get_upcoming_interviews(request.user, days)
         return Response(InterviewListSerializer(interviews, many=True).data)

@@ -7,6 +7,8 @@ class Interview(models.Model):
 
     class Status(models.TextChoices):
         SCHEDULED = "scheduled", "Đã lên lịch"
+        CONFIRMED = "confirmed", "Đã xác nhận"
+        IN_PROGRESS = "in_progress", "Đang diễn ra"
         COMPLETED = "completed", "Hoàn thành"
         CANCELLED = "cancelled", "Đã hủy"
         RESCHEDULED = "rescheduled", "Đổi lịch"

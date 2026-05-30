@@ -4,6 +4,7 @@ from apps.billing.services.subscriptions import SubscriptionService
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
     candidate_id = serializers.SerializerMethodField()
     recruiter_id = serializers.SerializerMethodField()
     company_id = serializers.SerializerMethodField()
@@ -50,6 +51,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
             return obj.recruiter_profile.id
         except Exception:
             return None
+
+    def get_avatar_url(self, obj):
+        if obj.role == "company":
+            try:
+                return obj.company_profile.logo_url or obj.avatar_url
+            except Exception:
+                pass
+        return obj.avatar_url
 
     def get_candidate_id(self, obj):
         return self.get_recruiter_id(obj)

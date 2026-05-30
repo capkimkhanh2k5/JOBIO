@@ -28,10 +28,12 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
     const getStatusTextAndColor = (status: Interview['status']) => {
         switch (status) {
             case 'scheduled': return { text: 'Sắp tới', color: 'bg-blue-100 text-blue-700 border-blue-200' };
+            case 'rescheduled': return { text: 'Đổi lịch', color: 'bg-violet-100 text-violet-700 border-violet-200' };
             case 'confirmed': return { text: 'Đã xác nhận', color: 'bg-green-100 text-green-700 border-green-200' };
             case 'completed': return { text: 'Hoàn thành', color: 'bg-slate-100 text-slate-700 border-slate-200' };
             case 'cancelled': return { text: 'Đã hủy', color: 'bg-red-100 text-red-700 border-red-200' };
             case 'no_show': return { text: 'Vắng mặt', color: 'bg-red-100 text-red-700 border-red-200' };
+            case 'no-show': return { text: 'Vắng mặt', color: 'bg-red-100 text-red-700 border-red-200' };
             case 'in_progress': return { text: 'Đang diễn ra', color: 'bg-amber-100 text-amber-700 border-amber-200' };
             default: return { text: 'Không rõ', color: 'bg-slate-100 text-slate-700' };
         }

@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, Calendar, MoreHorizontal, User, Star } from 'lucide-react';
+import { Eye, Calendar, MoreHorizontal, User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
@@ -19,7 +19,6 @@ interface Application {
     match_score?: number;
     applied_at: string;
     skills: string[];
-    rating: number;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -66,11 +65,11 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
 
     if (isLoading) {
         return (
-            <div className="w-full bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm">
+            <div className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                 {/* Skeleton simple implementation */}
-                <div className="h-12 border-b border-border/50 bg-secondary/20"></div>
+                <div className="h-12 border-b border-slate-100 bg-slate-50/50"></div>
                 {Array(6).fill(null).map((_, i) => (
-                    <div key={i} className="h-16 border-b border-border/50 bg-background animate-pulse flex items-center px-4 gap-4">
+                    <div key={i} className="h-16 border-b border-slate-100 bg-white animate-pulse flex items-center px-4 gap-4">
                         <div className="w-4 h-4 rounded bg-secondary"></div>
                         <div className="w-10 h-10 rounded-full bg-secondary"></div>
                         <div className="w-32 h-4 rounded bg-secondary"></div>
@@ -83,7 +82,7 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
 
     if (applications.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-border/50 rounded-xl bg-secondary/10">
+            <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-200 rounded-xl bg-white">
                 <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center mb-4 text-muted-foreground">
                     <User className="w-6 h-6" />
                 </div>
@@ -94,10 +93,10 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
     }
 
     return (
-        <div className="w-full bg-card border border-border/50 rounded-xl overflow-hidden shadow-sm max-h-[calc(100vh-250px)] flex flex-col">
-            <div className="overflow-x-auto">
+        <div className="w-full h-full bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex flex-col">
+            <div className="flex-1 overflow-auto">
                 <table className="w-full text-sm text-left relative">
-                    <thead className="text-xs text-muted-foreground bg-secondary/30 uppercase sticky top-0 z-10 backdrop-blur-md">
+                    <thead className="text-xs text-slate-500 bg-slate-50/50 uppercase sticky top-0 z-10">
                         <tr>
                             <th scope="col" className="p-4 w-4">
                                 <Checkbox
@@ -110,18 +109,17 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                             <th scope="col" className="px-4 py-3 font-medium">Trạng thái</th>
                             <th scope="col" className="px-4 py-3 font-medium">Điểm Match</th>
                             <th scope="col" className="px-4 py-3 font-medium">Ngày ứng tuyển</th>
-                            <th scope="col" className="px-4 py-3 font-medium">Đánh giá</th>
                             <th scope="col" className="px-4 py-3 rounded-tr-xl font-medium text-right">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/50 overflow-y-auto">
+                    <tbody className="divide-y divide-slate-100">
                         {applications.map((app) => {
                             const matchScore = app.match_score ?? app.ai_score ?? 0;
 
                             return (
                             <tr
                                 key={app.id}
-                                className="bg-background hover:bg-secondary/20 transition-colors cursor-pointer"
+                                className="bg-white hover:bg-slate-50/50 transition-colors cursor-pointer"
                                 onClick={() => setSelectedCandidateId(app.id)}
                             >
                                 <td className="p-4 w-4" onClick={(e) => e.stopPropagation()}>
@@ -155,16 +153,6 @@ export function CandidateTable({ applications, isLoading }: { applications: Appl
                                 </td>
                                 <td className="px-4 py-3 text-muted-foreground text-sm">
                                     {new Date(app.applied_at).toLocaleDateString("vi-VN")}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex gap-0.5">
-                                        {[1, 2, 3, 4, 5].map((star) => (
-                                            <Star
-                                                key={star}
-                                                className={cn("w-3.5 h-3.5", star <= app.rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted")}
-                                            />
-                                        ))}
-                                    </div>
                                 </td>
                                 <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                                     <div className="flex items-center justify-end gap-2">

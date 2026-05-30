@@ -27,7 +27,7 @@ export default function ManageCandidates() {
     }, [clearBulkSelection, clearFilters, jobIdParam, setFilters]);
 
     const { data: applicationsRes, isLoading, refetch } = useQuery({
-        queryKey: ['company-candidates', filters],
+        queryKey: ['company-candidates', filters.jobId],
         queryFn: () => applicationService.list({
             ordering: '-applied_at',
             page_size: 1000,
@@ -48,29 +48,10 @@ export default function ManageCandidates() {
                 ai_score: matchScore,
                 match_score: matchScore,
                 skills: app.skills ?? [],
-                rating: app.rating ?? 0,
             };
         })
         .filter((app: any) => {
             if (filters.jobId && String(app.job_id) !== String(filters.jobId)) return false;
-            if (filters.statuses.length > 0 && !filters.statuses.includes(app.status)) return false;
-            if (app.ai_score < filters.aiScoreRange[0] || app.ai_score > filters.aiScoreRange[1]) return false;
-            if (filters.skills.length > 0 && !filters.skills.every(skill => (app.skills || []).includes(skill))) return false;
-
-            const search = filters.searchQuery.trim().toLowerCase();
-            if (search) {
-                const haystack = [
-                    app.candidate_name,
-                    app.candidate_email,
-                    app.job_title,
-                    ...(app.skills || []),
-                ]
-                    .filter(Boolean)
-                    .join(' ')
-                    .toLowerCase();
-                if (!haystack.includes(search)) return false;
-            }
-
             return true;
         });
 
@@ -107,10 +88,11 @@ export default function ManageCandidates() {
             <div className="sticky top-0 z-20">
                 <PageHeader
                     title="Quản lý Ứng viên"
-                    description={`${applications.length} ứng viên đang hiển thị dựa trên bộ lọc`}
+                    description={`${applications.length} ứng viên đang hiển thị`}
                     icon={UsersIcon}
                     action={
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center justify-end gap-3">
+                            <CandidatesFilterSidebar />
                             <div className="flex gap-1 bg-white border border-slate-200 shadow-sm p-1 w-fit rounded-xl">
                                 <Button
                                     variant="ghost"
@@ -165,13 +147,9 @@ export default function ManageCandidates() {
                 </div>
             )}
 
-            {/* Main Content Area with Sidebar */}
-            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 flex-1 w-full min-w-0 flex relative gap-6 overflow-hidden">
-                <div className="w-[300px] shrink-0 hidden md:block">
-                    <CandidatesFilterSidebar />
-                </div>
-
-                <main className="flex-1 min-w-0 overflow-hidden">
+            {/* Main Content Area */}
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 flex-1 min-h-0 w-full min-w-0 overflow-hidden">
+                <main className="h-[calc(100vh-250px)] min-h-[420px] min-w-0 overflow-hidden">
                     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm h-full p-4">
                         {viewMode === 'kanban' ? (
                             <CandidateBoard

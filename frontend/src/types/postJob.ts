@@ -42,7 +42,4 @@ export interface PostJobFormData {
     benefits: string;
     skills: SelectedSkill[];
     locations: LocationRow[];
-    seo_title: string;
-    seo_description: string;
-    seo_keywords: string[];
 }

@@ -29,9 +29,17 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 
+const getLocalDateInputValue = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60_000;
+    return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+};
+
 const interviewSchema = z.object({
     type: z.string().min(1, 'Vui lòng chọn hình thức phỏng vấn'),
-    scheduled_date: z.string().min(1, 'Vui lòng chọn ngày'),
+    scheduled_date: z.string()
+        .min(1, 'Vui lòng chọn ngày')
+        .refine((value) => !value || value >= getLocalDateInputValue(), 'Ngày phỏng vấn không thể ở trong quá khứ'),
     scheduled_time: z.string().min(1, 'Vui lòng chọn giờ'),
     duration_minutes: z.number().min(15, 'Tối thiểu 15 phút'),
     location: z.string().optional(),
@@ -126,6 +134,7 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
             meeting_link: '',
             notes: '',
         },
+        mode: 'onChange',
     });
 
     useEffect(() => {
@@ -184,13 +193,19 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
     });
 
     const onSubmit = (values: InterviewFormValues) => {
-        let scheduled_at;
-        try {
-            scheduled_at = new Date(`${values.scheduled_date}T${values.scheduled_time}`).toISOString();
-        } catch {
+        const scheduledDate = new Date(`${values.scheduled_date}T${values.scheduled_time}`);
+        if (Number.isNaN(scheduledDate.getTime())) {
             toast.error('Ngày giờ không hợp lệ');
             return;
         }
+        if (scheduledDate <= new Date()) {
+            form.setError('scheduled_time', {
+                type: 'validate',
+                message: 'Thời gian phỏng vấn phải lớn hơn thời gian hiện tại',
+            });
+            return;
+        }
+        const scheduled_at = scheduledDate.toISOString();
 
         const normalizedNotes = [
             interviewMode === 'onsite' && values.location ? `Địa điểm phỏng vấn: ${values.location}` : null,
@@ -210,7 +225,7 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-2xl shadow-slate-200/70">
+            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-none">
                 <DialogHeader>
                     <DialogTitle className="text-xl text-slate-900">Chỉnh sửa lịch phỏng vấn</DialogTitle>
                     <DialogDescription className="text-slate-600">
@@ -285,10 +300,14 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                     <Input
                                         id="scheduled_date"
                                         type="date"
-                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                        min={getLocalDateInputValue()}
+                                        className={`pl-10 bg-slate-50 text-slate-900 ${form.formState.errors.scheduled_date ? 'border-red-500' : 'border-slate-200'}`}
                                         {...form.register('scheduled_date')}
                                     />
                                 </div>
+                                {form.formState.errors.scheduled_date && (
+                                    <p className="text-xs text-red-500">{form.formState.errors.scheduled_date.message}</p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -302,6 +321,9 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                         {...form.register('scheduled_time')}
                                     />
                                 </div>
+                                {form.formState.errors.scheduled_time && (
+                                    <p className="text-xs text-red-500">{form.formState.errors.scheduled_time.message}</p>
+                                )}
                             </div>
 
                             {interviewMode === 'onsite' && (

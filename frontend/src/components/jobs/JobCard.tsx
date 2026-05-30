@@ -22,6 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { savedJobService } from "@/services/savedJobService";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/userStore";
+import { showCandidateOnlyFeatureWarning } from "@/lib/candidateOnlyFeature";
 
 const JOB_TYPE_LABELS: Record<string, string> = {
     "full-time": "Full-time",
@@ -124,6 +125,7 @@ export function JobCard({ job, view }: JobCardProps) {
     const [optimisticSaved, setOptimisticSaved] = useState(job.is_saved ?? false);
     const [savedJobId, setSavedJobId] = useState<number | null>(job.saved_job_id ?? null);
     const isAdminViewer = user?.role === "admin";
+    const isCompanyViewer = user?.role === "company";
 
     const companyName = job.company_name ?? job.company?.company_name ?? job.company?.name ?? "Công ty";
     const companyTarget = job.company_slug ?? job.company?.slug ?? job.company_id ?? job.company?.id;
@@ -177,6 +179,10 @@ export function JobCard({ job, view }: JobCardProps) {
 
     const handleToggleSave = (e: MouseEvent) => {
         e.stopPropagation();
+        if (isCompanyViewer) {
+            showCandidateOnlyFeatureWarning("Lưu việc làm");
+            return;
+        }
         if (isAdminViewer) {
             toast.info("Admin chỉ xem nội dung, không thể lưu việc làm");
             return;
@@ -198,6 +204,14 @@ export function JobCard({ job, view }: JobCardProps) {
     };
 
     const isSaving = saveMutation.isPending || unsaveMutation.isPending;
+    const handleApplyClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        if (isCompanyViewer) {
+            showCandidateOnlyFeatureWarning("Ứng tuyển việc làm");
+            return;
+        }
+        if (!isAdminViewer && !isExpired) navigate(`/jobs/${job.id}`);
+    };
 
     if (view === "list") {
         return (
@@ -345,10 +359,7 @@ export function JobCard({ job, view }: JobCardProps) {
                             <div className="flex gap-2">
                                 <Button
                                     className="flex-1 h-11 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg"
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        if (!isAdminViewer && !isExpired) navigate(`/jobs/${job.id}`);
-                                    }}
+                                    onClick={handleApplyClick}
                                     disabled={isAdminViewer || isExpired}
                                     title={
                                         isExpired
@@ -520,10 +531,7 @@ export function JobCard({ job, view }: JobCardProps) {
                 <div className="px-5 pb-4">
                     <Button
                         className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg transition-colors"
-                        onClick={e => {
-                            e.stopPropagation();
-                            if (!isAdminViewer && !isExpired) navigate(`/jobs/${job.id}`);
-                        }}
+                        onClick={handleApplyClick}
                         disabled={isAdminViewer || isExpired}
                         title={
                             isExpired

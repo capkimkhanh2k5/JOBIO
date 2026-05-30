@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Dialog,
     DialogContent,
@@ -28,10 +29,18 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 
+function getLocalDateInputValue() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60_000;
+    return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
 const interviewSchema = z.object({
     candidate_id: z.string().min(1, 'Vui lòng chọn ứng viên'),
     type: z.string().min(1, 'Vui lòng chọn hình thức phỏng vấn'),
-    scheduled_date: z.string().min(1, 'Vui lòng chọn ngày'),
+    scheduled_date: z.string()
+        .min(1, 'Vui lòng chọn ngày')
+        .refine((value) => !value || value >= getLocalDateInputValue(), 'Ngày phỏng vấn không thể ở trong quá khứ'),
     scheduled_time: z.string().min(1, 'Vui lòng chọn giờ'),
     duration_minutes: z.number().min(15, 'Tối thiểu 15 phút'),
     location: z.string().optional(),
@@ -87,6 +96,16 @@ const getApplicationCandidateName = (application: any) => {
     );
 };
 
+const getApplicationCandidateAvatar = (application: any) => {
+    return (
+        application?.candidate_avatar ||
+        application?.recruiter_avatar ||
+        application?.candidate?.avatar ||
+        application?.recruiter?.user?.avatar_url ||
+        null
+    );
+};
+
 const getApiErrorMessage = (error: unknown) => {
     if (error instanceof AxiosError) {
         const detail = error.response?.data?.detail;
@@ -119,12 +138,13 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
         enabled: open
     });
 
-    const candidateOptions = toArray<any>(candidates);
-    const interviewTypeOptions = toArray<any>(types);
+    const candidateOptions = useMemo(() => toArray<any>(candidates), [candidates]);
+    const interviewTypeOptions = useMemo(() => toArray<any>(types), [types]);
 
     const form = useForm<InterviewFormValues>({
         resolver: zodResolver(interviewSchema),
         defaultValues: DEFAULT_FORM_VALUES,
+        mode: 'onChange',
     });
 
     const watchType = form.watch('type');
@@ -167,13 +187,26 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
 
     const onSubmit = (values: InterviewFormValues) => {
         // Format date and time to ISO
-        let scheduled_at;
-        try {
-            scheduled_at = new Date(`${values.scheduled_date}T${values.scheduled_time}`).toISOString();
-        } catch (e) {
+        const scheduledDate = new Date(`${values.scheduled_date}T${values.scheduled_time}`);
+        if (Number.isNaN(scheduledDate.getTime())) {
             toast.error('Ngày giờ không hợp lệ');
             return;
         }
+        if (values.scheduled_date < getLocalDateInputValue()) {
+            form.setError('scheduled_date', {
+                type: 'validate',
+                message: 'Ngày phỏng vấn không thể ở trong quá khứ',
+            });
+            return;
+        }
+        if (scheduledDate <= new Date()) {
+            form.setError('scheduled_time', {
+                type: 'validate',
+                message: 'Thời gian phỏng vấn phải lớn hơn thời gian hiện tại',
+            });
+            return;
+        }
+        const scheduled_at = scheduledDate.toISOString();
 
         const normalizedNotes = [
             interviewMode === 'onsite' && values.location ? `Địa điểm phỏng vấn: ${values.location}` : null,
@@ -196,7 +229,7 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-2xl shadow-slate-200/70">
+            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-none">
                 <DialogHeader>
                     <DialogTitle className="text-xl text-slate-900">Xếp lịch phỏng vấn</DialogTitle>
                     <DialogDescription className="text-slate-600">
@@ -221,13 +254,24 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                     ) : (
                                         candidateOptions.map((cand: any) => (
                                             <SelectItem key={cand.id} value={String(cand.id)}>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-slate-900">
-                                                        {getApplicationCandidateName(cand)}
-                                                    </span>
-                                                    <span className="text-xs text-slate-500">
-                                                        {cand.job_title || cand.job?.title || 'Chưa có vị trí'}
-                                                    </span>
+                                                <div className="flex items-center gap-2.5">
+                                                    <Avatar className="h-8 w-8 border border-slate-200 bg-white">
+                                                        <AvatarImage
+                                                            src={getApplicationCandidateAvatar(cand) || undefined}
+                                                            alt={getApplicationCandidateName(cand)}
+                                                        />
+                                                        <AvatarFallback className="bg-violet-50 text-xs font-bold text-violet-700">
+                                                            {getApplicationCandidateName(cand).charAt(0).toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium text-slate-900">
+                                                            {getApplicationCandidateName(cand)}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500">
+                                                            {cand.job_title || cand.job?.title || 'Chưa có vị trí'}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </SelectItem>
                                         ))
@@ -284,7 +328,12 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                 <Input
                                     id="scheduled_date"
                                     type="date"
-                                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                    min={getLocalDateInputValue()}
+                                    className={`pl-10 bg-slate-50 text-slate-900 ${
+                                        form.formState.errors.scheduled_date
+                                            ? 'border-red-500 focus-visible:ring-red-500/20'
+                                            : 'border-slate-200'
+                                    }`}
                                     {...form.register('scheduled_date')}
                                 />
                             </div>

@@ -21,6 +21,12 @@ const inputClass = cn(
 
 const selectClass = cn(inputClass, 'cursor-pointer px-3');
 
+function getTodayLocalDate() {
+    const today = new Date();
+    const pad = (value: number) => String(value).padStart(2, '0');
+    return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+}
+
 const fieldErr = (msg?: string) =>
     msg ? <p className="text-red-500 text-xs mt-1 font-medium">{msg}</p> : null;
 
@@ -263,10 +269,11 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                             <input
                                 {...field}
                                 type="number"
+                                min={0}
                                 placeholder="Tối thiểu"
                                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
                                 value={field.value ?? ''}
-                                className={inputClass}
+                                className={cn(inputClass, errors.salary_min && 'border-red-500/50')}
                             />
                         )}
                     />
@@ -278,14 +285,16 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                             <input
                                 {...field}
                                 type="number"
+                                min={0}
                                 placeholder="Tối đa"
                                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
                                 value={field.value ?? ''}
-                                className={inputClass}
+                                className={cn(inputClass, errors.salary_max && 'border-red-500/50')}
                             />
                         )}
                     />
                 </div>
+                {fieldErr(errors.salary_min?.message || errors.salary_max?.message)}
             </div>
 
             <div>
@@ -299,10 +308,11 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                 {...field}
                                 type="number"
                                 min={0}
+                                max={50}
                                 placeholder="Tối thiểu"
                                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
                                 value={field.value ?? ''}
-                                className={inputClass}
+                                className={cn(inputClass, errors.experience_min && 'border-red-500/50')}
                             />
                         )}
                     />
@@ -315,14 +325,16 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                                 {...field}
                                 type="number"
                                 min={0}
+                                max={50}
                                 placeholder="Tối đa"
                                 onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
                                 value={field.value ?? ''}
-                                className={inputClass}
+                                className={cn(inputClass, errors.experience_max && 'border-red-500/50')}
                             />
                         )}
                     />
                 </div>
+                {fieldErr(errors.experience_min?.message || errors.experience_max?.message)}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -334,7 +346,7 @@ export function Step1BasicInfo({ control, errors }: Step1BasicInfoProps) {
                             <input
                                 {...field}
                                 type="date"
-                                min={new Date().toISOString().split('T')[0]}
+                                min={getTodayLocalDate()}
                                 className={cn(
                                     inputClass,
                                     'cursor-pointer [color-scheme:light]',

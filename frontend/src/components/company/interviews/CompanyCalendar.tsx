@@ -22,7 +22,7 @@ export interface Interview {
     type: 'video' | 'phone' | 'onsite';
     scheduled_at: string;
     duration_minutes: number;
-    status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+    status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rescheduled' | 'no_show' | 'no-show';
     job_id?: string;
     candidate_id?: string;
     applicant_id?: string;
@@ -65,10 +65,12 @@ export function CompanyCalendar({ interviews, focusDate, isLoading, onInterviewC
     const getStatusColor = (status: Interview['status']) => {
         switch (status) {
             case 'scheduled': return 'bg-blue-50 text-blue-700 border-blue-100';
+            case 'rescheduled': return 'bg-violet-50 text-violet-700 border-violet-100';
             case 'confirmed': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
             case 'completed': return 'bg-slate-50 text-slate-600 border-slate-200';
             case 'cancelled': return 'bg-red-100 text-red-700 border-red-200';
             case 'no_show': return 'bg-rose-100 text-rose-700 border-rose-200';
+            case 'no-show': return 'bg-rose-100 text-rose-700 border-rose-200';
             case 'in_progress': return 'bg-amber-100 text-amber-700 border-amber-200';
             default: return 'bg-slate-100 text-slate-700';
         }

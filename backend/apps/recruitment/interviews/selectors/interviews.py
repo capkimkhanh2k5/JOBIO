@@ -4,6 +4,7 @@ from django.db.models import QuerySet
 from collections import defaultdict
 
 from apps.recruitment.interviews.models import Interview
+from apps.recruitment.interviews.services.interviews import sync_overdue_interviews
 from apps.recruitment.jobs.models import Job
 
 
@@ -60,13 +61,13 @@ def get_calendar_interviews(user, start_date, end_date) -> dict:
     """
 
     owned_jobs = Job.objects.filter(company__user=user)
+    sync_overdue_interviews(Interview.objects.filter(application__job__in=owned_jobs))
 
     interviews = (
         Interview.objects.filter(
             application__job__in=owned_jobs,
             scheduled_at__date__gte=start_date,
             scheduled_at__date__lte=end_date,
-            status__in=["scheduled", "rescheduled"],
         )
         .select_related(
             "application__recruiter__user",
@@ -103,7 +104,7 @@ def get_calendar_interviews(user, start_date, end_date) -> dict:
     return dict(calendar)
 
 
-def get_upcoming_interviews(user, days: int = 7) -> QuerySet[Interview]:
+def get_upcoming_interviews(user, days: Optional[int] = None) -> QuerySet[Interview]:
     """
     Lấy danh sách interviews sắp tới trong N ngày.
     """
@@ -111,30 +112,34 @@ def get_upcoming_interviews(user, days: int = 7) -> QuerySet[Interview]:
     from django.utils import timezone
 
     now = timezone.now()
-    end_date = now + timedelta(days=days)
 
     # Lấy các job được user sở hữu
     owned_jobs = Job.objects.filter(company__user=user)
+    sync_overdue_interviews(Interview.objects.filter(application__job__in=owned_jobs))
 
-    return (
-        Interview.objects.filter(
-            application__job__in=owned_jobs,
-            scheduled_at__gte=now,
-            scheduled_at__lte=end_date,
-            status__in=["scheduled", "rescheduled"],
-        )
-        .select_related(
-            "application__recruiter__user",
-            "application__job__company",
-            "application__job__company__address__province",
-            "application__job__company__address__commune",
-            "application__job__address__province",
-            "application__job__address__commune",
-            "interview_type",
-            "address__province",
-            "address__commune",
-            "interviewer",
-            "created_by",
-        )
-        .order_by("scheduled_at")
+    interviews = Interview.objects.filter(
+        application__job__in=owned_jobs,
+        scheduled_at__gte=now,
+        status__in=[
+            Interview.Status.SCHEDULED,
+            Interview.Status.CONFIRMED,
+            Interview.Status.RESCHEDULED,
+        ],
     )
+
+    if days is not None:
+        interviews = interviews.filter(scheduled_at__lte=now + timedelta(days=days))
+
+    return interviews.select_related(
+        "application__recruiter__user",
+        "application__job__company",
+        "application__job__company__address__province",
+        "application__job__company__address__commune",
+        "application__job__address__province",
+        "application__job__address__commune",
+        "interview_type",
+        "address__province",
+        "address__commune",
+        "interviewer",
+        "created_by",
+    ).order_by("scheduled_at")
