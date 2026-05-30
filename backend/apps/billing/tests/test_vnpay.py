@@ -40,6 +40,7 @@ class TestVNPayIntegration(APITestCase):
             company_name="Test Company",
             slug="test-company",
             industry=self.industry,
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
         self.plan = SubscriptionPlan.objects.create(
             name="Pro Plan",
@@ -302,8 +303,8 @@ class TestVNPayIntegration(APITestCase):
         self.assertEqual(response.data["mode"], "blocked")
         self.assertEqual(response.data["code"], "ACTIVE_SUBSCRIPTION_EXISTS")
 
-    def test_subscribe_reuses_pending_transaction_for_same_plan(self):
-        """Repeated subscribe calls for the same plan should reuse the pending transaction."""
+    def test_subscribe_supersedes_pending_transaction_for_same_plan(self):
+        """Repeated subscribe calls should create a fresh VNPay reference."""
         first = self.client.post(
             reverse("company-subscriptions-subscribe"), {"plan_id": self.plan.id}
         )
@@ -313,8 +314,19 @@ class TestVNPayIntegration(APITestCase):
 
         self.assertEqual(first.status_code, status.HTTP_200_OK)
         self.assertEqual(second.status_code, status.HTTP_200_OK)
-        self.assertEqual(first.data["transaction_ref"], second.data["transaction_ref"])
-        self.assertTrue(second.data.get("reused"))
+        self.assertNotEqual(
+            first.data["transaction_ref"], second.data["transaction_ref"]
+        )
+        self.assertFalse(second.data.get("reused", False))
+
+        first_txn = Transaction.objects.get(
+            reference_code=first.data["transaction_ref"]
+        )
+        second_txn = Transaction.objects.get(
+            reference_code=second.data["transaction_ref"]
+        )
+        self.assertEqual(first_txn.status, Transaction.Status.FAILED)
+        self.assertEqual(second_txn.status, Transaction.Status.PENDING)
 
     def test_precheck_allows_same_family_different_duration(self):
         """Pre-check should allow renewal when current and target plans are the same tier family."""
@@ -579,3 +591,25 @@ class TestVNPayIntegration(APITestCase):
                 status=CompanySubscription.Status.ACTIVE,
             ).exists()
         )
+
+    def test_cleanup_marks_processing_transaction_failed_after_timeout(self):
+        """Expired local checkout should not stay pending when QueryDR returns processing."""
+        subscribe_resp = self.client.post(
+            reverse("company-subscriptions-subscribe"), {"plan_id": self.plan.id}
+        )
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn = Transaction.objects.get(
+            reference_code=subscribe_resp.data["transaction_ref"]
+        )
+        Transaction.objects.filter(id=txn.id).update(
+            created_at=timezone.now() - timedelta(minutes=10)
+        )
+
+        with patch(
+            "apps.billing.services.vnpay.VNPayService.query_vnpay_transaction",
+            return_value={"vnp_ResponseCode": "00", "vnp_TransactionStatus": "05"},
+        ):
+            cleanup_expired_transactions()
+
+        txn.refresh_from_db()
+        self.assertEqual(txn.status, Transaction.Status.FAILED)

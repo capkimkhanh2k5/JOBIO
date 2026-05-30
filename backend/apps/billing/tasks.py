@@ -187,13 +187,12 @@ def cleanup_expired_transactions():
                             logger.error(
                                 f"Failed activating subscription from cleanup for txn {txn.reference_code}: {e}"
                             )
-                elif status in ["02", "03", "04", "06", "07", "09"]:
-                    # Giao dịch lỗi hoặc đã bị hủy
+                else:
+                    # Đã quá timeout local nên không giữ pending nữa, kể cả VNPay
+                    # vẫn trả trạng thái chưa hoàn tất/đang xử lý. Callback thành
+                    # công đến muộn vẫn có thể recover giao dịch từ FAILED.
                     txn.status = Transaction.Status.FAILED
                     txn.save()
-                elif status == "05":
-                    # Vẫn đang chờ hoặc đang xử lý, giữ nguyên
-                    pass
             else:
                 # Không tìm thấy giao dịch trên VNPay hoặc lỗi checksum
                 # Quá thời hạn mà không thấy thì coi như fail

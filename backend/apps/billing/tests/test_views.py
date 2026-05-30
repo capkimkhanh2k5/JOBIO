@@ -73,6 +73,7 @@ class TestCompanySubscriptionViewSet(APITestCase):
             slug="test-company",
             industry=cls.industry,
             description="A test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
         cls.plan = SubscriptionPlan.objects.create(
             name="Pro Plan",
@@ -99,6 +100,32 @@ class TestCompanySubscriptionViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("payment_url", response.data)
         self.assertIn("transaction_ref", response.data)
+
+    def test_subscribe_blocks_unverified_company(self):
+        """Company must be verified before checkout."""
+        self.company.verification_status = Company.VerificationStatus.PENDING
+        self.company.save(update_fields=["verification_status"])
+
+        response = self.client.post(
+            reverse("company-subscriptions-subscribe"), {"plan_id": self.plan.id}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "COMPANY_NOT_VERIFIED")
+        self.assertFalse(Transaction.objects.filter(company=self.company).exists())
+
+    def test_pre_check_blocks_unverified_company(self):
+        """Pre-check should tell the frontend checkout is blocked."""
+        self.company.verification_status = Company.VerificationStatus.PENDING
+        self.company.save(update_fields=["verification_status"])
+
+        response = self.client.get(
+            reverse("company-subscriptions-pre-check"), {"plan_id": self.plan.id}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["can_checkout"])
+        self.assertEqual(response.data["code"], "COMPANY_NOT_VERIFIED")
 
     def test_cancel_subscription(self):
         """User can cancel their subscription"""
@@ -197,6 +224,7 @@ class TestTransactionViewSet(APITestCase):
             slug="trans-company",
             industry=cls.industry,
             description="A transaction test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
 
     def setUp(self):

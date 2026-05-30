@@ -38,6 +38,7 @@ def company(user, industry):
         slug="test-company",
         industry=industry,
         description="A test company",
+        verification_status=Company.VerificationStatus.VERIFIED,
     )
     return company
 
