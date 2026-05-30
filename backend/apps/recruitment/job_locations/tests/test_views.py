@@ -82,6 +82,15 @@ class JobLocationViewTests(APITestCase):
             )[0]["address_id"],
             self.address.id,
         )
+        item = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )[0]
+        self.assertEqual(item["address_line"], self.address.address_line)
+        self.assertEqual(item["street"], self.address.address_line)
+        self.assertEqual(item["province_name"], self.province.province_name)
+        self.assertEqual(item["commune_name"], self.commune.commune_name)
 
     def test_list_job_locations_empty(self):
         """GET /api/jobs/:job_id/locations/ - empty list → 200 + []"""

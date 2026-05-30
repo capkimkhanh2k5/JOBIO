@@ -444,14 +444,22 @@ function PostJobEditor() {
         },
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
+            let publishedJob;
+
             if (draftId) {
-                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
-                await syncNestedData(updatedJob.id, data);
-                return updatedJob;
+                publishedJob = await jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
+            } else {
+                publishedJob = await jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
             }
-            const createdJob = await jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
-            await syncNestedData(createdJob.id, data);
-            return createdJob;
+
+            try {
+                await syncNestedData(publishedJob.id, data);
+            } catch (error) {
+                console.error('Failed to sync published job details:', error);
+                toast.warning('Tin đã được đăng nhưng chưa thể đồng bộ đầy đủ kỹ năng hoặc địa điểm.');
+            }
+
+            return publishedJob;
         },
         onSuccess: async () => {
             toast.success('Đăng tin thành công!', {
@@ -467,8 +475,9 @@ function PostJobEditor() {
                 setTimeout(() => navigate('/company/jobs'), 1500);
             }
         },
-        onError: () => {
+        onError: (error: any) => {
             setIsPublishingFlow(false);
+            toast.error(error?.response?.data?.detail || 'Không thể đăng tin. Vui lòng thử lại.');
         },
     });
 

@@ -84,7 +84,7 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     """
     queryset = Job.objects.select_related(
         "company", "category", "created_by", "address", "address__province"
-    ).prefetch_related("required_skills__skill")
+    ).prefetch_related("required_skills__skill", "locations__address__province")
 
     if not filters:
         return _with_effective_expired(

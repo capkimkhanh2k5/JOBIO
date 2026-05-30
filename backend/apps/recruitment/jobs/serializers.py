@@ -115,6 +115,13 @@ class JobListSerializer(serializers.ModelSerializer):
         return self.get_locations(obj)
 
     def get_locations(self, obj):
+        locations = list(obj.locations.all())
+        primary_location = next(
+            (location for location in locations if location.is_primary), None
+        )
+        location = primary_location or (locations[0] if locations else None)
+        if location and location.address and location.address.province:
+            return location.address.province.province_name
         if obj.address and hasattr(obj.address, "province") and obj.address.province:
             return obj.address.province.province_name
         return "Toàn quốc"

@@ -9,14 +9,17 @@ class JobLocationSerializer(serializers.ModelSerializer):
     """
 
     address_id = serializers.IntegerField(source="address.id", read_only=True)
+    address_line = serializers.CharField(
+        source="address.address_line", read_only=True, allow_null=True
+    )
     street = serializers.CharField(
-        source="address.street", read_only=True, allow_null=True
+        source="address.address_line", read_only=True, allow_null=True
     )
     province_name = serializers.CharField(
-        source="address.province.name", read_only=True, allow_null=True
+        source="address.province.province_name", read_only=True, allow_null=True
     )
     commune_name = serializers.CharField(
-        source="address.commune.name", read_only=True, allow_null=True
+        source="address.commune.commune_name", read_only=True, allow_null=True
     )
 
     class Meta:
@@ -24,6 +27,7 @@ class JobLocationSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "address_id",
+            "address_line",
             "street",
             "province_name",
             "commune_name",

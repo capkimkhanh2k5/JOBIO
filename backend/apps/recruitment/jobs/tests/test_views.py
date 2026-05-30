@@ -138,6 +138,34 @@ class JobViewTests(APITestCase):
         ):
             self.assertEqual(job["job_type"], "full-time")
 
+    def test_list_jobs_uses_primary_nested_location(self):
+        """Job listing uses the primary JobLocation when legacy address is empty."""
+        nested_location_job = Job.objects.create(
+            company=self.company,
+            title="Nested Location Job",
+            slug="nested-location-job-test",
+            job_type="full-time",
+            level="senior",
+            description="Nested location job",
+            requirements="Nested location requirements",
+            application_deadline=timezone.now().date() + timedelta(days=30),
+            status="published",
+            created_by=self.user,
+        )
+        JobLocation.objects.create(
+            job=nested_location_job,
+            address=self.address,
+            is_primary=True,
+        )
+
+        response = self.client.get("/api/jobs/?page_size=50")
+        jobs = response.data.get("results", response.data)
+        item = next(job for job in jobs if job["id"] == nested_location_job.id)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(item["location"], self.province.province_name)
+        self.assertEqual(item["locations"], self.province.province_name)
+
     def test_list_jobs_prioritizes_featured_jobs_by_default(self):
         """Featured published jobs appear first in public listing."""
         newer_regular_job = Job.objects.create(
