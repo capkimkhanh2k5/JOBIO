@@ -41,7 +41,7 @@ class AutoGenerateCVTest(TestCase):
             recruiter=self.recruiter,
             school_name="BK University",
             degree="Engineer",
-            start_date=timezone.now().date(),
+            start_date=timezone.localdate(),
             is_current=True,
         )
 
@@ -50,7 +50,7 @@ class AutoGenerateCVTest(TestCase):
             recruiter=self.recruiter,
             company_name="Google",
             job_title="Senior Engineer",
-            start_date=timezone.now().date(),
+            start_date=timezone.localdate(),
             is_current=True,
         )
 
@@ -59,7 +59,7 @@ class AutoGenerateCVTest(TestCase):
             recruiter=self.recruiter,
             project_name="AI System",
             description="Built AI",
-            start_date=timezone.now().date(),
+            start_date=timezone.localdate(),
         )
 
     def test_auto_generate_cv_success(self):

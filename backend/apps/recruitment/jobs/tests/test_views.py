@@ -72,7 +72,7 @@ class JobViewTests(APITestCase):
             },
             is_active=True,
         )
-        today = timezone.now().date()
+        today = timezone.localdate()
         CompanySubscription.objects.create(
             company=self.company,
             plan=self.plan,
@@ -91,7 +91,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Job description",
             requirements="Job requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user,
         )
@@ -148,7 +148,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Nested location job",
             requirements="Nested location requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user,
         )
@@ -176,7 +176,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Regular job",
             requirements="Regular requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=False,
             created_by=self.user,
@@ -189,7 +189,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Featured job",
             requirements="Featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
             created_by=self.user,
@@ -202,10 +202,10 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired featured job",
             requirements="Expired featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
-            featured_until=timezone.now().date() - timedelta(days=1),
+            featured_until=timezone.localdate() - timedelta(days=1),
             created_by=self.user,
         )
         Job.objects.filter(id=featured_job.id).update(
@@ -245,7 +245,7 @@ class JobViewTests(APITestCase):
             salary_max=5000,
             description="Regular high salary job",
             requirements="Regular high salary requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=False,
             created_by=self.user,
@@ -259,7 +259,7 @@ class JobViewTests(APITestCase):
             salary_max=1000,
             description="Featured lower salary job",
             requirements="Featured lower salary requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
             created_by=self.user,
@@ -288,7 +288,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired by deadline",
             requirements="Expired requirements",
-            application_deadline=timezone.now().date() - timedelta(days=1),
+            application_deadline=timezone.localdate() - timedelta(days=1),
             status="published",
             created_by=self.user,
         )
@@ -300,7 +300,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Active job",
             requirements="Active requirements",
-            application_deadline=timezone.now().date() + timedelta(days=7),
+            application_deadline=timezone.localdate() + timedelta(days=7),
             status="published",
             created_by=self.user,
         )
@@ -333,10 +333,10 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Active featured job",
             requirements="Active featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
-            featured_until=timezone.now().date() + timedelta(days=1),
+            featured_until=timezone.localdate() + timedelta(days=1),
             created_by=self.user,
         )
         expired_featured_job = Job.objects.create(
@@ -347,10 +347,10 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired featured job",
             requirements="Expired featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
-            featured_until=timezone.now().date() - timedelta(days=1),
+            featured_until=timezone.localdate() - timedelta(days=1),
             created_by=self.user,
         )
         Job.objects.filter(id=active_featured_job.id).update(
@@ -390,10 +390,10 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Active featured job",
             requirements="Active featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
-            featured_until=timezone.now().date() + timedelta(days=1),
+            featured_until=timezone.localdate() + timedelta(days=1),
             created_by=self.user,
         )
         expired_featured_job = Job.objects.create(
@@ -404,10 +404,10 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired featured job",
             requirements="Expired featured requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             featured=True,
-            featured_until=timezone.now().date() - timedelta(days=1),
+            featured_until=timezone.localdate() - timedelta(days=1),
             created_by=self.user,
         )
         Job.objects.filter(id=active_featured_job.id).update(
@@ -479,7 +479,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired job",
             requirements="Python",
-            application_deadline=timezone.now().date() - timedelta(days=1),
+            application_deadline=timezone.localdate() - timedelta(days=1),
             status="published",
             created_by=self.user,
         )
@@ -514,7 +514,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Expired job",
             requirements="Python",
-            application_deadline=timezone.now().date() - timedelta(days=1),
+            application_deadline=timezone.localdate() - timedelta(days=1),
             status="published",
             created_by=self.user,
         )
@@ -540,7 +540,7 @@ class JobViewTests(APITestCase):
             level="junior",
             description="Part-time testing work",
             requirements="Testing basics",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user,
         )
@@ -582,7 +582,7 @@ class JobViewTests(APITestCase):
             experience_years_max=5,
             description="Backend work",
             requirements="Three to five years of experience",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user,
         )
@@ -596,7 +596,7 @@ class JobViewTests(APITestCase):
             experience_years_max=12,
             description="Principal backend work",
             requirements="Eight years of experience",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user,
         )
@@ -629,7 +629,7 @@ class JobViewTests(APITestCase):
             level="middle",
             description="Build payment quality workflows",
             requirements="Testing experience",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             created_by=self.user2,
         )
@@ -1127,7 +1127,7 @@ class JobViewTests(APITestCase):
             level="senior",
             description="Job description",
             requirements="Job requirements",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status="published",
             view_count=999,
             featured=False,

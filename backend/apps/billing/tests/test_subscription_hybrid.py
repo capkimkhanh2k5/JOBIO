@@ -4,7 +4,9 @@ Test cases cho Subscription Hybrid Logic.
 - New Subscription: Aggressive (xoá gói cũ ngay, tạo gói mới).
 """
 
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -43,13 +45,27 @@ class TestSubscriptionHybridLogic(TestCase):
     # ==========================================================================
     def test_subscribe_new_company(self):
         """Company không có gói cước -> Tạo mới thành công"""
+        today = timezone.localdate()
         sub = SubscriptionService.subscribe(self.company, self.basic_plan)
 
         self.assertEqual(sub.status, CompanySubscription.Status.ACTIVE)
         self.assertEqual(sub.plan, self.basic_plan)
         self.assertTrue(sub.auto_renew)
-        self.assertEqual(sub.start_date, timezone.now().date())
-        self.assertEqual(sub.end_date, timezone.now().date() + timedelta(days=30))
+        self.assertEqual(sub.start_date, today)
+        self.assertEqual(sub.end_date, today + timedelta(days=30))
+
+    def test_subscribe_uses_local_business_date_at_utc_boundary(self):
+        """Subscription DateFields follow Asia/Ho_Chi_Minh business date."""
+        utc_now = datetime(2026, 5, 30, 18, 30, tzinfo=UTC)
+
+        with patch(
+            "apps.billing.services.subscriptions.timezone.now",
+            return_value=utc_now,
+        ):
+            sub = SubscriptionService.subscribe(self.company, self.basic_plan)
+
+        self.assertEqual(sub.start_date.isoformat(), "2026-05-31")
+        self.assertEqual(sub.end_date.isoformat(), "2026-06-30")
 
     def test_subscribe_free_plan_creates_completed_transaction(self):
         """Free plan -> Transaction với status=COMPLETED"""
@@ -93,8 +109,8 @@ class TestSubscriptionHybridLogic(TestCase):
         pending_sub = CompanySubscription.objects.create(
             company=self.company,
             plan=self.free_plan,
-            start_date=timezone.now().date() + timedelta(days=31),
-            end_date=timezone.now().date() + timedelta(days=61),
+            start_date=timezone.localdate() + timedelta(days=31),
+            end_date=timezone.localdate() + timedelta(days=61),
             status=CompanySubscription.Status.PENDING,
             auto_renew=True,
         )

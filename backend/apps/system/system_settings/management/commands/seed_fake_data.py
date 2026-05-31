@@ -216,6 +216,7 @@ class Command(BaseCommand):
         types_choices = [c[0] for c in Job.JobType.choices]
 
         now = timezone.now()
+        today = timezone.localdate(now)
 
         for i in range(count):
             comp = random.choice(companies)
@@ -258,8 +259,7 @@ class Command(BaseCommand):
                     benefits="<ul><li>Lương tháng 13</li><li>Review lương 2 lần/năm</li><li>Du lịch công ty hàng năm</li></ul>",
                     address=random.choice(addresses) if addresses else None,
                     is_remote=is_remote,
-                    application_deadline=now.date()
-                    + timedelta(days=random.randint(10, 60)),
+                    application_deadline=today + timedelta(days=random.randint(10, 60)),
                     status=status,
                     published_at=now - timedelta(days=random.randint(0, 30))
                     if status != Job.Status.DRAFT

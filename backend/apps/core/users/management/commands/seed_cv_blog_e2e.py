@@ -60,6 +60,7 @@ class Command(BaseCommand):
             self._reset()
 
         now = timezone.now()
+        today = timezone.localdate(now)
         admin = self._upsert_user(
             EMAILS["admin"],
             "E2E Blog Admin",
@@ -174,10 +175,10 @@ class Command(BaseCommand):
                 "description": "Build production APIs for the JOBIO E2E flow.",
                 "requirements": "E2E Python, Django, APIs",
                 "address": address,
-                "application_deadline": now.date() + timedelta(days=30),
+                "application_deadline": today + timedelta(days=30),
                 "status": Job.Status.PUBLISHED,
                 "featured": True,
-                "featured_until": now.date() + timedelta(days=7),
+                "featured_until": today + timedelta(days=7),
                 "published_at": now,
                 "created_by": company_user,
             },

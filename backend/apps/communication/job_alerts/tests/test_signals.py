@@ -24,7 +24,7 @@ class JobAlertSignalTest(TestCase):
             company=self.company,
             title="Backend Dev",
             status=Job.Status.DRAFT,
-            application_deadline=timezone.now().date(),
+            application_deadline=timezone.localdate(),
             job_type=Job.JobType.FULL_TIME,
             level=Job.Level.JUNIOR,
             description="Test Description",

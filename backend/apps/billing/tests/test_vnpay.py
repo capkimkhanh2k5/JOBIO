@@ -288,8 +288,8 @@ class TestVNPayIntegration(APITestCase):
         active_sub = CompanySubscription.objects.create(
             company=self.company_profile,
             plan=self.plan,
-            start_date=timezone.now().date(),
-            end_date=timezone.now().date() + timedelta(days=30),
+            start_date=timezone.localdate(),
+            end_date=timezone.localdate() + timedelta(days=30),
             status=CompanySubscription.Status.ACTIVE,
             auto_renew=True,
         )
@@ -348,8 +348,8 @@ class TestVNPayIntegration(APITestCase):
         CompanySubscription.objects.create(
             company=self.company_profile,
             plan=max_3,
-            start_date=timezone.now().date(),
-            end_date=timezone.now().date() + timedelta(days=90),
+            start_date=timezone.localdate(),
+            end_date=timezone.localdate() + timedelta(days=90),
             status=CompanySubscription.Status.ACTIVE,
             auto_renew=True,
         )
@@ -381,8 +381,8 @@ class TestVNPayIntegration(APITestCase):
         active_sub = CompanySubscription.objects.create(
             company=self.company_profile,
             plan=max_3,
-            start_date=timezone.now().date(),
-            end_date=timezone.now().date() + timedelta(days=90),
+            start_date=timezone.localdate(),
+            end_date=timezone.localdate() + timedelta(days=90),
             status=CompanySubscription.Status.ACTIVE,
             auto_renew=True,
         )
@@ -421,7 +421,7 @@ class TestVNPayIntegration(APITestCase):
         self.assertEqual(active_sub.plan_id, max_6.id)
         self.assertEqual(active_sub.status, CompanySubscription.Status.ACTIVE)
         self.assertEqual(
-            active_sub.end_date, timezone.now().date() + timedelta(days=270)
+            active_sub.end_date, timezone.localdate() + timedelta(days=270)
         )
 
     def test_vnpay_ipn_idempotent_response(self):
