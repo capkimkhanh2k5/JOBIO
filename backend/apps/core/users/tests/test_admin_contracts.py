@@ -111,7 +111,7 @@ class AdminApiContractTests(APITestCase):
             level=Job.Level.SENIOR,
             description="Matrix backend work",
             requirements="Python and Django",
-            application_deadline=timezone.now().date() + timedelta(days=30),
+            application_deadline=timezone.localdate() + timedelta(days=30),
             status=Job.Status.PUBLISHED,
             created_by=self.company_user,
         )

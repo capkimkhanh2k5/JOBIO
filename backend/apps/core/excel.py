@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import zipfile
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from io import BytesIO
 from typing import Iterable, Sequence
@@ -215,7 +215,7 @@ def _app_xml() -> str:
 
 
 def _core_xml() -> str:
-    created_at = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    created_at = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     return f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <dc:creator>JOBIO</dc:creator>

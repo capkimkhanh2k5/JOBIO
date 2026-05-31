@@ -20,14 +20,14 @@ class SubscriptionService:
         1. status is 'ACTIVE'
         2. end_date is >= today
         """
-        now = timezone.localdate()
+        today = timezone.localdate()
 
         return (
             CompanySubscription.objects.filter(
                 company_id=company_id,
                 status=CompanySubscription.Status.ACTIVE,
-                start_date__lte=now,
-                end_date__gte=now,
+                start_date__lte=today,
+                end_date__gte=today,
             )
             .select_related("plan")
             .order_by("-end_date", "-created_at")
@@ -74,8 +74,8 @@ class SubscriptionService:
             updated_at=now,
         )
 
-        start_date = timezone.localdate()
-        end_date = start_date + timedelta(days=plan.duration_days)
+        start_date = today
+        end_date = today + timedelta(days=plan.duration_days)
 
         sub = CompanySubscription.objects.create(
             company=company,
@@ -105,12 +105,13 @@ class SubscriptionService:
         """
         Disable auto-renew for current active subscription.
         """
+        today = timezone.localdate()
         sub = (
             CompanySubscription.objects.filter(
                 company=company,
                 status=CompanySubscription.Status.ACTIVE,
-                start_date__lte=timezone.localdate(),
-                end_date__gte=timezone.localdate(),
+                start_date__lte=today,
+                end_date__gte=today,
             )
             .order_by("-end_date", "-created_at")
             .first()
@@ -281,8 +282,8 @@ class SubscriptionService:
         - If company has active different plan: replace it immediately (fallback safety).
         - If no active plan: create a new active subscription.
         """
-        today = timezone.localdate()
         now = timezone.now()
+        today = timezone.localdate(now)
         active_sub = (
             CompanySubscription.objects.filter(
                 company=company,

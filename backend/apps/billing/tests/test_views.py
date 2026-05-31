@@ -149,8 +149,8 @@ class TestCompanySubscriptionViewSet(APITestCase):
         CompanySubscription.objects.create(
             company=self.company,
             plan=self.plan,
-            start_date=timezone.now().date() - timedelta(days=31),
-            end_date=timezone.now().date() - timedelta(days=1),
+            start_date=timezone.localdate() - timedelta(days=31),
+            end_date=timezone.localdate() - timedelta(days=1),
             status=CompanySubscription.Status.ACTIVE,
         )
 
@@ -170,8 +170,8 @@ class TestCompanySubscriptionViewSet(APITestCase):
         CompanySubscription.objects.create(
             company=self.company,
             plan=self.plan,
-            start_date=timezone.now().date(),
-            end_date=timezone.now().date() + timedelta(days=30),
+            start_date=timezone.localdate(),
+            end_date=timezone.localdate() + timedelta(days=30),
             status=CompanySubscription.Status.ACTIVE,
         )
 

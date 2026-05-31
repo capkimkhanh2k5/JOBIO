@@ -141,7 +141,7 @@ class ApplicationViewTests(APITestCase):
             level="junior",
             description="Expired job",
             requirements="Requirements",
-            application_deadline=timezone.now().date() - timedelta(days=1),
+            application_deadline=timezone.localdate() - timedelta(days=1),
             status="published",
             created_by=self.job_owner,
         )

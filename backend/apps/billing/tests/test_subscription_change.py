@@ -31,7 +31,7 @@ class SubscriptionChangeTest(TestCase):
         )
 
         # Setup Current Subscription (Basic) starting 10 days ago (20 days remaining)
-        self.start_date = timezone.now().date() - timedelta(days=10)
+        self.start_date = timezone.localdate() - timedelta(days=10)
         self.end_date = self.start_date + timedelta(days=30)
 
         self.current_sub = CompanySubscription.objects.create(
@@ -58,7 +58,7 @@ class SubscriptionChangeTest(TestCase):
         # Check New Sub
         self.assertEqual(new_sub.plan, self.pro_plan)
         self.assertEqual(new_sub.status, CompanySubscription.Status.ACTIVE)
-        self.assertEqual(new_sub.start_date, timezone.now().date())
+        self.assertEqual(new_sub.start_date, timezone.localdate())
 
         # Check Transaction
         tx = Transaction.objects.filter(company=self.company).last()
