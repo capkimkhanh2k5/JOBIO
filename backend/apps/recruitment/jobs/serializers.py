@@ -2,6 +2,38 @@ from django.utils import timezone
 from rest_framework import serializers
 from .models import Job
 
+MAX_EXPERIENCE_YEARS = 50
+
+
+def _validate_job_ranges(attrs, job=None):
+    salary_min = attrs.get("salary_min", getattr(job, "salary_min", None))
+    salary_max = attrs.get("salary_max", getattr(job, "salary_max", None))
+    if salary_min is not None and salary_max is not None and salary_max < salary_min:
+        raise serializers.ValidationError(
+            {"salary_max": "Salary max must be >= salary min"}
+        )
+
+    exp_min = attrs.get(
+        "experience_years_min", getattr(job, "experience_years_min", None)
+    )
+    exp_max = attrs.get(
+        "experience_years_max", getattr(job, "experience_years_max", None)
+    )
+    if exp_min is not None and exp_max is not None and exp_max < exp_min:
+        raise serializers.ValidationError(
+            {"experience_years_max": "Max experience must be >= min experience"}
+        )
+
+    deadline = attrs.get(
+        "application_deadline", getattr(job, "application_deadline", None)
+    )
+    if deadline is not None and deadline < timezone.localdate():
+        raise serializers.ValidationError(
+            {"application_deadline": "Application deadline cannot be in the past"}
+        )
+
+    return attrs
+
 
 def _is_effectively_expired(job: Job) -> bool:
     if job.status == Job.Status.EXPIRED:
@@ -115,6 +147,13 @@ class JobListSerializer(serializers.ModelSerializer):
         return self.get_locations(obj)
 
     def get_locations(self, obj):
+        locations = list(obj.locations.all())
+        primary_location = next(
+            (location for location in locations if location.is_primary), None
+        )
+        location = primary_location or (locations[0] if locations else None)
+        if location and location.address and location.address.province:
+            return location.address.province.province_name
         if obj.address and hasattr(obj.address, "province") and obj.address.province:
             return obj.address.province.province_name
         return "Toàn quốc"
@@ -251,13 +290,17 @@ class JobCreateSerializer(serializers.Serializer):
 
     # Optional
     category_id = serializers.IntegerField(required=False, allow_null=True)
-    experience_years_min = serializers.IntegerField(required=False, default=0)
-    experience_years_max = serializers.IntegerField(required=False, allow_null=True)
+    experience_years_min = serializers.IntegerField(
+        required=False, default=0, min_value=0, max_value=MAX_EXPERIENCE_YEARS
+    )
+    experience_years_max = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0, max_value=MAX_EXPERIENCE_YEARS
+    )
     salary_min = serializers.DecimalField(
-        max_digits=15, decimal_places=2, required=False, allow_null=True
+        max_digits=15, decimal_places=2, required=False, allow_null=True, min_value=0
     )
     salary_max = serializers.DecimalField(
-        max_digits=15, decimal_places=2, required=False, allow_null=True
+        max_digits=15, decimal_places=2, required=False, allow_null=True, min_value=0
     )
     salary_currency = serializers.CharField(
         max_length=10, required=False, default="VND"
@@ -268,7 +311,9 @@ class JobCreateSerializer(serializers.Serializer):
         default="monthly",
     )
     is_salary_negotiable = serializers.BooleanField(required=False, default=False)
-    number_of_positions = serializers.IntegerField(required=False, default=1)
+    number_of_positions = serializers.IntegerField(
+        required=False, default=1, min_value=1, max_value=999
+    )
     benefits = serializers.CharField(required=False, allow_blank=True)
     seo_title = serializers.CharField(
         max_length=70, required=False, allow_blank=True, default=""
@@ -283,23 +328,7 @@ class JobCreateSerializer(serializers.Serializer):
     application_deadline = serializers.DateField(required=False, allow_null=True)
 
     def validate(self, attrs):
-        # Validate salary_max >= salary_min
-        salary_min = attrs.get("salary_min")
-        salary_max = attrs.get("salary_max")
-        if salary_min and salary_max and salary_max < salary_min:
-            raise serializers.ValidationError(
-                {"salary_max": "Salary max must be >= salary min"}
-            )
-
-        # Validate experience_years_max >= experience_years_min
-        exp_min = attrs.get("experience_years_min", 0)
-        exp_max = attrs.get("experience_years_max")
-        if exp_max is not None and exp_max < exp_min:
-            raise serializers.ValidationError(
-                {"experience_years_max": "Max experience must be >= min experience"}
-            )
-
-        return attrs
+        return _validate_job_ranges(attrs, self.instance)
 
 
 class JobUpdateSerializer(serializers.Serializer):
@@ -326,20 +355,26 @@ class JobUpdateSerializer(serializers.Serializer):
         ],
         required=False,
     )
-    experience_years_min = serializers.IntegerField(required=False)
-    experience_years_max = serializers.IntegerField(required=False, allow_null=True)
+    experience_years_min = serializers.IntegerField(
+        required=False, min_value=0, max_value=MAX_EXPERIENCE_YEARS
+    )
+    experience_years_max = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0, max_value=MAX_EXPERIENCE_YEARS
+    )
     salary_min = serializers.DecimalField(
-        max_digits=15, decimal_places=2, required=False, allow_null=True
+        max_digits=15, decimal_places=2, required=False, allow_null=True, min_value=0
     )
     salary_max = serializers.DecimalField(
-        max_digits=15, decimal_places=2, required=False, allow_null=True
+        max_digits=15, decimal_places=2, required=False, allow_null=True, min_value=0
     )
     salary_currency = serializers.CharField(max_length=10, required=False)
     salary_type = serializers.ChoiceField(
         choices=["monthly", "yearly", "hourly", "project"], required=False
     )
     is_salary_negotiable = serializers.BooleanField(required=False)
-    number_of_positions = serializers.IntegerField(required=False)
+    number_of_positions = serializers.IntegerField(
+        required=False, min_value=1, max_value=999
+    )
     description = serializers.CharField(required=False)
     requirements = serializers.CharField(required=False)
     benefits = serializers.CharField(required=False, allow_blank=True)
@@ -355,13 +390,7 @@ class JobUpdateSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        salary_min = attrs.get("salary_min")
-        salary_max = attrs.get("salary_max")
-        if salary_min and salary_max and salary_max < salary_min:
-            raise serializers.ValidationError(
-                {"salary_max": "Salary max must be >= salary min"}
-            )
-        return attrs
+        return _validate_job_ranges(attrs, self.instance)
 
 
 class JobStatusSerializer(serializers.Serializer):

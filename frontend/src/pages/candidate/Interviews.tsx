@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,11 +10,11 @@ import {
     ExternalLink,
     Calendar,
     Phone,
+    Search,
     type LucideIcon,
 } from 'lucide-react';
 import { candidateService } from '@/services/candidateService';
 import type { InterviewListItem } from '@/types/api';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -114,12 +114,6 @@ const getModeDetail = (interview: InterviewListItem, mode: InterviewMode) => {
     return meetingLink ? meetingLink : modeConfig.video.emptyText;
 };
 
-const getInitials = (name?: string | null) => {
-    if (!name) return 'HR';
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return parts.slice(-2).map((part) => part[0]).join('').toUpperCase() || 'HR';
-};
-
 const getPhoneHref = (value?: string | null) => {
     const phone = (value || '').replace(/[^\d+]/g, '');
     return phone ? `tel:${phone}` : undefined;
@@ -135,25 +129,47 @@ const toArray = <T,>(value: T[] | { results?: T[] } | undefined | null): T[] => 
 
 export default function Interviews() {
     const [activeTab, setActiveTab] = useState('upcoming');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const { data: interviews = [], isLoading } = useQuery({
         queryKey: ['candidate', 'interviews'],
         queryFn: async () => {
-            const response = await candidateService.listInterviews();
+            const response = await candidateService.listInterviews({ page_size: 100 });
             return toArray<InterviewListItem>(response.data);
         },
     });
 
-    const filteredInterviews = interviews.filter((interview: InterviewListItem) => {
-        const status = String(interview.status || '').toLowerCase();
+    const { filteredInterviews, tabCounts } = useMemo(() => {
+        const isInTab = (interview: InterviewListItem, tab: string) => {
+            const status = String(interview.status || '').toLowerCase();
 
-        if (activeTab === 'upcoming') {
-            return !['completed', 'cancelled', 'no_show', 'no-show'].includes(status);
-        }
-        if (activeTab === 'completed') return status === 'completed';
-        if (activeTab === 'cancelled') return ['cancelled', 'no_show', 'no-show'].includes(status);
-        return true;
-    });
+            if (tab === 'upcoming') {
+                return !['completed', 'cancelled', 'no_show', 'no-show'].includes(status);
+            }
+            if (tab === 'completed') return status === 'completed';
+            if (tab === 'cancelled') return status === 'cancelled';
+            if (tab === 'missed') return ['no_show', 'no-show'].includes(status);
+            return true;
+        };
+
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+        const searchableInterviews = interviews.filter((interview: InterviewListItem) => {
+            if (!normalizedQuery) return true;
+
+            return [interview.job_title, interview.company_name]
+                .some((value) => String(value || '').toLowerCase().includes(normalizedQuery));
+        });
+
+        return {
+            filteredInterviews: searchableInterviews.filter((interview) => isInTab(interview, activeTab)),
+            tabCounts: {
+                upcoming: interviews.filter((interview) => isInTab(interview, 'upcoming')).length,
+                completed: interviews.filter((interview) => isInTab(interview, 'completed')).length,
+                cancelled: interviews.filter((interview) => isInTab(interview, 'cancelled')).length,
+                missed: interviews.filter((interview) => isInTab(interview, 'missed')).length,
+            },
+        };
+    }, [activeTab, interviews, searchQuery]);
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0">
@@ -165,182 +181,170 @@ export default function Interviews() {
                 />
             </div>
 
-            <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
-                {/* Filter bar — notification style */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                        {[
-                            { key: 'upcoming', label: 'Sắp tới' },
-                            { key: 'completed', label: 'Đã xong' },
-                            { key: 'cancelled', label: 'Đã hủy' },
-                        ].map((tab) => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={cn(
-                                    'px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer',
-                                    activeTab === tab.key
-                                        ? 'bg-violet-600 text-white shadow-md'
-                                        : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
-                                )}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+            <div className="p-6 lg:p-8 w-full flex-1 relative z-10">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-50/50">
+                        <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto w-full sm:w-fit">
+                            {[
+                                { key: 'upcoming', label: 'Sắp tới' },
+                                { key: 'completed', label: 'Đã xong' },
+                                { key: 'cancelled', label: 'Đã hủy' },
+                                { key: 'missed', label: 'Vắng mặt' },
+                            ].map((tab) => {
+                                const isActive = activeTab === tab.key;
+                                const count = tabCounts[tab.key as keyof typeof tabCounts];
 
-                    <div className="flex items-center gap-2 text-sm text-slate-500 bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm">
-                        <Clock size={16} />
-                        <span>Múi giờ: (GMT+07:00) Bangkok, Hanoi, Jakarta</span>
-                    </div>
-                </div>
-
-                {/* Content */}
-                {isLoading ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[240px] rounded-2xl" />)}
-                    </div>
-                ) : !filteredInterviews.length ? (
-                    <div className="py-20 text-center flex flex-col items-center w-full bg-white border border-dashed border-slate-200 rounded-2xl shadow-sm">
-                        <div className="w-20 h-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mb-6">
-                            <Calendar className="w-10 h-10 text-white" />
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setActiveTab(tab.key)}
+                                        className={cn(
+                                            'flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap',
+                                            isActive
+                                                ? 'bg-violet-600 text-white shadow-md'
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                        )}
+                                    >
+                                        {tab.label}
+                                        {count > 0 && (
+                                            <span className={cn(
+                                                'text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center',
+                                                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                            )}>
+                                                {count}
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">Chưa có lịch phỏng vấn</h3>
-                        <p className="text-slate-500 max-w-xl">
-                            {activeTab === 'upcoming'
-                                ? 'Hiện tại bạn chưa có lịch phỏng vấn nào sắp tới. Hãy tiếp tục ứng tuyển và chờ phản hồi từ nhà tuyển dụng nhé!'
-                                : 'Bạn chưa có dữ liệu phỏng vấn ở mục này.'}
-                        </p>
+
+                        <div className="relative w-full sm:w-72 shrink-0">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Tìm theo vị trí hoặc công ty..."
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-400 bg-white shadow-sm"
+                                value={searchQuery}
+                                onChange={(event) => setSearchQuery(event.target.value)}
+                            />
+                        </div>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <AnimatePresence mode="popLayout">
-                                    {filteredInterviews.map((interview: InterviewListItem, idx: number) => {
-                                        const mode = getInterviewMode(interview);
-                                        const config = modeConfig[mode];
-                                        const ModeIcon = config.icon;
-                                        const companyName = interview.company_name || 'Công ty chưa cập nhật';
-                                        const scheduledAt = new Date(interview.scheduled_at);
-                                        const interviewers = interview.interviewers?.length
-                                            ? interview.interviewers
-                                            : interview.interviewer_name
-                                                ? [{ id: interview.interviewer || 0, name: interview.interviewer_name, avatar: interview.interviewer_avatar }]
-                                                : [];
-                                        const meetingLink = (interview.meeting_link || '').trim();
-                                        const phoneHref = getPhoneHref(meetingLink);
-                                        const canAct = isActionableStatus(interview.status);
 
-                                        return (
-                                            <motion.div
-                                                key={interview.id}
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.95 }}
-                                                transition={{ duration: 0.3, delay: idx * 0.1 }}
-                                            >
-                                                <Card className="group relative bg-white hover:shadow-md border-slate-200 shadow-sm transition-all duration-300 rounded-2xl overflow-hidden p-6">
-                                                    <div className="flex justify-between items-start gap-4 mb-6">
-                                                        <div className="flex gap-4 min-w-0">
-                                                            <div className={`w-14 h-14 rounded-xl bg-gradient-to-br border shadow-sm flex items-center justify-center shrink-0 ${config.avatarClass}`}>
-                                                                <ModeIcon className={`w-6 h-6 ${config.iconClass}`} />
-                                                            </div>
-                                                            <div className="min-w-0">
-                                                                <h3 className="text-xl font-bold text-slate-900 mb-1 group-hover:text-violet-600 transition-colors line-clamp-1">
-                                                                    Phỏng vấn: {interview.job_title || 'Vị trí ứng tuyển'}
-                                                                </h3>
-                                                                <p className="font-semibold text-slate-600 flex items-center gap-1.5 uppercase tracking-wider text-xs line-clamp-1">
-                                                                    <Building2 className="w-3.5 h-3.5 shrink-0" />
-                                                                    {companyName}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <Badge className={`${statusStyles[interview.status] || statusStyles.pending} font-medium border shrink-0`}>
-                                                            {statusLabels[interview.status] || interview.status}
-                                                        </Badge>
-                                                    </div>
-
-                                                    <div className="space-y-4 mb-6">
-                                                        <div className="flex items-center gap-3 text-slate-600 bg-slate-50 rounded-xl p-3">
-                                                            <div className="p-2 bg-white rounded-lg shadow-sm">
-                                                                <Calendar className="w-4 h-4 text-violet-600" />
-                                                            </div>
-                                                            <div className="text-sm min-w-0">
-                                                                <span className="font-bold text-slate-900 block capitalize">
-                                                                    {format(scheduledAt, 'eeee, dd MMMM yyyy', { locale: vi })}
-                                                                </span>
-                                                                <span className="flex items-center gap-1.5 mt-0.5">
-                                                                    <Clock className="w-3.5 h-3.5 text-slate-400" />
-                                                                    {format(scheduledAt, 'HH:mm')} ({interview.duration_minutes || interview.duration || 0} phút)
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex items-start gap-3 text-slate-600 px-3">
-                                                            <div className="p-2 bg-slate-100 rounded-lg mt-0.5">
-                                                                <ModeIcon className="w-4 h-4 text-slate-500" />
-                                                            </div>
-                                                            <div className="text-sm font-medium min-w-0">
-                                                                <div className="flex flex-wrap items-center gap-2">
-                                                                    <span className="text-slate-900">{config.label}</span>
-                                                                    {interview.interview_type_name && (
-                                                                        <Badge variant="outline" className="bg-white/70 border-slate-200 text-slate-500">
-                                                                            {interview.interview_type_name}
-                                                                        </Badge>
-                                                                    )}
-                                                                </div>
-                                                                <p className="mt-1 text-slate-500 line-clamp-2">
-                                                                    {getModeDetail(interview, mode)}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-100">
-                                                        <div className="flex -space-x-2 min-w-0">
-                                                            {interviewers.length ? interviewers.slice(0, 3).map((person) => (
-                                                                <div key={`${person.id}-${person.name}`} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600 overflow-hidden">
-                                                                    {person.avatar ? (
-                                                                        <img src={person.avatar} alt={person.name} className="w-full h-full object-cover" />
-                                                                    ) : (
-                                                                        getInitials(person.name)
-                                                                    )}
-                                                                </div>
-                                                            )) : (
-                                                                <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
-                                                                    HR
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex gap-2 shrink-0">
-                                                            <Button variant="ghost" size="sm" className="rounded-lg h-9 hover:bg-slate-50">
-                                                                Liên hệ HR
-                                                            </Button>
-                                                            {mode === 'video' && meetingLink && canAct && (
-                                                                <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700 text-white rounded-lg h-9 shadow-lg shadow-violet-500/20">
-                                                                    <a href={meetingLink} target="_blank" rel="noreferrer">
-                                                                        <ExternalLink className="w-3.5 h-3.5 mr-2" />
-                                                                        Tham gia
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                            {mode === 'phone' && phoneHref && canAct && (
-                                                                <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg h-9 shadow-lg shadow-emerald-500/20">
-                                                                    <a href={phoneHref}>
-                                                                        <Phone className="w-3.5 h-3.5 mr-2" />
-                                                                        Gọi HR
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </Card>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </AnimatePresence>
+                    {isLoading ? (
+                        <div className="p-4 space-y-4">
+                            {[1, 2, 3].map((item) => <Skeleton key={item} className="w-full h-36 rounded-xl" />)}
+                        </div>
+                    ) : !filteredInterviews.length ? (
+                        <div className="py-20 text-center flex flex-col items-center">
+                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                                <Calendar className="w-8 h-8 text-slate-300" />
                             </div>
-                        )}
+                            <h3 className="text-lg font-bold text-slate-700 mb-1">Không tìm thấy lịch phỏng vấn</h3>
+                            <p className="text-slate-500 text-sm max-w-sm">
+                                {searchQuery
+                                    ? 'Không có kết quả nào phù hợp với tìm kiếm của bạn.'
+                                    : 'Bạn chưa có lịch phỏng vấn nào ở trạng thái này.'}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-slate-100">
+                            <AnimatePresence mode="popLayout">
+                                {filteredInterviews.map((interview: InterviewListItem, idx: number) => {
+                                    const mode = getInterviewMode(interview);
+                                    const config = modeConfig[mode];
+                                    const ModeIcon = config.icon;
+                                    const companyName = interview.company_name || 'Công ty chưa cập nhật';
+                                    const scheduledAt = new Date(interview.scheduled_at);
+                                    const meetingLink = (interview.meeting_link || '').trim();
+                                    const phoneHref = getPhoneHref(meetingLink);
+                                    const canAct = isActionableStatus(interview.status);
+
+                                    return (
+                                        <motion.div
+                                            key={interview.id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            transition={{ duration: 0.2, delay: idx * 0.05 }}
+                                            className="p-5 hover:bg-slate-50 transition-colors group flex flex-col sm:flex-row gap-5"
+                                        >
+                                            <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-2">
+                                                <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-2 group-hover:border-violet-200 transition-colors overflow-hidden">
+                                                    {interview.company_logo ? (
+                                                        <img src={interview.company_logo} alt={companyName} className="w-full h-full object-contain" />
+                                                    ) : (
+                                                        <Building2 className="w-7 h-7 text-slate-300" />
+                                                    )}
+                                                </div>
+                                                <Badge className={`${statusStyles[interview.status] || statusStyles.pending} font-medium border hidden sm:inline-flex`}>
+                                                    {statusLabels[interview.status] || interview.status}
+                                                </Badge>
+                                            </div>
+
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start gap-3 mb-1">
+                                                    <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
+                                                        {interview.job_title || 'Vị trí ứng tuyển'}
+                                                    </h3>
+                                                    <Badge className={`${statusStyles[interview.status] || statusStyles.pending} font-medium border sm:hidden shrink-0`}>
+                                                        {statusLabels[interview.status] || interview.status}
+                                                    </Badge>
+                                                </div>
+
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 mb-3">
+                                                    <span className="font-medium text-slate-700 flex items-center gap-1.5">
+                                                        <Building2 className="w-4 h-4 text-slate-400" />
+                                                        {companyName}
+                                                    </span>
+                                                    <span className="text-slate-300">•</span>
+                                                    <span className="flex items-center gap-1.5 text-slate-500 capitalize">
+                                                        <Calendar className="w-4 h-4 text-slate-400" />
+                                                        {format(scheduledAt, 'eeee, dd/MM/yyyy', { locale: vi })}
+                                                    </span>
+                                                    <span className="text-slate-300">•</span>
+                                                    <span className="flex items-center gap-1.5 text-slate-500">
+                                                        <Clock className="w-4 h-4 text-slate-400" />
+                                                        {format(scheduledAt, 'HH:mm')} ({interview.duration_minutes || interview.duration || 0} phút)
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex flex-wrap items-center gap-2 text-xs">
+                                                    <Badge variant="outline" className="bg-white text-slate-600 border-slate-200 flex items-center gap-1.5 font-normal">
+                                                        <ModeIcon className={`w-3.5 h-3.5 ${config.iconClass}`} />
+                                                        {config.label}
+                                                    </Badge>
+                                                    <span className="text-slate-500 line-clamp-1">
+                                                        {getModeDetail(interview, mode)}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-shrink-0 flex items-center gap-2 sm:self-center">
+                                                {mode === 'video' && meetingLink && canAct && (
+                                                    <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-sm">
+                                                        <a href={meetingLink} target="_blank" rel="noreferrer">
+                                                            <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                                                            Tham gia
+                                                        </a>
+                                                    </Button>
+                                                )}
+                                                {mode === 'phone' && phoneHref && canAct && (
+                                                    <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm">
+                                                        <a href={phoneHref}>
+                                                            <Phone className="w-3.5 h-3.5 mr-2" />
+                                                            Gọi HR
+                                                        </a>
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

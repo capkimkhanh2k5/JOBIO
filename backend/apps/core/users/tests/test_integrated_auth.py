@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.utils import timezone
 from apps.core.users.models import CustomUser
+from apps.company.companies.models import Company
 
 AUTH_LOGIN = "/api/users/auth/login/"
 AUTH_LOGOUT = "/api/users/auth/logout/"
@@ -68,6 +69,29 @@ class TestIntegratedAuthAPIs(APITestCase):
         response = self.client.get(AUTH_ME)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["email"], self.user.email)
+
+    def test_auth_me_company_avatar_uses_company_logo(self):
+        company_user = CustomUser.objects.create_user(
+            email="company@example.com",
+            password="password123",
+            full_name="Company User",
+            role="company",
+            status="active",
+            avatar_url="https://example.com/old-avatar.png",
+        )
+        Company.objects.create(
+            user=company_user,
+            company_name="Example Company",
+            logo_url="https://example.com/company-logo.png",
+        )
+
+        self.client.force_authenticate(user=company_user)
+        response = self.client.get(AUTH_ME)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.data["avatar_url"], "https://example.com/company-logo.png"
+        )
 
     def test_logout_success(self):
         self.user.set_password("password123")

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '@/store/userStore';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { jobService } from '@/services/jobService';
 import { geographyService } from '@/services/geographyService';
+import { companyService } from '@/services/companyService';
 import { WizardProgress } from '@/components/company/wizard/WizardProgress';
 import { Step1BasicInfo } from '@/components/company/wizard/Step1BasicInfo';
 import { Step2Description } from '@/components/company/wizard/Step2Description';
@@ -22,6 +23,8 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, SendHorizonal, X, Clock } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 
+const HISTORY_BACK_NAVIGATION = '__history_back__';
+
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const step1Schema = z.object({
     title: z.string().min(5, 'Tối thiểu 5 ký tự').max(255, 'Tối đa 255 ký tự'),
@@ -29,14 +32,24 @@ const step1Schema = z.object({
     job_type: z.enum(['full_time', 'part_time', 'contract', 'internship', 'freelance'] as const),
     level: z.enum(['intern', 'fresher', 'junior', 'middle', 'senior', 'lead', 'manager', 'director'] as const),
     quantity: z.number().min(1, 'Tối thiểu 1').max(999),
-    salary_min: z.number().nullable().optional(),
-    salary_max: z.number().nullable().optional(),
+    salary_min: z.number().min(0, 'Lương tối thiểu không thể âm').nullable().optional(),
+    salary_max: z.number().min(0, 'Lương tối đa không thể âm').nullable().optional(),
     salary_currency: z.enum(['VND', 'USD'] as const),
     is_salary_visible: z.boolean(),
-    experience_min: z.number().nullable().optional(),
-    experience_max: z.number().nullable().optional(),
-    deadline: z.string().min(1, 'Vui lòng chọn hạn nộp hồ sơ'),
+    experience_min: z.number().min(0, 'Kinh nghiệm không thể âm').max(50, 'Kinh nghiệm tối đa là 50 năm').nullable().optional(),
+    experience_max: z.number().min(0, 'Kinh nghiệm không thể âm').max(50, 'Kinh nghiệm tối đa là 50 năm').nullable().optional(),
+    deadline: z.string().min(1, 'Vui lòng chọn hạn nộp hồ sơ').refine(
+        value => value >= getTodayLocalDate(),
+        'Hạn nộp hồ sơ không thể ở trong quá khứ'
+    ),
     is_remote: z.boolean(),
+}).superRefine((data, ctx) => {
+    if (data.salary_min != null && data.salary_max != null && data.salary_max < data.salary_min) {
+        ctx.addIssue({ code: 'custom', path: ['salary_max'], message: 'Lương tối đa phải lớn hơn hoặc bằng lương tối thiểu' });
+    }
+    if (data.experience_min != null && data.experience_max != null && data.experience_max < data.experience_min) {
+        ctx.addIssue({ code: 'custom', path: ['experience_max'], message: 'Kinh nghiệm tối đa phải lớn hơn hoặc bằng tối thiểu' });
+    }
 });
 
 const step2Schema = z.object({
@@ -62,9 +75,6 @@ const fullSchema = step1Schema.merge(step2Schema).merge(
             address_line: z.string(),
             is_primary: z.boolean(),
         })).min(1, 'Cần ít nhất 1 địa điểm'),
-        seo_title: z.string().optional(),
-        seo_description: z.string().optional(),
-        seo_keywords: z.array(z.string()).optional(),
     })
 );
 
@@ -73,7 +83,7 @@ export type { PostJobFormData };
 
 // ─── Step validators (partial validation) ─────────────────────────────────────
 const STEP_FIELDS: Record<number, (keyof PostJobFormData)[]> = {
-    1: ['title', 'category_id', 'job_type', 'level', 'quantity', 'deadline'],
+    1: ['title', 'category_id', 'job_type', 'level', 'quantity', 'salary_min', 'salary_max', 'experience_min', 'experience_max', 'deadline'],
     2: ['description', 'requirements'],
     3: ['locations'],
     4: [],
@@ -86,7 +96,12 @@ const slideVariants = {
     exit: (dir: number) => ({ x: dir > 0 ? -60 : 60, opacity: 0 }),
 };
 
-const SEO_DRAFT_STORAGE_KEY = 'jobio-job-seo-drafts';
+function getTodayLocalDate() {
+    const today = new Date();
+    const pad = (value: number) => String(value).padStart(2, '0');
+    return `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+}
+
 function normalizeDateForApi(value?: string | null) {
     if (!value) return null;
 
@@ -114,52 +129,28 @@ function toBackendProficiency(level: string | null | undefined) {
     return level;
 }
 
-function toFrontendProficiency(level: string | null | undefined) {
+function toFrontendProficiency(level: string | null | undefined): PostJobFormData['skills'][number]['proficiency_level'] {
     if (!level) return 'intermediate' as const;
     if (level === 'basic') return 'beginner' as const;
     if (level === 'intermediate' || level === 'advanced' || level === 'expert') return level;
     return 'intermediate' as const;
 }
 
-function readSeoDraft(jobId?: string | number | null) {
-    if (!jobId) return null;
-
-    try {
-        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        return parsed?.[String(jobId)] ?? null;
-    } catch {
-        return null;
-    }
+function escapeHtml(value: string) {
+    return value.replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[char] || char);
 }
 
-function writeSeoDraft(
-    jobId: string | number,
-    data: Pick<PostJobFormData, 'seo_title' | 'seo_description' | 'seo_keywords'>
-) {
-    try {
-        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : {};
-        parsed[String(jobId)] = data;
-        localStorage.setItem(SEO_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
-    } catch {
-        // ignore local storage errors
-    }
-}
-
-function clearSeoDraft(jobId?: string | number | null) {
-    if (!jobId) return;
-
-    try {
-        const raw = localStorage.getItem(SEO_DRAFT_STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        delete parsed[String(jobId)];
-        localStorage.setItem(SEO_DRAFT_STORAGE_KEY, JSON.stringify(parsed));
-    } catch {
-        // ignore local storage errors
-    }
+function buildCompanyBenefitsContent(benefits: Array<{ benefit_name: string; description?: string | null }>) {
+    const items = benefits
+        .filter(benefit => benefit.benefit_name?.trim())
+        .map(benefit => {
+            const name = escapeHtml(benefit.benefit_name.trim());
+            const description = benefit.description?.trim();
+            return `<li><strong>${name}</strong>${description ? `: ${escapeHtml(description)}` : ''}</li>`;
+        });
+    return items.length ? `<ul>${items.join('')}</ul>` : '';
 }
 
 
@@ -181,11 +172,16 @@ function PostJobEditor() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
     const [discardOpen, setDiscardOpen] = useState(false);
+    const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+    const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
     const [isPublishingFlow, setIsPublishingFlow] = useState(false);
     const { id } = useParams<{ id: string }>();
     const [draftId, setDraftId] = useState<string | null>(id || null);
     const lastSavedRef = useRef<Date | null>(null);
-    const seoDraftInitializedRef = useRef(false);
+    const companyBenefitsInitializedRef = useRef(false);
+    const allowNavigationRef = useRef(false);
+    const historyGuardActiveRef = useRef(false);
+    const savedSnapshotRef = useRef('');
 
     const syncNestedData = useCallback(async (jobId: number, data: PostJobFormData) => {
         const existingSkills = await jobService.listSkills(jobId).then((res) => res.data);
@@ -257,7 +253,7 @@ function PostJobEditor() {
     }, [user?.company_id]);
 
     const {
-        control, handleSubmit, trigger, getValues, reset, watch, formState: { errors, isDirty },
+        control, handleSubmit, trigger, getValues, reset, setValue, formState: { errors, isDirty },
     } = useForm<PostJobFormData>({
         resolver: zodResolver(fullSchema) as any,
         defaultValues: {
@@ -279,12 +275,42 @@ function PostJobEditor() {
             benefits: '',
             skills: [],
             locations: [],
-            seo_title: '',
-            seo_description: '',
-            seo_keywords: [],
         },
         mode: 'onChange',
     });
+    const watchedValues = useWatch({ control });
+
+    if (!savedSnapshotRef.current) {
+        savedSnapshotRef.current = JSON.stringify(getValues());
+    }
+
+    const hasUnsavedChanges = isDirty || JSON.stringify(watchedValues) !== savedSnapshotRef.current;
+
+    const markSavedIfCurrent = useCallback((savedData: PostJobFormData) => {
+        savedSnapshotRef.current = JSON.stringify(savedData);
+        if (JSON.stringify(getValues()) === JSON.stringify(savedData)) {
+            reset(savedData);
+        }
+    }, [getValues, reset]);
+
+    const { data: company } = useQuery({
+        queryKey: ['company-profile'],
+        queryFn: () => companyService.getMyCompany().then(res => res.data),
+    });
+
+    const { data: companyBenefits = [] } = useQuery({
+        queryKey: ['company-benefits', company?.id],
+        queryFn: () => companyService.listBenefits(Number(company!.id)).then(res => res.data),
+        enabled: !!company?.id,
+    });
+
+    useEffect(() => {
+        if (id || companyBenefitsInitializedRef.current || companyBenefits.length === 0 || getValues('benefits')) return;
+        const benefits = buildCompanyBenefitsContent(companyBenefits);
+        setValue('benefits', benefits, { shouldDirty: false });
+        savedSnapshotRef.current = JSON.stringify({ ...getValues(), benefits });
+        companyBenefitsInitializedRef.current = true;
+    }, [companyBenefits, getValues, id, setValue]);
 
     const { data: existingJob } = useQuery({
         queryKey: ['job', id, 'editor'],
@@ -322,8 +348,7 @@ function PostJobEditor() {
 
     useEffect(() => {
         if (existingJob) {
-            const seoDraft = readSeoDraft(existingJob.id || id);
-            reset({
+            const hydratedJob = {
                 title: existingJob.title || '',
                 category_id: (existingJob as any).category_id ? String((existingJob as any).category_id) : (existingJob.category?.id ? String(existingJob.category.id) : ''),
                 job_type: (existingJob.job_type?.replace('-', '_') as any) || 'full_time',
@@ -347,34 +372,11 @@ function PostJobEditor() {
                     proficiency_level: toFrontendProficiency(skill.proficiency_level),
                 })),
                 locations: existingJob.editor_locations || [],
-                seo_title: existingJob.seo_title || seoDraft?.seo_title || '',
-                seo_description: existingJob.seo_description || seoDraft?.seo_description || '',
-                seo_keywords: existingJob.seo_keywords || seoDraft?.seo_keywords || [],
-            });
-            seoDraftInitializedRef.current = true;
+            };
+            savedSnapshotRef.current = JSON.stringify(hydratedJob);
+            reset(hydratedJob);
         }
     }, [existingJob, reset]);
-
-    useEffect(() => {
-        if (!id) {
-            seoDraftInitializedRef.current = true;
-        }
-    }, [id]);
-
-    const seoTitle = watch('seo_title');
-    const seoDescription = watch('seo_description');
-    const seoKeywords = watch('seo_keywords');
-
-    useEffect(() => {
-        const targetId = draftId || id;
-        if (!targetId || !seoDraftInitializedRef.current) return;
-
-        writeSeoDraft(targetId, {
-            seo_title: seoTitle || '',
-            seo_description: seoDescription || '',
-            seo_keywords: seoKeywords || [],
-        });
-    }, [draftId, id, seoTitle, seoDescription, seoKeywords]);
 
 
     // ── Auto-save draft every 30s ──────────────────────────────────────────────
@@ -390,19 +392,10 @@ function PostJobEditor() {
             await syncNestedData(createdJob.id, data);
             return createdJob;
         },
-        onSuccess: (res: any) => {
+        onSuccess: (res: any, savedData) => {
             if (!draftId && res?.id) setDraftId(res.id);
-            writeSeoDraft(res?.id || draftId || id || 'new', {
-                seo_title: getValues('seo_title') || '',
-                seo_description: getValues('seo_description') || '',
-                seo_keywords: getValues('seo_keywords') || [],
-            });
-            writeSeoDraft(res?.id || draftId || id || 'new', {
-                seo_title: getValues('seo_title') || '',
-                seo_description: getValues('seo_description') || '',
-                seo_keywords: getValues('seo_keywords') || [],
-            });
             lastSavedRef.current = new Date();
+            markSavedIfCurrent(savedData);
             toast.success('Đã tự động lưu nháp', {
                 description: `Lúc ${new Date().toLocaleTimeString('vi-VN')}`,
                 duration: 2000,
@@ -412,12 +405,12 @@ function PostJobEditor() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isDirty && !isPublishingFlow) {
+            if (hasUnsavedChanges && !isPublishingFlow) {
                 autoSaveMutation.mutate(getValues());
             }
         }, 30_000);
         return () => clearInterval(interval);
-    }, [isDirty, getValues, autoSaveMutation, isPublishingFlow]);
+    }, [hasUnsavedChanges, getValues, autoSaveMutation, isPublishingFlow]);
 
     // ── Submit mutations ───────────────────────────────────────────────────────
     const saveDraftMutation = useMutation({
@@ -432,8 +425,10 @@ function PostJobEditor() {
             await syncNestedData(createdJob.id, data);
             return createdJob;
         },
-        onSuccess: (res: any) => {
+        onSuccess: (res: any, savedData) => {
             if (!draftId && res?.id) setDraftId(res.id);
+            lastSavedRef.current = new Date();
+            markSavedIfCurrent(savedData);
             toast.success('Đã lưu nháp thành công!', { description: 'Bạn có thể tiếp tục chỉnh sửa sau.' });
         },
     });
@@ -444,14 +439,22 @@ function PostJobEditor() {
         },
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
+            let job;
+
             if (draftId) {
-                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'published' } as any).then(r => r.data);
-                await syncNestedData(updatedJob.id, data);
-                return updatedJob;
+                job = await jobService.update(Number(draftId), payload as any).then(r => r.data);
+            } else {
+                job = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
+                setDraftId(String(job.id));
             }
-            const createdJob = await jobService.create({ ...payload, status: 'published' } as any).then(r => r.data);
-            await syncNestedData(createdJob.id, data);
-            return createdJob;
+
+            await syncNestedData(job.id, data);
+
+            if (job.status === 'published') {
+                return job;
+            }
+
+            return jobService.publish(job.id).then(r => r.data);
         },
         onSuccess: async () => {
             toast.success('Đăng tin thành công!', {
@@ -464,18 +467,24 @@ function PostJobEditor() {
                 queryClient.invalidateQueries({ queryKey: ['job', id, 'editor'] }),
             ]);
             if (user?.role === 'company') {
-                setTimeout(() => navigate('/company/jobs'), 1500);
+                allowNavigationRef.current = true;
+                setTimeout(() => {
+                    if (historyGuardActiveRef.current) {
+                        historyGuardActiveRef.current = false;
+                        window.history.back();
+                        window.setTimeout(() => navigate('/company/jobs'), 0);
+                        return;
+                    }
+
+                    navigate('/company/jobs');
+                }, 1500);
             }
         },
-        onError: () => {
+        onError: (error: any) => {
             setIsPublishingFlow(false);
+            toast.error(error?.response?.data?.detail || 'Không thể đăng tin. Vui lòng thử lại.');
         },
     });
-
-    useEffect(() => {
-        if (!publishMutation.isSuccess) return;
-        clearSeoDraft(draftId || id);
-    }, [publishMutation.isSuccess, draftId, id]);
 
     // ── Navigation ─────────────────────────────────────────────────────────────
     const goNext = useCallback(async () => {
@@ -498,6 +507,132 @@ function PostJobEditor() {
 
     const onPublish = handleSubmit(data => publishMutation.mutate(data));
 
+    const requestPageNavigation = useCallback((to: string) => {
+        if (hasUnsavedChanges && !allowNavigationRef.current) {
+            setPendingNavigation(to);
+            setDiscardOpen(true);
+            return;
+        }
+
+        navigate(to);
+    }, [hasUnsavedChanges, navigate]);
+
+    const completeNavigation = useCallback((to: string) => {
+        allowNavigationRef.current = true;
+
+        if (to === HISTORY_BACK_NAVIGATION) {
+            const historyDelta = historyGuardActiveRef.current ? -2 : -1;
+            historyGuardActiveRef.current = false;
+            window.history.go(historyDelta);
+            return;
+        }
+
+        if (historyGuardActiveRef.current) {
+            historyGuardActiveRef.current = false;
+            window.history.back();
+            window.setTimeout(() => navigate(to), 0);
+            return;
+        }
+
+        navigate(to);
+    }, [navigate]);
+
+    useEffect(() => {
+        if (!hasUnsavedChanges || isPublishingFlow) return;
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [hasUnsavedChanges, isPublishingFlow]);
+
+    useEffect(() => {
+        if (!hasUnsavedChanges || isPublishingFlow || allowNavigationRef.current) return;
+
+        if (!historyGuardActiveRef.current) {
+            window.history.pushState({ ...window.history.state, postJobDraftGuard: true }, '', window.location.href);
+            historyGuardActiveRef.current = true;
+        }
+
+        const handlePopState = () => {
+            if (allowNavigationRef.current) return;
+
+            window.history.pushState({ ...window.history.state, postJobDraftGuard: true }, '', window.location.href);
+            historyGuardActiveRef.current = true;
+            setPendingNavigation(HISTORY_BACK_NAVIGATION);
+            setDiscardOpen(true);
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [hasUnsavedChanges, isPublishingFlow]);
+
+    useEffect(() => {
+        if (hasUnsavedChanges || !historyGuardActiveRef.current) return;
+
+        historyGuardActiveRef.current = false;
+        window.history.back();
+    }, [hasUnsavedChanges]);
+
+    useEffect(() => {
+        if (!hasUnsavedChanges || isPublishingFlow) return;
+
+        const handleDocumentClick = (event: MouseEvent) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            const anchor = (event.target as Element | null)?.closest('a[href]') as HTMLAnchorElement | null;
+            if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+
+            const nextUrl = new URL(anchor.href, window.location.href);
+            if (nextUrl.origin !== window.location.origin) return;
+
+            const nextPath = `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+            const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+            if (nextPath === currentPath) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            setPendingNavigation(nextPath);
+            setDiscardOpen(true);
+        };
+
+        document.addEventListener('click', handleDocumentClick, true);
+        return () => document.removeEventListener('click', handleDocumentClick, true);
+    }, [hasUnsavedChanges, isPublishingFlow]);
+
+    const handleCancelLeave = () => {
+        setDiscardOpen(false);
+        setPendingNavigation(null);
+    };
+
+    const handleLeaveWithoutSaving = () => {
+        setDiscardOpen(false);
+        completeNavigation(pendingNavigation || '/company/jobs');
+        setPendingNavigation(null);
+    };
+
+    const handleSaveBeforeLeave = async () => {
+        const data = getValues();
+        setIsSavingBeforeLeave(true);
+
+        try {
+            await saveDraftMutation.mutateAsync(data);
+            reset(data);
+            setDiscardOpen(false);
+            completeNavigation(pendingNavigation || '/company/jobs');
+            setPendingNavigation(null);
+        } catch {
+            toast.error('Không thể lưu nháp. Vui lòng thử lại.');
+        } finally {
+            setIsSavingBeforeLeave(false);
+        }
+    };
+
     return (
         <div className="min-h-screen overflow-hidden relative">
             {/* Background elements to match admin/candidate sections */}
@@ -514,7 +649,7 @@ function PostJobEditor() {
                     action={
                         <Button
                             variant="outline"
-                            onClick={() => isDirty ? setDiscardOpen(true) : navigate('/company/jobs')}
+                            onClick={() => requestPageNavigation('/company/jobs')}
                             className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 h-11 shadow-sm"
                         >
                             <X size={18} />
@@ -633,32 +768,42 @@ function PostJobEditor() {
                 </div>
             </div>
 
-            {/* Discard Confirmation Dialog */}
-            <Dialog open={discardOpen} onOpenChange={setDiscardOpen}>
+            {/* Unsaved draft confirmation dialog */}
+            <Dialog open={discardOpen} onOpenChange={(open) => open ? setDiscardOpen(true) : handleCancelLeave()}>
                 <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
                     <div className="bg-white p-8 space-y-6">
                         <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto">
                             <X size={32} className="text-red-500" />
                         </div>
                         <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-black text-slate-900">Hủy tạo tin?</h2>
+                            <h2 className="text-2xl font-black text-slate-900">Lưu bản nháp trước khi rời trang?</h2>
                             <p className="text-slate-500">
-                                Bạn có chắc muốn rời khỏi trang này? Tất cả các thay đổi chưa được lưu sẽ bị xóa vĩnh viễn.
+                                Tin tuyển dụng vẫn còn thay đổi chưa được lưu. Bạn có thể lưu nháp để tiếp tục chỉnh sửa sau.
                             </p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <div className="flex flex-col gap-3 pt-2">
                             <Button 
                                 variant="ghost" 
-                                onClick={() => setDiscardOpen(false)} 
-                                className="flex-1 h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100 order-2 sm:order-1"
+                                onClick={handleCancelLeave}
+                                disabled={isSavingBeforeLeave}
+                                className="h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100 order-3"
                             >
                                 Quay lại chỉnh sửa
                             </Button>
-                            <Button 
-                                onClick={() => navigate('/company/jobs')}
-                                className="flex-1 h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold shadow-lg shadow-red-100 order-1 sm:order-2"
+                            <Button
+                                variant="outline"
+                                onClick={handleLeaveWithoutSaving}
+                                disabled={isSavingBeforeLeave}
+                                className="h-12 rounded-xl border-red-200 text-red-600 hover:bg-red-50 font-bold order-2"
                             >
-                                Hủy và thoát
+                                Thoát không lưu
+                            </Button>
+                            <Button
+                                onClick={handleSaveBeforeLeave}
+                                disabled={isSavingBeforeLeave}
+                                className="h-12 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold shadow-lg shadow-violet-100 order-1"
+                            >
+                                {isSavingBeforeLeave ? 'Đang lưu nháp...' : 'Lưu nháp và thoát'}
                             </Button>
                         </div>
                     </div>

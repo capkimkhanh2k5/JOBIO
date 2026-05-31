@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel
 from django.db import transaction
+from django.utils import timezone
 
 from apps.recruitment.interviews.models import Interview
 from apps.recruitment.applications.models import Application
@@ -38,6 +39,36 @@ class InterviewUpdateInput(BaseModel):
     result: Optional[str] = None
     interviewer_id: Optional[int] = None
     rating: Optional[int] = None
+
+
+def sync_overdue_interviews(queryset=None) -> int:
+    """
+    Mark unattended interviews as no-show after their scheduled duration ends.
+
+    Completed and cancelled interviews are intentionally excluded because they
+    already contain an explicit outcome selected by the company.
+    """
+    candidates = (queryset if queryset is not None else Interview.objects.all()).filter(
+        status__in=[
+            Interview.Status.SCHEDULED,
+            Interview.Status.CONFIRMED,
+            Interview.Status.RESCHEDULED,
+        ],
+        scheduled_at__lt=timezone.now(),
+    )
+    now = timezone.now()
+    overdue_ids = [
+        interview.id
+        for interview in candidates.only("id", "scheduled_at", "duration_minutes")
+        if interview.scheduled_at + timedelta(minutes=interview.duration_minutes) <= now
+    ]
+
+    if not overdue_ids:
+        return 0
+
+    return Interview.objects.filter(id__in=overdue_ids).update(
+        status=Interview.Status.NO_SHOW
+    )
 
 
 @transaction.atomic
@@ -111,7 +142,7 @@ def update_interview(interview: Interview, data: InterviewUpdateInput) -> Interv
         interview.feedback = data.feedback if data.feedback else None
 
     if data.status is not None:
-        interview.status = data.status
+        interview.status = "no-show" if data.status == "no_show" else data.status
 
     if data.result is not None:
         interview.result = data.result

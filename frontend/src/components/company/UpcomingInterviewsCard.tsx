@@ -19,7 +19,7 @@ const TYPE_CONFIG = {
 export function UpcomingInterviewsCard() {
     const { data, isLoading } = useQuery({
         queryKey: ['company', 'interviews', 'upcoming'],
-        queryFn: () => companyService.listInterviews({ status: 'scheduled' }).then(r => r.data.results),
+        queryFn: () => companyService.listUpcomingInterviews().then(r => r.data),
         staleTime: 60_000,
     });
 

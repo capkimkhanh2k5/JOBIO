@@ -269,7 +269,7 @@ class JobViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
 
-        serializer = JobUpdateSerializer(data=request.data)
+        serializer = JobUpdateSerializer(job, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         try:

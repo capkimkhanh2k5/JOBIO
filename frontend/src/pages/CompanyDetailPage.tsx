@@ -19,6 +19,7 @@ import { CompanyJobsTab } from '@/components/companies/CompanyJobsTab';
 import { CompanyBenefitsTab } from '@/components/companies/CompanyBenefitsTab';
 import { CompanyMediaTab } from '@/components/companies/CompanyMediaTab';
 import { CompanyStatsSidebar } from '@/components/companies/CompanyStatsSidebar';
+import { splitTextParagraphs } from '@/lib/htmlText';
 
 /* ── Verification badge ─────────────────────────────────────── */
 function VerificationBadge({ status }: { status: string }) {
@@ -141,6 +142,8 @@ export default function CompanyDetailPage() {
             </div>
         );
     }
+
+    const descriptionParagraphs = splitTextParagraphs(company.description);
 
     return (
         <motion.div
@@ -279,9 +282,11 @@ export default function CompanyDetailPage() {
                                 <MessageSquare size={18} className="text-primary" />
                                 Giới thiệu
                             </h2>
-                            <p className="text-muted-foreground leading-relaxed mb-5">
-                                {company.description}
-                            </p>
+                            <div className="space-y-3 text-muted-foreground leading-relaxed mb-5">
+                                {descriptionParagraphs.length > 0
+                                    ? descriptionParagraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)
+                                    : <p>Chưa có giới thiệu về công ty.</p>}
+                            </div>
                             <Separator className="bg-gray-100 mb-5" />
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                 {company.headquarters && (

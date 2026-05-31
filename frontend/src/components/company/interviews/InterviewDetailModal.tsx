@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
     CalendarIcon, Link as LinkIcon, MapPin, Video, Phone,
-    User, Briefcase, FileText, CheckCircle, Loader2, Star
+    User, Briefcase, FileText, CheckCircle, Loader2
 } from 'lucide-react';
 import { companyService } from '@/services/companyService';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -38,13 +37,21 @@ interface InterviewDetailModalProps {
 export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCandidate }: InterviewDetailModalProps) {
     const queryClient = useQueryClient();
     const [feedback, setFeedback] = useState('');
-    const [rating, setRating] = useState(0);
 
     const { data: interview, isLoading } = useQuery({
         queryKey: ['interview', interviewId],
         queryFn: () => companyService.getInterview(Number(interviewId)).then(r => r.data),
         enabled: open && !!interviewId,
     });
+
+    useEffect(() => {
+        setFeedback('');
+    }, [interviewId]);
+
+    useEffect(() => {
+        if (!interview || String(interview.id) !== String(interviewId)) return;
+        setFeedback(interview.feedback || '');
+    }, [interview, interviewId]);
 
     const statusMutation = useMutation({
         mutationFn: (newStatus: string) => companyService.updateInterview(Number(interviewId), { status: newStatus }).then(r => r.data),
@@ -59,7 +66,7 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCa
     });
 
     const submitFeedbackMutation = useMutation({
-        mutationFn: () => companyService.updateInterview(Number(interviewId), { feedback, notes: feedback }).then(r => r.data),
+        mutationFn: () => companyService.updateInterview(Number(interviewId), { feedback }).then(r => r.data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['interview', interviewId] });
             toast.success('Đã lưu đánh giá phỏng vấn');
@@ -72,10 +79,12 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCa
         const badgeProps = { className: "ml-auto mr-8 px-3 py-1 font-bold shadow-sm" };
         switch (status) {
             case 'scheduled': return <Badge {...badgeProps} className={`${badgeProps.className} bg-blue-500 text-white hover:bg-blue-600`}>Sắp tới</Badge>;
+            case 'rescheduled': return <Badge {...badgeProps} className={`${badgeProps.className} bg-violet-500 text-white hover:bg-violet-600`}>Đổi lịch</Badge>;
             case 'confirmed': return <Badge {...badgeProps} className={`${badgeProps.className} bg-emerald-500 text-white hover:bg-emerald-600`}>Đã xác nhận</Badge>;
             case 'completed': return <Badge {...badgeProps} className={`${badgeProps.className} bg-slate-600 text-white hover:bg-slate-700`}>Hoàn thành</Badge>;
             case 'cancelled': return <Badge {...badgeProps} className={`${badgeProps.className} bg-rose-500 text-white hover:bg-rose-600`}>Đã hủy</Badge>;
             case 'no_show': return <Badge {...badgeProps} className={`${badgeProps.className} bg-rose-700 text-white hover:bg-rose-800`}>Vắng mặt</Badge>;
+            case 'no-show': return <Badge {...badgeProps} className={`${badgeProps.className} bg-rose-700 text-white hover:bg-rose-800`}>Vắng mặt</Badge>;
             case 'in_progress': return <Badge {...badgeProps} className={`${badgeProps.className} bg-amber-500 text-white hover:bg-amber-600`}>Đang diễn ra</Badge>;
             default: return <Badge {...badgeProps} variant="outline">Không rõ</Badge>;
         }
@@ -236,7 +245,7 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCa
                                                 <SelectItem value="in_progress">Đang diễn ra</SelectItem>
                                                 <SelectItem value="completed">Hoàn thành</SelectItem>
                                                 <SelectItem value="cancelled">Hủy lịch</SelectItem>
-                                                <SelectItem value="no_show">Vắng mặt</SelectItem>
+                                                <SelectItem value="no-show">Vắng mặt</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         {statusMutation.isPending && <Loader2 className="w-5 h-5 animate-spin text-indigo-500 mt-3" />}
@@ -248,57 +257,29 @@ export function InterviewDetailModal({ interviewId, open, onOpenChange, onViewCa
                         <Separator className="bg-slate-100" />
 
                         {/* End Interview Feedback */}
-                        {(interview.status === 'completed' || interview.status === 'no_show') && (
+                        {(interview.status === 'completed' || interview.status === 'no_show' || interview.status === 'no-show') && (
                             <div className="space-y-4 pb-4">
                                 <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-emerald-500" />
                                     Đánh giá sau phỏng vấn
                                 </h4>
 
-                                {interview.feedback ? (
-                                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3 shadow-sm">
-                                        <div className="flex items-center gap-1">
-                                            {Array(5).fill(0).map((_, i) => (
-                                                <Star key={i} className={`w-4 h-4 ${i < (interview.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} />
-                                            ))}
-                                        </div>
-                                        <p className="text-sm text-slate-700 leading-relaxed">
-                                            {interview.feedback}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xl space-y-5">
-                                        <div className="space-y-3">
-                                            <Label className="text-slate-900 font-bold">Đánh giá chung (1-5 sao)</Label>
-                                            <div className="flex gap-2">
-                                                {Array(5).fill(0).map((_, i) => (
-                                                    <Star
-                                                        key={i}
-                                                        className={`w-8 h-8 cursor-pointer transition-all ${i < rating ? 'fill-yellow-400 text-yellow-400 scale-110' : 'text-slate-200 hover:text-yellow-200'}`}
-                                                        onClick={() => setRating(i + 1)}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-slate-900 font-bold">Nhận xét về ứng viên</Label>
-                                            <Textarea
-                                                placeholder="Khả năng chuyên môn, thái độ, kỹ năng mềm..."
-                                                className="bg-slate-50 border-slate-200 focus:bg-white min-h-[120px] rounded-xl text-slate-700"
-                                                value={feedback}
-                                                onChange={(e) => setFeedback(e.target.value)}
-                                            />
-                                        </div>
-                                        <Button
-                                            className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 rounded-xl px-8 h-12"
-                                            onClick={() => submitFeedbackMutation.mutate()}
-                                            disabled={!rating || !feedback || submitFeedbackMutation.isPending}
-                                        >
-                                            {submitFeedbackMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                            Gửi đánh giá
-                                        </Button>
-                                    </div>
-                                )}
+                                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xl space-y-5">
+                                    <Textarea
+                                        placeholder="Khả năng chuyên môn, thái độ, kỹ năng mềm..."
+                                        className="bg-slate-50 border-slate-200 focus:bg-white min-h-[120px] rounded-xl text-slate-700"
+                                        value={feedback}
+                                        onChange={(e) => setFeedback(e.target.value)}
+                                    />
+                                    <Button
+                                        className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 rounded-xl px-8 h-12"
+                                        onClick={() => submitFeedbackMutation.mutate()}
+                                        disabled={!feedback.trim() || submitFeedbackMutation.isPending}
+                                    >
+                                        {submitFeedbackMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                                        Lưu nhận xét
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/userStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { showCandidateOnlyFeatureWarning } from '@/lib/candidateOnlyFeature';
 
 const JOB_TYPE_LABELS: Record<string, string> = {
     'full-time': 'Toàn thời gian',
@@ -78,6 +79,7 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const isAdminViewer = user?.role === 'admin';
+    const isCompanyViewer = user?.role === 'company';
     const companyHref = job.company?.id ? `/companies/${job.company.id}` : undefined;
 
     const invalidateSavedJobQueries = () => {
@@ -87,10 +89,10 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     };
 
     useEffect(() => {
-        if (isAuthenticated && !isAdminViewer) {
+        if (isAuthenticated && !isAdminViewer && !isCompanyViewer) {
             savedJobService.isSaved(job.id).then(res => setIsSaved(res.data.is_saved));
         }
-    }, [job.id, isAuthenticated, isAdminViewer]);
+    }, [job.id, isAuthenticated, isAdminViewer, isCompanyViewer]);
 
     const handleShare = (platform: 'link' | 'facebook' | 'linkedin') => {
         const url = window.location.href;
@@ -105,6 +107,10 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
     };
 
     const toggleSave = async () => {
+        if (isCompanyViewer) {
+            showCandidateOnlyFeatureWarning('Lưu việc làm');
+            return;
+        }
         if (isAdminViewer) {
             toast.info('Admin chỉ xem nội dung, không thể lưu việc làm');
             return;

@@ -97,7 +97,13 @@ export default function CandidateDashboard() {
 
     const { data: interviews, isLoading: loadingInterviews } = useQuery({
         queryKey: ['candidate', 'interviews', 'upcoming'],
-        queryFn: () => candidateService.listInterviews({ status: 'scheduled', page_size: 3 }).then(r => r.data.results),
+        queryFn: () => candidateService.listInterviews({ page_size: 100 }).then(r => {
+            const upcomingStatuses = new Set(['scheduled', 'confirmed', 'rescheduled']);
+            const now = new Date();
+            return r.data.results
+                .filter((interview: any) => upcomingStatuses.has(interview.status) && new Date(interview.scheduled_at) > now)
+                .slice(0, 3);
+        }),
     });
 
     const normalizedApplications = (allApplications || []).map((app: any) => ({
@@ -341,6 +347,44 @@ export default function CandidateDashboard() {
                                 </div>
                             </div>
                         </motion.div>
+
+                        {/* Saved Jobs Preview */}
+                        <motion.div variants={itemVariants}>
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+                                            <Bookmark className="w-4 h-4 text-rose-600" />
+                                        </div>
+                                        <h3 className="font-bold text-sm text-slate-900">Việc làm đã lưu</h3>
+                                    </div>
+                                    <Link to="/candidate/saved" className="text-xs text-slate-500 hover:text-violet-600 font-semibold transition-colors">
+                                        Xem tất cả
+                                    </Link>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    {loadingSaved ? (
+                                        [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full rounded-xl" /></div>)
+                                    ) : normalizedSavedJobs.length === 0 ? (
+                                        <div className="p-5 text-center text-sm text-slate-500">Chưa có việc làm đã lưu.</div>
+                                    ) : (
+                                        normalizedSavedJobs.slice(0, 3).map((job: any) => (
+                                            <div
+                                                key={job.id}
+                                                className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                                                onClick={() => navigate(`/jobs/${job.jobId}`)}
+                                            >
+                                                <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg border border-slate-200 object-contain p-1 bg-white" />
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-semibold text-sm text-slate-900 truncate">{job.title}</h4>
+                                                    <p className="text-xs text-slate-500 truncate">{job.company}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
                     </div>
 
                     {/* RIGHT COLUMN */}
@@ -453,44 +497,6 @@ export default function CandidateDashboard() {
                                             </div>
                                             <p className="text-sm text-slate-500">Không có lịch phỏng vấn nào sắp tới.</p>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-
-                        {/* Saved Jobs Preview */}
-                        <motion.div variants={itemVariants}>
-                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
-                                            <Bookmark className="w-4 h-4 text-rose-600" />
-                                        </div>
-                                        <h3 className="font-bold text-sm text-slate-900">Việc làm đã lưu</h3>
-                                    </div>
-                                    <Link to="/candidate/saved" className="text-xs text-slate-500 hover:text-violet-600 font-semibold transition-colors">
-                                        Xem tất cả
-                                    </Link>
-                                </div>
-                                <div className="divide-y divide-slate-100">
-                                    {loadingSaved ? (
-                                        [...Array(2)].map((_, i) => <div key={i} className="p-4"><Skeleton className="h-12 w-full rounded-xl" /></div>)
-                                    ) : normalizedSavedJobs.length === 0 ? (
-                                        <div className="p-5 text-center text-sm text-slate-500">Chưa có việc làm đã lưu.</div>
-                                    ) : (
-                                        normalizedSavedJobs.slice(0, 3).map((job: any) => (
-                                            <div
-                                                key={job.id}
-                                                className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors cursor-pointer"
-                                                onClick={() => navigate(`/jobs/${job.jobId}`)}
-                                            >
-                                                <img src={job.logo_url} alt={job.company} className="w-10 h-10 rounded-lg border border-slate-200 object-contain p-1 bg-white" />
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="font-semibold text-sm text-slate-900 truncate">{job.title}</h4>
-                                                    <p className="text-xs text-slate-500 truncate">{job.company}</p>
-                                                </div>
-                                            </div>
-                                        ))
                                     )}
                                 </div>
                             </div>

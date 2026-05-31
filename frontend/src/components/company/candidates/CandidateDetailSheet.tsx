@@ -489,39 +489,6 @@ export function CandidateDetailSheet() {
                                         </div>
                                     </div>
 
-                                    <div className="bg-secondary/30 border border-border/50 rounded-xl p-5">
-                                        <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <Calendar className="w-4 h-4 text-violet-600" />
-                                            Lịch sử trạng thái
-                                        </h3>
-                                        <div className="relative space-y-4 before:absolute before:bottom-2 before:left-[18px] before:top-2 before:w-px before:bg-cyan-200">
-                                            {timelineItems.map((item) => (
-                                                <div key={item.id} className="relative pl-12">
-                                                    <div className="absolute left-0 top-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-cyan-400 bg-white shadow-sm">
-                                                        <div className="h-2.5 w-2.5 rounded-full bg-cyan-500"></div>
-                                                    </div>
-                                                    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                                        <div className="mb-1 flex items-start justify-between gap-3">
-                                                            <div className="font-bold text-slate-900">
-                                                                {STATUS_LABEL_MAP[item.new_status || item.status] || item.new_status || item.status}
-                                                            </div>
-                                                            <div className="shrink-0 text-xs text-slate-500">
-                                                                {new Date(item.changed_at || item.created_at).toLocaleTimeString('vi-VN', {
-                                                                    hour: '2-digit',
-                                                                    minute: '2-digit',
-                                                                    second: '2-digit',
-                                                                })}{' '}
-                                                                {new Date(item.changed_at || item.created_at).toLocaleDateString('vi-VN')}
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-sm text-slate-600">
-                                                            {item.notes || 'Không có ghi chú cho lần cập nhật này.'}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
                                 </TabsContent>
 
                                 <TabsContent value="profile" className="space-y-6 m-0">

@@ -6,7 +6,7 @@ const STEPS = [
     { label: 'Thông tin cơ bản', sub: 'Vị trí & lương' },
     { label: 'Mô tả & Yêu cầu', sub: 'JD & kỹ năng' },
     { label: 'Địa điểm & Công ty', sub: 'Nơi làm việc' },
-    { label: 'SEO & Đăng tin', sub: 'Xem trước & xuất bản' },
+    { label: 'Xem trước & Đăng tin', sub: 'Kiểm tra & xuất bản' },
 ];
 
 interface WizardProgressProps {

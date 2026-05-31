@@ -228,10 +228,7 @@ class InterviewViewSetTests(APITestCase):
             "scheduled_at": (timezone.now() - timedelta(days=1)).isoformat(),
         }
         response = self.client.post("/api/interviews/", data, format="json")
-        # Có thể 400 hoặc 201 tùy validation
-        self.assertIn(
-            response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_201_CREATED]
-        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # ========== API #2: GET /api/interviews/:id (Chi tiết) ==========
 
@@ -263,6 +260,74 @@ class InterviewViewSetTests(APITestCase):
         self.client.force_authenticate(user=self.other_user)
         response = self.client.get(f"/api/interviews/{self.interview.id}/")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_retrieve_interview_not_authorized_does_not_change_status(self):
+        overdue = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() - timedelta(hours=2),
+            duration_minutes=60,
+            status="scheduled",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.get(f"/api/interviews/{overdue.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        overdue.refresh_from_db()
+        self.assertEqual(overdue.status, Interview.Status.SCHEDULED)
+
+    def test_list_marks_finished_scheduled_interview_as_no_show(self):
+        overdue = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() - timedelta(hours=2),
+            duration_minutes=60,
+            status="scheduled",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.get("/api/interviews/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        overdue.refresh_from_db()
+        self.assertEqual(overdue.status, Interview.Status.NO_SHOW)
+
+    def test_list_marks_finished_confirmed_interview_as_no_show(self):
+        overdue = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() - timedelta(hours=2),
+            duration_minutes=60,
+            status="confirmed",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.get("/api/interviews/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        overdue.refresh_from_db()
+        self.assertEqual(overdue.status, Interview.Status.NO_SHOW)
+
+    def test_list_preserves_explicit_completed_interview_status(self):
+        completed = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() - timedelta(hours=2),
+            duration_minutes=60,
+            status="completed",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.get("/api/interviews/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        completed.refresh_from_db()
+        self.assertEqual(completed.status, Interview.Status.COMPLETED)
 
     # ========== API #3: PUT /api/interviews/:id (Cập nhật) ==========
 
@@ -636,6 +701,36 @@ class InterviewViewSetTests(APITestCase):
         """GET /api/interviews/upcoming - không login → 401"""
         response = self.client.get("/api/interviews/upcoming/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_upcoming_without_days_returns_all_future_interviews(self):
+        later_interview = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() + timedelta(days=10),
+            status="scheduled",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.get("/api/interviews/upcoming/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(later_interview.id, [item["id"] for item in response.data])
+
+    def test_upcoming_with_days_limits_future_interviews(self):
+        later_interview = Interview.objects.create(
+            application=self.application,
+            interview_type=self.interview_type,
+            scheduled_at=timezone.now() + timedelta(days=10),
+            status="scheduled",
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.employer)
+        response = self.client.get("/api/interviews/upcoming/?days=7")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn(later_interview.id, [item["id"] for item in response.data])
 
     # ========== API #12: POST /api/interviews/:id/send-reminder ==========
 

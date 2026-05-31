@@ -1,9 +1,10 @@
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Camera, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUserStore } from '@/store/userStore';
 import { authService } from '@/services/authService';
+import { companyService } from '@/services/companyService';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,10 +15,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function AccountSettings() {
     const { user, updateUser } = useUserStore();
+    const queryClient = useQueryClient();
     const [fullName, setFullName] = useState('');
     const [phone, setPhone] = useState('');
     const [localAvatarUrl, setLocalAvatarUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const { data: company } = useQuery({
+        queryKey: ['companyProfile'],
+        queryFn: () => companyService.getMyCompany().then(response => response.data),
+        enabled: user?.role === 'company',
+        staleTime: 60_000,
+    });
 
     useEffect(() => {
         if (!user) return;
@@ -55,12 +63,24 @@ export function AccountSettings() {
 
     const uploadAvatarMutation = useMutation({
         mutationFn: async (file: File) => {
+            if (user?.role === 'company') {
+                if (!company?.id) {
+                    throw new Error('Company profile not found.');
+                }
+                return companyService.uploadLogo(company.id, file).then(response => response.data);
+            }
             const response = await authService.uploadAvatar(file);
             return response.data;
         },
-        onSuccess: (updatedUser) => {
-            updateUser({ avatar_url: updatedUser.avatar_url });
-            setLocalAvatarUrl(updatedUser.avatar_url);
+        onSuccess: (data) => {
+            const avatarUrl = data.avatar_url || ('logo_url' in data ? data.logo_url : null);
+            updateUser({ avatar_url: avatarUrl });
+            setLocalAvatarUrl(avatarUrl);
+            if ('logo_url' in data) {
+                queryClient.setQueryData(['companyProfile'], (current: any) => (
+                    current ? { ...current, logo_url: data.logo_url } : current
+                ));
+            }
             toast.success('Đã cập nhật ảnh đại diện.');
         },
         onError: (error: any) => {
@@ -82,7 +102,7 @@ export function AccountSettings() {
         );
     }
 
-    const avatarSrc = localAvatarUrl || user.avatar_url || undefined;
+    const avatarSrc = localAvatarUrl || (user.role === 'company' ? company?.logo_url : null) || user.avatar_url || undefined;
     const avatarFallback = (user.full_name || user.email || 'U').substring(0, 2).toUpperCase();
     const isSaving = updateProfileMutation.isPending;
     const isUploadingAvatar = uploadAvatarMutation.isPending;

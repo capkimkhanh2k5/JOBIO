@@ -160,7 +160,7 @@ export function CandidateBoard({
 
         if (isLoading) {
         return (
-            <div className="h-[calc(100vh-280px)] overflow-hidden">
+            <div className="h-full overflow-hidden">
                 <div ref={scrollViewportRef} className="h-full overflow-x-auto overflow-y-hidden">
                     <div className="flex min-w-max gap-4 pb-4 h-full items-start">
                         {COLUMNS.map((column) => (
@@ -183,7 +183,7 @@ export function CandidateBoard({
     }
 
     return (
-        <div className="h-[calc(100vh-250px)] overflow-hidden">
+        <div className="h-full overflow-hidden">
             <div ref={scrollViewportRef} className="h-full overflow-x-auto overflow-y-hidden">
                 <div className="flex min-w-max gap-4 pb-6 h-full items-start">
                     {COLUMNS.map((status) => {
@@ -192,7 +192,7 @@ export function CandidateBoard({
                         return (
                             <div
                                 key={status}
-                                className="w-[320px] flex-shrink-0 flex flex-col max-h-full bg-slate-50 rounded-xl p-3 border border-slate-200"
+                                className="w-[320px] h-full flex-shrink-0 flex flex-col bg-slate-50 rounded-xl p-3 border border-slate-200"
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, status)}
                             >

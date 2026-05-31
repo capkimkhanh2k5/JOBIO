@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -26,6 +27,11 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
             },
         },
     });
+
+    useEffect(() => {
+        if (!editor || editor.getHTML() === value) return;
+        editor.commands.setContent(value || '', { emitUpdate: false });
+    }, [editor, value]);
 
     const ToolBtn = ({
         onClick,
@@ -79,7 +85,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
             <EditorContent
                 editor={editor}
                 style={{ minHeight }}
-                className="cursor-text [&_.is-editor-empty]:before:content-[attr(data-placeholder)] [&_.is-editor-empty]:before:text-slate-400 [&_.is-editor-empty]:before:float-left [&_.is-editor-empty]:before:pointer-events-none"
+                className="cursor-text [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.tiptap_p.is-editor-empty:first-child]:before:text-slate-400 [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none"
             />
         </div>
     );

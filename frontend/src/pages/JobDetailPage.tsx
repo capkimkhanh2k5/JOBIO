@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useUserStore } from '@/store/userStore';
 import { toast } from 'sonner';
+import { showCandidateOnlyFeatureWarning } from '@/lib/candidateOnlyFeature';
 
 export default function JobDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -24,6 +25,19 @@ export default function JobDetailPage() {
     const user = useUserStore((state) => state.user);
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
     const isAdminViewer = user?.role === 'admin';
+    const isCompanyViewer = user?.role === 'company';
+
+    const handleApply = () => {
+        if (isCompanyViewer) {
+            showCandidateOnlyFeatureWarning('Ứng tuyển việc làm');
+            return;
+        }
+        if (isAdminViewer) {
+            toast.info('Admin chỉ xem nội dung, không thể ứng tuyển');
+            return;
+        }
+        setIsApplyModalOpen(true);
+    };
 
     // Fetch Job Basic Info
     const { data: job, isLoading: isLoadingJob, isError: isJobError } = useQuery({
@@ -109,13 +123,7 @@ export default function JobDetailPage() {
                         <JobDetailHeader
                             job={normalizedJob as any}
                             locations={locations || []}
-                            onApply={() => {
-                                if (isAdminViewer) {
-                                    toast.info('Admin chỉ xem nội dung, không thể ứng tuyển');
-                                    return;
-                                }
-                                setIsApplyModalOpen(true);
-                            }}
+                            onApply={handleApply}
                         />
 
                         <JobDetailContent
@@ -165,13 +173,7 @@ export default function JobDetailPage() {
             <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50">
                 <Button
                     className="w-full h-14 bg-violet-600 hover:bg-violet-700 text-white font-bold text-lg rounded-2xl shadow-md shadow-violet-600/20 transition-all animate-in fade-in slide-in-from-bottom-10"
-                    onClick={() => {
-                        if (isAdminViewer) {
-                            toast.info('Admin chỉ xem nội dung, không thể ứng tuyển');
-                            return;
-                        }
-                        setIsApplyModalOpen(true);
-                    }}
+                    onClick={handleApply}
                     disabled={isAdminViewer}
                     title={isAdminViewer ? 'Admin chỉ xem nội dung, không thể ứng tuyển' : undefined}
                 >

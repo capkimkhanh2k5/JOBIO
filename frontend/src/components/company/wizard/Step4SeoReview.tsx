@@ -1,235 +1,128 @@
-import { Controller, type Control, useWatch } from 'react-hook-form';
-import { Eye, MapPin, Briefcase, DollarSign, Globe, Users, Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import type { PostJobFormData, LocationRow } from '@/types/postJob';
-
-const inputClass = cn(
-    'w-full px-4 py-2.5 rounded-xl text-sm',
-    'bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400',
-    'focus:outline-none focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5',
-    'transition-all duration-200 shadow-sm'
-);
-const textareaClass = cn(inputClass, 'resize-none');
+import { useQuery } from '@tanstack/react-query';
+import { useWatch, type Control } from 'react-hook-form';
+import { Briefcase, CalendarDays, DollarSign, Eye, Globe, MapPin, Users } from 'lucide-react';
+import { companyService } from '@/services/companyService';
+import { SkillIcon } from '@/components/ui/SkillIcon';
+import type { LocationRow, PostJobFormData } from '@/types/postJob';
 
 interface Step4SeoReviewProps {
     control: Control<PostJobFormData>;
 }
 
-function JobPreview({ data }: { data: PostJobFormData }) {
-    const formatSalary = () => {
-        if (!data.is_salary_visible) return 'Thương lượng';
-        if (data.salary_min && data.salary_max) {
-            const fmt = (v: number) =>
-                data.salary_currency === 'USD' ? `$${v.toLocaleString()}` : `${(v / 1_000_000).toFixed(1)}M`;
-            return `${fmt(data.salary_min)} – ${fmt(data.salary_max)}`;
-        }
-        return 'Thương lượng';
-    };
+const JOB_TYPE_LABELS: Record<string, string> = {
+    full_time: 'Toàn thời gian',
+    part_time: 'Bán thời gian',
+    contract: 'Hợp đồng',
+    internship: 'Thực tập',
+    freelance: 'Freelance',
+};
 
-    const JOB_TYPE_LABELS: Record<string, string> = {
-        full_time: 'Toàn thời gian', part_time: 'Bán thời gian',
-        contract: 'Hợp đồng', internship: 'Thực tập', freelance: 'Freelance',
-    };
-
-    const LEVEL_LABELS: Record<string, string> = {
-        intern: 'Intern', fresher: 'Fresher', junior: 'Junior', middle: 'Middle',
-        senior: 'Senior', lead: 'Lead', manager: 'Manager', director: 'Director',
-    };
-
-    const primaryLocation = data.locations?.find((l: LocationRow) => l.is_primary) ?? data.locations?.[0];
-
-    return (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            {/* Header stripe */}
-            <div className="h-1.5 bg-gradient-to-r from-cyan-500 via-violet-500 to-lime-400" />
-
-            <div className="p-5">
-                {/* Company logo + name */}
-                <div className="flex items-start gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center text-lg flex-shrink-0 border border-violet-100">
-                        🏢
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-slate-900 text-base leading-tight">
-                            {data.title || 'Tên vị trí...'}
-                        </h3>
-                        <p className="text-sm text-slate-500 mt-0.5 font-medium">JOBIO NextGen</p>
-                    </div>
-                    {data.is_remote && (
-                        <Badge variant="outline" className="ml-auto border-emerald-500/30 text-emerald-400 text-xs flex-shrink-0">
-                            <Globe size={10} className="mr-1" /> Remote
-                        </Badge>
-                    )}
-                </div>
-
-                {/* Meta info */}
-                <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500 mb-4 font-medium">
-                    {data.job_type && (
-                        <span className="flex items-center gap-1">
-                            <Briefcase size={11} /> {JOB_TYPE_LABELS[data.job_type] ?? data.job_type}
-                        </span>
-                    )}
-                    {data.level && (
-                        <span className="flex items-center gap-1">
-                            <Users size={11} /> {LEVEL_LABELS[data.level] ?? data.level}
-                        </span>
-                    )}
-                    {primaryLocation?.province_name && (
-                        <span className="flex items-center gap-1">
-                            <MapPin size={11} /> {primaryLocation.province_name}
-                        </span>
-                    )}
-                    {data.deadline && (
-                        <span className="flex items-center gap-1">
-                            <Clock size={11} /> HSD: {data.deadline}
-                        </span>
-                    )}
-                </div>
-
-                {/* Salary */}
-                <div className="flex items-center gap-2 mb-4">
-                    <DollarSign size={13} className="text-emerald-600 flex-shrink-0" />
-                    <span className="font-bold text-emerald-600 text-sm">{formatSalary()}</span>
-                </div>
-
-                {/* Skills */}
-                {data.skills && data.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                        {data.skills.slice(0, 6).map((s: { skill_id: string; skill_name: string }) => (
-                            <Badge key={s.skill_id} variant="secondary" className="text-[11px] bg-slate-100 text-slate-600 hover:bg-slate-200 border-none font-medium">
-                                {s.skill_name}
-                            </Badge>
-                        ))}
-                        {data.skills.length > 6 && (
-                            <Badge variant="outline" className="text-xs border-white/10 text-white/40">
-                                +{data.skills.length - 6}
-                            </Badge>
-                        )}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+function toPlainText(value?: string) {
+    return (value || '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
-// Tag input for SEO keywords
-function TagInput({ value, onChange, placeholder }: { value: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault();
-            const input = e.currentTarget;
-            const tag = input.value.trim().replace(/,$/, '');
-            if (tag && !value.includes(tag)) {
-                onChange([...value, tag]);
-            }
-            input.value = '';
-        }
-        if (e.key === 'Backspace' && !e.currentTarget.value) {
-            onChange(value.slice(0, -1));
-        }
-    };
-
+function Summary({ title, value, emptyText }: { title: string; value?: string; emptyText: string }) {
+    const content = toPlainText(value);
     return (
-        <div className={cn(
-            'flex flex-wrap gap-1.5 p-2.5 rounded-xl border border-slate-200 bg-white min-h-[42px]',
-            'focus-within:border-violet-500/40 transition-all shadow-sm'
-        )}>
-            {value.map(tag => (
-                <span key={tag} className="flex items-center gap-1 text-xs bg-violet-50 border border-violet-100 text-violet-600 px-2 py-0.5 rounded-md">
-                    {tag}
-                    <button type="button" onClick={() => onChange(value.filter(t => t !== tag))} className="hover:text-red-500 transition-colors">×</button>
-                </span>
-            ))}
-            <input
-                type="text"
-                onKeyDown={handleKeyDown}
-                placeholder={value.length === 0 ? placeholder : 'Thêm từ khóa...'}
-                className="flex-1 min-w-[120px] bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-            />
-        </div>
+        <section className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+            <h4 className="text-sm font-bold text-slate-800 mb-2">{title}</h4>
+            <p className="text-sm text-slate-600 leading-6">{content || emptyText}</p>
+        </section>
     );
 }
 
 export function Step4SeoReview({ control }: Step4SeoReviewProps) {
-    const formData = useWatch({ control }) as PostJobFormData;
+    const data = useWatch({ control }) as PostJobFormData;
+    const { data: company } = useQuery({
+        queryKey: ['company-profile'],
+        queryFn: () => companyService.getMyCompany().then(res => res.data),
+    });
+    const locations = data.locations || [];
+    const primaryLocation = locations.find((location: LocationRow) => location.is_primary) || locations[0];
+    const experience = data.experience_min != null || data.experience_max != null
+        ? `${data.experience_min ?? 0} - ${data.experience_max ?? data.experience_min ?? 0} năm`
+        : 'Không yêu cầu';
+    const salary = !data.is_salary_visible
+        ? 'Thương lượng'
+        : data.salary_min != null || data.salary_max != null
+            ? `${data.salary_min?.toLocaleString() ?? '0'} - ${data.salary_max?.toLocaleString() ?? '...'} ${data.salary_currency}`
+            : 'Thương lượng';
 
     return (
-        <div className="space-y-6">
-            {/* SEO section */}
-            <div>
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                        <Eye size={14} className="text-emerald-600" />
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-800">SEO & Tìm kiếm</h3>
-                    <span className="text-xs text-slate-400 font-medium">(Tối ưu hiển thị trên Google)</span>
+        <div className="space-y-5">
+            <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center">
+                    <Eye size={16} className="text-cyan-600" />
                 </div>
-                <div className="space-y-4">
-                    <div>
-                        <label className="text-xs text-slate-500 mb-1.5 block font-medium">SEO Title</label>
-                        <Controller
-                            name="seo_title"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="relative">
-                                    <input {...field} type="text" maxLength={70} placeholder="VD: Senior Frontend Engineer (React) | JOBIO NextGen" className={inputClass} />
-                                    <span className={cn(
-                                        'absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium',
-                                        (field.value?.length ?? 0) > 60 ? 'text-amber-500' : 'text-slate-300'
-                                    )}>
-                                        {field.value?.length ?? 0}/70
-                                    </span>
-                                </div>
-                            )}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-xs text-slate-500 mb-1.5 block font-medium">SEO Description</label>
-                        <Controller
-                            name="seo_description"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="relative">
-                                    <textarea {...field} rows={3} maxLength={160} placeholder="Tóm tắt ngắn về vị trí này (160 ký tự, tối ưu cho Google)" className={cn(textareaClass, 'pr-16')} />
-                                    <span className={cn(
-                                        'absolute right-3 top-3 text-xs font-medium',
-                                        (field.value?.length ?? 0) > 140 ? 'text-amber-500' : 'text-slate-300'
-                                    )}>
-                                        {field.value?.length ?? 0}/160
-                                    </span>
-                                </div>
-                            )}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-xs text-slate-500 mb-1.5 block font-medium">SEO Keywords <span className="text-slate-400 font-normal shadow-none">(Enter hoặc phẩy để thêm)</span></label>
-                        <Controller
-                            name="seo_keywords"
-                            control={control}
-                            render={({ field }) => (
-                                <TagInput
-                                    value={field.value ?? []}
-                                    onChange={field.onChange}
-                                    placeholder="VD: senior frontend, react developer, typescript..."
-                                />
-                            )}
-                        />
-                    </div>
+                <div>
+                    <h3 className="text-sm font-bold text-slate-800">Xem trước tin tuyển dụng</h3>
+                    <p className="text-xs text-slate-500">Kiểm tra lại nội dung trước khi đăng tin.</p>
                 </div>
             </div>
 
-            {/* Preview section */}
-            <div className="border-t border-slate-100 pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="w-7 h-7 rounded-lg bg-cyan-500/15 flex items-center justify-center">
-                        <Eye size={14} className="text-cyan-400" />
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="h-1.5 bg-gradient-to-r from-cyan-500 via-violet-500 to-lime-400" />
+                <div className="p-5 space-y-5">
+                    <div className="flex items-start gap-3">
+                        {company?.logo_url ? (
+                            <img src={company.logo_url} alt={company.company_name} className="w-14 h-14 rounded-xl object-contain border border-slate-200 bg-white" />
+                        ) : (
+                            <div className="w-14 h-14 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 font-bold">
+                                {(company?.company_name || 'C')[0]}
+                            </div>
+                        )}
+                        <div className="min-w-0">
+                            <h3 className="text-lg font-bold text-slate-900">{data.title || 'Tên vị trí tuyển dụng'}</h3>
+                            <p className="text-sm text-slate-500">{company?.company_name || 'Công ty của bạn'}</p>
+                        </div>
                     </div>
-                    <h3 className="text-sm font-semibold text-white/90">Xem trước tin tuyển dụng</h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-slate-600">
+                        <span className="flex items-center gap-2"><Briefcase size={15} /> {JOB_TYPE_LABELS[data.job_type] || data.job_type}</span>
+                        <span className="flex items-center gap-2"><Users size={15} /> {data.level} · {data.quantity} vị trí</span>
+                        <span className="flex items-center gap-2"><DollarSign size={15} /> {salary}</span>
+                        <span className="flex items-center gap-2"><MapPin size={15} /> {primaryLocation?.province_name || 'Chưa chọn địa điểm'}</span>
+                        <span className="flex items-center gap-2"><CalendarDays size={15} /> HSD: {data.deadline || 'Chưa chọn'}</span>
+                        <span className="flex items-center gap-2"><Globe size={15} /> {data.is_remote ? 'Có hỗ trợ remote' : 'Làm việc tại văn phòng'}</span>
+                    </div>
+
+                    <div className="text-sm text-slate-600">
+                        <strong className="text-slate-800">Kinh nghiệm:</strong> {experience}
+                    </div>
+
+                    {data.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                            {data.skills.map(skill => (
+                                <span key={skill.skill_id} className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700">
+                                    <SkillIcon skillName={skill.skill_name} size={18} />
+                                    {skill.skill_name}{skill.is_required ? ' *' : ''}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                        <Summary title="Mô tả công việc" value={data.description} emptyText="Chưa có mô tả." />
+                        <Summary title="Yêu cầu ứng viên" value={data.requirements} emptyText="Chưa có yêu cầu." />
+                        <Summary title="Phúc lợi" value={data.benefits} emptyText="Chưa có phúc lợi." />
+                    </div>
+
+                    {locations.length > 1 && (
+                        <div>
+                            <h4 className="text-sm font-bold text-slate-800 mb-2">Địa điểm làm việc</h4>
+                            <div className="space-y-1 text-sm text-slate-600">
+                                {locations.map(location => (
+                                    <p key={location.id}>• {[location.address_line, location.commune_name, location.province_name].filter(Boolean).join(', ')}</p>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <JobPreview data={formData} />
             </div>
         </div>
     );

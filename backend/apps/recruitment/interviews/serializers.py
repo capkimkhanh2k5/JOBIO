@@ -1,9 +1,18 @@
 from rest_framework import serializers
+from django.utils import timezone
 from .models import Interview
 
 from apps.recruitment.interview_types.models import InterviewType
 from apps.recruitment.applications.models import Application
 from apps.geography.addresses.serializers import AddressDetailSerializer
+
+
+def _validate_future_scheduled_at(value):
+    if value <= timezone.now():
+        raise serializers.ValidationError(
+            "Interview time must be later than the current time."
+        )
+    return value
 
 
 def _format_address(address):
@@ -243,6 +252,9 @@ class InterviewCreateSerializer(serializers.Serializer):
     )
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
+    def validate_scheduled_at(self, value):
+        return _validate_future_scheduled_at(value)
+
     def validate_application_id(self, value):
         if not Application.objects.filter(id=value).exists():
             raise serializers.ValidationError("Application not found!")
@@ -269,15 +281,7 @@ class InterviewUpdateSerializer(serializers.Serializer):
     notes = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     feedback = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     status = serializers.ChoiceField(
-        choices=[
-            "scheduled",
-            "confirmed",
-            "in_progress",
-            "completed",
-            "cancelled",
-            "rescheduled",
-            "no_show",
-        ],
+        choices=[choice for choice, _ in Interview.Status.choices] + ["no_show"],
         required=False,
     )
     result = serializers.ChoiceField(
@@ -288,6 +292,9 @@ class InterviewUpdateSerializer(serializers.Serializer):
         required=False, allow_null=True, min_value=1, max_value=5
     )
 
+    def validate_scheduled_at(self, value):
+        return _validate_future_scheduled_at(value)
+
 
 class InterviewRescheduleSerializer(serializers.Serializer):
     """
@@ -296,6 +303,9 @@ class InterviewRescheduleSerializer(serializers.Serializer):
 
     scheduled_at = serializers.DateTimeField(required=True)
     reason = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+    def validate_scheduled_at(self, value):
+        return _validate_future_scheduled_at(value)
 
 
 class InterviewCancelSerializer(serializers.Serializer):

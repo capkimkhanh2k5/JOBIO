@@ -20,6 +20,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react';
 import { Combobox } from '@/components/ui/combobox';
+import { htmlToPlainText } from '@/lib/htmlText';
 
 const formSchema = z.object({
     company_name: z.string().min(2, 'Tên công ty phải có ít nhất 2 ký tự.'),
@@ -54,7 +55,7 @@ const getDefaultValues = (company: any): FormValues => ({
     company_size: company?.company_size || '',
     website: company?.website || '',
     founded_year: company?.founded_year || new Date().getFullYear(),
-    description: company?.description || '',
+    description: htmlToPlainText(company?.description),
     headquarters: company?.headquarters || '',
     province_id: company?.address?.province ? String(company.address.province) : '',
     commune_id: company?.address?.commune ? String(company.address.commune) : '',
