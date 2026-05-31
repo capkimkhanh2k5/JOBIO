@@ -1,13 +1,10 @@
 import logging
-from datetime import timedelta
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.conf import settings
 from django.shortcuts import redirect
-from django.utils import timezone
 from django.db import models, transaction
 
 from apps.billing.models import (
@@ -26,6 +23,7 @@ from apps.billing.services.subscriptions import SubscriptionService
 from apps.billing.services.payments import PaymentService
 from apps.core.permissions import IsCompanyOwner
 from apps.billing.services.vnpay import VNPayService, VNPaySecurityError
+from apps.company.companies.models import Company
 
 
 logger = logging.getLogger(__name__)
@@ -69,6 +67,19 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
         input_ser.is_valid(raise_exception=True)
 
         company_profile = getattr(request.user, "company_profile", None)
+        if not company_profile:
+            return Response(
+                {"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN
+            )
+        if company_profile.verification_status != Company.VerificationStatus.VERIFIED:
+            return Response(
+                {
+                    "error": "Công ty chưa được xác minh nên chưa thể mua gói dịch vụ.",
+                    "code": "COMPANY_NOT_VERIFIED",
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         plan = SubscriptionPlan.objects.filter(
             id=input_ser.validated_data["plan_id"], is_active=True
         ).first()
@@ -95,6 +106,10 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                 active_sub = SubscriptionService.get_active_subscription(
                     locked_company.id
                 )
+                PaymentService.fail_stale_pending_transactions(
+                    company=locked_company, plan_id=plan.id
+                )
+
                 is_same_family = active_sub and SubscriptionService.is_same_plan_family(
                     active_sub.plan, plan
                 )
@@ -119,34 +134,9 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                     },
                 )
 
-                pending_txn = (
-                    Transaction.objects.select_for_update()
-                    .filter(
-                        company=locked_company,
-                        status=Transaction.Status.PENDING,
-                        type=Transaction.Type.SUBSCRIPTION,
-                        metadata__plan_id=plan.id,
-                        created_at__gte=timezone.now()
-                        - timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES),
-                    )
-                    .order_by("-created_at")
-                    .first()
+                PaymentService.fail_existing_pending_checkout(
+                    company=locked_company, plan_id=plan.id
                 )
-                if pending_txn:
-                    reused_payment_url = VNPayService.get_payment_url(
-                        order_id=pending_txn.reference_code,
-                        amount=pending_txn.amount,
-                        order_desc=f"Subscribe to {plan.name}",
-                        ip_addr=ip,
-                    )
-                    return Response(
-                        {
-                            "payment_url": reused_payment_url,
-                            "transaction_ref": pending_txn.reference_code,
-                            "reused": True,
-                        },
-                        status=status.HTTP_200_OK,
-                    )
 
                 amount = plan.price
                 txn_metadata = {
@@ -193,6 +183,16 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             return Response(
                 {"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN
             )
+        if company_profile.verification_status != Company.VerificationStatus.VERIFIED:
+            return Response(
+                {
+                    "can_checkout": False,
+                    "mode": "blocked",
+                    "message": "Công ty chưa được xác minh nên chưa thể mua gói dịch vụ.",
+                    "code": "COMPANY_NOT_VERIFIED",
+                },
+                status=status.HTTP_200_OK,
+            )
 
         plan_id = request.query_params.get("plan_id")
         if not plan_id:
@@ -208,17 +208,8 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             )
 
         active_sub = SubscriptionService.get_active_subscription(company_profile.id)
-        pending_txn = (
-            Transaction.objects.filter(
-                company=company_profile,
-                status=Transaction.Status.PENDING,
-                type=Transaction.Type.SUBSCRIPTION,
-                metadata__plan_id=plan.id,
-                created_at__gte=timezone.now()
-                - timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES),
-            )
-            .order_by("-created_at")
-            .first()
+        PaymentService.fail_stale_pending_transactions(
+            company=company_profile, plan_id=plan.id
         )
 
         result = {
@@ -260,17 +251,6 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                 )
                 result["code"] = "ACTIVE_SUBSCRIPTION_EXISTS"
                 return Response(result, status=status.HTTP_200_OK)
-
-        if pending_txn:
-            result["mode"] = "pending_reuse"
-            result["pending_transaction"] = {
-                "id": pending_txn.id,
-                "reference_code": pending_txn.reference_code,
-                "created_at": pending_txn.created_at.isoformat(),
-            }
-            result["message"] = (
-                "Đã có giao dịch chờ thanh toán cho gói này, hệ thống sẽ tái sử dụng giao dịch đó."
-            )
 
         if "message" not in result:
             result["message"] = "Có thể tiếp tục thanh toán cho gói này."

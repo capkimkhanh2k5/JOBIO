@@ -1,9 +1,53 @@
+from datetime import timedelta
+
+from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
+
 from apps.billing.models import Transaction, PaymentMethod
 from apps.billing.services.vnpay import VNPayService
 
 
 class PaymentService:
+    @staticmethod
+    def fail_stale_pending_transactions(*, company=None, plan_id=None) -> int:
+        """
+        Mark locally expired pending transactions as failed.
+
+        VNPay can still send a late success callback; VNPayService already allows
+        a valid success callback to recover a previously failed transaction.
+        """
+        now = timezone.now()
+        threshold = now - timedelta(minutes=settings.PAYMENT_PENDING_TIMEOUT_MINUTES)
+        queryset = Transaction.objects.filter(
+            status=Transaction.Status.PENDING,
+            type=Transaction.Type.SUBSCRIPTION,
+            created_at__lt=threshold,
+        )
+
+        if company is not None:
+            queryset = queryset.filter(company=company)
+        if plan_id is not None:
+            queryset = queryset.filter(metadata__plan_id=plan_id)
+
+        return queryset.update(status=Transaction.Status.FAILED, updated_at=now)
+
+    @staticmethod
+    def fail_existing_pending_checkout(*, company, plan_id) -> int:
+        """
+        Supersede unfinished checkout attempts for the same company and plan.
+
+        VNPay expects a unique vnp_TxnRef per payment attempt. Reusing a pending
+        reference can send users to VNPay's code=01 page.
+        """
+        now = timezone.now()
+        return Transaction.objects.filter(
+            company=company,
+            status=Transaction.Status.PENDING,
+            type=Transaction.Type.SUBSCRIPTION,
+            metadata__plan_id=plan_id,
+        ).update(status=Transaction.Status.FAILED, updated_at=now)
+
     @staticmethod
     def process_payment(
         company,
