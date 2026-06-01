@@ -205,6 +205,7 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 process_cv_pdf,
                 CVModerationBlocked,
                 CVModerationUnavailable,
+                CVNotResume,
                 CVParserUnavailable,
             )
 
@@ -228,6 +229,16 @@ class RecruiterViewSet(viewsets.GenericViewSet):
         except CVModerationBlocked as e:
             return Response(
                 {"detail": f"CV content was blocked by safety filter: {e.reason}"},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        except CVNotResume:
+            return Response(
+                {
+                    "detail": (
+                        "PDF này không giống CV/Resume hoặc không thể trích xuất "
+                        "dữ liệu hồ sơ từ file đã tải lên."
+                    )
+                },
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
         except CVModerationUnavailable:

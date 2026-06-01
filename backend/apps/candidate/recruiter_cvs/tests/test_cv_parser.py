@@ -56,6 +56,10 @@ def _mock_completion(content: str, refusal: str | None = None):
     return mock_completion
 
 
+class FakeRetryableGroqError(Exception):
+    status_code = 429
+
+
 class FakeResponse:
     def __init__(
         self, content: bytes, status_error: Exception | None = None, headers=None
@@ -234,6 +238,22 @@ class NormalizeParsedDataTest(TestCase):
         self.assertFalse(_has_cv_semantic_signal({"personal": {"full_name": "Alex"}}))
         self.assertFalse(_has_cv_semantic_signal({"personal": {}, "skills": []}))
 
+    def test_detects_local_resume_text_signal(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            _has_resume_text_signal,
+        )
+
+        self.assertTrue(_has_resume_text_signal(SYNTHETIC_CV_TEXT))
+        sparse_cv_text = "Nguyen Van A\nObjective\nStudent looking for internship role"
+        self.assertTrue(_has_resume_text_signal(sparse_cv_text))
+        self.assertTrue(
+            _has_resume_text_signal(
+                "-----\nNguyen Van A\nStudent internship objective\n" + "x" * 80
+            )
+        )
+        self.assertFalse(_has_resume_text_signal("short"))
+        self.assertFalse(_has_resume_text_signal("x" * 200))
+
 
 @override_settings(
     GROQ_API_KEY="test-api-key",
@@ -306,6 +326,32 @@ class ParseCvWithLlmTest(TestCase):
         self.assertEqual(result["personal"]["full_name"], "Alex Nguyen")
         self.assertEqual(mock_client.chat.completions.create.call_count, 2)
 
+    @override_settings(GROQ_API_KEYS=["key-2"])
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
+    def test_parse_rotates_keys_after_rate_limit(self, MockGroq):
+        from apps.candidate.recruiter_cvs.services import cv_parser
+
+        cv_parser._GROQ_KEY_CURSOR = 0
+        key_1_client = MagicMock()
+        key_1_client.chat.completions.create.side_effect = FakeRetryableGroqError(
+            "rate_limit_exceeded"
+        )
+        key_2_client = MagicMock()
+        key_2_client.chat.completions.create.return_value = _mock_completion(
+            self.MOCK_LLM_RESPONSE
+        )
+        MockGroq.side_effect = [key_1_client, key_2_client]
+
+        result = cv_parser.parse_cv_with_llm(LONG_ENOUGH_CV_TEXT)
+
+        self.assertEqual(result["personal"]["full_name"], "Alex Nguyen")
+        self.assertEqual(
+            [call.kwargs["api_key"] for call in MockGroq.call_args_list],
+            ["test-api-key", "key-2"],
+        )
+        self.assertEqual(key_1_client.chat.completions.create.call_count, 1)
+        self.assertEqual(key_2_client.chat.completions.create.call_count, 1)
+
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
     def test_parse_returns_empty_for_invalid_model_responses(self, MockGroq):
         from apps.candidate.recruiter_cvs.services.cv_parser import (
@@ -326,6 +372,45 @@ class ParseCvWithLlmTest(TestCase):
 
         self.assertEqual(parse_cv_with_llm("short"), {})
         MockGroq.assert_not_called()
+
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
+    def test_parse_rejects_unreadable_text_before_groq(self, MockGroq):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            CVNotResume,
+            parse_cv_with_llm,
+        )
+
+        with self.assertRaisesMessage(CVNotResume, "not_resume_like_text"):
+            parse_cv_with_llm("x" * 200)
+        MockGroq.assert_not_called()
+
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
+    def test_parse_allows_sparse_text_to_resume_classifier(self, MockGroq):
+        from apps.candidate.recruiter_cvs.services.cv_parser import parse_cv_with_llm
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = [
+            _mock_completion(
+                json.dumps(
+                    {
+                        "blocked": False,
+                        "reason": "none",
+                        "is_resume": True,
+                        "confidence": 0.8,
+                        "resume_reason": "sparse candidate profile",
+                    }
+                )
+            ),
+            _mock_completion(self.MOCK_LLM_RESPONSE),
+        ]
+        MockGroq.return_value = mock_client
+
+        result = parse_cv_with_llm(
+            "Nguyen Van A\nObjective\nStudent looking for internship role"
+        )
+
+        self.assertEqual(result["personal"]["full_name"], "Alex Nguyen")
+        self.assertEqual(mock_client.chat.completions.create.call_count, 2)
 
     @override_settings(GROQ_API_KEY="")
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
@@ -369,7 +454,7 @@ class GroqModerationTest(TestCase):
         first_call = mock_client.chat.completions.create.call_args_list[0].kwargs
         second_call = mock_client.chat.completions.create.call_args_list[1].kwargs
         self.assertEqual(first_call["model"], "test-safeguard")
-        self.assertEqual(first_call["max_completion_tokens"], 1024)
+        self.assertEqual(first_call["max_completion_tokens"], 256)
         self.assertEqual(first_call["user"], "recruiter:1:cv:2")
         self.assertEqual(second_call["user"], "recruiter:1:cv:2")
 
@@ -395,6 +480,62 @@ class GroqModerationTest(TestCase):
                 )
 
         self.assertEqual(mock_client.chat.completions.create.call_count, 1)
+
+    def test_moderation_rejects_confident_non_resume(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            CVNotResume,
+            parse_cv_with_llm,
+        )
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.return_value = _mock_completion(
+            json.dumps(
+                {
+                    "blocked": False,
+                    "reason": "none",
+                    "is_resume": False,
+                    "confidence": 0.95,
+                    "resume_reason": "invoice",
+                }
+            )
+        )
+
+        with patch(
+            "apps.candidate.recruiter_cvs.services.cv_parser.Groq",
+            return_value=mock_client,
+        ):
+            with self.assertRaisesMessage(CVNotResume, "not_resume"):
+                parse_cv_with_llm(LONG_ENOUGH_CV_TEXT)
+
+        self.assertEqual(mock_client.chat.completions.create.call_count, 1)
+
+    def test_moderation_fails_open_for_uncertain_non_resume(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import parse_cv_with_llm
+
+        mock_client = MagicMock()
+        mock_client.chat.completions.create.side_effect = [
+            _mock_completion(
+                json.dumps(
+                    {
+                        "blocked": False,
+                        "reason": "none",
+                        "is_resume": False,
+                        "confidence": 0.5,
+                        "resume_reason": "uncertain",
+                    }
+                )
+            ),
+            _mock_completion(ParseCvWithLlmTest.MOCK_LLM_RESPONSE),
+        ]
+
+        with patch(
+            "apps.candidate.recruiter_cvs.services.cv_parser.Groq",
+            return_value=mock_client,
+        ):
+            result = parse_cv_with_llm(LONG_ENOUGH_CV_TEXT)
+
+        self.assertEqual(result["personal"]["full_name"], "Alex Nguyen")
+        self.assertEqual(mock_client.chat.completions.create.call_count, 2)
 
     def test_moderation_error_fails_closed(self):
         from apps.candidate.recruiter_cvs.services.cv_parser import (
@@ -448,6 +589,18 @@ class ProcessCvPdfTest(TestCase):
         with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
             process_cv_pdf(b"not pdf")
         self.assertEqual(process_cv_pdf(_build_test_cv_bytes(text="")), {})
+
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
+    def test_unreadable_pdf_text_is_rejected_before_groq(self, MockGroq):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            CVNotResume,
+            process_cv_pdf,
+        )
+
+        with self.assertRaisesMessage(CVNotResume, "not_resume_like_text"):
+            process_cv_pdf(_build_test_cv_bytes(text="x" * 200))
+
+        MockGroq.assert_not_called()
 
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.Groq")
     def test_non_resume_like_parse_result_returns_empty(self, MockGroq):
@@ -559,6 +712,25 @@ class SilentParseTaskTest(TestCase):
 
         self.cv.refresh_from_db()
         self.assertEqual(result, {"status": "blocked", "reason": "moderation_blocked"})
+        self.assertEqual(self.cv.cv_data, {})
+        self.assertIsNone(self.cv.parsed_at)
+
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
+    @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
+    def test_parse_task_non_resume_stays_silent_and_empty(
+        self, mock_download, mock_process
+    ):
+        from apps.candidate.recruiter_cvs.services.cv_parser import CVNotResume
+        from apps.candidate.recruiter_cvs.tasks import parse_cv_task
+
+        mock_download.return_value = _build_test_cv_bytes()
+        mock_process.side_effect = CVNotResume("not_resume_like_text")
+
+        result = parse_cv_task.apply(args=(self.cv.id,)).get()
+
+        self.cv.refresh_from_db()
+        self.assertEqual(result, {"status": "skipped", "reason": "not_resume"})
         self.assertEqual(self.cv.cv_data, {})
         self.assertIsNone(self.cv.parsed_at)
 

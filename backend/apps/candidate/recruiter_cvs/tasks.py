@@ -55,7 +55,10 @@ def parse_cv_task(self, cv_id: int):
         logger.info(f"CV {cv_id} already has cv_data, skipping parse")
         return {"status": "skipped", "reason": "already_parsed"}
 
-    from apps.candidate.recruiter_cvs.services.cv_parser import CVModerationBlocked
+    from apps.candidate.recruiter_cvs.services.cv_parser import (
+        CVModerationBlocked,
+        CVNotResume,
+    )
 
     logger.info(
         f"Starting CV parse for CV {cv_id} "
@@ -102,6 +105,9 @@ def parse_cv_task(self, cv_id: int):
     except CVModerationBlocked:
         logger.warning("CV %s parsing blocked by safeguard", cv_id)
         return {"status": "blocked", "reason": "moderation_blocked"}
+    except CVNotResume:
+        logger.warning("CV %s parsing skipped because PDF is not resume-like", cv_id)
+        return {"status": "skipped", "reason": "not_resume"}
     except Exception as exc:
         error_code = _parse_error_code(exc)
         logger.warning(

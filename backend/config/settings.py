@@ -452,6 +452,11 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Groq API — CV Parsing with LLM
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_API_KEYS = env_list("GROQ_API_KEYS", default=[])
+for key_index in range(1, 11):
+    extra_groq_api_key = os.getenv(f"GROQ_API_KEY_{key_index}", "")
+    if extra_groq_api_key:
+        GROQ_API_KEYS.append(extra_groq_api_key)
 GROQ_CV_PARSER_MODEL = os.getenv("GROQ_CV_PARSER_MODEL", "openai/gpt-oss-120b")
 GROQ_CV_PARSER_FALLBACK_MODEL = os.getenv(
     "GROQ_CV_PARSER_FALLBACK_MODEL", "llama-3.3-70b-versatile"
@@ -461,10 +466,10 @@ GROQ_CV_MODERATION_MODEL = os.getenv(
     "GROQ_CV_MODERATION_MODEL", "openai/gpt-oss-safeguard-20b"
 )
 GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS = env_int(
-    "GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS", 1024
+    "GROQ_CV_MODERATION_MAX_OUTPUT_TOKENS", 256
 )
-GROQ_CV_PARSER_MAX_INPUT_CHARS = env_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", 15000)
-GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int("GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 8192)
+GROQ_CV_PARSER_MAX_INPUT_CHARS = env_int("GROQ_CV_PARSER_MAX_INPUT_CHARS", 8000)
+GROQ_CV_PARSER_MAX_OUTPUT_TOKENS = env_int("GROQ_CV_PARSER_MAX_OUTPUT_TOKENS", 2048)
 CV_UPLOAD_MAX_BYTES = env_int("CV_UPLOAD_MAX_BYTES", 10 * 1024 * 1024)
 CV_PDF_MAX_PAGES = env_int("CV_PDF_MAX_PAGES", 3)
 CV_PARSE_ALLOWED_HOSTS = env_list(
