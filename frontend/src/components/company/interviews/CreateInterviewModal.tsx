@@ -264,7 +264,7 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                                             {getApplicationCandidateName(cand).charAt(0).toUpperCase()}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    <div className="flex flex-col">
+                                                    <div className="flex flex-col items-start text-left">
                                                         <span className="font-medium text-slate-900">
                                                             {getApplicationCandidateName(cand)}
                                                         </span>
