@@ -456,29 +456,18 @@ function PostJobEditor() {
 
             return jobService.publish(job.id).then(r => r.data);
         },
-        onSuccess: async () => {
+        onSuccess: () => {
             toast.success('Đăng tin thành công!', {
                 description: 'Tin tuyển dụng của bạn đã được xuất bản.',
                 duration: 5000,
             });
-            await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['company-jobs'] }),
-                queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] }),
-                queryClient.invalidateQueries({ queryKey: ['job', id, 'editor'] }),
-            ]);
-            if (user?.role === 'company') {
-                allowNavigationRef.current = true;
-                setTimeout(() => {
-                    if (historyGuardActiveRef.current) {
-                        historyGuardActiveRef.current = false;
-                        window.history.back();
-                        window.setTimeout(() => navigate('/company/jobs'), 0);
-                        return;
-                    }
+            queryClient.invalidateQueries({ queryKey: ['company-jobs'] });
+            queryClient.invalidateQueries({ queryKey: ['company-jobs-all'] });
+            queryClient.invalidateQueries({ queryKey: ['job', id, 'editor'] });
 
-                    navigate('/company/jobs');
-                }, 1500);
-            }
+            allowNavigationRef.current = true;
+            historyGuardActiveRef.current = false;
+            navigate('/company/jobs', { replace: true });
         },
         onError: (error: any) => {
             setIsPublishingFlow(false);
