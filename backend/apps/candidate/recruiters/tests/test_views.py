@@ -273,6 +273,26 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
         self.assertIn("không giống CV/Resume", response.data["detail"])
 
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
+    def test_parse_cv_non_resume_exception_returns_422(self, mock_process):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from apps.candidate.recruiter_cvs.services.cv_parser import CVNotResume
+
+        mock_process.side_effect = CVNotResume("not_resume")
+        recruiter = Recruiter.objects.create(user=self.user)
+        upload = SimpleUploadedFile(
+            "cv.pdf", b"%PDF-1.4\nfake", content_type="application/pdf"
+        )
+
+        response = self.client.post(
+            f"/api/candidates/{recruiter.id}/parse-cv/",
+            {"file": upload},
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        self.assertIn("không giống CV/Resume", response.data["detail"])
+
     def test_get_stats(self):
         """Test GET /api/candidates/:id/stats"""
         recruiter = Recruiter.objects.create(user=self.user, profile_views_count=100)
