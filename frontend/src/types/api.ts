@@ -788,6 +788,7 @@ export interface CandidateCV {
   cv_data: Record<string, unknown> | null;
   file_url?: string | null;
   cv_url?: string | null;
+  thumbnail_url?: string | null;
   is_default: boolean;
   is_public?: boolean;
   privacy?: CVPrivacy;

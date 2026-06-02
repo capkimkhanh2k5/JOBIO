@@ -8,8 +8,10 @@ from apps.candidate.recruiters.services.recruiters import (
     create_recruiter_service,
     update_recruiter_service,
     delete_recruiter_service,
+    calculate_profile_completeness_service,
     RecruiterInput,
 )
+from apps.candidate.recruiter_experience.models import RecruiterExperience
 from datetime import date
 
 
@@ -81,6 +83,60 @@ class RecruiterServiceTest(TestCase):
         self.assertEqual(recruiter.bio, "Updated Bio")
         self.assertEqual(recruiter.years_of_experience, 1)
         self.assertEqual(recruiter.gender, Recruiter.Gender.MALE)
+
+    def test_profile_completeness_has_no_experience(self):
+        recruiter = Recruiter.objects.create(user=self.user)
+
+        result = calculate_profile_completeness_service(recruiter)
+
+        experience_item = next(
+            item
+            for item in result["checklist"]
+            if item["task"] == "Thêm kinh nghiệm làm việc"
+        )
+        self.assertEqual(result["details"]["experience"], 0)
+        self.assertFalse(experience_item["completed"])
+        self.assertIn("experience", result["missing_fields"])
+
+    def test_profile_completeness_marks_complete_with_one_experience_for_partial_points(self):
+        recruiter = Recruiter.objects.create(user=self.user)
+        RecruiterExperience.objects.create(
+            recruiter=recruiter,
+            company_name="OpenVerse",
+            job_title="Software Developer",
+            start_date=date(2025, 9, 1),
+        )
+
+        result = calculate_profile_completeness_service(recruiter)
+
+        experience_item = next(
+            item
+            for item in result["checklist"]
+            if item["task"] == "Thêm kinh nghiệm làm việc"
+        )
+        self.assertEqual(result["details"]["experience"], 10)
+        self.assertTrue(experience_item["completed"])
+        self.assertNotIn("experience", result["missing_fields"])
+
+    def test_profile_completeness_keeps_full_experience_points_with_two_experiences(self):
+        recruiter = Recruiter.objects.create(user=self.user)
+        for index in range(2):
+            RecruiterExperience.objects.create(
+                recruiter=recruiter,
+                company_name=f"Company {index}",
+                job_title="Software Developer",
+                start_date=date(2024 + index, 1, 1),
+            )
+
+        result = calculate_profile_completeness_service(recruiter)
+
+        experience_item = next(
+            item
+            for item in result["checklist"]
+            if item["task"] == "Thêm kinh nghiệm làm việc"
+        )
+        self.assertEqual(result["details"]["experience"], 20)
+        self.assertTrue(experience_item["completed"])
 
     def test_update_recruiter_address_resolves_cv_location_variants(self):
         province = Province.objects.create(

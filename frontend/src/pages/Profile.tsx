@@ -64,15 +64,14 @@ const Profile = () => {
         enabled: !!userId,
     });
 
-    const { data: completeness, isLoading: completenessLoading } = useQuery({
-        queryKey: ['profile-completeness', userId],
-        queryFn: () => candidateService.getMyProfile().then(r => r.data),
-        staleTime: 30_000,
-        enabled: !!userId,
-    });
-
     const candidateId = profile?.id;
 
+    const { data: completeness, isLoading: completenessLoading } = useQuery({
+        queryKey: ['profile-completeness', candidateId],
+        queryFn: () => candidateService.getProfileCompleteness(Number(candidateId)).then(r => r.data),
+        staleTime: 30_000,
+        enabled: !!candidateId,
+    });
 
 
     if (profileLoading || completenessLoading) return <ProfileSkeleton />;

@@ -28,7 +28,7 @@ export interface CVItem {
     download_count: number;
     pdf_generated_at?: string | null;
     updated_at: string;
-    thumbnail_url?: string;
+    thumbnail_url?: string | null;
     cv_url?: string | null;        // URL of uploaded PDF for CV_Upload
 }
 

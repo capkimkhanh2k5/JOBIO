@@ -30,7 +30,9 @@ class RecruiterCVViewSetTests(TestCase):
         # Create category and template
         self.category = CVTemplateCategory.objects.create(name="Modern", slug="modern")
         self.template = CVTemplate.objects.create(
-            name="Modern Template", category=self.category
+            name="Modern Template",
+            category=self.category,
+            thumbnail_url="https://example.com/templates/modern.png",
         )
 
         # Create CV
@@ -56,6 +58,12 @@ class RecruiterCVViewSetTests(TestCase):
             ),
             1,
         )
+        items = (
+            response.data.get("results", response.data)
+            if isinstance(response.data, dict)
+            else response.data
+        )
+        self.assertEqual(items[0]["thumbnail_url"], self.template.thumbnail_url)
 
     def test_list_cvs_forbidden(self):
         """Test GET /api/candidates/:id/cvs/ - Other user cannot access"""

@@ -272,21 +272,21 @@ export const Header = () => {
                                             </div>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator className="bg-white/5" />
-                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                            <Link to={user.role === 'company' ? '/company/dashboard' : '/candidate/dashboard'} className="flex items-center w-full">
-                                                <LayoutDashboard className="mr-3 h-4 w-4" />
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/dashboard' : '/candidate/dashboard'} className="flex w-full items-center gap-3 py-3">
+                                                <LayoutDashboard className="h-4 w-4" />
                                                 <span>Dashboard</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                            <Link to={user.role === 'company' ? '/company/profile' : '/candidate/profile'} className="flex items-center w-full">
-                                                <User className="mr-3 h-4 w-4" />
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/profile' : '/candidate/profile'} className="flex w-full items-center gap-3 py-3">
+                                                <User className="h-4 w-4" />
                                                 <span>Trang cá nhân</span>
                                             </Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="py-3 cursor-pointer hover:bg-white/5 focus:bg-white/5">
-                                            <Link to={user.role === 'company' ? '/company/settings' : '/candidate/settings'} className="flex items-center w-full">
-                                                <Settings className="mr-3 h-4 w-4" />
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-white/5 focus:bg-white/5">
+                                            <Link to={user.role === 'company' ? '/company/settings' : '/candidate/settings'} className="flex w-full items-center gap-3 py-3">
+                                                <Settings className="h-4 w-4" />
                                                 <span>Cài đặt</span>
                                             </Link>
                                         </DropdownMenuItem>
