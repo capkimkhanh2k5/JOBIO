@@ -89,19 +89,19 @@ export function CompanyTopNav() {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-slate-100" />
                         <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
-                            <Link to="/company/profile" className="flex items-center gap-3">
+                            <Link to="/company/profile" className="flex w-full items-center gap-3">
                                 <Building2 className="w-4 h-4 text-slate-500" />
                                 <span className="text-slate-700 font-medium">Hồ sơ công ty</span>
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
-                            <Link to="/company/settings" className="flex items-center gap-3">
+                            <Link to="/company/settings" className="flex w-full items-center gap-3">
                                 <Settings className="w-4 h-4 text-slate-500" />
                                 <span className="text-slate-700 font-medium">Cài đặt</span>
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild className="py-2.5 cursor-pointer hover:bg-slate-50 focus:bg-slate-50">
-                            <Link to="/" target="_blank" className="flex items-center gap-3">
+                            <Link to="/" target="_blank" className="flex w-full items-center gap-3">
                                 <ExternalLink className="w-4 h-4 text-slate-500" />
                                 <span className="text-slate-700 font-medium">Xem trang công ty</span>
                             </Link>

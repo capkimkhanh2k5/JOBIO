@@ -306,7 +306,8 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     Weights:
     - Avatar: 10 pts
     - Bio (>50 chars): 15 pts
-    - Experience (>1 item): 20 pts
+    - Experience (1 item): 10 pts
+    - Experience (2+ items): 20 pts
     - Education (>0 item): 10 pts
     - Skills (>3 items): 15 pts
     - Contact Info (Links): 10 pts
@@ -340,7 +341,7 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
         missing_fields.append("bio")
         details["bio"] = 0
 
-    # 3. Experience > 1 item (20 pts)
+    # 3. Experience (1 item: 10 pts, 2+ items: 20 pts)
     experience_count = (
         recruiter.experiences.count() if hasattr(recruiter, "experiences") else 0
     )
@@ -350,7 +351,6 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
     elif experience_count == 1:
         score += 10
         details["experience"] = 10
-        missing_fields.append("experience (add more)")
     else:
         missing_fields.append("experience")
         details["experience"] = 0
@@ -434,7 +434,7 @@ def calculate_profile_completeness_service(recruiter: Recruiter) -> dict:
                 if hasattr(recruiter, "experiences")
                 else 0
             )
-            >= 2,
+            >= 1,
         },
         {
             "task": "Thêm thông tin học vấn",

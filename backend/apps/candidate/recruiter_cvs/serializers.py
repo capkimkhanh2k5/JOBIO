@@ -11,6 +11,9 @@ class RecruiterCVListSerializer(serializers.ModelSerializer):
     template_name = serializers.CharField(
         source="template.name", read_only=True, allow_null=True
     )
+    thumbnail_url = serializers.URLField(
+        source="template.thumbnail_url", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = RecruiterCV
@@ -19,6 +22,7 @@ class RecruiterCVListSerializer(serializers.ModelSerializer):
             "cv_name",
             "template_id",
             "template_name",
+            "thumbnail_url",
             "cv_url",
             "is_default",
             "is_public",

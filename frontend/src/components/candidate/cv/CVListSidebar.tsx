@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Eye, Download, Star, MoreVertical, Globe, Lock, Trash2, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -18,6 +19,29 @@ interface Props {
     onDelete: (id: string) => void;
     onDownload: (id: string) => void;
     onCreateNew: () => void;
+}
+
+function CVThumbnail({ cv }: { cv: CVItem }) {
+    const [canShowImage, setCanShowImage] = useState(Boolean(cv.thumbnail_url));
+
+    useEffect(() => {
+        setCanShowImage(Boolean(cv.thumbnail_url));
+    }, [cv.thumbnail_url]);
+
+    return (
+        <div className="w-10 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-cyan-100 border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            {canShowImage && cv.thumbnail_url ? (
+                <img
+                    src={cv.thumbnail_url}
+                    alt={cv.template_name || cv.cv_name}
+                    className="w-full h-full object-cover opacity-80"
+                    onError={() => setCanShowImage(false)}
+                />
+            ) : (
+                <FileText className="w-4 h-4 text-violet-400" />
+            )}
+        </div>
+    );
 }
 
 export function CVListSidebar({
@@ -78,14 +102,7 @@ export function CVListSidebar({
                                 )}
 
                                 <div className="flex items-start gap-3">
-                                    {/* Thumbnail */}
-                                    <div className="w-10 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-cyan-100 border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden">
-                                        <img
-                                            src={cv.thumbnail_url}
-                                            alt={cv.template_name}
-                                            className="w-full h-full object-cover opacity-70"
-                                        />
-                                    </div>
+                                    <CVThumbnail cv={cv} />
 
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-1.5 mb-1">
