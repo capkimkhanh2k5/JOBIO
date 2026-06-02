@@ -98,7 +98,9 @@ class RecruiterServiceTest(TestCase):
         self.assertFalse(experience_item["completed"])
         self.assertIn("experience", result["missing_fields"])
 
-    def test_profile_completeness_marks_complete_with_one_experience_for_partial_points(self):
+    def test_profile_completeness_marks_complete_with_one_experience_for_partial_points(
+        self,
+    ):
         recruiter = Recruiter.objects.create(user=self.user)
         RecruiterExperience.objects.create(
             recruiter=recruiter,
@@ -118,7 +120,9 @@ class RecruiterServiceTest(TestCase):
         self.assertTrue(experience_item["completed"])
         self.assertNotIn("experience", result["missing_fields"])
 
-    def test_profile_completeness_keeps_full_experience_points_with_two_experiences(self):
+    def test_profile_completeness_keeps_full_experience_points_with_two_experiences(
+        self,
+    ):
         recruiter = Recruiter.objects.create(user=self.user)
         for index in range(2):
             RecruiterExperience.objects.create(
