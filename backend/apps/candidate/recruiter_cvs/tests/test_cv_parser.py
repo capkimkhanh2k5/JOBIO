@@ -107,6 +107,22 @@ class ExtractTextFromPdfTest(TestCase):
         with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
             validate_pdf_bytes(b"not a pdf")
 
+    def test_validate_accepts_pdf_with_leading_whitespace_or_bom(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import validate_pdf_bytes
+
+        self.assertEqual(validate_pdf_bytes(b"\n" + self.pdf_bytes), 1)
+        self.assertEqual(validate_pdf_bytes(b"\xef\xbb\xbf\t" + self.pdf_bytes), 1)
+
+    def test_extract_accepts_pdf_with_leading_whitespace(self):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            extract_text_from_pdf,
+        )
+
+        text = extract_text_from_pdf(b"\n" + self.pdf_bytes)
+
+        self.assertIn("ALEX NGUYEN", text)
+        self.assertIn("alex.nguyen@example.test", text)
+
     def test_validate_rejects_pdf_over_three_pages(self):
         from apps.candidate.recruiter_cvs.services.cv_parser import validate_pdf_bytes
 
@@ -132,6 +148,19 @@ class ExtractTextFromPdfTest(TestCase):
         empty_pdf = _build_test_cv_bytes(text="")
 
         self.assertEqual(extract_text_from_pdf(empty_pdf).strip(), "")
+
+    @patch("apps.candidate.recruiter_cvs.services.cv_parser._ocr_page")
+    def test_extract_uses_ocr_for_image_only_pdf(self, mock_ocr_page):
+        from apps.candidate.recruiter_cvs.services.cv_parser import (
+            extract_text_from_pdf,
+        )
+
+        mock_ocr_page.return_value = (SYNTHETIC_CV_TEXT, False)
+
+        text = extract_text_from_pdf(_build_test_cv_bytes(text=""))
+
+        self.assertIn("ALEX NGUYEN", text)
+        mock_ocr_page.assert_called_once()
 
 
 class NormalizeParsedDataTest(TestCase):

@@ -41,6 +41,10 @@ MIN_LLM_TEXT_LENGTH = 50
 DEFAULT_MAX_OUTPUT_TOKENS = 2048
 DEFAULT_MODERATION_MAX_OUTPUT_TOKENS = 256
 
+PDF_MAGIC = b"%PDF-"
+UTF8_BOM = b"\xef\xbb\xbf"
+PDF_ALLOWED_LEADING_BYTES = b" \t\r\n\f\v"
+
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 DATE_RE = re.compile(r"^\d{4}(-\d{2}){0,2}$")
 
@@ -589,6 +593,14 @@ class ParsedCVData(CVSchemaModel):
 # ---------------------------------------------------------------------------
 
 
+def _pdf_magic_candidate(file_bytes: bytes) -> bytes:
+    """Return bytes after harmless leading PDF transport noise for magic checks."""
+    candidate = file_bytes.lstrip(PDF_ALLOWED_LEADING_BYTES)
+    if candidate.startswith(UTF8_BOM):
+        candidate = candidate[len(UTF8_BOM) :].lstrip(PDF_ALLOWED_LEADING_BYTES)
+    return candidate
+
+
 def validate_pdf_bytes(file_bytes: bytes) -> int:
     """
     Validate PDF bytes before upload or parsing.
@@ -602,7 +614,7 @@ def validate_pdf_bytes(file_bytes: bytes) -> int:
     if len(file_bytes) > _max_upload_bytes():
         raise ValueError("pdf_too_large")
 
-    if not file_bytes.startswith(b"%PDF-"):
+    if not _pdf_magic_candidate(file_bytes).startswith(PDF_MAGIC):
         raise ValueError("invalid_pdf_magic")
 
     doc = None
@@ -633,9 +645,12 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
        fall back to PyMuPDF's built-in OCR (Tesseract).
     3. Combine all pages into a single text string.
     """
-    validate_pdf_bytes(file_bytes)
+    page_count = validate_pdf_bytes(file_bytes)
     doc = fitz.open(stream=file_bytes, filetype="pdf")
     pages_text = []
+    ocr_attempted = 0
+    ocr_used = 0
+    ocr_unavailable = False
 
     try:
         for page_num, page in enumerate(doc):
@@ -651,8 +666,11 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
                 pages_text.append(text)
             else:
                 # Likely a scanned/image page — try OCR
-                ocr_text = _ocr_page(page, page_num)
+                ocr_attempted += 1
+                ocr_text, page_ocr_unavailable = _ocr_page(page, page_num)
+                ocr_unavailable = ocr_unavailable or page_ocr_unavailable
                 if ocr_text:
+                    ocr_used += 1
                     pages_text.append(ocr_text)
                 elif text:
                     # Fallback: use whatever little text we got
@@ -673,10 +691,20 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
             max_text_chars,
         )
 
+    logger.info(
+        "CV PDF text extraction completed: page_count=%d extracted_chars=%d "
+        "ocr_attempted=%d ocr_used=%d ocr_unavailable=%s",
+        page_count,
+        len(combined),
+        ocr_attempted,
+        ocr_used,
+        ocr_unavailable,
+    )
+
     return combined
 
 
-def _ocr_page(page: fitz.Page, page_num: int) -> Optional[str]:
+def _ocr_page(page: fitz.Page, page_num: int) -> tuple[Optional[str], bool]:
     """
     Attempt OCR on a single page using PyMuPDF's built-in Tesseract integration.
 
@@ -700,17 +728,17 @@ def _ocr_page(page: fitz.Page, page_num: int) -> Optional[str]:
                     page_num,
                     language,
                 )
-                return ocr_text
+                return ocr_text, False
 
         except RuntimeError as e:
             # Tesseract not installed — log once and skip OCR
             if "Tesseract" in str(e) or "tesseract" in str(e):
                 logger.warning(
-                    "Tesseract OCR not available (page %d). "
+                    "Tesseract OCR unavailable for CV PDF page %d. "
                     "Install tesseract-ocr for scanned PDF support.",
                     page_num,
                 )
-                return None
+                return None, True
             logger.warning(
                 "OCR error on page %d with language=%s: %s",
                 page_num,
@@ -725,7 +753,7 @@ def _ocr_page(page: fitz.Page, page_num: int) -> Optional[str]:
                 e,
             )
 
-    return None
+    return None, False
 
 
 # ---------------------------------------------------------------------------
@@ -1139,12 +1167,12 @@ def process_cv_pdf(file_bytes: bytes, user_identifier: Optional[str] = None) -> 
 
     if not raw_text.strip():
         logger.warning(
-            "No text extracted from PDF. "
+            "No text extracted from CV PDF. "
             "File may be image-only without OCR support, or corrupted."
         )
         return {}
 
-    logger.info(f"Extracted {len(raw_text)} characters from PDF")
+    logger.info("Extracted %d characters from CV PDF", len(raw_text))
 
     # Step 2: Parse with LLM
     cv_data = parse_cv_with_llm(raw_text, user_identifier=user_identifier)
