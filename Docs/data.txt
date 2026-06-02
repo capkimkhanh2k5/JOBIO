@@ -1,0 +1,25 @@
+Mô tả công việc
+1. Phát triển và bảo trì các tính năng của hệ thống theo yêu cầu dự án.
+2. Phân tích yêu cầu nghiệp vụ và đề xuất các giải pháp kỹ thuật phù hợp.
+3. Phối hợp với các thành viên trong nhóm để triển khai, kiểm thử và hoàn thiện sản phẩm.
+4. Tích hợp các dịch vụ, API và hệ thống bên thứ ba theo yêu cầu.
+5. Theo dõi, xử lý và khắc phục các lỗi phát sinh trong quá trình vận hành.
+6. Tối ưu hiệu năng, cải thiện chất lượng và độ ổn định của hệ thống.
+7. Thực hiện review code và tuân thủ các tiêu chuẩn phát triển phần mềm của dự án.
+8. Viết tài liệu kỹ thuật, hỗ trợ triển khai và bàn giao sản phẩm khi cần thiết.
+9. Nghiên cứu, cập nhật và áp dụng các công nghệ mới nhằm nâng cao hiệu quả công việc.
+10. Thực hiện các nhiệm vụ khác theo sự phân công của quản lý trực tiếp.
+
+
+
+Yêu cầu ứng viên
+1. Tốt nghiệp Cao đẳng/Đại học chuyên ngành Công nghệ thông tin hoặc các ngành liên quan.
+2. Có từ 1 năm kinh nghiệm làm việc ở vị trí tương đương là một lợi thế.
+3. Có kiến thức cơ bản về phát triển phần mềm, cơ sở dữ liệu và quy trình phát triển sản phẩm.
+4. Thành thạo ít nhất một ngôn ngữ lập trình hoặc công nghệ phù hợp với vị trí ứng tuyển.
+5. Có khả năng phân tích, giải quyết vấn đề và tư duy logic tốt.
+6. Có tinh thần trách nhiệm cao, chủ động trong công việc và sẵn sàng học hỏi công nghệ mới.
+7. Có khả năng làm việc độc lập cũng như phối hợp hiệu quả với các thành viên trong nhóm.
+8. Kỹ năng giao tiếp tốt, có khả năng tiếp nhận và phản hồi yêu cầu công việc một cách rõ ràng.
+9. Có khả năng quản lý thời gian và hoàn thành công việc đúng tiến độ được giao.
+10. Ưu tiên ứng viên đã từng tham gia các dự án thực tế hoặc có sản phẩm cá nhân.
