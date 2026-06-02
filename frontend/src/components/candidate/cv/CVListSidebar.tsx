@@ -21,25 +21,34 @@ interface Props {
     onCreateNew: () => void;
 }
 
+const hasUsableThumbnail = (url?: string | null) => {
+    const value = url?.trim();
+    return Boolean(value && value !== 'null' && value !== 'undefined');
+};
+
 function CVThumbnail({ cv }: { cv: CVItem }) {
-    const [canShowImage, setCanShowImage] = useState(Boolean(cv.thumbnail_url));
+    const [canShowImage, setCanShowImage] = useState(hasUsableThumbnail(cv.thumbnail_url));
 
     useEffect(() => {
-        setCanShowImage(Boolean(cv.thumbnail_url));
+        setCanShowImage(hasUsableThumbnail(cv.thumbnail_url));
     }, [cv.thumbnail_url]);
 
-    return (
-        <div className="w-10 h-12 rounded-lg bg-gradient-to-br from-violet-100 to-cyan-100 border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-            {canShowImage && cv.thumbnail_url ? (
+    if (canShowImage && cv.thumbnail_url) {
+        return (
+            <div className="w-10 h-12 rounded-lg bg-white border border-violet-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                 <img
                     src={cv.thumbnail_url}
                     alt={cv.template_name || cv.cv_name}
-                    className="w-full h-full object-cover opacity-80"
+                    className="w-full h-full object-cover"
                     onError={() => setCanShowImage(false)}
                 />
-            ) : (
-                <FileText className="w-4 h-4 text-violet-400" />
-            )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="w-10 h-12 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center shrink-0 shadow-sm">
+            <FileText className="w-5 h-5 text-violet-500" aria-hidden="true" />
         </div>
     );
 }
