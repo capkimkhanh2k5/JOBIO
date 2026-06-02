@@ -254,6 +254,25 @@ class RecruiterViewTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_parse_cv_invalid_pdf_returns_backend_detail(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        recruiter = Recruiter.objects.create(user=self.user)
+        upload = SimpleUploadedFile(
+            "cv.pdf", b"not a real pdf", content_type="application/pdf"
+        )
+
+        response = self.client.post(
+            f"/api/candidates/{recruiter.id}/parse-cv/",
+            {"file": upload},
+            format="multipart",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["detail"], "The uploaded file is not a valid PDF."
+        )
+
     @patch("apps.candidate.recruiter_cvs.services.cv_parser.process_cv_pdf")
     def test_parse_cv_empty_result_returns_422(self, mock_process):
         from django.core.files.uploadedfile import SimpleUploadedFile

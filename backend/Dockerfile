@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY requirements.txt /app/
 
-# Install system dependencies for WeasyPrint (PDF generation)
+# Install system dependencies for WeasyPrint (PDF generation) and OCR fallback
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     zlib1g-dev \
     libffi-dev \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-vie \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir -r requirements.txt
