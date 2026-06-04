@@ -146,7 +146,7 @@ const HeroSection = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-                    className="max-w-4xl mx-auto text-center"
+                    className="max-w-[min(96vw,1800px)] mx-auto text-center"
                 >
                     {/* eyebrow tag */}
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm text-primary text-sm font-semibold mb-6 border border-primary/20 shadow-sm">
@@ -154,12 +154,12 @@ const HeroSection = () => {
                         Nền tảng tuyển dụng hàng đầu Việt Nam
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight text-gray-900 mb-6">
+                    <h1 className="text-[clamp(3rem,4vw,4.5rem)] font-black tracking-normal leading-[1.08] text-gray-900 mb-6 2xl:whitespace-nowrap">
                         Tìm Việc Làm{' '}
                         <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
                             Phù Hợp
                         </span>
-                        {' '}Với Bạn
+                        <span className="whitespace-nowrap"> Với Bạn</span>
                     </h1>
 
                     <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
