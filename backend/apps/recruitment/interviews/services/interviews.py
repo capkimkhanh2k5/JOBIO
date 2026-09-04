@@ -39,6 +39,7 @@ class InterviewUpdateInput(BaseModel):
     result: Optional[str] = None
     interviewer_id: Optional[int] = None
     rating: Optional[int] = None
+    scorecard: Optional[dict] = None
 
 
 def sync_overdue_interviews(queryset=None) -> int:
@@ -69,6 +70,24 @@ def sync_overdue_interviews(queryset=None) -> int:
     return Interview.objects.filter(id__in=overdue_ids).update(
         status=Interview.Status.NO_SHOW
     )
+
+
+def _average_scorecard_rating(scorecard: dict | None) -> int | None:
+    if not isinstance(scorecard, dict) or not scorecard:
+        return None
+
+    scores = []
+    for value in scorecard.values():
+        try:
+            score = int(value)
+        except (TypeError, ValueError):
+            continue
+        if 1 <= score <= 5:
+            scores.append(score)
+
+    if not scores:
+        return None
+    return int((sum(scores) / len(scores)) + 0.5)
 
 
 @transaction.atomic
@@ -155,6 +174,11 @@ def update_interview(interview: Interview, data: InterviewUpdateInput) -> Interv
     if data.rating is not None:
         interview.rating = data.rating
 
+    if data.scorecard is not None:
+        interview.scorecard = data.scorecard
+        if interview.rating is None:
+            interview.rating = _average_scorecard_rating(data.scorecard)
+
     interview.save()
     return interview
 
@@ -210,7 +234,11 @@ def cancel_interview(interview: Interview, reason: str = None) -> Interview:
 
 @transaction.atomic
 def complete_interview(
-    interview: Interview, result: str, feedback: str = None, rating: int = None
+    interview: Interview,
+    result: str,
+    feedback: str = None,
+    rating: int = None,
+    scorecard: dict | None = None,
 ) -> Interview:
     """
     Hoàn thành phỏng vấn với kết quả.
@@ -227,8 +255,13 @@ def complete_interview(
     if feedback:
         interview.feedback = feedback
 
+    if scorecard is not None:
+        interview.scorecard = scorecard
+
     if rating:
         interview.rating = rating
+    elif scorecard:
+        interview.rating = _average_scorecard_rating(scorecard)
 
     interview.save()
 
@@ -239,7 +272,10 @@ def complete_interview(
     ).exists()
 
     if not has_pending_interviews:
-        application.status = "rejected" if result == "fail" else "review"
+        if result == "fail":
+            application.status = Application.Status.REJECTED
+        else:
+            application.status = Application.Status.INTERVIEW
         application.save()
 
     return interview

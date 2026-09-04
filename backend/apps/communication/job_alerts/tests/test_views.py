@@ -5,6 +5,9 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 from apps.communication.job_alerts.models import JobAlert
+from apps.communication.job_alerts.services.unsubscribe import (
+    make_job_alert_unsubscribe_token,
+)
 from apps.recruitment.job_categories.models import JobCategory
 from apps.geography.provinces.models import Province
 from apps.candidate.recruiters.models import Recruiter
@@ -98,6 +101,27 @@ class JobAlertViewTests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(JobAlert.objects.filter(id=self.job_alert.id).count(), 0)
+
+    def test_unsubscribe_with_signed_token_does_not_require_auth(self):
+        self.client.logout()
+        token = make_job_alert_unsubscribe_token(self.job_alert)
+
+        response = self.client.get("/api/job-alerts/unsubscribe/", {"token": token})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.job_alert.refresh_from_db()
+        self.assertFalse(self.job_alert.is_active)
+
+    def test_unsubscribe_rejects_plain_alert_id(self):
+        self.client.logout()
+
+        response = self.client.get(
+            "/api/job-alerts/unsubscribe/", {"token": str(self.job_alert.id)}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.job_alert.refresh_from_db()
+        self.assertTrue(self.job_alert.is_active)
 
     def test_get_detail(self):
         url = f"/api/job-alerts/{self.job_alert.id}/"

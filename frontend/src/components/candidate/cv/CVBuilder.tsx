@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Award,
@@ -19,9 +19,11 @@ import {
     Pencil,
     Plus,
     Save,
+    Sparkles,
     Trash2,
     User,
     Wand2,
+    X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cvService } from '@/services/cvService';
@@ -60,16 +62,16 @@ interface SuggestionOption {
 }
 
 const inputCls =
-    'h-9 rounded-lg border-slate-200 bg-slate-50 text-sm focus:border-violet-400 focus:bg-white focus:ring-violet-100';
+    'h-9 rounded-lg border-border bg-muted text-sm focus:border-teal-400 focus:bg-card focus:ring-teal-100';
 const textareaCls =
-    'w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition-all placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-100';
+    'w-full resize-none rounded-lg border border-border bg-muted px-3 py-2 text-sm transition-all placeholder:text-muted-foreground/60 focus:border-teal-400 focus:bg-card focus:outline-none focus:ring-2 focus:ring-teal-100';
 
 const TEMPLATE_GRADIENTS: Record<string, string> = {
     'modern.html': 'from-slate-400 to-slate-600',
-    'ATS_Prime.html': 'from-sky-500 to-blue-600',
+    'ATS_Prime.html': 'from-sky-500 to-primary',
     'editorialBold.html': 'from-rose-500 to-pink-600',
-    'modernHybird.html': 'from-violet-500 to-purple-600',
-    'modernHybird2.html': 'from-indigo-500 to-violet-600',
+    'modernHybird.html': 'from-teal-500 to-emerald-600',
+    'modernHybird2.html': 'from-teal-500 to-emerald-600',
     'modernLuxury.html': 'from-amber-500 to-orange-600',
 };
 
@@ -89,22 +91,22 @@ function Section({
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="overflow-hidden rounded-xl border border-border">
             <button
                 type="button"
                 onClick={() => setOpen((prev) => !prev)}
-                className="flex w-full cursor-pointer items-center justify-between bg-slate-50 px-4 py-3 transition-colors hover:bg-slate-100"
+                className="flex w-full cursor-pointer items-center justify-between bg-muted px-4 py-3 transition-colors hover:bg-muted"
             >
                 <div className="flex items-center gap-2.5">
                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg border shadow-sm ${color}`}>
                         {icon}
                     </div>
-                    <span className="text-sm font-semibold text-slate-700">{title}</span>
+                    <span className="text-sm font-semibold text-foreground/80">{title}</span>
                 </div>
                 {open ? (
-                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                    <ChevronUp className="h-4 w-4 text-muted-foreground/60" />
                 ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground/60" />
                 )}
             </button>
 
@@ -117,7 +119,7 @@ function Section({
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className="space-y-3 bg-white p-4">{children}</div>
+                        <div className="space-y-3 bg-card p-4">{children}</div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -128,7 +130,7 @@ function Section({
 function Field({ label, children }: { label: string; children: ReactNode }) {
     return (
         <div>
-            <Label className="mb-1 block text-xs font-medium text-slate-600">{label}</Label>
+            <Label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</Label>
             {children}
         </div>
     );
@@ -137,26 +139,39 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 function FreeSoloCombobox({
     value,
     onChange,
+    onSelectOption,
     options,
     placeholder,
     emptyMessage,
     className,
+    onKeyDown,
 }: {
     value: string;
     onChange: (value: string) => void;
+    onSelectOption?: (value: string) => void;
     options: SuggestionOption[];
     placeholder: string;
     emptyMessage: string;
     className?: string;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState('');
 
     const filteredOptions = useMemo(() => {
-        const keyword = query.trim().toLowerCase();
+        const keyword = (query || value).trim().toLowerCase();
         if (!keyword) return options;
         return options.filter((option) => option.label.toLowerCase().includes(keyword));
-    }, [options, query]);
+    }, [options, query, value]);
+
+    const handleSelect = (selectedValue: string) => {
+        onChange(selectedValue);
+        setQuery('');
+        setOpen(false);
+        if (onSelectOption) {
+            onSelectOption(selectedValue);
+        }
+    };
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -167,15 +182,22 @@ function FreeSoloCombobox({
                             value={value}
                             autoComplete="off"
                             spellCheck={false}
-                            onFocus={() => {
-                                setQuery('');
-                                setOpen(true);
-                            }}
                             onChange={(e) => {
                                 const nextValue = e.target.value;
                                 onChange(nextValue);
                                 setQuery(nextValue);
-                                setOpen(true);
+                                if (nextValue.trim().length > 0) {
+                                    setOpen(true);
+                                } else {
+                                    setOpen(false);
+                                }
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    setOpen(false);
+                                } else if (onKeyDown) {
+                                    onKeyDown(e);
+                                }
                             }}
                             placeholder={placeholder}
                             className={className}
@@ -184,47 +206,47 @@ function FreeSoloCombobox({
                             type="button"
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => {
-                                setQuery('');
                                 setOpen((prev) => !prev);
                             }}
-                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Mở danh sách gợi ý"
                         >
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                         </button>
                     </div>
                 </PopoverTrigger>
                 <PopoverContent
                     align="start"
                     sideOffset={8}
-                    className="w-[--radix-popover-trigger-width] rounded-xl border-slate-200 bg-white p-0 shadow-lg"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    className="w-[--radix-popover-trigger-width] rounded-xl border border-border bg-card p-1 shadow-lg z-50"
                 >
-                    <Command shouldFilter={false} className="rounded-xl bg-white">
-                        <CommandList className="max-h-64">
-                            <CommandEmpty>{emptyMessage}</CommandEmpty>
-                            <CommandGroup>
-                                {filteredOptions.map((option) => (
-                                    <CommandItem
-                                        key={option.value}
-                                        value={option.label}
-                                        onSelect={() => {
-                                            onChange(option.value);
-                                            setQuery(option.value);
-                                            setOpen(false);
-                                        }}
-                                        className="cursor-pointer"
-                                    >
-                                        <Check
-                                            className={`mr-2 h-4 w-4 ${
-                                                value === option.value ? 'opacity-100' : 'opacity-0'
-                                            }`}
-                                        />
-                                        {option.label}
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
+                    <div className="max-h-60 overflow-y-auto space-y-0.5">
+                        {filteredOptions.length > 0 ? (
+                            filteredOptions.map((option) => (
+                                <div
+                                    key={option.value}
+                                    onMouseDown={(e) => {
+                                        e.preventDefault();
+                                        handleSelect(option.value);
+                                    }}
+                                    className={`flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium cursor-pointer transition-colors ${
+                                        value === option.value
+                                            ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300 font-semibold'
+                                            : 'hover:bg-muted text-foreground'
+                                    }`}
+                                >
+                                    <span>{option.label}</span>
+                                    {value === option.value && <Check className="h-3.5 w-3.5 text-teal-600" />}
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-4 text-center text-xs text-muted-foreground italic">
+                                {emptyMessage}
+                            </div>
+                        )}
+                    </div>
                 </PopoverContent>
             </div>
         </Popover>
@@ -242,7 +264,7 @@ function ProficiencySelect({
 }) {
     return (
         <Select value={value} onValueChange={onChange}>
-            <SelectTrigger className="h-9 w-[132px] rounded-lg border-slate-200 bg-slate-50 text-xs focus:ring-violet-100">
+            <SelectTrigger className="h-9 w-[132px] rounded-lg border-border bg-muted text-xs focus:ring-teal-100">
                 <SelectValue placeholder="Trình độ" />
             </SelectTrigger>
             <SelectContent>
@@ -253,6 +275,34 @@ function ProficiencySelect({
                 ))}
             </SelectContent>
         </Select>
+    );
+}
+
+function AIRewriteButton({
+    disabled,
+    loading,
+    onClick,
+}: {
+    disabled?: boolean;
+    loading?: boolean;
+    onClick: () => void;
+}) {
+    return (
+        <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onClick}
+            disabled={disabled || loading}
+            className="h-7 gap-1.5 rounded-lg border-teal-200 bg-card px-2 text-[11px] font-bold text-teal-700 hover:bg-teal-50 disabled:opacity-60"
+        >
+            {loading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+                <Sparkles className="h-3 w-3" />
+            )}
+            AI rewrite
+        </Button>
     );
 }
 
@@ -268,8 +318,9 @@ export function CVBuilder({
 }: Props) {
     const [isTemplateExpanded, setIsTemplateExpanded] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
-    const [renameValue, setRenameValue] = useState('');
     const [isSavingPdf, setIsSavingPdf] = useState(false);
+    const [rewritingKey, setRewritingKey] = useState<string | null>(null);
+    const [skillInput, setSkillInput] = useState('');
 
     const { data: templates = [], isLoading: loadingTemplates } = useQuery({
         queryKey: ['cv-templates'],
@@ -369,6 +420,57 @@ export function CVBuilder({
         [cvData, getArr, onFieldChange]
     );
 
+    const rewriteMutation = useMutation({
+        mutationFn: ({
+            section,
+            text,
+            context,
+        }: {
+            section: 'summary' | 'experience' | 'project';
+            text: string;
+            context?: Record<string, any>;
+        }) => {
+            if (!candidateId || !selectedCV?.id) throw new Error('missing_cv');
+            return cvService
+                .rewriteSection(candidateId, Number(selectedCV.id), { section, text, context })
+                .then((response) => response.data);
+        },
+    });
+
+    const rewriteField = async ({
+        key,
+        section,
+        text,
+        context,
+        apply,
+    }: {
+        key: string;
+        section: 'summary' | 'experience' | 'project';
+        text: string;
+        context?: Record<string, any>;
+        apply: (nextText: string) => void;
+    }) => {
+        if (!String(text || '').trim()) {
+            toast.error('Hãy nhập nội dung trước khi dùng AI rewrite.');
+            return;
+        }
+        setRewritingKey(key);
+        try {
+            const currentLang = get('language') || 'vi';
+            const result = await rewriteMutation.mutateAsync({
+                section,
+                text,
+                context: { ...context, language: currentLang },
+            });
+            apply(result.rewritten_text);
+            toast.success('Đã viết lại đoạn CV.');
+        } catch (error: any) {
+            toast.error(error?.response?.data?.detail || 'AI rewrite tạm thời chưa sẵn sàng.');
+        } finally {
+            setRewritingKey(null);
+        }
+    };
+
     const handleSavePdf = async () => {
         if (!selectedCV || !candidateId) return;
         setIsSavingPdf(true);
@@ -389,11 +491,11 @@ export function CVBuilder({
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-100 to-cyan-100 shadow-inner"
+                    className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 shadow-inner"
                 >
-                    <FileText className="h-8 w-8 text-violet-400" />
+                    <FileText className="h-8 w-8 text-teal-400" />
                 </motion.div>
-                <h3 className="mb-2 text-lg font-bold text-slate-700">Chọn CV để chỉnh sửa</h3>
+                <h3 className="mb-2 text-lg font-bold text-foreground/80">Chọn CV để chỉnh sửa</h3>
                 <p className="max-w-xs text-sm text-muted-foreground">
                     Chọn một CV từ danh sách bên trái hoặc tạo mới để bắt đầu.
                 </p>
@@ -405,6 +507,14 @@ export function CVBuilder({
     const isUploadedCv = !selectedCV.template_id && !!selectedCV.cv_url;
 
     if (isUploadedCv) {
+        const parseStatus = selectedCV.parse_status || 'queued';
+        const parseStatusCopy =
+            parseStatus === 'parsed'
+                ? 'CV đã được trích xuất dữ liệu và có thể dùng cho gợi ý việc làm theo CV.'
+                : parseStatus === 'failed'
+                    ? selectedCV.parse_error_message || 'Hệ thống chưa trích xuất được CV này. Gợi ý việc làm sẽ tạm fallback theo hồ sơ.'
+                    : 'Hệ thống đang trích xuất dữ liệu CV. Trong lúc chờ, gợi ý việc làm có thể tạm fallback theo hồ sơ.';
+
         const handleRenameStart = () => {
             setRenameValue(selectedCV.cv_name);
             setIsRenaming(true);
@@ -428,9 +538,9 @@ export function CVBuilder({
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50"
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8"
                 >
-                    <FileText className="h-8 w-8 text-blue-400" />
+                    <FileText className="h-8 w-8 text-primary" />
                 </motion.div>
 
                 <div className="flex flex-col items-center gap-1">
@@ -442,15 +552,23 @@ export function CVBuilder({
                                 onChange={(e) => setRenameValue(e.target.value)}
                                 onBlur={handleRenameConfirm}
                                 onKeyDown={handleRenameKeyDown}
-                                className="h-8 text-sm font-semibold text-slate-700 text-center w-56"
+                                className="h-8 text-sm font-semibold text-foreground/80 text-center w-56"
                             />
                         </div>
                     ) : (
-                        <h3 className="text-lg font-bold text-slate-700">{selectedCV.cv_name}</h3>
+                        <h3 className="text-lg font-bold text-foreground/80">{selectedCV.cv_name}</h3>
                     )}
                     <p className="text-sm text-muted-foreground max-w-xs">
                         CV được tải lên từ file PDF — không thể chỉnh sửa nội dung
                     </p>
+                    <div className={`mt-2 rounded-xl border px-3 py-2 text-xs font-medium ${parseStatus === 'parsed'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : parseStatus === 'failed'
+                            ? 'border-rose-200 bg-rose-50 text-rose-700'
+                            : 'border-sky-200 bg-sky-50 text-sky-700'
+                        }`}>
+                        {parseStatusCopy}
+                    </div>
                 </div>
 
                 {!isRenaming && (
@@ -473,14 +591,14 @@ export function CVBuilder({
     return (
         <div className="space-y-4 p-5">
             <div className="flex min-h-9 items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                     {!isUploadedCv && (
                         <Button
                             size="sm"
                             variant="outline"
                             onClick={handleSavePdf}
                             disabled={isSavingPdf}
-                            className="h-9 gap-2 rounded-xl border-violet-200 bg-violet-50 px-4 text-xs font-bold text-violet-700 shadow-sm shadow-violet-100/70 transition-all hover:border-violet-300 hover:bg-violet-100 hover:text-violet-800 disabled:opacity-70"
+                            className="h-9 gap-2 rounded-xl border-teal-200 bg-teal-50 px-4 text-xs font-bold text-teal-700 shadow-sm shadow-teal-100/70 transition-all hover:border-teal-300 hover:bg-teal-100 hover:text-teal-800 disabled:opacity-70 shrink-0"
                         >
                             {isSavingPdf ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -491,41 +609,43 @@ export function CVBuilder({
                         </Button>
                     )}
                     {!isUploadedCv && (
-                        <p className="text-[11px] font-medium text-slate-500">
+                        <p className="hidden text-[11px] font-medium text-muted-foreground sm:block truncate">
                             Lưu để cập nhật bản CV mới nhất trước khi sử dụng hoặc tải CV.
                         </p>
                     )}
                 </div>
-                <AnimatePresence mode="wait">
-                    {autoSaveStatus === 'saving' && (
-                        <motion.span
-                            key="saving"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
-                        >
-                            <Clock className="h-3.5 w-3.5 animate-spin" />
-                            Đang lưu...
-                        </motion.span>
-                    )}
-                    {autoSaveStatus === 'saved' && (
-                        <motion.span
-                            key="saved"
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            className="flex items-center gap-1.5 text-[11px] text-emerald-600"
-                        >
-                            <Save className="h-3.5 w-3.5" />
-                            Đã lưu
-                        </motion.span>
-                    )}
-                </AnimatePresence>
+                <div className="flex shrink-0 items-center justify-end">
+                    <AnimatePresence mode="wait">
+                        {autoSaveStatus === 'saving' && (
+                            <motion.span
+                                key="saving"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-medium text-muted-foreground"
+                            >
+                                <Clock className="h-3.5 w-3.5 animate-spin" />
+                                Đang lưu...
+                            </motion.span>
+                        )}
+                        {autoSaveStatus === 'saved' && (
+                            <motion.span
+                                key="saved"
+                                initial={{ opacity: 0, y: 4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg"
+                            >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Đã lưu
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
             <div>
-                <Label className="mb-1.5 block text-xs font-semibold text-slate-700">Tên CV</Label>
+                <Label className="mb-1.5 block text-xs font-semibold text-foreground/80">Tên CV</Label>
                 <Input
                     value={cvName}
                     onChange={(e) => onFieldChange('cv_name', e.target.value)}
@@ -534,26 +654,26 @@ export function CVBuilder({
                 />
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-slate-200">
+            <div className="overflow-hidden rounded-xl border border-border">
                 <button
                     type="button"
                     onClick={() => setIsTemplateExpanded((prev) => !prev)}
-                    className="flex w-full cursor-pointer items-center justify-between bg-slate-50 px-4 py-3 transition-colors hover:bg-slate-100"
+                    className="flex w-full cursor-pointer items-center justify-between bg-muted px-4 py-3 transition-colors hover:bg-muted"
                 >
                     <div className="flex items-center gap-2">
-                        <Wand2 className="h-4 w-4 text-violet-500" />
-                        <span className="text-sm font-semibold text-slate-700">Chọn template</span>
+                        <Wand2 className="h-4 w-4 text-teal-500" />
+                        <span className="text-sm font-semibold text-foreground/80">Chọn template</span>
                         <Badge
                             variant="outline"
-                            className="border-violet-200 bg-violet-50 text-[10px] text-violet-700"
+                            className="border-teal-200 bg-teal-50 text-[10px] text-teal-700"
                         >
                             {currentTemplate?.name ?? 'Chưa chọn'}
                         </Badge>
                     </div>
                     {isTemplateExpanded ? (
-                        <ChevronUp className="h-4 w-4 text-slate-400" />
+                        <ChevronUp className="h-4 w-4 text-muted-foreground/60" />
                     ) : (
-                        <ChevronDown className="h-4 w-4 text-slate-400" />
+                        <ChevronDown className="h-4 w-4 text-muted-foreground/60" />
                     )}
                 </button>
 
@@ -566,7 +686,7 @@ export function CVBuilder({
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                         >
-                            <div className="bg-white p-4">
+                            <div className="bg-card p-4">
                                 {loadingTemplates ? (
                                     <div className="grid grid-cols-3 gap-3">
                                         {[...Array(6)].map((_, index) => (
@@ -582,7 +702,7 @@ export function CVBuilder({
                                                 template.thumbnail_url || template.thumbnail || '';
                                             const gradient =
                                                 TEMPLATE_GRADIENTS[template.file_name || ''] ||
-                                                'from-violet-400 to-cyan-400';
+                                                'from-teal-400 to-cyan-400';
 
                                             return (
                                                 <button
@@ -592,13 +712,12 @@ export function CVBuilder({
                                                         onFieldChange('template_id', template.id);
                                                         setIsTemplateExpanded(false);
                                                     }}
-                                                    className={`relative overflow-hidden rounded-xl border-2 bg-white transition-all ${
-                                                        isSelected
-                                                            ? 'border-violet-500 shadow-md shadow-violet-200'
-                                                            : 'border-slate-200 hover:border-violet-300 hover:shadow-sm'
-                                                    }`}
+                                                    className={`relative overflow-hidden rounded-xl border-2 bg-card transition-all ${isSelected
+                                                        ? 'border-teal-500 shadow-md shadow-teal-200'
+                                                        : 'border-border hover:border-teal-300 hover:shadow-sm'
+                                                        }`}
                                                 >
-                                                    <div className="aspect-[4/5] overflow-hidden border-b border-slate-100 bg-slate-100">
+                                                    <div className="aspect-[4/5] overflow-hidden border-b border-border/60 bg-muted">
                                                         {thumbnailUrl ? (
                                                             <img
                                                                 src={thumbnailUrl}
@@ -612,14 +731,14 @@ export function CVBuilder({
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="bg-white px-2 py-2">
-                                                        <p className="line-clamp-1 text-center text-xs font-semibold text-slate-800">
+                                                    <div className="bg-card px-2 py-2">
+                                                        <p className="line-clamp-1 text-center text-xs font-semibold text-foreground">
                                                             {template.name}
                                                         </p>
                                                     </div>
                                                     {isSelected && (
                                                         <div className="absolute right-2 top-2">
-                                                            <CheckCircle2 className="h-4 w-4 fill-violet-500 text-white" />
+                                                            <CheckCircle2 className="h-4 w-4 fill-teal-500 text-white" />
                                                         </div>
                                                     )}
                                                 </button>
@@ -633,9 +752,9 @@ export function CVBuilder({
                 </AnimatePresence>
             </div>
 
-            <Separator className="bg-slate-100" />
+            <Separator className="bg-muted" />
 
-            <Section icon={<User className="h-4 w-4" />} title="Thông tin cá nhân" color="border-violet-100 bg-violet-50 text-violet-600">
+            <Section icon={<User className="h-4 w-4" />} title="Thông tin cá nhân" color="border-teal-100 bg-teal-50 text-teal-600">
                 <Field label="Họ và tên">
                     <Input
                         value={get('personal.full_name')}
@@ -678,6 +797,24 @@ export function CVBuilder({
                         rows={3}
                         className={textareaCls}
                     />
+                    <div className="mt-2 flex justify-end">
+                        <AIRewriteButton
+                            loading={rewritingKey === 'personal.bio'}
+                            disabled={!candidateId || !selectedCV?.id}
+                            onClick={() =>
+                                rewriteField({
+                                    key: 'personal.bio',
+                                    section: 'summary',
+                                    text: get('personal.bio'),
+                                    context: {
+                                        current_position: get('personal.current_position'),
+                                        skills: getArr('skills').map((skill: any) => skill.name).filter(Boolean),
+                                    },
+                                    apply: (nextText) => set('personal.bio', nextText),
+                                })
+                            }
+                        />
+                    </div>
                 </Field>
             </Section>
 
@@ -711,12 +848,12 @@ export function CVBuilder({
             <Section
                 icon={<Briefcase className="h-4 w-4" />}
                 title="Kinh nghiệm làm việc"
-                color="border-cyan-100 bg-cyan-50 text-cyan-600"
+                color="border-cyan-100 bg-cyan-50 text-teal-600"
             >
                 {getArr('experience').map((exp: any, index: number) => (
                     <div
                         key={index}
-                        className="group relative space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        className="group relative space-y-2 rounded-lg border border-border bg-muted p-3"
                     >
                         <button
                             type="button"
@@ -777,9 +914,9 @@ export function CVBuilder({
                                 onChange={(e) =>
                                     updateItem('experience', index, 'is_current', e.target.checked)
                                 }
-                                className="rounded border-slate-300 text-violet-600"
+                                className="rounded border-border text-teal-600"
                             />
-                            <span className="text-xs text-slate-600">Đang làm việc tại đây</span>
+                            <span className="text-xs text-muted-foreground">Đang làm việc tại đây</span>
                         </label>
                         <Field label="Mô tả công việc">
                             <textarea
@@ -791,6 +928,26 @@ export function CVBuilder({
                                 rows={2}
                                 className={textareaCls}
                             />
+                            <div className="mt-2 flex justify-end">
+                                <AIRewriteButton
+                                    loading={rewritingKey === `experience.${index}.description`}
+                                    disabled={!candidateId || !selectedCV?.id}
+                                    onClick={() =>
+                                        rewriteField({
+                                            key: `experience.${index}.description`,
+                                            section: 'experience',
+                                            text: exp.description || '',
+                                            context: {
+                                                current_position: exp.position || exp.job_title,
+                                                company_name: exp.company_name,
+                                                skills: getArr('skills').map((skill: any) => skill.name).filter(Boolean),
+                                            },
+                                            apply: (nextText) =>
+                                                updateItem('experience', index, 'description', nextText),
+                                        })
+                                    }
+                                />
+                            </div>
                         </Field>
                     </div>
                 ))}
@@ -806,7 +963,7 @@ export function CVBuilder({
                             description: '',
                         })
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-sm text-muted-foreground transition-colors hover:border-teal-400 hover:text-teal-600"
                 >
                     <Plus className="h-4 w-4" />
                     Thêm kinh nghiệm
@@ -821,7 +978,7 @@ export function CVBuilder({
                 {getArr('education').map((edu: any, index: number) => (
                     <div
                         key={index}
-                        className="group relative space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        className="group relative space-y-2 rounded-lg border border-border bg-muted p-3"
                     >
                         <button
                             type="button"
@@ -895,59 +1052,85 @@ export function CVBuilder({
                             end_date: null,
                         })
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-sm text-muted-foreground transition-colors hover:border-teal-400 hover:text-teal-600"
                 >
                     <Plus className="h-4 w-4" />
                     Thêm học vấn
                 </button>
             </Section>
 
-            <Section icon={<Code className="h-4 w-4" />} title="Kỹ năng" color="border-orange-100 bg-orange-50 text-orange-600">
-                {getArr('skills').map((skill: any, index: number) => (
-                    <div key={index} className="group flex items-center gap-2">
+            <Section icon={<Code className="h-4 w-4" />} title="Kỹ năng" color="border-teal-100 bg-teal-50 text-teal-600">
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2">
                         <FreeSoloCombobox
-                            value={skill.name || ''}
-                            onChange={(nextValue) => updateItem('skills', index, 'name', nextValue)}
-                            options={skillOptions}
-                            placeholder="Nhập hoặc chọn kỹ năng"
-                            emptyMessage="Không có kỹ năng phù hợp."
+                            value={skillInput}
+                            onChange={(val) => setSkillInput(val)}
+                            onSelectOption={(val) => {
+                                const newSkill = val.trim();
+                                if (newSkill && !getArr('skills').some((s: any) => s.name?.toLowerCase() === newSkill.toLowerCase())) {
+                                    addItem('skills', { name: newSkill });
+                                }
+                                setSkillInput('');
+                            }}
+                            options={skillOptions.filter(
+                                (opt) => !getArr('skills').some((s: any) => s.name?.toLowerCase() === opt.label.toLowerCase())
+                            )}
+                            placeholder="Thêm kỹ năng"
+                            emptyMessage="Gõ tên kỹ năng rồi nhấn Thêm"
                             className={`flex-1 ${inputCls}`}
-                        />
-                        <ProficiencySelect
-                            value={skill.proficiency_level || 'intermediate'}
-                            onChange={(nextValue) =>
-                                updateItem('skills', index, 'proficiency_level', nextValue)
-                            }
-                            items={[
-                                { value: 'basic', label: 'Cơ bản' },
-                                { value: 'intermediate', label: 'Trung bình' },
-                                { value: 'advanced', label: 'Nâng cao' },
-                                { value: 'expert', label: 'Chuyên gia' },
-                            ]}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && skillInput.trim()) {
+                                    e.preventDefault();
+                                    const newSkill = skillInput.trim();
+                                    if (!getArr('skills').some((s: any) => s.name?.toLowerCase() === newSkill.toLowerCase())) {
+                                        addItem('skills', { name: newSkill });
+                                    }
+                                    setSkillInput('');
+                                }
+                            }}
                         />
                         <button
                             type="button"
-                            onClick={() => removeItem('skills', index)}
-                            className="flex h-9 w-8 shrink-0 items-center justify-center rounded-lg text-red-400 opacity-0 transition-all hover:bg-red-50 group-hover:opacity-100"
+                            onClick={() => {
+                                const newSkill = skillInput.trim();
+                                if (newSkill && !getArr('skills').some((s: any) => s.name?.toLowerCase() === newSkill.toLowerCase())) {
+                                    addItem('skills', { name: newSkill });
+                                }
+                                setSkillInput('');
+                            }}
+                            disabled={!skillInput.trim()}
+                            className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-4 text-xs font-semibold text-white shadow-md shadow-teal-600/20 transition-all hover:from-teal-700 hover:to-emerald-700 disabled:opacity-40 disabled:hover:from-teal-600 disabled:hover:to-emerald-600 shrink-0"
                         >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Plus className="h-4 w-4" />
+                            Thêm
                         </button>
                     </div>
-                ))}
-                <button
-                    type="button"
-                    onClick={() =>
-                        addItem('skills', {
-                            name: '',
-                            proficiency_level: 'intermediate',
-                            years_of_experience: 0,
-                        })
-                    }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
-                >
-                    <Plus className="h-4 w-4" />
-                    Thêm kỹ năng
-                </button>
+
+                    {getArr('skills').length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-teal-500/20 bg-teal-500/5 dark:bg-teal-950/20 p-3">
+                            {getArr('skills').map((skill: any, index: number) => (
+                                <span
+                                    key={index}
+                                    className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 px-3 py-1.5 text-xs font-medium text-teal-700 dark:text-teal-300 shadow-2xs transition-all hover:bg-teal-500/20 hover:border-teal-500/40"
+                                >
+                                    <span>{skill.name}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => removeItem('skills', index)}
+                                        className="rounded-full p-0.5 text-teal-600/70 hover:bg-teal-500/30 hover:text-teal-950 dark:text-teal-400 dark:hover:text-teal-100 transition-colors"
+                                        title="Xóa kỹ năng"
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center text-xs italic text-muted-foreground py-2">
+                            Chưa có kỹ năng nào. Nhập tên kỹ năng phía trên để thêm nhanh.
+                        </p>
+                    )}
+                </div>
             </Section>
 
             <Section
@@ -993,7 +1176,7 @@ export function CVBuilder({
                     onClick={() =>
                         addItem('languages', { name: '', proficiency_level: 'intermediate' })
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-sm text-muted-foreground transition-colors hover:border-teal-400 hover:text-teal-600"
                 >
                     <Plus className="h-4 w-4" />
                     Thêm ngôn ngữ
@@ -1009,7 +1192,7 @@ export function CVBuilder({
                 {getArr('certifications').map((cert: any, index: number) => (
                     <div
                         key={index}
-                        className="group relative space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        className="group relative space-y-2 rounded-lg border border-border bg-muted p-3"
                     >
                         <button
                             type="button"
@@ -1062,7 +1245,7 @@ export function CVBuilder({
                             issue_date: null,
                         })
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-sm text-muted-foreground transition-colors hover:border-teal-400 hover:text-teal-600"
                 >
                     <Plus className="h-4 w-4" />
                     Thêm chứng chỉ
@@ -1078,7 +1261,7 @@ export function CVBuilder({
                 {getArr('projects').map((project: any, index: number) => (
                     <div
                         key={index}
-                        className="group relative space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        className="group relative space-y-2 rounded-lg border border-border bg-muted p-3"
                     >
                         <button
                             type="button"
@@ -1137,6 +1320,30 @@ export function CVBuilder({
                                 rows={2}
                                 className={textareaCls}
                             />
+                            <div className="mt-2 flex justify-end">
+                                <AIRewriteButton
+                                    loading={rewritingKey === `projects.${index}.description`}
+                                    disabled={!candidateId || !selectedCV?.id}
+                                    onClick={() =>
+                                        rewriteField({
+                                            key: `projects.${index}.description`,
+                                            section: 'project',
+                                            text: project.description || '',
+                                            context: {
+                                                project_name: project.name,
+                                                technologies: Array.isArray(project.technologies)
+                                                    ? project.technologies
+                                                    : String(project.technologies || '')
+                                                        .split(',')
+                                                        .map((item) => item.trim())
+                                                        .filter(Boolean),
+                                            },
+                                            apply: (nextText) =>
+                                                updateItem('projects', index, 'description', nextText),
+                                        })
+                                    }
+                                />
+                            </div>
                         </Field>
                     </div>
                 ))}
@@ -1150,7 +1357,7 @@ export function CVBuilder({
                             description: '',
                         })
                     }
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 py-2 text-sm text-slate-500 transition-colors hover:border-violet-400 hover:text-violet-600"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-sm text-muted-foreground transition-colors hover:border-teal-400 hover:text-teal-600"
                 >
                     <Plus className="h-4 w-4" />
                     Thêm dự án

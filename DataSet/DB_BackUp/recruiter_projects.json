@@ -1,0 +1,138 @@
+[
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 6,
+  "fields": {
+    "recruiter": 16,
+    "project_name": "JOBIO — AI-Powered Recruitment Platform",
+    "description": "Full‑stack recruitment platform with Django REST APIs, React/TypeScript UI, PostgreSQL, authentication, job management, CV parsing pipeline using OCR and Groq LLM, background processing with Celery/Redis, hybrid recommendation using embeddings, and CI/CD pipelines for deployment on GCP.",
+    "project_url": "",
+    "start_date": null,
+    "end_date": null,
+    "is_ongoing": false,
+    "technologies_used": "Python, Django REST Framework, Celery, Redis, pgvector, Groq API, React, Docker Compose, GitHub Actions",
+    "display_order": 1,
+    "created_at": "2026-08-07T14:16:52.831Z",
+    "updated_at": "2026-08-07T14:16:52.831Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 7,
+  "fields": {
+    "recruiter": 16,
+    "project_name": "RagDraftingAI — Vietnamese Legal RAG Drafting Assistant",
+    "description": "Hybrid RAG system combining BM25 and dense embeddings, ChromaDB vector store, and LLM (Groq) to draft Vietnamese legal documents, with FastAPI services, PostgreSQL backend and React frontend, containerized for deployment.",
+    "project_url": "",
+    "start_date": null,
+    "end_date": null,
+    "is_ongoing": false,
+    "technologies_used": "Python, FastAPI, ChromaDB, BM25, SentenceTransformers, Groq API, PostgreSQL, React, Docker Compose",
+    "display_order": 2,
+    "created_at": "2026-08-07T14:16:52.848Z",
+    "updated_at": "2026-08-07T14:16:52.848Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 8,
+  "fields": {
+    "recruiter": 16,
+    "project_name": "Lap3T — Laptop E-commerce Platform",
+    "description": "Full‑stack e‑commerce platform for laptops using Spring Boot REST APIs, Next.js frontend, PostgreSQL, JWT authentication, rate limiting, WebSocket messaging, TOTP 2FA, Passkey/WebAuthn, and VNPay payment integration.",
+    "project_url": "",
+    "start_date": null,
+    "end_date": null,
+    "is_ongoing": false,
+    "technologies_used": "Java, Spring Boot, PostgreSQL, Next.js, TypeScript, Docker Compose",
+    "display_order": 3,
+    "created_at": "2026-08-07T14:16:52.860Z",
+    "updated_at": "2026-08-07T14:16:52.860Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 4,
+  "fields": {
+    "recruiter": 14,
+    "project_name": "Web",
+    "description": "",
+    "project_url": "",
+    "start_date": "2026-05-15",
+    "end_date": "2026-06-05",
+    "is_ongoing": false,
+    "technologies_used": "Python, Django",
+    "display_order": 1,
+    "created_at": "2026-05-15T04:16:13Z",
+    "updated_at": "2026-05-16T12:16:13Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 1,
+  "fields": {
+    "recruiter": 4,
+    "project_name": "Web",
+    "description": "",
+    "project_url": "",
+    "start_date": "2026-04-28",
+    "end_date": "2026-05-20",
+    "is_ongoing": false,
+    "technologies_used": "Python, Django",
+    "display_order": 1,
+    "created_at": "2026-04-27T01:13:03Z",
+    "updated_at": "2026-04-27T22:13:03Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 2,
+  "fields": {
+    "recruiter": 15,
+    "project_name": "Web",
+    "description": "",
+    "project_url": "",
+    "start_date": "2026-04-09",
+    "end_date": "2026-05-24",
+    "is_ongoing": false,
+    "technologies_used": "Python, Django",
+    "display_order": 1,
+    "created_at": "2026-04-09T13:39:54Z",
+    "updated_at": "2026-04-11T08:39:54Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 3,
+  "fields": {
+    "recruiter": 13,
+    "project_name": "Web",
+    "description": "",
+    "project_url": "",
+    "start_date": "2026-04-08",
+    "end_date": "2026-06-02",
+    "is_ongoing": false,
+    "technologies_used": "Python, Django",
+    "display_order": 1,
+    "created_at": "2026-04-09T10:39:06Z",
+    "updated_at": "2026-04-10T18:39:06Z"
+  }
+},
+{
+  "model": "candidate_recruiter_projects.recruiterproject",
+  "pk": 5,
+  "fields": {
+    "recruiter": 10,
+    "project_name": "Web",
+    "description": "",
+    "project_url": "",
+    "start_date": "2026-01-21",
+    "end_date": "2026-03-21",
+    "is_ongoing": false,
+    "technologies_used": "Python, Django",
+    "display_order": 1,
+    "created_at": "2026-01-20T21:52:36Z",
+    "updated_at": "2026-01-22T09:52:36Z"
+  }
+}
+]

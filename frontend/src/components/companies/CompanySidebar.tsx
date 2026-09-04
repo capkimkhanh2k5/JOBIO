@@ -97,46 +97,46 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm sticky top-32"
+                className="bg-card border border-border rounded-2xl p-7 shadow-sm sticky top-32"
             >
                 <div className="flex items-center gap-5 mb-7">
-                    <div className="h-20 w-20 rounded-2xl bg-slate-50 p-2 border border-slate-200 flex items-center justify-center shrink-0">
+                    <div className="h-20 w-20 rounded-2xl bg-muted p-2 border border-border flex items-center justify-center shrink-0">
                         <Link to={companyHref} className="w-full h-full flex items-center justify-center" aria-label={`Xem công ty ${company.company_name}`}>
                             {company.logo_url ? (
                                 <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
                             ) : (
-                                <Building className="w-9 h-9 text-slate-300" />
+                                <Building className="w-9 h-9 text-muted-foreground/40" />
                             )}
                         </Link>
                     </div>
                     <div className="min-w-0">
-                        <Link to={companyHref} className="font-black text-lg text-slate-900 hover:text-sky-700 flex items-center gap-1.5 leading-snug transition-colors">
+                        <Link to={companyHref} className="font-black text-lg text-foreground hover:text-sky-700 flex items-center gap-1.5 leading-snug transition-colors">
                             <span className="truncate">{company.company_name}</span>
                             {company.verification_status === 'verified' && (
                                 <CheckCircle2 size={17} className="text-sky-600 fill-sky-50 shrink-0" />
                             )}
                         </Link>
-                        <p className="text-sm text-slate-500 truncate mt-1">{industryLabel}</p>
+                        <p className="text-sm text-muted-foreground truncate mt-1">{industryLabel}</p>
                     </div>
                 </div>
 
                 {description && (
-                    <div className="mb-7 rounded-2xl bg-slate-50 border border-slate-200 p-4">
-                        <p className="text-[11px] uppercase font-bold text-slate-500 mb-2 tracking-wider">Giới thiệu</p>
-                        <p className="text-sm leading-6 text-slate-600 line-clamp-4">{description}</p>
+                    <div className="mb-7 rounded-2xl bg-muted border border-border p-4">
+                        <p className="text-[11px] uppercase font-bold text-muted-foreground mb-2 tracking-wider">Giới thiệu</p>
+                        <p className="text-sm leading-6 text-muted-foreground line-clamp-[8]">{description}</p>
                     </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-3 mb-7">
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-white hover:border-sky-200 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Quy mô</p>
-                        <p className="text-base font-black text-slate-900 group-hover/stat:text-sky-700 transition-colors uppercase truncate" title={company.company_size}>
+                    <div className="p-4 rounded-xl bg-muted border border-border hover:bg-card hover:border-sky-200 transition-all group/stat">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 tracking-wider">Quy mô</p>
+                        <p className="text-base font-black text-foreground group-hover/stat:text-sky-700 transition-colors uppercase truncate" title={company.company_size}>
                             {company.company_size || 'Đang cập nhật'}
                         </p>
                     </div>
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-white hover:border-sky-200 transition-all group/stat">
-                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 tracking-wider">Thành lập</p>
-                        <p className="text-base font-black text-slate-900 group-hover/stat:text-sky-700 transition-colors">
+                    <div className="p-4 rounded-xl bg-muted border border-border hover:bg-card hover:border-sky-200 transition-all group/stat">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1 tracking-wider">Thành lập</p>
+                        <p className="text-base font-black text-foreground group-hover/stat:text-sky-700 transition-colors">
                             {company.founded_year || 'N/A'}
                         </p>
                     </div>
@@ -145,14 +145,14 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                 <div className="space-y-3 mb-7">
                     {addressLabel && (
                         <InfoRow
-                            icon={<MapPin size={18} className="text-slate-400" />}
+                            icon={<MapPin size={18} className="text-muted-foreground/60" />}
                             label="Trụ sở"
                             value={addressLabel}
                         />
                     )}
                     {company.email && (
                         <InfoRow
-                            icon={<Mail size={18} className="text-slate-400" />}
+                            icon={<Mail size={18} className="text-muted-foreground/60" />}
                             label="Email"
                             value={company.email}
                             href={`mailto:${company.email}`}
@@ -160,7 +160,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                     )}
                     {company.phone && (
                         <InfoRow
-                            icon={<Phone size={18} className="text-slate-400" />}
+                            icon={<Phone size={18} className="text-muted-foreground/60" />}
                             label="Điện thoại"
                             value={company.phone}
                             href={`tel:${company.phone}`}
@@ -168,30 +168,30 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                     )}
                     {company.tax_code && (
                         <InfoRow
-                            icon={<FileText size={18} className="text-slate-400" />}
+                            icon={<FileText size={18} className="text-muted-foreground/60" />}
                             label="Mã số thuế"
                             value={company.tax_code}
                         />
                     )}
                 </div>
 
-                <div className="space-y-5 mb-7 pt-5 border-t border-slate-100">
+                <div className="space-y-5 mb-7 pt-5 border-t border-border/60">
                     <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2.5 text-base text-slate-600">
-                            <Users size={18} className="text-slate-400" />
+                        <span className="flex items-center gap-2.5 text-base text-muted-foreground">
+                            <Users size={18} className="text-muted-foreground/60" />
                             Người theo dõi
                         </span>
-                        <span className="font-black text-lg text-slate-900">{(company.follower_count || 0).toLocaleString()}</span>
+                        <span className="font-black text-lg text-foreground">{(company.follower_count || 0).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2.5 text-base text-slate-600">
-                            <Building size={18} className="text-slate-400" />
+                        <span className="flex items-center gap-2.5 text-base text-muted-foreground">
+                            <Building size={18} className="text-muted-foreground/60" />
                             Tin đang tuyển
                         </span>
-                        <span className="font-black text-lg text-slate-900">{company.job_count || 0}</span>
+                        <span className="font-black text-lg text-foreground">{company.job_count || 0}</span>
                     </div>
                     {company.website && (
-                        <div className="pt-3 border-t border-slate-100">
+                        <div className="pt-3 border-t border-border/60">
                             <a
                                 href={company.website}
                                 target="_blank"
@@ -217,7 +217,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                         className={cn(
                             'w-full h-12 rounded-xl font-bold text-base transition-all',
                             isFollowing
-                                ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+                                ? 'bg-muted text-foreground/80 border-border hover:bg-muted hover:text-foreground'
                                 : 'bg-sky-700 hover:bg-sky-800 text-white shadow-none'
                         )}
                     >
@@ -254,8 +254,8 @@ function InfoRow({
         <>
             <span className="shrink-0 mt-0.5">{icon}</span>
             <span className="min-w-0">
-                <span className="block text-[11px] uppercase font-bold text-slate-500 tracking-wider">{label}</span>
-                <span className="block text-sm font-semibold text-slate-800 break-words">{value}</span>
+                <span className="block text-[11px] uppercase font-bold text-muted-foreground tracking-wider">{label}</span>
+                <span className="block text-sm font-semibold text-foreground break-words">{value}</span>
             </span>
         </>
     );
@@ -264,7 +264,7 @@ function InfoRow({
         return (
             <a
                 href={href}
-                className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 hover:border-sky-200 hover:bg-sky-50/40 transition-colors"
+                className="flex items-start gap-3 rounded-xl border border-border bg-card px-3 py-3 hover:border-sky-200 hover:bg-sky-50/40 transition-colors"
             >
                 {content}
             </a>
@@ -272,7 +272,7 @@ function InfoRow({
     }
 
     return (
-        <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3">
+        <div className="flex items-start gap-3 rounded-xl border border-border bg-card px-3 py-3">
             {content}
         </div>
     );

@@ -1,0 +1,290 @@
+[
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 13,
+  "fields": {
+    "recruiter": 13,
+    "school_name": "Đại học Khoa học Tự nhiên",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-05-15",
+    "end_date": "2026-06-03",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-05-15T06:55:50Z",
+    "updated_at": "2026-05-16T06:55:50Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 10,
+  "fields": {
+    "recruiter": 10,
+    "school_name": "Đại học Công nghệ thông tin",
+    "degree": "Kỹ sư",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-05-02",
+    "end_date": "2026-06-07",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-05-02T16:03:16Z",
+    "updated_at": "2026-05-03T20:03:16Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 1,
+  "fields": {
+    "recruiter": 1,
+    "school_name": "Đại học Bách Khoa",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Kỹ thuật phần mềm",
+    "start_date": "2026-04-26",
+    "end_date": "2026-06-12",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-04-25T14:11:03Z",
+    "updated_at": "2026-04-28T01:11:03Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 9,
+  "fields": {
+    "recruiter": 9,
+    "school_name": "Đại học Khoa học Tự nhiên",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-04-25",
+    "end_date": "2026-06-06",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-04-26T04:14:52Z",
+    "updated_at": "2026-04-27T06:14:52Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 5,
+  "fields": {
+    "recruiter": 5,
+    "school_name": "Đại học Bách Khoa",
+    "degree": "Kỹ sư",
+    "field_of_study": "Hệ thống thông tin quản lý",
+    "start_date": "2026-04-19",
+    "end_date": "2026-05-05",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-04-20T04:42:53Z",
+    "updated_at": "2026-04-21T03:42:53Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 15,
+  "fields": {
+    "recruiter": 15,
+    "school_name": "Đại học Bách Khoa",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Kỹ thuật phần mềm",
+    "start_date": "2026-04-17",
+    "end_date": "2026-05-03",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-04-17T17:25:21Z",
+    "updated_at": "2026-04-18T05:25:21Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 11,
+  "fields": {
+    "recruiter": 11,
+    "school_name": "Đại học FPT",
+    "degree": "Kỹ sư",
+    "field_of_study": "Hệ thống thông tin quản lý",
+    "start_date": "2026-04-06",
+    "end_date": "2026-05-09",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-04-06T11:43:05Z",
+    "updated_at": "2026-04-06T16:43:05Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 4,
+  "fields": {
+    "recruiter": 4,
+    "school_name": "Đại học FPT",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-03-24",
+    "end_date": "2026-04-21",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-03-24T15:42:47Z",
+    "updated_at": "2026-03-23T21:42:47Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 3,
+  "fields": {
+    "recruiter": 3,
+    "school_name": "Đại học FPT",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Khoa học máy tính",
+    "start_date": "2026-03-01",
+    "end_date": "2026-04-22",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-03-02T16:08:06Z",
+    "updated_at": "2026-03-02T05:08:06Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 8,
+  "fields": {
+    "recruiter": 8,
+    "school_name": "Đại học Công nghệ thông tin",
+    "degree": "Kỹ sư",
+    "field_of_study": "Khoa học máy tính",
+    "start_date": "2026-02-07",
+    "end_date": "2026-03-20",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-02-07T06:47:04Z",
+    "updated_at": "2026-02-09T21:47:04Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 2,
+  "fields": {
+    "recruiter": 2,
+    "school_name": "Đại học Bách Khoa",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-02-02",
+    "end_date": "2026-02-22",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-02-02T11:00:44Z",
+    "updated_at": "2026-02-04T02:00:44Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 12,
+  "fields": {
+    "recruiter": 12,
+    "school_name": "Đại học Khoa học Tự nhiên",
+    "degree": "Cử nhân",
+    "field_of_study": "Khoa học máy tính",
+    "start_date": "2026-01-14",
+    "end_date": "2026-03-02",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-01-14T07:23:36Z",
+    "updated_at": "2026-01-15T21:23:36Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 14,
+  "fields": {
+    "recruiter": 14,
+    "school_name": "Đại học Khoa học Tự nhiên",
+    "degree": "Thạc sĩ",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-01-12",
+    "end_date": "2026-03-10",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-01-13T09:08:35Z",
+    "updated_at": "2026-01-14T06:08:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 7,
+  "fields": {
+    "recruiter": 7,
+    "school_name": "Đại học Bách Khoa",
+    "degree": "Cử nhân",
+    "field_of_study": "Công nghệ thông tin",
+    "start_date": "2026-01-03",
+    "end_date": "2026-01-19",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-01-02T17:22:51Z",
+    "updated_at": "2026-01-03T20:22:51Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 6,
+  "fields": {
+    "recruiter": 6,
+    "school_name": "Đại học FPT",
+    "degree": "Cử nhân",
+    "field_of_study": "Hệ thống thông tin quản lý",
+    "start_date": "2026-01-01",
+    "end_date": "2026-01-23",
+    "is_current": false,
+    "gpa": "3.50",
+    "description": "Hoàn thành tốt các đồ án tốt nghiệp",
+    "display_order": 1,
+    "created_at": "2026-01-03T12:27:35Z",
+    "updated_at": "2026-01-03T09:27:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_education.recruitereducation",
+  "pk": 16,
+  "fields": {
+    "recruiter": 16,
+    "school_name": "University of Science and Technology - The University of Danang",
+    "degree": "Bachelor of Software Engineering",
+    "field_of_study": "Software Engineering",
+    "start_date": "2023-09-01",
+    "end_date": null,
+    "is_current": false,
+    "gpa": null,
+    "description": "GPA: 3.70/4.0, Expected Graduation: May 2027",
+    "display_order": 1,
+    "created_at": "2026-08-07T14:16:52.808Z",
+    "updated_at": "2026-08-07T14:16:52.808Z"
+  }
+}
+]

@@ -83,7 +83,7 @@ const Profile = () => {
     // Score color based on value
     const scoreColor = score >= 80 ? 'text-emerald-500' : score >= 50 ? 'text-amber-500' : 'text-destructive';
     const progressColor = score >= 80
-        ? 'from-emerald-500 to-cyan-400'
+        ? 'from-emerald-500 to-emerald-400'
         : score >= 50 ? 'from-amber-500 to-primary' : 'from-destructive to-orange-500';
 
     return (
@@ -122,10 +122,10 @@ const Profile = () => {
                     {/* ── Sidebar ── */}
                     <div>
                         {/* Profile Completeness + Navigation Card (combined & sticky) */}
-                        <Card className="bg-white border border-slate-200 shadow-sm p-6 rounded-2xl sticky top-24">
+                        <Card className="bg-card border border-border shadow-sm p-6 rounded-2xl sticky top-24">
                             <div className="flex items-center gap-3 mb-5">
-                                <div className="p-2 bg-violet-100 rounded-xl">
-                                    <Trophy className="w-5 h-5 text-violet-600" />
+                                <div className="p-2 bg-teal-100 rounded-xl">
+                                    <Trophy className="w-5 h-5 text-teal-600" />
                                 </div>
                                 <div>
                                     <h3 className="text-base font-bold">Độ hoàn thiện</h3>
@@ -138,13 +138,13 @@ const Profile = () => {
                                 <div className="flex justify-between items-end">
                                     <div className="space-y-0.5">
                                         <span className={`text-5xl font-black ${scoreColor}`}>{score}%</span>
-                                        <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-widest">Hồ sơ của bạn</p>
+                                        <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Hồ sơ của bạn</p>
                                     </div>
                                     <Badge
                                         variant="outline"
                                         className={`rounded-full text-xs font-semibold ${score >= 80
                                             ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                                            : score >= 50 ? 'bg-violet-100 text-violet-600 border-violet-200'
+                                            : score >= 50 ? 'bg-teal-100 text-teal-600 border-teal-200'
                                                 : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}`}
                                     >
                                         {score >= 80 ? '✨ Nổi bật' : score >= 50 ? '📈 Phát triển' : '🚀 Bắt đầu'}
@@ -152,7 +152,7 @@ const Profile = () => {
                                 </div>
 
                                 {/* Progress bar */}
-                                <div className="relative h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
                                     <motion.div
                                         className={`absolute inset-y-0 left-0 bg-gradient-to-r ${progressColor} rounded-full`}
                                         initial={{ width: 0 }}
@@ -165,15 +165,15 @@ const Profile = () => {
                                 <ul className="space-y-3">
                                     {completeness?.checklist?.map((item: any, idx: number) => (
                                         <li key={idx} className="flex items-start gap-3 text-sm group">
-                                            <div className={`mt-0.5 shrink-0 transition-colors ${item.completed ? 'text-emerald-500' : 'text-slate-300'}`}>
+                                            <div className={`mt-0.5 shrink-0 transition-colors ${item.completed ? 'text-emerald-500' : 'text-muted-foreground/40'}`}>
                                                 {item.completed
                                                     ? <CheckCircle2 className="w-4 h-4" />
                                                     : <Circle className="w-4 h-4" />
                                                 }
                                             </div>
                                             <span className={`transition-all leading-snug ${item.completed
-                                                ? 'text-slate-400 line-through text-xs'
-                                                : 'font-medium text-sm text-slate-700 group-hover:text-violet-600 cursor-default'
+                                                ? 'text-muted-foreground/60 line-through text-xs'
+                                                : 'font-medium text-sm text-foreground/80 group-hover:text-teal-600 cursor-default'
                                                 }`}
                                             >
                                                 {item.task}
@@ -186,15 +186,15 @@ const Profile = () => {
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="p-3 bg-gradient-to-r from-violet-100 to-emerald-500/10 rounded-xl border border-violet-100 text-center"
+                                        className="p-3 bg-gradient-to-r from-teal-100 to-emerald-500/10 rounded-xl border border-teal-100 text-center"
                                     >
-                                        <p className="text-xs font-bold text-violet-600">🏆 Verified Excellence</p>
+                                        <p className="text-xs font-bold text-teal-600">🏆 Verified Excellence</p>
                                         <p className="text-[10px] text-muted-foreground mt-0.5">Hồ sơ của bạn đã đạt chuẩn vàng!</p>
                                     </motion.div>
                                 )}
 
                                 {score < 90 && (
-                                    <div className="pt-4 border-t border-slate-100">
+                                    <div className="pt-4 border-t border-border/60">
                                         <p className="text-[11px] leading-relaxed text-muted-foreground">
                                             Đạt <strong>{90 - score}% nữa</strong> để nhận huy hiệu <strong>Verified Excellence</strong>.
                                         </p>
@@ -202,8 +202,8 @@ const Profile = () => {
                                 )}
 
                                 {/* ── Navigation Shortcuts (inside same card) ── */}
-                                <div className="pt-4 border-t border-slate-100">
-                                    <h4 className="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-3">Điều hướng nhanh</h4>
+                                <div className="pt-4 border-t border-border/60">
+                                    <h4 className="font-bold text-muted-foreground/60 uppercase tracking-wider text-[10px] mb-3">Điều hướng nhanh</h4>
                                     <div className="grid grid-cols-2 gap-2">
                                         {SECTION_NAV.map(({ id, label, icon: Icon }) => (
                                             <button
@@ -214,9 +214,9 @@ const Profile = () => {
                                                         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                                     }
                                                 }}
-                                                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-slate-50 hover:bg-violet-50 hover:text-violet-600 text-[11px] font-semibold uppercase tracking-wider transition-all group text-left cursor-pointer border border-slate-100 hover:border-violet-100"
+                                                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-muted hover:bg-teal-50 hover:text-teal-600 text-[11px] font-semibold uppercase tracking-wider transition-all group text-left cursor-pointer border border-border/60 hover:border-teal-100"
                                             >
-                                                <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-violet-600 transition-colors shrink-0" />
+                                                <Icon className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-teal-600 transition-colors shrink-0" />
                                                 <span className="truncate">{label}</span>
                                             </button>
                                         ))}

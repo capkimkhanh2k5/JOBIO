@@ -48,6 +48,7 @@ class Command(BaseCommand):
             self._seed_languages(master["languages"])
             self._seed_subscription_plans(master["subscription_plans"])
             self._seed_payment_methods(master["payment_methods"])
+            self._seed_recommendation_taxonomy()
 
         self.stdout.write(self.style.SUCCESS("Successfully seeded all Master Data!"))
 
@@ -297,4 +298,71 @@ class Command(BaseCommand):
         PaymentMethod.objects.bulk_create(objs)
         self.stdout.write(
             self.style.SUCCESS(f"  ✓ PaymentMethods: {len(objs)} records")
+        )
+
+    def _seed_recommendation_taxonomy(self):
+        try:
+            taxonomy_data = load_json("recommendation_taxonomy.json")
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(f"  ! recommendation_taxonomy.json skipped: {exc}"))
+            return
+
+        CanonicalTitle = get_model("CanonicalTitle")
+        JobTitleAlias = get_model("JobTitleAlias")
+        SkillAlias = get_model("SkillAlias")
+        Skill = get_model("Skill")
+
+        canonical_objs = {}
+        for item in taxonomy_data.get("canonical_titles", []):
+            obj, _ = CanonicalTitle.objects.get_or_create(
+                name=item["name"],
+                defaults={
+                    "category": item.get("category", ""),
+                    "description": item.get("description", ""),
+                    "is_active": item.get("is_active", True),
+                },
+            )
+            canonical_objs[item.get("id")] = obj
+            canonical_objs[obj.name] = obj
+
+        created_title_aliases = 0
+        for item in taxonomy_data.get("title_aliases", []):
+            canonical_id = item.get("canonical_title_id")
+            canonical_obj = canonical_objs.get(canonical_id)
+            if canonical_obj:
+                norm = item.get("normalized_alias") or slugify(item["alias_name"]).replace("-", " ")
+                obj, created = JobTitleAlias.objects.get_or_create(
+                    normalized_alias=norm,
+                    canonical_title=canonical_obj,
+                    defaults={
+                        "alias_name": item["alias_name"],
+                        "language": item.get("language", "en"),
+                        "weight": item.get("weight", 1.0),
+                        "normalized_alias": norm,
+                    },
+                )
+                if created:
+                    created_title_aliases += 1
+
+        created_skill_aliases = 0
+        for item in taxonomy_data.get("skill_aliases", []):
+            skill_name = item.get("skill_name")
+            skill_obj = Skill.objects.filter(name__icontains=skill_name).first() if skill_name else None
+            if skill_obj:
+                norm = item.get("normalized_alias") or slugify(item["alias_name"]).replace("-", " ")
+                obj, created = SkillAlias.objects.get_or_create(
+                    normalized_alias=norm,
+                    skill=skill_obj,
+                    defaults={
+                        "alias_name": item["alias_name"],
+                        "normalized_alias": norm,
+                    },
+                )
+                if created:
+                    created_skill_aliases += 1
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"  ✓ Recommendation Taxonomy: {len(canonical_objs)} Canonical Titles, {created_title_aliases} Title Aliases, {created_skill_aliases} Skill Aliases"
+            )
         )

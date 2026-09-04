@@ -5,9 +5,7 @@ import cloudinary
 import cloudinary.uploader
 
 from django.core.files.uploadedfile import UploadedFile
-
-
-ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+from apps.moderation.services import validate_upload_file
 
 
 def validate_image_file(file: UploadedFile, max_size_mb: int = 2) -> None:
@@ -17,16 +15,8 @@ def validate_image_file(file: UploadedFile, max_size_mb: int = 2) -> None:
     - Kiểm tra loại file hợp lệ
     - Kiểm tra kích thước file
     """
-    if not file:
-        raise ValueError("File is not provided")
-
-    if file.content_type not in ALLOWED_IMAGE_TYPES:
-        raise ValueError(
-            "File type is not allowed. Only JPEG, PNG, GIF, WEBP are allowed"
-        )
-
-    if file.size > max_size_mb * 1024 * 1024:
-        raise ValueError(f"File size excess max size. MAX {max_size_mb}MB")
+    purpose = "company_logo" if max_size_mb <= 2 else "company_banner"
+    validate_upload_file(file, purpose=purpose, max_size_mb=max_size_mb, is_public=True)
 
 
 def save_company_file(
@@ -44,6 +34,16 @@ def save_company_file(
     Returns:
         URL của file đã upload
     """
+    if file_type == "office_media":
+        if resource_type == "image":
+            validate_upload_file(
+                file, purpose="company_media", max_size_mb=5, is_public=True
+            )
+        elif resource_type == "video":
+            validate_upload_file(
+                file, purpose="file_upload", max_size_mb=50, is_public=True
+            )
+
     # Updated path to use Jobio root folder
     public_id = f"Jobio/Companies/{company_id}/{file_type}_{company_id}_{int(time.time())}_{uuid.uuid4().hex[:8]}"
     try:

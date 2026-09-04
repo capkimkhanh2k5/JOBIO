@@ -11,7 +11,7 @@ interface LogoProps {
 export const Logo = ({ 
     className = "", 
     imageClassName = "h-10 w-auto object-contain", 
-    textClassName = "text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter",
+    textClassName = "text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-500 tracking-tighter",
     showText = true,
     to = "/"
 }: LogoProps) => {

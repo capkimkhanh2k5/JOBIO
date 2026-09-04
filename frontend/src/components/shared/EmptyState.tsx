@@ -1,46 +1,65 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { LucideIcon, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-    icon: React.ReactNode;
+    icon: LucideIcon;
     title: string;
-    description: string;
+    description?: string;
     action?: {
         label: string;
         onClick: () => void;
+        icon?: LucideIcon;
     };
-    /** Optional height override (default: 300px) */
-    height?: number;
+    className?: string;
+    compact?: boolean;
 }
 
-/**
- * EmptyState — Unified empty data state component for all modules.
- * Follows the admin design language: clean white, no glassmorphism.
- * @see UI_RULES.md §13
- */
-export function EmptyState({ icon, title, description, action, height = 300 }: EmptyStateProps) {
+export function EmptyState({
+    icon: Icon,
+    title,
+    description,
+    action,
+    className,
+    compact = false,
+}: EmptyStateProps) {
+    const ActionIcon = action?.icon || ArrowRight;
+
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-slate-200 rounded-2xl bg-white shadow-sm"
-            style={{ minHeight: height }}
+        <div
+            className={cn(
+                'w-full flex-1 min-h-[calc(100vh-210px)] bg-card border border-border/60 rounded-3xl p-8 sm:p-12 flex flex-col items-center justify-center text-center shadow-xs transition-all',
+                compact ? 'min-h-[380px] p-8' : '',
+                className
+            )}
         >
-            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                {icon}
+            {/* Icon Container Badge with Teal Theme */}
+            <div className="w-16 h-16 rounded-full bg-teal-500/10 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400 flex items-center justify-center mb-4 shadow-2xs border border-teal-500/20 shrink-0">
+                <Icon className="w-7 h-7 stroke-[1.75]" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-            <p className="text-sm text-slate-500 max-w-md mb-6">{description}</p>
+
+            {/* Title */}
+            <h3 className="text-lg font-black text-foreground mb-1.5 tracking-tight">
+                {title}
+            </h3>
+
+            {/* Description */}
+            {description && (
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground max-w-md mx-auto leading-relaxed mb-6">
+                    {description}
+                </p>
+            )}
+
+            {/* Action Button */}
             {action && (
                 <Button
                     onClick={action.onClick}
-                    className="bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm"
+                    className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white rounded-full px-6 h-10 text-xs font-bold shadow-md shadow-teal-500/20 inline-flex items-center gap-2 transition-all hover:scale-105 cursor-pointer"
                 >
-                    {action.label}
+                    <span>{action.label}</span>
+                    <ActionIcon className="w-3.5 h-3.5" />
                 </Button>
             )}
-        </motion.div>
+        </div>
     );
 }

@@ -1,8 +1,12 @@
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Job
+from apps.core.sanitization import sanitize_html_fields
+
+from .models import CanonicalTitle, Job, JobTitleAlias, SkillAlias
+from .services.normalization import normalize_key
 
 MAX_EXPERIENCE_YEARS = 50
+RICH_TEXT_FIELDS = ["description", "requirements", "benefits"]
 
 
 def _validate_job_ranges(attrs, job=None):
@@ -109,6 +113,10 @@ class JobListSerializer(serializers.ModelSerializer):
             "benefits",
             "is_remote",
             "status",
+            "domain_status",
+            "moderation_status",
+            "moderation_reasons",
+            "last_moderated_at",
             "is_expired",
             "published_at",
             "created_at",
@@ -166,10 +174,98 @@ class JobListSerializer(serializers.ModelSerializer):
                 "is_required": job_skill.is_required,
                 "proficiency_level": job_skill.proficiency_level,
                 "years_required": job_skill.years_required,
+                "is_verified": job_skill.skill.is_verified,
+                "domain": getattr(job_skill.skill, "domain", "it"),
+                "is_publishable": getattr(job_skill.skill, "is_publishable", True),
             }
             for job_skill in obj.required_skills.all()
             if job_skill.skill_id and job_skill.skill
         ]
+
+
+class CanonicalTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CanonicalTitle
+        fields = [
+            "id",
+            "name",
+            "description",
+            "category",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class JobTitleAliasSerializer(serializers.ModelSerializer):
+    canonical_title_name = serializers.CharField(
+        source="canonical_title.name", read_only=True
+    )
+
+    class Meta:
+        model = JobTitleAlias
+        fields = [
+            "id",
+            "alias_name",
+            "normalized_alias",
+            "canonical_title",
+            "canonical_title_name",
+            "language",
+            "weight",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "normalized_alias", "created_at", "updated_at"]
+
+    def validate_alias_name(self, value):
+        if not normalize_key(value):
+            raise serializers.ValidationError("Alias không hợp lệ")
+        return value
+
+    def create(self, validated_data):
+        validated_data["normalized_alias"] = normalize_key(validated_data["alias_name"])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if "alias_name" in validated_data:
+            validated_data["normalized_alias"] = normalize_key(
+                validated_data["alias_name"]
+            )
+        return super().update(instance, validated_data)
+
+
+class SkillAliasSerializer(serializers.ModelSerializer):
+    skill_name = serializers.CharField(source="skill.name", read_only=True)
+
+    class Meta:
+        model = SkillAlias
+        fields = [
+            "id",
+            "alias_name",
+            "normalized_alias",
+            "skill",
+            "skill_name",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "normalized_alias", "created_at", "updated_at"]
+
+    def validate_alias_name(self, value):
+        if not normalize_key(value):
+            raise serializers.ValidationError("Alias không hợp lệ")
+        return value
+
+    def create(self, validated_data):
+        validated_data["normalized_alias"] = normalize_key(validated_data["alias_name"])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if "alias_name" in validated_data:
+            validated_data["normalized_alias"] = normalize_key(
+                validated_data["alias_name"]
+            )
+        return super().update(instance, validated_data)
 
 
 class JobDetailSerializer(serializers.ModelSerializer):
@@ -224,6 +320,10 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "is_remote",
             "application_deadline",
             "status",
+            "domain_status",
+            "moderation_status",
+            "moderation_reasons",
+            "last_moderated_at",
             "is_expired",
             "view_count",
             "application_count",
@@ -242,6 +342,10 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "published_at",
             "created_at",
             "updated_at",
+            "domain_status",
+            "moderation_status",
+            "moderation_reasons",
+            "last_moderated_at",
         ]
 
     def get_status(self, obj):
@@ -328,6 +432,7 @@ class JobCreateSerializer(serializers.Serializer):
     application_deadline = serializers.DateField(required=False, allow_null=True)
 
     def validate(self, attrs):
+        sanitize_html_fields(attrs, RICH_TEXT_FIELDS)
         return _validate_job_ranges(attrs, self.instance)
 
 
@@ -390,6 +495,7 @@ class JobUpdateSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
+        sanitize_html_fields(attrs, RICH_TEXT_FIELDS)
         return _validate_job_ranges(attrs, self.instance)
 
 

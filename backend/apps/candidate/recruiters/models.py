@@ -65,23 +65,6 @@ class Recruiter(models.Model):
         max_length=255, null=True, blank=True, verbose_name="Portfolio URL"
     )
 
-    desired_salary_min = models.DecimalField(
-        max_digits=15,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name="Mức lương tối thiểu mong muốn",
-    )
-    desired_salary_max = models.DecimalField(
-        max_digits=15,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name="Mức lương tối đa mong muốn",
-    )
-    salary_currency = models.CharField(
-        max_length=10, default="VND", verbose_name="Đơn vị tiền tệ"
-    )
     available_from_date = models.DateField(
         null=True, blank=True, verbose_name="Ngày có thể bắt đầu"
     )

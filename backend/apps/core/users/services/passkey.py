@@ -4,7 +4,7 @@ Passkey (WebAuthn/FIDO2) Service Layer
 Xử lý đăng ký và xác thực Passkey cho user.
 
 Sử dụng thư viện python-fido2 v2.x cho WebAuthn protocol.
-Challenge được lưu tạm trong Django cache (Redis) với TTL 5 phút.
+Challenge được lưu tạm trong Django cache (Redis) với TTL 60 giây.
 
 Flow đăng ký (Registration):
     1. Client gọi generate_registration_options(user) → nhận PublicKeyCredentialCreationOptions
@@ -46,7 +46,7 @@ from .auth import AuthenticationError, generate_tokens
 # Configuration helpers
 # ============================================================
 
-CHALLENGE_TTL = 300  # 5 phút
+CHALLENGE_TTL = 60  # 60 giây
 
 
 def _get_rp() -> PublicKeyCredentialRpEntity:

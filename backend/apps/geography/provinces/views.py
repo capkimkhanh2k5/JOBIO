@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 
 from .models import Province
 from .serializers import ProvinceListSerializer, ProvinceDetailSerializer
+from apps.core.caching import CachedGeographySelectors
 
 
 class ProvinceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -40,9 +41,7 @@ class ProvinceViewSet(viewsets.ReadOnlyModelViewSet):
         if region not in valid_regions:
             return Response([])
 
-        provinces = self.get_queryset().filter(region=region)
-        serializer = ProvinceListSerializer(provinces, many=True)
-        return Response(serializer.data)
+        return Response(CachedGeographySelectors.get_provinces(region=region))
 
     @action(detail=False)
     def search(self, request):

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from .models import JobAlert, JobAlertMatch
 from .serializers import JobAlertSerializer, JobAlertMatchSerializer
+from .services.unsubscribe import unsubscribe_job_alert
 # from apps.recruitment.jobs.models import Job # Needed if testing against random job or recently created? Using matching service instead.
 
 
@@ -33,6 +34,30 @@ class JobAlertViewSet(viewsets.ModelViewSet):
                 "User must be a Candidate/Recruiter to create alerts."
             )
         serializer.save(recruiter=self.request.user.recruiter_profile)
+
+    @action(
+        detail=False,
+        methods=["get", "post"],
+        url_path="unsubscribe",
+        permission_classes=[permissions.AllowAny],
+    )
+    def unsubscribe(self, request):
+        token = request.query_params.get("token") or request.data.get("token")
+        if not token:
+            return Response(
+                {"detail": "Missing unsubscribe token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            alert = unsubscribe_job_alert(token)
+        except ValueError:
+            return Response(
+                {"detail": "Invalid or expired unsubscribe token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response({"status": "success", "alert_id": alert.id, "is_active": False})
 
     @action(detail=True, methods=["patch"])
     def toggle(self, request, pk=None):

@@ -32,7 +32,7 @@ const statusColors: Record<string, string> = {
     completed: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     pending: 'bg-amber-50 text-amber-600 border-amber-200',
     failed: 'bg-red-50 text-red-600 border-red-200',
-    refunded: 'bg-slate-50 text-slate-600 border-slate-200',
+    refunded: 'bg-muted text-muted-foreground border-border',
 };
 
 const statusLabels: Record<string, string> = {
@@ -120,9 +120,9 @@ export default function FinancialManagement() {
 
     const statCards = [
         { label: 'Tổng doanh thu', value: formatCurrency(stats?.total_revenue || 0), icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'Doanh thu tháng này', value: formatCurrency(stats?.monthly_revenue || 0), icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Doanh thu tháng này', value: formatCurrency(stats?.monthly_revenue || 0), icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/8' },
         { label: 'Giao dịch tháng này', value: stats?.monthly_transactions || 0, icon: CreditCard, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'Gói dịch vụ hoạt động', value: stats?.active_subscriptions || 0, icon: Wallet, color: 'text-violet-600', bg: 'bg-violet-50' },
+        { label: 'Gói dịch vụ hoạt động', value: stats?.active_subscriptions || 0, icon: Wallet, color: 'text-teal-600', bg: 'bg-teal-50' },
     ];
 
     return (
@@ -130,16 +130,16 @@ export default function FinancialManagement() {
             {/* Header */}
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <Wallet className="w-6 h-6 text-violet-600" />
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                        <Wallet className="w-6 h-6 text-teal-600" />
                         Quản lý Tài chính
                     </h1>
-                    <p className="text-slate-500 text-sm font-medium mt-1">Theo dõi doanh thu, giao dịch và các gói dịch vụ toàn hệ thống.</p>
+                    <p className="text-muted-foreground text-sm font-medium mt-1">Theo dõi doanh thu, giao dịch và các gói dịch vụ toàn hệ thống.</p>
                 </div>
                 <Button
                     variant="outline"
                     onClick={handleExportExcel}
-                    className="h-10 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 shadow-sm transition-all hover:border-violet-200"
+                    className="h-10 rounded-xl border-border font-bold text-muted-foreground hover:bg-muted shadow-sm transition-all hover:border-teal-200"
                 >
                     <Download className="w-4 h-4 mr-2" />
                     Xuất Excel
@@ -149,15 +149,15 @@ export default function FinancialManagement() {
             {/* Financial Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {statCards.map((stat, i) => (
-                    <motion.div key={stat.label} {...fadeUp(0.1 + i * 0.05)} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <motion.div key={stat.label} {...fadeUp(0.1 + i * 0.05)} className="bg-card p-4 rounded-2xl border border-border shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 -mr-4 -mt-4 w-20 h-20 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
                         <div className="relative flex items-center gap-3.5">
                             <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color} shadow-inner shrink-0`}>
                                 <stat.icon className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{stat.label}</p>
-                                <p className="text-lg font-black text-slate-900 truncate">{stat.value}</p>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{stat.label}</p>
+                                <p className="text-lg font-black text-foreground truncate">{stat.value}</p>
                             </div>
                         </div>
                     </motion.div>
@@ -166,22 +166,22 @@ export default function FinancialManagement() {
 
             {/* Search & Filters */}
             <motion.div {...fadeUp(0.15)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row gap-4">
+                <div className="bg-card rounded-2xl border border-border shadow-sm p-4 flex flex-col sm:flex-row gap-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                         <input
                             type="text"
                             placeholder="Tìm kiếm mã giao dịch, email hoặc tên công ty..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 transition-all bg-slate-50/50"
+                            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all bg-muted/50"
                         />
                     </div>
                     <div className="flex gap-3">
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-violet-500/10 cursor-pointer min-w-[160px]"
+                            className="px-4 py-2.5 rounded-xl border border-border text-sm font-bold text-foreground/80 bg-muted/50 focus:outline-none focus:ring-2 focus:ring-teal-500/10 cursor-pointer min-w-[160px]"
                         >
                             <option value="all">Tất cả Trạng thái</option>
                             <option value="completed">Thành công</option>
@@ -195,50 +195,50 @@ export default function FinancialManagement() {
 
             {/* Transactions Table */}
             <motion.div {...fadeUp(0.2)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Mã giao dịch</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Khách hàng</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Số tiền</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Phương thức</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Trạng thái</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thời gian</th>
+                                <tr className="bg-muted/50 border-b border-border/60">
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Mã giao dịch</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Khách hàng</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Số tiền</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Phương thức</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Trạng thái</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Thời gian</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {loadingTxns ? (
-                                    <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                                    <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" /></td></tr>
                                 ) : transactions.length === 0 ? (
-                                    <tr><td colSpan={5} className="py-20 text-center text-slate-400 font-medium">Không tìm thấy giao dịch nào</td></tr>
+                                    <tr><td colSpan={5} className="py-20 text-center text-muted-foreground/60 font-medium">Không tìm thấy giao dịch nào</td></tr>
                                 ) : transactions.map((txn: any) => {
                                     const StatusIcon = statusIcons[txn.status] || CreditCard;
                                     return (
-                                        <tr key={txn.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={txn.id} className="hover:bg-muted/50 transition-colors group">
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-slate-900">{txn.reference_code || `TX-${txn.id}`}</span>
-                                                    <span className="text-xs text-slate-500 truncate max-w-[200px]">{txn.clean_description || txn.type}</span>
+                                                    <span className="font-bold text-foreground">{txn.reference_code || `TX-${txn.id}`}</span>
+                                                    <span className="text-xs text-muted-foreground truncate max-w-[200px]">{txn.clean_description || txn.type}</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-slate-900 text-sm truncate max-w-[150px]">{txn.company_name}</span>
-                                                        <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                                        <span className="font-bold text-foreground text-sm truncate max-w-[150px]">{txn.company_name}</span>
+                                                        <span className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                                                             <Mail className="w-3 h-3" /> {txn.user_email}
                                                         </span>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <span className="font-black text-slate-900">{formatCurrency(txn.amount)}</span>
+                                                <span className="font-black text-foreground">{formatCurrency(txn.amount)}</span>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-slate-700 text-xs">{txn.payment_method?.name || 'N/A'}</span>
+                                                    <span className="font-bold text-foreground/80 text-xs">{txn.payment_method?.name || 'N/A'}</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
@@ -249,8 +249,8 @@ export default function FinancialManagement() {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-slate-900 text-xs font-bold">{new Date(txn.created_at).toLocaleDateString('vi-VN')}</span>
-                                                    <span className="text-[10px] text-slate-400 font-medium mt-0.5">{new Date(txn.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    <span className="text-foreground text-xs font-bold">{new Date(txn.created_at).toLocaleDateString('vi-VN')}</span>
+                                                    <span className="text-[10px] text-muted-foreground/60 font-medium mt-0.5">{new Date(txn.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
                                                 </div>
                                             </td>
                                         </tr>
@@ -261,20 +261,20 @@ export default function FinancialManagement() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">
-                        <p className="text-xs text-slate-500 font-medium">
-                            Hiển thị <span className="font-bold text-slate-900">{transactions.length}</span> / <span className="font-bold text-slate-900">{totalCount}</span> giao dịch
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-border/60">
+                        <p className="text-xs text-muted-foreground font-medium">
+                            Hiển thị <span className="font-bold text-foreground">{transactions.length}</span> / <span className="font-bold text-foreground">{totalCount}</span> giao dịch
                         </p>
-                        <div className="flex items-center gap-1.5 bg-slate-50/50 p-1 rounded-xl border border-slate-100">
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+                        <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/60">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
-                                <span className="text-xs font-black text-violet-600">{page}</span>
-                                <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
-                                <span className="text-xs font-bold text-slate-500">{totalPages}</span>
+                            <div className="flex items-center px-3 h-8 bg-card border border-border rounded-lg shadow-sm">
+                                <span className="text-xs font-black text-teal-600">{page}</span>
+                                <span className="mx-1.5 text-muted-foreground/40 text-[10px]">/</span>
+                                <span className="text-xs font-bold text-muted-foreground">{totalPages}</span>
                             </div>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
@@ -284,41 +284,41 @@ export default function FinancialManagement() {
 
             {/* Active Subscriptions Table */}
             <motion.div {...fadeUp(0.25)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-                        <CalendarClock className="w-4 h-4 text-violet-600" />
-                        <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider">Theo dõi hạn gói dịch vụ</h2>
+                <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 border-b border-border/60 flex items-center gap-2">
+                        <CalendarClock className="w-4 h-4 text-teal-600" />
+                        <h2 className="text-sm font-black text-foreground uppercase tracking-wider">Theo dõi hạn gói dịch vụ</h2>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="bg-slate-50/50 border-b border-slate-100">
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Công ty</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Email</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Gói</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày bắt đầu</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày hết hạn</th>
-                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Còn lại</th>
+                                <tr className="bg-muted/50 border-b border-border/60">
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Công ty</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Email</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Gói</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Ngày bắt đầu</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Ngày hết hạn</th>
+                                    <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Còn lại</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {loadingSubscriptions ? (
-                                    <tr><td colSpan={6} className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                                    <tr><td colSpan={6} className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" /></td></tr>
                                 ) : subscriptions.length === 0 ? (
-                                    <tr><td colSpan={6} className="py-12 text-center text-slate-400 font-medium">Không có gói dịch vụ đang hoạt động</td></tr>
+                                    <tr><td colSpan={6} className="py-12 text-center text-muted-foreground/60 font-medium">Không có gói dịch vụ đang hoạt động</td></tr>
                                 ) : subscriptions.map((sub: any) => (
-                                    <tr key={sub.id} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="py-4 px-6 font-bold text-slate-900">{sub.company_name ?? '-'}</td>
-                                        <td className="py-4 px-6 text-xs font-medium text-slate-600">{sub.company_email ?? '-'}</td>
+                                    <tr key={sub.id} className="hover:bg-muted/50 transition-colors">
+                                        <td className="py-4 px-6 font-bold text-foreground">{sub.company_name ?? '-'}</td>
+                                        <td className="py-4 px-6 text-xs font-medium text-muted-foreground">{sub.company_email ?? '-'}</td>
                                         <td className="py-4 px-6">
-                                            <Badge variant="outline" className="border-violet-200 text-violet-700 bg-violet-50 text-[10px] font-bold">
+                                            <Badge variant="outline" className="border-teal-200 text-teal-700 bg-teal-50 text-[10px] font-bold">
                                                 {sub.plan_name ?? 'N/A'}
                                             </Badge>
                                         </td>
-                                        <td className="py-4 px-6 text-xs font-bold text-slate-700">
+                                        <td className="py-4 px-6 text-xs font-bold text-foreground/80">
                                             {sub.start_date ? new Date(sub.start_date).toLocaleDateString('vi-VN') : '-'}
                                         </td>
-                                        <td className="py-4 px-6 text-xs font-bold text-slate-700">
+                                        <td className="py-4 px-6 text-xs font-bold text-foreground/80">
                                             {sub.end_date ? new Date(sub.end_date).toLocaleDateString('vi-VN') : '-'}
                                         </td>
                                         <td className="py-4 px-6">

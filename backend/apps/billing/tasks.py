@@ -2,20 +2,37 @@ import logging
 from celery import shared_task
 from django.utils import timezone
 from django.conf import settings
+from django.db import transaction as db_transaction
 from apps.billing.models import Transaction, CompanySubscription, SubscriptionPlan
 from apps.billing.services.subscriptions import SubscriptionService
 from apps.email.services import EmailService
 from apps.recruitment.jobs.models import Job
+from apps.core.caching import CacheKeyBuilder, CacheService
 from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task(name="apps.billing.tasks.send_payment_confirmation_email_task")
-def send_payment_confirmation_email_task(transaction_id):
+@shared_task(
+    bind=True,
+    name="apps.billing.tasks.send_payment_confirmation_email_task",
+    max_retries=3,
+    default_retry_delay=30,
+    soft_time_limit=30,
+    time_limit=45,
+    acks_late=True,
+    retry_backoff=True,
+    retry_jitter=True,
+)
+def send_payment_confirmation_email_task(self, transaction_id):
     """
     Tác vụ chạy ngầm để gửi email xác nhận sau khi thanh toán thành công.
     """
+    sent_key = CacheKeyBuilder.task_enqueue("payment_confirmation_email_sent", transaction_id)
+    if not CacheService.add(sent_key, timeout=60 * 60 * 24):
+        logger.info("Payment confirmation email already processed txn=%s", transaction_id)
+        return True
+
     try:
         # 1. Lấy thông tin giao dịch
         txn = Transaction.objects.select_related("company", "company__user").get(
@@ -26,6 +43,7 @@ def send_payment_confirmation_email_task(transaction_id):
             logger.warning(
                 f"Attempted to send confirmation for incomplete txn: {transaction_id}"
             )
+            CacheService.delete(sent_key)
             return False
 
         # 2. Lấy thông tin người nhận
@@ -130,106 +148,157 @@ def send_payment_confirmation_email_task(transaction_id):
             logger.error(
                 f"Failed to send payment confirmation email to {recipient_email}"
             )
+            CacheService.delete(sent_key)
+            if self.request.retries < self.max_retries:
+                raise self.retry(exc=RuntimeError("email_send_failed"))
 
         return success
 
     except Transaction.DoesNotExist:
         logger.error(f"Transaction {transaction_id} not found for email task")
+        CacheService.delete(sent_key)
     except Exception as e:
         logger.error(f"Error in payment confirmation task: {str(e)}")
+        CacheService.delete(sent_key)
+        if self.request.retries < self.max_retries:
+            raise self.retry(exc=e)
     return False
 
 
-@shared_task(name="apps.billing.tasks.cleanup_expired_transactions")
-def cleanup_expired_transactions():
+@shared_task(
+    bind=True,
+    name="apps.billing.tasks.cleanup_expired_transactions",
+    soft_time_limit=120,
+    time_limit=180,
+    acks_late=True,
+)
+def cleanup_expired_transactions(self):
     """
     Quét các giao dịch PENDING quá hạn và kiểm tra trạng thái thực tế.
     """
 
-    timeout_minutes = settings.PAYMENT_PENDING_TIMEOUT_MINUTES
-    threshold = timezone.now() - timedelta(minutes=timeout_minutes)
-    pending_txns = Transaction.objects.filter(
-        status=Transaction.Status.PENDING, created_at__lt=threshold
-    )
+    lock_key = CacheKeyBuilder.task_lock("cleanup_expired_transactions")
+    with CacheService.lock(lock_key, timeout=240) as acquired:
+        if not acquired:
+            return "Skipped cleanup_expired_transactions; already running"
 
-    count = 0
-    for txn in pending_txns:
-        logger.info(f"Checking expired transaction: {txn.reference_code}")
-        try:
-            from apps.billing.services.vnpay import VNPayService
+        timeout_minutes = settings.PAYMENT_PENDING_TIMEOUT_MINUTES
+        threshold = timezone.now() - timedelta(minutes=timeout_minutes)
+        pending_refs = list(
+            Transaction.objects.filter(
+                status=Transaction.Status.PENDING, created_at__lt=threshold
+            ).values_list("id", "reference_code")
+        )
 
-            # Query VNPay
-            result = VNPayService.query_vnpay_transaction(txn.reference_code)
+        count = 0
+        for txn_id, reference_code in pending_refs:
+            logger.info(f"Checking expired transaction: {reference_code}")
+            try:
+                from apps.billing.services.vnpay import VNPayService
 
-            # Phản hồi từ VNPay QueryDR: vnp_ResponseCode, vnp_TransactionStatus
-            # vnp_TransactionStatus: 00 (Thành công), 02 (Lỗi), 04 (Hoàn tiền), 05 (Đang xử lý),...
-            if result.get("vnp_ResponseCode") == "00":
-                status = result.get("vnp_TransactionStatus")
-                if status == "00":
-                    # QueryDR không trả callback signature nên cập nhật trực tiếp.
-                    txn.status = Transaction.Status.COMPLETED
-                    txn.vnp_TransactionNo = (
-                        result.get("vnp_TransactionNo") or txn.vnp_TransactionNo
+                result = VNPayService.query_vnpay_transaction(reference_code)
+                with db_transaction.atomic():
+                    txn = (
+                        Transaction.objects.select_for_update()
+                        .select_related("company")
+                        .filter(id=txn_id, status=Transaction.Status.PENDING)
+                        .first()
                     )
-                    txn.vnp_BankCode = result.get("vnp_BankCode") or txn.vnp_BankCode
-                    txn.vnp_CardType = result.get("vnp_CardType") or txn.vnp_CardType
-                    txn.vnp_OrderInfo = result.get("vnp_OrderInfo") or txn.vnp_OrderInfo
-                    txn.save()
+                    if not txn:
+                        continue
 
-                    plan_id = SubscriptionService.get_transaction_plan_id(txn)
-                    if plan_id:
-                        try:
-                            plan = SubscriptionPlan.objects.get(id=plan_id)
-                            SubscriptionService.activate_paid_subscription(
-                                txn.company, plan
+                    # Phản hồi từ VNPay QueryDR: vnp_ResponseCode, vnp_TransactionStatus
+                    # vnp_TransactionStatus: 00 (Thành công), 02 (Lỗi), 04 (Hoàn tiền), 05 (Đang xử lý),...
+                    if result.get("vnp_ResponseCode") == "00":
+                        status = result.get("vnp_TransactionStatus")
+                        if status == "00":
+                            # QueryDR không trả callback signature nên cập nhật trực tiếp.
+                            txn.status = Transaction.Status.COMPLETED
+                            txn.vnp_TransactionNo = (
+                                result.get("vnp_TransactionNo") or txn.vnp_TransactionNo
                             )
-                        except Exception as e:
-                            logger.error(
-                                f"Failed activating subscription from cleanup for txn {txn.reference_code}: {e}"
+                            txn.vnp_BankCode = (
+                                result.get("vnp_BankCode") or txn.vnp_BankCode
                             )
-                else:
-                    # Đã quá timeout local nên không giữ pending nữa, kể cả VNPay
-                    # vẫn trả trạng thái chưa hoàn tất/đang xử lý. Callback thành
-                    # công đến muộn vẫn có thể recover giao dịch từ FAILED.
-                    txn.status = Transaction.Status.FAILED
-                    txn.save()
-            else:
-                # Không tìm thấy giao dịch trên VNPay hoặc lỗi checksum
-                # Quá thời hạn mà không thấy thì coi như fail
-                txn.status = Transaction.Status.FAILED
-                txn.save()
-            count += 1
-        except Exception as e:
-            logger.error(f"Error cleaning up txn {txn.reference_code}: {e}")
+                            txn.vnp_CardType = (
+                                result.get("vnp_CardType") or txn.vnp_CardType
+                            )
+                            txn.vnp_OrderInfo = (
+                                result.get("vnp_OrderInfo") or txn.vnp_OrderInfo
+                            )
+                            txn.save()
 
-    return f"Cleaned up {count} transactions"
+                            plan_id = SubscriptionService.get_transaction_plan_id(txn)
+                            if plan_id:
+                                try:
+                                    plan = SubscriptionPlan.objects.get(id=plan_id)
+                                    SubscriptionService.activate_paid_subscription(
+                                        txn.company, plan
+                                    )
+                                except Exception as e:
+                                    logger.error(
+                                        "Failed activating subscription from cleanup "
+                                        "for txn %s: %s",
+                                        txn.reference_code,
+                                        e,
+                                    )
+                        else:
+                            # Đã quá timeout local nên không giữ pending nữa, kể cả VNPay
+                            # vẫn trả trạng thái chưa hoàn tất/đang xử lý. Callback thành
+                            # công đến muộn vẫn có thể recover giao dịch từ FAILED.
+                            txn.status = Transaction.Status.FAILED
+                            txn.save()
+                    else:
+                        # Không tìm thấy giao dịch trên VNPay hoặc lỗi checksum
+                        # Quá thời hạn mà không thấy thì coi như fail
+                        txn.status = Transaction.Status.FAILED
+                        txn.save()
+                    count += 1
+            except Exception as e:
+                logger.error(f"Error cleaning up txn {reference_code}: {e}")
+
+        return f"Cleaned up {count} transactions"
 
 
-@shared_task(name="apps.billing.tasks.cleanup_expired_subscriptions")
-def cleanup_expired_subscriptions():
+@shared_task(
+    bind=True,
+    name="apps.billing.tasks.cleanup_expired_subscriptions",
+    soft_time_limit=60,
+    time_limit=90,
+    acks_late=True,
+)
+def cleanup_expired_subscriptions(self):
     """
     Quét các gói dịch vụ ACTIVE đã quá hạn (end_date < today)
     và chuyển sang trạng thái EXPIRED, đồng thời gỡ nhãn featured của các jobs.
     """
-    now = timezone.localdate()
-    expired_subs = CompanySubscription.objects.filter(
-        status=CompanySubscription.Status.ACTIVE, end_date__lt=now
-    )
+    lock_key = CacheKeyBuilder.task_lock("cleanup_expired_subscriptions")
+    with CacheService.lock(lock_key, timeout=120) as acquired:
+        if not acquired:
+            return "Skipped cleanup_expired_subscriptions; already running"
 
-    comp_ids = list(expired_subs.values_list("company_id", flat=True))
-    count = expired_subs.count()
-
-    if count > 0:
-        # 1. Chuyển trạng thái subscription
-        expired_subs.update(status=CompanySubscription.Status.EXPIRED)
-
-        # 2. Gỡ nhãn featured của các jobs thuộc các công ty này
-        Job.objects.filter(company_id__in=comp_ids, featured=True).update(
-            featured=False, featured_until=None
+        now = timezone.localdate()
+        expired_subs = CompanySubscription.objects.filter(
+            status=CompanySubscription.Status.ACTIVE, end_date__lt=now
         )
 
-        logger.info(
-            f"Successfully expired {count} subscriptions and cleaned up jobs for companies: {comp_ids}"
-        )
+        comp_ids = list(expired_subs.values_list("company_id", flat=True))
+        count = expired_subs.count()
 
-    return f"Expired {count} subscriptions"
+        if count > 0:
+            # 1. Chuyển trạng thái subscription
+            expired_subs.update(status=CompanySubscription.Status.EXPIRED)
+
+            # 2. Gỡ nhãn featured của các jobs thuộc các công ty này
+            Job.objects.filter(company_id__in=comp_ids, featured=True).update(
+                featured=False, featured_until=None
+            )
+
+            logger.info(
+                "Successfully expired %s subscriptions and cleaned up jobs for "
+                "companies: %s",
+                count,
+                comp_ids,
+            )
+
+        return f"Expired {count} subscriptions"

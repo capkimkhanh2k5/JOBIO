@@ -1,16 +1,8 @@
-import React from 'react';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ShieldAlert, ShieldCheck, AlertCircle, Info } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ShieldAlert, ShieldCheck, AlertCircle, Info, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ConfirmModalProps {
     isOpen: boolean;
@@ -37,97 +29,122 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     isLoading = false,
     className = ''
 }) => {
+    // Prevent body scrolling when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
+    if (typeof window === 'undefined') return null;
+
     const getTypeStyles = () => {
         switch (type) {
             case 'danger':
                 return {
                     icon: <ShieldAlert className="w-5 h-5" />,
-                    iconBg: 'bg-red-50',
-                    iconColor: 'text-red-600',
-                    buttonBg: 'bg-red-600 hover:bg-red-700 shadow-red-100',
+                    iconBg: 'bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400',
+                    buttonBg: 'bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20',
                 };
             case 'success':
                 return {
                     icon: <ShieldCheck className="w-5 h-5" />,
-                    iconBg: 'bg-emerald-50',
-                    iconColor: 'text-emerald-600',
-                    buttonBg: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100',
+                    iconBg: 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+                    buttonBg: 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-500/20',
                 };
             case 'warning':
                 return {
                     icon: <AlertCircle className="w-5 h-5" />,
-                    iconBg: 'bg-amber-50',
-                    iconColor: 'text-amber-600',
-                    buttonBg: 'bg-amber-600 hover:bg-amber-700 shadow-amber-100',
+                    iconBg: 'bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400',
+                    buttonBg: 'bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-md shadow-teal-500/25',
                 };
             default:
                 return {
                     icon: <Info className="w-5 h-5" />,
-                    iconBg: 'bg-slate-50',
-                    iconColor: 'text-slate-600',
-                    buttonBg: 'bg-slate-900 hover:bg-slate-800 shadow-slate-100',
+                    iconBg: 'bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400',
+                    buttonBg: 'bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-md shadow-teal-500/25',
                 };
         }
     };
 
     const styles = getTypeStyles();
 
-    return (
-        <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <AlertDialogContent
-                className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] z-50 border-none bg-transparent shadow-none p-0 w-full max-w-[400px] data-[state=open]:animate-none data-[state=closed]:animate-none"
-            >
-                <AnimatePresence>
-                    {isOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.5, x: "-50%", y: "-50%" }}
-                            animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-                            exit={{ opacity: 0, scale: 0.5, x: "-50%", y: "-50%" }}
-                            transition={{
-                                type: "spring",
-                                damping: 25,
-                                stiffness: 450,
-                            }}
-                            style={{
-                                position: 'fixed',
-                                left: '50%',
-                                top: '50%',
-                            }}
-                            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-2xl w-full max-w-[400px] font-['Plus_Jakarta_Sans','Inter',sans-serif] ${className}`}
+    return createPortal(
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                    {/* Dark Blurred Backdrop Overlay */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 bg-black/60 backdrop-blur-md"
+                        onClick={onClose}
+                    />
+
+                    {/* Centered Modal Card */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 15 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        className={`relative z-10 bg-card rounded-3xl border border-border/80 shadow-2xl shadow-black/25 w-full max-w-[420px] p-6 overflow-hidden ${className}`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close Button */}
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="absolute top-4 right-4 w-8 h-8 rounded-xl hover:bg-muted flex items-center justify-center transition-colors"
+                            aria-label="Đóng"
                         >
-                            <AlertDialogHeader>
-                                <AlertDialogTitle className="text-xl font-black text-slate-900 flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-xl ${styles.iconBg} flex items-center justify-center ${styles.iconColor} shrink-0`}>
-                                        {styles.icon}
-                                    </div>
-                                    {title}
-                                </AlertDialogTitle>
-                                <AlertDialogDescription className="text-slate-500 font-medium pt-2 leading-relaxed">
+                            <X className="w-4 h-4 text-muted-foreground" />
+                        </button>
+
+                        <div className="flex items-start gap-3.5 mb-2">
+                            <div className={`w-10 h-10 rounded-2xl ${styles.iconBg} flex items-center justify-center shrink-0 shadow-sm mt-0.5`}>
+                                {styles.icon}
+                            </div>
+                            <div className="flex-1 pr-6">
+                                <h3 className="text-base font-bold text-foreground leading-snug">{title}</h3>
+                                <p className="text-xs text-muted-foreground font-medium mt-1.5 leading-relaxed">
                                     {description}
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter className="pt-6 gap-2">
-                                <AlertDialogCancel
-                                    disabled={isLoading}
-                                    className="rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 h-11 px-6 transition-all"
-                                >
-                                    {cancelText}
-                                </AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        onConfirm();
-                                    }}
-                                    disabled={isLoading}
-                                    className={`rounded-xl font-bold h-11 px-8 shadow-lg transition-all active:scale-95 text-white ${styles.buttonBg}`}
-                                >
-                                    {isLoading ? "Đang xử lý..." : confirmText}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </AlertDialogContent>
-        </AlertDialog>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-2 gap-3 w-full">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isLoading}
+                                onClick={onClose}
+                                className="w-full h-11 rounded-2xl border-border bg-muted/50 font-bold text-sm text-foreground/80 hover:bg-muted transition-all"
+                            >
+                                {cancelText}
+                            </Button>
+                            <Button
+                                type="button"
+                                disabled={isLoading}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    onConfirm();
+                                }}
+                                className={`w-full h-11 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] text-white shadow-md ${styles.buttonBg}`}
+                            >
+                                {isLoading ? "Đang xử lý..." : confirmText}
+                            </Button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>,
+        document.body
     );
 };

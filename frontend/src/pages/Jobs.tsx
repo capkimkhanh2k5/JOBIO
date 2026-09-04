@@ -111,49 +111,56 @@ export default function JobsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            {/* ── Search Hero (Full width, extends to header) ── */}
-            <div className="relative overflow-hidden pt-28 pb-16 px-4 border-b border-primary/10 shadow-sm" style={{
-                background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+        <div className="min-h-screen bg-background flex flex-col">
+            {/* ── Search Hero — Editorial Luxury dark variant ── */}
+            <div className="relative overflow-hidden pt-28 pb-16 px-4 border-b border-border/40" style={{
+                background: 'linear-gradient(160deg, oklch(0.16 0.04 175) 0%, oklch(0.13 0.03 175) 40%, oklch(0.11 0.02 175) 100%)'
             }}>
-                {/* Blobs */}
+                {/* Noise texture */}
+                <div className="absolute inset-0 noise-texture opacity-40 pointer-events-none" />
+
+                {/* Warm teal glow */}
                 <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
-                    style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+                    style={{ background: 'radial-gradient(circle, oklch(0.45 0.14 175 / 0.2) 0%, transparent 68%)' }} />
+                {/* Gold glow */}
                 <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-                    style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
-                {/* Dot grid */}
-                <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
-                    backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
-                    backgroundSize: '24px 24px'
+                    style={{ background: 'radial-gradient(circle, oklch(0.65 0.12 85 / 0.12) 0%, transparent 68%)' }} />
+
+                {/* Diagonal lines */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                    backgroundImage: `repeating-linear-gradient(-45deg, oklch(0.65 0.14 175) 0px, oklch(0.65 0.14 175) 1px, transparent 1px, transparent 32px)`,
                 }} />
 
                 <div className="relative z-10 max-w-2xl mx-auto text-center">
-                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight drop-shadow-sm">
+                    <h1
+                        className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                    >
                         Tìm Việc Làm{' '}
-                        <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+                        <span className="brand-gradient-text">
                             Phù Hợp
                         </span>
                     </h1>
-                    <p className="text-gray-600 text-base md:text-lg mb-8 font-medium">
+                    <p className="text-white/40 text-base md:text-lg mb-8 font-light">
                         Hàng nghìn cơ hội nghề nghiệp từ các công ty hàng đầu đang chờ bạn.
                     </p>
 
                     {/* Search card */}
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-xl mx-auto ring-1 ring-black/5">
-                        <div className="flex items-center flex-1 bg-white border border-gray-200 rounded-xl px-3 gap-2 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
-                            <Search className="h-4 w-4 text-gray-400 shrink-0" />
+                    <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl w-full max-w-xl mx-auto focus-within:border-teal-400/60 focus-within:ring-2 focus-within:ring-teal-400/20 transition-all">
+                        <div className="flex items-center flex-1 px-3 gap-2.5">
+                            <Search className="h-4 w-4 text-white/70 shrink-0" />
                             <input
                                 type="text"
                                 value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={handleSearch}
                                 placeholder="Tiêu đề, kỹ năng, công ty..."
-                                className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-gray-800 outline-none placeholder:text-gray-400"
+                                className="h-11 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-white font-medium outline-none placeholder:text-white/70"
                             />
                         </div>
                         <Button
                             onClick={commitSearch}
-                            className="px-8 h-11 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 shadow-md shadow-violet-400/30 transition-all shrink-0"
+                            className="px-8 h-11 rounded-xl font-extrabold text-sm text-white bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 shadow-md shadow-teal-500/20 transition-all shrink-0"
                         >
                             Tìm kiếm
                         </Button>
@@ -168,7 +175,7 @@ export default function JobsPage() {
                     {/* Sidebar filters — desktop */}
                     <aside className="hidden lg:block w-72 flex-shrink-0">
                         <div className="sticky top-24">
-                            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                            <div className="editorial-card p-5">
                                 <JobFilters />
                             </div>
                         </div>
@@ -176,8 +183,6 @@ export default function JobsPage() {
 
                     {/* Main */}
                     <main className="flex-1 min-w-0 flex flex-col gap-3">
-
-                        {/* ── Search Hero relocated above ── */}
 
                         {/* List Header (Sort & Views) */}
                         <JobSort
@@ -201,21 +206,21 @@ export default function JobsPage() {
                                     ))}
                                 </div>
                             ) : isError ? (
-                                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-gray-200 text-center">
-                                    <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mb-4">
+                                <div className="flex flex-col items-center justify-center py-20 editorial-card text-center">
+                                    <div className="w-14 h-14 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mb-4">
                                         <AlertCircle className="h-6 w-6 text-red-400" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-1">Đã có lỗi xảy ra</h3>
-                                    <p className="text-sm text-gray-500 mb-5">Vui lòng thử lại sau giây lát.</p>
+                                    <h3 className="text-lg font-bold text-foreground mb-1">Đã có lỗi xảy ra</h3>
+                                    <p className="text-sm text-muted-foreground mb-5">Vui lòng thử lại sau giây lát.</p>
                                     <Button variant="outline" onClick={() => window.location.reload()}>Tải lại trang</Button>
                                 </div>
                             ) : !data || data.items.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-200 text-center">
-                                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-200">
-                                        <Briefcase className="h-7 w-7 text-gray-300" />
+                                <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl bg-card text-center">
+                                    <div className="w-16 h-16 bg-primary/8 rounded-2xl flex items-center justify-center mb-4">
+                                        <Briefcase className="h-7 w-7 text-primary/50" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-1">Không tìm thấy việc làm</h3>
-                                    <p className="text-sm text-gray-500 max-w-xs mb-5">
+                                    <h3 className="text-lg font-bold text-foreground mb-1">Không tìm thấy việc làm</h3>
+                                    <p className="text-sm text-muted-foreground max-w-xs mb-5">
                                         Thử thay đổi từ khóa hoặc bỏ bớt bộ lọc để tìm thêm kết quả.
                                     </p>
                                     <Button onClick={() => filters.resetFilters()} variant="outline">
@@ -257,14 +262,14 @@ export default function JobsPage() {
                             {/* Pagination */}
                             {!isLoading && data && data.pageCount > 1 && (
                                 <div className="mt-8 flex items-center justify-between">
-                                    <p className="text-sm text-gray-500">
-                                        Trang <span className="font-semibold text-gray-800">{page}</span> / {data.pageCount}
+                                    <p className="text-sm text-muted-foreground">
+                                        Trang <span className="font-semibold text-foreground">{page}</span> / {data.pageCount}
                                         {" "}· {data.total} kết quả
                                     </p>
                                     <div className="flex items-center gap-1">
                                         <Button
                                             variant="outline" size="icon"
-                                            className="h-8 w-8 border-gray-200"
+                                            className="h-8 w-8 border-border"
                                             disabled={page <= 1}
                                             onClick={() => handlePageChange(Math.max(1, page - 1))}
                                         >
@@ -279,7 +284,7 @@ export default function JobsPage() {
                                                     size="icon"
                                                     className={cn(
                                                         "h-8 w-8 text-xs",
-                                                        page === pageNum ? "bg-primary text-white border-primary" : "border-gray-200 text-gray-600"
+                                                        page === pageNum ? "bg-primary text-white border-primary" : "border-border text-muted-foreground"
                                                     )}
                                                     onClick={() => handlePageChange(pageNum)}
                                                 >
@@ -289,7 +294,7 @@ export default function JobsPage() {
                                         })}
                                         <Button
                                             variant="outline" size="icon"
-                                            className="h-8 w-8 border-gray-200"
+                                            className="h-8 w-8 border-border"
                                             disabled={page >= data.pageCount}
                                             onClick={() => handlePageChange(Math.min(data.pageCount, page + 1))}
                                         >
@@ -305,14 +310,14 @@ export default function JobsPage() {
 
             {/* Mobile filter drawer */}
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 overflow-y-auto bg-white">
-                    <SheetHeader className="px-5 py-4 border-b border-gray-100">
+                <SheetContent side="left" className="w-[300px] sm:w-[360px] p-0 overflow-y-auto bg-card">
+                    <SheetHeader className="px-5 py-4 border-b border-border/60">
                         <SheetTitle className="text-base font-bold">Bộ lọc</SheetTitle>
                     </SheetHeader>
                     <div className="p-5">
                         <JobFilters />
                     </div>
-                    <div className="sticky bottom-0 bg-white border-t border-gray-100 p-4">
+                    <div className="sticky bottom-0 bg-card border-t border-border/60 p-4">
                         <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" onClick={() => setIsFilterOpen(false)}>
                             Xem kết quả ({data?.total ?? 0})
                         </Button>
@@ -335,7 +340,7 @@ function getPageNumber(current: number, total: number, index: number): number {
 function CardSkeleton({ view }: { view: "grid" | "list" }) {
     if (view === "list") {
         return (
-            <div className="bg-white border border-gray-200 rounded-xl p-5 sm:p-6">
+            <div className="editorial-card p-5 sm:p-6">
                 <div className="flex flex-col xl:flex-row gap-5">
                     <div className="flex flex-1 gap-4">
                         <Skeleton className="w-14 h-14 rounded-xl flex-shrink-0" />
@@ -359,7 +364,7 @@ function CardSkeleton({ view }: { view: "grid" | "list" }) {
                             </div>
                         </div>
                     </div>
-                    <div className="xl:w-64 xl:border-l xl:border-gray-100 xl:pl-5 space-y-3">
+                    <div className="xl:w-64 xl:border-l xl:border-border/60 xl:pl-5 space-y-3">
                         <div className="grid grid-cols-2 gap-2">
                             <Skeleton className="h-10 rounded-lg" />
                             <Skeleton className="h-10 rounded-lg" />
@@ -376,7 +381,7 @@ function CardSkeleton({ view }: { view: "grid" | "list" }) {
         );
     }
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+        <div className="editorial-card p-5 space-y-3">
             <div className="flex items-center gap-3">
                 <Skeleton className="w-11 h-11 rounded-lg" />
                 <div className="space-y-1 flex-1">

@@ -86,65 +86,141 @@ const ProjectForm = ({ open, onClose, entry, userId }: ProjectFormProps) => {
 
     const handleChange = (key: string, value: string | boolean) => setFormData(prev => ({ ...prev, [key]: value }));
 
+    const techList = formData.technologies_raw.split(',').map(t => t.trim()).filter(Boolean);
+
     return (
         <Dialog open={open} onOpenChange={o => !o && onClose()}>
-            <DialogContent className="bg-white max-w-2xl rounded-[24px] border border-slate-200 shadow-xl">
-                <DialogHeader>
-                    <DialogTitle>{isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án cá nhân'}</DialogTitle>
-                </DialogHeader>
+            <DialogContent className="bg-card max-w-2xl rounded-[28px] border border-teal-500/20 dark:border-teal-500/30 shadow-2xl overflow-hidden p-0">
+                {/* Header Banner */}
+                <div className="relative bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent p-6 border-b border-border/50">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-teal-600/10 dark:bg-teal-400/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20 shrink-0 shadow-xs">
+                            <FolderGit2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-foreground">
+                                    {isEdit ? 'Chỉnh sửa dự án' : 'Thêm dự án cá nhân'}
+                                </h3>
+                                <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${isEdit ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-teal-500/10 text-teal-600 border-teal-500/20'}`}>
+                                    {isEdit ? 'Chỉnh sửa' : 'Thêm mới'}
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Các sản phẩm và dự án thực tế chứng minh năng lực thực chiến
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                <div className="space-y-5 mt-2">
+                <div className="p-6 space-y-5">
                     <div className="space-y-2">
-                        <Label>Tên dự án <span className="text-destructive">*</span></Label>
-                        <Input className="" placeholder="Ví dụ: JOBIO Platform, E-Shop..."
-                            value={formData.project_name} onChange={e => handleChange('project_name', e.target.value)} />
+                        <Label className="flex items-center gap-1.5 text-xs font-semibold">
+                            <FolderGit2 className="w-3.5 h-3.5 text-teal-600" />
+                            Tên dự án <span className="text-destructive">*</span>
+                        </Label>
+                        <Input 
+                            className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500" 
+                            placeholder="Ví dụ: JOBIO Recruitment Platform, E-Commerce App..."
+                            value={formData.project_name} 
+                            onChange={e => handleChange('project_name', e.target.value)} 
+                        />
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Mô tả</Label>
-                        <Textarea className="min-h-[90px]"
-                            placeholder="Mô tả mục tiêu, tính năng chính và vai trò của bạn trong dự án..."
-                            value={formData.description} onChange={e => handleChange('description', e.target.value)} />
+                        <Label className="text-xs font-semibold">Link demo / GitHub / Website dự án</Label>
+                        <Input 
+                            className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500" 
+                            placeholder="https://github.com/username/project hoặc https://myproject.com"
+                            value={formData.project_url} 
+                            onChange={e => handleChange('project_url', e.target.value)} 
+                        />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label>Link dự án</Label>
-                        <Input className="" placeholder="https://myproject.com"
-                            value={formData.project_url} onChange={e => handleChange('project_url', e.target.value)} />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Bắt đầu</Label>
-                            <Input type="month" className=""
+                            <Label className="flex items-center gap-1.5 text-xs font-semibold">
+                                <CalendarDays className="w-3.5 h-3.5 text-teal-600" />
+                                Từ tháng
+                            </Label>
+                            <Input 
+                                type="month" 
+                                className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
                                 value={formData.start_date?.slice(0, 7)}
-                                onChange={e => handleChange('start_date', e.target.value + '-01')} />
+                                onChange={e => handleChange('start_date', e.target.value + '-01')} 
+                            />
                         </div>
                         <div className="space-y-2">
-                            <Label>Kết thúc</Label>
-                            <Input type="month" className="" disabled={formData.is_ongoing}
+                            <Label className="flex items-center gap-1.5 text-xs font-semibold">
+                                <CalendarDays className="w-3.5 h-3.5 text-teal-600" />
+                                Đến tháng
+                            </Label>
+                            <Input 
+                                type="month" 
+                                className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500" 
+                                disabled={formData.is_ongoing}
                                 value={formData.end_date?.slice(0, 7)}
-                                onChange={e => handleChange('end_date', e.target.value + '-01')} />
+                                onChange={e => handleChange('end_date', e.target.value + '-01')} 
+                            />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Switch id="proj-ongoing" checked={formData.is_ongoing}
-                            onCheckedChange={v => { handleChange('is_ongoing', v); if (v) handleChange('end_date', ''); }} />
-                        <Label htmlFor="proj-ongoing" className="cursor-pointer">Dự án đang tiến hành</Label>
+                    <div className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between ${formData.is_ongoing ? 'bg-teal-500/10 border-teal-500/30' : 'bg-muted/30 border-border/60'}`}>
+                        <div className="flex items-center gap-3">
+                            <Switch 
+                                id="proj-ongoing" 
+                                checked={formData.is_ongoing}
+                                onCheckedChange={v => { handleChange('is_ongoing', v); if (v) handleChange('end_date', ''); }} 
+                            />
+                            <Label htmlFor="proj-ongoing" className="cursor-pointer text-sm font-medium text-foreground">
+                                Dự án đang tiến hành phát triển
+                            </Label>
+                        </div>
+                        {formData.is_ongoing && (
+                            <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 flex items-center gap-1">
+                                <Zap className="w-3.5 h-3.5" /> Đang thực hiện
+                            </span>
+                        )}
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Công nghệ sử dụng</Label>
-                        <Input className="" placeholder="React, TypeScript, Node.js (phân cách bằng dấu phẩy)"
-                            value={formData.technologies_raw} onChange={e => handleChange('technologies_raw', e.target.value)} />
-                        <p className="text-xs text-muted-foreground">Nhập các công nghệ và phân cách bằng dấu phẩy</p>
+                        <Label className="text-xs font-semibold">Mô tả dự án & Vai trò của bạn</Label>
+                        <Textarea 
+                            className="min-h-[85px] rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
+                            placeholder="Mô tả các tính năng chính, kiến trúc hệ thống và vai trò cá nhân..."
+                            value={formData.description} 
+                            onChange={e => handleChange('description', e.target.value)} 
+                        />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-2">
-                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full">Huỷ</Button>
-                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8"
-                            disabled={mutation.isPending || !formData.project_name}>
+                    <div className="space-y-2">
+                        <Label className="text-xs font-semibold">Công nghệ & Công cụ sử dụng</Label>
+                        <Input 
+                            className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500" 
+                            placeholder="React, TypeScript, Node.js, PostgreSQL (ngăn cách bằng dấu phẩy)"
+                            value={formData.technologies_raw} 
+                            onChange={e => handleChange('technologies_raw', e.target.value)} 
+                        />
+                        {techList.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {techList.map((t, idx) => (
+                                    <Badge key={idx} variant="secondary" className="bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20 text-[11px] rounded-lg px-2.5 py-0.5">
+                                        {t}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3 border-t border-border/40">
+                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full px-6">
+                            Hủy
+                        </Button>
+                        <Button 
+                            onClick={() => mutation.mutate()} 
+                            className="rounded-full px-8 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-teal-600/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            disabled={mutation.isPending || !formData.project_name}
+                        >
                             {mutation.isPending ? 'Đang lưu...' : (isEdit ? 'Lưu thay đổi' : 'Thêm dự án')}
                         </Button>
                     </div>
@@ -207,19 +283,19 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="bg-white border border-slate-200 shadow-sm p-5 rounded-2xl flex gap-4 items-start select-none cursor-default relative overflow-hidden"
+                                    className="bg-card border border-border shadow-sm p-5 rounded-2xl flex gap-4 items-start select-none cursor-default relative overflow-hidden"
                                     onMouseEnter={() => setHoveredId(String(project.id))}
                                     onMouseLeave={() => setHoveredId(null)}
                                 >
                                     {/* Subtle gradient accent */}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/5 to-transparent transition-opacity pointer-events-none" style={{ opacity: hoveredId === String(project.id) ? 1 : 0 }} />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-teal-600/5 to-transparent transition-opacity pointer-events-none" style={{ opacity: hoveredId === String(project.id) ? 1 : 0 }} />
 
                                     <div className="mt-1 text-muted-foreground cursor-grab active:cursor-grabbing transition-opacity" style={{ opacity: hoveredId === String(project.id) ? 1 : 0 }}>
                                         <GripVertical className="w-4 h-4" />
                                     </div>
 
-                                    <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center shrink-0">
-                                        <FolderGit2 className="w-6 h-6 text-violet-600" />
+                                    <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <FolderGit2 className="w-6 h-6 text-teal-600" />
                                     </div>
 
                                     <div className="flex-1 space-y-2 min-w-0">
@@ -243,7 +319,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                                 )}
                                             </div>
                                             <div className="flex gap-1 shrink-0 transition-opacity" style={{ opacity: hoveredId === String(project.id) ? 1 : 0, pointerEvents: hoveredId === String(project.id) ? 'auto' : 'none' }}>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-teal-100 hover:text-teal-600"
                                                     onClick={() => { setEditEntry(project); setDialogOpen(true); }}>
                                                     <Pencil className="w-3.5 h-3.5" />
                                                 </Button>
@@ -277,7 +353,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                                         <div className="flex gap-4 pt-1">
                                             {project.project_url && (
                                                 <a href={project.project_url} target="_blank" rel="noreferrer"
-                                                    className="text-xs flex items-center gap-1 font-semibold text-violet-600 hover:underline">
+                                                    className="text-xs flex items-center gap-1 font-semibold text-teal-600 hover:underline">
                                                     <ExternalLink className="w-3 h-3" /> Live Demo
                                                 </a>
                                             )}
@@ -296,7 +372,7 @@ export const ProjectsSection = ({ userId }: { userId: number }) => {
                 </AnimatePresence>
 
                 <Button variant="outline" onClick={() => { setEditEntry(null); setDialogOpen(true); }}
-                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-violet-50 hover:border-violet-600 hover:text-violet-600 transition-all">
+                    className="w-full h-12 border-dashed border-2 rounded-2xl hover:bg-teal-50 hover:border-teal-600 hover:text-teal-600 transition-all">
                     <Plus className="w-5 h-5 mr-2" />
                     Thêm dự án mới
                 </Button>

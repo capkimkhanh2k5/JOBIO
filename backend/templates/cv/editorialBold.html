@@ -48,159 +48,153 @@
     <!-- Main Content -->
     <main class="relative grid grid-cols-12 px-12 pb-24 z-10 gap-8">
         <!-- Left Column -->
-        <div class="col-span-8 flex flex-col gap-12">
+        <div class="col-span-8 flex flex-col gap-8">
 
+            {% if data.personal.bio %}
             <!-- Bio / Manifesto -->
             <section>
-                <h2 class="font-serif text-4xl mb-6 flex items-center gap-4">
-                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">01</span>
+                <h2 class="font-serif text-3xl mb-4 flex items-center gap-3">
+                    <span class="bg-primary px-2 py-0.5 text-sm font-display font-bold">01</span>
                     Giới thiệu
                 </h2>
-                {% if data.personal.bio %}
-                <p class="text-xl leading-relaxed font-light text-slate-800 pr-12">{{ data.personal.bio }}</p>
-                {% else %}
-                <p class="placeholder text-xl leading-relaxed pr-12">Viết giới thiệu bản thân tại đây...</p>
-                {% endif %}
+                <p class="text-base leading-relaxed font-light text-slate-800 pr-8">{{ data.personal.bio }}</p>
             </section>
+            {% endif %}
 
+            {% if data.experience %}
             <!-- Experience -->
             <section>
-                <h2 class="font-serif text-4xl mb-10 flex items-center gap-4">
-                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">02</span>
+                <h2 class="font-serif text-3xl mb-6 flex items-center gap-3">
+                    <span class="bg-primary px-2 py-0.5 text-sm font-display font-bold">02</span>
                     Kinh nghiệm
                 </h2>
-                {% if data.experience %}
-                <div class="space-y-10">
+                <div class="space-y-6">
                     {% for exp in data.experience %}
-                    <div class="grid grid-cols-10 gap-4">
+                    <div class="grid grid-cols-10 gap-3">
                         <div class="col-span-3">
-                            <span class="text-sm font-bold text-slate-400 uppercase tracking-tighter">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-tighter">
                                 {% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %}{% if exp.is_current %} — Hiện tại{% elif exp.end_date %} — {{ exp.end_date|slice:":7" }}{% endif %}
                             </span>
                         </div>
-                        <div class="col-span-7 {% if not forloop.first %}border-l border-primary pl-6 py-1{% endif %}">
-                            <h3 class="text-xl font-bold uppercase tracking-tight mb-1">
+                        <div class="col-span-7 {% if not forloop.first %}border-l border-primary pl-4 py-1{% endif %}">
+                            <h3 class="text-base font-bold uppercase tracking-tight mb-0.5">
                                 {% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}
                             </h3>
-                            <p class="text-slate-500 mb-3 uppercase text-xs tracking-widest font-bold">
+                            <p class="text-slate-500 mb-2 uppercase text-[11px] tracking-widest font-bold">
                                 {% if exp.company_name %}{{ exp.company_name }}{% elif exp.company %}{{ exp.company }}{% else %}Công ty{% endif %}
                             </p>
                             {% if exp.description %}
-                            <p class="text-slate-700 leading-snug">{{ exp.description }}</p>
+                            <p class="text-slate-700 text-xs leading-relaxed">{{ exp.description }}</p>
                             {% endif %}
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p class="placeholder text-xl leading-relaxed pr-12">Thêm kinh nghiệm làm việc...</p>
-                {% endif %}
             </section>
+            {% endif %}
 
+            {% if data.education %}
             <!-- Education -->
             <section>
-                <h2 class="font-serif text-4xl mb-8 flex items-center gap-4">
-                    <span class="bg-primary px-2 py-1 text-base font-display font-bold">03</span>
+                <h2 class="font-serif text-3xl mb-6 flex items-center gap-3">
+                    <span class="bg-primary px-2 py-0.5 text-sm font-display font-bold">03</span>
                     Học vấn
                 </h2>
-                {% if data.education %}
-                <div class="space-y-6">
+                <div class="space-y-4">
                     {% for edu in data.education %}
                     <div class="flex justify-between items-baseline">
                         <div class="max-w-[80%]">
-                            <h3 class="font-bold text-lg">
+                            <h3 class="font-bold text-base">
                                 {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} — {{ edu.field_of_study }}{% endif %}{% elif edu.field_of_study %}{{ edu.field_of_study }}{% else %}Bằng cấp{% endif %}
                             </h3>
-                            <p class="font-serif italic text-slate-600">
+                            <p class="font-serif italic text-xs text-slate-600">
                                 {% if edu.school_name %}{{ edu.school_name }}{% elif edu.school %}{{ edu.school }}{% else %}Trường học{% endif %}
                             </p>
                         </div>
-                        <span class="text-sm font-bold text-slate-400 whitespace-nowrap">
+                        <span class="text-xs font-bold text-slate-400 whitespace-nowrap">
                             {% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}
                         </span>
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p class="placeholder">Thêm học vấn...</p>
-                {% endif %}
             </section>
+            {% endif %}
         </div>
 
         <!-- Right Sidebar -->
-        <div class="col-span-4 flex flex-col gap-10 border-l border-slate-200 pl-8 pt-2">
+        <div class="col-span-4 flex flex-col gap-8 border-l border-slate-200 pl-6 pt-2">
 
             <!-- Contact -->
             <section>
-                <h2 class="font-serif text-3xl mb-5">Liên hệ</h2>
-                <ul class="space-y-3 text-sm">
+                <h2 class="font-serif text-2xl mb-4">Liên hệ</h2>
+                <ul class="space-y-2 text-[10px] break-all">
+                    {% if data.personal.email %}
                     <li class="flex flex-col">
-                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">Email</span>
-                        <span>{% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="placeholder">email@example.com</span>{% endif %}</span>
+                        <span class="text-[9px] uppercase text-slate-400 tracking-widest">Email</span>
+                        <span class="break-all">{{ data.personal.email }}</span>
                     </li>
+                    {% endif %}
+                    {% if data.personal.phone %}
                     <li class="flex flex-col">
-                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">Điện thoại</span>
-                        <span>{% if data.personal.phone %}{{ data.personal.phone }}{% else %}<span class="placeholder">Số điện thoại</span>{% endif %}</span>
+                        <span class="text-[9px] uppercase text-slate-400 tracking-widest">Điện thoại</span>
+                        <span>{{ data.personal.phone }}</span>
                     </li>
+                    {% endif %}
                     {% if data.links %}
                     {% if data.links.linkedin %}
                     <li class="flex flex-col">
-                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">LinkedIn</span>
-                        <span class="text-sm">{{ data.links.linkedin }}</span>
+                        <span class="text-[9px] uppercase text-slate-400 tracking-widest">LinkedIn</span>
+                        <span class="break-all">{{ data.links.linkedin }}</span>
                     </li>
                     {% endif %}
                     {% if data.links.github %}
                     <li class="flex flex-col">
-                        <span class="text-[10px] uppercase text-slate-400 tracking-widest">GitHub</span>
-                        <span class="text-sm">{{ data.links.github }}</span>
+                        <span class="text-[9px] uppercase text-slate-400 tracking-widest">GitHub</span>
+                        <span class="break-all">{{ data.links.github }}</span>
                     </li>
                     {% endif %}
                     {% endif %}
                 </ul>
             </section>
 
+            {% if data.skills %}
             <!-- Skills -->
             <section>
-                <h2 class="font-serif text-3xl mb-5">Kỹ năng</h2>
-                {% if data.skills %}
-                <div class="flex flex-wrap gap-2">
+                <h2 class="font-serif text-2xl mb-4">Kỹ năng</h2>
+                <div class="flex flex-wrap gap-1 text-[9px]">
                     {% for skill in data.skills %}
-                    <span class="bg-black text-white text-[10px] px-2 py-1 uppercase tracking-tighter font-bold">
+                    <span class="bg-black text-white px-2 py-0.5 uppercase tracking-tighter font-bold break-all">
                         {% if skill.name %}{{ skill.name }}{% elif skill.skill_name %}{{ skill.skill_name }}{% endif %}
                     </span>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p class="placeholder text-sm">Thêm kỹ năng chuyên môn của bạn...</p>
-                {% endif %}
             </section>
+            {% endif %}
 
+            {% if data.languages %}
             <!-- Languages -->
             <section>
-                <h2 class="font-serif text-3xl mb-5">Ngôn ngữ</h2>
-                {% if data.languages %}
-                <div class="space-y-1">
+                <h2 class="font-serif text-2xl mb-4">Ngôn ngữ</h2>
+                <div class="space-y-1 text-xs">
                     {% for lang in data.languages %}
-                    <p class="text-sm flex justify-between">
+                    <p class="flex justify-between">
                         <span>{{ lang.name }}</span>
-                        <span class="text-slate-500 italic">
+                        <span class="text-slate-500 italic text-[10px]">
                             {% if lang.proficiency_level %}{{ lang.proficiency_level }}{% elif lang.level %}{{ lang.level }}{% endif %}
                         </span>
                     </p>
                     {% endfor %}
                 </div>
-                {% else %}
-                <p class="placeholder text-sm">Thêm ngoại ngữ...</p>
-                {% endif %}
             </section>
+            {% endif %}
 
             <!-- Certifications -->
             {% if data.certifications %}
             <section>
-                <h2 class="font-serif text-3xl mb-5">Chứng chỉ</h2>
+                <h2 class="font-serif text-2xl mb-4">Chứng chỉ</h2>
                 <ul class="space-y-2">
                     {% for cert in data.certifications %}
-                    <li class="text-sm">
+                    <li class="text-xs">
                         <span class="font-bold">{{ cert.name }}</span>
                         {% if cert.issuing_organization %}<span class="text-slate-500"> · {{ cert.issuing_organization }}</span>{% endif %}
                     </li>

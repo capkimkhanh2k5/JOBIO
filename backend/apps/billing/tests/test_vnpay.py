@@ -52,6 +52,36 @@ class TestVNPayIntegration(APITestCase):
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
+    def _signed_vnpay_params(
+        self,
+        txn_ref,
+        *,
+        amount="10000000",
+        response_code="00",
+        transaction_no="12345678",
+    ):
+        params = {
+            "vnp_Amount": amount,
+            "vnp_BankCode": "NCB",
+            "vnp_CardType": "ATM",
+            "vnp_OrderInfo": "Subscribe",
+            "vnp_PayDate": "20260101000000",
+            "vnp_ResponseCode": response_code,
+            "vnp_TmnCode": getattr(settings, "VNP_TMN_CODE", "EMBIL7EU"),
+            "vnp_TransactionNo": transaction_no,
+            "vnp_TxnRef": txn_ref,
+        }
+        query_str = urllib.parse.urlencode(sorted(params.items()))
+        secret = getattr(
+            settings, "VNP_HASH_SECRET", "FP2480JF752TUW5PZWV8MSHCE4FAWB2V"
+        )
+        params["vnp_SecureHash"] = hmac.new(
+            secret.encode("utf-8"),
+            query_str.encode("utf-8"),
+            hashlib.sha512,
+        ).hexdigest()
+        return params
+
     def test_vnpay_service_url_generation(self):
         """Test URL generation logic matches VNPay requirements"""
         url = VNPayService.get_payment_url(
@@ -93,6 +123,30 @@ class TestVNPayIntegration(APITestCase):
         log_output = "\n".join(logs.output)
         self.assertNotIn("vnp_SecureHash", log_output)
         self.assertNotIn("TEST_REF&", log_output)
+
+    def test_vnpay_validation_uses_constant_time_hash_compare(self):
+        """VNPay callbacks should verify signatures with constant-time comparison."""
+        params = self._signed_vnpay_params("ORDER_HASH_COMPARE")
+        params["vnp_SecureHash"] = params["vnp_SecureHash"].upper()
+
+        with patch(
+            "apps.billing.services.vnpay.hmac.compare_digest",
+            wraps=hmac.compare_digest,
+        ) as compare_digest:
+            is_valid, error_message = VNPayService.validate_payment_secure(params)
+
+        self.assertTrue(is_valid)
+        self.assertIsNone(error_message)
+        compare_digest.assert_called_once()
+
+    def test_vnpay_validation_rejects_tampered_hash(self):
+        params = self._signed_vnpay_params("ORDER_BAD_HASH")
+        params["vnp_SecureHash"] = "0" * len(params["vnp_SecureHash"])
+
+        is_valid, error_message = VNPayService.validate_payment_secure(params)
+
+        self.assertFalse(is_valid)
+        self.assertEqual(error_message, "Invalid signature")
 
     @override_settings(VNP_QUERY_URL="https://vnpay.example.test/query")
     @patch("apps.billing.services.vnpay.requests.post")
@@ -459,11 +513,87 @@ class TestVNPayIntegration(APITestCase):
         self.client.get(return_url, params)
 
         # 4. IPN should now report already confirmed
+        sub = CompanySubscription.objects.get(
+            company=self.company_profile,
+            plan=self.plan,
+            status=CompanySubscription.Status.ACTIVE,
+        )
+        end_date_before_duplicate = sub.end_date
+
         ipn_url = reverse("company-subscriptions-vnpay-ipn")
         ipn_response = self.client.get(ipn_url, params)
 
         self.assertEqual(ipn_response.status_code, status.HTTP_200_OK)
         self.assertEqual(ipn_response.data["RspCode"], "02")
+        sub.refresh_from_db()
+        self.assertEqual(sub.end_date, end_date_before_duplicate)
+
+    def test_completed_transaction_without_subscription_recovers_on_retry(self):
+        """A completed txn with missing subscription should self-heal on valid retry."""
+        subscribe_resp = self.client.post(
+            reverse("company-subscriptions-subscribe"), {"plan_id": self.plan.id}
+        )
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn_ref = subscribe_resp.data["transaction_ref"]
+
+        txn = Transaction.objects.get(reference_code=txn_ref)
+        txn.status = Transaction.Status.COMPLETED
+        txn.save(update_fields=["status", "updated_at"])
+
+        response = self.client.get(
+            reverse("company-subscriptions-payment-return"),
+            {
+                **self._signed_vnpay_params(txn_ref, transaction_no="12345673"),
+                "redirect": "0",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["message"], "Order already confirmed")
+        self.assertIsNotNone(response.data["subscription_id"])
+        self.assertTrue(
+            CompanySubscription.objects.filter(
+                company=self.company_profile,
+                plan=self.plan,
+                status=CompanySubscription.Status.ACTIVE,
+            ).exists()
+        )
+
+    def test_success_callback_does_not_complete_when_subscription_activation_fails(
+        self,
+    ):
+        """Payment success must not be marked completed until package activation succeeds."""
+        subscribe_resp = self.client.post(
+            reverse("company-subscriptions-subscribe"), {"plan_id": self.plan.id}
+        )
+        self.assertEqual(subscribe_resp.status_code, status.HTTP_200_OK)
+        txn_ref = subscribe_resp.data["transaction_ref"]
+
+        with patch(
+            "apps.billing.services.vnpay.SubscriptionService.activate_paid_subscription",
+            side_effect=RuntimeError("database unavailable"),
+        ):
+            response = self.client.get(
+                reverse("company-subscriptions-payment-return"),
+                {
+                    **self._signed_vnpay_params(txn_ref, transaction_no="12345674"),
+                    "redirect": "0",
+                },
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "Subscription activation failed")
+
+        txn = Transaction.objects.get(reference_code=txn_ref)
+        self.assertEqual(txn.status, Transaction.Status.PENDING)
+        self.assertIn("subscription_activation_error", txn.metadata)
+        self.assertFalse(
+            CompanySubscription.objects.filter(
+                company=self.company_profile,
+                plan=self.plan,
+                status=CompanySubscription.Status.ACTIVE,
+            ).exists()
+        )
 
     def test_payment_return_recovers_from_late_success_after_failed(self):
         """A signed delayed success callback should recover txn from FAILED to COMPLETED."""

@@ -26,6 +26,13 @@ export const applicationService = {
     return api.get<{ html_content: string; template_id: number }>(`/api/applications/${id}/cv_preview/`);
   },
 
+  getCvFile(id: number, download = false) {
+    return api.get<Blob>(`/api/applications/${id}/cv-file/`, {
+      params: download ? { download: 1 } : undefined,
+      responseType: 'blob',
+    });
+  },
+
   create(data: ApplicationCreateRequest) {
     return api.post<ApplicationDetail>('/api/applications/', data);
   },

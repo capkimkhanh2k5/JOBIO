@@ -177,6 +177,9 @@ class ApplicationStateMachine:
         if performed_by and target_state in [
             ApplicationStatus.REVIEWING,
             ApplicationStatus.SHORTLISTED,
+            ApplicationStatus.INTERVIEW,
+            ApplicationStatus.OFFERED,
+            ApplicationStatus.ACCEPTED,
             ApplicationStatus.REJECTED,
         ]:
             application.reviewed_by = performed_by

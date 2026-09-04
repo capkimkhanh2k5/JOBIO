@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from django.utils import timezone
-
 from .models import Application
 
 from apps.recruitment.jobs.models import Job
+from apps.recruitment.jobs.selectors.jobs import is_job_publicly_available
 from apps.candidate.recruiter_cvs.models import RecruiterCV
 from apps.candidate.recruiter_skills.models import RecruiterSkill
 
@@ -32,7 +31,8 @@ class ApplicationListSerializer(serializers.ModelSerializer):
     ai_score = serializers.SerializerMethodField()
     match_score = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
-    cv_url = serializers.CharField(source="cv.cv_url", read_only=True, allow_null=True)
+    cv_url = serializers.SerializerMethodField()
+    cv_file_url = serializers.SerializerMethodField()
     cv_name = serializers.CharField(
         source="cv.cv_name", read_only=True, allow_null=True
     )
@@ -59,6 +59,7 @@ class ApplicationListSerializer(serializers.ModelSerializer):
             "match_score",
             "skills",
             "cv_url",
+            "cv_file_url",
             "cv_name",
             "cv_id",
             "cv_template_id",
@@ -68,15 +69,18 @@ class ApplicationListSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "applied_at", "updated_at"]
 
     def _get_match_score(self, obj):
+        if getattr(obj, "match_score", None) is not None:
+            return obj.match_score
         if hasattr(obj, "_jobio_match_score"):
             return obj._jobio_match_score
 
         try:
-            from apps.recruitment.jobs.selectors.jobs import (
-                calculate_cv_job_match_score,
+            from apps.recruitment.jobs.services.recommendations import (
+                score_candidate_job,
             )
 
-            score = calculate_cv_job_match_score(obj.cv, obj.recruiter, obj.job)
+            result = score_candidate_job(obj.recruiter, obj.job, obj.cv)
+            score = result.get("match_score", 0)
         except Exception:
             score = 0
 
@@ -106,6 +110,16 @@ class ApplicationListSerializer(serializers.ModelSerializer):
         except Exception:
             return []
 
+    def get_cv_file_url(self, obj):
+        if not obj.cv_id:
+            return None
+        path = f"/api/applications/{obj.id}/cv-file/"
+        request = self.context.get("request")
+        return request.build_absolute_uri(path) if request else path
+
+    def get_cv_url(self, obj):
+        return self.get_cv_file_url(obj)
+
 
 class ApplicationDetailSerializer(serializers.ModelSerializer):
     """
@@ -121,7 +135,8 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
     )
     job_id = serializers.IntegerField(source="job.id", read_only=True)
     job_title = serializers.CharField(source="job.title", read_only=True)
-    cv_url = serializers.CharField(source="cv.cv_url", read_only=True, allow_null=True)
+    cv_url = serializers.SerializerMethodField()
+    cv_file_url = serializers.SerializerMethodField()
     cv_name = serializers.CharField(
         source="cv.cv_name", read_only=True, allow_null=True
     )
@@ -140,6 +155,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
     )
     ai_score = serializers.SerializerMethodField()
     match_score = serializers.SerializerMethodField()
+    score_breakdown = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
 
     class Meta:
@@ -154,6 +170,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
             "recruiter_avatar",
             "recruiter_phone",
             "cv_url",
+            "cv_file_url",
             "cv_name",
             "cv_id",
             "cv_template_id",
@@ -163,6 +180,7 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
             "notes",
             "ai_score",
             "match_score",
+            "score_breakdown",
             "skills",
             "applied_at",
             "updated_at",
@@ -172,20 +190,36 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "applied_at", "updated_at"]
 
     def _get_match_score(self, obj):
+        if getattr(obj, "match_score", None) is not None:
+            return obj.match_score
         if hasattr(obj, "_jobio_match_score"):
             return obj._jobio_match_score
 
         try:
-            from apps.recruitment.jobs.selectors.jobs import (
-                calculate_cv_job_match_score,
+            from apps.recruitment.jobs.services.recommendations import (
+                score_candidate_job,
             )
 
-            score = calculate_cv_job_match_score(obj.cv, obj.recruiter, obj.job)
+            result = score_candidate_job(obj.recruiter, obj.job, obj.cv)
+            score = result.get("match_score", 0)
         except Exception:
             score = 0
 
         obj._jobio_match_score = score
         return score
+
+    def get_score_breakdown(self, obj):
+        if getattr(obj, "score_breakdown", None):
+            return obj.score_breakdown
+        try:
+            from apps.recruitment.jobs.services.recommendations import (
+                score_candidate_job,
+            )
+
+            result = score_candidate_job(obj.recruiter, obj.job, obj.cv)
+            return result.get("score_breakdown", {})
+        except Exception:
+            return {}
 
     def get_ai_score(self, obj):
         return self._get_match_score(obj)
@@ -210,6 +244,16 @@ class ApplicationDetailSerializer(serializers.ModelSerializer):
         except Exception:
             return []
 
+    def get_cv_file_url(self, obj):
+        if not obj.cv_id:
+            return None
+        path = f"/api/applications/{obj.id}/cv-file/"
+        request = self.context.get("request")
+        return request.build_absolute_uri(path) if request else path
+
+    def get_cv_url(self, obj):
+        return self.get_cv_file_url(obj)
+
 
 class ApplicationCreateSerializer(serializers.Serializer):
     """
@@ -225,12 +269,7 @@ class ApplicationCreateSerializer(serializers.Serializer):
     def validate_job_id(self, value):
         try:
             job = Job.objects.get(id=value)
-            if job.status != "published":
-                raise serializers.ValidationError("This job is not available!")
-            if (
-                job.application_deadline
-                and job.application_deadline < timezone.localdate()
-            ):
+            if not is_job_publicly_available(job):
                 raise serializers.ValidationError("This job is not available!")
             return value
         except Job.DoesNotExist:
@@ -342,7 +381,7 @@ class ApplicationBulkActionSerializer(serializers.Serializer):
     """
 
     application_ids = serializers.ListField(
-        child=serializers.IntegerField(), required=True, min_length=1
+        child=serializers.IntegerField(), required=True, min_length=1, max_length=100
     )
     action = serializers.ChoiceField(
         choices=["reject", "shortlist", "delete"], required=True

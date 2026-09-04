@@ -144,7 +144,7 @@ export function MatchScoreBreakdown({ breakdown, className }: MatchScoreBreakdow
                                     breakdown[item.key] > 80
                                         ? "from-primary to-accent"
                                         : breakdown[item.key] > 50
-                                            ? "from-blue-500 to-primary"
+                                            ? "from-primary to-primary"
                                             : "from-orange-500 to-red-500"
                                 )}
                             />

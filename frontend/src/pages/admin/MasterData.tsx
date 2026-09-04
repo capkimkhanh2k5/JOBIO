@@ -73,37 +73,37 @@ function DataTable({
     total: number;
 }) {
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="bg-slate-50/50 border-b border-slate-100">
+                        <tr className="bg-muted/50 border-b border-border/60">
                             {columns.map(col => (
-                                <th key={col.key} className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">{col.label}</th>
+                                <th key={col.key} className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">{col.label}</th>
                             ))}
-                            <th className="text-right py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500 w-24">Thao tác</th>
+                            <th className="text-right py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground w-24">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {loading ? (
-                            <tr><td colSpan={columns.length + 1} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                            <tr><td colSpan={columns.length + 1} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" /></td></tr>
                         ) : data.length === 0 ? (
-                            <tr><td colSpan={columns.length + 1} className="py-16 text-center text-slate-400 font-medium text-sm">Không có dữ liệu</td></tr>
+                            <tr><td colSpan={columns.length + 1} className="py-16 text-center text-muted-foreground/60 font-medium text-sm">Không có dữ liệu</td></tr>
                         ) : data.map((row) => (
-                            <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <tr key={row.id} className="hover:bg-muted/50 transition-colors group">
                                 {columns.map(col => (
                                     <td key={col.key} className="py-4 px-6">
                                         {col.render ? col.render(row) : (
-                                            <span className="font-medium text-slate-900">{row[col.key] ?? '—'}</span>
+                                            <span className="font-medium text-foreground">{row[col.key] ?? '—'}</span>
                                         )}
                                     </td>
                                 ))}
                                 <td className="py-4 px-6 text-right">
                                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => onEdit(row)} className="p-2 rounded-xl hover:bg-violet-50 text-slate-400 hover:text-violet-600 transition-all cursor-pointer" title="Sửa">
+                                        <button onClick={() => onEdit(row)} className="p-2 rounded-xl hover:bg-teal-50 text-muted-foreground/60 hover:text-teal-600 transition-all cursor-pointer" title="Sửa">
                                             <Pencil className="w-4 h-4" />
                                         </button>
-                                        <button onClick={() => onDelete(row.id)} className="p-2 rounded-xl hover:bg-red-50 text-slate-400 hover:text-red-600 transition-all cursor-pointer" title="Xóa">
+                                        <button onClick={() => onDelete(row.id)} className="p-2 rounded-xl hover:bg-red-50 text-muted-foreground/60 hover:text-red-600 transition-all cursor-pointer" title="Xóa">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -114,20 +114,20 @@ function DataTable({
                 </table>
             </div>
             {/* Pagination */}
-            <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">
-                <p className="text-xs text-slate-500 font-medium">
-                    Hiển thị <span className="font-bold text-slate-900">{data.length}</span> / <span className="font-bold text-slate-900">{total}</span>
+            <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-border/60">
+                <p className="text-xs text-muted-foreground font-medium">
+                    Hiển thị <span className="font-bold text-foreground">{data.length}</span> / <span className="font-bold text-foreground">{total}</span>
                 </p>
-                <div className="flex items-center gap-1.5 bg-slate-50/50 p-1 rounded-xl border border-slate-100">
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(Math.max(1, page - 1))}>
+                <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/60">
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={page <= 1} onClick={() => setPage(Math.max(1, page - 1))}>
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
-                        <span className="text-xs font-black text-violet-600">{page}</span>
-                        <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
-                        <span className="text-xs font-bold text-slate-500">{totalPages}</span>
+                    <div className="flex items-center px-3 h-8 bg-card border border-border rounded-lg shadow-sm">
+                        <span className="text-xs font-black text-teal-600">{page}</span>
+                        <span className="mx-1.5 text-muted-foreground/40 text-[10px]">/</span>
+                        <span className="text-xs font-bold text-muted-foreground">{totalPages}</span>
                     </div>
-                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(Math.min(totalPages, page + 1))}>
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={page >= totalPages} onClick={() => setPage(Math.min(totalPages, page + 1))}>
                         <ChevronRight className="w-4 h-4" />
                     </Button>
                 </div>
@@ -208,36 +208,36 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
             <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="relative bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-full max-w-md mx-4 z-10"
+                className="relative bg-card rounded-2xl shadow-2xl border border-border p-6 w-full max-w-md mx-4 z-10"
             >
                 <div className="flex items-center justify-between mb-5">
-                    <h2 className="font-black text-slate-900 text-lg">
+                    <h2 className="font-black text-foreground text-lg">
                         {modal.mode === 'create' ? `Thêm ${tabLabels[modal.tab]}` : `Sửa ${tabLabels[modal.tab]}`}
                     </h2>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 transition-colors cursor-pointer">
+                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted text-muted-foreground/60 transition-colors cursor-pointer">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Tên *</label>
+                        <label className="text-xs font-black text-foreground/80 uppercase tracking-wider mb-1.5 block">Tên *</label>
                         <input
                             value={name}
                             onChange={e => setName(e.target.value)}
                             required
                             placeholder={`Nhập tên ${tabLabels[modal.tab]}...`}
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                            className="w-full px-4 py-2.5 rounded-xl border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
                         />
                     </div>
 
                     {modal.tab === 'skills' && (
                         <div>
-                            <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Danh mục *</label>
+                            <label className="text-xs font-black text-foreground/80 uppercase tracking-wider mb-1.5 block">Danh mục *</label>
                             <select
                                 value={categoryId}
                                 onChange={e => setCategoryId(e.target.value ? Number(e.target.value) : '')}
                                 required
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 bg-white"
+                                className="w-full px-4 py-2.5 rounded-xl border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 bg-card"
                             >
                                 <option value="" disabled>Chọn danh mục</option>
                                 {skillCategories?.map((cat: any) => (
@@ -249,29 +249,29 @@ function QuickFormModal({ modal, onClose }: { modal: EditModal; onClose: () => v
 
                     {modal.tab !== 'skills' && (
                         <div>
-                            <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">URL Icon (Tùy chọn)</label>
+                            <label className="text-xs font-black text-foreground/80 uppercase tracking-wider mb-1.5 block">URL Icon (Tùy chọn)</label>
                             <input
                                 value={iconUrl}
                                 onChange={e => setIconUrl(e.target.value)}
                                 placeholder="https://example.com/icon.png"
                                 type="url"
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                                className="w-full px-4 py-2.5 rounded-xl border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400"
                             />
                         </div>
                     )}
                     <div>
-                        <label className="text-xs font-black text-slate-700 uppercase tracking-wider mb-1.5 block">Mô tả</label>
+                        <label className="text-xs font-black text-foreground/80 uppercase tracking-wider mb-1.5 block">Mô tả</label>
                         <textarea
                             value={desc}
                             onChange={e => setDesc(e.target.value)}
                             rows={3}
                             placeholder="Mô tả ngắn..."
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400 resize-none"
+                            className="w-full px-4 py-2.5 rounded-xl border border-border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 resize-none"
                         />
                     </div>
                     <div className="flex gap-3 pt-2">
                         <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={onClose}>Hủy</Button>
-                        <Button type="submit" disabled={mut.isPending} className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold">
+                        <Button type="submit" disabled={mut.isPending} className="flex-1 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold">
                             {mut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 mr-1" />}
                             {modal.mode === 'create' ? 'Tạo mới' : 'Lưu thay đổi'}
                         </Button>
@@ -371,27 +371,27 @@ export default function MasterData() {
             case 'skills': return [
                 { key: 'name', label: 'Tên kỹ năng', render: (r: any) => (
                     <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{r.name}</span>
+                        <span className="font-bold text-foreground">{r.name}</span>
                         {r.is_verified === false && (
                             <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 text-[9px] px-1.5 py-0 uppercase">Chờ duyệt</Badge>
                         )}
                     </div>
                 )},
-                { key: 'category', label: 'Danh mục', render: (r: any) => <Badge className="bg-violet-50 text-violet-700 border-violet-200 text-[10px] font-bold">{r.category_name ?? r.category ?? '—'}</Badge> },
-                { key: 'usage_count', label: 'Lượt dùng', render: (r: any) => <span className="font-bold text-slate-600">{r.usage_count ?? 0}</span> },
+                { key: 'category', label: 'Danh mục', render: (r: any) => <Badge className="bg-teal-50 text-teal-700 border-teal-200 text-[10px] font-bold">{r.category_name ?? r.category ?? '—'}</Badge> },
+                { key: 'usage_count', label: 'Lượt dùng', render: (r: any) => <span className="font-bold text-muted-foreground">{r.usage_count ?? 0}</span> },
             ];
             case 'industries': return [
-                { key: 'name', label: 'Lĩnh vực CNTT', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-slate-900">{r.name}</span></div> },
-                { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-slate-100 px-2 py-0.5 rounded font-mono">{r.slug}</code> },
-                { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-slate-500 text-xs line-clamp-1">{r.description || '—'}</span> },
+                { key: 'name', label: 'Lĩnh vực CNTT', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-foreground">{r.name}</span></div> },
+                { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono">{r.slug}</code> },
+                { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-muted-foreground text-xs line-clamp-1">{r.description || '—'}</span> },
             ];
             case 'job-categories': return [
-                { key: 'name', label: 'Danh mục', render: (r: any) => <div className="flex items-center gap-2"><div><p className="font-bold text-slate-900">{r.name}</p>{r.parent_name && <p className="text-xs text-slate-400">{r.parent_name}</p>}</div></div> },
-                { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-slate-100 px-2 py-0.5 rounded font-mono">{r.slug}</code> },
+                { key: 'name', label: 'Danh mục', render: (r: any) => <div className="flex items-center gap-2"><div><p className="font-bold text-foreground">{r.name}</p>{r.parent_name && <p className="text-xs text-muted-foreground/60">{r.parent_name}</p>}</div></div> },
+                { key: 'slug', label: 'Slug', render: (r: any) => <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono">{r.slug}</code> },
             ];
             case 'benefits': return [
-                { key: 'name', label: 'Phúc lợi', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-slate-900">{r.name}</span></div> },
-                { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-slate-500 text-xs line-clamp-1">{r.description || '—'}</span> },
+                { key: 'name', label: 'Phúc lợi', render: (r: any) => <div className="flex items-center gap-2"><span className="font-bold text-foreground">{r.name}</span></div> },
+                { key: 'description', label: 'Mô tả', render: (r: any) => <span className="text-muted-foreground text-xs line-clamp-1">{r.description || '—'}</span> },
             ];
         }
     };
@@ -401,15 +401,15 @@ export default function MasterData() {
             {/* Header */}
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <Database className="w-6 h-6 text-violet-600" />
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                        <Database className="w-6 h-6 text-teal-600" />
                         Dữ liệu danh mục
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">Quản lý kỹ năng, lĩnh vực CNTT, danh mục và phúc lợi toàn hệ thống</p>
+                    <p className="text-sm text-muted-foreground mt-1">Quản lý kỹ năng, lĩnh vực CNTT, danh mục và phúc lợi toàn hệ thống</p>
                 </div>
                 <Button
                     onClick={() => setModal({ open: true, mode: 'create', tab: activeTab })}
-                    className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold shadow-sm"
+                    className="rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-sm"
                 >
                     <Plus className="w-4 h-4 mr-2" /> Thêm mới
                 </Button>
@@ -417,20 +417,21 @@ export default function MasterData() {
 
             {/* Tabs */}
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl flex-wrap">
+                <div className="flex items-center gap-1.5 bg-card border border-border/80 p-1.5 w-fit rounded-2xl shadow-sm flex-wrap">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
                         return (
                             <button
                                 key={tab.id}
                                 onClick={() => switchTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer
-                                    ${activeTab === tab.id
-                                        ? 'bg-violet-600 text-white shadow-sm'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer
+                                    ${isActive
+                                        ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-md shadow-teal-600/20'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                                     }`}
                             >
-                                <Icon className="w-4 h-4" />
+                                <Icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
                                 {tab.label}
                             </button>
                         );
@@ -440,15 +441,15 @@ export default function MasterData() {
 
             {/* Search */}
             <motion.div {...fadeUp(0.1)}>
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+                <div className="bg-card rounded-2xl border border-border shadow-sm p-4">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                         <input
                             type="text"
                             placeholder={`Tìm kiếm ${tabs.find(t => t.id === activeTab)?.label?.toLowerCase()}...`}
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 bg-slate-50/50 text-sm font-medium transition-all"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 bg-muted/50 text-sm font-medium transition-all"
                         />
                     </div>
                 </div>

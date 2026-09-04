@@ -6,7 +6,13 @@ from django.contrib.auth import get_user_model
 from decimal import Decimal
 
 from apps.communication.job_alerts.services.matching import JobMatchingService
-from apps.communication.job_alerts.models import JobAlert
+from apps.communication.job_alerts.models import JobAlert, JobAlertMatch
+from apps.communication.job_alerts.tasks import (
+    _send_alert_match_notification,
+    process_job_matching_task,
+)
+from apps.communication.notification_types.models import NotificationType
+from apps.communication.notifications.models import Notification
 from apps.recruitment.jobs.models import Job
 from apps.candidate.skills.models import Skill
 from apps.recruitment.job_skills.models import JobSkill
@@ -91,6 +97,31 @@ class JobMatchingServiceTests(TestCase):
         )
         cls.alert.locations.add(cls.hanoi)
         cls.alert.skills.add(cls.skill_python, cls.skill_django)
+
+    def _create_alert_job(self, slug="job-alert-task-match"):
+        return Job.objects.create(
+            company=self.company,
+            title="Python Django Developer",
+            slug=slug,
+            category=self.category,
+            job_type="full-time",
+            level="junior",
+            salary_min=Decimal("1200.00"),
+            status="published",
+            application_deadline=timezone.localdate() + timezone.timedelta(days=30),
+            created_by=self.employer_user,
+            description="Job Description",
+            requirements="Job Requirements",
+            address=self.addr_hanoi,
+        )
+
+    def _create_job_alert_notification_type(self):
+        return NotificationType.objects.create(
+            type_name="job_alert",
+            description="Job alert notification",
+            template="Job alert notification",
+            is_active=True,
+        )
 
     def test_find_matching_jobs_exact_match(self):
         """Test perfect match (keywords, skills, location, salary)."""
@@ -256,3 +287,91 @@ class JobMatchingServiceTests(TestCase):
         # We can't easily test Celery task execution in unit test without SideEffects.
         # But we can verify matching logic works when called directly.
         pass
+
+    def test_send_alert_match_notification_sends_once_and_marks_sent(self):
+        self._create_job_alert_notification_type()
+        job = self._create_alert_job("job-alert-task-active")
+        match = JobAlertMatch.objects.create(job_alert=self.alert, job=job, score=90)
+
+        sent = _send_alert_match_notification(self.alert, job, match)
+
+        self.assertTrue(sent)
+        match.refresh_from_db()
+        self.alert.refresh_from_db()
+        self.assertTrue(match.is_sent)
+        self.assertIsNotNone(self.alert.last_sent_at)
+        self.assertEqual(
+            Notification.objects.filter(
+                user=self.user,
+                notification_type__type_name="job_alert",
+                entity_type="job",
+                entity_id=job.id,
+            ).count(),
+            1,
+        )
+
+    def test_send_alert_match_notification_skips_disabled_alert(self):
+        self._create_job_alert_notification_type()
+        job = self._create_alert_job("job-alert-task-disabled")
+        match = JobAlertMatch.objects.create(job_alert=self.alert, job=job, score=90)
+        self.alert.is_active = False
+        self.alert.save(update_fields=["is_active"])
+
+        sent = _send_alert_match_notification(self.alert, job, match)
+
+        self.assertFalse(sent)
+        match.refresh_from_db()
+        self.assertFalse(match.is_sent)
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.user,
+                notification_type__type_name="job_alert",
+                entity_type="job",
+                entity_id=job.id,
+            ).exists()
+        )
+
+    def test_send_alert_match_notification_skips_already_sent_match(self):
+        self._create_job_alert_notification_type()
+        job = self._create_alert_job("job-alert-task-duplicate")
+        match = JobAlertMatch.objects.create(
+            job_alert=self.alert, job=job, score=90, is_sent=True
+        )
+
+        sent = _send_alert_match_notification(self.alert, job, match)
+
+        self.assertFalse(sent)
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.user,
+                notification_type__type_name="job_alert",
+                entity_type="job",
+                entity_id=job.id,
+            ).exists()
+        )
+
+    def test_process_job_matching_skips_non_public_job(self):
+        self._create_job_alert_notification_type()
+        job = self._create_alert_job("job-alert-task-non-public")
+        job.moderation_status = Job.ModerationStatus.NEEDS_REVIEW
+        job.save(update_fields=["moderation_status"])
+
+        result = process_job_matching_task.apply(args=(job.id,)).get()
+
+        self.assertEqual(
+            result,
+            {
+                "status": "skipped",
+                "reason": "job_not_publicly_available",
+                "job_id": job.id,
+            },
+        )
+        self.assertFalse(JobAlertMatch.objects.filter(job=job).exists())
+        self.assertFalse(
+            Notification.objects.filter(
+                user=self.user,
+                notification_type__type_name="job_alert",
+                entity_type="job",
+                entity_id=job.id,
+            ).exists()
+        )

@@ -54,7 +54,7 @@ export function CandidateMatchCard({ match }: CandidateMatchCardProps) {
                                 <Badge variant="outline" className={cn(
                                     "capitalize border-primary/20 bg-primary/5 hover:bg-primary/10",
                                     match.match_status === 'excellent' && "text-emerald-500 border-emerald-500/20 bg-emerald-500/5",
-                                    match.match_status === 'good' && "text-blue-500 border-blue-500/20 bg-blue-500/5",
+                                    match.match_status === 'good' && "text-primary border-primary/20 bg-primary/80/5",
                                 )}>
                                     {match.match_status} Match
                                 </Badge>
@@ -84,7 +84,7 @@ export function CandidateMatchCard({ match }: CandidateMatchCardProps) {
                                 "flex items-center gap-3 p-3 rounded-lg border text-sm transition-colors",
                                 insight.type === 'strength' && "bg-emerald-500/5 border-emerald-500/10 text-emerald-600 dark:text-emerald-400",
                                 insight.type === 'weakness' && "bg-orange-500/5 border-orange-500/10 text-orange-600 dark:text-orange-400",
-                                insight.type === 'info' && "bg-blue-500/5 border-blue-500/10 text-blue-600 dark:text-blue-400",
+                                insight.type === 'info' && "bg-primary/80/5 border-primary/10 text-primary dark:text-primary",
                             )}
                         >
                             <div className="p-1.5 rounded-full bg-background/50 shrink-0">

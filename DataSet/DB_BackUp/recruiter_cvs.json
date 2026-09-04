@@ -1,0 +1,1068 @@
+[
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 1,
+  "fields": {
+    "recruiter": 7,
+    "template": 1,
+    "cv_name": "CV IT",
+    "cv_data": "{}",
+    "cv_url": "/cvs/cv.pdf",
+    "is_default": true,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": null,
+    "parsed_at": null,
+    "parse_status": "none",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-05-08T06:05:11Z",
+    "updated_at": "2026-05-08T23:05:11Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 2,
+  "fields": {
+    "recruiter": 14,
+    "template": 1,
+    "cv_name": "CV IT",
+    "cv_data": "{}",
+    "cv_url": "/cvs/cv.pdf",
+    "is_default": true,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": null,
+    "parsed_at": null,
+    "parse_status": "none",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-05-13T14:52:40Z",
+    "updated_at": "2026-05-15T13:52:40Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 3,
+  "fields": {
+    "recruiter": 1,
+    "template": 1,
+    "cv_name": "CV IT",
+    "cv_data": "{}",
+    "cv_url": "/cvs/cv.pdf",
+    "is_default": true,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": null,
+    "parsed_at": null,
+    "parse_status": "none",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-04-30T01:18:09Z",
+    "updated_at": "2026-05-02T15:18:09Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 4,
+  "fields": {
+    "recruiter": 9,
+    "template": 1,
+    "cv_name": "CV IT",
+    "cv_data": "{}",
+    "cv_url": "/cvs/cv.pdf",
+    "is_default": true,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": null,
+    "parsed_at": null,
+    "parse_status": "none",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-03-17T15:26:59Z",
+    "updated_at": "2026-03-18T12:26:59Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 5,
+  "fields": {
+    "recruiter": 14,
+    "template": 1,
+    "cv_name": "CV IT",
+    "cv_data": "{}",
+    "cv_url": "/cvs/cv.pdf",
+    "is_default": true,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": null,
+    "parsed_at": null,
+    "parse_status": "none",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-01-22T18:26:51Z",
+    "updated_at": "2026-01-24T09:26:51Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 13,
+  "fields": {
+    "recruiter": 16,
+    "template": 4,
+    "cv_name": "Hi2",
+    "cv_data": {
+      "links": {
+        "github": "https://github.com/capkimkhanh2k5",
+        "facebook": "",
+        "linkedin": "",
+        "portfolio": ""
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Java",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "MongoDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "TypeScript",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Next.js",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "React Query",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "FastAPI",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Spring Boot",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "PostgreSQL",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Redis",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Firebase",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Docker",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GitHub Actions",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Git",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Postman",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "VS Code",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "SQL",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "RAG",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Hybrid Retrieval",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Embeddings",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Semantic Search",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Cross-Encoder Reranking",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "OCR",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Groq API",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "OpenAI API",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Prompt Engineering",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Structured JSON Generation",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "LLM Safeguards",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Django REST Framework",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Celery",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "WebSocket",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "REST APIs",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "React",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Axios",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "ChromaDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "pgvector",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Docker Compose",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GHCR",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Caddy",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GCP",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        }
+      ],
+      "location": {},
+      "personal": {
+        "bio": "Sinh viên năm cuối ngành Kỹ thuật Phần mềm, có nền tảng vững chắc về Khoa học Máy tính và chuyên sâu vào AI Engineering, các mô hình Ngôn ngữ Lớn (LLMs) và Retrieval-Augmented Generation (RAG). Có kinh nghiệm thiết kế, xây dựng và triển khai các ứng dụng AI toàn stack giải quyết các vấn đề thực tế trong tuyển dụng, xử lý tài liệu pháp lý và thương mại điện tử. Thành thạo backend với Django REST Framework, FastAPI, Spring Boot, PostgreSQL, Celery, Redis, Docker và tự động hoá CI/CD. Có khả năng chuyển đổi các pipeline AI phức tạp thành các ứng dụng web sản xuất ổn định với API, cơ sở dữ liệu, worker nền, giám sát và giao diện người dùng.",
+        "email": "capkimkhanh@gmail.com",
+        "phone": "",
+        "full_name": "CAP KIM KHANH",
+        "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocIIhcHjhEYmq8hG0P5yF6Yp0ij1Jz3iCTqGe-YBnH7uKV1Sjsnh=s96-c",
+        "current_position": "AI Engineer Intern",
+        "years_of_experience": 0
+      },
+      "projects": [
+        {
+          "name": "JOBIO — AI-Powered Recruitment Platform",
+          "end_date": null,
+          "start_date": null,
+          "description": "Full‑stack recruitment platform with Django REST APIs, React/TypeScript UI, PostgreSQL, authentication, job management, CV parsing pipeline using OCR and Groq LLM, background processing with Celery/Redis, hybrid recommendation using embeddings, and CI/CD pipelines for deployment on GCP.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "Django REST Framework",
+            "Celery",
+            "Redis",
+            "pgvector",
+            "Groq API",
+            "React",
+            "Docker Compose",
+            "GitHub Actions"
+          ]
+        },
+        {
+          "name": "RagDraftingAI — Vietnamese Legal RAG Drafting Assistant",
+          "end_date": null,
+          "start_date": null,
+          "description": "Hybrid RAG system combining BM25 and dense embeddings, ChromaDB vector store, and LLM (Groq) to draft Vietnamese legal documents, with FastAPI services, PostgreSQL backend and React frontend, containerized for deployment.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "FastAPI",
+            "ChromaDB",
+            "BM25",
+            "SentenceTransformers",
+            "Groq API",
+            "PostgreSQL",
+            "React",
+            "Docker Compose"
+          ]
+        },
+        {
+          "name": "Lap3T — Laptop E-commerce Platform",
+          "end_date": null,
+          "start_date": null,
+          "description": "Full‑stack e‑commerce platform for laptops using Spring Boot REST APIs, Next.js frontend, PostgreSQL, JWT authentication, rate limiting, WebSocket messaging, TOTP 2FA, Passkey/WebAuthn, and VNPay payment integration.",
+          "project_url": "",
+          "technologies": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL",
+            "Next.js",
+            "TypeScript",
+            "Docker Compose"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "degree": "Bachelor of Software Engineering",
+          "end_date": null,
+          "is_current": false,
+          "start_date": "2023-09-01",
+          "description": "GPA: 3.70/4.0, Expected Graduation: May 2027",
+          "school_name": "University of Science and Technology - The University of Danang",
+          "field_of_study": "Software Engineering"
+        }
+      ],
+      "languages": [
+        {
+          "name": "Vietnamese",
+          "proficiency_level": "native"
+        },
+        {
+          "name": "English",
+          "proficiency_level": "advanced"
+        }
+      ],
+      "experience": [],
+      "certifications": [
+        {
+          "name": "TOEIC",
+          "issue_date": "2026-07-31",
+          "expiry_date": "2028-07-31",
+          "credential_id": "",
+          "credential_url": "",
+          "issuing_organization": "IIG VIETNAM"
+        }
+      ],
+      "cv_data.language": "en"
+    },
+    "cv_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1786156405/Jobio/CVs/cv_13_1786156404.pdf",
+    "is_default": false,
+    "is_public": true,
+    "view_count": 37,
+    "download_count": 1,
+    "pdf_generated_at": "2026-08-08T02:33:26.372Z",
+    "parsed_at": "2026-08-08T08:23:47.841Z",
+    "parse_status": "parsed",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-08-08T01:17:13.611Z",
+    "updated_at": "2026-08-08T08:23:47.842Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 6,
+  "fields": {
+    "recruiter": 16,
+    "template": null,
+    "cv_name": "CV",
+    "cv_data": {
+      "links": {
+        "github": "https://github.com/capkimkhanh2k5",
+        "linkedin": "",
+        "portfolio": ""
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Java",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "TypeScript",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "SQL",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "RAG",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Hybrid Retrieval",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Embeddings",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Semantic Search",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Cross-Encoder Reranking",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "OCR",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "Groq API",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "OpenAI API",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Prompt Engineering",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Django REST Framework",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "FastAPI",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Spring Boot",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Celery",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Redis",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "WebSocket",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "React",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Next.js",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "React Query",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "Axios",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "PostgreSQL",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "MongoDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "Firebase",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "ChromaDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "pgvector",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "Docker",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Docker Compose",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "GitHub Actions",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "Caddy",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "GCP",
+          "proficiency_level": "intermediate",
+          "years_of_experience": null
+        },
+        {
+          "name": "Git",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        },
+        {
+          "name": "VS Code",
+          "proficiency_level": "advanced",
+          "years_of_experience": null
+        }
+      ],
+      "location": {
+        "city": "Da Nang",
+        "commune": "",
+        "country": "Vietnam",
+        "province": "Đà Nẵng",
+        "address_line": ""
+      },
+      "personal": {
+        "bio": "Sinh viên năm cuối ngành Kỹ thuật Phần mềm với nền tảng vững chắc về Khoa học Máy tính và chuyên sâu vào AI Engineering, Large Language Models (LLMs) và Retrieval-Augmented Generation (RAG). Có kinh nghiệm thiết kế, xây dựng và triển khai các ứng dụng AI toàn stack giải quyết các vấn đề thực tế trong lĩnh vực tuyển dụng, xử lý tài liệu pháp lý và thương mại điện tử. Có nền tảng backend mạnh với Django REST Framework, FastAPI, Spring Boot, PostgreSQL, Celery, Redis, Docker và tự động hoá CI/CD. Có khả năng chuyển đổi các pipeline AI phức tạp thành các ứng dụng web production-ready với API, cơ sở dữ liệu, worker nền, giám sát và giao diện người dùng.",
+        "email": "capkimkhanh@gmail.com",
+        "phone": "+84 839 117 789",
+        "full_name": "CAP KIM KHANH",
+        "current_position": "AI Engineer Intern",
+        "years_of_experience": null
+      },
+      "projects": [
+        {
+          "name": "JOBIO — AI-Powered Recruitment Platform",
+          "end_date": null,
+          "start_date": null,
+          "description": "Xây dựng nền tảng tuyển dụng AI toàn stack với Django REST API, giao diện React/TypeScript, PostgreSQL, xác thực, quản lý công việc, hồ sơ ứng viên, quy trình phỏng vấn, thông báo và thanh toán. Triển khai pipeline xử lý PDF sang CV có cấu trúc, hệ thống đề xuất việc làm dựa trên embeddings và pgvector, và CI/CD với GitHub Actions, Docker và triển khai trên GCP VM.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "Django REST Framework",
+            "Celery",
+            "Redis",
+            "pgvector",
+            "Groq API",
+            "React",
+            "Docker Compose",
+            "GitHub Actions"
+          ]
+        },
+        {
+          "name": "RagDraftingAI — Vietnamese Legal RAG Drafting Assistant",
+          "end_date": null,
+          "start_date": null,
+          "description": "Phát triển pipeline Retrieval-Augmented Generation kết hợp BM25, embeddings E5, ChromaDB và cross-encoder để truy xuất ngữ cảnh pháp lý tiếng Việt. Tích hợp mô hình Llama của Groq để sinh JSON cho tài liệu DOCX, triển khai FastAPI service cho QA pháp lý, soạn thảo tài liệu và Docker deployment với PostgreSQL và React frontend.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "FastAPI",
+            "ChromaDB",
+            "BM25",
+            "SentenceTransformers",
+            "Groq API",
+            "PostgreSQL",
+            "React",
+            "Docker Compose"
+          ]
+        },
+        {
+          "name": "Lap3T — Laptop E-commerce Platform",
+          "end_date": null,
+          "start_date": null,
+          "description": "Xây dựng nền tảng thương mại điện tử laptop với Spring Boot REST API, Next.js frontend, PostgreSQL, quản lý danh mục sản phẩm, giỏ hàng, đơn hàng, thanh toán và quản trị. Triển khai bảo mật JWT, phân quyền, giới hạn tốc độ, WebSocket, TOTP 2FA và hỗ trợ Passkey/WebAuthn, tích hợp VNPay cho thanh toán.",
+          "project_url": "",
+          "technologies": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL",
+            "Next.js",
+            "TypeScript",
+            "Docker Compose"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "degree": "Bachelor of Software Engineering",
+          "end_date": null,
+          "is_current": true,
+          "start_date": "2023-09-01",
+          "description": "GPA: 3.70/4.0",
+          "school_name": "University of Science and Technology - The University of Danang",
+          "field_of_study": "Software Engineering"
+        }
+      ],
+      "languages": [
+        {
+          "name": "Vietnamese",
+          "proficiency_level": "native"
+        },
+        {
+          "name": "English",
+          "proficiency_level": "advanced"
+        }
+      ],
+      "experience": [],
+      "certifications": []
+    },
+    "cv_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1786112215/Jobio/CVs/cv_upload_16_2c64ce832bf5403d9d56b73e45d57176.pdf",
+    "is_default": false,
+    "is_public": true,
+    "view_count": 0,
+    "download_count": 0,
+    "pdf_generated_at": "2026-08-07T14:16:56.967Z",
+    "parsed_at": "2026-08-07T14:17:10.106Z",
+    "parse_status": "parsed",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-08-07T14:16:56.967Z",
+    "updated_at": "2026-08-07T14:16:56.998Z"
+  }
+},
+{
+  "model": "candidate_recruiter_cvs.recruitercv",
+  "pk": 12,
+  "fields": {
+    "recruiter": 16,
+    "template": 2,
+    "cv_name": "Hi2",
+    "cv_data": {
+      "links": {
+        "github": "https://github.com/capkimkhanh2k5",
+        "facebook": "",
+        "linkedin": "",
+        "portfolio": ""
+      },
+      "skills": [
+        {
+          "name": "Python",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Java",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "MongoDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "TypeScript",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Next.js",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "React Query",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "FastAPI",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Spring Boot",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "PostgreSQL",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Redis",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Firebase",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Docker",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GitHub Actions",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Git",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Postman",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "VS Code",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "SQL",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "RAG",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Hybrid Retrieval",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Embeddings",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Semantic Search",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Cross-Encoder Reranking",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "OCR",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Groq API",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "OpenAI API",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Prompt Engineering",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Structured JSON Generation",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "LLM Safeguards",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Django REST Framework",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Celery",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "WebSocket",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "REST APIs",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "React",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Axios",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "ChromaDB",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "pgvector",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Docker Compose",
+          "proficiency_level": "advanced",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GHCR",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "Caddy",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "GCP",
+          "proficiency_level": "intermediate",
+          "years_of_experience": 0
+        },
+        {
+          "name": "C++"
+        },
+        {
+          "name": "GitLab"
+        }
+      ],
+      "location": {},
+      "personal": {
+        "bio": "Sinh viên năm cuối ngành Kỹ thuật Phần mềm, có nền tảng vững chắc về Khoa học Máy tính và chuyên sâu vào AI Engineering, các mô hình Ngôn ngữ Lớn (LLMs) và Retrieval-Augmented Generation (RAG). Có kinh nghiệm thiết kế, xây dựng và triển khai các ứng dụng AI toàn stack giải quyết các vấn đề thực tế trong tuyển dụng, xử lý tài liệu pháp lý và thương mại điện tử. Thành thạo backend với Django REST Framework, FastAPI, Spring Boot, PostgreSQL, Celery, Redis, Docker và tự động hoá CI/CD. Có khả năng chuyển đổi các pipeline AI phức tạp thành các ứng dụng web sản xuất ổn định với API, cơ sở dữ liệu, worker nền, giám sát và giao diện người dùng.",
+        "email": "capkimkhanh@gmail.com",
+        "phone": "",
+        "full_name": "CAP KIM KHANH",
+        "avatar_url": "https://lh3.googleusercontent.com/a/ACg8ocIIhcHjhEYmq8hG0P5yF6Yp0ij1Jz3iCTqGe-YBnH7uKV1Sjsnh=s96-c",
+        "current_position": "AI Engineer Intern",
+        "years_of_experience": 0
+      },
+      "projects": [
+        {
+          "name": "JOBIO — AI-Powered Recruitment",
+          "end_date": null,
+          "start_date": null,
+          "description": "Full‑stack recruitment platform with Django REST APIs, React/TypeScript UI, PostgreSQL, authentication, job management, CV parsing pipeline using OCR and Groq LLM, background processing with Celery/Redis, hybrid recommendation using embeddings, and CI/CD pipelines for deployment on GCP.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "Django REST Framework",
+            "Celery",
+            "Redis",
+            "pgvector",
+            "Groq API",
+            "React",
+            "Docker Compose",
+            "GitHub Actions"
+          ]
+        },
+        {
+          "name": "RagDraftingAI — Vietnamese Legal RAG Drafting Assistant",
+          "end_date": null,
+          "start_date": null,
+          "description": "Hybrid RAG system combining BM25 and dense embeddings, ChromaDB vector store, and LLM (Groq) to draft Vietnamese legal documents, with FastAPI services, PostgreSQL backend and React frontend, containerized for deployment.",
+          "project_url": "",
+          "technologies": [
+            "Python",
+            "FastAPI",
+            "ChromaDB",
+            "BM25",
+            "SentenceTransformers",
+            "Groq API",
+            "PostgreSQL",
+            "React",
+            "Docker Compose"
+          ]
+        },
+        {
+          "name": "Lap3T — Laptop E-commerce Platform",
+          "end_date": null,
+          "start_date": null,
+          "description": "**Dự án Lap3T – Nền tảng thương mại điện tử cho laptop** - Thiết kế và triển khai kiến trúc full‑stack dựa trên Spring Boot (Java) cho API REST, kết hợp PostgreSQL để quản lý sản phẩm, đơn hàng và người dùng. - Phát triển giao diện người dùng responsive bằng Next.js và TypeScript, tối ưu SEO và hỗ trợ đa thiết bị. - Áp dụng các biện pháp bảo mật: JWT cho xác thực, TOTP 2FA, Passkey/WebAuthn cho đăng nhập an toàn, và rate‑limiting để ngăn chặn brute‑force. - Tích hợp WebSocket để hỗ trợ chat thời gian thực và cập nhật trạng thái đơn hàng. - Kết nối cổng thanh toán VNPay, xử lý giao dịch thanh toán trực tuyến một cách an toàn. - Đóng gói toàn bộ hệ thống bằng Docker Compose, giúp triển khai nhanh chóng và mở rộng dễ dàng.",
+          "project_url": "",
+          "technologies": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL",
+            "Next.js",
+            "TypeScript",
+            "Docker Compose"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "degree": "Bachelor of Software Engineering",
+          "end_date": null,
+          "is_current": false,
+          "start_date": "2023-09-01",
+          "description": "GPA: 3.70/4.0, Expected Graduation: May 2027",
+          "school_name": "University of Science and Technology - The University of Danang",
+          "field_of_study": "Software Engineering"
+        }
+      ],
+      "languages": [
+        {
+          "name": "Vietnamese",
+          "proficiency_level": "native"
+        },
+        {
+          "name": "English",
+          "proficiency_level": "advanced"
+        }
+      ],
+      "experience": [],
+      "certifications": [
+        {
+          "name": "TOEIC",
+          "issue_date": "2026-07-31",
+          "expiry_date": "2028-07-31",
+          "credential_id": "",
+          "credential_url": "",
+          "issuing_organization": "IIG VIETNAM"
+        }
+      ],
+      "cv_data.language": "en"
+    },
+    "cv_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1786152155/Jobio/CVs/cv_12_1786152153.pdf",
+    "is_default": false,
+    "is_public": true,
+    "view_count": 130,
+    "download_count": 2,
+    "pdf_generated_at": "2026-08-08T01:22:35.854Z",
+    "parsed_at": "2026-08-08T02:31:14.891Z",
+    "parse_status": "parsed",
+    "parse_error_code": null,
+    "parse_error_message": null,
+    "created_at": "2026-08-08T01:06:18.439Z",
+    "updated_at": "2026-08-08T02:31:14.892Z"
+  }
+}
+]

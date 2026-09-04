@@ -60,7 +60,7 @@ export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateNa
                         placeholder="Thêm lời nhắn... (Tùy chọn)"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="resize-none min-h-[100px] border-slate-200 focus-visible:ring-violet-500"
+                        className="resize-none min-h-[100px] border-border focus-visible:ring-teal-500"
                         disabled={!canConnect || connectMutation.isPending}
                     />
                 </div>
@@ -71,7 +71,7 @@ export function SendConnectionDialog({ isOpen, onClose, candidateId, candidateNa
                     <Button
                         onClick={handleSend}
                         disabled={!canConnect || connectMutation.isPending}
-                        className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 text-white"
+                        className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-cyan-700 text-white"
                     >
                         {!canConnect ? 'Chưa khả dụng' : connectMutation.isPending ? 'Đang gửi...' : 'Gửi lời mời'}
                     </Button>

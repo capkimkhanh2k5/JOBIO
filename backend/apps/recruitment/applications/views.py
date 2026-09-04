@@ -22,7 +22,12 @@ from apps.recruitment.application_status_history.services.application_status_his
 from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_user
 
 from django.http import HttpResponse
+from django.utils.text import get_valid_filename
 
+from apps.company.companies.models import Company, CompanyMember
+from apps.company.companies.permissions import MANAGE_JOB_ROLES, can_manage_company_jobs
+from apps.core.throttles import ApplicationSubmitRateThrottle
+from apps.core.users.permissions import is_admin_user
 from .models import Application
 
 from .services.applications import (
@@ -61,6 +66,41 @@ from .selectors.applications import (
 )
 
 
+APPLICATION_ORDERING_MAP = {
+    "applied_at": "applied_at",
+    "-applied_at": "-applied_at",
+    "updated_at": "updated_at",
+    "-updated_at": "-updated_at",
+    "rating": "rating",
+    "-rating": "-rating",
+    "status": "status",
+    "-status": "-status",
+}
+
+NESTED_APPLICATION_LIST_LIMIT = 100
+APPLICATION_EXPORT_MAX_ROWS = 5000
+
+
+def _csv_safe(value):
+    text = "" if value is None else str(value)
+    if text.startswith(("=", "+", "-", "@", "\t", "\r")):
+        return f"'{text}"
+    return text
+
+
+def _parse_optional_int(params, name: str):
+    value = params.get(name)
+    if value in (None, ""):
+        return None, None
+    try:
+        return int(value), None
+    except (TypeError, ValueError):
+        return None, Response(
+            {name: ["A valid integer is required."]},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 class JobApplicationViewSet(viewsets.GenericViewSet):
     """
     ViewSet cho danh sách applications của một job.
@@ -68,10 +108,13 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = ApplicationListSerializer
 
     def get_queryset(self):
         job_id = self.kwargs.get("job_id")
-        filters = self._build_filters()
+        filters, error = self._build_filters()
+        if error:
+            return Application.objects.none()
         return list_applications_by_job(job_id, filters)
 
     def _build_filters(self):
@@ -84,10 +127,34 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
         if params.get("status"):
             filters["status"] = params["status"]
 
-        if params.get("rating"):
-            filters["rating"] = int(params["rating"])
+        rating, error = _parse_optional_int(params, "rating")
+        if error:
+            return None, error
+        if rating is not None:
+            filters["rating"] = rating
 
-        return filters
+        return filters, None
+
+    def _application_list_response(
+        self, request, queryset, *, force_paginated: bool = False
+    ):
+        should_paginate = force_paginated or any(
+            key in request.query_params for key in ("page", "page_size")
+        )
+        if should_paginate:
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = ApplicationListSerializer(
+                    page, many=True, context={"request": request}
+                )
+                return self.get_paginated_response(serializer.data)
+
+        serializer = ApplicationListSerializer(
+            queryset[:NESTED_APPLICATION_LIST_LIMIT],
+            many=True,
+            context={"request": request},
+        )
+        return Response(serializer.data)
 
     def _get_job_or_404(self, job_id):
         """
@@ -104,7 +171,7 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
         """
         Helper: Kiểm tra nếu user sở hữu job
         """
-        if job.company.user != request.user:
+        if not can_manage_company_jobs(job.company, request.user):
             return Response(
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -123,9 +190,12 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
 
-        queryset = self.get_queryset()
-        serializer = ApplicationListSerializer(queryset, many=True)
-        return Response(serializer.data)
+        filters, error = self._build_filters()
+        if error:
+            return error
+
+        queryset = list_applications_by_job(job_id, filters)
+        return self._application_list_response(request, queryset, force_paginated=True)
 
     def _filter_by_status(self, request, job_id, filter_status):
         """
@@ -141,8 +211,7 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
             return permission_error
 
         queryset = list_applications_by_status(job_id, filter_status)
-        serializer = ApplicationListSerializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._application_list_response(request, queryset)
 
     def pending(self, request, job_id=None):
         """
@@ -179,19 +248,25 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
         if permission_error:
             return permission_error
 
-        # Parse query params
-        rating = request.query_params.get("rating")
-        min_rating = request.query_params.get("min_rating")
-        max_rating = request.query_params.get("max_rating")
+        rating, error = _parse_optional_int(request.query_params, "rating")
+        if error:
+            return error
+
+        min_rating, error = _parse_optional_int(request.query_params, "min_rating")
+        if error:
+            return error
+
+        max_rating, error = _parse_optional_int(request.query_params, "max_rating")
+        if error:
+            return error
 
         queryset = list_applications_by_rating(
             job_id,
-            rating=int(rating) if rating else None,
-            min_rating=int(min_rating) if min_rating else None,
-            max_rating=int(max_rating) if max_rating else None,
+            rating=rating,
+            min_rating=min_rating,
+            max_rating=max_rating,
         )
-        serializer = ApplicationListSerializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._application_list_response(request, queryset)
 
     def search(self, request, job_id=None):
         """
@@ -212,8 +287,7 @@ class JobApplicationViewSet(viewsets.GenericViewSet):
             return Response([])
 
         queryset = search_applications(job_id, query)
-        serializer = ApplicationListSerializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._application_list_response(request, queryset)
 
 
 class ApplicationViewSet(viewsets.GenericViewSet):
@@ -223,6 +297,13 @@ class ApplicationViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = ApplicationDetailSerializer
+
+    def get_throttles(self):
+        throttles = super().get_throttles()
+        if self.action == "create":
+            throttles.append(ApplicationSubmitRateThrottle())
+        return throttles
 
     def _ensure_verified_company(self, request, company):
         if getattr(request.user, "role", None) != "company":
@@ -253,7 +334,17 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             queryset = Application.objects.filter(recruiter=recruiter)
         # Nếu là nhà tuyển dụng: Lấy các ứng tuyển vào các job của họ
         elif hasattr(user, "role") and user.role == "company":
-            queryset = Application.objects.filter(job__company__user=user)
+            member_company_ids = CompanyMember.objects.filter(
+                user=user,
+                status=CompanyMember.Status.ACTIVE,
+                role__in=MANAGE_JOB_ROLES,
+            ).values_list("company_id", flat=True)
+            owned_company_ids = Company.objects.filter(user=user).values_list(
+                "id", flat=True
+            )
+            queryset = Application.objects.filter(
+                job__company_id__in=list(member_company_ids) + list(owned_company_ids)
+            )
         else:
             queryset = Application.objects.none()
 
@@ -278,16 +369,22 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         if status_filter:
             queryset = queryset.filter(status=status_filter)
 
-        ordering = request.query_params.get("ordering", "-applied_at")
+        ordering = APPLICATION_ORDERING_MAP.get(
+            request.query_params.get("ordering", "-applied_at"), "-applied_at"
+        )
         queryset = queryset.order_by(ordering)
 
         # Pagination
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = ApplicationListSerializer(page, many=True)
+            serializer = ApplicationListSerializer(
+                page, many=True, context={"request": request}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = ApplicationListSerializer(queryset, many=True)
+        serializer = ApplicationListSerializer(
+            queryset, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     def _is_applicant(self, request, application):
@@ -300,7 +397,7 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         """
         Kiểm tra nếu user là người sở hữu job
         """
-        return application.job.company.user == request.user
+        return can_manage_company_jobs(application.job.company, request.user)
 
     def _get_application_or_404(self, pk):
         """
@@ -341,7 +438,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             input_data = ApplicationCreateInput(**serializer.validated_data)
             application = create_application(recruiter, input_data)
             return Response(
-                ApplicationDetailSerializer(application).data,
+                ApplicationDetailSerializer(
+                    application, context={"request": request}
+                ).data,
                 status=status.HTTP_201_CREATED,
             )
         except ValueError as e:
@@ -364,7 +463,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
-        return Response(ApplicationDetailSerializer(application).data)
+        return Response(
+            ApplicationDetailSerializer(application, context={"request": request}).data
+        )
 
     def update(self, request, pk=None):
         """
@@ -389,7 +490,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         try:
             input_data = ApplicationUpdateInput(**serializer.validated_data)
             updated = update_application(application, input_data)
-            return Response(ApplicationDetailSerializer(updated).data)
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -445,7 +548,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 request.user,
                 serializer.validated_data.get("notes"),
             )
-            return Response(ApplicationDetailSerializer(updated).data)
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -479,7 +584,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 serializer.validated_data["rating"],
                 serializer.validated_data.get("notes"),
             )
-            return Response(ApplicationDetailSerializer(updated).data)
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -520,7 +627,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             f"Ghi chú: {serializer.validated_data['notes']}",
         )
 
-        return Response(ApplicationDetailSerializer(application).data)
+        return Response(
+            ApplicationDetailSerializer(application, context={"request": request}).data
+        )
 
     def history(self, request, pk=None):
         """
@@ -566,21 +675,13 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             return permission_error
 
         try:
-            old_status = application.status
             updated = change_application_status(
                 application, "shortlisted", request.user, request.data.get("notes")
             )
 
-            # Log history
-            log_status_history(
-                application,
-                old_status,
-                "shortlisted",
-                request.user,
-                request.data.get("notes"),
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
             )
-
-            return Response(ApplicationDetailSerializer(updated).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -611,17 +712,13 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         reason = serializer.validated_data.get("reason", "Không phù hợp")
 
         try:
-            old_status = application.status
             updated = change_application_status(
                 application, "rejected", request.user, reason
             )
 
-            # Log history
-            log_status_history(
-                application, old_status, "rejected", request.user, reason
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
             )
-
-            return Response(ApplicationDetailSerializer(updated).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -650,7 +747,6 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
 
         try:
-            old_status = application.status
             updated = send_offer(
                 application,
                 serializer.validated_data["offer_details"],
@@ -659,16 +755,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
                 serializer.validated_data.get("start_date"),
             )
 
-            # Log history
-            log_status_history(
-                application,
-                old_status,
-                "offered",
-                request.user,
-                f"Offer: {serializer.validated_data['offer_details']}",
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
             )
-
-            return Response(ApplicationDetailSerializer(updated).data)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -694,7 +783,9 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             updated = applicant_withdraw(
                 application, serializer.validated_data.get("reason")
             )
-            return Response(ApplicationDetailSerializer(updated).data)
+            return Response(
+                ApplicationDetailSerializer(updated, context={"request": request}).data
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -718,17 +809,6 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         serializer = ApplicationBulkActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        if getattr(request.user, "role", None) == "company":
-            company_profile = getattr(request.user, "company_profile", None)
-            if not company_profile:
-                return Response(
-                    {"detail": "Tài khoản công ty chưa có hồ sơ công ty."},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-            permission_error = self._ensure_verified_company(request, company_profile)
-            if permission_error:
-                return permission_error
-
         try:
             result = bulk_action(
                 serializer.validated_data["application_ids"],
@@ -746,12 +826,25 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         Export danh sách applications (CSV)
         """
 
-        job_id = request.query_params.get("job_id")
+        job_id, error = _parse_optional_int(request.query_params, "job_id")
+        if error:
+            return error
+
         status_filter = request.query_params.get("status")
 
         applications = list_applications_for_export(
-            request.user, job_id=int(job_id) if job_id else None, status=status_filter
+            request.user, job_id=job_id, status=status_filter
         )
+        if applications.count() > APPLICATION_EXPORT_MAX_ROWS:
+            return Response(
+                {
+                    "detail": (
+                        "Export quá lớn. Vui lòng lọc theo job_id hoặc status "
+                        f"để còn tối đa {APPLICATION_EXPORT_MAX_ROWS} bản ghi."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Create CSV response
         response = HttpResponse(content_type="text/csv")
@@ -771,17 +864,17 @@ class ApplicationViewSet(viewsets.GenericViewSet):
             ]
         )
 
-        for app in applications:
+        for app in applications.iterator(chunk_size=500):
             writer.writerow(
                 [
-                    app.id,
-                    app.job.title,
-                    app.recruiter.user.full_name,
-                    app.recruiter.user.email,
-                    app.status,
-                    app.rating or "",
-                    app.applied_at.strftime("%Y-%m-%d %H:%M"),
-                    app.notes or "",
+                    _csv_safe(app.id),
+                    _csv_safe(app.job.title),
+                    _csv_safe(app.recruiter.user.full_name),
+                    _csv_safe(app.recruiter.user.email),
+                    _csv_safe(app.status),
+                    _csv_safe(app.rating or ""),
+                    _csv_safe(app.applied_at.strftime("%Y-%m-%d %H:%M")),
+                    _csv_safe(app.notes or ""),
                 ]
             )
 
@@ -797,9 +890,11 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         if error:
             return error
 
-        # Both job owner and applicant can view
-        if not self._is_job_owner(request, application) and not self._is_applicant(
-            request, application
+        # Job team, applicant, or admin can view
+        if (
+            not is_admin_user(request.user)
+            and not self._is_job_owner(request, application)
+            and not self._is_applicant(request, application)
         ):
             return Response(
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
@@ -807,6 +902,67 @@ class ApplicationViewSet(viewsets.GenericViewSet):
 
         interviews = list_interviews_by_application(int(pk))
         return Response(InterviewListSerializer(interviews, many=True).data)
+
+    @action(detail=True, methods=["get"], url_path="cv-file")
+    def cv_file(self, request, pk=None):
+        """
+        GET /api/applications/:id/cv-file/
+        Protected PDF proxy for uploaded/generated CV files.
+        """
+        application, error = self._get_application_or_404(pk)
+        if error:
+            return error
+
+        if (
+            not is_admin_user(request.user)
+            and not self._is_job_owner(request, application)
+            and not self._is_applicant(request, application)
+        ):
+            return Response(
+                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        if not application.cv:
+            return Response(
+                {"detail": "This application does not have a CV."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import (
+            generate_cv_download,
+        )
+        from apps.candidate.recruiter_cvs.tasks import _download_pdf
+
+        try:
+            cv_url = application.cv.cv_url
+            if not cv_url or application.cv.template_id:
+                result = generate_cv_download(application.cv)
+                cv_url = result.get("download_url")
+            if not cv_url:
+                return Response(
+                    {"detail": "CV file is not available."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            pdf_bytes = _download_pdf(cv_url)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+        except Exception as exc:
+            return Response(
+                {"detail": f"Error loading CV file: {str(exc)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        filename = get_valid_filename(f"{application.cv.cv_name or 'CV'}.pdf")
+        disposition = (
+            "attachment"
+            if str(request.query_params.get("download", "")).lower() in {"1", "true"}
+            else "inline"
+        )
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = f'{disposition}; filename="{filename}"'
+        response["Cache-Control"] = "private, max-age=60"
+        return response
 
     @action(detail=True, methods=["get"])
     def cv_preview(self, request, pk=None):
@@ -818,8 +974,10 @@ class ApplicationViewSet(viewsets.GenericViewSet):
         if error:
             return error
 
-        if not self._is_job_owner(request, application) and not self._is_applicant(
-            request, application
+        if (
+            not is_admin_user(request.user)
+            and not self._is_job_owner(request, application)
+            and not self._is_applicant(request, application)
         ):
             return Response(
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN

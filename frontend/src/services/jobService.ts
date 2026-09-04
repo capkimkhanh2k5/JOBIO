@@ -2,12 +2,15 @@ import api from './api';
 import type {
   PaginatedResponse,
   JobListItem,
+  JobRecommendationEventRequest,
+  JobRecommendationsResponse,
   JobDetail,
   JobCreateRequest,
   JobUpdateRequest,
   JobFilters,
   JobSkill,
   JobLocation,
+  JobPublishReadiness,
 } from '@/types/api';
 
 // ─── Jobs ────────────────────────────────────────────────────────────────────
@@ -45,6 +48,10 @@ export const jobService = {
     return api.post<JobDetail>(`/api/jobs/${id}/publish/`);
   },
 
+  validateForPublish(id: number) {
+    return api.post<JobPublishReadiness>(`/api/jobs/${id}/validate-for-publish/`);
+  },
+
   close(id: number) {
     return api.post<JobDetail>(`/api/jobs/${id}/close/`);
   },
@@ -65,7 +72,11 @@ export const jobService = {
 
   /** AI Recommended jobs for candidate. Pass cv_id for CV-based suggestions with match_score. */
   recommendations(params?: { page_size?: number; cv_id?: string | null }) {
-    return api.get<JobListItem[]>('/api/jobs/recommendations/', { params });
+    return api.get<JobRecommendationsResponse>('/api/jobs/recommendations/', { params });
+  },
+
+  recommendationEvents(events: JobRecommendationEventRequest[]) {
+    return api.post<{ created: number }>('/api/jobs/recommendations/events/', { events });
   },
 
   // ─── Nested: Job Skills ───────────────────────────────────────────────

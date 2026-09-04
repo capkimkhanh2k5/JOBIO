@@ -12,6 +12,7 @@ from apps.core.throttles import (
     PasswordResetRateThrottle,
     EmailVerificationRateThrottle,
     SocialAuthRateThrottle,
+    TwoFactorVerifyRateThrottle,
 )
 
 from .models import CustomUser
@@ -27,6 +28,7 @@ from .services.auth import (
     check_email,
     social_login,
     verify_2fa,
+    complete_2fa_login,
     get_2fa_status,
     enable_2fa,
     disable_2fa,
@@ -90,6 +92,7 @@ from .serializers import (
     Verify2FASerializer,
     SendRegistrationOtpSerializer,
     VerifyRegistrationOtpSerializer,
+    TwoFactorEnableRequestSerializer,
     TwoFactorDisableSerializer,
     UserUpdateSerializer,
     UserStatusSerializer,
@@ -98,6 +101,7 @@ from .serializers import (
     PasskeyRegisterVerifySerializer,
     PasskeyAuthOptionsSerializer,
     PasskeyAuthVerifySerializer,
+    PasskeyDeleteConfirmSerializer,
     PasskeyUpdateNameSerializer,
 )
 from django.http import HttpResponse
@@ -124,7 +128,6 @@ class CustomUserViewSet(
 
     def get_permissions(self):
         public_actions = [
-            "create",
             "auth_login",
             "auth_register",
             "auth_forgot_password",
@@ -133,6 +136,7 @@ class CustomUserViewSet(
             "auth_resend_verification",
             "auth_check_email",
             "auth_social_login",
+            "auth_verify_2fa",
             "passkey_auth_options",
             "passkey_auth_verify",
             "auth_send_registration_otp",
@@ -143,6 +147,7 @@ class CustomUserViewSet(
 
         # Admin only endpoints
         admin_actions = [
+            "create",
             "list",
             "activity_logs",
             "destroy",
@@ -169,6 +174,7 @@ class CustomUserViewSet(
             user_input = UserCreateInput(
                 email=serializer.validated_data["email"],
                 password=serializer.validated_data["password"],
+                full_name=serializer.validated_data.get("full_name", ""),
                 role=serializer.validated_data.get("role", CustomUser.Role.CANDIDATE),
             )
             user = create_user(data=user_input)
@@ -350,6 +356,15 @@ class CustomUserViewSet(
         if not ids or not action_type:
             return Response(
                 {"detail": "Missing ids or action"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if not isinstance(ids, list):
+            return Response(
+                {"detail": "ids must be a list"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if len(ids) > 100:
+            return Response(
+                {"detail": "ids cannot contain more than 100 items"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
@@ -673,21 +688,43 @@ class CustomUserViewSet(
         output_serializer = LoginResponseSerializer(result)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["post"], url_path="auth/verify-2fa")
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="auth/verify-2fa",
+        throttle_classes=[TwoFactorVerifyRateThrottle],
+    )
     def auth_verify_2fa(self, request):
         """POST /api/users/auth/verify-2fa/ - Xác thực 2FA"""
         serializer = Verify2FASerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         try:
-            result = verify_2fa(
-                data=Verify2FAInput(
-                    user_id=request.user.id, code=serializer.validated_data["code"]
+            challenge_id = serializer.validated_data.get("challenge_id")
+            if challenge_id:
+                result = complete_2fa_login(
+                    challenge_id=challenge_id,
+                    code=serializer.validated_data["code"],
                 )
-            )
+            elif request.user and request.user.is_authenticated:
+                result = verify_2fa(
+                    data=Verify2FAInput(
+                        user_id=request.user.id,
+                        code=serializer.validated_data["code"],
+                    )
+                )
+            else:
+                return Response(
+                    {"detail": "Missing 2FA challenge."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
         except AuthenticationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        if isinstance(result, dict):
+            return Response(
+                LoginResponseSerializer(result).data, status=status.HTTP_200_OK
+            )
         return Response(result, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="auth/2fa/status")
@@ -699,6 +736,22 @@ class CustomUserViewSet(
     @action(detail=False, methods=["post"], url_path="auth/2fa/enable")
     def auth_2fa_enable(self, request):
         """POST /api/users/auth/2fa/enable/ - Bật 2FA"""
+        serializer = TwoFactorEnableRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if not request.user.has_usable_password():
+            return Response(
+                {"detail": "Vui lòng đặt mật khẩu trước khi bật 2FA."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not request.user.check_password(
+            serializer.validated_data["current_password"]
+        ):
+            return Response(
+                {"detail": "Mật khẩu hiện tại không đúng."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             result = enable_2fa(request.user)
         except AuthenticationError as e:
@@ -711,6 +764,19 @@ class CustomUserViewSet(
         """POST /api/users/auth/2fa/disable/ - Tắt 2FA"""
         serializer = TwoFactorDisableSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        if not request.user.has_usable_password():
+            return Response(
+                {"detail": "Vui lòng đặt mật khẩu trước khi tắt 2FA."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not request.user.check_password(
+            serializer.validated_data["current_password"]
+        ):
+            return Response(
+                {"detail": "Mật khẩu hiện tại không đúng."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             result = disable_2fa(request.user, serializer.validated_data["code"])
@@ -822,8 +888,24 @@ class CustomUserViewSet(
     def passkey_delete(self, request, passkey_id=None):
         """
         DELETE /api/users/auth/passkey/:id/delete/
-        Xóa một passkey (yêu cầu đăng nhập).
+        Xóa một passkey (yêu cầu đăng nhập và xác thực lại mật khẩu).
         """
+        serializer = PasskeyDeleteConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if not request.user.has_usable_password():
+            return Response(
+                {"detail": "Vui lòng đặt mật khẩu trước khi xóa passkey."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not request.user.check_password(
+            serializer.validated_data["current_password"]
+        ):
+            return Response(
+                {"detail": "Mật khẩu hiện tại không đúng."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             delete_user_passkey(user=request.user, passkey_id=int(passkey_id))
         except AuthenticationError as e:

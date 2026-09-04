@@ -31,6 +31,7 @@ class CompanyMediaViewSet(viewsets.ViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = CompanyMediaSerializer
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_permissions(self):

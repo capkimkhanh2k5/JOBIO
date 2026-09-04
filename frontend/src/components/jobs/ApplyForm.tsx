@@ -85,6 +85,14 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
         },
     });
 
+    useEffect(() => {
+        if (!isOpen || form.getValues('cv_id') || !cvs?.length) return;
+        const defaultCv = cvs.find((cv: any) => cv.is_default) ?? cvs[0];
+        if (defaultCv?.id) {
+            form.setValue('cv_id', String(defaultCv.id), { shouldValidate: true });
+        }
+    }, [cvs, form, isOpen]);
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true);
         try {
@@ -121,7 +129,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[550px] bg-white border border-gray-100 p-0 overflow-hidden rounded-[24px] shadow-2xl">
+            <DialogContent className="sm:max-w-[550px] bg-card border border-border/60 p-0 overflow-hidden rounded-[24px] shadow-2xl">
                 <AnimatePresence mode="wait">
                     {!isAuthenticated ? (
                         <motion.div
@@ -131,16 +139,16 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                             exit={{ opacity: 0, scale: 0.95 }}
                             className="p-10 flex flex-col items-center text-center"
                         >
-                            <div className="w-20 h-20 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 mb-6">
+                            <div className="w-20 h-20 rounded-2xl bg-primary/8 flex items-center justify-center text-primary mb-6">
                                 <UserPlus size={40} />
                             </div>
-                            <h3 className="text-2xl font-black text-gray-900 mb-2">Đăng nhập để ứng tuyển</h3>
-                            <p className="text-gray-500 mb-8 max-w-[320px]">
+                            <h3 className="text-2xl font-black text-foreground mb-2">Đăng nhập để ứng tuyển</h3>
+                            <p className="text-muted-foreground mb-8 max-w-[320px]">
                                 Bạn cần có tài khoản ứng viên để nộp hồ sơ trực tiếp cho công việc này.
                             </p>
                             <div className="flex flex-col w-full gap-3">
                                 <Button
-                                    className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-lg shadow-indigo-100"
+                                    className="w-full h-12 rounded-xl bg-primary hover:bg-primary font-bold text-white shadow-lg shadow-primary/12"
                                     asChild
                                 >
                                     <Link to={`/auth?redirect=${encodeURIComponent(currentJobPath)}`} state={{ from: currentJobPath }}>
@@ -150,7 +158,7 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className="w-full h-12 rounded-xl border-gray-200 text-gray-600 font-bold"
+                                    className="w-full h-12 rounded-xl border-border text-muted-foreground font-bold"
                                     asChild
                                 >
                                     <Link to={`/auth?mode=register&redirect=${encodeURIComponent(currentJobPath)}`} state={{ from: currentJobPath }}>
@@ -169,17 +177,17 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                             <div className="h-20 w-20 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-6 shadow-lg shadow-emerald-100">
                                 <CheckCircle2 size={40} />
                             </div>
-                            <h3 className="text-2xl font-black text-gray-900 mb-2">Đã gửi hồ sơ!</h3>
-                            <p className="text-gray-500 mb-8">
-                                Tuyệt vời! Bạn vừa ứng tuyển vào vị trí <br /><strong className="text-indigo-600">{jobTitle}</strong>.
+                            <h3 className="text-2xl font-black text-foreground mb-2">Đã gửi hồ sơ!</h3>
+                            <p className="text-muted-foreground mb-8">
+                                Tuyệt vời! Bạn vừa ứng tuyển vào vị trí <br /><strong className="text-primary">{jobTitle}</strong>.
                             </p>
-                            <div className="w-full p-4 rounded-xl bg-gray-50 border border-gray-100 mb-8 flex items-center gap-3 text-left">
-                                <div className="p-2 rounded-lg bg-white shadow-sm">
-                                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                            <div className="w-full p-4 rounded-xl bg-muted border border-border/60 mb-8 flex items-center gap-3 text-left">
+                                <div className="p-2 rounded-lg bg-card shadow-sm">
+                                    <Sparkles className="w-5 h-5 text-primary" />
                                 </div>
-                                <p className="text-xs text-gray-500">Mẹo: Bạn có thể theo dõi trạng thái ứng tuyển trong mục <strong>Hồ sơ của tôi</strong>.</p>
+                                <p className="text-xs text-muted-foreground">Mẹo: Bạn có thể theo dõi trạng thái ứng tuyển trong mục <strong>Hồ sơ của tôi</strong>.</p>
                             </div>
-                            <Button className="w-full h-12 rounded-xl bg-gray-900 hover:bg-gray-800" onClick={onClose}>Đóng</Button>
+                            <Button className="w-full h-12 rounded-xl bg-foreground/90 hover:bg-foreground/80" onClick={onClose}>Đóng</Button>
                         </motion.div>
                     ) : (
                         <motion.div
@@ -188,9 +196,9 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                             animate={{ opacity: 1 }}
                         >
                             <DialogHeader className="p-8 pb-0">
-                                <DialogTitle className="text-2xl font-black text-gray-900">Ứng tuyển ngay</DialogTitle>
-                                <DialogDescription className="text-gray-500 mt-1">
-                                    Vị trí: <span className="font-bold text-indigo-600">{jobTitle}</span>
+                                <DialogTitle className="text-2xl font-black text-foreground">Ứng tuyển ngay</DialogTitle>
+                                <DialogDescription className="text-muted-foreground mt-1">
+                                    Vị trí: <span className="font-bold text-primary">{jobTitle}</span>
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -201,29 +209,29 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                         name="cv_id"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-gray-900 font-bold flex items-center gap-2 mb-2">
-                                                    <FileText size={16} className="text-indigo-500" />
+                                                <FormLabel className="text-foreground font-bold flex items-center gap-2 mb-2">
+                                                    <FileText size={16} className="text-primary" />
                                                     Chọn CV của bạn
                                                 </FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="bg-gray-50 border-gray-200 h-12 rounded-xl focus:ring-indigo-500">
+                                                        <SelectTrigger className="bg-muted border-border h-12 rounded-xl focus:ring-primary">
                                                             <SelectValue placeholder={isLoadingCvs ? "Đang tải hồ sơ..." : "Chọn CV tải lên"} />
                                                         </SelectTrigger>
                                                     </FormControl>
-                                                    <SelectContent className="bg-white border-gray-100 rounded-xl shadow-xl">
+                                                    <SelectContent className="bg-card border-border/60 rounded-xl shadow-xl">
                                                         {cvs?.map((cv: any) => (
-                                                            <SelectItem key={cv.id} value={cv.id.toString()} className="focus:bg-indigo-50 focus:text-indigo-600 rounded-lg m-1">
+                                                            <SelectItem key={cv.id} value={cv.id.toString()} className="focus:bg-primary/8 focus:text-primary rounded-lg m-1">
                                                                 <div className="flex flex-col items-start">
                                                                     <span className="font-bold">{cv.cv_name || cv.name}</span>
-                                                                    <span className="text-[10px] text-slate-500">Cập nhật: {new Date(cv.updated_at).toLocaleDateString('vi-VN')}</span>
+                                                                    <span className="text-[10px] text-muted-foreground">Cập nhật: {new Date(cv.updated_at).toLocaleDateString('vi-VN')}</span>
                                                                 </div>
                                                             </SelectItem>
                                                         ))}
                                                         {cvs?.length === 0 && (
                                                             <div className="p-4 text-center">
-                                                                <p className="text-sm text-gray-500 mb-2">Bạn chưa có CV nào</p>
-                                                                <Button variant="link" className="text-indigo-600 p-0 h-auto font-bold" asChild>
+                                                                <p className="text-sm text-muted-foreground mb-2">Bạn chưa có CV nào</p>
+                                                                <Button variant="link" className="text-primary p-0 h-auto font-bold" asChild>
                                                                     <Link to="/candidate/cv">Tải CV ngay</Link>
                                                                 </Button>
                                                             </div>
@@ -241,13 +249,13 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                         render={({ field }) => (
                                             <FormItem>
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <FormLabel className="text-gray-900 font-bold">Thư giới thiệu (tùy chọn)</FormLabel>
-                                                    <span className="text-[10px] font-bold text-slate-500">{(field.value?.length || 0)}/1000</span>
+                                                    <FormLabel className="text-foreground font-bold">Thư giới thiệu (tùy chọn)</FormLabel>
+                                                    <span className="text-[10px] font-bold text-muted-foreground">{(field.value?.length || 0)}/1000</span>
                                                 </div>
                                                 <FormControl>
                                                     <Textarea
                                                         placeholder="Nêu bật những điểm mạnh của bản thân phù hợp với công việc..."
-                                                        className="bg-gray-50 border-gray-200 rounded-xl min-h-[140px] resize-none focus-visible:ring-indigo-600"
+                                                        className="bg-muted border-border rounded-xl min-h-[140px] resize-none focus-visible:ring-primary"
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -256,19 +264,19 @@ export const ApplyForm = ({ jobId, jobTitle, isOpen, onClose }: ApplyFormProps) 
                                         )}
                                     />
 
-                                    <DialogFooter className="pt-4 border-t border-gray-50">
+                                    <DialogFooter className="pt-4 border-t border-border/30">
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             onClick={onClose}
                                             disabled={isSubmitting}
-                                            className="h-12 rounded-xl text-gray-500 font-bold px-6"
+                                            className="h-12 rounded-xl text-muted-foreground font-bold px-6"
                                         >
                                             Để sau
                                         </Button>
                                         <Button
                                             type="submit"
-                                            className="bg-indigo-600 hover:bg-indigo-700 h-12 rounded-xl min-w-[160px] font-black shadow-lg shadow-indigo-100 flex-1 md:flex-none"
+                                            className="bg-primary hover:bg-primary h-12 rounded-xl min-w-[160px] font-black shadow-lg shadow-primary/12 flex-1 md:flex-none"
                                             disabled={isSubmitting}
                                         >
                                             {isSubmitting ? (

@@ -247,6 +247,18 @@ class SubscriptionService:
 
         return None
 
+    TIER_RANKS = {
+        "plus": 1,
+        "pro": 2,
+        "max": 3,
+        "premium": 3,
+    }
+
+    @staticmethod
+    def get_tier_rank(plan):
+        family = SubscriptionService.get_plan_family(plan)
+        return SubscriptionService.TIER_RANKS.get(family, 0)
+
     @staticmethod
     def is_same_plan_family(plan_a, plan_b):
         family_a = SubscriptionService.get_plan_family(plan_a)

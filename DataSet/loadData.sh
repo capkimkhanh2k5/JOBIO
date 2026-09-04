@@ -11,6 +11,8 @@
 #   --help              Hiển thị hướng dẫn
 #   --dry-run          Chỉ xem kế hoạch, không thực hiện
 #   --no-backup        Không backup database (không khuyến cáo)
+#   --skip-embeddings  Không rebuild PGVector embeddings sau khi seed
+#   --embedding-limit N Số job/recruiter tối đa cần rebuild; 0 = tất cả
 #   --verbose          Hiển thị chi tiết mỗi bước
 #
 ###############################################################################
@@ -53,6 +55,7 @@ DB_USER=${DB_USER:-"postgres"}
 DB_PASSWORD=${DB_PASSWORD:-"postgres"}
 DB_HOST=${DB_HOST:-"localhost"}
 DB_PORT=${DB_PORT:-"5433"}
+EMBEDDING_REBUILD_LIMIT=${EMBEDDING_REBUILD_LIMIT:-"0"}
 
 # Tự động phát hiện lệnh Python (Hỗ trợ cả Windows venv và Unix venv)
 if [ -f "$BACKEND_DIR/venv/Scripts/python.exe" ]; then
@@ -92,6 +95,7 @@ NC='\033[0m' # No Color
 VERBOSE=0
 DRY_RUN=0
 SKIP_BACKUP=0
+SKIP_EMBEDDINGS=0
 
 # ============================================================================
 # 3. CÁC HÀM TIỆN ÍCH
@@ -124,6 +128,10 @@ show_help() {
     echo "  --help          Hiển thị hướng dẫn này"
     echo "  --dry-run       Mô phỏng quá trình (không thay đổi dữ liệu thật)"
     echo "  --no-backup     Bỏ qua bước backup database"
+    echo "  --skip-embeddings"
+    echo "                  Bỏ qua rebuild PGVector embeddings sau khi seed"
+    echo "  --embedding-limit N"
+    echo "                  Số job/recruiter tối đa cần rebuild; 0 = tất cả"
     echo "  --verbose       Hiển thị chi tiết từng câu lệnh thực hiện"
     echo ""
 }
@@ -135,6 +143,15 @@ parse_args() {
             --help) show_help; exit 0 ;;
             --dry-run) DRY_RUN=1; log_warn "Chế độ DRY-RUN: Sẽ không có thay đổi nào được thực hiện."; shift ;;
             --no-backup) SKIP_BACKUP=1; log_warn "Đã tắt chế độ backup database."; shift ;;
+            --skip-embeddings) SKIP_EMBEDDINGS=1; log_warn "Đã tắt rebuild PGVector embeddings."; shift ;;
+            --embedding-limit)
+                if [[ $# -lt 2 || "$2" =~ [^0-9] ]]; then
+                    log_error "--embedding-limit cần một số nguyên không âm."
+                    exit 1
+                fi
+                EMBEDDING_REBUILD_LIMIT="$2"
+                shift 2
+                ;;
             --verbose) VERBOSE=1; shift ;;
             *) log_error "Tùy chọn không hợp lệ: $1"; show_help; exit 1 ;;
         esac
@@ -414,6 +431,35 @@ print("")
 EOF
 }
 
+rebuild_recommendation_embeddings() {
+    log_section "🧠 REBUILD PGVECTOR EMBEDDINGS SAU KHI SEED"
+
+    if [ $SKIP_EMBEDDINGS -eq 1 ]; then
+        log_warn "Bỏ qua rebuild embeddings theo tùy chọn --skip-embeddings."
+        return 0
+    fi
+
+    cd "$BACKEND_DIR"
+
+    if [ $DRY_RUN -eq 1 ]; then
+        log_info "(DRY-RUN) Sẽ chạy rebuild_pgvector_jobs --force --limit $EMBEDDING_REBUILD_LIMIT"
+        log_info "(DRY-RUN) Sẽ chạy rebuild_pgvector_candidates --force --limit $EMBEDDING_REBUILD_LIMIT"
+        log_info "(DRY-RUN) Sẽ chạy check_pgvector_recommendations --limit $EMBEDDING_REBUILD_LIMIT"
+        return 0
+    fi
+
+    DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" \
+        manage.py rebuild_pgvector_jobs --force --limit "$EMBEDDING_REBUILD_LIMIT"
+
+    DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" \
+        manage.py rebuild_pgvector_candidates --force --limit "$EMBEDDING_REBUILD_LIMIT"
+
+    DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_NAME=$DB_NAME "$PYTHON_CMD" \
+        manage.py check_pgvector_recommendations --limit "$EMBEDDING_REBUILD_LIMIT"
+
+    log_success "PGVector embeddings đã được rebuild và kiểm tra thành công."
+}
+
 # ============================================================================
 # 6. HÀM CHÍNH (MAIN)
 # ============================================================================
@@ -431,6 +477,7 @@ main() {
     import_data
     sync_sequences
     verify_data
+    rebuild_recommendation_embeddings
 
     log_section "✨ TẤT CẢ ĐÃ HOÀN TẤT!"
 
@@ -440,7 +487,8 @@ main() {
         log_success "Dữ liệu đã được cập nhật thành công!"
         log_info "Tiếp theo bạn có thể:"
         echo "  1. Kiểm tra Admin: http://localhost:8000/admin"
-        echo "  2. Chạy Server: python manage.py runserver"
+        echo "  2. Gợi ý việc làm đã được rebuild embedding vào PGVector"
+        echo "  3. Chạy Server: python manage.py runserver"
     fi
 }
 

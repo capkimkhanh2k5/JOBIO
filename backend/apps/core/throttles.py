@@ -16,6 +16,15 @@ class LoginRateThrottle(AnonRateThrottle):
     scope = "login"
 
 
+class TokenRefreshRateThrottle(AnonRateThrottle):
+    """
+    Rate limit cho JWT refresh endpoint.
+    Giới hạn: 30 requests/phút theo IP cho endpoint public.
+    """
+
+    scope = "token_refresh"
+
+
 class RegisterRateThrottle(AnonRateThrottle):
     """
     Rate limit cho register endpoint.
@@ -52,6 +61,24 @@ class SocialAuthRateThrottle(AnonRateThrottle):
     scope = "social_auth"
 
 
+class TwoFactorVerifyRateThrottle(UserRateThrottle):
+    """
+    Rate limit cho xác thực 2FA.
+    Giới hạn: 5 requests/phút theo user hoặc IP nếu chưa đăng nhập.
+    """
+
+    scope = "two_factor_verify"
+
+
+class ReportCreateRateThrottle(UserRateThrottle):
+    """
+    Rate limit cho gửi báo cáo vi phạm.
+    Giới hạn: 5 báo cáo/giờ theo user.
+    """
+
+    scope = "report_create"
+
+
 class BurstRateThrottle(UserRateThrottle):
     """
     Rate limit cho burst requests từ authenticated users.
@@ -77,6 +104,33 @@ class PaymentRateThrottle(UserRateThrottle):
     """
 
     scope = "payment"
+
+
+class JobSearchRateThrottle(AnonRateThrottle):
+    """
+    Rate limit cho public job listing/search endpoint.
+    Giới hạn: 60 requests/phút theo IP.
+    """
+
+    scope = "job_search"
+
+
+class ApplicationSubmitRateThrottle(UserRateThrottle):
+    """
+    Rate limit cho candidate submit application endpoint.
+    Giới hạn: 20 requests/giờ theo user.
+    """
+
+    scope = "application_submit"
+
+
+class NotificationStreamRateThrottle(UserRateThrottle):
+    """
+    Rate limit cho notification stream endpoint.
+    Giới hạn: 30 connection attempts/phút theo user.
+    """
+
+    scope = "notification_stream"
 
 
 class AIMatchingRateThrottle(UserRateThrottle):

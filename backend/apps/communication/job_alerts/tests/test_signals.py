@@ -1,5 +1,6 @@
 from django.test import TestCase
 from unittest.mock import patch
+from django.core.cache import cache
 from django.utils import timezone
 from apps.recruitment.jobs.models import Job
 from apps.company.companies.models import Company
@@ -8,6 +9,7 @@ from apps.core.users.models import CustomUser
 
 class JobAlertSignalTest(TestCase):
     def setUp(self):
+        cache.clear()
         self.user = CustomUser.objects.create_user(
             email="signal_test@example.com", password="password"
         )
@@ -38,4 +40,25 @@ class JobAlertSignalTest(TestCase):
             job.save()
 
         # Verify task was called exactly once with job id
+        mock_task.assert_called_once_with(job.id)
+
+    @patch("apps.communication.job_alerts.signals.process_job_matching_task.delay")
+    def test_duplicate_publish_save_is_deduped(self, mock_task):
+        job = Job.objects.create(
+            company=self.company,
+            title="Backend Dev",
+            status=Job.Status.PUBLISHED,
+            application_deadline=timezone.localdate(),
+            job_type=Job.JobType.FULL_TIME,
+            level=Job.Level.JUNIOR,
+            description="Test Description",
+            requirements="Test Requirements",
+            created_by=self.user,
+        )
+
+        with self.captureOnCommitCallbacks(execute=True):
+            job.save()
+        with self.captureOnCommitCallbacks(execute=True):
+            job.save()
+
         mock_task.assert_called_once_with(job.id)

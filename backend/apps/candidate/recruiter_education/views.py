@@ -19,6 +19,7 @@ class RecruiterEducationViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = EducationSerializer
 
     def get_permissions(self):
         if self.action in {"list", "retrieve"}:

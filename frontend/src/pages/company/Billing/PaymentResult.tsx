@@ -68,25 +68,25 @@ const PaymentResultPage: React.FC = () => {
     return (
         <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 space-y-6 text-center">
             <div className="relative">
-                <div className="w-20 h-20 rounded-3xl border-4 border-violet-100 border-t-violet-600 animate-spin" />
+                <div className="w-20 h-20 rounded-3xl border-4 border-teal-100 border-t-teal-600 animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-10 h-10 rounded-full bg-violet-50 animate-pulse" />
+                    <div className="w-10 h-10 rounded-full bg-teal-50 animate-pulse" />
                 </div>
             </div>
 
             <div className="space-y-2">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-2xl font-black text-foreground tracking-tight">
                     Đang xử lý kết quả thanh toán
                 </h2>
-                <p className="text-slate-500 font-medium">
+                <p className="text-muted-foreground font-medium">
                     Vui lòng không đóng trình duyệt. Bạn sẽ được chuyển hướng trong giây lát.
                 </p>
             </div>
 
             <div className="flex gap-2">
-                <Skeleton className="h-2 w-2 rounded-full bg-violet-200" />
-                <Skeleton className="h-2 w-2 rounded-full bg-violet-400" />
-                <Skeleton className="h-2 w-2 rounded-full bg-violet-600" />
+                <Skeleton className="h-2 w-2 rounded-full bg-teal-200" />
+                <Skeleton className="h-2 w-2 rounded-full bg-teal-400" />
+                <Skeleton className="h-2 w-2 rounded-full bg-teal-600" />
             </div>
         </div>
     );

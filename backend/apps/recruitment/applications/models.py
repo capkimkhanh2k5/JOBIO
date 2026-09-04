@@ -52,6 +52,12 @@ class Application(models.Model):
         verbose_name="Đánh giá",
     )
     notes = models.TextField(null=True, blank=True, verbose_name="Ghi chú")
+    match_score = models.IntegerField(
+        null=True, blank=True, verbose_name="Điểm phù hợp"
+    )
+    score_breakdown = models.JSONField(
+        default=dict, blank=True, verbose_name="Chi tiết điểm"
+    )
     applied_at = models.DateTimeField(
         auto_now_add=True, db_index=True, verbose_name="Ngày ứng tuyển"
     )
@@ -78,6 +84,14 @@ class Application(models.Model):
                 fields=["recruiter", "status"], name="idx_app_recruiter_status"
             ),
             models.Index(fields=["job", "status"], name="idx_app_job_status"),
+            models.Index(
+                fields=["job", "status", "applied_at"],
+                name="idx_app_job_status_applied",
+            ),
+            models.Index(
+                fields=["recruiter", "status", "applied_at"],
+                name="idx_app_rec_status_applied",
+            ),
         ]
 
     def __str__(self):

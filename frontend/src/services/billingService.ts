@@ -3,7 +3,6 @@ import type {
     BillingPlan,
     BillingSubscription,
     BillingTransaction,
-    SavedPaymentMethod,
     SubscriptionCreateRequest,
     SubscribeResponse,
     SubscriptionPreCheckResponse,
@@ -60,30 +59,5 @@ export const billingService = {
     /** GET /api/billing/transactions/:id/ */
     getTransaction(id: string) {
         return api.get<BillingTransaction>(`/api/billing/transactions/${id}/`);
-    },
-
-    /** GET /api/billing/payment-methods/ */
-    listPaymentMethods() {
-        return api.get<SavedPaymentMethod[]>('/api/billing/payment-methods/');
-    },
-
-    /** POST /api/billing/payment-methods/ */
-    addPaymentMethod(data: Partial<SavedPaymentMethod>) {
-        return api.post<SavedPaymentMethod>('/api/billing/payment-methods/', data);
-    },
-
-    /** PATCH /api/billing/payment-methods/:id/ */
-    updatePaymentMethod(id: string, data: Partial<SavedPaymentMethod>) {
-        return api.patch<SavedPaymentMethod>(`/api/billing/payment-methods/${id}/`, data);
-    },
-
-    /** DELETE /api/billing/payment-methods/:id/ */
-    deletePaymentMethod(id: string) {
-        return api.delete(`/api/billing/payment-methods/${id}/`);
-    },
-
-    /** POST /api/billing/payment-methods/:id/set-default/ */
-    setDefaultPaymentMethod(id: string) {
-        return api.post(`/api/billing/payment-methods/${id}/set-default/`);
     },
 };

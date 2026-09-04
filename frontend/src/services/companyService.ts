@@ -10,12 +10,13 @@ import type {
   BenefitCategory,
   MediaType,
   CompanyStats,
+  CompanyMember,
+  CompanyMemberWriteRequest,
   JobListItem,
   ApplicationListItem,
   InterviewListItem,
   InterviewDetail,
   InterviewType,
-  Review,
 } from '@/types/api';
 
 // ─── Company Services (includes Profile, Dashboard, and Recruitment) ─────────
@@ -66,6 +67,22 @@ export const companyService = {
 
   delete(id: number) {
     return api.delete(`/api/companies/${id}/`);
+  },
+
+  listMembers(companyId: number) {
+    return api.get<CompanyMember[]>(`/api/companies/${companyId}/members/`);
+  },
+
+  addMember(companyId: number, data: CompanyMemberWriteRequest) {
+    return api.post<CompanyMember>(`/api/companies/${companyId}/members/`, data);
+  },
+
+  updateMember(companyId: number, memberId: number, data: Partial<CompanyMemberWriteRequest>) {
+    return api.patch<CompanyMember>(`/api/companies/${companyId}/members/${memberId}/`, data);
+  },
+
+  removeMember(companyId: number, memberId: number) {
+    return api.delete(`/api/companies/${companyId}/members/${memberId}/`);
   },
 
   // ─── Company Dashboard & Management (previously companyService) ─────────
@@ -121,6 +138,7 @@ export const companyService = {
     status: string;
     result: string;
     feedback: string;
+    scorecard: Record<string, number>;
     notes: string;
     meeting_link: string;
   }>) {
@@ -169,14 +187,6 @@ export const companyService = {
 
   listFollowers(companyId: number, params?: { page?: number; page_size?: number }) {
     return api.get(`/api/companies/${companyId}/followers/`, { params });
-  },
-
-  listReviews(companyId: number, params?: { page?: number; page_size?: number }) {
-    return api.get<PaginatedResponse<Review>>('/api/reviews/', { params: { company_id: companyId, ...params } });
-  },
-
-  replyToReview(reviewId: number, content: string) {
-    return api.post(`/api/reviews/${reviewId}/reply/`, { content });
   },
 
   // ─── Nested: Benefits ─────────────────────────────────────────────────

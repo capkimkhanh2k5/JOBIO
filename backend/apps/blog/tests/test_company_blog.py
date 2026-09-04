@@ -20,6 +20,15 @@ class CompanyBlogTest(TestCase):
             slug="owner-co",
             verification_status=Company.VerificationStatus.VERIFIED,
         )
+        self.other_owner = CustomUser.objects.create(
+            email="other-owner@test.com", full_name="Other Owner", role="company"
+        )
+        self.other_company = Company.objects.create(
+            user=self.other_owner,
+            company_name="Other Co",
+            slug="other-co",
+            verification_status=Company.VerificationStatus.VERIFIED,
+        )
 
         # 2. Regular User (Freelancer)
         self.freelancer = CustomUser.objects.create(
@@ -46,6 +55,89 @@ class CompanyBlogTest(TestCase):
         self.assertEqual(post.author, self.owner)
         self.assertEqual(post.company, self.company)
         self.assertEqual(post.status, Post.Status.DRAFT)
+
+    def test_create_post_rejects_insecure_thumbnail_url(self):
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(
+            "/api/blog/posts/",
+            {
+                "title": "Company Culture",
+                "content": "We are great.",
+                "summary": "Summary",
+                "thumbnail": "http://example.com/thumbnail.png",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Post.objects.filter(title="Company Culture").count(), 0)
+
+    def test_company_owner_cannot_self_publish_blog_post(self):
+        """Verified company cannot bypass admin publishing via status payload"""
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.post(
+            "/api/blog/posts/",
+            {
+                "title": "Launch News",
+                "content": "We shipped a new feature.",
+                "summary": "Summary",
+                "status": Post.Status.PUBLISHED,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Post.objects.filter(title="Launch News").count(), 0)
+
+    def test_company_editing_published_post_returns_it_to_draft(self):
+        """Company edits to a public post must require admin publish again"""
+        post = Post.objects.create(
+            title="Approved Company News",
+            slug="approved-company-news",
+            content="Approved content",
+            author=self.owner,
+            company=self.company,
+            status=Post.Status.PUBLISHED,
+        )
+
+        self.client.force_authenticate(user=self.owner)
+        response = self.client.patch(
+            f"/api/blog/posts/{post.slug}/",
+            {"content": "Updated content needs another review."},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        post.refresh_from_db()
+        self.assertEqual(post.status, Post.Status.DRAFT)
+        self.assertIsNone(post.published_at)
+
+        self.client.force_authenticate(user=None)
+        public_response = self.client.get(f"/api/blog/posts/{post.slug}/")
+        self.assertEqual(public_response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_other_company_cannot_update_published_blog_post(self):
+        """Verified companies can only manage their own/company blog posts"""
+        post = Post.objects.create(
+            title="Owner Published News",
+            slug="owner-published-news",
+            content="Approved content",
+            author=self.owner,
+            company=self.company,
+            status=Post.Status.PUBLISHED,
+        )
+
+        self.client.force_authenticate(user=self.other_owner)
+        response = self.client.patch(
+            f"/api/blog/posts/{post.slug}/",
+            {"title": "Hijacked title"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        post.refresh_from_db()
+        self.assertEqual(post.title, "Owner Published News")
+        self.assertEqual(post.status, Post.Status.PUBLISHED)
 
     def test_create_post_freelancer_forbidden(self):
         """Freelancer (non-company user) cannot create blog posts"""

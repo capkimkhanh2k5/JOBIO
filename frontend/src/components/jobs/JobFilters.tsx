@@ -32,7 +32,7 @@ const JOB_LEVELS = [
 function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{title}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{title}</p>
             {children}
         </div>
     );
@@ -103,7 +103,7 @@ export function JobFilters() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-gray-800">Bộ lọc</span>
+                    <span className="text-sm font-bold text-foreground">Bộ lọc</span>
                     {activeCount > 0 && (
                         <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold">
                             {activeCount}
@@ -112,21 +112,21 @@ export function JobFilters() {
                 </div>
                 {activeCount > 0 && (
                     <button onClick={resetFilters}
-                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors">
+                        className="flex items-center gap-1 text-xs text-muted-foreground/60 hover:text-primary transition-colors">
                         <RotateCcw className="w-3 h-3" /> Xóa tất cả
                     </button>
                 )}
             </div>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-muted" />
 
             {/* Lĩnh vực */}
             <FilterSection title="Lĩnh vực">
                 <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="w-full bg-gray-50 border-gray-200 text-sm h-9 rounded-lg focus:ring-primary/20">
+                    <SelectTrigger className="w-full bg-muted border-border text-sm h-9 rounded-lg focus:ring-primary/20">
                         <SelectValue placeholder="Tất cả ngành" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 shadow-lg">
+                    <SelectContent className="bg-card border-border shadow-lg">
                         <SelectItem value="all">Tất cả ngành</SelectItem>
                         {categories?.map((c: any) => (
                             <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
@@ -138,10 +138,10 @@ export function JobFilters() {
             {/* Địa điểm */}
             <FilterSection title="Địa điểm">
                 <Select value={province} onValueChange={setProvince}>
-                    <SelectTrigger className="w-full bg-gray-50 border-gray-200 text-sm h-9 rounded-lg focus:ring-primary/20">
+                    <SelectTrigger className="w-full bg-muted border-border text-sm h-9 rounded-lg focus:ring-primary/20">
                         <SelectValue placeholder="Tất cả tỉnh/thành" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-200 shadow-lg">
+                    <SelectContent className="bg-card border-border shadow-lg">
                         <SelectItem value="all">Tất cả tỉnh/thành</SelectItem>
                         {provinces?.map((p: any) => (
                             <SelectItem key={p.id} value={String(p.id)}>{p.province_name}</SelectItem>
@@ -150,7 +150,7 @@ export function JobFilters() {
                 </Select>
             </FilterSection>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-muted" />
 
             {/* Loại hình — pill buttons */}
             <FilterSection title="Loại hình">
@@ -163,7 +163,7 @@ export function JobFilters() {
                                 "px-3 py-1 rounded-full text-xs font-medium border transition-all",
                                 job_type.includes(type.id)
                                     ? "bg-primary text-white border-primary shadow-sm shadow-primary/20"
-                                    : "bg-gray-50 text-gray-600 border-gray-200 hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+                                    : "bg-muted text-muted-foreground border-border hover:border-primary/40 hover:text-primary hover:bg-primary/5"
                             )}
                         >
                             {type.label}
@@ -182,8 +182,8 @@ export function JobFilters() {
                             className={cn(
                                 "px-3 py-1 rounded-full text-xs font-medium border transition-all",
                                 level.includes(l.id)
-                                    ? "bg-violet-600 text-white border-violet-600 shadow-sm shadow-violet-300/30"
-                                    : "bg-gray-50 text-gray-600 border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-violet-50/50"
+                                    ? "bg-teal-600 text-white border-teal-600 shadow-sm shadow-teal-300/30"
+                                    : "bg-muted text-muted-foreground border-border hover:border-teal-300 hover:text-teal-600 hover:bg-teal-50/50"
                             )}
                         >
                             {l.label}
@@ -192,21 +192,21 @@ export function JobFilters() {
                 </div>
             </FilterSection>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-muted" />
 
             {/* Mức lương */}
             <FilterSection title="Mức lương (USD)">
                 <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span className="text-gray-500">${salaryRange[0].toLocaleString()}</span>
+                    <span className="text-muted-foreground">${salaryRange[0].toLocaleString()}</span>
                     <span className="text-primary">${salaryRange[1].toLocaleString()}</span>
                 </div>
                 <Slider
                     max={10000} step={100}
                     value={[salaryRange[0], salaryRange[1]]}
                     onValueChange={val => setSalaryRange(val as [number, number])}
-                    className="[&_.slider-track]:bg-gray-200 [&_.slider-range]:bg-gradient-to-r [&_.slider-range]:from-primary [&_.slider-range]:to-violet-500"
+                    className="[&_.slider-track]:bg-muted [&_.slider-range]:bg-gradient-to-r [&_.slider-range]:from-primary [&_.slider-range]:to-teal-500"
                 />
-                <div className="flex justify-between text-[10px] text-gray-300 mt-1">
+                <div className="flex justify-between text-[10px] text-muted-foreground/40 mt-1">
                     <span>$0</span><span>$10,000</span>
                 </div>
             </FilterSection>
@@ -214,7 +214,7 @@ export function JobFilters() {
             {/* Kinh nghiệm */}
             <FilterSection title="Kinh nghiệm (năm)">
                 <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span className="text-gray-500">{experienceRange[0]} năm</span>
+                    <span className="text-muted-foreground">{experienceRange[0]} năm</span>
                     <span className="text-primary">{experienceRange[1]} năm</span>
                 </div>
                 <Slider
@@ -222,18 +222,18 @@ export function JobFilters() {
                     value={[experienceRange[0], experienceRange[1]]}
                     onValueChange={val => setExperienceRange(val as [number, number])}
                 />
-                <div className="flex justify-between text-[10px] text-gray-300 mt-1">
+                <div className="flex justify-between text-[10px] text-muted-foreground/40 mt-1">
                     <span>0</span><span>15+</span>
                 </div>
             </FilterSection>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-muted" />
 
             {/* Remote toggle */}
             <div className="flex items-center justify-between py-0.5">
                 <div className="flex items-center gap-2">
-                    <Wifi className="w-3.5 h-3.5 text-cyan-500" />
-                    <Label htmlFor="remote-toggle" className="text-sm text-gray-700 cursor-pointer font-medium">
+                    <Wifi className="w-3.5 h-3.5 text-teal-500" />
+                    <Label htmlFor="remote-toggle" className="text-sm text-foreground/80 cursor-pointer font-medium">
                         Chỉ Remote
                     </Label>
                 </div>
@@ -241,27 +241,27 @@ export function JobFilters() {
                     id="remote-toggle"
                     checked={isRemote === true}
                     onCheckedChange={checked => setIsRemote(checked || null)}
-                    className="data-[state=checked]:bg-cyan-500"
+                    className="data-[state=checked]:bg-teal-500"
                 />
             </div>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-muted" />
 
             {/* Kỹ năng */}
             <FilterSection title="Kỹ năng">
                 <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
+                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground/60" />
                     <input
                         type="text"
                         value={skillInput}
                         onChange={e => { setSkillInput(e.target.value); setShowSkillDrop(true); }}
                         placeholder="Tìm kỹ năng..."
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-8 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="w-full bg-muted border border-border rounded-lg py-2 pl-8 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         onKeyDown={e => { if (e.key === "Enter" && skillInput.trim()) addSkill(skillInput.trim()); }}
                         onBlur={() => setTimeout(() => setShowSkillDrop(false), 150)}
                     />
                     {showSkillDrop && skillResults && skillResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-card border border-border rounded-lg shadow-lg overflow-hidden">
                             {skillResults.map((s: any) => (
                                 <button key={s.id}
                                     className="w-full text-left px-3 py-2 text-xs hover:bg-primary/5 hover:text-primary transition-colors"

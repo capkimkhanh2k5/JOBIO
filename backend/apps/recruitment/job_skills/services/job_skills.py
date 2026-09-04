@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from django.db import transaction
 
 from apps.recruitment.jobs.models import Job
+from apps.recruitment.jobs.services.jobs import mark_published_job_policy_needs_review
 from apps.recruitment.job_skills.models import JobSkill
 from apps.candidate.skills.services.skills import resolve_skill
 
@@ -36,6 +37,9 @@ def add_job_skill(job: Job, data: JobSkillInput) -> JobSkill:
         proficiency_level=data.proficiency_level,
         years_required=data.years_required,
     )
+    mark_published_job_policy_needs_review(
+        job, reason_code="job_skill_changed", field_names=["skills"]
+    )
 
     return job_skill
 
@@ -45,6 +49,12 @@ def update_job_skill(job_skill: JobSkill, data: JobSkillInput) -> JobSkill:
     """
     Cập nhật job skill.
     """
+    original_values = (
+        job_skill.skill_id,
+        job_skill.is_required,
+        job_skill.proficiency_level,
+        job_skill.years_required,
+    )
     new_skill_id = None
     if data.skill_id or data.skill_name is not None:
         skill = resolve_skill(data.skill_id, data.skill_name)
@@ -60,6 +70,16 @@ def update_job_skill(job_skill: JobSkill, data: JobSkillInput) -> JobSkill:
     job_skill.proficiency_level = data.proficiency_level
     job_skill.years_required = data.years_required
     job_skill.save()
+    updated_values = (
+        job_skill.skill_id,
+        job_skill.is_required,
+        job_skill.proficiency_level,
+        job_skill.years_required,
+    )
+    if updated_values != original_values:
+        mark_published_job_policy_needs_review(
+            job_skill.job, reason_code="job_skill_changed", field_names=["skills"]
+        )
 
     return job_skill
 
@@ -69,4 +89,8 @@ def remove_job_skill(job_skill: JobSkill) -> None:
     """
     Xóa job skill.
     """
+    job = job_skill.job
     job_skill.delete()
+    mark_published_job_policy_needs_review(
+        job, reason_code="job_skill_changed", field_names=["skills"]
+    )

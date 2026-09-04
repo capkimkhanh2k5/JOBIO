@@ -221,112 +221,84 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
     }));
 
     return (
-        <div className="space-y-8">
-            <Card className="border-slate-200 bg-white shadow-sm">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-3 text-lg font-black text-slate-800">
-                        <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
-                            <UploadCloud className="w-5 h-5" />
+        <div className="space-y-6">
+            {/* LinkedIn-Style Unified Brand Header Card */}
+            <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+                <div className="relative w-full h-44 sm:h-52 bg-gradient-to-r from-teal-600/30 via-emerald-600/20 to-teal-800/40 border-b border-border/50 group" aria-busy={isUploadingBanner}>
+                    {bannerImageUrl ? (
+                        <img
+                            src={bannerImageUrl}
+                            alt="Banner"
+                            className={`h-full w-full object-cover transition-all duration-300 ${isUploadingBanner ? 'opacity-60 blur-[1px]' : ''}`}
+                        />
+                    ) : (
+                        <div className="h-full w-full flex items-center justify-center text-muted-foreground/40 bg-muted/40">
+                            <ImageIcon className="w-10 h-10 opacity-30" />
                         </div>
-                        Hình ảnh nhận diện
-                    </CardTitle>
-                    <CardDescription className="text-slate-500 font-semibold">Logo và ảnh bìa hiển thị trên trang hồ sơ và thẻ tin tuyển dụng.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                    {/* Banner Section */}
-                    <div className="space-y-3">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Ảnh bìa hồ sơ (Banner)</p>
-                        <div className="relative group w-full h-56 rounded-2xl overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center transition-all hover:border-violet-400/50" aria-busy={isUploadingBanner}>
-                            {bannerImageUrl ? (
-                                <img
-                                    src={bannerImageUrl}
-                                    alt="Banner"
-                                    className={`h-full w-full object-cover object-center transition-all duration-300 ${isUploadingBanner ? 'scale-[1.01] opacity-60 blur-[1px]' : ''}`}
-                                />
+                    )}
+
+                    <label className="absolute right-4 top-4 cursor-pointer bg-card/90 hover:bg-card text-foreground px-4 py-2 rounded-xl text-xs font-black shadow-lg backdrop-blur-md flex items-center gap-2 border border-border/60 transition-all hover:scale-105">
+                        {isUploadingBanner ? <Loader2 className="w-4 h-4 animate-spin text-teal-600" /> : <UploadCloud className="w-4 h-4 text-teal-600" />}
+                        <span>{bannerImageUrl ? 'Đổi ảnh bìa' : 'Tải ảnh bìa'}</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} />
+                    </label>
+                </div>
+
+                <div className="p-5 sm:p-6 pt-0 relative flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 -mt-12 sm:-mt-14">
+                    <div className="flex items-end gap-4">
+                        <div className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-card border-4 border-card shadow-xl flex items-center justify-center shrink-0" aria-busy={isUploadingLogo}>
+                            {logoImageUrl ? (
+                                <img src={logoImageUrl} alt="Logo" className={`w-full h-full object-contain p-2 transition-all ${isUploadingLogo ? 'opacity-50 blur-[1px]' : ''}`} />
                             ) : (
-                                <div className={`text-slate-400 flex flex-col items-center transition-all duration-300 ${isUploadingBanner ? 'opacity-50 blur-[1px]' : ''}`}>
-                                    <div className="p-4 rounded-full bg-slate-100 mb-3 shadow-inner">
-                                        <ImageIcon className="w-8 h-8 opacity-40" />
-                                    </div>
-                                    <span className="text-xs font-black uppercase tracking-wider opacity-60">Click để tải lên ảnh bìa</span>
+                                <div className="p-3 bg-muted rounded-xl">
+                                    <Building2 className="w-10 h-10 text-muted-foreground/40" />
                                 </div>
                             )}
-                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity backdrop-blur-[2px] ${isUploadingBanner ? 'bg-black/30 opacity-100' : 'bg-slate-900/60 opacity-0 group-hover:opacity-100'}`}>
-                                {isUploadingBanner ? (
-                                    <div className="flex flex-col items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
-                                            <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
-                                        </div>
-                                        <div className="rounded-full border border-white/20 bg-white/20 px-3 py-1 text-xs font-black text-white shadow-sm backdrop-blur-md">
-                                            Đang tải ảnh...
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <label className="cursor-pointer bg-white px-5 py-2.5 rounded-xl text-slate-900 flex items-center gap-3 text-sm font-black shadow-xl transition-all hover:scale-105 active:scale-95">
-                                        <UploadCloud className="w-4 h-4 text-violet-500" />
-                                        Thay đổi ảnh bìa
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleBannerUpload} />
-                                    </label>
-                                )}
+
+                            <label className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 cursor-pointer transition-opacity backdrop-blur-xs text-[10px] font-black uppercase tracking-wider">
+                                {isUploadingLogo ? <Loader2 className="w-5 h-5 animate-spin" /> : <UploadCloud className="w-5 h-5 text-white" />}
+                                <span>Đổi Logo</span>
+                                <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                            </label>
+                        </div>
+
+                        <div className="mb-1 space-y-1">
+                            <h2 className="text-xl sm:text-2xl font-black text-foreground">{company?.company_name || 'Tên công ty'}</h2>
+                            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted-foreground">
+                                {company?.tax_code && <span>MST: <strong className="text-foreground">{company.tax_code}</strong></span>}
+                                {company?.tax_code && <span>•</span>}
+                                <span>{company?.industry?.name || 'Chưa chọn lĩnh vực'}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Logo Section */}
-                    <div className="flex gap-8 items-center bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-inner">
-                        <div className="relative group w-28 h-28 rounded-[24px] overflow-hidden bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm transition-all group-hover:shadow-md" aria-busy={isUploadingLogo}>
-                            {logoImageUrl ? (
-                                <img
-                                    src={logoImageUrl}
-                                    alt="Logo"
-                                    className={`w-full h-full object-contain p-3 transition-all duration-300 ${isUploadingLogo ? 'scale-[1.01] opacity-55 blur-[1px]' : ''}`}
-                                />
-                            ) : (
-                                <div className={`p-3 bg-slate-50 rounded-2xl shadow-inner transition-all duration-300 ${isUploadingLogo ? 'opacity-50 blur-[1px]' : ''}`}>
-                                    <Building2 className="w-10 h-10 text-slate-300" />
-                                </div>
-                            )}
-                            <div className={`absolute inset-0 flex items-center justify-center transition-opacity backdrop-blur-[2px] ${isUploadingLogo ? 'bg-black/30 opacity-100' : 'bg-slate-900/60 opacity-0 group-hover:opacity-100'}`}>
-                                {isUploadingLogo ? (
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
-                                        <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
-                                    </div>
-                                ) : (
-                                    <label className="cursor-pointer p-3 rounded-full bg-white text-slate-900 shadow-xl transition-all hover:scale-110 active:scale-90">
-                                        <UploadCloud className="w-5 h-5 text-violet-500" />
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
-                                    </label>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                            <p className="text-sm font-black text-slate-800">Logo thương hiệu</p>
-                            <p className="text-xs text-slate-500 leading-relaxed font-semibold">Khuyến nghị kích thước <span className="text-violet-600 font-black">400x400px</span>. Sử dụng logo nền trong suốt (PNG) để tối ưu hiển thị.</p>
-                        </div>
+                    <div className="text-xs text-muted-foreground font-medium self-end hidden md:block">
+                        Khuyến nghị Logo PNG 400x400px • Banner 1200x300px
                     </div>
-                </CardContent>
+                </div>
             </Card>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <Card className="border-slate-200 bg-white shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-3 text-lg font-black text-slate-800">
-                                <div className="p-2 rounded-xl bg-violet-600/10 text-violet-600">
-                                    <FileText className="w-5 h-5" />
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* Brand Info Card */}
+                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+                        <CardHeader className="p-5 pb-3">
+                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
+                                    <Building2 className="w-4 h-4" />
                                 </div>
-                                Thông tin cơ bản
+                                Thông tin thương hiệu & Quy mô
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <CardContent className="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="company_name"
                                 render={({ field }) => (
                                     <FormItem className="col-span-1 md:col-span-2">
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Tên công ty</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Tên công ty</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Ví dụ: JOBIO Tech Corporation" className="h-12 bg-white border-slate-200 focus:ring-violet-500/20 focus:border-violet-500 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                            <Input placeholder="Ví dụ: JOBIO Tech Corporation" className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -338,9 +310,9 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="tax_code"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Mã số thuế</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Mã số thuế</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="0123456789" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                            <Input placeholder="0123456789" className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -352,16 +324,16 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="industry_id"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Lĩnh vực hoạt động</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Lĩnh vực hoạt động</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm">
+                                                <SelectTrigger className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs">
                                                     <SelectValue placeholder="Chọn lĩnh vực" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-white border-slate-200 rounded-xl">
+                                            <SelectContent className="bg-card border-border rounded-xl">
                                                 {industries.map((industry) => (
-                                                    <SelectItem key={industry.id} value={String(industry.id)} className="hover:bg-slate-50 focus:bg-slate-50 font-bold">
+                                                    <SelectItem key={industry.id} value={String(industry.id)} className="font-bold cursor-pointer">
                                                         {industry.name}
                                                     </SelectItem>
                                                 ))}
@@ -377,14 +349,14 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="company_size"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Quy mô nhân sự</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Quy mô nhân sự</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm">
+                                                <SelectTrigger className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs">
                                                     <SelectValue placeholder="Chọn quy mô" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-white border-slate-200 rounded-xl">
+                                            <SelectContent className="bg-card border-border rounded-xl">
                                                 <SelectItem value="1-10">1-10 nhân viên</SelectItem>
                                                 <SelectItem value="11-50">11-50 nhân viên</SelectItem>
                                                 <SelectItem value="51-200">51-200 nhân viên</SelectItem>
@@ -403,7 +375,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="founded_year"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><Calendar className="w-3.5 h-3.5" /> Năm thành lập</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Năm thành lập</FormLabel>
                                         <div className="flex gap-2">
                                             <FormControl>
                                                 <Input
@@ -411,7 +383,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                     min={1800}
                                                     max={new Date().getFullYear()}
                                                     placeholder="2020"
-                                                    className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm"
+                                                    className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs"
                                                     {...field}
                                                     onChange={e => field.onChange(Number(e.target.value))}
                                                 />
@@ -421,13 +393,13 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                     <Button
                                                         type="button"
                                                         variant="outline"
-                                                        className="h-12 w-12 shrink-0 rounded-xl border-slate-200 bg-white text-slate-500 shadow-sm hover:text-slate-900"
+                                                        className="h-11 w-11 shrink-0 rounded-xl border-border bg-card text-muted-foreground shadow-xs cursor-pointer"
                                                         aria-label="Chọn năm thành lập"
                                                     >
                                                         <ChevronDown className="h-4 w-4" />
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-56 p-0 rounded-xl border-slate-200 bg-white shadow-xl" align="end">
+                                                <PopoverContent className="w-56 p-0 rounded-xl border-border bg-card shadow-xl" align="end">
                                                     <Command>
                                                         <CommandInput placeholder="Tìm năm..." />
                                                         <CommandList className="max-h-64">
@@ -441,7 +413,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                                             field.onChange(year);
                                                                             setIsFoundedYearOpen(false);
                                                                         }}
-                                                                        className="font-semibold"
+                                                                        className="font-semibold cursor-pointer"
                                                                     >
                                                                         {year}
                                                                     </CommandItem>
@@ -462,35 +434,34 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="website"
                                 render={({ field }) => (
                                     <FormItem className="col-span-1 md:col-span-2">
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><Globe className="w-3.5 h-3.5" /> Website Công ty</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Website Công ty</FormLabel>
                                         <FormControl>
-                                            <Input type="url" placeholder="https://example.com" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                            <Input type="url" placeholder="https://example.com" className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
+                        </CardContent>
+                    </Card>
 
-                            <FormField
-                                control={form.control}
-                                name="headquarters"
-                                render={({ field }) => (
-                                    <FormItem className="hidden">
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Địa chỉ trụ sở chính</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Tầng 12, Tòa nhà ABC, Phường X, Quận Y, TP.HCM" className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
+                    {/* Address Card */}
+                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+                        <CardHeader className="p-5 pb-3">
+                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                Địa chỉ & Trụ sở chính
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="province_id"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> Tỉnh / Thành phố</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Tỉnh / Thành phố</FormLabel>
                                         <FormControl>
                                             <Combobox
                                                 options={provinceOptions}
@@ -501,9 +472,9 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                 }}
                                                 disabled={provinceLoading}
                                                 placeholder="-- Chọn tỉnh/thành phố --"
-                                                searchPlaceholder="Tìm tỉnh/thành phố..."
+                                                searchPlaceholder="Tìm tỉnh/thành..."
                                                 emptyMessage="Không tìm thấy tỉnh/thành phố phù hợp."
-                                                className="h-12 justify-between rounded-xl border border-slate-200 bg-white px-3 font-bold text-slate-800 shadow-sm"
+                                                className="h-11 justify-between rounded-xl border border-border bg-card px-3 font-bold text-foreground shadow-xs"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -516,7 +487,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="commune_id"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Quận / Huyện</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Quận / Huyện</FormLabel>
                                         <FormControl>
                                             <Combobox
                                                 options={communeOptions}
@@ -526,7 +497,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                                 placeholder="-- Chọn quận/huyện --"
                                                 searchPlaceholder="Tìm quận/huyện..."
                                                 emptyMessage="Không tìm thấy quận/huyện phù hợp."
-                                                className="h-12 justify-between rounded-xl border border-slate-200 bg-white px-3 font-bold text-slate-800 shadow-sm"
+                                                className="h-11 justify-between rounded-xl border border-border bg-card px-3 font-bold text-foreground shadow-xs"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -539,30 +510,11 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                 name="address_line"
                                 render={({ field }) => (
                                     <FormItem className="col-span-1 md:col-span-2">
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Địa chỉ cụ thể</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-muted-foreground">Địa chỉ cụ thể</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Số nhà, tên đường, tòa nhà, tầng..." className="h-12 bg-white border-slate-200 rounded-xl font-bold text-slate-800 shadow-sm" {...field} />
+                                            <Input placeholder="Số nhà, tên đường, tòa nhà, tầng..." className="h-11 bg-card border-border rounded-xl font-bold text-foreground shadow-xs" {...field} />
                                         </FormControl>
-                                        <FormDescription className="text-[10px] font-black text-slate-400 italic opacity-80 mt-2">Địa chỉ này sẽ được dùng mặc định khi tạo tin tuyển dụng mới.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem className="col-span-1 md:col-span-2">
-                                        <FormLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">Giới thiệu văn hóa & Sứ mệnh</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="Giới thiệu về công ty của bạn..."
-                                                className="min-h-[160px] resize-y bg-white border-slate-200 rounded-xl font-bold text-slate-800 leading-relaxed shadow-sm"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormDescription className="text-[10px] font-black text-slate-400 italic opacity-80 mt-2">Viết mô tả ngắn gọn và hấp dẫn để thu hút ứng viên.</FormDescription>
+                                        <FormDescription className="text-[11px] text-muted-foreground">Địa chỉ này sẽ được sử dụng làm địa chỉ chính trên tin tuyển dụng.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -570,14 +522,43 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                         </CardContent>
                     </Card>
 
-                    <div className="flex items-center justify-end gap-5 mt-10">
-                        <Button type="button" variant="ghost" className="h-11 px-8 rounded-xl font-black text-slate-400 hover:text-slate-600 transition-colors">Hủy</Button>
+                    {/* About & Culture Card */}
+                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+                        <CardHeader className="p-5 pb-3">
+                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
+                                    <FileText className="w-4 h-4" />
+                                </div>
+                                Giới thiệu & Văn hóa Doanh nghiệp
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-5 pt-0">
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Giới thiệu chi tiết về tầm nhìn, sứ mệnh và môi trường làm việc tại công ty..."
+                                                className="min-h-[140px] resize-y bg-card border-border rounded-2xl font-medium text-foreground leading-relaxed shadow-xs"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <div className="flex items-center justify-end gap-3 pt-2">
                         <Button
                             type="submit"
-                            className="bg-violet-600 text-white hover:bg-violet-700 h-11 px-10 rounded-xl font-black shadow-xl shadow-violet-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white h-11 px-8 rounded-xl font-black shadow-md shadow-teal-500/15 transition-all cursor-pointer"
                             disabled={updateMutation.isPending}
                         >
-                            {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-3 opacity-70" /> : null}
+                            {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                             Cập nhật hồ sơ
                         </Button>
                     </div>

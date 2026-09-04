@@ -22,8 +22,10 @@ from apps.billing.serializers import (
 from apps.billing.services.subscriptions import SubscriptionService
 from apps.billing.services.payments import PaymentService
 from apps.core.permissions import IsCompanyOwner
+from apps.core.throttles import PaymentRateThrottle
 from apps.billing.services.vnpay import VNPayService, VNPaySecurityError
 from apps.company.companies.models import Company
+from apps.core.caching import CachedBillingSelectors
 
 
 logger = logging.getLogger(__name__)
@@ -36,10 +38,19 @@ class SubscriptionPlanViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        return Response(CachedBillingSelectors.get_subscription_plans())
+
 
 class CompanySubscriptionViewSet(viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated, IsCompanyOwner]
     serializer_class = CompanySubscriptionSerializer
+
+    def get_throttles(self):
+        throttles = super().get_throttles()
+        if self.action in {"subscribe", "pre_check"}:
+            throttles.append(PaymentRateThrottle())
+        return throttles
 
     def get_queryset(self):
         return CompanySubscription.objects.filter(company__user=self.request.user)
@@ -51,6 +62,11 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
             return Response(
                 {"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN
             )
+
+        try:
+            PaymentService.sync_pending_transactions(company=company_profile)
+        except Exception as e:
+            logger.error("Error syncing pending transactions: %s", e)
 
         sub = SubscriptionService.get_active_subscription(company_profile.id)
         if not sub:
@@ -69,7 +85,11 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
         company_profile = getattr(request.user, "company_profile", None)
         if not company_profile:
             return Response(
-                {"error": "User is not a company"}, status=status.HTTP_403_FORBIDDEN
+                {
+                    "error": "Tài khoản của bạn chưa tạo hồ sơ công ty. Vui lòng cập nhật thông tin công ty trước khi mua gói dịch vụ.",
+                    "code": "NO_COMPANY_PROFILE",
+                },
+                status=status.HTTP_403_FORBIDDEN,
             )
         if company_profile.verification_status != Company.VerificationStatus.VERIFIED:
             return Response(
@@ -110,19 +130,25 @@ class CompanySubscriptionViewSet(viewsets.GenericViewSet):
                     company=locked_company, plan_id=plan.id
                 )
 
-                is_same_family = active_sub and SubscriptionService.is_same_plan_family(
-                    active_sub.plan, plan
+                is_same_family = bool(
+                    active_sub
+                    and SubscriptionService.is_same_plan_family(active_sub.plan, plan)
                 )
-                if active_sub and not is_same_family:
-                    return Response(
-                        {
-                            "error": "Bạn đang có gói hoạt động. Vui lòng gia hạn cùng gói hiện tại hoặc chờ hết hạn để đổi gói.",
-                            "code": "ACTIVE_SUBSCRIPTION_EXISTS",
-                            "current_plan": active_sub.plan.name,
-                            "current_end_date": str(active_sub.end_date),
-                        },
-                        status=status.HTTP_409_CONFLICT,
-                    )
+
+                if active_sub:
+                    current_rank = SubscriptionService.get_tier_rank(active_sub.plan)
+                    new_rank = SubscriptionService.get_tier_rank(plan)
+
+                    if new_rank < current_rank:
+                        return Response(
+                            {
+                                "error": f"Bạn đang sử dụng gói {active_sub.plan.name}. Không thể hạ xuống gói thấp hơn ({plan.name}) trong thời gian gói hiện tại còn hiệu lực.",
+                                "code": "CANNOT_DOWNGRADE",
+                                "current_plan": active_sub.plan.name,
+                                "current_end_date": str(active_sub.end_date),
+                            },
+                            status=status.HTTP_409_CONFLICT,
+                        )
 
                 # Default to VNPay, auto-create if missing (Robustness)
                 pm, created = PaymentMethod.objects.get_or_create(
@@ -373,9 +399,15 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):
         if not hasattr(self.request.user, "company_profile"):
             return Transaction.objects.none()
 
-        queryset = Transaction.objects.filter(
-            company=self.request.user.company_profile
-        ).order_by("-created_at")
+        company = self.request.user.company_profile
+
+        # Automatically sync and clean up pending transactions older than timeout
+        try:
+            PaymentService.sync_pending_transactions(company=company)
+        except Exception as e:
+            logger.error("Error syncing pending transactions: %s", e)
+
+        queryset = Transaction.objects.filter(company=company).order_by("-created_at")
 
         # Filtering
         status = self.request.query_params.get("status")

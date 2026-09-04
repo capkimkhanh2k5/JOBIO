@@ -25,7 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 interface LoginFormProps {
     onSwitchToRegister: () => void;
     onForgotPassword: () => void;
-    onRequire2FA: (email: string, rememberMe: boolean) => void;
+    onRequire2FA: (email: string, rememberMe: boolean, challengeId: string) => void;
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({
@@ -52,7 +52,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             });
 
             if (data.requires_2fa) {
-                onRequire2FA(values.email, values.rememberMe);
+                if (!data.challenge_id) {
+                    toast.error('Không thể tạo phiên xác thực 2FA. Vui lòng thử lại.');
+                    return;
+                }
+                onRequire2FA(values.email, values.rememberMe, data.challenge_id);
+                return;
+            }
+
+            if (!data.user || !data.access_token || !data.refresh_token) {
+                toast.error('Phản hồi đăng nhập không hợp lệ. Vui lòng thử lại.');
                 return;
             }
 
@@ -94,7 +103,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <Input
                                         autoComplete="email"
                                         placeholder="name@example.com"
-                                        className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                        className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                         tabIndex={1}
                                         {...field}
                                     />
@@ -112,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <FormLabel>Mật khẩu</FormLabel>
                                     <Button
                                         variant="link"
-                                        className="p-0 h-auto text-sm text-blue-600 hover:text-blue-500 hover:no-underline font-semibold transition-colors"
+                                        className="p-0 h-auto text-sm text-primary hover:text-primary hover:no-underline font-semibold transition-colors"
                                         onClick={onForgotPassword}
                                         type="button"
                                         tabIndex={-1}
@@ -125,7 +134,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                         type="password"
                                         autoComplete="current-password"
                                         placeholder="••••••••"
-                                        className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                        className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                         tabIndex={2}
                                         {...field}
                                     />
@@ -144,7 +153,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     id="rememberMe"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                     tabIndex={-1}
                                 />
                                 <Label htmlFor="rememberMe" className="text-sm font-normal text-muted-foreground cursor-pointer">
@@ -156,7 +165,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-md shadow-blue-500/20 hover:-translate-y-[1px]"
+                        className="w-full h-11 bg-gradient-to-r from-primary to-primary hover:from-teal-700 hover:to-primary text-white font-semibold transition-all shadow-md shadow-primary/20 hover:-translate-y-[1px]"
                         disabled={form.formState.isSubmitting}
                         tabIndex={3}
                     >
@@ -167,20 +176,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             </Form>
 
             <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-gray-200" />
-                <span className="text-xs text-gray-400 whitespace-nowrap">
+                <div className="h-[1px] flex-1 bg-muted" />
+                <span className="text-xs text-muted-foreground/60 whitespace-nowrap">
                     Hoặc đăng nhập với
                 </span>
-                <div className="h-[1px] flex-1 bg-gray-200" />
+                <div className="h-[1px] flex-1 bg-muted" />
             </div>
 
-            <SocialAuth />
+            <SocialAuth
+                onRequire2FA={(challengeId) => onRequire2FA('', false, challengeId)}
+            />
 
             <div className="text-center text-sm text-muted-foreground mt-6">
                 Chưa có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-500 hover:no-underline font-bold transition-colors"
+                    className="p-0 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToRegister}
                 >
                     Đăng ký ngay

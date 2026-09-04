@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { recommendationService } from '@/services/candidateService';
+import { recommendationService } from '@/services/recommendationService';
 import { RecommendationItem } from './RecommendationItem';
 import { RequestRecommendationModal } from './RequestRecommendationModal';
 import { WriteRecommendationModal } from './WriteRecommendationModal';

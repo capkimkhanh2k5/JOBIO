@@ -2,7 +2,10 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import F
 from apps.core.pagination import StandardResultsSetPagination
+from apps.core.users.permissions import is_admin_user
+from apps.recruitment.applications.models import Application
 
 from .models import Recruiter
 from .serializers import (
@@ -37,6 +40,7 @@ class RecruiterViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = RecruiterSerializer
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
@@ -49,11 +53,40 @@ class RecruiterViewSet(viewsets.GenericViewSet):
             )
         return None
 
+    def _company_can_view_recruiter(self, request, recruiter):
+        if getattr(request.user, "role", None) != "company":
+            return False
+        return Application.objects.filter(
+            recruiter=recruiter,
+            job__company__user=request.user,
+        ).exists()
+
+    def _filter_visible_recruiters(self, request, recruiters):
+        user = request.user
+        if is_admin_user(user):
+            return recruiters
+        if getattr(user, "role", None) == "candidate":
+            return recruiters.filter(user=user)
+        if getattr(user, "role", None) == "company":
+            return recruiters.filter(applications__job__company__user=user).distinct()
+        return recruiters.none()
+
+    def _check_view_permission(self, request, recruiter):
+        if is_admin_user(request.user) or recruiter.user == request.user:
+            return None
+        if self._company_can_view_recruiter(request, recruiter):
+            return None
+        return Response(
+            {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+        )
+
     def list(self, request):
         """
         GET /api/recruiters/ - Liệt kê và tìm kiếm ứng viên
         """
-        recruiters = search_recruiters(request.query_params)
+        recruiters = self._filter_visible_recruiters(
+            request, search_recruiters(request.query_params)
+        )
         page = self.paginate_queryset(recruiters)
         if page is not None:
             serializer = RecruiterSerializer(page, many=True)
@@ -88,9 +121,15 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found recruiter"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        permission_error = self._check_owner_permission(request, recruiter)
+        permission_error = self._check_view_permission(request, recruiter)
         if permission_error:
             return permission_error
+
+        if recruiter.user != request.user and not is_admin_user(request.user):
+            Recruiter.objects.filter(id=recruiter.id).update(
+                profile_views_count=F("profile_views_count") + 1
+            )
+            recruiter.refresh_from_db(fields=["profile_views_count"])
 
         from .serializers import RecruiterDetailSerializer
 
@@ -381,7 +420,9 @@ class RecruiterViewSet(viewsets.GenericViewSet):
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
-        recruiters = search_recruiters(request.query_params)
+        recruiters = self._filter_visible_recruiters(
+            request, search_recruiters(request.query_params)
+        )
         return Response(RecruiterSerializer(recruiters, many=True).data)
 
     @action(detail=True, methods=["get"], url_path="applications")

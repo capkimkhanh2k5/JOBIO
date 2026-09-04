@@ -74,7 +74,7 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
 
                         <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start gap-2">
-                                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-violet-600 transition-colors">
+                                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-teal-600 transition-colors">
                                     {name}
                                 </h3>
                             </div>
@@ -136,7 +136,7 @@ export const CandidateCard = ({ candidate, onClick }: CandidateCardProps) => {
                                         d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                     />
                                     <path
-                                        className={completeness >= 80 ? 'text-primary' : 'text-blue-500'}
+                                        className={completeness >= 80 ? 'text-primary' : 'text-primary'}
                                         strokeWidth="4"
                                         strokeDasharray={`${completeness}, 100`}
                                         strokeLinecap="round"

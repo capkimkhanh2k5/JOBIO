@@ -7,4 +7,4 @@ class CompaniesConfig(AppConfig):
     label = "company_companies"
 
     def ready(self):
-        pass
+        from . import signals  # noqa: F401

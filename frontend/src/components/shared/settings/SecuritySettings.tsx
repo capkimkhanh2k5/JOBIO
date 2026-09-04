@@ -118,12 +118,12 @@ export function SecuritySettings() {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-violet-600/10 text-violet-600 rounded-2xl shadow-inner shrink-0">
+                    <div className="p-3 bg-teal-600/10 text-teal-600 rounded-2xl shadow-inner shrink-0">
                         <Shield className="w-6 h-6" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-black tracking-tight text-slate-900">Bảo mật & Mật khẩu</h2>
-                        <p className="text-slate-500 font-medium text-sm mt-0.5">Quản lý các phương thức bảo mật cho tài khoản của bạn.</p>
+                        <h2 className="text-2xl font-black tracking-tight text-foreground">Bảo mật & Mật khẩu</h2>
+                        <p className="text-muted-foreground font-medium text-sm mt-0.5">Quản lý các phương thức bảo mật cho tài khoản của bạn.</p>
                     </div>
                 </div>
             </div>
@@ -131,21 +131,21 @@ export function SecuritySettings() {
             <div className="grid grid-cols-1 gap-8 items-start">
                 {/* Left Column: Password Change */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden p-6 sm:p-8">
+                    <div className="bg-card rounded-3xl border border-border/60 shadow-sm overflow-hidden p-6 sm:p-8">
                         <div className="mb-8 grid gap-4 lg:grid-cols-2">
-                            <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-start gap-3">
-                                <Mail className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
+                            <div className="p-4 rounded-2xl border border-border bg-muted/70 flex items-start gap-3">
+                                <Mail className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-slate-900 text-sm font-bold">Email đăng nhập</p>
-                                    <p className="text-slate-500 text-sm font-medium mt-1 break-all">{user?.email || 'Chưa cập nhật'}</p>
+                                    <p className="text-foreground text-sm font-bold">Email đăng nhập</p>
+                                    <p className="text-muted-foreground text-sm font-medium mt-1 break-all">{user?.email || 'Chưa cập nhật'}</p>
                                 </div>
                             </div>
 
-                            <div className="p-4 rounded-2xl border border-violet-200 bg-violet-50/60 flex items-start gap-3">
-                                <Link2 className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
+                            <div className="p-4 rounded-2xl border border-teal-200 bg-teal-50/60 flex items-start gap-3">
+                                <Link2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                                 <div>
-                                    <p className="text-violet-950 text-sm font-bold">Phương thức đăng nhập</p>
-                                    <p className="text-violet-800 text-sm font-medium mt-1">
+                                    <p className="text-teal-950 text-sm font-bold">Phương thức đăng nhập</p>
+                                    <p className="text-teal-800 text-sm font-medium mt-1">
                                         {isGoogleOnlyAccount
                                             ? 'Chỉ Google'
                                             : isGoogleLinked
@@ -190,14 +190,14 @@ export function SecuritySettings() {
 
                         {isGoogleOnlyAccount ? (
                             <div className="space-y-6">
-                                <div className="rounded-2xl border border-slate-200 bg-white p-6">
+                                <div className="rounded-2xl border border-border bg-card p-6">
                                     <div className="flex items-start gap-4">
-                                        <div className="p-3 rounded-2xl bg-violet-50 text-violet-600 shrink-0">
+                                        <div className="p-3 rounded-2xl bg-teal-50 text-teal-600 shrink-0">
                                             <KeyRound className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-black text-slate-900">Đặt mật khẩu</h3>
-                                            <p className="text-sm text-slate-500 font-medium mt-1 leading-relaxed">
+                                            <h3 className="text-lg font-black text-foreground">Đặt mật khẩu</h3>
+                                            <p className="text-sm text-muted-foreground font-medium mt-1 leading-relaxed">
                                                 Đây là bước liên kết thêm phương thức Email/Mật khẩu cho cùng tài khoản Google hiện tại,
                                                 không phải luồng quên mật khẩu.
                                             </p>
@@ -210,19 +210,19 @@ export function SecuritySettings() {
                                             'Nhập mật khẩu mới',
                                             'Kích hoạt đăng nhập song song',
                                         ].map((step, index) => (
-                                            <div key={step} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                                                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-xs font-black text-white">
+                                            <div key={step} className="rounded-xl border border-border/60 bg-muted p-4">
+                                                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full bg-teal-600 text-xs font-black text-white">
                                                     {index + 1}
                                                 </div>
-                                                <p className="text-sm font-bold text-slate-700">{step}</p>
+                                                <p className="text-sm font-bold text-foreground/80">{step}</p>
                                             </div>
                                         ))}
                                     </div>
 
                                     {hasRequestedSetPasswordOtp && (
-                                        <div className="mt-6 grid gap-5 rounded-2xl border border-violet-100 bg-violet-50/40 p-5">
+                                        <div className="mt-6 grid gap-5 rounded-2xl border border-teal-100 bg-teal-50/40 p-5">
                                             <div className="space-y-2.5">
-                                                <Label htmlFor="setPasswordOtp" className="text-slate-700 font-bold ml-1">Mã xác minh</Label>
+                                                <Label htmlFor="setPasswordOtp" className="text-foreground/80 font-bold ml-1">Mã xác minh</Label>
                                                 <Input
                                                     id="setPasswordOtp"
                                                     value={setPasswordOtp}
@@ -230,32 +230,32 @@ export function SecuritySettings() {
                                                     inputMode="numeric"
                                                     maxLength={6}
                                                     placeholder="Nhập mã 6 số"
-                                                    className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                    className="h-12 bg-card border-border/60 rounded-xl focus:ring-teal-500 transition-all"
                                                 />
                                             </div>
 
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                                 <div className="space-y-2.5">
-                                                    <Label htmlFor="setPasswordValue" className="text-slate-700 font-bold ml-1">Mật khẩu mới</Label>
+                                                    <Label htmlFor="setPasswordValue" className="text-foreground/80 font-bold ml-1">Mật khẩu mới</Label>
                                                     <Input
                                                         id="setPasswordValue"
                                                         type="password"
                                                         value={setPasswordValue}
                                                         onChange={(event) => setSetPasswordValue(event.target.value)}
                                                         placeholder="********"
-                                                        className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                        className="h-12 bg-card border-border/60 rounded-xl focus:ring-teal-500 transition-all"
                                                     />
                                                 </div>
 
                                                 <div className="space-y-2.5">
-                                                    <Label htmlFor="setPasswordConfirm" className="text-slate-700 font-bold ml-1">Xác nhận mật khẩu</Label>
+                                                    <Label htmlFor="setPasswordConfirm" className="text-foreground/80 font-bold ml-1">Xác nhận mật khẩu</Label>
                                                     <Input
                                                         id="setPasswordConfirm"
                                                         type="password"
                                                         value={setPasswordConfirm}
                                                         onChange={(event) => setSetPasswordConfirm(event.target.value)}
                                                         placeholder="********"
-                                                        className="h-12 bg-white border-slate-100 rounded-xl focus:ring-violet-500 transition-all"
+                                                        className="h-12 bg-card border-border/60 rounded-xl focus:ring-teal-500 transition-all"
                                                     />
                                                 </div>
                                             </div>
@@ -267,7 +267,7 @@ export function SecuritySettings() {
                                             type="button"
                                             onClick={hasRequestedSetPasswordOtp ? handleConfirmSetPassword : handleRequestSetPassword}
                                             disabled={isRequestingOtp || isConfirmingSetPassword}
-                                            className="h-12 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/20 px-10 transition-all active:scale-95"
+                                            className="h-12 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/20 px-10 transition-all active:scale-95"
                                         >
                                             {isRequestingOtp || isConfirmingSetPassword ? (
                                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -283,13 +283,13 @@ export function SecuritySettings() {
                         ) : (
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="space-y-2.5">
-                                    <Label htmlFor="oldPassword" className="text-slate-700 font-bold ml-1">Mật khẩu hiện tại</Label>
+                                    <Label htmlFor="oldPassword" className="text-foreground/80 font-bold ml-1">Mật khẩu hiện tại</Label>
                                     <Input
                                         id="oldPassword"
                                         type="password"
                                         {...register('oldPassword')}
                                         placeholder="••••••••"
-                                        className="h-12 bg-slate-50 border-slate-100 rounded-xl focus:ring-violet-500 focus:bg-white transition-all"
+                                        className="h-12 bg-muted border-border/60 rounded-xl focus:ring-teal-500 focus:bg-card transition-all"
                                         disabled={!canLoginWithPassword}
                                     />
                                     {errors.oldPassword && <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1"><AlertCircle className="w-3 h-3"/> {errors.oldPassword.message}</p>}
@@ -297,26 +297,26 @@ export function SecuritySettings() {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="space-y-2.5">
-                                        <Label htmlFor="newPassword" className="text-slate-700 font-bold ml-1">Mật khẩu mới</Label>
+                                        <Label htmlFor="newPassword" className="text-foreground/80 font-bold ml-1">Mật khẩu mới</Label>
                                         <Input
                                             id="newPassword"
                                             type="password"
                                             {...register('newPassword')}
                                             placeholder="••••••••"
-                                            className="h-12 bg-slate-50 border-slate-100 rounded-xl focus:ring-violet-500 focus:bg-white transition-all"
+                                            className="h-12 bg-muted border-border/60 rounded-xl focus:ring-teal-500 focus:bg-card transition-all"
                                             disabled={!canLoginWithPassword}
                                         />
                                         {errors.newPassword && <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1"><AlertCircle className="w-3 h-3"/> {errors.newPassword.message}</p>}
                                     </div>
 
                                     <div className="space-y-2.5">
-                                        <Label htmlFor="confirmPassword" className="text-slate-700 font-bold ml-1">Xác nhận mật khẩu</Label>
+                                        <Label htmlFor="confirmPassword" className="text-foreground/80 font-bold ml-1">Xác nhận mật khẩu</Label>
                                         <Input
                                             id="confirmPassword"
                                             type="password"
                                             {...register('confirmPassword')}
                                             placeholder="••••••••"
-                                            className="h-12 bg-slate-50 border-slate-100 rounded-xl focus:ring-violet-500 focus:bg-white transition-all"
+                                            className="h-12 bg-muted border-border/60 rounded-xl focus:ring-teal-500 focus:bg-card transition-all"
                                             disabled={!canLoginWithPassword}
                                         />
                                         {errors.confirmPassword && <p className="text-xs text-red-500 font-medium flex items-center gap-1 mt-1"><AlertCircle className="w-3 h-3"/> {errors.confirmPassword.message}</p>}
@@ -327,7 +327,7 @@ export function SecuritySettings() {
                                     <Button
                                         type="submit"
                                         disabled={isLoading || !canLoginWithPassword}
-                                        className="h-12 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-600/20 px-10 transition-all active:scale-95"
+                                        className="h-12 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/20 px-10 transition-all active:scale-95"
                                     >
                                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Cập nhật mật khẩu'}
                                     </Button>

@@ -104,9 +104,13 @@ class JobMatchingService:
             job_skill_ids = set(job.required_skills.values_list("skill_id", flat=True))
 
         alerts = []
-        query = JobAlert.objects.filter(is_active=True).prefetch_related(
-            Prefetch("skills", queryset=Skill.objects.only("id")),
-            Prefetch("locations", queryset=Province.objects.only("id")),
+        query = (
+            JobAlert.objects.filter(is_active=True)
+            .select_related("recruiter__user")
+            .prefetch_related(
+                Prefetch("skills", queryset=Skill.objects.only("id")),
+                Prefetch("locations", queryset=Province.objects.only("id")),
+            )
         )
         if job.category:
             query = query.filter(Q(category=job.category) | Q(category__isnull=True))

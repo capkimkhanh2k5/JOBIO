@@ -7,9 +7,11 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 import logging
 from urllib.parse import quote
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 
 from apps.communication.notification_types.models import NotificationType
 from apps.communication.notifications.services.notifications import notify_admins
+from .serializers import ContactSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -32,19 +34,20 @@ class ContactView(APIView):
 
     permission_classes = [AllowAny]
     throttle_classes = [ContactRateThrottle]
+    serializer_class = ContactSerializer
 
+    @extend_schema(
+        request=ContactSerializer,
+        responses={201: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT},
+    )
     def post(self, request):
-        name = (request.data.get("name") or "").strip()
-        email = (request.data.get("email") or "").strip()
-        phone = (request.data.get("phone") or "").strip()
-        subject = (request.data.get("subject") or "").strip()
-        message = (request.data.get("message") or "").strip()
-
-        if not all([name, email, subject, message]):
-            return Response(
-                {"detail": "Vui lòng điền đầy đủ thông tin bắt buộc."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        serializer = ContactSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        name = serializer.validated_data["name"]
+        email = serializer.validated_data["email"]
+        phone = serializer.validated_data.get("phone", "")
+        subject = serializer.validated_data["subject"]
+        message = serializer.validated_data["message"]
 
         # Log the contact submission
         logger.info(

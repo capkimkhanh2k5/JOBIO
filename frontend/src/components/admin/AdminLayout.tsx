@@ -4,11 +4,11 @@ import { AdminTopNav } from './AdminTopNav';
 
 /**
  * AdminLayout – Re-architected Sidebar-First monitoring layout.
- * Optimized for information density and professional system management.
+ * Uses Editorial Luxury design system with warm dashboard surface.
  */
 export function AdminLayout() {
     return (
-        <div className="min-h-screen flex bg-slate-50 font-sans">
+        <div className="min-h-screen flex bg-background font-sans">
             {/* Sidebar-First: Full height on the left, sticky so it stays while main scrolls */}
             <AdminSidebar />
 
@@ -17,8 +17,8 @@ export function AdminLayout() {
                 {/* Internal TopNav: Acting as a contextual toolbar */}
                 <AdminTopNav />
 
-                {/* Main Dashboard / Content Area – let window handle scrolling */}
-                <main className="flex-1 bg-[#fcfcfd]">
+                {/* Main Dashboard / Content Area — warm tinted background */}
+                <main className="flex-1 dashboard-surface">
                     <div className="w-full pb-10">
                         <Outlet />
                     </div>

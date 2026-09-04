@@ -7,6 +7,7 @@ from .models import FileUpload
 from .serializers import FileUploadSerializer
 from .services.file_uploads import save_upload
 from apps.core.users.permissions import is_admin_user
+from apps.moderation.services import ModerationBlocked
 
 
 class FileUploadViewSet(viewsets.ModelViewSet):
@@ -73,6 +74,8 @@ class FileUploadViewSet(viewsets.ModelViewSet):
             return Response(
                 FileUploadSerializer(upload).data, status=status.HTTP_201_CREATED
             )
+        except ModerationBlocked as e:
+            return Response(e.as_response(), status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

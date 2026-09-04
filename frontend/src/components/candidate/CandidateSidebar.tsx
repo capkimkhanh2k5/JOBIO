@@ -14,50 +14,50 @@ interface NavItem {
 }
 
 const itemVariants = {
-    hidden: { opacity: 0, x: -12 },
+    hidden: { opacity: 0, x: -10 },
     visible: (i: number) => ({
         opacity: 1, x: 0,
-        transition: { delay: i * 0.04, duration: 0.3 },
+        transition: { delay: i * 0.035, duration: 0.3, ease: [0.215, 0.61, 0.355, 1] as any },
     }),
 };
 
 /**
- * CandidateSidebar — follows the admin design language.
- * Clean white background, violet active state, consistent with AdminSidebar.
- * @see UI_RULES.md §11.2, §8.1
+ * CandidateSidebar — follows the Editorial Luxury design language.
+ * Clean card background, teal active state with gradient indicator.
  */
 export function CandidateSidebar() {
     const unreadCount = useNotificationStore((state) => state.unreadCount);
 
     const navItems: NavItem[] = [
-        { label: 'Dashboard', path: '/candidate/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-        { label: 'Chỉnh sửa hồ sơ', path: '/candidate/profile', icon: <UserCircle className="w-5 h-5" /> },
-        { label: 'Quản lý CV', path: '/candidate/cv', icon: <FileText className="w-5 h-5" /> },
-        { label: 'Gợi ý việc làm', path: '/candidate/suggested-jobs', icon: <Sparkles className="w-5 h-5" /> },
-        { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-5 h-5" /> },
-        { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-5 h-5" /> },
-        { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-5 h-5" /> },
+        { label: 'Dashboard', path: '/candidate/dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
+        { label: 'Chỉnh sửa hồ sơ', path: '/candidate/profile', icon: <UserCircle className="w-[18px] h-[18px]" /> },
+        { label: 'Quản lý CV', path: '/candidate/cv', icon: <FileText className="w-[18px] h-[18px]" /> },
+        { label: 'Gợi ý việc làm', path: '/candidate/suggested-jobs', icon: <Sparkles className="w-[18px] h-[18px]" /> },
+        { label: 'Việc đã ứng tuyển', path: '/candidate/applications', icon: <Briefcase className="w-[18px] h-[18px]" /> },
+
+        { label: 'Việc đã lưu', path: '/candidate/saved', icon: <Bookmark className="w-[18px] h-[18px]" /> },
+        { label: 'Phỏng vấn', path: '/candidate/interviews', icon: <CalendarClock className="w-[18px] h-[18px]" /> },
         {
             label: 'Thông báo',
             path: '/candidate/notifications',
-            icon: <Bell className="w-5 h-5" />,
+            icon: <Bell className="w-[18px] h-[18px]" />,
             badge: unreadCount,
         },
     ];
 
     const bottomItems: NavItem[] = [
-        { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-5 h-5" /> },
+        { label: 'Cài đặt', path: '/candidate/settings', icon: <Settings className="w-[18px] h-[18px]" /> },
     ];
 
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-[calc(100vh-112px)] sticky top-[112px] border-r border-slate-200 bg-white"
+            className="hidden md:flex flex-col w-[230px] shrink-0 h-[calc(100vh-84px)] sticky top-[84px] border-r border-border/60 bg-card"
             aria-label="Candidate Navigation"
         >
-            <div className="flex-1 pt-5 pb-4 flex flex-col gap-1 overflow-y-auto">
+            <div className="flex-1 pt-5 pb-4 flex flex-col gap-0.5 overflow-y-auto">
                 {/* Section label */}
-                <div className="px-6 mb-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <div className="px-6 mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
                         Candidate Panel
                     </p>
                 </div>
@@ -74,10 +74,10 @@ export function CandidateSidebar() {
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group relative
+                                `flex items-center gap-3 mx-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group relative
                                 ${isActive
-                                    ? 'bg-violet-50/80 text-violet-700 shadow-sm border border-violet-100/50'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                                    ? 'bg-primary/8 text-primary shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                                 }`
                             }
                             aria-label={item.label}
@@ -87,20 +87,20 @@ export function CandidateSidebar() {
                                     {isActive && (
                                         <motion.span
                                             layoutId="candidate-sidebar-active"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-violet-600 rounded-r-md -ml-3"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-[var(--brand-teal)] to-[var(--brand-teal-light)] rounded-r-full -ml-3"
                                         />
                                     )}
                                     <span
                                         className={`transition-colors duration-200 ${isActive
-                                            ? 'text-violet-600'
-                                            : 'text-slate-400 group-hover:text-violet-600'
+                                            ? 'text-primary'
+                                            : 'text-muted-foreground/60 group-hover:text-primary'
                                             }`}
                                     >
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
                                     {item.badge !== undefined && item.badge > 0 && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
+                                        <span className="min-w-[18px] h-[18px] text-[9px] font-bold bg-red-100 text-red-600 rounded-full flex items-center justify-center px-1 border border-red-200/60">
                                             {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
@@ -111,7 +111,7 @@ export function CandidateSidebar() {
                 ))}
 
                 {/* Divider */}
-                <div className="my-3 mx-6 border-t border-slate-100" />
+                <div className="my-3 mx-6 border-t border-border/40" />
 
                 {/* Bottom items */}
                 {bottomItems.map((item, i) => (
@@ -125,10 +125,10 @@ export function CandidateSidebar() {
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group
+                                `flex items-center gap-3 mx-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
                                 ${isActive
-                                    ? 'bg-slate-100 text-slate-900 border border-slate-200/60'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                                    ? 'bg-muted text-foreground'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                                 }`
                             }
                         >
@@ -136,8 +136,8 @@ export function CandidateSidebar() {
                                 <>
                                     <span
                                         className={`transition-colors ${isActive
-                                            ? 'text-slate-700'
-                                            : 'text-slate-400 group-hover:text-slate-600'
+                                            ? 'text-foreground/70'
+                                            : 'text-muted-foreground/50 group-hover:text-foreground/60'
                                             }`}
                                     >
                                         {item.icon}
@@ -150,15 +150,15 @@ export function CandidateSidebar() {
                 ))}
             </div>
 
-            {/* Bottom promo card */}
-            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-violet-50 via-cyan-50 to-transparent border border-violet-100">
-                <p className="text-xs font-bold text-slate-900 mb-1">Kiến tạo sự nghiệp</p>
-                <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-3">
-                    Tạo CV chuyên nghiệp bật nhất chỉ với 1 click.
+            {/* Bottom promo card — editorial gradient */}
+            <div className="p-4 m-3 mb-4 rounded-2xl bg-gradient-to-br from-primary/8 via-primary/4 to-transparent border border-primary/12">
+                <p className="text-xs font-bold text-foreground mb-1">Kiến tạo sự nghiệp</p>
+                <p className="text-[11px] text-muted-foreground font-medium leading-relaxed mb-3">
+                    Tạo CV chuyên nghiệp bậc nhất chỉ với 1 click.
                 </p>
                 <Link
                     to="/candidate/cv"
-                    className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow transition-all"
+                    className="block w-full text-center text-[11px] font-bold py-2 rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-sm hover:shadow transition-all"
                 >
                     Cập nhật CV ngay
                 </Link>

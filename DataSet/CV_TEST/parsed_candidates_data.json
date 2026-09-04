@@ -1,0 +1,47 @@
+[
+  {
+    "recruiter_id": 17,
+    "user_id": 203,
+    "full_name": "Nguyễn Thị Cẩm",
+    "email": "camnguyenth@gmail.com",
+    "position": "Senior QA Engineer",
+    "cloudinary_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1787218995/Jobio/CVs/cv_qa_1787218994.pdf",
+    "embedding_status": "ready"
+  },
+  {
+    "recruiter_id": 18,
+    "user_id": 204,
+    "full_name": "Đồng Quang Quý",
+    "email": "dongquangquy.work@gmail.com",
+    "position": "Fullstack Web Developer",
+    "cloudinary_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1787218996/Jobio/CVs/cv_web1_1787218996.pdf",
+    "embedding_status": "ready"
+  },
+  {
+    "recruiter_id": 19,
+    "user_id": 205,
+    "full_name": "Phan Minh Hiếu",
+    "email": "phanminhhieu.work@gmail.com",
+    "position": "Full-stack Developer",
+    "cloudinary_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1787218997/Jobio/CVs/cv_web2_1787218997.pdf",
+    "embedding_status": "ready"
+  },
+  {
+    "recruiter_id": 20,
+    "user_id": 206,
+    "full_name": "Châu Gia Khang",
+    "email": "chaugiakhang193@gmail.com",
+    "position": "Fullstack Developer",
+    "cloudinary_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1787218998/Jobio/CVs/cv_web3_1787218998.pdf",
+    "embedding_status": "ready"
+  },
+  {
+    "recruiter_id": 21,
+    "user_id": 207,
+    "full_name": "Phú Đoàn Hoàng Thiện",
+    "email": "dhtphu05@gmail.com",
+    "position": "Mobile Developer Intern",
+    "cloudinary_url": "https://res.cloudinary.com/dbkxwc5gr/raw/upload/v1787218999/Jobio/CVs/cv_mobile_1787218999.pdf",
+    "embedding_status": "ready"
+  }
+]

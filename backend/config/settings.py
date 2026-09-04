@@ -14,6 +14,7 @@ import os
 import re
 import time
 from pathlib import Path
+from urllib.parse import quote
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -43,6 +44,13 @@ def env_int(name, default=0):
     if value is None or not value.strip():
         return default
     return int(value)
+
+
+def env_float(name, default=0.0):
+    value = os.getenv(name)
+    if value is None or not value.strip():
+        return default
+    return float(value)
 
 
 def env_list(name, default=None):
@@ -97,6 +105,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
     "corsheaders",
     "cloudinary_storage",
     "cloudinary",
@@ -104,12 +113,13 @@ INSTALLED_APPS = [
     "django_eventstream",
     # ===== Core Domain =====
     "apps.core.users",
+    "apps.moderation",
     # ===== Geography Domain =====
     "apps.geography.provinces",
     "apps.geography.communes",
     "apps.geography.addresses",
     # ===== Company Domain =====
-    "apps.company.companies",
+    "apps.company.companies.apps.CompaniesConfig",
     "apps.company.industries",
     "apps.company.benefit_categories",
     "apps.company.company_benefits",
@@ -180,6 +190,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "apps.core.security_headers.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -208,18 +219,61 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
+
+def _redis_url(db: int) -> str:
+    scheme = "rediss" if env_bool("REDIS_SSL", default=False) else "redis"
+    host = os.getenv("REDIS_HOST") or ("localhost" if DEBUG else "redis")
+    port = env_int("REDIS_PORT", 6379)
+    username = os.getenv("REDIS_USERNAME", "").strip()
+    password = os.getenv("REDIS_PASSWORD", "").strip()
+
+    auth = ""
+    if username and password:
+        auth = f"{quote(username)}:{quote(password)}@"
+    elif password:
+        auth = f":{quote(password)}@"
+    elif username:
+        auth = f"{quote(username)}@"
+
+    return f"{scheme}://{auth}{host}:{port}/{db}"
+
+
+_REDIS_EXPLICITLY_CONFIGURED = any(
+    os.getenv(name)
+    for name in (
+        "REDIS_URL",
+        "REDIS_CACHE_URL",
+        "CHANNEL_REDIS_URL",
+        "CELERY_BROKER_URL",
+        "CELERY_RESULT_BACKEND",
+        "REDIS_HOST",
+    )
+)
+REDIS_URL = os.getenv("REDIS_URL", _redis_url(0))
+REDIS_CACHE_URL = os.getenv("REDIS_CACHE_URL", _redis_url(1))
+CHANNEL_REDIS_URL = os.getenv("CHANNEL_REDIS_URL", _redis_url(2))
+
 # Channel Layers với Redis cho real-time
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.getenv("REDIS_HOST", "localhost"), 6379)],
+            "hosts": [CHANNEL_REDIS_URL],
+            "capacity": env_int("CHANNEL_REDIS_CAPACITY", 1000),
+            "expiry": env_int("CHANNEL_REDIS_EXPIRY", 60),
         },
     },
 }
 
 # EventStream Settings cho SSE
 EVENTSTREAM_STORAGE_CLASS = "django_eventstream.storage.DjangoModelStorage"
+NOTIFICATION_STREAM_MAX_CONNECTIONS_PER_USER = env_int(
+    "NOTIFICATION_STREAM_MAX_CONNECTIONS_PER_USER", 2
+)
+NOTIFICATION_STREAM_POLL_SECONDS = env_int("NOTIFICATION_STREAM_POLL_SECONDS", 15)
+NOTIFICATION_STREAM_MAX_DURATION_SECONDS = env_int(
+    "NOTIFICATION_STREAM_MAX_DURATION_SECONDS", 300
+)
 
 
 # Database
@@ -330,16 +384,23 @@ REST_FRAMEWORK = {
         "user": os.getenv("DRF_THROTTLE_USER", "5000/hour" if DEBUG else "1000/hour"),
         # Custom throttles
         "login": "5/minute",
+        "token_refresh": "30/minute",
         "register": "10/hour",
         "password_reset": "3/hour",
         "email_verification": "3/hour",
         "social_auth": "10/minute",
+        "two_factor_verify": "5/minute",
+        "report_create": "5/hour",
         "burst": "60/minute",
         "sustained": "1000/day",
         "payment": "10/minute",
+        "job_search": "60/minute",
+        "application_submit": "20/hour",
+        "notification_stream": "30/minute",
         "ai_matching": "20/hour",
         "file_upload": "30/hour",
     },
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     # Exception handling
     "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
 }
@@ -347,10 +408,22 @@ REST_FRAMEWORK = {
 from datetime import timedelta  # noqa: E402
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 REMEMBER_ME_REFRESH_TOKEN_LIFETIME = timedelta(days=7)
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "JOBIO API",
+    "DESCRIPTION": "OpenAPI schema for JOBIO recruitment platform.",
+    "VERSION": "1.0.0",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+}
 
 # ===== WebAuthn / Passkey Configuration =====
 WEBAUTHN_RP_ID = os.getenv("WEBAUTHN_RP_ID", "localhost")
@@ -381,9 +454,17 @@ CSRF_TRUSTED_ORIGINS = env_list(
     ),
 )
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = env_bool("CORS_ALLOW_ALL_ORIGINS", default=False)
+CORS_ALLOW_CREDENTIALS = env_bool("CORS_ALLOW_CREDENTIALS", default=True)
+
+if CORS_ALLOW_ALL_ORIGINS and CORS_ALLOW_CREDENTIALS:
+    raise RuntimeError(
+        "CORS_ALLOW_ALL_ORIGINS cannot be enabled while CORS_ALLOW_CREDENTIALS is true"
+    )
 
 if not DEBUG:
+    if CORS_ALLOW_ALL_ORIGINS:
+        raise RuntimeError("CORS_ALLOW_ALL_ORIGINS must be disabled when DEBUG=0")
     if not CORS_ALLOWED_ORIGINS:
         raise RuntimeError("CORS_ALLOWED_ORIGINS must be set when DEBUG=0")
     if not CSRF_TRUSTED_ORIGINS:
@@ -408,8 +489,24 @@ SECURE_HSTS_PRELOAD = env_bool(
     "SECURE_HSTS_PRELOAD", default=PRODUCTION_SECURITY_DEFAULT
 )
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = env_bool("CSRF_COOKIE_HTTPONLY", default=False)
+X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = os.getenv(
     "SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin"
+)
+CONTENT_SECURITY_POLICY = os.getenv(
+    "CONTENT_SECURITY_POLICY",
+    "default-src 'self'; "
+    "base-uri 'self'; "
+    "object-src 'none'; "
+    "frame-ancestors 'self'; "
+    "img-src 'self' data: https:; "
+    "media-src 'self' blob: https:; "
+    "frame-src 'self' blob: https://res.cloudinary.com; "
+    "script-src 'self' 'unsafe-inline'; "
+    "style-src 'self' 'unsafe-inline'; "
+    "connect-src 'self'",
 )
 
 if env_bool("USE_X_FORWARDED_PROTO", default=False):
@@ -450,6 +547,39 @@ PAYMENT_PENDING_CLEANUP_INTERVAL_SECONDS = env_int(
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+RECOMMENDATION_SEMANTIC_ENABLED = env_bool(
+    "RECOMMENDATION_SEMANTIC_ENABLED", default=True
+)
+RECOMMENDATION_EMBEDDING_PROVIDER = (
+    os.getenv("RECOMMENDATION_EMBEDDING_PROVIDER", "local").strip().lower() or "local"
+)
+RECOMMENDATION_EMBEDDING_MODEL = os.getenv(
+    "RECOMMENDATION_EMBEDDING_MODEL", "BAAI/bge-m3"
+)
+RECOMMENDATION_EMBEDDING_DIMENSIONS = env_int(
+    "RECOMMENDATION_EMBEDDING_DIMENSIONS", 1024
+)
+RECOMMENDATION_SYNC_EMBEDDINGS = env_bool(
+    "RECOMMENDATION_SYNC_EMBEDDINGS", default=False
+)
+RECOMMENDATION_VECTOR_STORE = (
+    os.getenv("RECOMMENDATION_VECTOR_STORE", "pgvector").strip().lower() or "pgvector"
+)
+RECOMMENDATION_VECTOR_VERSION = os.getenv("RECOMMENDATION_VECTOR_VERSION", "v2")
+RECOMMENDATION_REQUIRE_SAFETENSORS = env_bool(
+    "RECOMMENDATION_REQUIRE_SAFETENSORS", default=True
+)
+RECOMMENDATION_TAXONOMY_VERSION = os.getenv(
+    "RECOMMENDATION_TAXONOMY_VERSION", "taxonomy-v1"
+)
+RECOMMENDATION_PGVECTOR_EF_SEARCH = env_int("RECOMMENDATION_PGVECTOR_EF_SEARCH", 80)
+
+MODERATION_ENABLED = env_bool("MODERATION_ENABLED", default=True)
+MODERATION_PROVIDER = os.getenv("MODERATION_PROVIDER", "rule").strip().lower() or "rule"
+MODERATION_TEXT_MODEL = os.getenv("MODERATION_TEXT_MODEL", "omni-moderation-latest")
+MODERATION_IMAGE_MODEL = os.getenv("MODERATION_IMAGE_MODEL", MODERATION_TEXT_MODEL)
+JOB_DOMAIN_MIN_CONFIDENCE = env_float("JOB_DOMAIN_MIN_CONFIDENCE", 0.85)
+
 # Groq API — CV Parsing with LLM
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_API_KEYS = env_list("GROQ_API_KEYS", default=[])
@@ -477,12 +607,53 @@ CV_PARSE_ALLOWED_HOSTS = env_list(
 )
 
 # ===== Celery Configuration =====
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", REDIS_URL)
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", REDIS_URL)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+CELERY_RESULT_EXPIRES = env_int("CELERY_RESULT_EXPIRES", 60 * 60)
+CELERY_TASK_TRACK_STARTED = True
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_BROKER_POOL_LIMIT = env_int("CELERY_BROKER_POOL_LIMIT", 10)
+CELERY_WORKER_PREFETCH_MULTIPLIER = env_int("CELERY_WORKER_PREFETCH_MULTIPLIER", 1)
+CELERY_TASK_ACKS_LATE = env_bool("CELERY_TASK_ACKS_LATE", default=True)
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_SOFT_TIME_LIMIT = env_int("CELERY_TASK_SOFT_TIME_LIMIT", 90)
+CELERY_TASK_TIME_LIMIT = env_int("CELERY_TASK_TIME_LIMIT", 120)
+CELERY_TASK_DEFAULT_QUEUE = os.getenv("CELERY_TASK_DEFAULT_QUEUE", "default")
+CELERY_TASK_ROUTES = {
+    "apps.billing.tasks.send_payment_confirmation_email_task": {"queue": "emails"},
+    "apps.billing.tasks.cleanup_expired_transactions": {"queue": "cleanup"},
+    "apps.billing.tasks.cleanup_expired_subscriptions": {"queue": "cleanup"},
+    "apps.communication.job_alerts.tasks.process_job_matching_task": {
+        "queue": "matching"
+    },
+    "apps.recruitment.jobs.tasks.expire_published_jobs_task": {"queue": "cleanup"},
+    "apps.system.file_uploads.tasks.delete_cloudinary_file_task": {"queue": "media"},
+    "apps.candidate.recruiter_cvs.tasks.parse_cv_task": {"queue": "ai"},
+    "apps.recruitment.jobs.tasks.generate_job_embedding_task": {"queue": "ai"},
+    "apps.recruitment.jobs.tasks.generate_candidate_embedding_task": {"queue": "ai"},
+}
+CELERY_BROKER_VISIBILITY_TIMEOUT = env_int("CELERY_BROKER_VISIBILITY_TIMEOUT", 60 * 60)
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "visibility_timeout": CELERY_BROKER_VISIBILITY_TIMEOUT,
+    "socket_connect_timeout": env_float("CELERY_REDIS_CONNECT_TIMEOUT", 5.0),
+    "socket_timeout": env_float("CELERY_REDIS_SOCKET_TIMEOUT", 5.0),
+    "retry_on_timeout": True,
+}
+if CELERY_TASK_TIME_LIMIT and CELERY_BROKER_VISIBILITY_TIMEOUT < CELERY_TASK_TIME_LIMIT:
+    raise RuntimeError(
+        "CELERY_BROKER_VISIBILITY_TIMEOUT must be >= CELERY_TASK_TIME_LIMIT "
+        "to avoid Redis redelivering long-running acknowledged-late tasks."
+    )
+CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+    "retry_policy": {
+        "timeout": env_float("CELERY_REDIS_RESULT_TIMEOUT", 5.0),
+    }
+}
 CELERY_BEAT_SCHEDULE = {
     "cleanup-expired-transactions": {
         "task": "apps.billing.tasks.cleanup_expired_transactions",
@@ -492,26 +663,35 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.billing.tasks.cleanup_expired_subscriptions",
         "schedule": 60 * 60,
     },
+    "expire-published-jobs": {
+        "task": "apps.recruitment.jobs.tasks.expire_published_jobs_task",
+        "schedule": 60 * 60,
+    },
+    "process-due-job-alerts": {
+        "task": "apps.communication.job_alerts.tasks.process_due_job_alerts_task",
+        "schedule": 60 * 60,
+    },
 }
 # ===== Redis Cache Configuration =====
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://redis:6379/1"),
+        "LOCATION": REDIS_CACHE_URL,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "IGNORE_EXCEPTIONS": env_bool("REDIS_IGNORE_EXCEPTIONS", default=True),
-            "SOCKET_CONNECT_TIMEOUT": 5,
-            "SOCKET_TIMEOUT": 5,
+            "IGNORE_EXCEPTIONS": env_bool("REDIS_IGNORE_EXCEPTIONS", default=DEBUG),
+            "SOCKET_CONNECT_TIMEOUT": env_float("REDIS_CONNECT_TIMEOUT", 5.0),
+            "SOCKET_TIMEOUT": env_float("REDIS_SOCKET_TIMEOUT", 5.0),
             "RETRY_ON_TIMEOUT": True,
-            "MAX_CONNECTIONS": 50,
+            "MAX_CONNECTIONS": env_int("REDIS_MAX_CONNECTIONS", 50),
             "CONNECTION_POOL_CLASS": "redis.connection.BlockingConnectionPool",
             "CONNECTION_POOL_CLASS_KWARGS": {
-                "max_connections": 50,
-                "timeout": 20,
+                "max_connections": env_int("REDIS_MAX_CONNECTIONS", 50),
+                "timeout": env_float("REDIS_POOL_BLOCK_TIMEOUT", 20.0),
             },
             # Serialization
             "SERIALIZER": "django_redis.serializers.json.JSONSerializer",
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
         },
         "KEY_PREFIX": "jobportal",
         "TIMEOUT": 60 * 30,  # 30 minutes default
@@ -519,7 +699,7 @@ CACHES = {
 }
 
 # Fallback to local memory cache in development if Redis not available
-if DEBUG and not os.getenv("REDIS_CACHE_URL"):
+if DEBUG and not _REDIS_EXPLICITLY_CONFIGURED and not env_bool("USE_REDIS_CACHE"):
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

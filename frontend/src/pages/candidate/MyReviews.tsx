@@ -34,32 +34,32 @@ function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () =>
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-white rounded-2xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-violet-500/5 group"
+            className="bg-card rounded-2xl p-5 border border-white/40 shadow-sm transition-all hover:shadow-lg hover:shadow-teal-500/5 group"
         >
             <div className="flex justify-between items-start gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                    <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
                         {review.company.logo_url ? (
                             <img src={review.company.logo_url} alt={review.company.company_name} className="h-6 w-6 object-contain" />
                         ) : (
-                            <Building2 className="text-gray-400" size={20} />
+                            <Building2 className="text-muted-foreground/60" size={20} />
                         )}
                     </div>
                     <div>
-                        <h4 className="font-bold text-gray-900 group-hover:text-primary transition-colors cursor-pointer">
+                        <h4 className="font-bold text-foreground group-hover:text-primary transition-colors cursor-pointer">
                             {review.company.company_name}
                         </h4>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             <span className="flex items-center gap-0.5">
                                 <Star size={12} className="fill-amber-400 text-amber-400" />
-                                <span className="font-bold text-gray-700">{review.rating.toFixed(1)}</span>
+                                <span className="font-bold text-foreground/80">{review.rating.toFixed(1)}</span>
                             </span>
                             <span>•</span>
                             <span>{format(new Date(review.created_at), 'dd MMM yyyy', { locale: vi })}</span>
                             {review.is_anonymous && (
                                 <>
                                     <span>•</span>
-                                    <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] font-medium">Ẩn danh</span>
+                                    <span className="bg-muted px-1.5 py-0.5 rounded text-[10px] font-medium">Ẩn danh</span>
                                 </>
                             )}
                         </div>
@@ -68,7 +68,7 @@ function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () =>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-gray-900 -mr-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/60 hover:text-foreground -mr-2">
                             <MoreVertical size={18} />
                         </Button>
                     </DropdownMenuTrigger>
@@ -84,15 +84,15 @@ function MyReviewCard({ review, onEdit, onDelete }: { review: any; onEdit: () =>
             </div>
 
             <div className="mt-4 pl-14">
-                <h5 className="font-bold text-sm text-gray-800 mb-1">{review.title}</h5>
-                <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-3">{review.content}</p>
+                <h5 className="font-bold text-sm text-foreground mb-1">{review.title}</h5>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">{review.content}</p>
 
                 <div className="flex gap-4 text-xs">
                     <div className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
                         <ThumbsUp size={13} className="fill-emerald-600 text-emerald-600" />
                         <span>{review.helpful_count} hữu ích</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                    <div className="flex items-center gap-1.5 text-muted-foreground bg-muted px-2 py-1 rounded-md border border-border/60">
                         <span>{review.status === 'approved' ? 'Đã duyệt' : 'Chờ duyệt'}</span>
                     </div>
                 </div>
@@ -142,13 +142,11 @@ export function MyReviews() {
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Page header */}
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Đánh giá của tôi"
-                    description="Quản lý các đánh giá bạn đã viết cho các công ty."
-                    icon={Star}
-                />
-            </div>
+            <PageHeader
+                title="Đánh giá của tôi"
+                description="Quản lý các đánh giá bạn đã viết cho các công ty."
+                icon={Star}
+            />
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {isLoading ? (
@@ -157,12 +155,12 @@ export function MyReviews() {
                         <Skeleton className="h-40 w-full rounded-3xl" />
                     </div>
                 ) : data?.results.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 border-dashed shadow-sm">
-                        <div className="h-20 w-20 bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="text-center py-20 bg-card rounded-2xl border border-border border-dashed shadow-sm">
+                        <div className="h-20 w-20 bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg shadow-teal-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Star className="h-10 w-10 text-white" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900 mb-2">Chưa có đánh giá nào</h3>
-                        <p className="text-sm text-slate-500 mx-auto max-w-md">
+                        <h3 className="text-lg font-bold text-foreground mb-2">Chưa có đánh giá nào</h3>
+                        <p className="text-sm text-muted-foreground mx-auto max-w-md">
                             Bạn chưa viết đánh giá cho công ty nào. Hãy để lại đánh giá sau khi phỏng vấn hoặc làm việc nhé.
                         </p>
                     </div>

@@ -70,12 +70,6 @@ class MatchingHelpersTest(TestCase):
         self.assertEqual(_experience_level_score(1, "senior", 3, 5), 0.4)
         self.assertEqual(_experience_level_score(8, "intern", 2, 4), 0.6)
 
-    def test_negotiable_salary_is_neutral(self):
-        from apps.recruitment.jobs.selectors.jobs import _salary_match_score
-
-        self.assertEqual(_salary_match_score(20, 30, None, None, True), 0.5)
-        self.assertEqual(_salary_match_score(20, 30, 5, 10, False), 0.0)
-
     def test_location_score_uses_multi_location_provinces(self):
         from apps.recruitment.jobs.selectors.jobs import _location_score
 

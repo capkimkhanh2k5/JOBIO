@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Brain } from 'lucide-react';
 
 interface Skill {
     id: number;
@@ -11,7 +10,7 @@ interface Skill {
     } | string | null;
     skill_name?: string;
     is_required: boolean;
-    proficiency_level: string | null;
+    proficiency_level?: string | null;
 }
 
 interface JobSkillsListProps {
@@ -22,64 +21,32 @@ export const JobSkillsList = ({ skills }: JobSkillsListProps) => {
     if (!skills || skills.length === 0) return null;
 
     return (
-        <section className="bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow-sm shadow-indigo-500/5 relative overflow-hidden group">
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                    <Brain size={22} />
+        <section className="bg-card rounded-2xl p-5 md:p-7 border border-border/80 shadow-sm space-y-3.5">
+            <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                    <Brain size={17} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Kỹ năng yêu cầu</h3>
+                <h3 className="text-base font-bold text-foreground">Kỹ năng yêu cầu</h3>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-                {skills.map((s, index) => (
-                    <motion.div
-                        key={s.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.05 }}
-                    >
-                        {/*
-                          Job detail currently mixes two backend shapes:
-                          nested skill object and flat skill_name from /jobs/:id/skills/.
-                        */}
-                        <div className="flex flex-col gap-2 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-blue-200 hover:bg-white transition-all cursor-default min-w-[140px]">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="font-bold text-gray-900">
-                                    {s.skill_name || (typeof s.skill === 'string' ? s.skill : s.skill?.name) || 'Kỹ năng'}
-                                </span>
-                                {s.is_required && (
-                                    <Badge variant="destructive" className="h-5 text-[10px] uppercase px-1.5 py-0 bg-red-50 text-red-600 border-red-100 hover:bg-red-50">
-                                        Bắt buộc
-                                    </Badge>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <div className="flex gap-0.5">
-                                    {[1, 2, 3].map((star) => (
-                                        <Star
-                                            key={star}
-                                            size={10}
-                                            className={cn(
-                                                "transition-colors",
-                                                (s.proficiency_level === 'expert' ||
-                                                    (s.proficiency_level === 'advanced' && star <= 2) ||
-                                                    (s.proficiency_level === 'middle' && star <= 2) ||
-                                                    (s.proficiency_level === 'basic' && star <= 1) ||
-                                                    (!s.proficiency_level && star <= 1))
-                                                    ? 'text-amber-400 fill-amber-400'
-                                                    : 'text-gray-200'
-                                            )}
-                                        />
-                                    ))}
-                                </div>
-                                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-                                    {s.proficiency_level || 'N/A'}
-                                </span>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+            <div className="flex flex-wrap gap-2 pt-1">
+                {skills.map((s, index) => {
+                    const skillName = s.skill_name || (typeof s.skill === 'string' ? s.skill : s.skill?.name) || 'Kỹ năng';
+                    return (
+                        <motion.div
+                            key={s.id ?? index}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: index * 0.03 }}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/60 border border-border/70 hover:bg-card hover:border-teal-500/30 transition-all cursor-default"
+                        >
+                            <span className="text-xs font-semibold text-foreground">
+                                {skillName}
+                            </span>
+                        </motion.div>
+                    );
+                })}
             </div>
         </section>
     );

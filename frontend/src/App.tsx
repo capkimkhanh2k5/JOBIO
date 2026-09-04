@@ -1,6 +1,5 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Lenis from '@studio-freight/lenis';
 import { useUiStore, UiState } from '@/store/uiStore';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -41,6 +40,7 @@ const PaymentResultPage = lazy(() => import('@/pages/company/Billing/PaymentResu
 const BillingDashboard = lazy(() => import('@/pages/company/Billing/BillingDashboard'));
 const CompanyInterviewsPage = lazy(() => import('@/pages/company/CompanyInterviews'));
 const CompanyProfile = lazy(() => import('@/pages/company/CompanyProfile'));
+const CompanyTeamPage = lazy(() => import('@/pages/company/CompanyTeamPage'));
 
 // Candidate area
 const CandidateLayout = lazy(() => import('@/components/candidate/CandidateLayout').then((module) => ({ default: module.CandidateLayout })));
@@ -48,6 +48,7 @@ const CandidateDashboard = lazy(() => import('@/pages/candidate/CandidateDashboa
 const CVManager = lazy(() => import('@/pages/candidate/CVManager'));
 const SuggestedJobs = lazy(() => import('@/pages/candidate/SuggestedJobs'));
 const MyApplications = lazy(() => import('@/pages/candidate/MyApplications'));
+
 const SavedJobs = lazy(() => import('@/pages/candidate/SavedJobs'));
 const CandidateInterviews = lazy(() => import('@/pages/candidate/Interviews'));
 const CandidateNotifications = lazy(() => import('@/pages/candidate/CandidateNotifications'));
@@ -67,6 +68,8 @@ const FinancialManagement = lazy(() => import('@/pages/admin/FinancialManagement
 const JobMarketplace = lazy(() => import('@/pages/admin/JobMarketplace'));
 const ViolationReports = lazy(() => import('@/pages/admin/ViolationReports'));
 const MasterData = lazy(() => import('@/pages/admin/MasterData'));
+const RecommendationOps = lazy(() => import('@/pages/admin/RecommendationOps'));
+const RecommendationTaxonomy = lazy(() => import('@/pages/admin/RecommendationTaxonomy'));
 const AdminNotificationsPage = lazy(() => import('@/pages/admin/AdminNotifications'));
 
 // Inner component – must live inside <BrowserRouter> to access router hooks
@@ -74,66 +77,15 @@ function AppInner() {
     const theme = useUiStore((state: UiState) => state.theme);
     const toggleCommand = useUiStore((state: UiState) => state.toggleCommand);
     const location = useLocation();
-    const lenisRef = useRef<Lenis | null>(null);
-
-    // Lenis smooth scroll – only active on public pages
-    const isDashboard = location.pathname.startsWith('/admin') ||
-        location.pathname.startsWith('/candidate') ||
-        location.pathname.startsWith('/company');
-
-    useEffect(() => {
-        if (isDashboard) return; // native scroll for dashboard areas
-
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-        });
-        lenisRef.current = lenis;
-
-        let rafId: number;
-        function raf(time: number) {
-            lenis.raf(time);
-            rafId = requestAnimationFrame(raf);
-        }
-        rafId = requestAnimationFrame(raf);
-        return () => {
-            if (lenisRef.current === lenis) {
-                lenisRef.current = null;
-            }
-            lenis.destroy();
-            cancelAnimationFrame(rafId);
-        };
-    }, [isDashboard]);
-
     useLayoutEffect(() => {
-        const scrollToTop = () => {
-            const lenis = lenisRef.current;
-            if (lenis) {
-                lenis.stop();
-                lenis.scrollTo(0, { immediate: true, force: true });
-                lenis.start();
-            }
-
-            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-        };
-
-        scrollToTop();
-        const frameId = requestAnimationFrame(scrollToTop);
-
-        return () => cancelAnimationFrame(frameId);
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
     }, [location.pathname, location.search]);
 
     useEffect(() => {
         const handleCustomScroll = () => {
-            const lenis = lenisRef.current;
-            if (lenis) {
-                lenis.scrollTo(0, { duration: 1.2 });
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
         window.addEventListener('app:scroll-to-top', handleCustomScroll);
         return () => window.removeEventListener('app:scroll-to-top', handleCustomScroll);
@@ -192,6 +144,8 @@ function AppInner() {
                         <Route path="notifications" element={<AdminNotificationsPage />} />
                         <Route path="analytics" element={<Navigate to="/admin/dashboard" replace />} />
                         <Route path="master-data" element={<MasterData />} />
+                        <Route path="recommendations" element={<RecommendationOps />} />
+                        <Route path="recommendation-taxonomy" element={<RecommendationTaxonomy />} />
                     </Route>
 
                     {/* ── Company area: own shell, no public header/footer ── */}
@@ -210,6 +164,7 @@ function AppInner() {
                         <Route path="jobs/:id/candidates" element={<ManageCandidates />} />
                         <Route path="candidates" element={<ManageCandidates />} />
                         <Route path="interviews" element={<CompanyInterviewsPage />} />
+                        <Route path="team" element={<CompanyTeamPage />} />
 
                         <Route path="analytics" element={<CompanyAnalyticsPage />} />
                         <Route path="notifications" element={<CompanyNotifications />} />
@@ -225,7 +180,7 @@ function AppInner() {
                     {/* ── Auth page: Standalone no footer ── */}
                     <Route path="/auth" element={
                         <RoleBasedRedirect>
-                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                            <div className="min-h-screen flex flex-col relative font-sans bg-card">
                                 <Header />
                                 <main className="flex-1 w-full relative z-10 flex flex-col">
                                     <PublicRoute><Auth /></PublicRoute>
@@ -237,7 +192,7 @@ function AppInner() {
                     {/* ── Public site: header + footer ── */}
                     <Route path="*" element={
                         <RoleBasedRedirect>
-                            <div className="min-h-screen flex flex-col relative font-sans bg-white">
+                            <div className="min-h-screen flex flex-col relative font-sans bg-card">
                                 <Header />
                                 <main className="flex-1 w-full relative z-10">
                                     <Routes>

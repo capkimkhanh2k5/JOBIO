@@ -1,11 +1,25 @@
 from rest_framework import serializers
 from .models import Recruiter
 from apps.core.users.serializers import CustomUserSerializer
+from apps.core.validators import validate_https_url_fields
 
 
 from .services.recruiters import calculate_profile_completeness_service
 
 from apps.geography.addresses.serializers import AddressDetailSerializer
+
+
+PROFILE_URL_FIELDS = [
+    "linkedin_url",
+    "facebook_url",
+    "github_url",
+    "portfolio_url",
+]
+
+
+def validate_recruiter_profile_input(attrs):
+    validate_https_url_fields(attrs, PROFILE_URL_FIELDS)
+    return attrs
 
 
 class RecruiterSerializer(serializers.ModelSerializer):
@@ -29,9 +43,6 @@ class RecruiterSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "desired_salary_min",
-            "desired_salary_max",
-            "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
@@ -121,9 +132,6 @@ class RecruiterDetailSerializer(RecruiterSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "desired_salary_min",
-            "desired_salary_max",
-            "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
@@ -166,13 +174,13 @@ class RecruiterCreateSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "desired_salary_min",
-            "desired_salary_max",
-            "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
         ]
+
+    def validate(self, attrs):
+        return validate_recruiter_profile_input(attrs)
 
 
 class RecruiterUpdateSerializer(serializers.ModelSerializer):
@@ -193,13 +201,13 @@ class RecruiterUpdateSerializer(serializers.ModelSerializer):
             "facebook_url",
             "github_url",
             "portfolio_url",
-            "desired_salary_min",
-            "desired_salary_max",
-            "salary_currency",
             "available_from_date",
             "years_of_experience",
             "highest_education_level",
         ]
+
+    def validate(self, attrs):
+        return validate_recruiter_profile_input(attrs)
 
 
 class ProfileCompletenessSerializer(serializers.Serializer):

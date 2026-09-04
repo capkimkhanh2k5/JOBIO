@@ -28,6 +28,7 @@ from apps.core.users.services.passkey import (
     _bytes_to_base64url,
     _base64url_to_bytes,
     _cache_key,
+    CHALLENGE_TTL,
     AuthenticationError,
 )
 
@@ -181,6 +182,10 @@ class TestUtilityFunctions(TestCase):
 
         key = _cache_key("session-abc", "authenticate")
         self.assertEqual(key, "passkey:challenge:authenticate:session-abc")
+
+    def test_challenge_ttl_is_short_lived(self):
+        """WebAuthn challenges should expire quickly."""
+        self.assertLessEqual(CHALLENGE_TTL, 60)
 
 
 # ============================================================================
@@ -628,14 +633,46 @@ class TestPasskeyAPIEndpoints(TestCase):
         """Test delete passkey thành công."""
         self._auth()
         passkey = _create_passkey(self.user, credential_id=b"\x01")
-        response = self.client.delete(f"/api/users/auth/passkey/{passkey.id}/delete/")
+        response = self.client.delete(
+            f"/api/users/auth/passkey/{passkey.id}/delete/",
+            {"current_password": "testpass123"},
+            format="json",
+        )
         self.assertEqual(response.status_code, http_status.HTTP_200_OK)
         self.assertEqual(UserPasskey.objects.filter(user=self.user).count(), 0)
+
+    def test_passkey_delete_requires_current_password(self):
+        """Test delete passkey yêu cầu xác thực lại mật khẩu."""
+        self._auth()
+        passkey = _create_passkey(self.user, credential_id=b"\x01")
+        response = self.client.delete(
+            f"/api/users/auth/passkey/{passkey.id}/delete/",
+            {},
+            format="json",
+        )
+        self.assertEqual(response.status_code, http_status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(UserPasskey.objects.filter(id=passkey.id).exists())
+
+    def test_passkey_delete_rejects_wrong_password(self):
+        """Test delete passkey từ chối mật khẩu hiện tại sai."""
+        self._auth()
+        passkey = _create_passkey(self.user, credential_id=b"\x01")
+        response = self.client.delete(
+            f"/api/users/auth/passkey/{passkey.id}/delete/",
+            {"current_password": "wrong-password"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, http_status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(UserPasskey.objects.filter(id=passkey.id).exists())
 
     def test_passkey_delete_not_found(self):
         """Test delete passkey không tồn tại."""
         self._auth()
-        response = self.client.delete("/api/users/auth/passkey/99999/delete/")
+        response = self.client.delete(
+            "/api/users/auth/passkey/99999/delete/",
+            {"current_password": "testpass123"},
+            format="json",
+        )
         self.assertEqual(response.status_code, http_status.HTTP_400_BAD_REQUEST)
 
     def test_passkey_delete_other_user(self):
@@ -643,7 +680,11 @@ class TestPasskeyAPIEndpoints(TestCase):
         self._auth()
         other_user = _create_user(email="other2@example.com")
         passkey = _create_passkey(other_user, credential_id=b"\x01")
-        response = self.client.delete(f"/api/users/auth/passkey/{passkey.id}/delete/")
+        response = self.client.delete(
+            f"/api/users/auth/passkey/{passkey.id}/delete/",
+            {"current_password": "testpass123"},
+            format="json",
+        )
         self.assertEqual(response.status_code, http_status.HTTP_400_BAD_REQUEST)
         # Passkey vẫn tồn tại
         self.assertTrue(UserPasskey.objects.filter(id=passkey.id).exists())
@@ -757,6 +798,19 @@ class TestPasskeySerializers(TestCase):
         from apps.core.users.serializers import PasskeyDeleteSerializer
 
         serializer = PasskeyDeleteSerializer(data={"passkey_id": 1})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_delete_confirm_serializer_requires_current_password(self):
+        """Test PasskeyDeleteConfirmSerializer yêu cầu current_password."""
+        from apps.core.users.serializers import PasskeyDeleteConfirmSerializer
+
+        serializer = PasskeyDeleteConfirmSerializer(data={})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("current_password", serializer.errors)
+
+        serializer = PasskeyDeleteConfirmSerializer(
+            data={"current_password": "testpass123"}
+        )
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_update_name_serializer_required(self):

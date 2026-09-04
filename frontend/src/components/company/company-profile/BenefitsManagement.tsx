@@ -153,14 +153,16 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
 
     return (
         <>
-        <Card className="border-slate-200 bg-white shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 pb-4 border-b border-border/50">
                 <div>
-                    <CardTitle className="flex items-center gap-2">
-                        <Heart className="w-5 h-5 text-violet-600" />
-                        Phúc lợi & Chế độ
+                    <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                        <div className="p-2 rounded-xl bg-pink-500/10 text-pink-500">
+                            <Heart className="w-4 h-4" />
+                        </div>
+                        Phúc lợi & Chế độ đãi ngộ
                     </CardTitle>
-                    <CardDescription>Giới thiệu những quyền lợi đặc biệt dành cho nhân viên (Tối đa 8 khoản).</CardDescription>
+                    <CardDescription className="text-xs text-muted-foreground font-medium mt-1">Giới thiệu những quyền lợi đặc biệt dành cho nhân viên (Tối đa 8 khoản).</CardDescription>
                 </div>
                 <Button
                     onClick={() => {
@@ -169,87 +171,47 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                         setIsAdding(true);
                     }}
                     disabled={isAdding || (benefits?.length || 0) >= 8}
-                    variant="outline"
-                    className="border-violet-500/30 bg-white text-violet-600 hover:bg-violet-50"
+                    className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white h-10 px-4 rounded-xl font-black shadow-md shadow-teal-500/15 text-xs transition-all cursor-pointer shrink-0"
                 >
-                    <Plus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 mr-1.5" />
                     Thêm phúc lợi
                 </Button>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-5 md:p-6 space-y-4">
                 {isAdding && (
-                    <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                        <h4 className="font-medium text-sm">Thêm phúc lợi mới</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-muted/60 p-4 rounded-2xl border border-teal-500/30 space-y-3 animate-in fade-in duration-200">
+                        <h4 className="font-black text-xs uppercase tracking-wider text-teal-600">Thêm phúc lợi mới</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <Select value={newBenefit.category_id} onValueChange={(val) => setNewBenefit({ ...newBenefit, category_id: val })}>
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="bg-card h-11 border-border rounded-xl font-bold text-xs">
                                     <SelectValue placeholder="Chọn danh mục" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white">
+                                <SelectContent className="bg-card border-border rounded-xl">
                                     {benefitCategories.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                        <SelectItem key={cat.id} value={String(cat.id)} className="font-bold cursor-pointer">{cat.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                             <Input
-                                placeholder="Tên phúc lợi (VD: Bảo hiểm sức khỏe)"
+                                placeholder="Tên phúc lợi (VD: Bảo hiểm sức khỏe PVI)"
                                 value={newBenefit.benefit_name}
                                 onChange={(e) => setNewBenefit({ ...newBenefit, benefit_name: e.target.value })}
-                                className="bg-white"
+                                className="bg-card h-11 border-border rounded-xl font-bold text-xs"
                             />
                             <div className="md:col-span-2">
                                 <Input
-                                    placeholder="Mô tả chi tiết"
+                                    placeholder="Mô tả chi tiết quyền lợi"
                                     value={newBenefit.description}
                                     onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
-                                    className="bg-white"
+                                    className="bg-card h-11 border-border rounded-xl font-medium text-xs"
                                 />
                             </div>
                         </div>
-                        <div className="flex items-center justify-end gap-2 pt-2">
-                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Hủy</Button>
-                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
-                                {addMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-2" />}
+                        <div className="flex items-center justify-end gap-2 pt-1">
+                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)} className="rounded-xl font-bold text-xs">Hủy</Button>
+                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs cursor-pointer">
+                                {addMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
                                 Thêm
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                {false && isAdding && (
-                    <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                        <h4 className="font-medium text-sm">ThÃªm phÃºc lá»£i má»›i</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Select value={newBenefit.category_id} onValueChange={(val) => setNewBenefit({ ...newBenefit, category_id: val })}>
-                                <SelectTrigger className="bg-white">
-                                    <SelectValue placeholder="Chá»n danh má»¥c" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    {benefitCategories.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Input
-                                placeholder="TÃªn phÃºc lá»£i (VD: Báº£o hiá»ƒm sá»©c khá»e)"
-                                value={newBenefit.benefit_name}
-                                onChange={(e) => setNewBenefit({ ...newBenefit, benefit_name: e.target.value })}
-                                className="bg-white"
-                            />
-                            <div className="md:col-span-2">
-                                <Input
-                                    placeholder="MÃ´ táº£ chi tiáº¿t"
-                                    value={newBenefit.description}
-                                    onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
-                                    className="bg-white"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-end gap-2 pt-2">
-                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Há»§y</Button>
-                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
-                                {addMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-2" />}
-                                ThÃªm
                             </Button>
                         </div>
                     </div>
@@ -257,7 +219,7 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
 
                 {isLoading ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+                        <Loader2 className="w-6 h-6 animate-spin text-teal-500" />
                     </div>
                 ) : benefits && benefits.length > 0 ? (
                     <Reorder.Group axis="y" values={benefits} onReorder={handleReorder} className="space-y-3">
@@ -269,18 +231,18 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                                     key={benefit.id}
                                     value={benefit}
                                     dragListener={!isEditing}
-                                    className={`bg-white border border-slate-200 rounded-xl p-4 flex gap-4 items-start shadow-sm hover:shadow-md transition-shadow ${isEditing ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
+                                    className={`bg-card border border-border/60 rounded-2xl p-4 flex gap-4 items-start shadow-xs hover:shadow-md transition-all ${isEditing ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`}
                                 >
                                     {isEditing ? (
                                         <div className="w-full space-y-3">
                                             <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-3">
                                                 <Select value={editingBenefit.category_id} onValueChange={(val) => setEditingBenefit({ ...editingBenefit, category_id: val })}>
-                                                    <SelectTrigger className="bg-white">
+                                                    <SelectTrigger className="bg-card h-10 border-border rounded-xl font-bold text-xs">
                                                         <SelectValue placeholder="Chọn danh mục" />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-white">
+                                                    <SelectContent className="bg-card border-border rounded-xl">
                                                         {benefitCategories.map((cat: any) => (
-                                                            <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
+                                                            <SelectItem key={cat.id} value={String(cat.id)} className="font-bold cursor-pointer">{cat.name}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
@@ -288,44 +250,44 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                                                     placeholder="Tên phúc lợi"
                                                     value={editingBenefit.benefit_name}
                                                     onChange={(e) => setEditingBenefit({ ...editingBenefit, benefit_name: e.target.value })}
-                                                    className="bg-white"
+                                                    className="bg-card h-10 border-border rounded-xl font-bold text-xs"
                                                 />
                                             </div>
                                             <Input
                                                 placeholder="Mô tả chi tiết"
                                                 value={editingBenefit.description}
                                                 onChange={(e) => setEditingBenefit({ ...editingBenefit, description: e.target.value })}
-                                                className="bg-white"
+                                                className="bg-card h-10 border-border rounded-xl font-medium text-xs"
                                             />
                                             <div className="flex items-center justify-end gap-2">
-                                                <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={updateMutation.isPending}>
-                                                    <X className="w-4 h-4 mr-2" />
+                                                <Button variant="ghost" size="sm" onClick={handleCancelEdit} disabled={updateMutation.isPending} className="rounded-xl font-bold text-xs">
+                                                    <X className="w-3.5 h-3.5 mr-1" />
                                                     Hủy
                                                 </Button>
-                                                <Button size="sm" onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
-                                                    {updateMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+                                                <Button size="sm" onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs cursor-pointer">
+                                                    {updateMutation.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Check className="w-3.5 h-3.5 mr-1" />}
                                                     Lưu
                                                 </Button>
                                             </div>
                                         </div>
                                     ) : (
                                         <>
-                                            <GripVertical className="w-5 h-5 text-slate-400 mt-1 cursor-grab" />
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <h4 className="font-semibold text-slate-900">{getBenefitName(benefit)}</h4>
-                                                    <span className="text-xs font-semibold px-2 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-100">
+                                            <GripVertical className="w-5 h-5 text-muted-foreground/40 mt-0.5 cursor-grab shrink-0" />
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-3 mb-1">
+                                                    <h4 className="font-black text-sm text-foreground">{getBenefitName(benefit)}</h4>
+                                                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-teal-500/10 text-teal-600 border border-teal-500/20 shrink-0">
                                                         {getBenefitCategoryName(benefit)}
                                                     </span>
                                                 </div>
-                                                <p className="text-sm text-slate-500">{benefit.description}</p>
+                                                <p className="text-xs font-medium text-muted-foreground leading-relaxed">{benefit.description}</p>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="icon" className="text-slate-500 hover:text-violet-600 hover:bg-violet-50" onClick={() => handleStartEdit(benefit)} aria-label="Chỉnh sửa phúc lợi">
-                                                    <Pencil className="w-4 h-4" />
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-teal-600 hover:bg-teal-50 rounded-lg cursor-pointer" onClick={() => handleStartEdit(benefit)} aria-label="Chỉnh sửa phúc lợi">
+                                                    <Pencil className="w-3.5 h-3.5" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => setDeleteTarget(benefit)}>
-                                                    <Trash2 className="w-4 h-4" />
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer" onClick={() => setDeleteTarget(benefit)}>
+                                                    <Trash2 className="w-3.5 h-3.5" />
                                                 </Button>
                                             </div>
                                         </>
@@ -335,47 +297,8 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                         })}
                     </Reorder.Group>
                 ) : (
-                    <div className="text-center py-12 border border-dashed rounded-xl border-slate-200 text-slate-500">
-                        Bạn chưa thêm phúc lợi nào.
-                    </div>
-                )}
-
-                {false && isAdding && (
-                    <div className="bg-slate-50 p-4 rounded-xl border border-violet-500/20 mt-4 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                        <h4 className="font-medium text-sm">Thêm phúc lợi mới</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Select value={newBenefit.category_id} onValueChange={(val) => setNewBenefit({ ...newBenefit, category_id: val })}>
-                                <SelectTrigger className="bg-white">
-                                    <SelectValue placeholder="Chọn danh mục" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white">
-                                    {benefitCategories.map((cat: any) => (
-                                        <SelectItem key={cat.id} value={String(cat.id)}>{cat.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Input
-                                placeholder="Tên phúc lợi (VD: Bảo hiểm sức khỏe)"
-                                value={newBenefit.benefit_name}
-                                onChange={(e) => setNewBenefit({ ...newBenefit, benefit_name: e.target.value })}
-                                className="bg-white"
-                            />
-                            <div className="md:col-span-2">
-                                <Input
-                                    placeholder="Mô tả chi tiết"
-                                    value={newBenefit.description}
-                                    onChange={(e) => setNewBenefit({ ...newBenefit, description: e.target.value })}
-                                    className="bg-white"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex items-center justify-end gap-2 pt-2">
-                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Hủy</Button>
-                            <Button size="sm" onClick={handleAdd} disabled={addMutation.isPending} className="bg-violet-600 hover:bg-violet-700 text-white">
-                                {addMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-2" />}
-                                Thêm
-                            </Button>
-                        </div>
+                    <div className="text-center py-12 border border-dashed rounded-2xl border-border text-muted-foreground text-xs font-medium">
+                        Chưa có phúc lợi nào được thêm. Hãy bấm "Thêm phúc lợi" để giới thiệu chế độ hấp dẫn đến ứng viên.
                     </div>
                 )}
             </CardContent>
@@ -390,7 +313,7 @@ export function BenefitsManagement({ companyId }: { companyId: string }) {
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl border-slate-200" disabled={deleteMutation.isPending}>
+                    <AlertDialogCancel className="rounded-xl border-border" disabled={deleteMutation.isPending}>
                         Hủy
                     </AlertDialogCancel>
                     <AlertDialogAction

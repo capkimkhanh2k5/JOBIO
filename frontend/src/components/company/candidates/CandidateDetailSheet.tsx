@@ -25,38 +25,35 @@ import {
     Award,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { sanitizeHtmlDocument } from '@/lib/sanitizeHtml';
 
 const STATUSES = [
-    { value: 'pending', label: 'Submitted' },
-    { value: 'reviewing', label: 'Reviewing' },
-    { value: 'shortlisted', label: 'Shortlisted' },
-    { value: 'interview', label: 'Interview' },
-    { value: 'offered', label: 'Offered' },
-    { value: 'accepted', label: 'Accepted' },
-    { value: 'rejected', label: 'Rejected' },
-    { value: 'withdrawn', label: 'Withdrawn' },
+    { value: 'pending', label: '1. Ứng tuyển mới' },
+    { value: 'interview', label: '2. Phỏng vấn & Đánh giá' },
+    { value: 'accepted', label: '3. Tuyển dụng / Offer' },
+    { value: 'rejected', label: '4. Đã từ chối' },
 ];
 
 const STATUS_LABEL_MAP: Record<string, string> = {
-    pending: 'Submitted',
-    reviewing: 'Reviewing',
-    shortlisted: 'Shortlisted',
-    interview: 'Interview',
-    offered: 'Offered',
-    accepted: 'Accepted',
-    rejected: 'Rejected',
-    withdrawn: 'Withdrawn',
+    pending: '1. Ứng tuyển mới',
+    reviewing: '2. Phỏng vấn & Đánh giá',
+    shortlisted: '2. Phỏng vấn & Đánh giá',
+    interview: '2. Phỏng vấn & Đánh giá',
+    offered: '3. Tuyển dụng / Offer',
+    accepted: '3. Tuyển dụng / Offer',
+    rejected: '4. Đã từ chối',
+    withdrawn: '4. Đã từ chối',
 };
 
 const STATUS_TRANSITIONS: Record<string, string[]> = {
-    pending: ['pending', 'reviewing', 'shortlisted', 'rejected'],
-    reviewing: ['reviewing', 'shortlisted', 'rejected'],
-    shortlisted: ['shortlisted', 'interview', 'rejected'],
-    interview: ['interview', 'offered', 'rejected'],
-    offered: ['offered', 'accepted', 'rejected'],
-    accepted: ['accepted'],
-    rejected: ['rejected'],
-    withdrawn: ['withdrawn'],
+    pending: ['pending', 'interview', 'rejected'],
+    reviewing: ['pending', 'interview', 'rejected'],
+    shortlisted: ['pending', 'interview', 'rejected'],
+    interview: ['interview', 'accepted', 'rejected'],
+    offered: ['interview', 'accepted', 'rejected'],
+    accepted: ['accepted', 'rejected'],
+    rejected: ['rejected', 'interview'],
+    withdrawn: ['rejected', 'interview'],
 };
 
 export function CandidateDetailSheet() {
@@ -125,14 +122,13 @@ export function CandidateDetailSheet() {
     const handlePreviewCv = async () => {
         if (!details) return;
 
-        const isUploadedCv = !details.cv_template_id && !!details.cv_url;
+        const isUploadedCv = !details.cv_template_id && !!details.cv_id;
 
         if (isUploadedCv) {
-            // CV_Upload: fetch PDF as blob → blob URL is same-origin → PDF viewer works
             try {
                 toast.loading('Đang tải CV...');
-                const res = await fetch(details.cv_url);
-                const blob = await res.blob();
+                const res = await applicationService.getCvFile(details.id);
+                const blob = res.data;
                 const blobUrl = URL.createObjectURL(blob);
                 setPdfBlobUrl(blobUrl);
                 setPreviewHtml(null);
@@ -211,7 +207,7 @@ export function CandidateDetailSheet() {
                     cv_name: appData.cv?.file_name || appData.cv_name || 'CV.pdf',
                     cv_id: appData.cv?.id || appData.cv_id || null,
                     cv_template_id: (appData as any).cv_template_id ?? null,
-                    cv_url: (appData as any).cv_url ?? null,
+                    cv_url: (appData as any).cv_file_url ?? (appData as any).cv_url ?? null,
                     applied_at: appData.applied_at,
                 });
                 setEducation([]);
@@ -365,15 +361,13 @@ export function CandidateDetailSheet() {
                                     </Button>
                                     <Button
                                         size="sm"
-                                        className="h-9 text-xs bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20"
+                                        className="h-9 text-xs bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20"
                                         onClick={async () => {
                                             if (!details) return;
-                                            const url = details.cv_url;
-                                            if (url) {
+                                            if (details.cv_id) {
                                                 try {
-                                                    // Fetch as blob to force download instead of opening in browser
-                                                    const res = await fetch(url);
-                                                    const blob = await res.blob();
+                                                    const res = await applicationService.getCvFile(details.id, true);
+                                                    const blob = res.data;
                                                     const blobUrl = URL.createObjectURL(blob);
                                                     const a = document.createElement('a');
                                                     a.href = blobUrl;
@@ -383,8 +377,7 @@ export function CandidateDetailSheet() {
                                                     document.body.removeChild(a);
                                                     setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
                                                 } catch {
-                                                    // CORS fallback — open in new tab
-                                                    window.open(url, '_blank');
+                                                    toast.error('Không thể tải CV. Vui lòng thử lại sau.');
                                                 }
                                             } else {
                                                 // No PDF saved yet — show HTML preview
@@ -419,18 +412,44 @@ export function CandidateDetailSheet() {
                                     Match: {details.match_score ?? details.ai_score ?? 0}%
                                 </div>
                             </div>
+                            {(details.match_reasons?.length > 0 || details.matched_skills?.length > 0 || details.missing_required_skills?.length > 0) && (
+                                <div className="mt-4 rounded-xl border border-teal-100 bg-teal-50/70 p-3">
+                                    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-teal-700">
+                                        Vì sao ứng viên phù hợp
+                                    </p>
+                                    {details.match_reasons?.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {details.match_reasons.slice(0, 5).map((reason: string, index: number) => (
+                                                <span key={`${reason}-${index}`} className="rounded-full border border-teal-100 bg-card px-2 py-1 text-[11px] font-medium text-teal-700">
+                                                    {reason}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {details.matched_skills?.length > 0 && (
+                                        <p className="mt-2 text-xs font-medium text-emerald-700">
+                                            Kỹ năng khớp: {details.matched_skills.slice(0, 6).join(', ')}
+                                        </p>
+                                    )}
+                                    {details.missing_required_skills?.length > 0 && (
+                                        <p className="mt-1 text-xs font-medium text-amber-700">
+                                            Cần kiểm tra thêm: {details.missing_required_skills.slice(0, 5).join(', ')}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="p-6 pt-0 flex-1 overflow-y-auto hide-scrollbar">
                             <Tabs defaultValue="cv" className="w-full mt-4">
-                                <TabsList className="w-full grid grid-cols-3 bg-slate-100/80 p-1 rounded-xl border border-slate-200 shadow-inner mb-6">
-                                    <TabsTrigger value="cv" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">
+                                <TabsList className="w-full grid grid-cols-3 bg-muted/80 p-1 rounded-xl border border-border shadow-inner mb-6">
+                                    <TabsTrigger value="cv" className="rounded-lg data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-muted-foreground">
                                         CV & Đơn
                                     </TabsTrigger>
-                                    <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">
+                                    <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-muted-foreground">
                                         Hồ sơ
                                     </TabsTrigger>
-                                    <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-slate-600">
+                                    <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md font-bold transition-all duration-300 text-muted-foreground">
                                         Hoạt động
                                     </TabsTrigger>
                                 </TabsList>
@@ -438,7 +457,7 @@ export function CandidateDetailSheet() {
                                 <TabsContent value="cv" className="space-y-6 m-0">
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5">
                                         <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <Building2 className="w-4 h-4 text-violet-600" />
+                                            <Building2 className="w-4 h-4 text-teal-600" />
                                             Thông tin job ứng tuyển
                                         </h3>
                                         <div className="grid gap-4 text-sm">
@@ -457,7 +476,7 @@ export function CandidateDetailSheet() {
 
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5">
                                         <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <FileText className="w-4 h-4 text-violet-600" />
+                                            <FileText className="w-4 h-4 text-teal-600" />
                                             Cover Letter
                                         </h3>
                                         <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
@@ -467,23 +486,23 @@ export function CandidateDetailSheet() {
 
                                     <div className="bg-secondary/30 border border-border/50 rounded-xl p-5">
                                         <h3 className="font-semibold flex items-center gap-2 mb-4">
-                                            <FileText className="w-4 h-4 text-violet-600" />
+                                            <FileText className="w-4 h-4 text-teal-600" />
                                             CV đính kèm
                                         </h3>
                                         <div className="grid gap-4 text-sm">
                                             <div className="flex justify-between items-center py-2 border-b border-border/50 last:border-0 gap-4">
                                                 <span className="text-muted-foreground">CV đính kèm:</span>
-                                                {details.cv_url || details.cv_id ? (
+                                                {details.cv_id ? (
                                                     <button
                                                         type="button"
                                                         onClick={handlePreviewCv}
-                                                        className="flex cursor-pointer items-center gap-1.5 font-medium text-violet-600 transition-colors hover:text-violet-700 hover:underline"
+                                                        className="flex cursor-pointer items-center gap-1.5 font-medium text-teal-600 transition-colors hover:text-teal-700 hover:underline"
                                                     >
                                                         <FileText className="w-4 h-4" />
                                                         {details.cv_name || 'CV.pdf'}
                                                     </button>
                                                 ) : (
-                                                    <span className="font-medium text-slate-900">Chưa tải lên CV</span>
+                                                    <span className="font-medium text-foreground">Chưa tải lên CV</span>
                                                 )}
                                             </div>
                                         </div>
@@ -495,7 +514,7 @@ export function CandidateDetailSheet() {
                                     <div className="space-y-6">
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <GraduationCap className="w-4 h-4 text-violet-600" />
+                                                <GraduationCap className="w-4 h-4 text-teal-600" />
                                                 Học vấn
                                             </h3>
                                             <div className="space-y-4">
@@ -517,7 +536,7 @@ export function CandidateDetailSheet() {
 
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <Briefcase className="w-4 h-4 text-violet-600" />
+                                                <Briefcase className="w-4 h-4 text-teal-600" />
                                                 Kinh nghiệm
                                             </h3>
                                             <div className="space-y-6">
@@ -545,7 +564,7 @@ export function CandidateDetailSheet() {
 
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <Target className="w-4 h-4 text-violet-600" />
+                                                <Target className="w-4 h-4 text-teal-600" />
                                                 Kỹ năng
                                             </h3>
                                             {skills.length > 0 ? (
@@ -566,7 +585,7 @@ export function CandidateDetailSheet() {
 
                                         <div>
                                             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                <Award className="w-4 h-4 text-violet-600" />
+                                                <Award className="w-4 h-4 text-teal-600" />
                                                 Chứng chỉ
                                             </h3>
                                             {certifications.length > 0 ? (
@@ -603,7 +622,7 @@ export function CandidateDetailSheet() {
                                             <div className="flex justify-end mt-3">
                                                 <Button
                                                     size="sm"
-                                                    className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20"
+                                                    className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20"
                                                     onClick={handleSaveNote}
                                                     disabled={savingNote || !activityNote.trim()}
                                                 >
@@ -615,12 +634,12 @@ export function CandidateDetailSheet() {
                                         <div className="relative space-y-4 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-0.5 before:bg-border">
                                             {timelineItems.map((item, idx) => (
                                                 <div key={item.id} className="relative pl-14">
-                                                    <div className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-violet-200 bg-white text-slate-700 shadow-sm">
-                                                        <Calendar className={`w-4 h-4 ${idx === 0 ? 'text-violet-600' : 'text-slate-500'}`} />
+                                                    <div className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-teal-200 bg-card text-foreground/80 shadow-sm">
+                                                        <Calendar className={`w-4 h-4 ${idx === 0 ? 'text-teal-600' : 'text-muted-foreground'}`} />
                                                     </div>
-                                                    <div className="rounded-xl border border-border/50 bg-white/80 p-4 shadow-sm">
+                                                    <div className="rounded-xl border border-border/50 bg-card/80 p-4 shadow-sm">
                                                         <div className="mb-1 flex items-center justify-between gap-3">
-                                                            <div className="font-semibold text-slate-900">
+                                                            <div className="font-semibold text-foreground">
                                                                 {STATUS_LABEL_MAP[item.new_status || item.status] || item.new_status || item.status}
                                                             </div>
                                                             <div className="shrink-0 text-xs text-muted-foreground">
@@ -660,7 +679,7 @@ export function CandidateDetailSheet() {
                     <Button
                         variant="default"
                         size="sm"
-                        className="cursor-pointer border border-white/30 bg-slate-900 px-4 font-semibold text-white shadow-lg hover:bg-slate-700"
+                        className="cursor-pointer border border-white/30 bg-foreground/90 px-4 font-semibold text-white shadow-lg hover:bg-foreground/70"
                         onClick={handleClosePreview}
                     >
                         Đóng
@@ -676,10 +695,10 @@ export function CandidateDetailSheet() {
                         />
                     ) : previewMode === 'html' && previewHtml ? (
                         <iframe
-                            srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${previewHtml}</body></html>`}
+                            srcDoc={sanitizeHtmlDocument(previewHtml)}
                             style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
                             title="CV Preview"
-                            sandbox="allow-same-origin allow-scripts"
+                            sandbox=""
                         />
                     ) : null}
                 </div>

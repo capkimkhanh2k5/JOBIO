@@ -1,6 +1,7 @@
+import { EmptyState } from '@/components/shared/EmptyState';
 import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { MapPin, Video, Phone, MoreHorizontal, Eye, Edit, XCircle } from 'lucide-react';
+import { MapPin, Video, Phone, MoreHorizontal, Eye, Edit, XCircle, ArrowRight, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -22,24 +23,25 @@ interface CompanyInterviewListProps {
     onInterviewClick: (id: string) => void;
     onEditInterview: (id: string) => void;
     onCancelInterview: (id: string) => void;
+    onCreateInterview?: () => void;
 }
 
-export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, onEditInterview, onCancelInterview }: CompanyInterviewListProps) {
+export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, onEditInterview, onCancelInterview, onCreateInterview }: CompanyInterviewListProps) {
     const getStatusTextAndColor = (status: Interview['status']) => {
         switch (status) {
-            case 'scheduled': return { text: 'Sắp tới', color: 'bg-blue-100 text-blue-700 border-blue-200' };
-            case 'rescheduled': return { text: 'Đổi lịch', color: 'bg-violet-100 text-violet-700 border-violet-200' };
+            case 'scheduled': return { text: 'Sắp tới', color: 'bg-primary/12 text-primary border-primary/20' };
+            case 'rescheduled': return { text: 'Đổi lịch', color: 'bg-teal-100 text-teal-700 border-teal-200' };
             case 'confirmed': return { text: 'Đã xác nhận', color: 'bg-green-100 text-green-700 border-green-200' };
-            case 'completed': return { text: 'Hoàn thành', color: 'bg-slate-100 text-slate-700 border-slate-200' };
+            case 'completed': return { text: 'Hoàn thành', color: 'bg-muted text-foreground/80 border-border' };
             case 'cancelled': return { text: 'Đã hủy', color: 'bg-red-100 text-red-700 border-red-200' };
             case 'no_show': return { text: 'Vắng mặt', color: 'bg-red-100 text-red-700 border-red-200' };
             case 'no-show': return { text: 'Vắng mặt', color: 'bg-red-100 text-red-700 border-red-200' };
             case 'in_progress': return { text: 'Đang diễn ra', color: 'bg-amber-100 text-amber-700 border-amber-200' };
-            default: return { text: 'Không rõ', color: 'bg-slate-100 text-slate-700' };
+            default: return { text: 'Không rõ', color: 'bg-muted text-foreground/80' };
         }
     };
 
-    const inferInterviewMode = (rawType?: string | null) => {
+    const inferInterviewMode = (rawType?: string | null): 'video' | 'phone' | 'onsite' => {
         const typeName = String(rawType || '').toLowerCase();
         if (typeName.includes('trực tiếp') || typeName.includes('onsite') || typeName.includes('tại công ty')) {
             return 'onsite';
@@ -50,51 +52,57 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
         return 'video';
     };
 
-    const getTypeIconAndText = (type: Interview['type']) => {
+    const getTypeIconAndText = (type: 'video' | 'phone' | 'onsite') => {
         switch (type) {
-            case 'video': return { icon: Video, text: 'Online' };
-            case 'phone': return { icon: Phone, text: 'Điện thoại' };
-            case 'onsite': return { icon: MapPin, text: 'Trực tiếp' };
-            default: return { icon: Video, text: 'Online' };
+            case 'video': return { icon: Video, text: 'Phỏng vấn Online (Video)' };
+            case 'phone': return { icon: Phone, text: 'Phỏng vấn Qua Điện thoại' };
+            case 'onsite': return { icon: MapPin, text: 'Phỏng vấn Trực tiếp' };
         }
     };
 
     if (isLoading) {
         return (
-            <div className="w-full">
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
-                    <div className="bg-slate-50 min-h-[50px] border-b border-slate-200"></div>
-                    {Array(5).fill(null).map((_, i) => (
-                        <div key={i} className="flex p-4 border-b border-slate-200 gap-4">
-                            <Skeleton className="w-12 h-12 rounded-full" />
-                            <div className="flex-1 space-y-2">
-                                <Skeleton className="h-4 w-[200px]" />
-                                <Skeleton className="h-3 w-[150px]" />
+            <div className="p-6 space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="flex items-center justify-between p-4 border border-border rounded-xl">
+                        <div className="flex items-center gap-4">
+                            <Skeleton className="w-10 h-10 rounded-full" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="h-3 w-24" />
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <Skeleton className="h-6 w-20 rounded-md" />
+                    </div>
+                ))}
             </div>
         );
     }
 
     if (!interviews || interviews.length === 0) {
         return (
-            <div className="p-12 text-center text-slate-500 border border-slate-200 rounded-xl">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Video className="w-8 h-8 text-slate-400" />
-                </div>
-                <h3 className="text-lg font-medium text-slate-900 mb-2">Không có lịch phỏng vấn nào</h3>
-                <p className="text-sm">Chưa có lịch phỏng vấn nào trong thời gian này hoặc không khớp với bộ lọc.</p>
-            </div>
+            <EmptyState
+                icon={Calendar}
+                title="Chưa có lịch phỏng vấn nào"
+                description="Bắt đầu sắp xếp lịch phỏng vấn đầu tiên của bạn với ứng viên tiềm năng ngay hôm nay."
+                action={
+                    onCreateInterview
+                        ? {
+                              label: 'Tạo lịch ngay',
+                              onClick: onCreateInterview,
+                              icon: ArrowRight,
+                          }
+                        : undefined
+                }
+            />
         );
     }
 
     return (
-        <div className="w-full border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="w-full border border-border/60 rounded-3xl overflow-hidden bg-card shadow-sm">
             <div className="overflow-x-auto min-h-[600px]">
                 <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-50 text-slate-600 font-medium">
+                    <thead className="bg-muted text-muted-foreground font-medium">
                         <tr>
                             <th className="px-6 py-4 whitespace-nowrap">Ứng viên</th>
                             <th className="px-6 py-4 whitespace-nowrap">Vị trí ứng tuyển</th>
@@ -113,34 +121,34 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
                             const TypeIcon = typeInfo.icon;
 
                             return (
-                                <tr key={interview.id} className="hover:bg-slate-50:bg-slate-800/40 transition-colors group">
+                                <tr key={interview.id} className="hover:bg-muted:bg-foreground/80/40 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="w-10 h-10 border border-slate-200">
+                                            <Avatar className="w-10 h-10 border border-border">
                                                 <AvatarImage src={interview.candidate_avatar || (interview as any).applicant_avatar} alt={(interview as any).applicant_name || interview.candidate_name} />
                                                 <AvatarFallback>{((interview as any).applicant_name || interview.candidate_name || '??').substring(0, 2).toUpperCase()}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-semibold text-slate-900">{(interview as any).applicant_name || interview.candidate_name}</p>
-                                                <p className="text-xs text-slate-500">#{interview.candidate_id || (interview as any).applicant_id}</p>
+                                                <p className="font-semibold text-foreground">{(interview as any).applicant_name || interview.candidate_name}</p>
+                                                <p className="text-xs text-muted-foreground">#{interview.candidate_id || (interview as any).applicant_id}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 font-medium text-slate-700">
+                                    <td className="px-6 py-4 font-medium text-foreground/80">
                                         {interview.job_title}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 text-slate-600">
-                                            <TypeIcon className="w-4 h-4 text-slate-400" />
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <TypeIcon className="w-4 h-4 text-muted-foreground/60" />
                                             <span>{typeInfo.text}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
-                                            <span className="font-medium text-slate-900">
+                                            <span className="font-medium text-foreground">
                                                 {format(parseISO(interview.scheduled_at), 'HH:mm')} - {format(new Date(parseISO(interview.scheduled_at).getTime() + interview.duration_minutes * 60000), 'HH:mm')}
                                             </span>
-                                            <span className="text-sm text-slate-500">
+                                            <span className="text-sm text-muted-foreground">
                                                 {format(parseISO(interview.scheduled_at), 'dd/MM/yyyy', { locale: vi })}
                                             </span>
                                         </div>
@@ -156,13 +164,13 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 rounded-lg border border-transparent text-slate-500 transition-colors hover:border-slate-200 hover:bg-slate-100 hover:text-slate-700 focus-visible:border-slate-200 focus-visible:bg-slate-100"
+                                                    className="h-8 w-8 rounded-lg border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-muted hover:text-foreground/80 focus-visible:border-border focus-visible:bg-muted"
                                                 >
                                                     <span className="sr-only">Open menu</span>
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-[160px] bg-white border-slate-200">
+                                            <DropdownMenuContent align="end" className="w-[160px] bg-card border-border">
                                                 <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem onClick={() => onInterviewClick(interview.id)} className="cursor-pointer">
@@ -189,8 +197,8 @@ export function CompanyInterviewList({ interviews, isLoading, onInterviewClick, 
 
             {/* Pagination placeholder if needed */}
             {interviews.length > 0 && (
-                <div className="py-4 px-6 border-t border-slate-200 flex items-center justify-between text-sm text-slate-500">
-                    <div>Hiển thị <span className="font-medium text-slate-900">1</span> đến <span className="font-medium text-slate-900">{interviews.length}</span> trong <span className="font-medium text-slate-900">{interviews.length}</span> kết quả</div>
+                <div className="py-4 px-6 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
+                    <div>Hiển thị <span className="font-medium text-foreground">1</span> đến <span className="font-medium text-foreground">{interviews.length}</span> trong <span className="font-medium text-foreground">{interviews.length}</span> kết quả</div>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" disabled>Trước</Button>
                         <Button variant="outline" size="sm" disabled>Sau</Button>

@@ -23,6 +23,9 @@ class FileUploadSerializer(serializers.ModelSerializer):
             "entity_type",
             "entity_id",
             "is_public",
+            "moderation_status",
+            "moderation_reasons",
+            "safe_preview_url",
             "created_at",
             "file",  # write only
         ]
@@ -35,6 +38,9 @@ class FileUploadSerializer(serializers.ModelSerializer):
             "file_type",
             "file_size",
             "mime_type",
+            "moderation_status",
+            "moderation_reasons",
+            "safe_preview_url",
             "created_at",
         ]
 

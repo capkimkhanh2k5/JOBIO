@@ -1,0 +1,522 @@
+[
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 1,
+  "fields": {
+    "job": 1,
+    "skill": 4,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-02-04T17:08:34Z",
+    "updated_at": "2026-02-06T18:08:34Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 2,
+  "fields": {
+    "job": 1,
+    "skill": 6,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 3,
+    "created_at": "2026-05-19T11:47:22Z",
+    "updated_at": "2026-05-21T10:47:22Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 3,
+  "fields": {
+    "job": 1,
+    "skill": 7,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 2,
+    "created_at": "2026-03-23T17:37:44Z",
+    "updated_at": "2026-03-24T17:37:44Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 4,
+  "fields": {
+    "job": 2,
+    "skill": 1,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 3,
+    "created_at": "2026-02-24T10:12:09Z",
+    "updated_at": "2026-02-25T15:12:09Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 5,
+  "fields": {
+    "job": 2,
+    "skill": 9,
+    "is_required": false,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-02-22T22:57:01Z",
+    "updated_at": "2026-02-24T22:57:01Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 6,
+  "fields": {
+    "job": 2,
+    "skill": 2,
+    "is_required": true,
+    "proficiency_level": "expert",
+    "years_required": 2,
+    "created_at": "2026-04-26T00:54:06Z",
+    "updated_at": "2026-04-27T07:54:06Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 7,
+  "fields": {
+    "job": 3,
+    "skill": 9,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-04-15T14:44:58Z",
+    "updated_at": "2026-04-17T13:44:58Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 8,
+  "fields": {
+    "job": 3,
+    "skill": 8,
+    "is_required": false,
+    "proficiency_level": "expert",
+    "years_required": 1,
+    "created_at": "2026-01-28T08:53:16Z",
+    "updated_at": "2026-01-28T15:53:16Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 9,
+  "fields": {
+    "job": 3,
+    "skill": 5,
+    "is_required": false,
+    "proficiency_level": "advanced",
+    "years_required": 1,
+    "created_at": "2026-03-05T13:14:23Z",
+    "updated_at": "2026-03-07T03:14:23Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 10,
+  "fields": {
+    "job": 3,
+    "skill": 3,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 1,
+    "created_at": "2026-01-03T04:02:34Z",
+    "updated_at": "2026-01-05T23:02:34Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 11,
+  "fields": {
+    "job": 4,
+    "skill": 8,
+    "is_required": true,
+    "proficiency_level": "advanced",
+    "years_required": 3,
+    "created_at": "2026-05-09T02:54:01Z",
+    "updated_at": "2026-05-09T21:54:01Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 12,
+  "fields": {
+    "job": 4,
+    "skill": 1,
+    "is_required": true,
+    "proficiency_level": "expert",
+    "years_required": 2,
+    "created_at": "2026-01-05T14:49:57Z",
+    "updated_at": "2026-01-07T06:49:57Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 13,
+  "fields": {
+    "job": 4,
+    "skill": 6,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 3,
+    "created_at": "2026-01-05T02:51:13Z",
+    "updated_at": "2026-01-05T20:51:13Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 14,
+  "fields": {
+    "job": 4,
+    "skill": 2,
+    "is_required": true,
+    "proficiency_level": "advanced",
+    "years_required": 1,
+    "created_at": "2026-02-25T02:12:14Z",
+    "updated_at": "2026-02-25T16:12:14Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 15,
+  "fields": {
+    "job": 5,
+    "skill": 1,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 3,
+    "created_at": "2026-03-27T20:15:47Z",
+    "updated_at": "2026-03-29T17:15:47Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 16,
+  "fields": {
+    "job": 5,
+    "skill": 2,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-01-21T21:54:09Z",
+    "updated_at": "2026-01-22T19:54:09Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 17,
+  "fields": {
+    "job": 5,
+    "skill": 3,
+    "is_required": true,
+    "proficiency_level": "advanced",
+    "years_required": 3,
+    "created_at": "2026-05-14T00:31:47Z",
+    "updated_at": "2026-05-14T10:31:47Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 18,
+  "fields": {
+    "job": 5,
+    "skill": 8,
+    "is_required": false,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-05-05T23:19:48Z",
+    "updated_at": "2026-05-07T04:19:48Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 19,
+  "fields": {
+    "job": 6,
+    "skill": 1,
+    "is_required": false,
+    "proficiency_level": "advanced",
+    "years_required": 3,
+    "created_at": "2026-04-04T23:33:49Z",
+    "updated_at": "2026-04-05T14:33:49Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 20,
+  "fields": {
+    "job": 6,
+    "skill": 4,
+    "is_required": true,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-02-23T16:41:09Z",
+    "updated_at": "2026-02-25T19:41:09Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 21,
+  "fields": {
+    "job": 6,
+    "skill": 2,
+    "is_required": true,
+    "proficiency_level": "advanced",
+    "years_required": 1,
+    "created_at": "2026-02-27T04:24:09Z",
+    "updated_at": "2026-02-26T19:24:09Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 22,
+  "fields": {
+    "job": 6,
+    "skill": 8,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 2,
+    "created_at": "2026-02-09T22:11:35Z",
+    "updated_at": "2026-02-11T18:11:35Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 23,
+  "fields": {
+    "job": 7,
+    "skill": 4,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 3,
+    "created_at": "2026-02-07T18:42:24Z",
+    "updated_at": "2026-02-09T08:42:24Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 24,
+  "fields": {
+    "job": 7,
+    "skill": 6,
+    "is_required": true,
+    "proficiency_level": "expert",
+    "years_required": 2,
+    "created_at": "2026-01-18T08:18:48Z",
+    "updated_at": "2026-01-17T23:18:48Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 25,
+  "fields": {
+    "job": 8,
+    "skill": 6,
+    "is_required": false,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-04-09T07:19:28Z",
+    "updated_at": "2026-04-10T01:19:28Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 26,
+  "fields": {
+    "job": 8,
+    "skill": 7,
+    "is_required": false,
+    "proficiency_level": "expert",
+    "years_required": 3,
+    "created_at": "2026-01-11T17:24:41Z",
+    "updated_at": "2026-01-13T08:24:41Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 27,
+  "fields": {
+    "job": 8,
+    "skill": 5,
+    "is_required": false,
+    "proficiency_level": "advanced",
+    "years_required": 2,
+    "created_at": "2026-05-14T20:49:19Z",
+    "updated_at": "2026-05-16T22:49:19Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 28,
+  "fields": {
+    "job": 8,
+    "skill": 4,
+    "is_required": false,
+    "proficiency_level": "expert",
+    "years_required": 2,
+    "created_at": "2026-04-04T02:49:25Z",
+    "updated_at": "2026-04-04T07:49:25Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 29,
+  "fields": {
+    "job": 9,
+    "skill": 9,
+    "is_required": false,
+    "proficiency_level": "advanced",
+    "years_required": 1,
+    "created_at": "2026-02-22T06:44:58Z",
+    "updated_at": "2026-02-23T05:44:58Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 30,
+  "fields": {
+    "job": 9,
+    "skill": 3,
+    "is_required": true,
+    "proficiency_level": "beginner",
+    "years_required": 2,
+    "created_at": "2026-03-30T06:10:17Z",
+    "updated_at": "2026-04-01T06:10:17Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 31,
+  "fields": {
+    "job": 10,
+    "skill": 3,
+    "is_required": true,
+    "proficiency_level": "beginner",
+    "years_required": 2,
+    "created_at": "2026-03-29T12:21:34Z",
+    "updated_at": "2026-03-30T16:21:34Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 32,
+  "fields": {
+    "job": 10,
+    "skill": 5,
+    "is_required": true,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-01-19T22:51:41Z",
+    "updated_at": "2026-01-21T20:51:41Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 33,
+  "fields": {
+    "job": 10,
+    "skill": 1,
+    "is_required": false,
+    "proficiency_level": "advanced",
+    "years_required": 2,
+    "created_at": "2026-02-28T13:21:47Z",
+    "updated_at": "2026-02-28T22:21:47Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 34,
+  "fields": {
+    "job": 11,
+    "skill": 4,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-01-19T23:30:01Z",
+    "updated_at": "2026-01-20T12:30:01Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 35,
+  "fields": {
+    "job": 11,
+    "skill": 8,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-04-08T06:16:54Z",
+    "updated_at": "2026-04-10T12:16:54Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 36,
+  "fields": {
+    "job": 11,
+    "skill": 2,
+    "is_required": false,
+    "proficiency_level": "beginner",
+    "years_required": 1,
+    "created_at": "2026-01-18T16:42:42Z",
+    "updated_at": "2026-01-20T08:42:42Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 37,
+  "fields": {
+    "job": 12,
+    "skill": 5,
+    "is_required": true,
+    "proficiency_level": "expert",
+    "years_required": 2,
+    "created_at": "2026-02-08T21:21:43Z",
+    "updated_at": "2026-02-09T12:21:43Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 38,
+  "fields": {
+    "job": 12,
+    "skill": 2,
+    "is_required": true,
+    "proficiency_level": "expert",
+    "years_required": 3,
+    "created_at": "2026-03-17T05:34:06Z",
+    "updated_at": "2026-03-18T02:34:06Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 39,
+  "fields": {
+    "job": 12,
+    "skill": 6,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-04-26T00:57:40Z",
+    "updated_at": "2026-04-27T10:57:40Z"
+  }
+},
+{
+  "model": "recruitment_job_skills.jobskill",
+  "pk": 40,
+  "fields": {
+    "job": 12,
+    "skill": 4,
+    "is_required": true,
+    "proficiency_level": "intermediate",
+    "years_required": 2,
+    "created_at": "2026-02-26T08:23:15Z",
+    "updated_at": "2026-02-27T08:23:15Z"
+  }
+}
+]

@@ -19,6 +19,7 @@ from .services.company_benefits import (
     BenefitUpdateInput,
 )
 from .selectors.company_benefits import list_benefits_by_company, get_benefit_by_id
+from apps.company.companies.permissions import can_manage_company_profile
 from apps.company.companies.selectors.companies import get_company_by_id
 
 
@@ -35,6 +36,8 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
     - PATCH  /api/companies/:company_pk/benefits/reorder/   - Sắp xếp lại thứ tự
     """
 
+    serializer_class = CompanyBenefitSerializer
+
     def get_queryset(self):
         company_pk = self.kwargs.get("company_pk")
         if company_pk:
@@ -50,6 +53,19 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
         """Helper để lấy company từ URL parameter"""
         company_pk = self.kwargs.get("company_pk")
         return get_company_by_id(company_id=company_pk)
+
+    def _check_company_manager(self, request, company):
+        if not can_manage_company_profile(company, request.user):
+            return Response(
+                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+        return None
+
+    def _benefit_matches_company(self, benefit, company_pk) -> bool:
+        try:
+            return benefit.company_id == int(company_pk)
+        except (TypeError, ValueError):
+            return False
 
     def list(self, request, company_pk=None):
         """GET /api/companies/:company_pk/benefits/ - Danh sách phúc lợi"""
@@ -71,10 +87,9 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if company.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_company_manager(request, company)
+        if permission_error:
+            return permission_error
 
         serializer = CompanyBenefitCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,7 +106,7 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, company_pk=None, pk=None):
         """GET /api/companies/:company_pk/benefits/:pk/ - Chi tiết phúc lợi"""
         benefit = get_benefit_by_id(pk)
-        if not benefit:
+        if not benefit or not self._benefit_matches_company(benefit, company_pk):
             return Response(
                 {"detail": "Not found benefit"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -102,15 +117,14 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
     def update(self, request, company_pk=None, pk=None):
         """PUT /api/companies/:company_pk/benefits/:pk/ - Cập nhật phúc lợi"""
         benefit = get_benefit_by_id(pk)
-        if not benefit:
+        if not benefit or not self._benefit_matches_company(benefit, company_pk):
             return Response(
                 {"detail": "Not found benefit"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if benefit.company.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_company_manager(request, benefit.company)
+        if permission_error:
+            return permission_error
 
         serializer = CompanyBenefitUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -127,15 +141,14 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
     def destroy(self, request, company_pk=None, pk=None):
         """DELETE /api/companies/:company_pk/benefits/:pk/ - Xóa phúc lợi"""
         benefit = get_benefit_by_id(pk)
-        if not benefit:
+        if not benefit or not self._benefit_matches_company(benefit, company_pk):
             return Response(
                 {"detail": "Not found benefit"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if benefit.company.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_company_manager(request, benefit.company)
+        if permission_error:
+            return permission_error
 
         delete_benefit(benefit)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -149,10 +162,9 @@ class CompanyBenefitViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if company.user != request.user:
-            return Response(
-                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
-            )
+        permission_error = self._check_company_manager(request, company)
+        if permission_error:
+            return permission_error
 
         serializer = BenefitReorderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

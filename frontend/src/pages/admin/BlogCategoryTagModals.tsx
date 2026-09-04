@@ -39,34 +39,34 @@ export function CategoryFormModal({ category, onClose }: CategoryProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
           <div className="flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 text-blue-600" />
-            <h2 className="font-black text-slate-900">{isEdit ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
+            <FolderOpen className="w-5 h-5 text-primary" />
+            <h2 className="font-black text-foreground">{isEdit ? 'Sửa danh mục' : 'Thêm danh mục'}</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center">
             <X className="w-4 h-4" />
           </button>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên danh mục *</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tên danh mục *</label>
             <input value={name} onChange={e => setName(e.target.value)}
-              className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium"
+              className="mt-1 w-full px-3 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm font-medium"
               placeholder="VD: Tuyển dụng, Nghề nghiệp..." />
           </div>
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mô tả</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
             <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3}
-              className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium resize-none"
+              className="mt-1 w-full px-3 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm font-medium resize-none"
               placeholder="Mô tả ngắn..." />
           </div>
         </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/60">
           <Button variant="ghost" onClick={onClose} className="rounded-xl">Hủy</Button>
           <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !name.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold px-6">
+            className="bg-primary hover:bg-primary text-white rounded-xl font-bold px-6">
             {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             {isEdit ? 'Lưu' : 'Tạo danh mục'}
           </Button>
@@ -98,27 +98,27 @@ export function TagFormModal({ onClose }: TagProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
           <div className="flex items-center gap-2">
-            <Tag className="w-5 h-5 text-blue-600" />
-            <h2 className="font-black text-slate-900">Thêm Tag mới</h2>
+            <Tag className="w-5 h-5 text-primary" />
+            <h2 className="font-black text-foreground">Thêm Tag mới</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-muted flex items-center justify-center">
             <X className="w-4 h-4" />
           </button>
         </div>
         <div className="p-6">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên Tag *</label>
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tên Tag *</label>
           <input value={name} onChange={e => setName(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && name.trim()) mutation.mutate(); }}
-            className="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm font-medium"
+            className="mt-1 w-full px-3 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm font-medium"
             placeholder="VD: remote-work, kỹ năng mềm..." />
         </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/60">
           <Button variant="ghost" onClick={onClose} className="rounded-xl">Hủy</Button>
           <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || !name.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold px-6">
+            className="bg-primary hover:bg-primary text-white rounded-xl font-bold px-6">
             {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Tạo Tag
           </Button>

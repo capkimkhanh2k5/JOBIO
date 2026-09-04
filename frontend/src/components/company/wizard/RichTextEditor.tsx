@@ -23,7 +23,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
         onUpdate: ({ editor }) => onChange(editor.getHTML()),
         editorProps: {
             attributes: {
-                class: 'prose prose-slate max-w-none focus:outline-none text-sm leading-relaxed px-4 py-3 text-slate-900 [&_*]:text-slate-900',
+                class: 'prose prose-slate max-w-none focus:outline-none text-sm leading-relaxed px-4 py-3 text-foreground [&_*]:text-foreground',
             },
         },
     });
@@ -48,8 +48,8 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
             className={cn(
                 'p-1.5 rounded-lg transition-all duration-150',
                 active
-                    ? 'bg-violet-600 text-white'
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-teal-600 text-white'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
             )}
         >
             {children}
@@ -60,19 +60,19 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
         <div
             className={cn(
                 'glass-card rounded-xl overflow-hidden transition-all duration-200',
-                'border border-slate-200 bg-white focus-within:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5 shadow-sm',
+                'border border-border bg-card focus-within:border-teal-500/40 focus:ring-4 focus:ring-teal-500/5 shadow-sm',
                 error && 'border-red-500/50 bg-red-50/10'
             )}
         >
             {/* Toolbar */}
-            <div className="flex items-center gap-1 px-3 py-2 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-1 px-3 py-2 border-b border-border/60 bg-muted/50">
                 <ToolBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive('bold')}>
                     <Bold size={14} />
                 </ToolBtn>
                 <ToolBtn onClick={() => editor?.chain().focus().toggleItalic().run()} active={editor?.isActive('italic')}>
                     <Italic size={14} />
                 </ToolBtn>
-                <div className="w-px h-4 bg-slate-200 mx-1" />
+                <div className="w-px h-4 bg-muted mx-1" />
                 <ToolBtn onClick={() => editor?.chain().focus().toggleBulletList().run()} active={editor?.isActive('bulletList')}>
                     <List size={14} />
                 </ToolBtn>
@@ -85,7 +85,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = '180p
             <EditorContent
                 editor={editor}
                 style={{ minHeight }}
-                className="cursor-text [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.tiptap_p.is-editor-empty:first-child]:before:text-slate-400 [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none"
+                className="cursor-text [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_.tiptap_p.is-editor-empty:first-child]:before:text-muted-foreground/60 [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none"
             />
         </div>
     );

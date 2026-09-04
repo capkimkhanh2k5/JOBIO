@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      torch-embedding-stack:
+        patterns:
+          - "torch*"
+          - "sentence-transformers*"
+          - "transformers*"
+          - "safetensors*"
+

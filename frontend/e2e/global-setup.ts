@@ -11,6 +11,8 @@ const python = process.env.E2E_BACKEND_PYTHON ?? (existsSync(venvPython) ? venvP
 export default async function globalSetup() {
   const env = {
     ...process.env,
+    DJANGO_SETTINGS_MODULE: 'config.settings_test',
+    E2E_SQLITE_NAME: process.env.E2E_SQLITE_NAME ?? '.e2e.sqlite3',
     DEBUG: '1',
     CELERY_BROKER_URL: 'memory://',
     CELERY_RESULT_BACKEND: 'cache+memory://',

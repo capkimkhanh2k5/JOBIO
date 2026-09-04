@@ -23,10 +23,10 @@ const PROFICIENCY_LEVELS = [
 ];
 
 const LEVEL_COLORS: Record<string, string> = {
-    basic: 'bg-slate-500/10 text-slate-500',
-    intermediate: 'bg-blue-500/10 text-blue-500',
-    advanced: 'bg-violet-500/10 text-violet-500',
-    fluent: 'bg-cyan-500/10 text-cyan-600',
+    basic: 'bg-muted0/10 text-muted-foreground',
+    intermediate: 'bg-primary/80/10 text-primary',
+    advanced: 'bg-teal-500/10 text-teal-500',
+    fluent: 'bg-teal-500/10 text-teal-600',
     native: 'bg-emerald-500/10 text-emerald-600',
 };
 
@@ -77,17 +77,37 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
 
     return (
         <Dialog open={open} onOpenChange={o => !o && onClose()}>
-            <DialogContent className="bg-white max-w-sm rounded-[24px] border border-slate-200 shadow-xl">
-                <DialogHeader>
-                    <DialogTitle>{isEdit ? 'Chỉnh sửa ngôn ngữ' : 'Thêm ngôn ngữ'}</DialogTitle>
-                </DialogHeader>
+            <DialogContent className="bg-card max-w-md rounded-[28px] border border-teal-500/20 dark:border-teal-500/30 shadow-2xl overflow-hidden p-0">
+                {/* Header Banner */}
+                <div className="relative bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent p-5 border-b border-border/50">
+                    <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-2xl bg-teal-600/10 dark:bg-teal-400/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20 shrink-0 shadow-xs">
+                            <LangIcon className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-bold text-foreground">
+                                    {isEdit ? 'Chỉnh sửa ngôn ngữ' : 'Thêm ngoại ngữ mới'}
+                                </h3>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isEdit ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-teal-500/10 text-teal-600 border-teal-500/20'}`}>
+                                    {isEdit ? 'Chỉnh sửa' : 'Thêm mới'}
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Cập nhật các ngoại ngữ bạn tự tin giao tiếp và làm việc
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-                <div className="space-y-5 mt-2">
+                <div className="p-5 space-y-4">
                     <div className="space-y-2">
-                        <Label>Ngôn ngữ</Label>
+                        <Label className="text-xs font-semibold">Chọn ngôn ngữ <span className="text-destructive">*</span></Label>
                         <Select value={selectedLangId} onValueChange={setSelectedLangId} disabled={isEdit}>
-                            <SelectTrigger className=""><SelectValue placeholder="Chọn ngôn ngữ" /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30">
+                                <SelectValue placeholder="Chọn ngôn ngữ..." />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-56">
                                 {availableLanguages.map(l => (
                                     <SelectItem key={l.id} value={l.id.toString()}>{l.language_name}</SelectItem>
                                 ))}
@@ -96,9 +116,11 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Mức độ</Label>
+                        <Label className="text-xs font-semibold">Trình độ thành thạo</Label>
                         <Select value={proficiency} onValueChange={(v) => setProficiency(v as LanguageProficiency)} disabled={isNative}>
-                            <SelectTrigger className=""><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30">
+                                <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
                                 {PROFICIENCY_LEVELS.filter(p => p.value !== 'native').map(p =>
                                     <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
@@ -107,17 +129,32 @@ const LangForm = ({ open, onClose, entry, userId, availableLanguages }: LangForm
                         </Select>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Switch id="is-native" checked={isNative}
-                            onCheckedChange={v => { setIsNative(v); if (v) setProficiency('native'); else setProficiency('fluent'); }} />
-                        <Label htmlFor="is-native" className="cursor-pointer">Đây là ngôn ngữ chính</Label>
+                    <div className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between ${isNative ? 'bg-amber-500/10 border-amber-500/30' : 'bg-muted/30 border-border/60'}`}>
+                        <div className="flex items-center gap-3">
+                            <Switch 
+                                id="is-native" 
+                                checked={isNative}
+                                onCheckedChange={v => { setIsNative(v); if (v) setProficiency('native'); else setProficiency('fluent'); }} 
+                            />
+                            <Label htmlFor="is-native" className="cursor-pointer text-sm font-medium text-foreground">
+                                Tiếng mẹ đẻ (Ngôn ngữ chính)
+                            </Label>
+                        </div>
+                        {isNative && (
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                        )}
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-2">
-                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full">Huỷ</Button>
-                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8"
-                            disabled={mutation.isPending || !selectedLangId}>
-                            {mutation.isPending ? 'Lưu...' : (isEdit ? 'Lưu thay đổi' : 'Thêm')}
+                    <div className="flex justify-end gap-3 pt-3 border-t border-border/40">
+                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full px-5">
+                            Hủy
+                        </Button>
+                        <Button 
+                            onClick={() => mutation.mutate()} 
+                            className="rounded-full px-7 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-teal-600/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            disabled={mutation.isPending || !selectedLangId}
+                        >
+                            {mutation.isPending ? 'Đang lưu...' : (isEdit ? 'Lưu thay đổi' : 'Thêm ngôn ngữ')}
                         </Button>
                     </div>
                 </div>
@@ -174,12 +211,12 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex justify-between items-center"
+                                    className="bg-muted border border-border p-5 rounded-2xl flex justify-between items-center"
                                     onMouseEnter={() => setHoveredId(String(lang.id))}
                                     onMouseLeave={() => setHoveredId(null)}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center text-violet-600">
+                                        <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600">
                                             <LangIcon className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -201,7 +238,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                                     </div>
 
                                     <div className="flex gap-1 transition-opacity" style={{ opacity: hoveredId === String(lang.id) ? 1 : 0, pointerEvents: hoveredId === String(lang.id) ? 'auto' : 'none' }}>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-100 hover:text-violet-600"
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-teal-100 hover:text-teal-600"
                                             onClick={() => { setEditEntry(lang); setDialogOpen(true); }}>
                                             <Pencil className="w-3.5 h-3.5" />
                                         </Button>
@@ -219,7 +256,7 @@ export const LanguagesSection = ({ userId }: { userId: number }) => {
                     <motion.button
                         whileHover={{ scale: 1.01 }}
                         onClick={() => { setEditEntry(null); setDialogOpen(true); }}
-                        className="border-dashed border-2 border-slate-300 bg-slate-50/50 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-violet-50 hover:border-violet-400 hover:text-violet-600 transition-all min-h-[80px]"
+                        className="border-dashed border-2 border-border bg-muted/50 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-teal-50 hover:border-teal-400 hover:text-teal-600 transition-all min-h-[80px]"
                     >
                         <Plus className="w-5 h-5 text-muted-foreground" />
                         <span className="text-xs font-bold text-muted-foreground">Thêm ngôn ngữ</span>

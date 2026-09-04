@@ -47,6 +47,25 @@ def set_cv_as_default(cv: RecruiterCV) -> RecruiterCV:
     return cv
 
 
+@transaction.atomic
+def delete_cv_preserving_default(cv: RecruiterCV) -> None:
+    recruiter = cv.recruiter
+    was_default = cv.is_default
+
+    cv.delete()
+
+    if not was_default:
+        return
+
+    replacement = (
+        RecruiterCV.objects.filter(recruiter=recruiter)
+        .order_by("-updated_at", "-id")
+        .first()
+    )
+    if replacement:
+        set_cv_as_default(replacement)
+
+
 def build_cv_data_from_profile(recruiter) -> dict:
     """
     Build cv_data dict from recruiter profile.
@@ -340,7 +359,6 @@ def create_cv_direct_upload_signature(recruiter, cv_name: str = None) -> dict:
     }
 
 
-@transaction.atomic
 def create_cv_from_direct_upload(
     recruiter, upload_data: dict, cv_name: str = None
 ) -> RecruiterCV:
@@ -357,22 +375,28 @@ def create_cv_from_direct_upload(
     )
     try:
         pdf_bytes = _download_pdf(secure_url)
-
-        cv = RecruiterCV.objects.create(
-            recruiter=recruiter,
-            template=None,
-            cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
-            cv_data={},
-            cv_url=secure_url,
-            pdf_generated_at=timezone.now(),
-            is_default=False,
-            is_public=True,
-        )
     except Exception:
         _delete_orphan_cloudinary_file(secure_url, "raw")
         raise
 
-    transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+    try:
+        with transaction.atomic():
+            cv = RecruiterCV.objects.create(
+                recruiter=recruiter,
+                template=None,
+                cv_name=_normalize_cv_name(cv_name or public_id.rsplit("/", 1)[-1]),
+                cv_data={},
+                cv_url=secure_url,
+                pdf_generated_at=timezone.now(),
+                is_default=False,
+                is_public=True,
+                parse_status=RecruiterCV.ParseStatus.QUEUED,
+            )
+            transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+    except Exception:
+        _delete_orphan_cloudinary_file(secure_url, "raw")
+        raise
+
     logger.debug(
         "Validated direct CV upload: cv_id=%s, bytes=%d", cv.id, len(pdf_bytes)
     )
@@ -445,7 +469,6 @@ def _validate_direct_upload_metadata(
             raise ValueError("invalid_upload_size") from exc
 
 
-@transaction.atomic
 def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
     """
     Upload file PDF lên Cloudinary và tạo RecruiterCV mới (CV_Upload).
@@ -477,20 +500,22 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
         cv_name = file.name
 
     try:
-        cv = RecruiterCV.objects.create(
-            recruiter=recruiter,
-            template=None,
-            cv_name=_normalize_cv_name(cv_name),
-            cv_data={},
-            cv_url=cv_url,
-            pdf_generated_at=timezone.now(),
-            is_default=False,
-            is_public=True,
-        )
+        with transaction.atomic():
+            cv = RecruiterCV.objects.create(
+                recruiter=recruiter,
+                template=None,
+                cv_name=_normalize_cv_name(cv_name),
+                cv_data={},
+                cv_url=cv_url,
+                pdf_generated_at=timezone.now(),
+                is_default=False,
+                is_public=True,
+                parse_status=RecruiterCV.ParseStatus.QUEUED,
+            )
 
-        # Dispatch async CV parsing task via Celery
-        # The task will download the PDF, extract text, parse with LLM, and update cv_data
-        transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
+            # Dispatch async CV parsing task via Celery
+            # The task will download the PDF, extract text, parse with LLM, and update cv_data
+            transaction.on_commit(lambda: _dispatch_cv_parse(cv.id))
     except Exception:
         _delete_orphan_cloudinary_file(cv_url, "raw")
         raise
@@ -501,10 +526,29 @@ def upload_cv_pdf(recruiter, file, cv_name: str = None) -> RecruiterCV:
 def _dispatch_cv_parse(cv_id: int):
     """Dispatch CV parsing task, with graceful fallback if Celery is unavailable."""
     try:
+        from apps.core.caching import (
+            CACHE_TIMEOUT_SHORT,
+            CacheKeyBuilder,
+            CacheService,
+        )
         from apps.candidate.recruiter_cvs.tasks import parse_cv_task
 
-        parse_cv_task.delay(cv_id)
+        enqueue_key = CacheKeyBuilder.task_enqueue("parse_cv", cv_id)
+        if not CacheService.add(enqueue_key, timeout=CACHE_TIMEOUT_SHORT):
+            logger.debug("CV parse task already queued for CV %s", cv_id)
+            return
+        try:
+            parse_cv_task.apply_async(args=[cv_id])
+            logger.info(f"Dispatched CV parsing task for CV {cv_id}")
+        except Exception:
+            CacheService.delete(enqueue_key)
+            raise
     except Exception as e:
+        RecruiterCV.objects.filter(id=cv_id).update(
+            parse_status=RecruiterCV.ParseStatus.FAILED,
+            parse_error_code="dispatch_failed",
+            parse_error_message=str(e)[:255],
+        )
         logger.warning(
             f"Could not dispatch async CV parse task for CV {cv_id}: {e}. "
             "Celery may not be running. Matching will fallback to recruiter profile."
@@ -675,6 +719,8 @@ def auto_generate_cv(recruiter, template_id: int = None) -> RecruiterCV:
         cv_data=cv_data,
         is_default=False,
         is_public=True,
+        parse_status=RecruiterCV.ParseStatus.PARSED,
+        parsed_at=timezone.now(),
     )
 
     return cv

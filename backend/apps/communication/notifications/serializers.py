@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notification
+from .models import Notification, NotificationPreference
 from apps.communication.notification_types.models import NotificationType
 
 
@@ -61,6 +61,7 @@ class NotificationMarkReadSerializer(serializers.Serializer):
     notification_ids = serializers.ListField(
         child=serializers.IntegerField(),
         required=False,
+        max_length=100,
         help_text="List of notification IDs to mark as read",
     )
     read_all = serializers.BooleanField(
@@ -75,11 +76,15 @@ class NotificationMarkReadSerializer(serializers.Serializer):
         return data
 
 
-class NotificationSettingSerializer(serializers.Serializer):
+class NotificationSettingSerializer(serializers.ModelSerializer):
     """Serializer cho cài đặt thông báo."""
 
-    email_notifications = serializers.BooleanField(default=True)
-    push_notifications = serializers.BooleanField(default=True)
-    job_alerts = serializers.BooleanField(default=True)
-    application_updates = serializers.BooleanField(default=True)
-    message_notifications = serializers.BooleanField(default=True)
+    class Meta:
+        model = NotificationPreference
+        fields = [
+            "email_notifications",
+            "push_notifications",
+            "job_alerts",
+            "application_updates",
+            "message_notifications",
+        ]

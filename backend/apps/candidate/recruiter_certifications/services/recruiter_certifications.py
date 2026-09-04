@@ -25,6 +25,13 @@ class CertificationInput(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+def _validate_certification_dates(issue_date, expiry_date, does_not_expire) -> None:
+    if expiry_date and issue_date and expiry_date < issue_date:
+        raise ValueError("Expiry date must be after issue date")
+    if does_not_expire and expiry_date:
+        raise ValueError("Expiry date should be empty when does_not_expire=True")
+
+
 @transaction.atomic
 def create_certification(
     recruiter: Recruiter, data: CertificationInput
@@ -41,12 +48,22 @@ def create_certification(
     next_order = (max_order or 0) + 1
 
     fields = data.model_dump(exclude_unset=True)
+    _validate_certification_dates(
+        fields.get("issue_date"),
+        fields.get("expiry_date"),
+        fields.get("does_not_expire", False),
+    )
 
     if "certification_name" in fields:
         existing = RecruiterCertification.objects.filter(
             recruiter=recruiter, certification_name__iexact=fields["certification_name"]
         ).first()
         if existing:
+            _validate_certification_dates(
+                fields.get("issue_date", existing.issue_date),
+                fields.get("expiry_date", existing.expiry_date),
+                fields.get("does_not_expire", existing.does_not_expire),
+            )
             for field, value in fields.items():
                 setattr(existing, field, value)
             existing.save()
@@ -66,6 +83,11 @@ def update_certification(
     Cập nhật thông tin chứng chỉ.
     """
     fields = data.model_dump(exclude_unset=True)
+    _validate_certification_dates(
+        fields.get("issue_date", certification.issue_date),
+        fields.get("expiry_date", certification.expiry_date),
+        fields.get("does_not_expire", certification.does_not_expire),
+    )
 
     for field, value in fields.items():
         setattr(certification, field, value)

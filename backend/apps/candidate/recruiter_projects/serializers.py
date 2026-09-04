@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.core.validators import validate_https_url
 from .models import RecruiterProject
 
 
@@ -39,6 +40,7 @@ class ProjectCreateSerializer(serializers.Serializer):
     technologies_used = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
+        validate_https_url(attrs.get("project_url", ""))
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
         is_ongoing = attrs.get("is_ongoing", False)
@@ -72,6 +74,7 @@ class ProjectUpdateSerializer(serializers.Serializer):
     technologies_used = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, attrs):
+        validate_https_url(attrs.get("project_url", ""))
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
         is_ongoing = attrs.get("is_ongoing")

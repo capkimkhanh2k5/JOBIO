@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.core.validators import validate_https_url
 from .models import RecruiterCertification
 
 
@@ -45,6 +46,7 @@ class CertificationCreateSerializer(serializers.Serializer):
     does_not_expire = serializers.BooleanField(required=False, default=False)
 
     def validate(self, attrs):
+        validate_https_url(attrs.get("credential_url", ""))
         issue_date = attrs.get("issue_date")
         expiry_date = attrs.get("expiry_date")
         does_not_expire = attrs.get("does_not_expire", False)
@@ -82,6 +84,7 @@ class CertificationUpdateSerializer(serializers.Serializer):
     does_not_expire = serializers.BooleanField(required=False)
 
     def validate(self, attrs):
+        validate_https_url(attrs.get("credential_url", ""))
         issue_date = attrs.get("issue_date")
         expiry_date = attrs.get("expiry_date")
         does_not_expire = attrs.get("does_not_expire")

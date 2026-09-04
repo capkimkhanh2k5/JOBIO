@@ -24,6 +24,8 @@ class JobCategorySerializer(serializers.ModelSerializer):
             "parent_name",
             "children_count",
             "is_active",
+            "domain",
+            "is_publishable",
             "display_order",
             "created_at",
         ]
@@ -42,8 +44,21 @@ class JobCategoryTreeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobCategory
-        fields = ["id", "name", "slug", "icon_url", "display_order", "children"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "icon_url",
+            "domain",
+            "is_publishable",
+            "display_order",
+            "children",
+        ]
 
     def get_children(self, obj):
-        children = obj.children.filter(is_active=True).order_by("display_order", "name")
+        children = obj.children.filter(
+            is_active=True,
+            domain=JobCategory.Domain.IT,
+            is_publishable=True,
+        ).order_by("display_order", "name")
         return JobCategoryTreeSerializer(children, many=True).data

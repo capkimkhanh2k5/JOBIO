@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import fitz
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.db import connection
+from django.test import TestCase, TransactionTestCase, override_settings
 from rest_framework.test import APITestCase
 
 from apps.core.users.models import CustomUser
@@ -196,16 +197,8 @@ class NormalizeParsedDataTest(TestCase):
         self.assertEqual(
             result["skills"],
             [
-                {
-                    "name": "Python",
-                    "proficiency_level": "intermediate",
-                    "years_of_experience": None,
-                },
-                {
-                    "name": "React",
-                    "proficiency_level": "intermediate",
-                    "years_of_experience": None,
-                },
+                {"name": "Python"},
+                {"name": "React"},
             ],
         )
 
@@ -1033,6 +1026,85 @@ class UploadCvPdfServiceTest(TestCase):
             )
 
         mock_cleanup.assert_called_once_with(secure_url, "raw")
+
+
+class UploadCvPdfTransactionBoundaryTest(TransactionTestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            email="transaction-upload@example.test",
+            password="password123",
+            full_name="Transaction Uploader",
+        )
+        self.recruiter = Recruiter.objects.create(user=self.user)
+
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs._dispatch_cv_parse")
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs.save_raw_file")
+    def test_upload_does_not_hold_transaction_during_cloudinary_upload(
+        self, mock_save_raw_file, mock_dispatch
+    ):
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import upload_cv_pdf
+
+        in_atomic_during_upload = []
+
+        def fake_save_raw_file(*args, **kwargs):
+            in_atomic_during_upload.append(connection.in_atomic_block)
+            return "https://res.cloudinary.com/demo/raw/upload/cv.pdf"
+
+        mock_save_raw_file.side_effect = fake_save_raw_file
+        uploaded_file = SimpleUploadedFile(
+            "alex-cv.pdf",
+            _build_test_cv_bytes(),
+            content_type="application/pdf",
+        )
+
+        cv = upload_cv_pdf(self.recruiter, uploaded_file)
+
+        self.assertEqual(in_atomic_during_upload, [False])
+        self.assertEqual(cv.cv_url, "https://res.cloudinary.com/demo/raw/upload/cv.pdf")
+        mock_dispatch.assert_called_once_with(cv.id)
+
+    @override_settings(
+        CLOUDINARY_STORAGE={
+            "CLOUD_NAME": "demo",
+            "API_KEY": "api-key",
+            "API_SECRET": "api-secret",
+        },
+        CV_UPLOAD_MAX_BYTES=10 * 1024 * 1024,
+        CV_PDF_MAX_PAGES=3,
+    )
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs._dispatch_cv_parse")
+    @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
+    def test_direct_upload_does_not_hold_transaction_during_pdf_download(
+        self, mock_download, mock_dispatch
+    ):
+        from apps.candidate.recruiter_cvs.services.recruiter_cvs import (
+            create_cv_from_direct_upload,
+        )
+
+        in_atomic_during_download = []
+
+        def fake_download(url):
+            in_atomic_during_download.append(connection.in_atomic_block)
+            return _build_test_cv_bytes()
+
+        public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'d' * 32}"
+        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
+        mock_download.side_effect = fake_download
+
+        cv = create_cv_from_direct_upload(
+            self.recruiter,
+            {
+                "public_id": public_id,
+                "secure_url": secure_url,
+                "resource_type": "raw",
+                "bytes": 12345,
+            },
+            "alex-cv.pdf",
+        )
+
+        self.assertEqual(in_atomic_during_download, [False])
+        self.assertEqual(cv.cv_url, secure_url)
+        mock_dispatch.assert_called_once_with(cv.id)
 
 
 @override_settings(

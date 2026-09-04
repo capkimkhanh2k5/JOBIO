@@ -27,15 +27,15 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
 
     if (!hasActiveSubscription) {
         return (
-            <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm group">
-                <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-violet-50/50 blur-3xl group-hover:bg-violet-100 transition-colors duration-700" />
+            <div className="relative overflow-hidden rounded-[32px] border border-border bg-card p-8 shadow-sm group">
+                <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-teal-50/50 blur-3xl group-hover:bg-teal-100 transition-colors duration-700" />
                 <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 border border-slate-100 group-hover:scale-110 group-hover:text-violet-400 transition-all duration-500">
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground/40 border border-border/60 group-hover:scale-110 group-hover:text-teal-400 transition-all duration-500">
                         <ZapOff className="h-7 w-7" />
                     </div>
-                    <h3 className="text-base font-black text-slate-900 mb-1">Chưa có gói dịch vụ</h3>
-                    <p className="text-xs text-slate-500 font-medium mb-5 px-4">Nâng cấp ngay để mở khóa các công cụ tuyển dụng chuyên nghiệp.</p>
-                    <Link to="/pricing" className="px-6 py-2.5 rounded-full bg-slate-900 text-white text-[11px] font-black hover:bg-slate-800 transition-all flex items-center gap-2">
+                    <h3 className="text-base font-black text-foreground mb-1">Chưa có gói dịch vụ</h3>
+                    <p className="text-xs text-muted-foreground font-medium mb-5 px-4">Nâng cấp ngay để mở khóa các công cụ tuyển dụng chuyên nghiệp.</p>
+                    <Link to="/pricing" className="px-6 py-2.5 rounded-full bg-foreground/90 text-white text-[11px] font-black hover:bg-foreground/80 transition-all flex items-center gap-2">
                         Khám phá các gói <Zap className="h-3 w-3 fill-amber-400 text-amber-400" />
                     </Link>
                 </div>
@@ -63,11 +63,11 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
     const planThemes = {
         plus: {
             icon: Briefcase,
-            bgColor: "bg-blue-50",
-            iconColor: "text-blue-600",
-            borderColor: "border-blue-100",
-            labelBg: "bg-blue-50 text-blue-700 border-blue-100",
-            glowColor: "from-blue-600 via-blue-400 to-blue-600"
+            bgColor: "bg-primary/8",
+            iconColor: "text-primary",
+            borderColor: "border-primary/12",
+            labelBg: "bg-primary/8 text-primary border-primary/12",
+            glowColor: "from-primary via-teal-400 to-primary"
         },
         pro: {
             icon: Rocket,
@@ -87,11 +87,11 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
         },
         default: {
             icon: Zap,
-            bgColor: "bg-slate-900",
+            bgColor: "bg-foreground/90",
             iconColor: "text-amber-400",
-            borderColor: "border-slate-800",
+            borderColor: "border-foreground/20",
             labelBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
-            glowColor: "from-violet-600 via-fuchsia-500 to-violet-600"
+            glowColor: "from-teal-600 via-fuchsia-500 to-teal-600"
         }
     };
 
@@ -99,7 +99,7 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
     const PlanIcon = theme.icon;
 
     return (
-        <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-lg transition-all duration-500 hover:shadow-xl hover:border-violet-200">
+        <div className="relative overflow-hidden rounded-[32px] border border-border bg-card shadow-lg transition-all duration-500 hover:shadow-xl hover:border-teal-200">
             {/* Premium Header Gradient */}
             <div className={cn("absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r z-20", theme.glowColor)} />
             
@@ -117,13 +117,13 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">{planDisplayName}</h3>
+                                <h3 className="text-xl font-black text-foreground tracking-tight leading-none">{planDisplayName}</h3>
                                 <div className={cn("px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest flex items-center", theme.labelBg)}>
                                     <div className="w-1 h-1 rounded-full bg-current mr-1.5 animate-pulse" />
                                     Active
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2.5 text-[11px] font-bold text-slate-400">
+                            <div className="flex items-center gap-2.5 text-[11px] font-bold text-muted-foreground/60">
                                 <span className="flex items-center">
                                     <Calendar className="h-3.5 w-3.5 mr-1.5 opacity-70" />
                                     Hết hạn: {format(endDate, 'dd/MM/yyyy', { locale: vi })}
@@ -135,11 +135,11 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
                     <div className="text-right">
                         <div className={cn(
                             "text-2xl font-black leading-none mb-1 tracking-tighter",
-                            daysRemaining < 7 ? "text-rose-500" : "text-slate-900"
+                            daysRemaining < 7 ? "text-rose-500" : "text-foreground"
                         )}>
                             {daysRemaining}
                         </div>
-                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Ngày còn lại</div>
+                        <div className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">Ngày còn lại</div>
                     </div>
                 </div>
 
@@ -161,12 +161,12 @@ export const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscrip
 
                 {/* AI Status Badge */}
                 {usage.ai_matching.enabled && (
-                    <div className="mt-8 pt-5 border-t border-slate-50 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="mt-8 pt-5 border-t border-border/30 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                             <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                             AI Matching Enabled
                         </div>
-                        <Link to="/pricing" className="text-[10px] font-black text-violet-600 hover:text-violet-700 transition-colors">
+                        <Link to="/pricing" className="text-[10px] font-black text-teal-600 hover:text-teal-700 transition-colors">
                             Manage Plan →
                         </Link>
                     </div>
@@ -190,13 +190,13 @@ const FeatureStatusRow = ({ icon: Icon, label, enabled }: {
                     <div className="h-8 w-8 rounded-xl flex items-center justify-center text-amber-500 bg-amber-50 transition-transform group-hover/row:scale-110">
                         <Icon className="h-4 w-4" />
                     </div>
-                    <span className="text-[11px] font-bold text-slate-600">{label}</span>
+                    <span className="text-[11px] font-bold text-muted-foreground">{label}</span>
                 </div>
                 <div className={cn(
                     "inline-flex h-7 items-center gap-1.5 rounded-full border px-3 text-[10px] font-black uppercase tracking-wider",
                     enabled
                         ? "border-emerald-100 bg-emerald-50 text-emerald-600"
-                        : "border-slate-100 bg-slate-50 text-slate-400"
+                        : "border-border/60 bg-muted text-muted-foreground/60"
                 )}>
                     <StatusIcon className="h-3.5 w-3.5" />
                     {enabled ? 'Có hỗ trợ' : 'Không hỗ trợ'}
@@ -214,16 +214,16 @@ const MetricRow = ({ icon: Icon, label, current, limit, color }: {
     color: 'violet' | 'amber' | 'indigo' | 'emerald';
 }) => {
     const iconColors = {
-        violet: "text-violet-500 bg-violet-50",
+        violet: "text-teal-500 bg-teal-50",
         amber: "text-amber-500 bg-amber-50",
-        indigo: "text-indigo-500 bg-indigo-50",
+        indigo: "text-primary bg-primary/8",
         emerald: "text-emerald-500 bg-emerald-50",
     };
 
     const barColors = {
-        violet: "bg-violet-500",
+        violet: "bg-teal-500",
         amber: "bg-amber-500",
-        indigo: "bg-indigo-500",
+        indigo: "bg-primary/80",
         emerald: "bg-emerald-500",
     };
 
@@ -236,14 +236,14 @@ const MetricRow = ({ icon: Icon, label, current, limit, color }: {
                     <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center transition-transform group-hover/row:scale-110", iconColors[color])}>
                         <Icon className="h-4 w-4" />
                     </div>
-                    <span className="text-[11px] font-bold text-slate-600">{label}</span>
+                    <span className="text-[11px] font-bold text-muted-foreground">{label}</span>
                 </div>
                 <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-black text-slate-900">{current}</span>
-                    <span className="text-[10px] font-bold text-slate-300">/ {limit}</span>
+                    <span className="text-sm font-black text-foreground">{current}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground/40">/ {limit}</span>
                 </div>
             </div>
-            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden shadow-inner">
                 <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}

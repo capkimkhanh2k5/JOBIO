@@ -218,6 +218,30 @@ class TestIntegratedAuthAPIs(APITestCase):
             CustomUser.objects.filter(email="googleuser@example.com").exists()
         )
 
+    @patch("apps.core.users.services.auth.requests.get")
+    def test_social_login_rejects_admin_role(self, mock_get):
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = {
+            "email": "googleadmin@example.com",
+            "name": "Google Admin",
+            "sub": "google-admin-123",
+        }
+
+        response = self.client.post(
+            auth_social_login("google"),
+            {
+                "access_token": "fake_google_token",
+                "provider": "google",
+                "email": "googleadmin@example.com",
+                "full_name": "Google Admin",
+                "role": "admin",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(CustomUser.objects.filter(email="googleadmin@example.com").exists())
+
     def test_social_login_facebook_rejected(self):
         response = self.client.post(
             auth_social_login("facebook"),

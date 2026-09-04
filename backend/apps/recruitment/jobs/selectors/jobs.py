@@ -59,9 +59,35 @@ def _with_effective_expired(queryset: QuerySet[Job]) -> QuerySet[Job]:
 
 
 def _active_published_jobs(queryset: QuerySet[Job]) -> QuerySet[Job]:
-    return queryset.filter(status=Job.Status.PUBLISHED).filter(
-        _not_deadline_expired_q()
+    return (
+        queryset.filter(
+            status=Job.Status.PUBLISHED,
+            domain_status=Job.DomainStatus.IT_APPROVED,
+            moderation_status=Job.ModerationStatus.APPROVED,
+        )
+        .filter(_not_deadline_expired_q())
     )
+
+
+def publicly_available_jobs(queryset: Optional[QuerySet[Job]] = None) -> QuerySet[Job]:
+    """
+    Jobs visible/actionable by candidates in public flows.
+    """
+    return _active_published_jobs(queryset or Job.objects.all())
+
+
+def is_job_publicly_available(job: Job) -> bool:
+    """
+    Check the same public eligibility rules without trusting a caller-owned queryset.
+    """
+    if not job:
+        return False
+    return publicly_available_jobs(Job.objects.filter(id=job.id)).exists()
+
+
+def ensure_job_publicly_available(job: Job) -> None:
+    if not is_job_publicly_available(job):
+        raise ValueError("This job is not available!")
 
 
 def list_jobs(filters: dict = None) -> QuerySet[Job]:
@@ -88,7 +114,7 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
 
     if not filters:
         return _with_effective_expired(
-            _with_active_featured(queryset.filter(status=Job.Status.PUBLISHED))
+            _with_active_featured(_active_published_jobs(queryset))
         ).order_by(
             "effective_is_expired", "-active_featured", "-published_at", "-created_at"
         )
@@ -125,6 +151,12 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
     elif not filters.get("include_all_statuses"):
         # Default: only show published jobs for public
         queryset = queryset.filter(status=Job.Status.PUBLISHED)
+
+    if not filters.get("include_all_statuses"):
+        queryset = queryset.filter(
+            domain_status=Job.DomainStatus.IT_APPROVED,
+            moderation_status=Job.ModerationStatus.APPROVED,
+        )
 
     # Filter by is_remote
     if filters.get("is_remote") is not None:
@@ -163,10 +195,12 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
         if skills:
             queryset = queryset.filter(skill_query).distinct()
 
+    search_term = ""
     # Search by the same fields exposed in the public job-search UI.
     if filters.get("search"):
         search = str(filters["search"]).strip()
         if search:
+            search_term = search
             queryset = queryset.filter(
                 Q(title__icontains=search)
                 | Q(description__icontains=search)
@@ -177,6 +211,36 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
                 | Q(category__name__icontains=search)
                 | Q(required_skills__skill__name__icontains=search)
             ).distinct()
+
+            queryset = queryset.annotate(
+                relevance_score=(
+                    Case(
+                        When(title__icontains=search, then=Value(100)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    + Case(
+                        When(company__company_name__icontains=search, then=Value(80)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    + Case(
+                        When(required_skills__skill__name__icontains=search, then=Value(70)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    + Case(
+                        When(description__icontains=search, then=Value(40)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                    + Case(
+                        When(requirements__icontains=search, then=Value(30)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                )
+            )
 
     public_priority = (
         [] if filters.get("include_all_statuses") else ["effective_is_expired"]
@@ -190,6 +254,14 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
         "-featured" if filters.get("include_all_statuses") else "-active_featured"
     )
     ordering_map = {
+        "relevance": [
+            *featured_priority,
+            "-relevance_score",
+            "-published_at",
+            "-created_at",
+        ]
+        if search_term
+        else [*featured_priority, "-published_at", "-created_at"],
         "-created_at": [*featured_priority, "-created_at"],
         "created_at": [*featured_priority, "created_at"],
         "-posted_at": [*featured_priority, "-published_at", "-created_at"],
@@ -435,24 +507,22 @@ def get_job_recommendations(recruiter_id: int, limit: int = 20) -> QuerySet[Job]
 
 
 # =============================================================================
-# JOB MATCHING ENGINE — 6-Factor Weighted Scoring
+# JOB MATCHING ENGINE — 5-Factor Weighted Scoring
 #
 # Factors:
-#   1. Skill Match        35%  — ID-based (RecruiterSkill ↔ JobSkill via Skill FK)
-#   2. Experience Level   20%  — proximity matching (years → level → distance)
+#   1. Skill Match        40%  — ID-based (RecruiterSkill ↔ JobSkill via Skill FK)
+#   2. Experience Level   25%  — proximity matching (years → level → distance)
 #   3. Category/Domain    15%  — job category ↔ recruiter experience domain
-#   4. Salary             15%  — overlap ratio (desired vs offered)
-#   5. Location           10%  — province matching + remote bonus
-#   6. Job Type            5%  — compatibility matrix
+#   4. Location           12%  — province matching + remote bonus
+#   5. Job Type            8%  — compatibility matrix
 # =============================================================================
 
 # ── Weights ──────────────────────────────────────────────────────────────────
-WEIGHT_SKILL = 0.35
-WEIGHT_LEVEL = 0.20
+WEIGHT_SKILL = 0.40
+WEIGHT_LEVEL = 0.25
 WEIGHT_CATEGORY = 0.15
-WEIGHT_SALARY = 0.15
-WEIGHT_LOCATION = 0.10
-WEIGHT_JOB_TYPE = 0.05
+WEIGHT_LOCATION = 0.12
+WEIGHT_JOB_TYPE = 0.08
 
 # ── Experience Level Mapping ─────────────────────────────────────────────────
 LEVEL_ORDER = {
@@ -1007,13 +1077,6 @@ def _score_cv_job(candidate: dict, recruiter, job) -> dict:
         job,
         candidate.get("category_parent_ids", set()),
     )
-    salary = _salary_match_score(
-        recruiter.desired_salary_min,
-        recruiter.desired_salary_max,
-        job.salary_min,
-        job.salary_max,
-        job.is_salary_negotiable,
-    )
     location = _location_score(candidate["province_id"], job)
     job_type = _job_type_score(candidate["years_of_experience"], job.job_type)
 
@@ -1021,7 +1084,6 @@ def _score_cv_job(candidate: dict, recruiter, job) -> dict:
         skill * WEIGHT_SKILL
         + level * WEIGHT_LEVEL
         + category * WEIGHT_CATEGORY
-        + salary * WEIGHT_SALARY
         + location * WEIGHT_LOCATION
         + job_type * WEIGHT_JOB_TYPE
     ) * 100
@@ -1032,7 +1094,6 @@ def _score_cv_job(candidate: dict, recruiter, job) -> dict:
             "skill": skill,
             "level": level,
             "category": category,
-            "salary": salary,
             "location": location,
             "job_type": job_type,
         },
@@ -1042,21 +1103,19 @@ def _score_cv_job(candidate: dict, recruiter, job) -> dict:
 def calculate_cv_job_match_score(cv, recruiter, job) -> int:
     """
     Calculate overall match score (0–100) between a candidate's CV and a job.
-
-    Uses 6 weighted factors:
-      1. Skill Match        35%
-      2. Experience Level   20%
-      3. Category/Domain    15%
-      4. Salary             15%
-      5. Location           10%
-      6. Job Type            5%
+    Uses unified hybrid engine if available, with structured fallback.
     """
-    if not cv or not recruiter or not job:
+    if not recruiter or not job:
         return 0
 
-    # Extract unified candidate data
-    candidate = _extract_candidate_data(cv, recruiter, exclude_job_id=job.id)
-    return _score_cv_job(candidate, recruiter, job)["score"]
+    try:
+        from apps.recruitment.jobs.services.recommendations import score_candidate_job
+
+        result = score_candidate_job(recruiter, job, cv)
+        return int(result.get("match_score", 0))
+    except Exception:
+        candidate = _extract_candidate_data(cv, recruiter, exclude_job_id=job.id)
+        return _score_cv_job(candidate, recruiter, job)["score"]
 
 
 # ── Main: Job Suggestions for CV ─────────────────────────────────────────────

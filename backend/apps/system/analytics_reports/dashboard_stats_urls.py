@@ -2,6 +2,7 @@ from django.urls import path
 
 from .admin_analytics_views import admin_overview_stats
 from .company_dashboard_views import (
+    candidate_dashboard_stats,
     company_dashboard_analytics,
     company_dashboard_stats,
 )
@@ -9,6 +10,7 @@ from .company_dashboard_views import (
 
 urlpatterns = [
     path("admin/", admin_overview_stats, name="dashboard-admin-stats"),
+    path("candidate/", candidate_dashboard_stats, name="dashboard-candidate-stats"),
     path("company/", company_dashboard_stats, name="dashboard-company-stats"),
     path(
         "company-analytics/",

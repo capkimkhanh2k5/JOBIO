@@ -112,3 +112,60 @@ class Company(models.Model):
 
     def __str__(self):
         return self.company_name
+
+
+class CompanyMember(models.Model):
+    class Role(models.TextChoices):
+        OWNER = "owner", "Owner"
+        ADMIN = "admin", "Admin"
+        RECRUITER = "recruiter", "Recruiter"
+        VIEWER = "viewer", "Viewer"
+
+    class Status(models.TextChoices):
+        ACTIVE = "active", "Active"
+        INVITED = "invited", "Invited"
+        DISABLED = "disabled", "Disabled"
+
+    company = models.ForeignKey(
+        "company_companies.Company",
+        on_delete=models.CASCADE,
+        related_name="members",
+        db_index=True,
+    )
+    user = models.ForeignKey(
+        "core_users.CustomUser",
+        on_delete=models.CASCADE,
+        related_name="company_memberships",
+        db_index=True,
+    )
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.RECRUITER)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.ACTIVE, db_index=True
+    )
+    invited_by = models.ForeignKey(
+        "core_users.CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="company_member_invitations",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "company_members"
+        verbose_name = "Thành viên công ty"
+        verbose_name_plural = "Thành viên công ty"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["company", "user"],
+                name="uq_company_member_company_user",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["company", "status"], name="idx_company_member_status"),
+            models.Index(fields=["user", "status"], name="idx_company_member_user"),
+        ]
+
+    def __str__(self):
+        return f"{self.company_id}:{self.user_id}:{self.role}"

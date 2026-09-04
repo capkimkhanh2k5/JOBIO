@@ -178,11 +178,11 @@ class TestForgotPasswordEdgeCases(APITestCase):
     """Test cases for forgot password edge cases"""
 
     def test_forgot_password_email_not_exist(self):
-        """Test forgot password with non-existent email → 400"""
+        """Test forgot password with non-existent email → generic 200"""
         response = self.client.post(
             AUTH_FORGOT_PASSWORD, {"email": "notexist@example.com"}
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("detail", response.data)
 
     def test_forgot_password_invalid_email_format(self):

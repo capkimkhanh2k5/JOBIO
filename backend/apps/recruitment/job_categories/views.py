@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from apps.core.users.permissions import IsAdmin, is_admin_user
+from apps.core.caching import CacheService
 
 from .models import JobCategory
 from .serializers import JobCategorySerializer, JobCategoryTreeSerializer
@@ -29,7 +30,9 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
 
         # Lọc bằng is_active
         if not is_admin_user(self.request.user):
-            queryset = queryset.filter(is_active=True)
+            queryset = queryset.filter(
+                is_active=True, domain=JobCategory.Domain.IT, is_publishable=True
+            )
 
         # Lọc bằng parent
         parent_id = self.request.query_params.get("parent_id")
@@ -50,6 +53,20 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         return [IsAdmin()]
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_taxonomy()
+        return instance
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_taxonomy()
+        return instance
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        CacheService.invalidate_taxonomy()
+
     @action(detail=False, methods=["get"])
     def tree(self, request):
         """
@@ -57,7 +74,10 @@ class JobCategoryViewSet(viewsets.ModelViewSet):
         Cây phân cấp danh mục
         """
         root_categories = JobCategory.objects.filter(
-            is_active=True, parent__isnull=True
+            is_active=True,
+            parent__isnull=True,
+            domain=JobCategory.Domain.IT,
+            is_publishable=True,
         ).order_by("display_order", "name")
 
         serializer = JobCategoryTreeSerializer(root_categories, many=True)

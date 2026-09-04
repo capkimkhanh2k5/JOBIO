@@ -40,8 +40,8 @@ const iconMap: Record<string, ElementType> = {
 };
 
 const CATEGORY_COLORS: Record<number, string> = {
-    0: 'from-cyan-50 to-white border-cyan-100 text-cyan-600 bg-cyan-100', // colorCls structure: gradient_from gradient_to border_col block_col
-    1: 'from-violet-50 to-white border-violet-100 text-violet-600 bg-violet-100',
+    0: 'from-cyan-50 to-white border-cyan-100 text-teal-600 bg-cyan-100', // colorCls structure: gradient_from gradient_to border_col block_col
+    1: 'from-teal-50 to-white border-teal-100 text-teal-600 bg-teal-100',
     2: 'from-emerald-50 to-white border-emerald-100 text-emerald-600 bg-emerald-100',
     3: 'from-amber-50 to-white border-amber-100 text-amber-600 bg-amber-100',
 };
@@ -69,7 +69,7 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {Array(4).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-28 rounded-2xl bg-gray-100" />
+                    <Skeleton key={i} className="h-28 rounded-2xl bg-muted" />
                 ))}
             </div>
         );
@@ -78,10 +78,10 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
     if (benefitItems.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground/60 mb-4">
                     <Gift size={28} />
                 </div>
-                <p className="font-medium text-gray-500">Chưa có thông tin phúc lợi</p>
+                <p className="font-medium text-muted-foreground">Chưa có thông tin phúc lợi</p>
             </div>
         );
     }
@@ -112,7 +112,7 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: catIdx * 0.1 }}
                 >
-                    <h3 className="font-bold text-sm uppercase tracking-widest text-gray-500 mb-4 flex items-center gap-2">
+                    <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
                         <span className={`h-2 w-2 rounded-full bg-gradient-to-br ${CATEGORY_COLORS[catIdx % 4].split(' ')[0]} ${CATEGORY_COLORS[catIdx % 4].split(' ')[1]}`} />
                         {category}
                     </h3>
@@ -132,8 +132,8 @@ export function CompanyBenefitsTab({ benefits, companyId }: Props) {
                                         <Icon size={20} />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-gray-900 text-sm mb-1">{getBenefitName(benefit)}</p>
-                                        <p className="text-xs text-gray-600 leading-relaxed">{benefit.description}</p>
+                                        <p className="font-semibold text-foreground text-sm mb-1">{getBenefitName(benefit)}</p>
+                                        <p className="text-xs text-muted-foreground leading-relaxed">{benefit.description}</p>
                                     </div>
                                 </motion.div>
                             );

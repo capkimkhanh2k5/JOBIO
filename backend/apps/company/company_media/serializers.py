@@ -60,6 +60,6 @@ class CompanyMediaBulkUploadSerializer(serializers.Serializer):
     """Serializer xử lý upload nhiều media"""
 
     media_files = serializers.ListField(
-        child=serializers.FileField(), allow_empty=False
+        child=serializers.FileField(), allow_empty=False, max_length=10
     )
     media_type_id = serializers.IntegerField(required=True)

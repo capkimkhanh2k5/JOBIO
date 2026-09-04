@@ -89,6 +89,14 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-django
+          pip install pip-audit
+
+      - name: Security audit Python dependencies
+        run: |
+          # CVE-2025-3000 currently has no patched torch release in the
+          # advisory database. Keep it visible in operational risk tracking,
+          # but fail CI for any other dependency vulnerability.
+          pip-audit -r requirements.txt --ignore-vuln CVE-2025-3000
 
       - name: Collect static files
         run: python manage.py collectstatic --noinput

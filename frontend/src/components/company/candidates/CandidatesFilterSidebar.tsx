@@ -37,10 +37,10 @@ export function CandidatesFilterSidebar() {
 
     return (
         <Select value={filters.jobId || 'all'} onValueChange={handleJobChange}>
-            <SelectTrigger className="h-10 w-[260px] border-slate-200 bg-white shadow-sm lg:w-[320px]">
+            <SelectTrigger className="h-10 w-[260px] border-border bg-card shadow-sm lg:w-[320px]">
                 <SelectValue placeholder="Chọn tin tuyển dụng" />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-card">
                 {jobs.map(job => (
                     <SelectItem key={job.id} value={job.id}>{job.title}</SelectItem>
                 ))}

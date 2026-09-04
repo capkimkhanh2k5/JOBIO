@@ -9,6 +9,13 @@ class JobSkillSerializer(serializers.ModelSerializer):
 
     skill_id = serializers.IntegerField(source="skill.id", read_only=True)
     skill_name = serializers.CharField(source="skill.name", read_only=True)
+    skill_is_verified = serializers.BooleanField(
+        source="skill.is_verified", read_only=True
+    )
+    skill_domain = serializers.CharField(source="skill.domain", read_only=True)
+    skill_is_publishable = serializers.BooleanField(
+        source="skill.is_publishable", read_only=True
+    )
 
     class Meta:
         model = JobSkill
@@ -16,6 +23,9 @@ class JobSkillSerializer(serializers.ModelSerializer):
             "id",
             "skill_id",
             "skill_name",
+            "skill_is_verified",
+            "skill_domain",
+            "skill_is_publishable",
             "is_required",
             "proficiency_level",
             "years_required",

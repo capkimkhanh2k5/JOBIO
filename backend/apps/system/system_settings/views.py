@@ -9,6 +9,11 @@ from .serializers import SystemSettingSerializer, SystemSettingUpdateSerializer
 from .selectors.system_settings import list_settings
 from .services.system_settings import update_setting
 from apps.core.users.permissions import IsAdmin, is_admin_user
+from apps.core.caching import (
+    CACHE_TIMEOUT_MEDIUM,
+    CacheKeyBuilder,
+    CacheService,
+)
 
 
 class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
@@ -85,6 +90,14 @@ class SystemSettingViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         """
         Lấy danh sách các setting công khai
         """
-        settings = list_settings(filters={"is_public": True})
-        serializer = SystemSettingSerializer(settings, many=True)
-        return Response(serializer.data)
+        cache_key = CacheKeyBuilder.view_response("system_settings", "public")
+
+        def fetch_public_settings():
+            settings = list_settings(filters={"is_public": True})
+            serializer = SystemSettingSerializer(settings, many=True)
+            return CacheService.primitive(serializer.data)
+
+        data = CacheService.get_or_set(
+            cache_key, fetch_public_settings, CACHE_TIMEOUT_MEDIUM
+        )
+        return Response(data)

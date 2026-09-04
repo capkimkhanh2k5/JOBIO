@@ -25,13 +25,13 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-white rounded-xl px-4 py-3 border border-slate-200 shadow-xl text-sm">
-            <p className="font-bold text-slate-900 mb-2">{label}</p>
+        <div className="bg-card rounded-xl px-4 py-3 border border-border shadow-xl text-sm">
+            <p className="font-bold text-foreground mb-2">{label}</p>
             {payload.map((p: any) => (
                 <div key={p.dataKey} className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-                    <span className="text-slate-500 font-medium">{p.dataKey === 'applications' ? 'Ứng tuyển' : 'Lượt xem'}:</span>
-                    <span className="font-bold text-slate-900">{p.value}</span>
+                    <span className="text-muted-foreground font-medium">{p.dataKey === 'applications' ? 'Ứng tuyển' : 'Lượt xem'}:</span>
+                    <span className="font-bold text-foreground">{p.value}</span>
                 </div>
             ))}
         </div>
@@ -55,23 +55,23 @@ export function ApplicationsChart() {
     const tickInterval = period === 7 ? 0 : period === 30 ? 4 : 14;
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full flex flex-col">
+        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 h-full flex flex-col">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h3 className="font-bold text-lg text-slate-900">Biểu đồ ứng tuyển</h3>
-                    <p className="text-sm text-slate-500 font-medium">Theo dõi số lượng ứng tuyển và lượt xem theo thời gian</p>
+                    <h3 className="font-bold text-lg text-foreground">Biểu đồ ứng tuyển</h3>
+                    <p className="text-sm text-muted-foreground font-medium">Theo dõi số lượng ứng tuyển và lượt xem theo thời gian</p>
                 </div>
                 {/* Period filter tabs */}
-                <div className="flex items-center gap-1 bg-white/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl cursor-default">
+                <div className="flex items-center gap-1 bg-card/60 backdrop-blur border border-white/40 shadow-sm p-1 w-fit rounded-xl cursor-default">
                     {periods.map((p) => (
                         <button
                             key={p.value}
                             onClick={() => setPeriod(p.value)}
                             className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                                 period === p.value
-                                    ? 'bg-violet-600 text-white shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                    ? 'bg-teal-600 text-white shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                             }`}
                         >
                             {p.label}

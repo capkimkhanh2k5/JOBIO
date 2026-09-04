@@ -134,18 +134,18 @@ export function AccountSettings() {
             </div>
 
             <div className="space-y-6">
-                <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
+                <div className="flex items-center gap-6 pb-6 border-b border-border/60">
                     <div className="relative">
-                        <Avatar className="h-20 w-20 border border-slate-200 shadow-sm">
+                        <Avatar className="h-20 w-20 border border-border shadow-sm">
                             <AvatarImage src={avatarSrc} alt={user.full_name} className="object-cover" />
-                            <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-violet-500 text-white text-2xl font-black">
+                            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white text-2xl font-black">
                                 {avatarFallback}
                             </AvatarFallback>
                         </Avatar>
                         <Button
                             type="button"
                             size="icon"
-                            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-violet-600 hover:bg-violet-700 shadow-md"
+                            className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-teal-600 hover:bg-teal-700 shadow-md"
                             onClick={handleChooseAvatar}
                             disabled={isUploadingAvatar}
                         >
@@ -178,12 +178,12 @@ export function AccountSettings() {
                             id="full_name"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="bg-slate-50 focus:bg-white transition-colors"
+                            className="bg-muted focus:bg-card transition-colors"
                         />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" value={user.email} disabled className="bg-slate-100 text-slate-500 cursor-not-allowed" />
+                        <Input id="email" value={user.email} disabled className="bg-muted text-muted-foreground cursor-not-allowed" />
                         <p className="text-[11px] text-muted-foreground mt-1">Email dùng để đăng nhập, không thể thay đổi.</p>
                     </div>
                     <div className="space-y-2">
@@ -193,15 +193,15 @@ export function AccountSettings() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="0987654321"
-                            className="bg-slate-50 focus:bg-white transition-colors"
+                            className="bg-muted focus:bg-card transition-colors"
                         />
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <div className="pt-6 border-t border-border/60 flex justify-end">
                     <Button
                         type="button"
-                        className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 px-8"
+                        className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20 px-8"
                         onClick={() => updateProfileMutation.mutate()}
                         disabled={isSaving || isUploadingAvatar}
                     >

@@ -26,6 +26,13 @@ class ExperienceInput(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+def _validate_experience_dates(start_date, end_date, is_current) -> None:
+    if end_date and start_date and end_date < start_date:
+        raise ValueError("End date must be after start date")
+    if is_current and end_date:
+        raise ValueError("End date should be empty for current job")
+
+
 @transaction.atomic
 def create_experience_service(
     recruiter: Recruiter, data: ExperienceInput
@@ -44,6 +51,9 @@ def create_experience_service(
     next_order = (max_order or 0) + 1
 
     fields = data.model_dump()
+    _validate_experience_dates(
+        fields.get("start_date"), fields.get("end_date"), fields.get("is_current")
+    )
     industry_id = fields.pop("industry_id", None)
     address_id = fields.pop("address_id", None)
     province_id = fields.pop("province_id", None)
@@ -65,6 +75,11 @@ def create_experience_service(
             job_title__iexact=job_title,
         ).first()
         if existing:
+            _validate_experience_dates(
+                fields.get("start_date", existing.start_date),
+                fields.get("end_date", existing.end_date),
+                fields.get("is_current", existing.is_current),
+            )
             existing.industry_id = industry_id
             existing.address_id = address_id
             for field, value in fields.items():
@@ -91,6 +106,11 @@ def update_experience_service(
     Chỉ update các fields có trong data.
     """
     fields = data.model_dump()
+    _validate_experience_dates(
+        fields.get("start_date", experience.start_date),
+        fields.get("end_date", experience.end_date),
+        fields.get("is_current", experience.is_current),
+    )
 
     # Handle FK fields
     if "industry_id" in fields:

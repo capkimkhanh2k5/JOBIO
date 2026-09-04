@@ -17,6 +17,11 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 backend
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - CHANNEL_REDIS_URL=redis://redis:6379/2
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${POSTGRES_DB}
@@ -32,7 +37,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A config worker -l info --concurrency=2
+    command: celery -A config worker -l info --concurrency=${CELERY_WORKER_CONCURRENCY:-2} -Q ${CELERY_WORKER_QUEUES:-default,emails,cleanup,matching,media,ai}
     volumes:
       - ./backend:/app
     env_file:
@@ -44,6 +49,9 @@ services:
       - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 0.0.0.0 backend
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+      - CHANNEL_REDIS_URL=redis://redis:6379/2
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=${POSTGRES_DB}
@@ -51,6 +59,10 @@ services:
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_WORKER_PREFETCH_MULTIPLIER=${CELERY_WORKER_PREFETCH_MULTIPLIER:-1}
+      - CELERY_TASK_ACKS_LATE=${CELERY_TASK_ACKS_LATE:-1}
+      - RECOMMENDATION_REQUIRE_SAFETENSORS=${RECOMMENDATION_REQUIRE_SAFETENSORS:-1}
+      - HF_HUB_DISABLE_TELEMETRY=1
     depends_on:
       - postgres
       - redis
@@ -58,7 +70,7 @@ services:
       - jobio-network
 
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
@@ -89,10 +101,16 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes --appendfsync everysec
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
     networks:
       - jobio-network

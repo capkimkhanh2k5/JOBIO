@@ -7,6 +7,9 @@ export interface SelectedSkill {
     skill_name: string;
     is_required: boolean;
     proficiency_level: ProficiencyLevel;
+    is_verified?: boolean;
+    domain?: string;
+    is_publishable?: boolean;
 }
 
 export interface LocationRow {
@@ -23,8 +26,24 @@ export type JobType = 'full_time' | 'part_time' | 'contract' | 'internship' | 'f
 export type JobLevel = 'intern' | 'fresher' | 'junior' | 'middle' | 'senior' | 'lead' | 'manager' | 'director';
 export type SalaryCurrency = 'VND' | 'USD';
 
+export interface JobPositionItem {
+    id: string;
+    title: string;
+    category_id?: string;
+    job_type?: JobType;
+    is_remote?: boolean;
+    level: JobLevel;
+    quantity: number;
+    salary_min?: number | null;
+    salary_max?: number | null;
+    salary_currency?: SalaryCurrency;
+    is_salary_visible?: boolean;
+}
+
 export interface PostJobFormData {
     title: string;
+    is_multi_position: boolean;
+    positions: JobPositionItem[];
     category_id: string;
     job_type: JobType;
     level: JobLevel;

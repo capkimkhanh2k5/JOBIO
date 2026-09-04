@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from apps.core.sanitization import sanitize_html_fields
+from apps.core.users.permissions import is_admin_user
+from apps.core.validators import validate_https_url
+
 from apps.blog.models import Post, Category, Tag
 
 
@@ -113,3 +117,30 @@ class PostSerializer(serializers.ModelSerializer):
         if obj.company:
             return getattr(obj.company, "logo_url", None)
         return None
+
+    def validate_thumbnail(self, value):
+        return validate_https_url(value)
+
+    def validate(self, attrs):
+        attrs = sanitize_html_fields(
+            attrs,
+            [
+                "summary",
+                "content",
+                "meta_title",
+                "meta_description",
+            ],
+        )
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        requested_status = attrs.get("status")
+        if requested_status and requested_status != Post.Status.DRAFT:
+            company_profile = getattr(user, "company_profile", None)
+            is_company_user = bool(company_profile or getattr(user, "role", None) == "company")
+            is_allowed = is_admin_user(user) or is_company_user
+
+            if not is_allowed:
+                raise serializers.ValidationError(
+                    {"status": "Chỉ Doanh nghiệp hoặc Admin mới có quyền xuất bản bài viết."}
+                )
+        return attrs

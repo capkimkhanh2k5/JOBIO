@@ -212,31 +212,35 @@
             {% endif %}
 
             <div class="contact-info">
-                <div class="contact-item">
-                    <span>📧 {% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="placeholder">Email</span>{% endif %}</span>
+                {% if data.personal.email %}
+                <div class="contact-item" style="font-size: 11px; word-break: break-all;">
+                    <span>📧 {{ data.personal.email }}</span>
                 </div>
-                <div class="contact-item">
-                    <span>📱 {% if data.personal.phone %}{{ data.personal.phone }}{% else %}<span class="placeholder">Số điện thoại</span>{% endif %}</span>
+                {% endif %}
+                {% if data.personal.phone %}
+                <div class="contact-item" style="font-size: 11px;">
+                    <span>📱 {{ data.personal.phone }}</span>
                 </div>
+                {% endif %}
                 {% if data.links %}
                 {% if data.links.linkedin %}
-                <div class="contact-item">
+                <div class="contact-item" style="font-size: 11px; word-break: break-all;">
                     <span>🔗 {{ data.links.linkedin }}</span>
                 </div>
                 {% endif %}
                 {% if data.links.github %}
-                <div class="contact-item">
+                <div class="contact-item" style="font-size: 11px; word-break: break-all;">
                     <span>💻 {{ data.links.github }}</span>
                 </div>
                 {% endif %}
                 {% endif %}
             </div>
 
-            <div class="section-title-side">Kỹ năng</div>
             {% if data.skills %}
+            <div class="section-title-side" style="font-size: 13px;">{% if data.language == 'en' %}Skills{% else %}Kỹ năng{% endif %}</div>
             {% for skill in data.skills %}
-            <div class="skill-item">
-                <div class="skill-name">{{ skill.name }}</div>
+            <div class="skill-item" style="margin-bottom: 6px;">
+                <div class="skill-name" style="font-size: 11px; word-break: break-all;">{{ skill.name }}</div>
                 <div class="skill-bar-bg">
                     <!-- Simple map: basic=25, intermediate=50... -->
                     {% if skill.proficiency_level == 'expert' or skill.level == 'Expert' or skill.level == 'expert' %}
@@ -251,22 +255,18 @@
                 </div>
             </div>
             {% endfor %}
-            {% else %}
-            <p class="placeholder text-sm">Thêm kỹ năng...</p>
             {% endif %}
 
-            <div class="section-title-side">Ngôn ngữ</div>
             {% if data.languages %}
+            <div class="section-title-side" style="font-size: 13px;">{% if data.language == 'en' %}Languages{% else %}Ngôn ngữ{% endif %}</div>
             {% for lang in data.languages %}
             <div class="skill-item">
-                <div class="skill-name">
+                <div class="skill-name" style="font-size: 11px;">
                     {{ lang.name }} - 
                     {% if lang.proficiency_level %}{{ lang.proficiency_level|title }}{% elif lang.level %}{{ lang.level|title }}{% endif %}
                 </div>
             </div>
             {% endfor %}
-            {% else %}
-            <p class="placeholder text-sm">Thêm ngôn ngữ...</p>
             {% endif %}
         </div>
 
@@ -277,13 +277,11 @@
 
             {% if data.personal.bio %}
             <p class="summary">{{ data.personal.bio }}</p>
-            {% else %}
-            <p class="summary placeholder">Thêm tóm tắt, mục tiêu cá nhân của bạn ở đây...</p>
             {% endif %}
 
+            {% if data.experience %}
             <div class="section">
-                <div class="section-title">Kinh nghiệm làm việc</div>
-                {% if data.experience %}
+                <div class="section-title">{% if data.language == 'en' %}Work Experience{% else %}Kinh nghiệm làm việc{% endif %}</div>
                 {% for exp in data.experience %}
                 <div class="item">
                     <div class="item-header">
@@ -292,7 +290,7 @@
                         </div>
                         <div class="item-date">
                             {% if exp.start_date %}{{ exp.start_date|slice:":7" }}{% endif %} - 
-                            {% if exp.is_current %}Hiện tại{% elif exp.end_date %}{{ exp.end_date|slice:":7" }}{% endif %}
+                            {% if exp.is_current %}{% if data.language == 'en' %}Present{% else %}Hiện tại{% endif %}{% elif exp.end_date %}{{ exp.end_date|slice:":7" }}{% endif %}
                         </div>
                     </div>
                     <div class="item-subtitle">
@@ -305,14 +303,12 @@
                     {% endif %}
                 </div>
                 {% endfor %}
-                {% else %}
-                <p class="placeholder text-sm">Thêm kinh nghiệm làm việc...</p>
-                {% endif %}
             </div>
+            {% endif %}
 
             {% if data.projects %}
             <div class="section">
-                <div class="section-title">Dự án</div>
+                <div class="section-title">{% if data.language == 'en' %}Projects{% else %}Dự án{% endif %}</div>
                 {% for proj in data.projects %}
                 <div class="item">
                     <div class="item-header">
@@ -321,7 +317,7 @@
                         </div>
                         <div class="item-date">
                             {% if proj.start_date %}{{ proj.start_date|slice:":7" }}{% endif %} -
-                            {% if proj.end_date %}{{ proj.end_date|slice:":7" }}{% else %}Hiện tại{% endif %}
+                            {% if proj.end_date %}{{ proj.end_date|slice:":7" }}{% else %}{% if data.language == 'en' %}Present{% else %}Hiện tại{% endif %}{% endif %}
                         </div>
                     </div>
                     {% if proj.description %}
@@ -343,16 +339,11 @@
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="section">
-                <div class="section-title">Dự án</div>
-                <p class="placeholder text-sm">Thêm dự án nổi bật...</p>
-            </div>
             {% endif %}
 
+            {% if data.education %}
             <div class="section">
-                <div class="section-title">Học vấn</div>
-                {% if data.education %}
+                <div class="section-title">{% if data.language == 'en' %}Education{% else %}Học vấn{% endif %}</div>
                 {% for edu in data.education %}
                 <div class="item">
                     <div class="item-header">
@@ -361,7 +352,7 @@
                         </div>
                         <div class="item-date">
                             {% if edu.start_date %}{{ edu.start_date|slice:":7" }}{% endif %} - 
-                            {% if edu.is_current %}Hiện tại{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}
+                            {% if edu.is_current %}{% if data.language == 'en' %}Present{% else %}Hiện tại{% endif %}{% elif edu.end_date %}{{ edu.end_date|slice:":7" }}{% endif %}
                         </div>
                     </div>
                     <div class="item-subtitle">{{ edu.degree }} - {{ edu.field_of_study }}</div>
@@ -370,14 +361,12 @@
                     {% endif %}
                 </div>
                 {% endfor %}
-                {% else %}
-                <p class="placeholder text-sm">Thêm quá trình học tập...</p>
-                {% endif %}
             </div>
+            {% endif %}
 
+            {% if data.certifications %}
             <div class="section">
-                <div class="section-title">Chứng chỉ</div>
-                {% if data.certifications %}
+                <div class="section-title">{% if data.language == 'en' %}Certifications{% else %}Chứng chỉ{% endif %}</div>
                 {% for cert in data.certifications %}
                 <div class="item">
                     <div class="item-header">
@@ -387,10 +376,8 @@
                     <div class="item-subtitle">{{ cert.issuing_organization }}</div>
                 </div>
                 {% endfor %}
-                {% else %}
-                <p class="placeholder text-sm">Thêm chứng chỉ nổi bật...</p>
-                {% endif %}
             </div>
+            {% endif %}
 
         </div>
     </div>

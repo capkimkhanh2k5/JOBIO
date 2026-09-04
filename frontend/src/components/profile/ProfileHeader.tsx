@@ -92,22 +92,22 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.1, 0.9, 0.2, 1] }}
                 id="header"
-                className="bg-white border border-slate-200 shadow-sm p-8 rounded-[32px] relative overflow-hidden scroll-mt-32"
+                className="bg-card border border-border shadow-sm p-8 rounded-[32px] relative overflow-hidden scroll-mt-32"
             >
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-violet-50/60 via-cyan-50/30 to-transparent" />
-                    <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-violet-100/40 blur-[80px] rounded-full" />
+                    <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-teal-50/60 via-cyan-50/30 to-transparent" />
+                    <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-teal-100/40 blur-[80px] rounded-full" />
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
                     <div className="relative group shrink-0">
                         <motion.div whileHover={{ scale: 1.02 }} className="relative">
-                            <Avatar className="w-36 h-36 border-4 border-white shadow-2xl ring-2 ring-violet-200">
+                            <Avatar className="w-36 h-36 border-4 border-white shadow-2xl ring-2 ring-teal-200">
                                 <AvatarImage
                                     src={localAvatarUrl || profile?.user?.avatar_url || profile?.avatar_url}
                                     className={`object-cover transition-all duration-300 ${isUploadingAvatar ? 'scale-[1.01] opacity-60 blur-[1px]' : ''}`}
                                 />
-                                <AvatarFallback className="text-3xl bg-gradient-to-br from-violet-200 to-cyan-400/20 text-violet-600 font-bold">
+                                <AvatarFallback className="text-3xl bg-gradient-to-br from-teal-200 to-emerald-400/20 text-teal-600 font-bold">
                                     {(profile?.user?.full_name || profile?.full_name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                                 </AvatarFallback>
                             </Avatar>
@@ -119,8 +119,8 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                                 aria-label="Thay đổi ảnh đại diện"
                             >
                                 {isUploadingAvatar ? (
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/85 shadow-lg backdrop-blur-md">
-                                        <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-card/85 shadow-lg backdrop-blur-md">
+                                        <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
                                     </div>
                                 ) : (
                                     <Camera className="w-6 h-6 text-white" />
@@ -157,8 +157,8 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                                 <span>{profile?.current_position}</span>
                                 {profile?.current_company_name && (
                                     <>
-                                        <span className="text-violet-400 text-sm">@</span>
-                                        <span className="text-violet-600 font-semibold">{profile?.current_company_name}</span>
+                                        <span className="text-teal-400 text-sm">@</span>
+                                        <span className="text-teal-600 font-semibold">{profile?.current_company_name}</span>
                                     </>
                                 )}
                             </p>
@@ -166,25 +166,25 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
 
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                             {(profile?.user?.email || profile?.email) && (
-                                <a href={`mailto:${profile?.user?.email || profile?.email}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
+                                <a href={`mailto:${profile?.user?.email || profile?.email}`} className="flex items-center gap-2 hover:text-teal-600 transition-colors">
                                     <Mail className="w-4 h-4" />
                                     {profile?.user?.email || profile?.email}
                                 </a>
                             )}
                             {(profile?.user?.phone || profile?.phone) && (
-                                <a href={`tel:${profile?.user?.phone || profile?.phone}`} className="flex items-center gap-2 hover:text-violet-600 transition-colors">
+                                <a href={`tel:${profile?.user?.phone || profile?.phone}`} className="flex items-center gap-2 hover:text-teal-600 transition-colors">
                                     <Phone className="w-4 h-4" />
                                     {profile?.user?.phone || profile?.phone}
                                 </a>
                             )}
                             {provinceLabel && (
-                                <div className="flex items-center gap-2 text-violet-500">
+                                <div className="flex items-center gap-2 text-teal-500">
                                     <MapPin className="w-4 h-4" />
                                     {provinceLabel}
                                 </div>
                             )}
                             {profile?.years_of_experience > 0 && (
-                                <Badge variant="outline" className="rounded-full border-violet-200 text-violet-500 text-xs">
+                                <Badge variant="outline" className="rounded-full border-teal-200 text-teal-500 text-xs">
                                     {profile.years_of_experience} năm kinh nghiệm
                                 </Badge>
                             )}
@@ -193,28 +193,28 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                         <div className="flex gap-2 flex-wrap">
                             {socialLinks.linkedin && (
                                 <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.linkedin} target="_blank" rel="noreferrer"
-                                    className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-[#0077b5] hover:border-[#0077b5]/30 hover:bg-blue-50 transition-all text-slate-600"
+                                    className="p-2.5 bg-muted border border-border rounded-xl hover:text-[#0077b5] hover:border-[#0077b5]/30 hover:bg-primary/8 transition-all text-muted-foreground"
                                     aria-label="LinkedIn">
                                     <Linkedin className="w-4 h-4" />
                                 </motion.a>
                             )}
                             {socialLinks.github && (
                                 <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.github} target="_blank" rel="noreferrer"
-                                    className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-slate-900 hover:bg-slate-100 transition-all text-slate-600"
+                                    className="p-2.5 bg-muted border border-border rounded-xl hover:text-foreground hover:bg-muted transition-all text-muted-foreground"
                                     aria-label="GitHub">
                                     <Github className="w-4 h-4" />
                                 </motion.a>
                             )}
                             {socialLinks.facebook && (
                                 <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.facebook} target="_blank" rel="noreferrer"
-                                    className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-[#1877f2] hover:border-[#1877f2]/30 hover:bg-blue-50 transition-all text-slate-600"
+                                    className="p-2.5 bg-muted border border-border rounded-xl hover:text-[#1877f2] hover:border-[#1877f2]/30 hover:bg-primary/8 transition-all text-muted-foreground"
                                     aria-label="Facebook">
                                     <Facebook className="w-4 h-4" />
                                 </motion.a>
                             )}
                             {socialLinks.portfolio && (
                                 <motion.a whileHover={{ scale: 1.1, y: -2 }} href={socialLinks.portfolio} target="_blank" rel="noreferrer"
-                                    className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:text-violet-600 hover:border-violet-200 hover:bg-violet-50 transition-all text-slate-600"
+                                    className="p-2.5 bg-muted border border-border rounded-xl hover:text-teal-600 hover:border-teal-200 hover:bg-teal-50 transition-all text-muted-foreground"
                                     aria-label="Portfolio">
                                     <Globe className="w-4 h-4" />
                                 </motion.a>
@@ -225,7 +225,7 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
 
                 <div className="relative z-10 mt-6 w-full bg-[#F5F5F7]/80 backdrop-blur-xl border border-black/[0.03] shadow-sm p-4 sm:p-5 rounded-2xl sm:rounded-[24px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:shadow-md hover:bg-[#F5F5F7]">
                     <div className="flex-1 pr-0 sm:pr-8">
-                        <Label className="text-xs font-bold uppercase tracking-[0.15em] text-violet-600 mb-2 flex items-center gap-1.5">
+                        <Label className="text-xs font-bold uppercase tracking-[0.15em] text-teal-600 mb-2 flex items-center gap-1.5">
                             <Sparkles className="w-4 h-4" />
                             Hoàn thiện nhanh
                         </Label>
@@ -238,7 +238,7 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                         className="shrink-0 flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-[#5E5CE6] text-white hover:bg-[#5351CC] hover:shadow-lg active:scale-[0.96]"
                         id="cv-autofill-btn"
                     >
-                        <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg shrink-0">
+                        <div className="p-1.5 bg-card/20 backdrop-blur-sm rounded-lg shrink-0">
                             <FileUp className="w-4 h-4 stroke-[2.5]" />
                         </div>
                         <span className="text-[14px] font-bold tracking-wide whitespace-nowrap">Upload CV</span>

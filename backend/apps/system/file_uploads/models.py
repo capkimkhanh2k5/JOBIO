@@ -4,6 +4,11 @@ from django.db import models
 class FileUpload(models.Model):
     """Bảng File_Uploads - Quản lý file upload"""
 
+    class ModerationStatus(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        REJECTED = "rejected", "Rejected"
+
     user = models.ForeignKey(
         "core_users.CustomUser",
         on_delete=models.CASCADE,
@@ -28,6 +33,19 @@ class FileUpload(models.Model):
     )
     entity_id = models.IntegerField(null=True, blank=True, verbose_name="ID đối tượng")
     is_public = models.BooleanField(default=False, verbose_name="Công khai")
+    moderation_status = models.CharField(
+        max_length=30,
+        choices=ModerationStatus.choices,
+        default=ModerationStatus.APPROVED,
+        db_index=True,
+        verbose_name="Trạng thái kiểm duyệt",
+    )
+    moderation_reasons = models.JSONField(
+        default=list, blank=True, verbose_name="Lý do kiểm duyệt"
+    )
+    safe_preview_url = models.CharField(
+        max_length=500, null=True, blank=True, verbose_name="URL preview an toàn"
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
 

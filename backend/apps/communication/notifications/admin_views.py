@@ -8,9 +8,10 @@ from django.utils import timezone
 from datetime import timedelta
 from re import sub
 
+from drf_spectacular.utils import OpenApiTypes, extend_schema
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
 
 from apps.core.users.permissions import IsAdmin
 from apps.core.users.models import CustomUser
@@ -30,6 +31,27 @@ def _normalize_type_name(value: str) -> str:
     return sub(r"[^a-z0-9]+", "_", (value or "").strip().lower()).strip("_")
 
 
+class BroadcastNotificationRequestSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255, trim_whitespace=True)
+    message = serializers.CharField(max_length=2000, trim_whitespace=True)
+    target = serializers.ChoiceField(
+        choices=("all", "candidate", "company"), default="all"
+    )
+    notification_type_id = serializers.IntegerField(
+        required=False, allow_null=True, min_value=1
+    )
+
+
+class AdminBulkMarkAsReadRequestSerializer(serializers.Serializer):
+    ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1), required=False, default=list
+    )
+
+
+@extend_schema(
+    request=BroadcastNotificationRequestSerializer,
+    responses={201: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT},
+)
 @api_view(["POST"])
 @permission_classes([IsAdmin])
 def broadcast_notification(request):
@@ -43,22 +65,12 @@ def broadcast_notification(request):
         target (str): 'all' | 'candidate' | 'company'
         notification_type_id (int, optional): ID loại thông báo
     """
-    title = request.data.get("title", "").strip()
-    message = request.data.get("message", "").strip()
-    target = request.data.get("target", "all")
-    notification_type_id = request.data.get("notification_type_id")
-
-    if not title or not message:
-        return Response(
-            {"detail": "title và message là bắt buộc."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    if target not in ("all", "candidate", "company"):
-        return Response(
-            {"detail": "target phải là all, candidate hoặc company."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    serializer = BroadcastNotificationRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    title = serializer.validated_data["title"]
+    message = serializer.validated_data["message"]
+    target = serializer.validated_data["target"]
+    notification_type_id = serializer.validated_data.get("notification_type_id")
 
     # Lấy notification type (dùng type đầu tiên nếu không chỉ định)
     notif_type = None
@@ -110,6 +122,7 @@ def broadcast_notification(request):
     )
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def admin_notification_stats(request):
@@ -149,6 +162,7 @@ def admin_notification_stats(request):
     )
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def admin_notification_list(request):
@@ -257,6 +271,9 @@ def admin_notification_list(request):
     )
 
 
+@extend_schema(
+    request=None, responses={200: OpenApiTypes.OBJECT, 404: OpenApiTypes.OBJECT}
+)
 @api_view(["PATCH"])
 @permission_classes([IsAdmin])
 def admin_mark_as_read(request, pk):
@@ -277,6 +294,10 @@ def admin_mark_as_read(request, pk):
     return Response({"detail": "Đã đánh dấu là đã đọc."})
 
 
+@extend_schema(
+    request=AdminBulkMarkAsReadRequestSerializer,
+    responses={200: OpenApiTypes.OBJECT, 400: OpenApiTypes.OBJECT},
+)
 @api_view(["POST"])
 @permission_classes([IsAdmin])
 def admin_bulk_mark_as_read(request):
@@ -284,11 +305,9 @@ def admin_bulk_mark_as_read(request):
     POST /api/notifications/admin-list/bulk-mark-as-read/
     Đánh dấu nhiều thông báo là đã đọc.
     """
-    ids = request.data.get("ids", [])
-    if not isinstance(ids, list):
-        return Response(
-            {"detail": "ids phải là danh sách."}, status=status.HTTP_400_BAD_REQUEST
-        )
+    serializer = AdminBulkMarkAsReadRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ids = serializer.validated_data["ids"]
 
     if ids:
         count = Notification.objects.filter(
@@ -301,6 +320,7 @@ def admin_bulk_mark_as_read(request):
     return Response({"detail": f"Đã đánh dấu {count} thông báo là đã đọc."})
 
 
+@extend_schema(responses={204: None, 404: OpenApiTypes.OBJECT})
 @api_view(["DELETE"])
 @permission_classes([IsAdmin])
 def admin_delete_notification(request, pk):

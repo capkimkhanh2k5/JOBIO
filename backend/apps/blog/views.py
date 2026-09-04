@@ -1,8 +1,14 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (
+    AllowAny,
+    BasePermission,
+    IsAuthenticated,
+    SAFE_METHODS,
+)
 from django.db import models
+from django.utils import timezone
 
 from apps.blog.models import Post, Category, Tag
 from apps.blog.serializers import PostSerializer, CategorySerializer, TagSerializer
@@ -19,6 +25,22 @@ from apps.core.users.permissions import is_admin_user
 
 def _is_admin_user(user) -> bool:
     return is_admin_user(user)
+
+
+class IsPostManagerOrReadOnly(BasePermission):
+    message = "Bạn không có quyền quản lý bài viết này."
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        if _is_admin_user(request.user):
+            return True
+        if obj.author_id == getattr(request.user, "id", None):
+            return True
+        company_profile = getattr(request.user, "company_profile", None)
+        return bool(
+            obj.company_id and company_profile and obj.company_id == company_profile.id
+        )
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -45,9 +67,13 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve", "view_count"]:
             return [AllowAny()]
-        if self.action in ["admin_stats", "ban"]:
+        if self.action in ["admin_stats", "ban", "publish"]:
             return [IsAuthenticated(), IsAdmin()]
-        return [IsAuthenticated(), IsVerifiedCompanyForWrite()]
+        return [
+            IsAuthenticated(),
+            IsVerifiedCompanyForWrite(),
+            IsPostManagerOrReadOnly(),
+        ]
 
     def get_queryset(self):
         user = self.request.user
@@ -69,22 +95,25 @@ class PostViewSet(viewsets.ModelViewSet):
         if tag_id:
             qs = qs.filter(tags__id=tag_id).distinct()
 
-        # Status filter - admin only
+        # Status filter
         status_filter = self.request.query_params.get("status")
         if status_filter:
             if _is_admin_user(user):
                 qs = qs.filter(status=status_filter)
+            elif user.is_authenticated:
+                qs = qs.filter(status=status_filter, author=user)
+            return qs
 
         if user.is_authenticated:
-            # Staff sees all (with optional feature filter)
             if _is_admin_user(user):
                 return qs
-            # Regular user sees enabled public posts AND their own posts
-            return qs.filter(
-                models.Q(status=Post.Status.PUBLISHED) | models.Q(author=user)
-            ).distinct()
+            # For single item retrieve/update, allow author to access their own draft post
+            if getattr(self, "action", None) != "list":
+                return qs.filter(
+                    models.Q(status=Post.Status.PUBLISHED) | models.Q(author=user)
+                ).distinct()
 
-        # Unauthenticated users only see published posts
+        # Public list endpoint only returns PUBLISHED posts for all users
         return qs.filter(status=Post.Status.PUBLISHED)
 
     def perform_create(self, serializer):
@@ -103,7 +132,27 @@ class PostViewSet(viewsets.ModelViewSet):
         if _is_admin_user(user) and "status" not in serializer.validated_data:
             status_val = Post.Status.PUBLISHED
 
-        serializer.save(author=user, company=company, status=status_val)
+        published_at = timezone.now() if status_val == Post.Status.PUBLISHED else None
+        serializer.save(
+            author=user,
+            company=company,
+            status=status_val,
+            published_at=published_at,
+        )
+
+    def perform_update(self, serializer):
+        status_val = serializer.validated_data.get("status", serializer.instance.status)
+        published_at = serializer.instance.published_at
+
+        if status_val == Post.Status.PUBLISHED and not published_at:
+            published_at = timezone.now()
+        elif status_val == Post.Status.DRAFT:
+            published_at = None
+
+        serializer.save(
+            status=status_val,
+            published_at=published_at,
+        )
 
     @action(
         detail=False,

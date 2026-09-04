@@ -5,7 +5,7 @@ from ..models import SystemSetting
 
 
 import json
-from django.core.cache import cache
+from apps.core.caching import CacheKeyBuilder, CacheService
 from apps.system.activity_logs.services.activity_logs import log_activity
 
 
@@ -53,7 +53,8 @@ def update_setting(
 
     # 3. Cache Invalidation
     # Invalidate strict key
-    cache.delete(f"system_setting:{setting.setting_key}")
+    CacheService.delete(CacheKeyBuilder.system_setting(setting.setting_key))
+    CacheService.delete(CacheKeyBuilder.view_response("system_settings", "public"))
 
     # 4. Audit Logging
     log_activity(

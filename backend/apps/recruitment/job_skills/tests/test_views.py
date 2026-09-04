@@ -1,4 +1,4 @@
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
@@ -22,7 +22,10 @@ class JobSkillViewTests(APITestCase):
 
         # Create company
         self.company = Company.objects.create(
-            user=self.owner, company_name="Test Company", description="A test company"
+            user=self.owner,
+            company_name="Test Company",
+            description="A test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
 
         # Create job
@@ -116,6 +119,29 @@ class JobSkillViewTests(APITestCase):
         self.assertEqual(response.data["skill_id"], self.skill.id)
         self.assertEqual(response.data["is_required"], True)
         self.assertEqual(response.data["proficiency_level"], "intermediate")
+
+    def test_create_job_skill_on_public_approved_job_requires_review(self):
+        """POST /api/jobs/:job_id/skills/ - đổi skill public job → needs_review"""
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(
+            f"/api/jobs/{self.job.id}/skills/",
+            {
+                "skill_id": self.skill.id,
+                "is_required": True,
+                "proficiency_level": "intermediate",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.status, Job.Status.PUBLISHED)
+        self.assertEqual(self.job.domain_status, Job.DomainStatus.NEEDS_REVIEW)
+        self.assertEqual(self.job.moderation_status, Job.ModerationStatus.NEEDS_REVIEW)
+        self.assertEqual(self.job.moderation_reasons[0]["code"], "job_skill_changed")
+
+        public_response = APIClient().get(f"/api/jobs/{self.job.id}/")
+        self.assertEqual(public_response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_job_skill_unauthenticated(self):
         """POST /api/jobs/:job_id/skills/ - không login → 401"""

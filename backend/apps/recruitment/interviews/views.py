@@ -6,6 +6,8 @@ from datetime import datetime
 
 from .models import Interview
 from apps.recruitment.applications.models import Application
+from apps.company.companies.models import Company, CompanyMember
+from apps.company.companies.permissions import MANAGE_JOB_ROLES, can_manage_company_jobs
 
 from .serializers import (
     InterviewListSerializer,
@@ -49,6 +51,7 @@ class InterviewViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = InterviewDetailSerializer
 
     def _ensure_verified_company(self, request, company):
         if getattr(request.user, "role", None) != "company":
@@ -76,7 +79,18 @@ class InterviewViewSet(viewsets.GenericViewSet):
             queryset = Interview.objects.filter(application__recruiter__user=user)
         # Nếu là nhà tuyển dụng: Lấy lịch phỏng vấn của các job họ quản lý
         elif hasattr(user, "role") and user.role == "company":
-            queryset = Interview.objects.filter(application__job__company__user=user)
+            member_company_ids = CompanyMember.objects.filter(
+                user=user,
+                status=CompanyMember.Status.ACTIVE,
+                role__in=MANAGE_JOB_ROLES,
+            ).values_list("company_id", flat=True)
+            owned_company_ids = Company.objects.filter(user=user).values_list(
+                "id", flat=True
+            )
+            queryset = Interview.objects.filter(
+                application__job__company_id__in=list(member_company_ids)
+                + list(owned_company_ids)
+            )
         else:
             queryset = Interview.objects.none()
 
@@ -115,7 +129,7 @@ class InterviewViewSet(viewsets.GenericViewSet):
         """
         Kiểm tra nếu user sở hữu job
         """
-        return interview.application.job.company.user == request.user
+        return can_manage_company_jobs(interview.application.job.company, request.user)
 
     def _is_applicant(self, request, interview):
         """
@@ -153,7 +167,7 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 {"detail": "Application not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if application.job.company.user != request.user:
+        if not can_manage_company_jobs(application.job.company, request.user):
             return Response(
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
@@ -359,6 +373,7 @@ class InterviewViewSet(viewsets.GenericViewSet):
                 serializer.validated_data["result"],
                 serializer.validated_data.get("feedback"),
                 serializer.validated_data.get("rating"),
+                serializer.validated_data.get("scorecard"),
             )
             return Response(InterviewDetailSerializer(updated).data)
         except ValueError as e:

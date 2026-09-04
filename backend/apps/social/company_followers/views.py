@@ -18,6 +18,7 @@ from drf_spectacular.utils import extend_schema, OpenApiTypes
 
 class CompanyFollowerViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    serializer_class = CompanyFollowerSerializer
 
     @extend_schema(
         summary="Follow company",

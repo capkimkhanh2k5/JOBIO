@@ -224,28 +224,28 @@ export function JobCard({ job, view }: JobCardProps) {
                 className="cursor-pointer group"
             >
                 <div className={cn(
-                    "relative bg-white border border-gray-200 rounded-xl p-5 sm:p-6",
+                    "relative bg-card border border-border rounded-xl p-5 sm:p-6",
                     "hover:border-primary/35 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
                     isFeatured && !isExpired && "border-l-4 border-l-primary",
                     isExpired && "border-l-4 border-l-rose-300 bg-rose-50/30"
                 )}>
                     <div className="flex flex-col xl:flex-row gap-5">
                         <div className="flex min-w-0 flex-1 gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            <div className="w-14 h-14 rounded-xl bg-muted border border-border/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                 {logoUrl
                                     ? <img src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1.5" />
-                                    : <span className="text-xl font-bold text-gray-400">{companyName?.[0]}</span>
+                                    : <span className="text-xl font-bold text-muted-foreground/60">{companyName?.[0]}</span>
                                 }
                             </div>
 
                             <div className="min-w-0 flex-1 space-y-3">
                                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-gray-950 group-hover:text-primary transition-colors text-base sm:text-lg leading-snug line-clamp-2">
+                                        <h3 className="font-bold text-foreground group-hover:text-primary transition-colors text-base sm:text-lg leading-snug line-clamp-2">
                                             {job.title}
                                         </h3>
                                         <button
-                                            className="mt-1 text-sm text-gray-500 hover:text-primary transition-colors truncate max-w-full"
+                                            className="mt-1 text-sm text-muted-foreground hover:text-primary transition-colors truncate max-w-full"
                                             onClick={handleCompanyClick}
                                         >
                                             {companyName}
@@ -269,43 +269,37 @@ export function JobCard({ job, view }: JobCardProps) {
                                             </Badge>
                                         )}
                                         {job.is_remote && (
-                                            <Badge className="bg-cyan-50 text-cyan-700 border-cyan-200 text-[11px] px-2">
+                                            <Badge className="bg-teal-50 text-cyan-700 border-teal-200 text-[11px] px-2">
                                                 <Wifi className="w-3 h-3 mr-1" /> Remote
                                             </Badge>
                                         )}
                                     </div>
                                 </div>
 
-                                {summary && (
-                                    <p className="text-sm text-gray-600 leading-6 line-clamp-2">
-                                        {summary}
-                                    </p>
-                                )}
-
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
                                     <MetaPill icon={<DollarSign className="w-4 h-4 text-emerald-500" />} label="Lương" value={salaryText} strong />
-                                    <MetaPill icon={<MapPin className="w-4 h-4 text-gray-400" />} label="Địa điểm" value={locationText} />
-                                    <MetaPill icon={<Target className="w-4 h-4 text-violet-500" />} label="Kinh nghiệm" value={experienceText} />
-                                    <MetaPill icon={<Users className="w-4 h-4 text-cyan-500" />} label="Tuyển" value={positionsText} />
+                                    <MetaPill icon={<MapPin className="w-4 h-4 text-muted-foreground/60" />} label="Địa điểm" value={locationText} />
+                                    <MetaPill icon={<Target className="w-4 h-4 text-teal-500" />} label="Kinh nghiệm" value={experienceText} />
+                                    <MetaPill icon={<Users className="w-4 h-4 text-teal-500" />} label="Tuyển" value={positionsText} />
                                 </div>
 
                                 <div className="flex flex-wrap gap-1.5">
-                                    <Badge variant="outline" className="text-[11px] h-6 border-gray-200 text-gray-600 font-medium">
+                                    <Badge variant="outline" className="text-[11px] h-6 border-border text-muted-foreground font-medium">
                                         {JOB_TYPE_LABELS[job.job_type] ?? job.job_type}
                                     </Badge>
-                                    <Badge variant="outline" className="text-[11px] h-6 border-gray-200 text-gray-600 font-medium">
+                                    <Badge variant="outline" className="text-[11px] h-6 border-border text-muted-foreground font-medium">
                                         {LEVEL_LABELS[job.level] ?? job.level}
                                     </Badge>
-                                    <Badge variant="outline" className="text-[11px] h-6 border-gray-200 text-gray-600 font-medium">
+                                    <Badge variant="outline" className="text-[11px] h-6 border-border text-muted-foreground font-medium">
                                         {categoryText}
                                     </Badge>
                                     {skills.slice(0, 5).map(skill => (
-                                        <span key={skill} className="h-6 inline-flex items-center rounded-full bg-gray-100 px-2.5 text-[11px] font-medium text-gray-600 border border-gray-200">
+                                        <span key={skill} className="h-6 inline-flex items-center rounded-full bg-muted px-2.5 text-[11px] font-medium text-muted-foreground border border-border">
                                             {skill}
                                         </span>
                                     ))}
                                     {skills.length > 5 && (
-                                        <span className="h-6 inline-flex items-center px-1.5 text-[11px] text-gray-400">
+                                        <span className="h-6 inline-flex items-center px-1.5 text-[11px] text-muted-foreground/60">
                                             +{skills.length - 5}
                                         </span>
                                     )}
@@ -313,17 +307,17 @@ export function JobCard({ job, view }: JobCardProps) {
 
                                 {(requirementSummary || benefitsSummary) && (
                                     <div className={cn(
-                                        "grid grid-cols-1 gap-2 text-xs text-gray-500",
+                                        "grid grid-cols-1 gap-2 text-xs text-muted-foreground",
                                         hasBothDetailSummaries && "lg:grid-cols-2"
                                     )}>
                                         {requirementSummary && (
                                             <p className={cn(hasBothDetailSummaries ? "line-clamp-2" : "line-clamp-3")}>
-                                                <span className="font-semibold text-gray-700">Yêu cầu: </span>{requirementSummary}
+                                                <span className="font-semibold text-foreground/80">Yêu cầu: </span>{requirementSummary}
                                             </p>
                                         )}
                                         {benefitsSummary && (
                                             <p className={cn(hasBothDetailSummaries ? "line-clamp-2" : "line-clamp-3")}>
-                                                <span className="font-semibold text-gray-700">Quyền lợi: </span>{benefitsSummary}
+                                                <span className="font-semibold text-foreground/80">Quyền lợi: </span>{benefitsSummary}
                                             </p>
                                         )}
                                     </div>
@@ -331,34 +325,34 @@ export function JobCard({ job, view }: JobCardProps) {
                             </div>
                         </div>
 
-                        <div className="xl:w-60 xl:border-l xl:border-gray-100 xl:pl-5 flex flex-col gap-4 xl:items-stretch">
-                            <div className="grid grid-cols-2 xl:grid-cols-1 gap-x-4 gap-y-2.5 text-sm text-gray-600">
+                        <div className="xl:w-60 xl:border-l xl:border-border/60 xl:pl-5 flex flex-col gap-4 xl:items-stretch">
+                            <div className="grid grid-cols-2 xl:grid-cols-1 gap-x-4 gap-y-2.5 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-2">
-                                    <Clock className="w-4 h-4 shrink-0 text-slate-400" />
+                                    <Clock className="w-4 h-4 shrink-0 text-muted-foreground/60" />
                                     <span>{getTimeAgo(postedAt)}</span>
                                 </span>
                                 {deadline && (
                                     <span className={cn(
                                         "flex items-center gap-2 font-medium",
-                                        deadline.urgent ? "text-red-500" : "text-gray-600"
+                                        deadline.urgent ? "text-red-500" : "text-muted-foreground"
                                     )}>
-                                        <CalendarDays className="w-4 h-4 shrink-0 text-slate-400" />
+                                        <CalendarDays className="w-4 h-4 shrink-0 text-muted-foreground/60" />
                                         <span>{deadline.label}</span>
                                     </span>
                                 )}
                                 <span className="flex items-center gap-2">
-                                    <Users className="w-4 h-4 shrink-0 text-cyan-500" />
+                                    <Users className="w-4 h-4 shrink-0 text-teal-500" />
                                     <span>{applicationCount} ứng tuyển</span>
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    <Eye className="w-4 h-4 shrink-0 text-violet-500" />
+                                    <Eye className="w-4 h-4 shrink-0 text-teal-500" />
                                     <span>{viewCount} lượt xem</span>
                                 </span>
                             </div>
 
                             <div className="flex gap-2">
                                 <Button
-                                    className="flex-1 h-11 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg"
+                                    className="flex-1 h-11 bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20 font-semibold text-sm rounded-lg"
                                     onClick={handleApplyClick}
                                     disabled={isAdminViewer || isExpired}
                                     title={
@@ -375,7 +369,7 @@ export function JobCard({ job, view }: JobCardProps) {
                                     variant="ghost"
                                     size="icon"
                                     className={cn(
-                                        "h-11 w-11 rounded-lg border border-gray-100 hover:bg-red-50 hover:border-red-100",
+                                        "h-11 w-11 rounded-lg border border-border/60 hover:bg-red-50 hover:border-red-100",
                                         optimisticSaved && "text-red-500 bg-red-50 border-red-100"
                                     )}
                                     onClick={handleToggleSave}
@@ -403,7 +397,7 @@ export function JobCard({ job, view }: JobCardProps) {
             className="cursor-pointer group"
         >
             <div className={cn(
-                "relative bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col h-full",
+                "relative bg-card border border-border rounded-xl overflow-hidden flex flex-col h-full",
                 "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
                 isFeatured && !isExpired && "border-t-2 border-t-primary",
                 isExpired && "border-t-2 border-t-rose-300 bg-rose-50/30"
@@ -416,29 +410,29 @@ export function JobCard({ job, view }: JobCardProps) {
                     </div>
                 )}
 
-                <div className="p-5 flex flex-col gap-3 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-11 h-11 rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                <div className="p-4 flex flex-col gap-2.5 flex-1">
+                    <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-muted/80 border border-border/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                 {logoUrl
                                     ? <img src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1" />
-                                    : <span className="text-base font-bold text-gray-400">{companyName?.[0]}</span>
+                                    : <span className="text-sm font-bold text-muted-foreground/60">{companyName?.[0]}</span>
                                 }
                             </div>
                             <div className="min-w-0">
                                 <button
-                                    className="text-xs text-gray-400 truncate hover:text-primary transition-colors cursor-pointer block max-w-full"
+                                    className="text-xs font-medium text-muted-foreground/80 truncate hover:text-teal-600 transition-colors cursor-pointer block max-w-full"
                                     onClick={handleCompanyClick}
                                 >
                                     {companyName}
                                 </button>
                                 {job.has_applied && (
-                                    <Badge className="bg-green-50 text-green-700 border-green-200 text-[10px] h-4 px-1.5 mt-0.5">
+                                    <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 text-[10px] h-4 px-1.5 mt-0.5 font-semibold">
                                         Đã ứng tuyển
                                     </Badge>
                                 )}
                                 {isExpired && (
-                                    <Badge className="bg-rose-50 text-rose-700 border-rose-200 text-[10px] h-4 px-1.5 mt-0.5">
+                                    <Badge className="bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20 text-[10px] h-4 px-1.5 mt-0.5 font-semibold">
                                         Đã hết hạn
                                     </Badge>
                                 )}
@@ -448,8 +442,8 @@ export function JobCard({ job, view }: JobCardProps) {
                             variant="ghost"
                             size="icon"
                             className={cn(
-                                "h-7 w-7 rounded-lg flex-shrink-0 border border-gray-100 hover:bg-red-50 hover:border-red-100",
-                                optimisticSaved && "text-red-500 bg-red-50 border-red-100"
+                                "h-7 w-7 rounded-lg flex-shrink-0 border border-border/60 hover:bg-rose-50 hover:border-rose-100 dark:hover:bg-rose-950/20",
+                                optimisticSaved && "text-rose-500 bg-rose-50 border-rose-200"
                             )}
                             onClick={handleToggleSave}
                             disabled={isSaving || isAdminViewer}
@@ -460,67 +454,73 @@ export function JobCard({ job, view }: JobCardProps) {
                         </Button>
                     </div>
 
-                    <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-snug">
+                    <h3 className="font-bold text-foreground group-hover:text-teal-600 transition-colors line-clamp-2 text-sm leading-snug">
                         {job.title}
                     </h3>
 
-                    <div className="flex flex-wrap gap-1.5">
-                        <Badge variant="outline" className="text-[10px] h-5 border-gray-200 text-gray-600 font-normal">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant="outline" className="text-[10px] h-5 border-border/70 text-muted-foreground font-medium px-2 bg-muted/30">
                             {JOB_TYPE_LABELS[job.job_type] ?? job.job_type}
                         </Badge>
-                        <Badge variant="outline" className="text-[10px] h-5 border-gray-200 text-gray-600 font-normal">
+                        <Badge variant="outline" className="text-[10px] h-5 border-border/70 text-muted-foreground font-medium px-2 bg-muted/30">
                             {LEVEL_LABELS[job.level] ?? job.level}
                         </Badge>
                         {job.is_remote && (
-                            <Badge className="text-[10px] h-5 bg-cyan-50 text-cyan-700 border-cyan-200 font-normal">
-                                <Wifi className="w-2.5 h-2.5 mr-0.5" />Remote
+                            <Badge className="text-[10px] h-5 bg-teal-500/10 text-teal-700 dark:text-teal-400 border-teal-500/20 font-medium px-2">
+                                <Wifi className="w-2.5 h-2.5 mr-1" />Remote
                             </Badge>
                         )}
                     </div>
 
-                    <div className="space-y-1 text-xs text-gray-500">
-                        <div className="flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                            <span className="truncate">{locationText}</span>
+                    {/* Compact Meta Grid (2 columns for maximum space efficiency) */}
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs text-muted-foreground bg-muted/40 rounded-xl p-2.5 border border-border/50">
+                        <div className="flex items-center gap-1.5 min-w-0" title={locationText}>
+                            <MapPin className="w-3.5 h-3.5 text-teal-600/70 shrink-0" />
+                            <span className="truncate text-foreground/80">{locationText}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <DollarSign className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                            <span className="font-semibold text-emerald-600">{salaryText}</span>
+                        <div className="flex items-center gap-1.5 min-w-0" title={salaryText}>
+                            <DollarSign className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                            <span className="font-bold text-emerald-600 truncate">{salaryText}</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <Briefcase className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
-                            <span className="truncate">{experienceText} · {positionsText}</span>
+                        <div className="flex items-center gap-1.5 min-w-0" title={experienceText}>
+                            <Briefcase className="w-3.5 h-3.5 text-teal-600/70 shrink-0" />
+                            <span className="truncate text-foreground/80">{experienceText}</span>
                         </div>
+                        {positionsText && (
+                            <div className="flex items-center gap-1.5 min-w-0" title={positionsText}>
+                                <Users className="w-3.5 h-3.5 text-teal-600/70 shrink-0" />
+                                <span className="truncate text-foreground/80">{positionsText}</span>
+                            </div>
+                        )}
                     </div>
 
                     {skills.length > 0 && (
                         <div className="flex flex-wrap gap-1">
-                            {skills.slice(0, 4).map(skill => (
-                                <span key={skill} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
+                            {skills.slice(0, 3).map(skill => (
+                                <span key={skill} className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/60 font-medium">
                                     {skill}
                                 </span>
                             ))}
-                            {skills.length > 4 && (
-                                <span className="text-[10px] px-2 py-0.5 text-gray-400">+{skills.length - 4}</span>
+                            {skills.length > 3 && (
+                                <span className="text-[10px] px-1.5 py-0.5 text-muted-foreground/60 font-medium">+{skills.length - 3}</span>
                             )}
                         </div>
                     )}
 
-                    <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400">
-                        <div className="flex gap-3">
-                            <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />{applicationCount} ứng tuyển
+                    <div className="mt-auto pt-2.5 border-t border-border/50 flex items-center justify-between text-[10px] text-muted-foreground/70">
+                        <div className="flex gap-2.5">
+                            <span className="flex items-center gap-1" title="Lượt ứng tuyển">
+                                <Users className="h-3 w-3 text-muted-foreground/50" />{applicationCount} ứng tuyển
                             </span>
-                            <span className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" />{viewCount}
+                            <span className="flex items-center gap-1" title="Lượt xem">
+                                <Eye className="h-3 w-3 text-muted-foreground/50" />{viewCount}
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 text-right">
-                            <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />{getTimeAgo(postedAt)}
-                            </span>
+                        <div className="flex items-center gap-1.5 text-right font-medium">
+                            <Clock className="h-3 w-3 text-muted-foreground/50" />
+                            <span>{getTimeAgo(postedAt)}</span>
                             {deadline && (
-                                <span className={cn("font-medium", deadline.urgent ? "text-red-500" : "text-gray-400")}>
+                                <span className={cn(deadline.urgent ? "text-rose-600 font-bold" : "text-muted-foreground/70")}>
                                     · {deadline.label}
                                 </span>
                             )}
@@ -528,9 +528,9 @@ export function JobCard({ job, view }: JobCardProps) {
                     </div>
                 </div>
 
-                <div className="px-5 pb-4">
+                <div className="px-4 pb-3.5">
                     <Button
-                        className="w-full h-9 bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-600/20 font-semibold text-sm rounded-lg transition-colors"
+                        className="w-full h-9 bg-teal-600 hover:bg-teal-700 text-white shadow-sm font-bold text-xs rounded-xl transition-all active:scale-[0.99]"
                         onClick={handleApplyClick}
                         disabled={isAdminViewer || isExpired}
                         title={
@@ -561,11 +561,11 @@ function MetaPill({
     strong?: boolean;
 }) {
     return (
-        <div className="min-w-0 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2 flex items-center gap-2">
+        <div className="min-w-0 rounded-lg bg-muted border border-border/60 px-3 py-2 flex items-center gap-2">
             <span className="shrink-0">{icon}</span>
             <span className="min-w-0">
-                <span className="block text-[10px] uppercase tracking-wide text-gray-400 font-semibold">{label}</span>
-                <span className={cn("block truncate text-xs text-gray-700", strong && "font-bold text-emerald-600")}>{value}</span>
+                <span className="block text-[10px] uppercase tracking-wide text-muted-foreground/60 font-semibold">{label}</span>
+                <span className={cn("block truncate text-xs text-foreground/80", strong && "font-bold text-emerald-600")}>{value}</span>
             </span>
         </div>
     );

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { candidateService } from '@/services/candidateService';
 import { toast } from 'sonner';
-import { Linkedin, Github, Globe, Facebook, Banknote, CalendarDays, Link2 } from 'lucide-react';
+import { Linkedin, Github, Globe, Facebook, CalendarDays, Link2 } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { useQuery } from '@tanstack/react-query';
 import { geographyService } from '@/services/geographyService';
@@ -32,11 +32,6 @@ const personalSchema = z.object({
         facebook: z.string().url("URL không hợp lệ").or(z.literal("")).optional(),
         portfolio: z.string().url("URL không hợp lệ").or(z.literal("")).optional(),
     }),
-    desired_salary: z.object({
-        min: z.number().min(0).optional(),
-        max: z.number().min(0).optional(),
-        currency: z.string().optional(),
-    }),
     available_from: z.string().optional(),
     years_of_experience: z.number().min(0).max(50).optional(),
     highest_education: z.string().optional(),
@@ -52,8 +47,6 @@ const EDUCATION_LEVELS = [
     { value: 'tien_si', label: 'Tiến sĩ' },
     { value: 'khac', label: 'Khác' },
 ];
-
-const CURRENCIES = ['VND', 'USD', 'EUR', 'SGD'];
 
 export const PersonalForm = ({ profile }: { profile: any }) => {
     const queryClient = useQueryClient();
@@ -72,11 +65,6 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
             github: nextProfile?.github_url || "",
             facebook: nextProfile?.facebook_url || "",
             portfolio: nextProfile?.portfolio_url || "",
-        },
-        desired_salary: {
-            min: nextProfile?.desired_salary_min ? Number(nextProfile.desired_salary_min) : undefined,
-            max: nextProfile?.desired_salary_max ? Number(nextProfile.desired_salary_max) : undefined,
-            currency: nextProfile?.salary_currency || "VND",
         },
         available_from: nextProfile?.available_from_date || "",
         years_of_experience: nextProfile?.years_of_experience || 0,
@@ -133,9 +121,6 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                 github_url: values.social_links.github || null,
                 facebook_url: values.social_links.facebook || null,
                 portfolio_url: values.social_links.portfolio || null,
-                desired_salary_min: values.desired_salary.min || null,
-                desired_salary_max: values.desired_salary.max || null,
-                salary_currency: values.desired_salary.currency || 'VND',
                 available_from_date: values.available_from || null,
                 years_of_experience: values.years_of_experience,
                 highest_education_level: values.highest_education,
@@ -161,7 +146,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
 
     const SectionTitle = ({ icon: Icon, children }: { icon: React.ElementType, children: React.ReactNode }) => (
         <div className="flex items-center gap-2 mb-4">
-            <div className="p-1.5 bg-violet-100 rounded-lg text-violet-600">
+            <div className="p-1.5 bg-teal-100 rounded-lg text-teal-600">
                 <Icon className="w-3.5 h-3.5" />
             </div>
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{children}</span>
@@ -344,63 +329,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
 
                 <Separator className="opacity-50" />
 
-                {/* Desired Salary */}
-                <div>
-                    <SectionTitle icon={Banknote}>Mức lương mong muốn</SectionTitle>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FormField control={form.control} name="desired_salary.min"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lương tối thiểu</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" min={0}
-                                            placeholder="2000"
-                                            {...field}
-                                            value={field.value ?? ''}
-                                            onChange={e => field.onChange(parseFloat(e.target.value) || undefined)}
-                                            className="" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
 
-                        <FormField control={form.control} name="desired_salary.max"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Lương tối đa</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" min={0}
-                                            placeholder="4000"
-                                            {...field}
-                                            value={field.value ?? ''}
-                                            onChange={e => field.onChange(parseFloat(e.target.value) || undefined)}
-                                            className="" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-
-                        <FormField control={form.control} name="desired_salary.currency"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Đơn vị tiền tệ</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger className="">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {CURRENCIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                    </div>
-                </div>
-
-                <Separator className="opacity-50" />
 
                 {/* Social Links */}
                 <div>
@@ -449,7 +378,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2">
-                                        <Globe className="w-3.5 h-3.5 text-violet-600" /> Portfolio / Website
+                                        <Globe className="w-3.5 h-3.5 text-teal-600" /> Portfolio / Website
                                     </FormLabel>
                                     <FormControl>
                                         <Input placeholder="https://yourname.dev" {...field} value={field.value ?? ''} className="" />
@@ -461,7 +390,7 @@ export const PersonalForm = ({ profile }: { profile: any }) => {
                 </div>
 
                 <div className="flex justify-end pt-2">
-                    <Button type="submit" className="px-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white shadow-lg hover:shadow-violet-600/20 transition-all font-bold" disabled={mutation.isPending}>
+                    <Button type="submit" className="px-10 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-lg hover:shadow-teal-600/20 transition-all font-bold" disabled={mutation.isPending}>
                         {mutation.isPending ? (
                             <span className="flex items-center gap-2">
                                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -30,24 +30,24 @@ export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
     const isCard = method.type === 'card';
 
     return (
-        <div className={`relative group overflow-hidden rounded-2xl border transition-all duration-300 ${method.is_default ? 'border-violet-200 bg-violet-50/30 shadow-md shadow-violet-100/50' : 'border-slate-200 bg-white shadow-sm'} p-5 hover:shadow-lg hover:border-violet-200`}>
+        <div className={`relative group overflow-hidden rounded-2xl border transition-all duration-300 ${method.is_default ? 'border-teal-200 bg-teal-50/30 shadow-md shadow-teal-100/50' : 'border-border bg-card shadow-sm'} p-5 hover:shadow-lg hover:border-teal-200`}>
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
-                    <div className={`rounded-xl p-3 border transition-colors ${method.is_default ? 'bg-white text-violet-600 border-violet-100 shadow-sm' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                    <div className={`rounded-xl p-3 border transition-colors ${method.is_default ? 'bg-card text-teal-600 border-teal-100 shadow-sm' : 'bg-muted text-muted-foreground/60 border-border/60'}`}>
                         {isCard ? <CreditCard className="h-6 w-6" /> : <CreditCard className="h-6 w-6" />}
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h4 className="font-black text-slate-900 tracking-tight">
+                            <h4 className="font-black text-foreground tracking-tight">
                                 {method.provider} •••• {method.last4}
                             </h4>
                             {method.is_default && (
-                                <Badge className="bg-violet-600 text-white border-none shadow-sm uppercase text-[10px] font-black tracking-widest px-2 py-0.5 rounded-lg">
+                                <Badge className="bg-teal-600 text-white border-none shadow-sm uppercase text-[10px] font-black tracking-widest px-2 py-0.5 rounded-lg">
                                     Mặc định
                                 </Badge>
                             )}
                         </div>
-                        <p className="mt-1 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <p className="mt-1 text-xs font-bold text-muted-foreground/60 uppercase tracking-wider">
                             Hết hạn: {method.expiry}
                         </p>
                     </div>
@@ -55,15 +55,15 @@ export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/60 hover:text-foreground hover:bg-muted rounded-lg">
                             <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border-slate-100 bg-white text-slate-900 shadow-xl rounded-xl p-1">
+                    <DropdownMenuContent align="end" className="border-border/60 bg-card text-foreground shadow-xl rounded-xl p-1">
                         {!method.is_default && (
                             <DropdownMenuItem
                                 onClick={() => onSetDefault(method.id)}
-                                className="gap-2 cursor-pointer focus:bg-violet-50 focus:text-violet-600 rounded-lg font-bold text-sm transition-colors py-2"
+                                className="gap-2 cursor-pointer focus:bg-teal-50 focus:text-teal-600 rounded-lg font-bold text-sm transition-colors py-2"
                             >
                                 <Star className="h-4 w-4 fill-current" /> Đặt làm mặc định
                             </DropdownMenuItem>
@@ -78,7 +78,7 @@ export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
                 </DropdownMenu>
             </div>
 
-            <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-300">
+            <div className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
                 <ShieldCheck className="h-3 w-3" />
                 Kết nối bảo mật
             </div>

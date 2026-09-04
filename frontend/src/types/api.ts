@@ -52,10 +52,11 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
-  user: User;
+  access_token?: string;
+  refresh_token?: string;
+  user?: User;
   requires_2fa?: boolean;
+  challenge_id?: string;
 }
 
 export interface RegisterRequest {
@@ -158,6 +159,8 @@ export interface JobCategory {
   slug: string;
   parent: number | null;
   is_active: boolean;
+  domain?: 'it' | 'other' | string;
+  is_publishable?: boolean;
   display_order: number;
   children?: JobCategory[];
 }
@@ -168,6 +171,8 @@ export interface Skill {
   slug: string;
   category: number | null;
   is_verified: boolean;
+  domain?: 'it' | 'other' | string;
+  is_publishable?: boolean;
   usage_count: number;
 }
 
@@ -218,6 +223,30 @@ export interface CompanyDetail extends CompanyListItem {
   media: CompanyMedia[];
   created_at: string;
   updated_at: string;
+}
+
+export type CompanyMemberRole = 'owner' | 'admin' | 'recruiter' | 'viewer';
+export type CompanyMemberStatus = 'active' | 'invited' | 'disabled';
+
+export interface CompanyMember {
+  id: number;
+  company: number;
+  user: number;
+  user_email: string;
+  user_name: string;
+  role: CompanyMemberRole;
+  status: CompanyMemberStatus;
+  invited_by?: number | null;
+  invited_by_email?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyMemberWriteRequest {
+  user_id?: number;
+  email?: string;
+  role: Exclude<CompanyMemberRole, 'owner'>;
+  status?: CompanyMemberStatus;
 }
 
 export interface CompanyCreateRequest {
@@ -282,6 +311,18 @@ export interface MediaType {
 export type JobType = 'full_time' | 'part_time' | 'contract' | 'internship' | 'freelance';
 export type JobLevel = 'intern' | 'fresher' | 'junior' | 'middle' | 'senior' | 'lead' | 'manager' | 'director' | 'c_level';
 export type JobStatus = 'draft' | 'published' | 'closed' | 'expired';
+export type JobDomainStatus = 'it_approved' | 'needs_review' | 'non_it';
+export type ModerationStatus = 'approved' | 'needs_review' | 'rejected';
+
+export interface PolicyReason {
+  code: string;
+  field?: string | null;
+  message: string;
+  suggestion?: string;
+  signals?: string[];
+  skills?: string[];
+  categories?: string[];
+}
 
 export interface JobListItem {
   id: number;
@@ -316,6 +357,10 @@ export interface JobListItem {
   application_deadline: string | null;
   deadline?: string | null;
   status: JobStatus;
+  domain_status?: JobDomainStatus;
+  moderation_status?: ModerationStatus;
+  moderation_reasons?: PolicyReason[];
+  last_moderated_at?: string | null;
   is_expired?: boolean;
   view_count: number;
   views_count?: number;
@@ -327,6 +372,80 @@ export interface JobListItem {
   published_at: string | null;
   created_at: string;
   skills?: JobSkill[];
+  match_score?: number;
+  match_label?: string;
+  match_reasons?: string[];
+  score_breakdown?: RecommendationScoreBreakdown;
+  semantic_score?: number;
+  structured_score?: number;
+  final_score?: number;
+  scoring_mode?: 'hybrid' | 'structured' | string;
+  structured_confidence?: number;
+  semantic_similarity?: number;
+  matched_skills?: string[];
+  missing_required_skills?: string[];
+}
+
+export interface RecommendationScoreBreakdown {
+  semantic: number;
+  skill: number;
+  title?: number;
+  experience: number;
+  seniority?: number;
+  salary: number;
+  location: number;
+  job_type_category?: number;
+  freshness: number;
+}
+
+export interface JobRecommendationsResponse {
+  source: 'profile' | 'cv';
+  source_id: number;
+  source_parse_status?: 'parsed' | 'processing' | 'profile_fallback' | string;
+  semantic_status: 'pending' | 'ready' | 'failed' | 'skipped' | 'disabled' | 'unavailable' | string;
+  personalization_notice?: string;
+  model_version: string;
+  taxonomy_version?: string;
+  results: JobListItem[];
+}
+
+export interface JobPublishReadiness {
+  allowed: boolean;
+  errors: PolicyReason[];
+  domain_policy: {
+    is_it: boolean;
+    confidence: number;
+    matched_it_signals: string[];
+    non_it_signals: string[];
+    required_changes: PolicyReason[];
+  };
+  moderation: {
+    allowed: boolean;
+    decision: string;
+    severity: string;
+    reasons: PolicyReason[];
+    blocked_fields: string[];
+    provider: string;
+    confidence: number;
+    audit_id?: number | null;
+    content_hash?: string;
+  };
+}
+
+export interface JobRecommendationEventRequest {
+  job_id: number;
+  event_type: 'impression' | 'click' | 'save' | 'apply' | 'dismiss';
+  rank?: number;
+  rank_position?: number;
+  score?: number;
+  match_score_at_time?: number;
+  score_breakdown?: RecommendationScoreBreakdown;
+  surface?: string;
+  algorithm_version?: string;
+  not_relevant_reason?: string;
+  source_type?: 'profile' | 'cv' | string;
+  source_id?: number | null;
+  request_id?: string;
 }
 
 export interface JobDetail extends JobListItem {
@@ -349,6 +468,9 @@ export interface JobSkill {
   skill: Skill;
   skill_id?: number;
   skill_name?: string;
+  skill_is_verified?: boolean;
+  skill_domain?: 'it' | 'other' | string;
+  skill_is_publishable?: boolean;
   is_required: boolean;
   proficiency_level: string | null;
   years_required: number | null;
@@ -444,6 +566,7 @@ export interface ApplicationListItem {
   candidate: { id: number; full_name: string; avatar: string | null } | null;
   cv: { id: number; file_name: string } | null;
   cv_url?: string | null;
+  cv_file_url?: string | null;
   cv_name?: string | null;
   cv_id?: number | null;
   status: ApplicationStatus;
@@ -468,7 +591,7 @@ export interface ApplicationDetail extends ApplicationListItem {
 
 export interface ApplicationCreateRequest {
   job_id: number;
-  cv_id: number;
+  cv_id?: number;
   cover_letter?: string;
 }
 
@@ -563,9 +686,6 @@ export interface CandidateDetail extends CandidateListItem {
   linkedin_url: string | null;
   github_url: string | null;
   portfolio_url: string | null;
-  desired_salary_min: number | null;
-  desired_salary_max: number | null;
-  salary_currency: string | null;
   highest_education_level: string | null;
   score: number;
   checklist: Array<{ task: string; completed: boolean }>;
@@ -589,10 +709,6 @@ export interface CandidateUpdateRequest {
   linkedin_url?: string;
   github_url?: string;
   portfolio_url?: string;
-
-  salary_expectation_min?: number;
-  salary_expectation_max?: number;
-  salary_currency?: string;
   highest_education_level?: string;
 }
 
@@ -788,6 +904,7 @@ export interface CandidateCV {
   cv_data: Record<string, unknown> | null;
   file_url?: string | null;
   cv_url?: string | null;
+  cv_file_url?: string | null;
   thumbnail_url?: string | null;
   is_default: boolean;
   is_public?: boolean;
@@ -861,61 +978,6 @@ export interface CVTemplateCategory {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Job Alerts
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export type AlertFrequency = 'instant' | 'daily' | 'weekly';
-
-export interface JobAlert {
-  id: number;
-  alert_name: string;
-  keywords: string | null;
-  category: number | null;
-  locations_detail: Province[];
-  location_ids: number[];
-  skills_detail: Skill[];
-  skill_ids: number[];
-  job_type: JobType | null;
-  level: JobLevel | null;
-  salary_min: number | null;
-  frequency: AlertFrequency;
-  email_notification: boolean;
-  use_ai_matching: boolean;
-  is_active: boolean;
-  last_sent_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface JobAlertCreateRequest {
-  alert_name: string;
-  keywords?: string;
-  category?: number;
-  location_ids?: number[];
-  skill_ids?: number[];
-  job_type?: JobType;
-  level?: JobLevel;
-  salary_min?: number;
-  frequency?: AlertFrequency;
-  email_notification?: boolean;
-  use_ai_matching?: boolean;
-}
-
-export type JobAlertUpdateRequest = Partial<JobAlertCreateRequest> & {
-  is_active?: boolean;
-};
-
-export interface JobAlertMatch {
-  id: number;
-  job: number;
-  job_detail: JobListItem;
-  is_sent: boolean;
-  is_viewed: boolean;
-  matched_at: string;
-  score: number | null;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // Interviews
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -948,6 +1010,7 @@ export interface InterviewListItem {
   result: InterviewResult;
   rating?: number | null;
   notes?: string | null;
+  scorecard?: Record<string, number> | null;
   interviewer?: number | null;
   interviewer_name?: string | null;
   interviewer_avatar?: string | null;
@@ -965,6 +1028,7 @@ export interface InterviewDetail extends InterviewListItem {
   meeting_link: string | null;
   notes: string | null;
   feedback: string | null;
+  scorecard: Record<string, number> | null;
   updated_at: string;
 }
 

@@ -87,6 +87,25 @@ class RecruiterCertificationViewTest(APITestCase):
         # Check auto display_order
         self.assertEqual(response.data["display_order"], 2)
 
+    def test_create_certification_rejects_insecure_credential_url(self):
+        url = f"/api/candidates/{self.recruiter.id}/certifications/"
+        response = self.client.post(
+            url,
+            {
+                "certification_name": "Insecure Cert",
+                "credential_url": "http://cert.example.com",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            RecruiterCertification.objects.filter(
+                certification_name="Insecure Cert"
+            ).count(),
+            0,
+        )
+
     def test_create_certification_not_owner(self):
         """Test POST by non-owner returns 403"""
         url = f"/api/candidates/{self.recruiter2.id}/certifications/"
@@ -135,6 +154,33 @@ class RecruiterCertificationViewTest(APITestCase):
         self.assertEqual(
             self.certification.certification_name, "AWS Solutions Architect"
         )
+
+    def test_partial_update_certification_rejects_expiry_before_existing_issue_date(self):
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/certifications/{self.certification.id}/",
+            {"expiry_date": "2022-12-31"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.certification.refresh_from_db()
+        self.assertIsNone(self.certification.expiry_date)
+
+    def test_partial_update_certification_non_expiring_rejects_existing_expiry_date(self):
+        self.certification.expiry_date = "2025-01-01"
+        self.certification.does_not_expire = False
+        self.certification.save(update_fields=["expiry_date", "does_not_expire"])
+
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/certifications/{self.certification.id}/",
+            {"does_not_expire": True},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.certification.refresh_from_db()
+        self.assertFalse(self.certification.does_not_expire)
+        self.assertIsNotNone(self.certification.expiry_date)
 
     def test_update_certification_not_owner(self):
         """Test PUT by non-owner returns 403"""

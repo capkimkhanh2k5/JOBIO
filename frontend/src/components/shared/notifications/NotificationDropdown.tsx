@@ -16,15 +16,15 @@ import { cn } from '@/lib/utils';
 // ─── Icon per notification type ──────────────────────────────────────────────
 const getIcon = (type: string) => {
     switch (type) {
-        case 'application':   return <FileText className="w-4 h-4 text-blue-500" />;
-        case 'interview':     return <Calendar className="w-4 h-4 text-violet-500" />;
-        case 'view':          return <Eye className="w-4 h-4 text-cyan-500" />;
+        case 'application':   return <FileText className="w-4 h-4 text-primary" />;
+        case 'interview':     return <Calendar className="w-4 h-4 text-teal-500" />;
+        case 'view':          return <Eye className="w-4 h-4 text-teal-500" />;
         case 'warning':
         case 'report':        return <AlertTriangle className="w-4 h-4 text-amber-500" />;
         case 'verification':  return <ShieldCheck className="w-4 h-4 text-emerald-500" />;
         case 'billing':       return <CreditCard className="w-4 h-4 text-green-500" />;
         case 'system':
-        default:              return <Bell className="w-4 h-4 text-slate-400" />;
+        default:              return <Bell className="w-4 h-4 text-muted-foreground/60" />;
     }
 };
 
@@ -64,9 +64,9 @@ export const NotificationDropdown = ({ onClose }: { onClose?: () => void }) => {
     return (
         <div className="flex flex-col w-full">
             {/* ── Header ── */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-slate-50/50">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-muted/50">
                 <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-base text-slate-900">Thông báo</h3>
+                    <h3 className="font-bold text-base text-foreground">Thông báo</h3>
                     {unreadCount > 0 && (
                         <span className="bg-primary/10 text-primary text-[11px] font-bold px-2 py-0.5 rounded-full border border-primary/20">
                             {unreadCount} mới
@@ -111,26 +111,26 @@ export const NotificationDropdown = ({ onClose }: { onClose?: () => void }) => {
                                 role="button"
                                 tabIndex={0}
                                 onKeyDown={(e) => e.key === 'Enter' && handleItemClick(notif.id, notif.is_read, notif.link)}
-                                className={`flex items-start gap-4 px-5 py-4 border-b border-border/20 cursor-pointer transition-colors hover:bg-slate-50 ${!notif.is_read ? 'bg-primary/[0.03]' : ''}`}
+                                className={`flex items-start gap-4 px-5 py-4 border-b border-border/20 cursor-pointer transition-colors hover:bg-muted ${!notif.is_read ? 'bg-primary/[0.03]' : ''}`}
                                 onClick={() => handleItemClick(notif.id, notif.is_read, notif.link)}
                             >
                                 {/* Icon */}
-                                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center mt-0.5 border shadow-sm ${!notif.is_read ? 'bg-white border-primary/20 shadow-primary/5' : 'bg-slate-100 border-slate-200'}`}>
+                                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center mt-0.5 border shadow-sm ${!notif.is_read ? 'bg-card border-primary/20 shadow-primary/5' : 'bg-muted border-border'}`}>
                                     {getIcon(notif.type)}
                                 </div>
 
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
-                                    <p className={`text-sm font-semibold leading-snug mb-1 ${!notif.is_read ? 'text-slate-900' : 'text-slate-600'}`}>
+                                    <p className={`text-sm font-semibold leading-snug mb-1 ${!notif.is_read ? 'text-foreground' : 'text-muted-foreground'}`}>
                                         {notif.title}
                                     </p>
                                     <p className={cn(
                                         "text-xs line-clamp-2 leading-relaxed mb-1.5",
-                                        !notif.is_read ? "text-slate-700 font-medium" : "text-slate-500"
+                                        !notif.is_read ? "text-foreground/80 font-medium" : "text-muted-foreground"
                                     )}>
                                         {notif.message}
                                     </p>
-                                    <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                                    <span className="text-[10px] font-medium text-muted-foreground/60 flex items-center gap-1">
                                         <Bell className="w-3 h-3" />
                                         {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true, locale: vi })}
                                     </span>

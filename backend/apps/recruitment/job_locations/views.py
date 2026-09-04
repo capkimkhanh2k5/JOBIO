@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from apps.company.companies.permissions import can_manage_company_jobs
 from apps.recruitment.jobs.selectors.jobs import get_job_by_id
 from .serializers import JobLocationSerializer, JobLocationCreateSerializer
 from .selectors.job_locations import list_locations_by_job, get_job_location_by_id
@@ -18,6 +19,8 @@ class JobLocationViewSet(viewsets.GenericViewSet):
     ViewSet cho quản lý job locations (địa điểm làm việc).
     Nested URL: /api/jobs/:job_id/locations/
     """
+
+    serializer_class = JobLocationSerializer
 
     def get_permissions(self):
         if self.action == "list":
@@ -43,9 +46,16 @@ class JobLocationViewSet(viewsets.GenericViewSet):
         """
         Helper: Check if user is job owner
         """
-        if job.company.user != request.user:
+        if not can_manage_company_jobs(job.company, request.user):
             return Response(
                 {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+        if getattr(job.company, "verification_status", None) != "verified":
+            return Response(
+                {
+                    "detail": "Công ty chưa được xác thực. Bạn chưa thể chỉnh nội dung tuyển dụng."
+                },
+                status=status.HTTP_403_FORBIDDEN,
             )
         return None
 
