@@ -112,11 +112,6 @@ JOBIO có pipeline CI/CD tách rõ kiểm tra chất lượng và triển khai p
 | [VNPay Testing](Docs/TestVNPay.md) | Ghi chú kiểm thử luồng thanh toán VNPay. |
 | [Dataset README](DataSet/README.md) | Tài liệu dữ liệu mẫu và dữ liệu seed/demo. |
 
-## Nhóm Phát Triển
-
-- CapKimKhanh
-- DangNgocHuy
-
 ## License
 
 JOBIO được phát hành theo giấy phép [MIT](LICENSE.txt).
