@@ -70,7 +70,11 @@ def methods_for_urlpattern(pattern: object) -> set[str]:
     callback = pattern.callback
     actions = getattr(callback, "actions", None)
     if actions:
-        return {method.upper() for method in actions if method.upper() not in METHODS_TO_IGNORE}
+        return {
+            method.upper()
+            for method in actions
+            if method.upper() not in METHODS_TO_IGNORE
+        }
 
     view_class = getattr(callback, "view_class", None) or getattr(callback, "cls", None)
     if view_class is not None:
@@ -106,7 +110,9 @@ def collect_backend_routes() -> dict[str, set[str]]:
     return routes
 
 
-def resolve_frontend_import(specifier: str, current_file: Path, frontend_src: Path) -> Path | None:
+def resolve_frontend_import(
+    specifier: str, current_file: Path, frontend_src: Path
+) -> Path | None:
     if specifier.startswith("@/"):
         base = frontend_src / specifier[2:]
     elif specifier.startswith("."):
@@ -139,7 +145,9 @@ def collect_reachable_frontend_files(frontend_src: Path, entrypoint: Path) -> se
 
         text = current.read_text(encoding="utf-8", errors="ignore")
         for match in IMPORT_RE.finditer(text):
-            imported = resolve_frontend_import(match.group("path"), current, frontend_src)
+            imported = resolve_frontend_import(
+                match.group("path"), current, frontend_src
+            )
             if imported and imported not in reachable:
                 pending.append(imported)
     return reachable
@@ -202,7 +210,9 @@ def build_report(frontend_src: Path, entrypoint: Path) -> dict[str, object]:
     return {
         "backend": {
             "unique_paths": len(backend_routes),
-            "method_operations": sum(len(methods) for methods in backend_routes.values()),
+            "method_operations": sum(
+                len(methods) for methods in backend_routes.values()
+            ),
             "top_prefixes": dict(prefixes.most_common()),
         },
         "frontend": {
@@ -231,7 +241,9 @@ def main() -> int:
         default=Path("App.tsx"),
         help="Frontend entrypoint relative to --frontend-src for reachable-file audit.",
     )
-    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON.")
+    parser.add_argument(
+        "--json", action="store_true", help="Print machine-readable JSON."
+    )
     args = parser.parse_args()
 
     configure_django()

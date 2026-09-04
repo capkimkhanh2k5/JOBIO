@@ -81,7 +81,13 @@ class JobEmbeddingAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "model")
     search_fields = ("job__title", "error")
-    readonly_fields = ("source_hash", "error", "generated_at", "created_at", "updated_at")
+    readonly_fields = (
+        "source_hash",
+        "error",
+        "generated_at",
+        "created_at",
+        "updated_at",
+    )
     actions = ("enqueue_rebuild", "remove_vectors")
 
     @admin.display(description="Source hash")
@@ -122,7 +128,13 @@ class CandidateRecommendationEmbeddingAdmin(admin.ModelAdmin):
     )
     list_filter = ("source_type", "status", "model")
     search_fields = ("recruiter__user__email", "recruiter__user__full_name", "error")
-    readonly_fields = ("source_hash", "error", "generated_at", "created_at", "updated_at")
+    readonly_fields = (
+        "source_hash",
+        "error",
+        "generated_at",
+        "created_at",
+        "updated_at",
+    )
     actions = ("rebuild_now",)
 
     @admin.display(description="Source hash")

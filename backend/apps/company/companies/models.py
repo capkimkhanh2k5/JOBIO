@@ -163,7 +163,9 @@ class CompanyMember(models.Model):
             )
         ]
         indexes = [
-            models.Index(fields=["company", "status"], name="idx_company_member_status"),
+            models.Index(
+                fields=["company", "status"], name="idx_company_member_status"
+            ),
             models.Index(fields=["user", "status"], name="idx_company_member_user"),
         ]
 

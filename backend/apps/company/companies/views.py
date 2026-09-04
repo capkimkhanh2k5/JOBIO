@@ -53,7 +53,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
 
     serializer_class = CompanySerializer
 
-    def _permission_denied(self, detail="You don't have permission to update this company"):
+    def _permission_denied(
+        self, detail="You don't have permission to update this company"
+    ):
         return Response({"detail": detail}, status=status.HTTP_403_FORBIDDEN)
 
     def _seat_limit_for_company(self, company):
@@ -92,7 +94,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
 
         if active_count > seat_limit:
             return Response(
-                {"detail": f"Gói hiện tại chỉ cho phép tối đa {seat_limit} thành viên."},
+                {
+                    "detail": f"Gói hiện tại chỉ cho phép tối đa {seat_limit} thành viên."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return None
@@ -226,7 +230,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
             )
 
         if not can_manage_company_profile(company, request.user):
-            return self._permission_denied("You don't have permission to delete this company")
+            return self._permission_denied(
+                "You don't have permission to delete this company"
+            )
 
         delete_company(company)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -472,7 +478,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
         if not can_manage_company_members(company, request.user):
-            return self._permission_denied("You don't have permission to manage members")
+            return self._permission_denied(
+                "You don't have permission to manage members"
+            )
 
         if request.method.lower() == "get":
             members = company.members.select_related("user", "invited_by").order_by(
@@ -498,14 +506,18 @@ class CompanyViewSet(viewsets.GenericViewSet):
             )
         if getattr(member_user, "role", None) != "company":
             return Response(
-                {"detail": "Chỉ tài khoản role company mới có thể là thành viên công ty."},
+                {
+                    "detail": "Chỉ tài khoản role company mới có thể là thành viên công ty."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         next_status = serializer.validated_data.get(
             "status", CompanyMember.Status.ACTIVE
         )
-        existing = CompanyMember.objects.filter(company=company, user=member_user).first()
+        existing = CompanyMember.objects.filter(
+            company=company, user=member_user
+        ).first()
         if existing and existing.role == CompanyMember.Role.OWNER:
             return Response(
                 {"detail": "Owner membership cannot be changed from this endpoint."},
@@ -513,7 +525,8 @@ class CompanyViewSet(viewsets.GenericViewSet):
             )
         needs_seat = not existing or (
             existing.status == CompanyMember.Status.DISABLED
-            and next_status in {CompanyMember.Status.ACTIVE, CompanyMember.Status.INVITED}
+            and next_status
+            in {CompanyMember.Status.ACTIVE, CompanyMember.Status.INVITED}
         )
         if needs_seat:
             limit_error = self._seat_limit_error(company)
@@ -546,7 +559,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
         if not can_manage_company_members(company, request.user):
-            return self._permission_denied("You don't have permission to manage members")
+            return self._permission_denied(
+                "You don't have permission to manage members"
+            )
 
         member = (
             CompanyMember.objects.select_related("user", "invited_by")
@@ -577,10 +592,10 @@ class CompanyViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
 
         next_status = serializer.validated_data.get("status", member.status)
-        if (
-            member.status == CompanyMember.Status.DISABLED
-            and next_status in {CompanyMember.Status.ACTIVE, CompanyMember.Status.INVITED}
-        ):
+        if member.status == CompanyMember.Status.DISABLED and next_status in {
+            CompanyMember.Status.ACTIVE,
+            CompanyMember.Status.INVITED,
+        }:
             limit_error = self._seat_limit_error(company)
             if limit_error:
                 return limit_error

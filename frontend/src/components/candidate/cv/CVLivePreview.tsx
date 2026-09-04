@@ -191,6 +191,9 @@ function setPathValue(source: Record<string, any>, path: string, value: string) 
     let cursor: any = next;
     for (let index = 0; index < parts.length - 1; index += 1) {
         const part = parts[index];
+        if (part === '__proto__' || part === 'constructor' || part === 'prototype') {
+            continue;
+        }
         const nextPart = parts[index + 1];
         const existing = cursor[part];
         if (existing === undefined || existing === null) {

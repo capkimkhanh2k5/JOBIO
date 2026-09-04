@@ -419,6 +419,10 @@ def login_user(data: LoginInput) -> dict:
         _record_login_failure(email)
         raise AuthenticationError(GENERIC_LOGIN_ERROR)
 
+    if not user.has_usable_password():
+        _record_login_failure(email, user=user)
+        raise AuthenticationError(GENERIC_LOGIN_ERROR)
+
     if not user.check_password(data.password):
         _record_login_failure(email, user=user)
         raise AuthenticationError(GENERIC_LOGIN_ERROR)

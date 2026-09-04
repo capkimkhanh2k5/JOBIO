@@ -97,7 +97,9 @@ def generate_candidate_embedding_task(
     cv_id: int | None = None,
     source_type: str = "profile",
 ):
-    from apps.recruitment.jobs.services.recommendations import generate_candidate_embedding
+    from apps.recruitment.jobs.services.recommendations import (
+        generate_candidate_embedding,
+    )
 
     lock_key = CacheKeyBuilder.task_lock(
         "candidate_embedding", recruiter_id, cv_id or "profile", source_type

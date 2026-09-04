@@ -291,7 +291,11 @@ class RecruiterCVViewSet(viewsets.ModelViewSet):
             if "text/html" in request.META.get("HTTP_ACCEPT", ""):
                 from django.http import HttpResponse
 
-                return HttpResponse(result["html_content"])
+                response = HttpResponse(result["html_content"])
+                response["Content-Security-Policy"] = (
+                    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; object-src 'none';"
+                )
+                return response
 
             return Response(result)
         except Exception as e:

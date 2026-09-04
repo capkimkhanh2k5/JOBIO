@@ -28,9 +28,13 @@ def send_payment_confirmation_email_task(self, transaction_id):
     """
     Tác vụ chạy ngầm để gửi email xác nhận sau khi thanh toán thành công.
     """
-    sent_key = CacheKeyBuilder.task_enqueue("payment_confirmation_email_sent", transaction_id)
+    sent_key = CacheKeyBuilder.task_enqueue(
+        "payment_confirmation_email_sent", transaction_id
+    )
     if not CacheService.add(sent_key, timeout=60 * 60 * 24):
-        logger.info("Payment confirmation email already processed txn=%s", transaction_id)
+        logger.info(
+            "Payment confirmation email already processed txn=%s", transaction_id
+        )
         return True
 
     try:

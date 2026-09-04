@@ -58,22 +58,27 @@ class PaymentService:
                     and result.get("vnp_TransactionStatus") == "00"
                 ):
                     txn.status = Transaction.Status.COMPLETED
-                    txn.vnp_TransactionNo = result.get("vnp_TransactionNo") or txn.vnp_TransactionNo
+                    txn.vnp_TransactionNo = (
+                        result.get("vnp_TransactionNo") or txn.vnp_TransactionNo
+                    )
                     txn.vnp_BankCode = result.get("vnp_BankCode") or txn.vnp_BankCode
                     txn.save()
 
                     from apps.billing.services.subscriptions import SubscriptionService
                     from apps.billing.models import SubscriptionPlan
+
                     plan_id = SubscriptionService.get_transaction_plan_id(txn)
                     if plan_id:
                         plan = SubscriptionPlan.objects.filter(id=plan_id).first()
                         if plan:
-                            SubscriptionService.activate_paid_subscription(txn.company, plan)
+                            SubscriptionService.activate_paid_subscription(
+                                txn.company, plan
+                            )
                 else:
                     txn.status = Transaction.Status.FAILED
                     txn.save()
                 updated_count += 1
-            except Exception as e:
+            except Exception:
                 txn.status = Transaction.Status.FAILED
                 txn.save()
                 updated_count += 1

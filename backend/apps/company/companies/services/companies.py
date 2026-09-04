@@ -71,7 +71,10 @@ def create_company(user: CustomUser, data: CompanyCreateInput) -> Company:
         CompanyMember.objects.get_or_create(
             company=company,
             user=user,
-            defaults={"role": CompanyMember.Role.OWNER, "status": CompanyMember.Status.ACTIVE},
+            defaults={
+                "role": CompanyMember.Role.OWNER,
+                "status": CompanyMember.Status.ACTIVE,
+            },
         )
 
     return company

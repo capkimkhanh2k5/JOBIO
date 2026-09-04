@@ -1,9 +1,0 @@
---- frontend/src/components/jobs/JobCard.tsx
-+++ frontend/src/components/jobs/JobCard.tsx
-@@ -552,8 +552,6 @@
- }
- 
--function MetaPill({
- function InfoBadge({ icon, label, value, strong }: { icon: ReactNode; label: string; value: string | ReactNode; strong?: boolean }) {
-     return (
-         <div className="min-w-0 flex items-center gap-2 py-1">

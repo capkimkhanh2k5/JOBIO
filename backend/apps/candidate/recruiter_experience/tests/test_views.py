@@ -134,7 +134,9 @@ class RecruiterExperienceViewTest(APITestCase):
         self.experience.refresh_from_db()
         self.assertEqual(self.experience.company_name, "Updated Company")
 
-    def test_partial_update_experience_rejects_end_date_before_existing_start_date(self):
+    def test_partial_update_experience_rejects_end_date_before_existing_start_date(
+        self,
+    ):
         response = self.client.patch(
             f"/api/candidates/{self.recruiter.id}/experience/{self.experience.id}/",
             {"end_date": "2019-12-31"},

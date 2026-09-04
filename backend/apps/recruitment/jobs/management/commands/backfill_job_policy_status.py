@@ -17,9 +17,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         limit = max(1, int(options["limit"]))
-        queryset = Job.objects.select_related("category", "created_by").prefetch_related(
-            "required_skills__skill"
-        )
+        queryset = Job.objects.select_related(
+            "category", "created_by"
+        ).prefetch_related("required_skills__skill")
         if options["published_only"]:
             queryset = queryset.filter(status=Job.Status.PUBLISHED)
 

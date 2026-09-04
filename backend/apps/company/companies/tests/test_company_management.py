@@ -209,7 +209,9 @@ class TestCompanyManagement(APITestCase):
 
         self.client.force_authenticate(user=owner)
         create_response = self.client.post(
-            reverse("company-list"), {"company_name": "Sensitive Company"}, format="json"
+            reverse("company-list"),
+            {"company_name": "Sensitive Company"},
+            format="json",
         )
         company_id = create_response.data["id"]
 
@@ -230,7 +232,9 @@ class TestCompanyManagement(APITestCase):
         company = Company.objects.get(id=company_id)
         self.assertEqual(company.company_name, "Sensitive Company Updated")
         self.assertEqual(company.user_id, owner.id)
-        self.assertEqual(company.verification_status, Company.VerificationStatus.PENDING)
+        self.assertEqual(
+            company.verification_status, Company.VerificationStatus.PENDING
+        )
         self.assertIsNone(company.verified_by_id)
         self.assertEqual(company.follower_count, 0)
         self.assertEqual(company.job_count, 0)
@@ -320,7 +324,9 @@ class TestCompanyManagement(APITestCase):
             role="company",
         )
         viewer_user = CustomUser.objects.create_user(
-            email="team-boundary-viewer@example.com", password="password", role="company"
+            email="team-boundary-viewer@example.com",
+            password="password",
+            role="company",
         )
 
         self.client.force_authenticate(user=owner)
@@ -475,7 +481,9 @@ class TestCompanyManagement(APITestCase):
             role="company",
         )
         admin = CustomUser.objects.create_user(
-            email="reject-verified-admin@example.com", password="password", is_staff=True
+            email="reject-verified-admin@example.com",
+            password="password",
+            is_staff=True,
         )
         company = Company.objects.create(
             user=owner,

@@ -38,7 +38,6 @@ from apps.recruitment.jobs.selectors.jobs import (
     _experience_level_score,
     _job_type_score,
     _location_score,
-    _salary_match_score,
     _skill_match_score,
     _with_active_featured,
 )
@@ -451,13 +450,22 @@ def recommend_jobs_for_recruiter(
         else _hash_text(build_candidate_recommendation_text(recruiter, cv))
     )
     cache_key = CacheKeyBuilder.build(
-        "recommendations", "recruiter", recruiter.id, cv.id if cv else "profile", candidate_hash, limit
+        "recommendations",
+        "recruiter",
+        recruiter.id,
+        cv.id if cv else "profile",
+        candidate_hash,
+        limit,
     )
     if not bypass_cache:
         cached_payload = CacheService.get(cache_key)
         if cached_payload and isinstance(cached_payload, dict):
             cached_items = cached_payload.get("items", [])
-            job_ids = [it["job_id"] for it in cached_items if isinstance(it, dict) and "job_id" in it]
+            job_ids = [
+                it["job_id"]
+                for it in cached_items
+                if isinstance(it, dict) and "job_id" in it
+            ]
             jobs = _jobs_by_id(job_ids)
             reconstructed_results = []
             for it in cached_items:
@@ -540,7 +548,7 @@ def recommend_jobs_for_recruiter(
 
 
 def record_recommendation_events(recruiter, events: Iterable[dict]) -> int:
-    event_list = list(events)[:recommendation_event_batch_limit()]
+    event_list = list(events)[: recommendation_event_batch_limit()]
     candidate_job_ids = {
         job_id
         for event in event_list
@@ -549,9 +557,9 @@ def record_recommendation_events(recruiter, events: Iterable[dict]) -> int:
         if job_id is not None
     }
     public_job_ids = set(
-        _active_published_jobs(Job.objects.filter(id__in=candidate_job_ids)).values_list(
-            "id", flat=True
-        )
+        _active_published_jobs(
+            Job.objects.filter(id__in=candidate_job_ids)
+        ).values_list("id", flat=True)
     )
 
     rows = []
@@ -585,7 +593,9 @@ def record_recommendation_events(recruiter, events: Iterable[dict]) -> int:
                 rank=_positive_int_or_none(
                     event.get("rank_position", event.get("rank"))
                 ),
-                score=_float_or_none(event.get("match_score_at_time", event.get("score"))),
+                score=_float_or_none(
+                    event.get("match_score_at_time", event.get("score"))
+                ),
                 score_breakdown=(
                     event.get("score_breakdown")
                     if isinstance(event.get("score_breakdown"), dict)
@@ -1109,13 +1119,15 @@ def _score_recommendation(
     }
     raw_score = min(
         100,
-        sum([
-            breakdown["semantic"],
-            breakdown["skill"],
-            breakdown["title"],
-            breakdown["experience"],
-            breakdown["location"],
-        ]),
+        sum(
+            [
+                breakdown["semantic"],
+                breakdown["skill"],
+                breakdown["title"],
+                breakdown["experience"],
+                breakdown["location"],
+            ]
+        ),
     )
     penalty_multiplier = _calculate_penalty_multiplier(candidate, job, factors)
     final_score = max(0, min(100, round(raw_score * penalty_multiplier)))
@@ -1173,34 +1185,30 @@ def score_candidate_job(recruiter, job: Job, cv: RecruiterCV | None = None) -> d
         expected_model = _expected_embedding_model()
         expected_dim = _expected_embedding_dimensions()
 
-        job_emb = (
-            JobEmbedding.objects.filter(
-                job_id=job.id,
-                status=JobEmbedding.Status.READY,
-                model=expected_model,
-                model_version=MODEL_VERSION,
-                dimensions=expected_dim,
-                embedding__isnull=False,
-            ).first()
-        )
+        job_emb = JobEmbedding.objects.filter(
+            job_id=job.id,
+            status=JobEmbedding.Status.READY,
+            model=expected_model,
+            model_version=MODEL_VERSION,
+            dimensions=expected_dim,
+            embedding__isnull=False,
+        ).first()
 
         source_type = (
             CandidateRecommendationEmbedding.SourceType.CV
             if cv
             else CandidateRecommendationEmbedding.SourceType.PROFILE
         )
-        cand_emb = (
-            CandidateRecommendationEmbedding.objects.filter(
-                recruiter=recruiter,
-                cv=cv,
-                source_type=source_type,
-                status=CandidateRecommendationEmbedding.Status.READY,
-                model=expected_model,
-                model_version=MODEL_VERSION,
-                dimensions=expected_dim,
-                embedding__isnull=False,
-            ).first()
-        )
+        cand_emb = CandidateRecommendationEmbedding.objects.filter(
+            recruiter=recruiter,
+            cv=cv,
+            source_type=source_type,
+            status=CandidateRecommendationEmbedding.Status.READY,
+            model=expected_model,
+            model_version=MODEL_VERSION,
+            dimensions=expected_dim,
+            embedding__isnull=False,
+        ).first()
 
         if job_emb and cand_emb:
             j_vec = job_emb.embedding
@@ -1209,7 +1217,9 @@ def score_candidate_job(recruiter, job: Job, cv: RecruiterCV | None = None) -> d
                 j_vec = j_vec.tolist()
             if hasattr(c_vec, "tolist"):
                 c_vec = c_vec.tolist()
-            if _vector_has_expected_dimensions(j_vec) and _vector_has_expected_dimensions(c_vec):
+            if _vector_has_expected_dimensions(
+                j_vec
+            ) and _vector_has_expected_dimensions(c_vec):
                 distance = _cosine_distance(c_vec, j_vec)
                 similarity = _similarity_from_distance(distance)
                 semantic_status = "ready"
@@ -1337,13 +1347,16 @@ def _candidate_text_from_cv(cv_data) -> str:
     if isinstance(cv_data, str):
         try:
             import json
+
             cv_data = json.loads(cv_data)
         except Exception:
             return _compact_text([cv_data])
     if not isinstance(cv_data, dict):
         return ""
 
-    personal = cv_data.get("personal", {}) if isinstance(cv_data.get("personal"), dict) else {}
+    personal = (
+        cv_data.get("personal", {}) if isinstance(cv_data.get("personal"), dict) else {}
+    )
     sections = [
         f"Current position: {personal.get('current_position', '')}",
         f"Bio: {personal.get('bio', '')}",
@@ -1528,6 +1541,7 @@ def _run_vector_sync_worker():
         job_ids = list(jobs_to_process.values_list("id", flat=True))
 
         from apps.candidate.recruiters.models import Recruiter
+
         candidates_to_process = Recruiter.objects.exclude(
             recommendation_embeddings__status="ready"
         )
@@ -1535,27 +1549,31 @@ def _run_vector_sync_worker():
 
         total_items = len(job_ids) + len(candidate_ids)
         if total_items == 0:
-            _update_vector_sync_progress({
-                "status": "completed",
-                "progress": 100,
-                "jobs_total": 0,
-                "jobs_done": 0,
-                "candidates_total": 0,
-                "candidates_done": 0,
-                "message": "Tất cả dữ liệu việc làm & ứng viên đã được Vector hóa!",
-                "finished_at": timezone.now().isoformat(),
-            })
+            _update_vector_sync_progress(
+                {
+                    "status": "completed",
+                    "progress": 100,
+                    "jobs_total": 0,
+                    "jobs_done": 0,
+                    "candidates_total": 0,
+                    "candidates_done": 0,
+                    "message": "Tất cả dữ liệu việc làm & ứng viên đã được Vector hóa!",
+                    "finished_at": timezone.now().isoformat(),
+                }
+            )
             return
 
-        _update_vector_sync_progress({
-            "status": "running",
-            "progress": 0,
-            "jobs_total": len(job_ids),
-            "jobs_done": 0,
-            "candidates_total": len(candidate_ids),
-            "candidates_done": 0,
-            "message": f"Đang khởi tạo vector hóa cho {total_items} mục...",
-        })
+        _update_vector_sync_progress(
+            {
+                "status": "running",
+                "progress": 0,
+                "jobs_total": len(job_ids),
+                "jobs_done": 0,
+                "candidates_total": len(candidate_ids),
+                "candidates_done": 0,
+                "message": f"Đang khởi tạo vector hóa cho {total_items} mục...",
+            }
+        )
 
         processed_jobs = 0
         processed_candidates = 0
@@ -1567,11 +1585,13 @@ def _run_vector_sync_worker():
                 processed_jobs += 1
             completed_items += 1
             progress_pct = min(99, math.floor((completed_items / total_items) * 100))
-            _update_vector_sync_progress({
-                "progress": progress_pct,
-                "jobs_done": processed_jobs,
-                "message": f"Đang vector hóa tin tuyển dụng ({completed_items}/{total_items})...",
-            })
+            _update_vector_sync_progress(
+                {
+                    "progress": progress_pct,
+                    "jobs_done": processed_jobs,
+                    "message": f"Đang vector hóa tin tuyển dụng ({completed_items}/{total_items})...",
+                }
+            )
 
         for recruiter_id in candidate_ids:
             res = generate_candidate_embedding(recruiter_id)
@@ -1579,26 +1599,32 @@ def _run_vector_sync_worker():
                 processed_candidates += 1
             completed_items += 1
             progress_pct = min(99, math.floor((completed_items / total_items) * 100))
-            _update_vector_sync_progress({
-                "progress": progress_pct,
-                "candidates_done": processed_candidates,
-                "message": f"Đang vector hóa hồ sơ ứng viên ({completed_items}/{total_items})...",
-            })
+            _update_vector_sync_progress(
+                {
+                    "progress": progress_pct,
+                    "candidates_done": processed_candidates,
+                    "message": f"Đang vector hóa hồ sơ ứng viên ({completed_items}/{total_items})...",
+                }
+            )
 
-        _update_vector_sync_progress({
-            "status": "completed",
-            "progress": 100,
-            "jobs_done": processed_jobs,
-            "candidates_done": processed_candidates,
-            "message": f"Đã sinh Vector thành công cho {processed_jobs} việc làm và {processed_candidates} ứng viên!",
-            "finished_at": timezone.now().isoformat(),
-        })
+        _update_vector_sync_progress(
+            {
+                "status": "completed",
+                "progress": 100,
+                "jobs_done": processed_jobs,
+                "candidates_done": processed_candidates,
+                "message": f"Đã sinh Vector thành công cho {processed_jobs} việc làm và {processed_candidates} ứng viên!",
+                "finished_at": timezone.now().isoformat(),
+            }
+        )
     except Exception as exc:
         logger.error(f"Vector sync background worker failed: {exc}")
-        _update_vector_sync_progress({
-            "status": "failed",
-            "message": f"Thất bại khi sinh Vector: {str(exc)[:150]}",
-        })
+        _update_vector_sync_progress(
+            {
+                "status": "failed",
+                "message": f"Thất bại khi sinh Vector: {str(exc)[:150]}",
+            }
+        )
 
 
 def trigger_missing_embeddings_sync_async() -> dict:
@@ -1613,11 +1639,13 @@ def trigger_missing_embeddings_sync_async() -> dict:
             "data": current,
         }
 
-    _update_vector_sync_progress({
-        "status": "running",
-        "progress": 0,
-        "message": "Đang khởi chạy tác vụ ngầm sinh Vector...",
-    })
+    _update_vector_sync_progress(
+        {
+            "status": "running",
+            "progress": 0,
+            "message": "Đang khởi chạy tác vụ ngầm sinh Vector...",
+        }
+    )
 
     thread = threading.Thread(target=_run_vector_sync_worker, daemon=True)
     thread.start()
@@ -1698,22 +1726,26 @@ def _require_safetensors() -> bool:
 
 def _embedding_model_cache_roots() -> list[Path]:
     roots = []
+    has_explicit_root = False
     for env_name in ("HUGGINGFACE_HUB_CACHE", "SENTENCE_TRANSFORMERS_HOME"):
         value = os.environ.get(env_name)
         if value:
+            has_explicit_root = True
             roots.append(Path(value).expanduser())
 
     hf_home = os.environ.get("HF_HOME")
     if hf_home:
+        has_explicit_root = True
         roots.append(Path(hf_home).expanduser())
         roots.append(Path(hf_home).expanduser() / "hub")
 
-    roots.extend(
-        [
-            Path.home() / ".cache" / "huggingface" / "hub",
-            Path.home() / ".cache" / "torch" / "sentence_transformers",
-        ]
-    )
+    if not has_explicit_root:
+        roots.extend(
+            [
+                Path.home() / ".cache" / "huggingface" / "hub",
+                Path.home() / ".cache" / "torch" / "sentence_transformers",
+            ]
+        )
 
     unique = []
     seen = set()
@@ -1756,7 +1788,9 @@ def _embedding_model_cache_dirs(model_name: str) -> list[Path]:
     return unique
 
 
-def _model_weight_files(model_dirs: list[Path], suffixes: tuple[str, ...]) -> list[Path]:
+def _model_weight_files(
+    model_dirs: list[Path], suffixes: tuple[str, ...]
+) -> list[Path]:
     files = []
     for model_dir in model_dirs:
         for path in model_dir.rglob("*"):

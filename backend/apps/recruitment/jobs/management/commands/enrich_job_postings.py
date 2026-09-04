@@ -1,13 +1,12 @@
 import json
 import logging
 import random
-import re
 from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
-from apps.recruitment.jobs.models import Job, JobEmbedding
+from apps.recruitment.jobs.models import Job
 from apps.recruitment.job_skills.models import JobSkill
 from apps.candidate.skills.models import Skill
 from apps.recruitment.jobs.services.recommendations import generate_job_embedding
@@ -57,22 +56,42 @@ LEVEL_DESCRIPTIONS = {
     "manager": "dành cho cấp quản lý, hoạch định chiến lược kỹ thuật, tối ưu quy trình và phát triển nguồn nhân lực",
 }
 
+
 def _detect_archetype(title_lower, cat_lower):
     if any(k in title_lower for k in ["marketing", "tiếp thị", "growth"]):
         return "marketing_manager"
-    if any(k in title_lower for k in ["cybersecurity", "an ninh mạng", "bảo mật", "security"]):
+    if any(
+        k in title_lower
+        for k in ["cybersecurity", "an ninh mạng", "bảo mật", "security"]
+    ):
         return "cybersecurity"
-    if any(k in title_lower for k in ["system administrator", "quản trị hệ thống", "sysadmin"]):
+    if any(
+        k in title_lower
+        for k in ["system administrator", "quản trị hệ thống", "sysadmin"]
+    ):
         return "sysadmin"
     if any(k in title_lower for k in ["computer vision", "thị giác"]):
         return "ai_cv"
     if any(k in title_lower for k in ["nlp", "llm", "ngôn ngữ"]):
         return "ai_nlp"
-    if any(k in title_lower for k in ["ai engineer", "ai/ml", "machine learning", "deep learning"]):
+    if any(
+        k in title_lower
+        for k in ["ai engineer", "ai/ml", "machine learning", "deep learning"]
+    ):
         return "ai_general"
-    if any(k in title_lower for k in ["data engineer", "kỹ sư dữ liệu", "big data", "etl"]):
+    if any(
+        k in title_lower for k in ["data engineer", "kỹ sư dữ liệu", "big data", "etl"]
+    ):
         return "data_engineer"
-    if any(k in title_lower for k in ["data scientist", "khoa học dữ liệu", "data analyst", "phân tích dữ liệu"]):
+    if any(
+        k in title_lower
+        for k in [
+            "data scientist",
+            "khoa học dữ liệu",
+            "data analyst",
+            "phân tích dữ liệu",
+        ]
+    ):
         return "data_science"
     if any(k in title_lower for k in ["react", "reactjs", "react.js"]):
         return "frontend_react"
@@ -80,7 +99,9 @@ def _detect_archetype(title_lower, cat_lower):
         return "frontend_vue"
     if any(k in title_lower for k in ["angular"]):
         return "frontend_angular"
-    if any(k in title_lower for k in ["frontend", "front-end", "front end", "giao diện"]):
+    if any(
+        k in title_lower for k in ["frontend", "front-end", "front end", "giao diện"]
+    ):
         return "frontend_general"
     if any(k in title_lower for k in ["python", "django", "fastapi"]):
         return "backend_python"
@@ -110,7 +131,10 @@ def _detect_archetype(title_lower, cat_lower):
         return "mobile_android"
     if any(k in title_lower for k in ["mobile", "di động"]):
         return "mobile_general"
-    if any(k in title_lower for k in ["devops", "cloud", "sre", "infrastructure", "hạ tầng"]):
+    if any(
+        k in title_lower
+        for k in ["devops", "cloud", "sre", "infrastructure", "hạ tầng"]
+    ):
         return "devops"
     if any(k in title_lower for k in ["automation", "tự động"]):
         return "qa_automation"
@@ -122,7 +146,10 @@ def _detect_archetype(title_lower, cat_lower):
         return "product_manager"
     if any(k in title_lower for k in ["business analyst", "ba", "phân tích nghiệp vụ"]):
         return "business_analyst"
-    if any(k in title_lower for k in ["project manager", "pm", "quản lý dự án", "scrum master"]):
+    if any(
+        k in title_lower
+        for k in ["project manager", "pm", "quản lý dự án", "scrum master"]
+    ):
         return "project_manager"
     if any(k in title_lower for k in ["ui", "ux", "designer", "thiết kế"]):
         return "ui_ux"
@@ -146,10 +173,13 @@ def generate_dynamic_job_content(job: Job):
     rng = random.Random(job.id * 179424673 + 982451653)
     company_name = job.company.company_name if job.company else "JOBIO Partner"
     company_focus = COMPANY_DOMAINS.get(
-        company_name, f"các dự án công nghệ chuyển đổi số và giải pháp phần mềm của {company_name}"
+        company_name,
+        f"các dự án công nghệ chuyển đổi số và giải pháp phần mềm của {company_name}",
     )
     level_str = (job.level or "junior").lower()
-    level_phrase = LEVEL_DESCRIPTIONS.get(level_str, "phù hợp với kỹ sư có năng lực và đam mê công nghệ")
+    level_phrase = LEVEL_DESCRIPTIONS.get(
+        level_str, "phù hợp với kỹ sư có năng lực và đam mê công nghệ"
+    )
     category_name = job.category.name if job.category else "Công nghệ thông tin"
     title_lower = job.title.lower()
     cat_lower = category_name.lower()
@@ -159,7 +189,16 @@ def generate_dynamic_job_content(job: Job):
     # Base Knowledge repository
     ARCHETYPES_DB = {
         "ai_cv": {
-            "skills": ["Python", "PyTorch", "OpenCV", "TensorFlow", "FastAPI", "Docker", "Git", "Linux"],
+            "skills": [
+                "Python",
+                "PyTorch",
+                "OpenCV",
+                "TensorFlow",
+                "FastAPI",
+                "Docker",
+                "Git",
+                "Linux",
+            ],
             "resp": [
                 f"Nghiên cứu và phát triển các mô hình Computer Vision tiên tiến (YOLO, ResNet, Transformer) phục vụ trực tiếp cho {company_name}.",
                 "Tối ưu hóa pipeline xử lý hình ảnh và video thời gian thực với độ trễ thấp và độ chính xác cao.",
@@ -178,7 +217,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "ai_nlp": {
-            "skills": ["Python", "PyTorch", "Transformers", "LangChain", "FastAPI", "Docker", "Git", "PostgreSQL"],
+            "skills": [
+                "Python",
+                "PyTorch",
+                "Transformers",
+                "LangChain",
+                "FastAPI",
+                "Docker",
+                "Git",
+                "PostgreSQL",
+            ],
             "resp": [
                 f"Huấn luyện và tinh chỉnh (Fine-tuning) các mô hình NLP và LLM phục vụ hệ sinh thái của {company_name}.",
                 "Thiết kế kiến trúc RAG (Retrieval-Augmented Generation) kết hợp Vector Search (pgvector/FAISS) tối ưu độ chính xác.",
@@ -194,7 +242,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "ai_general": {
-            "skills": ["Python", "PyTorch", "TensorFlow", "Scikit-learn", "FastAPI", "Docker", "Git", "SQL"],
+            "skills": [
+                "Python",
+                "PyTorch",
+                "TensorFlow",
+                "Scikit-learn",
+                "FastAPI",
+                "Docker",
+                "Git",
+                "SQL",
+            ],
             "resp": [
                 f"Nghiên cứu, thiết kế và triển khai các thuật toán Machine Learning giải quyết bài toán cốt lõi tại {company_name}.",
                 "Xây dựng đường ống xử lý dữ liệu tự động phục vụ trích xuất đặc trưng và huấn luyện mô hình.",
@@ -209,7 +266,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "data_engineer": {
-            "skills": ["Python", "SQL", "Apache Spark", "Kafka", "PostgreSQL", "Docker", "Git", "Airflow"],
+            "skills": [
+                "Python",
+                "SQL",
+                "Apache Spark",
+                "Kafka",
+                "PostgreSQL",
+                "Docker",
+                "Git",
+                "Airflow",
+            ],
             "resp": [
                 f"Thiết kế và duy trì hạ tầng Data Pipeline (ETL/ELT) xử lý dữ liệu lớn (Batch & Streaming) cho {company_name}.",
                 "Xây dựng và tối ưu hóa Data Warehouse / Data Lakehouse phục vụ phân tích dữ liệu và AI.",
@@ -223,7 +289,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "data_science": {
-            "skills": ["Python", "SQL", "Pandas", "Scikit-learn", "PyTorch", "NumPy", "Matplotlib", "Tableau"],
+            "skills": [
+                "Python",
+                "SQL",
+                "Pandas",
+                "Scikit-learn",
+                "PyTorch",
+                "NumPy",
+                "Matplotlib",
+                "Tableau",
+            ],
             "resp": [
                 f"Phân tích chuyên sâu dữ liệu hành vi người dùng và dữ liệu kinh doanh tại {company_name} để tìm ra insight đột phá.",
                 "Xây dựng các mô hình Machine Learning dự đoán (Predictive Analytics, Churn, LTV, Recommender).",
@@ -237,7 +312,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "frontend_react": {
-            "skills": ["JavaScript", "TypeScript", "ReactJS", "HTML", "CSS", "Tailwind CSS", "Redux", "Git"],
+            "skills": [
+                "JavaScript",
+                "TypeScript",
+                "ReactJS",
+                "HTML",
+                "CSS",
+                "Tailwind CSS",
+                "Redux",
+                "Git",
+            ],
             "resp": [
                 f"Phát triển giao diện người dùng hiện đại, chuẩn Responsive cho các sản phẩm web của {company_name} bằng ReactJS / Next.js.",
                 "Tối ưu hóa hiệu năng render phía client (Core Web Vitals, Code Splitting, Caching).",
@@ -251,7 +335,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "frontend_vue": {
-            "skills": ["JavaScript", "TypeScript", "VueJS", "HTML", "CSS", "Tailwind CSS", "Pinia", "Git"],
+            "skills": [
+                "JavaScript",
+                "TypeScript",
+                "VueJS",
+                "HTML",
+                "CSS",
+                "Tailwind CSS",
+                "Pinia",
+                "Git",
+            ],
             "resp": [
                 f"Xây dựng các ứng dụng web SPA / SSR mượt mà sử dụng Vue 3 (Composition API) hoặc Nuxt.js tại {company_name}.",
                 "Chuyển đổi thiết kế Figma thành giao diện pixel-perfect, chuẩn Responsive trên mọi thiết bị.",
@@ -263,7 +356,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "frontend_general": {
-            "skills": ["JavaScript", "TypeScript", "ReactJS", "HTML", "CSS", "Tailwind CSS", "Git", "Figma"],
+            "skills": [
+                "JavaScript",
+                "TypeScript",
+                "ReactJS",
+                "HTML",
+                "CSS",
+                "Tailwind CSS",
+                "Git",
+                "Figma",
+            ],
             "resp": [
                 f"Lập trình giao diện người dùng trực quan, thân thiện cho hệ thống web tại {company_name}.",
                 "Tối ưu hóa tốc độ tải trang, giảm dung lượng bundle và đảm bảo tính tương thích đa nền tảng.",
@@ -275,7 +377,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "backend_python": {
-            "skills": ["Python", "Django", "FastAPI", "PostgreSQL", "Redis", "Docker", "Git", "Celery"],
+            "skills": [
+                "Python",
+                "Django",
+                "FastAPI",
+                "PostgreSQL",
+                "Redis",
+                "Docker",
+                "Git",
+                "Celery",
+            ],
             "resp": [
                 f"Thiết kế, xây dựng và vận hành các dịch vụ Backend API hiệu năng cao cho {company_name} bằng Python (Django / FastAPI).",
                 "Xử lý tác vụ nền bất đồng bộ với Celery & Redis và thiết kế hệ thống cache đa tầng.",
@@ -289,7 +400,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "backend_java": {
-            "skills": ["Java", "Spring Boot", "MySQL", "PostgreSQL", "Docker", "Git", "Redis", "Kafka"],
+            "skills": [
+                "Java",
+                "Spring Boot",
+                "MySQL",
+                "PostgreSQL",
+                "Docker",
+                "Git",
+                "Redis",
+                "Kafka",
+            ],
             "resp": [
                 f"Phát triển các module nghiệp vụ Backend chịu tải lớn tại {company_name} bằng Java và Spring Boot.",
                 "Xây dựng kiến trúc vi dịch vụ (Microservices), giao tiếp bất đồng bộ qua Apache Kafka / RabbitMQ.",
@@ -301,7 +421,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "backend_node": {
-            "skills": ["JavaScript", "TypeScript", "NodeJS", "Express", "MongoDB", "PostgreSQL", "Redis", "Docker"],
+            "skills": [
+                "JavaScript",
+                "TypeScript",
+                "NodeJS",
+                "Express",
+                "MongoDB",
+                "PostgreSQL",
+                "Redis",
+                "Docker",
+            ],
             "resp": [
                 f"Phát triển các dịch vụ RESTful API và GraphQL tốc độ cao trên nền tảng Node.js (NestJS/Express) cho {company_name}.",
                 "Thiết kế cơ sở dữ liệu PostgreSQL / MongoDB và xây dựng các tính năng thời gian thực với WebSocket.",
@@ -313,7 +442,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "backend_general": {
-            "skills": ["Python", "Java", "SQL", "PostgreSQL", "Docker", "Git", "Redis", "Linux"],
+            "skills": [
+                "Python",
+                "Java",
+                "SQL",
+                "PostgreSQL",
+                "Docker",
+                "Git",
+                "Redis",
+                "Linux",
+            ],
             "resp": [
                 f"Xây dựng và duy trì các hệ thống Backend API phục vụ lượng truy cập lớn tại {company_name}.",
                 "Đảm bảo an toàn thông tin, bảo mật API, tính toàn vẹn dữ liệu và độ sẵn sàng cao của hệ thống.",
@@ -324,7 +462,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "fullstack": {
-            "skills": ["JavaScript", "TypeScript", "ReactJS", "NodeJS", "PostgreSQL", "MongoDB", "Docker", "Git"],
+            "skills": [
+                "JavaScript",
+                "TypeScript",
+                "ReactJS",
+                "NodeJS",
+                "PostgreSQL",
+                "MongoDB",
+                "Docker",
+                "Git",
+            ],
             "resp": [
                 f"Phát triển toàn diện từ giao diện Frontend (React/Vue) đến hệ thống Backend (Node/Python/Java) tại {company_name}.",
                 "Thiết kế kiến trúc cơ sở dữ liệu tối ưu, xây dựng RESTful API bảo mật và tích hợp giao diện người dùng mượt mà.",
@@ -336,7 +483,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "software_engineer": {
-            "skills": ["Java", "Python", "C++", "SQL", "Git", "Docker", "Linux", "JavaScript"],
+            "skills": [
+                "Java",
+                "Python",
+                "C++",
+                "SQL",
+                "Git",
+                "Docker",
+                "Linux",
+                "JavaScript",
+            ],
             "resp": [
                 f"Tham gia phát triển và nâng cấp các giải pháp phần mềm chiến lược tại {company_name}.",
                 "Viết mã nguồn chuẩn hóa, tối ưu thuật toán và đảm bảo hiệu năng cao cho hệ thống.",
@@ -348,7 +504,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "mobile_flutter": {
-            "skills": ["Dart", "Flutter", "JavaScript", "Git", "REST API", "Firebase", "Android", "iOS"],
+            "skills": [
+                "Dart",
+                "Flutter",
+                "JavaScript",
+                "Git",
+                "REST API",
+                "Firebase",
+                "Android",
+                "iOS",
+            ],
             "resp": [
                 f"Phát triển ứng dụng di động đa nền tảng (iOS & Android) bằng Flutter / Dart cho {company_name}.",
                 "Ứng dụng kiến trúc Clean Architecture, quản lý state bằng BLoC / Riverpod và tối ưu hiệu năng 60fps.",
@@ -360,7 +525,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "mobile_ios": {
-            "skills": ["Swift", "iOS", "Objective-C", "Git", "REST API", "Xcode", "CocoaPods", "UI/UX"],
+            "skills": [
+                "Swift",
+                "iOS",
+                "Objective-C",
+                "Git",
+                "REST API",
+                "Xcode",
+                "CocoaPods",
+                "UI/UX",
+            ],
             "resp": [
                 f"Phát triển các ứng dụng iOS cao cấp bằng Swift và SwiftUI/UIKit cho người dùng của {company_name}.",
                 "Tối ưu hóa trải nghiệm mượt mà, quản lý bộ nhớ ARC hiệu quả và tích hợp các API mới nhất của Apple.",
@@ -370,7 +544,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "mobile_general": {
-            "skills": ["Dart", "Flutter", "React Native", "JavaScript", "Git", "Android", "iOS", "REST API"],
+            "skills": [
+                "Dart",
+                "Flutter",
+                "React Native",
+                "JavaScript",
+                "Git",
+                "Android",
+                "iOS",
+                "REST API",
+            ],
             "resp": [
                 f"Tham gia xây dựng các ứng dụng di động chất lượng cao phục vụ khách hàng của {company_name}.",
                 "Phối hợp cùng đội ngũ UI/UX Designer và Backend để mang lại trải nghiệm tối ưu trên mobile.",
@@ -380,7 +563,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "devops": {
-            "skills": ["Docker", "Kubernetes", "Linux", "Git", "Python", "CI/CD", "AWS", "Terraform"],
+            "skills": [
+                "Docker",
+                "Kubernetes",
+                "Linux",
+                "Git",
+                "Python",
+                "CI/CD",
+                "AWS",
+                "Terraform",
+            ],
             "resp": [
                 f"Thiết kế, xây dựng và quản trị hạ tầng Cloud / On-Premise có độ sẵn sàng cao tại {company_name}.",
                 "Tự động hóa hoàn toàn các pipeline CI/CD (GitHub Actions, GitLab CI) và quản lý cụm Kubernetes (K8s).",
@@ -392,7 +584,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "cybersecurity": {
-            "skills": ["Linux", "Python", "Docker", "Git", "SQL", "Network Security", "Penetration Testing", "Security Auditing"],
+            "skills": [
+                "Linux",
+                "Python",
+                "Docker",
+                "Git",
+                "SQL",
+                "Network Security",
+                "Penetration Testing",
+                "Security Auditing",
+            ],
             "resp": [
                 f"Đánh giá lỗ hổng bảo mật và kiểm thử xâm nhập định kỳ cho toàn bộ hệ thống của {company_name}.",
                 "Thiết lập chính sách an toàn thông tin, phòng chống các cuộc tấn công mạng và giám sát an ninh 24/7.",
@@ -402,7 +603,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "sysadmin": {
-            "skills": ["Linux", "Windows Server", "Docker", "Git", "Python", "Bash", "Network Administration", "PostgreSQL"],
+            "skills": [
+                "Linux",
+                "Windows Server",
+                "Docker",
+                "Git",
+                "Python",
+                "Bash",
+                "Network Administration",
+                "PostgreSQL",
+            ],
             "resp": [
                 f"Quản trị và vận hành hệ thống máy chủ, mạng nội bộ và các dịch vụ hạ tầng công nghệ tại {company_name}.",
                 "Thực hiện sao lưu dữ liệu định kỳ, khắc phục sự cố kỹ thuật và đảm bảo hệ thống hoạt động liên tục.",
@@ -412,7 +622,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "qa_automation": {
-            "skills": ["Python", "Java", "Selenium", "Git", "Postman", "SQL", "Linux", "Docker"],
+            "skills": [
+                "Python",
+                "Java",
+                "Selenium",
+                "Git",
+                "Postman",
+                "SQL",
+                "Linux",
+                "Docker",
+            ],
             "resp": [
                 f"Xây dựng và phát triển Automation Test Framework cho ứng dụng Web, Mobile và API tại {company_name}.",
                 "Viết kịch bản kiểm thử tự động (Selenium/Playwright/Cypress), tích hợp vào pipeline CI/CD tự động.",
@@ -424,7 +643,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "qa_manual": {
-            "skills": ["SQL", "Postman", "Git", "Giao tiếp", "Làm việc nhóm", "Jira", "Excel", "HTML"],
+            "skills": [
+                "SQL",
+                "Postman",
+                "Git",
+                "Giao tiếp",
+                "Làm việc nhóm",
+                "Jira",
+                "Excel",
+                "HTML",
+            ],
             "resp": [
                 f"Phân tích yêu cầu nghiệp vụ, thiết kế Test Plan, Test Case cho các sản phẩm của {company_name}.",
                 "Thực hiện kiểm thử chức năng, giao diện, API và cơ sở dữ liệu trên đa nền tảng Web và Mobile.",
@@ -436,7 +664,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "qa_general": {
-            "skills": ["SQL", "Python", "Selenium", "Postman", "Git", "Làm việc nhóm", "Giao tiếp", "Jira"],
+            "skills": [
+                "SQL",
+                "Python",
+                "Selenium",
+                "Postman",
+                "Git",
+                "Làm việc nhóm",
+                "Giao tiếp",
+                "Jira",
+            ],
             "resp": [
                 f"Đảm bảo chất lượng toàn diện cho các sản phẩm phần mềm phát triển tại {company_name}.",
                 "Kết hợp kiểm thử thủ công và từng bước xây dựng kiểm thử tự động nhằm nâng cao độ tin cậy của sản phẩm.",
@@ -447,7 +684,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "product_manager": {
-            "skills": ["Giao tiếp", "Làm việc nhóm", "Quản lý dự án", "Figma", "SQL", "Agile", "Jira", "Scrum"],
+            "skills": [
+                "Giao tiếp",
+                "Làm việc nhóm",
+                "Quản lý dự án",
+                "Figma",
+                "SQL",
+                "Agile",
+                "Jira",
+                "Scrum",
+            ],
             "resp": [
                 f"Hoạch định chiến lược và lộ trình phát triển (Product Roadmap) cho các sản phẩm số tại {company_name}.",
                 "Nghiên cứu thị trường, phân tích hành vi người dùng và viết tài liệu đặc tả PRD chi tiết.",
@@ -459,7 +705,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "business_analyst": {
-            "skills": ["SQL", "UML", "Giao tiếp", "Làm việc nhóm", "Figma", "Quản lý dự án", "Jira", "Excel"],
+            "skills": [
+                "SQL",
+                "UML",
+                "Giao tiếp",
+                "Làm việc nhóm",
+                "Figma",
+                "Quản lý dự án",
+                "Jira",
+                "Excel",
+            ],
             "resp": [
                 f"Khảo sát, phân tích yêu cầu nghiệp vụ và mô hình hóa quy trình (BPMN, UML) tại {company_name}.",
                 "Biên soạn tài liệu đặc tả yêu cầu (BRD/SRS) rõ ràng và hỗ trợ nghiệm thu sản phẩm (UAT).",
@@ -470,7 +725,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "project_manager": {
-            "skills": ["Quản lý dự án", "Scrum", "Agile", "Giao tiếp", "Làm việc nhóm", "Jira", "Risk Management", "Budgeting"],
+            "skills": [
+                "Quản lý dự án",
+                "Scrum",
+                "Agile",
+                "Giao tiếp",
+                "Làm việc nhóm",
+                "Jira",
+                "Risk Management",
+                "Budgeting",
+            ],
             "resp": [
                 f"Lập kế hoạch, quản lý tiến độ, phạm vi và chất lượng bàn giao các dự án công nghệ tại {company_name}.",
                 "Điều phối hoạt động hàng ngày của nhóm phát triển theo mô hình Scrum và quản trị rủi ro dự án.",
@@ -481,7 +745,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "ui_ux": {
-            "skills": ["Figma", "UI/UX", "Photoshop", "Giao tiếp", "Design System", "HTML", "CSS", "Làm việc nhóm"],
+            "skills": [
+                "Figma",
+                "UI/UX",
+                "Photoshop",
+                "Giao tiếp",
+                "Design System",
+                "HTML",
+                "CSS",
+                "Làm việc nhóm",
+            ],
             "resp": [
                 f"Nghiên cứu người dùng, xây dựng User Flow, Wireframe và thiết kế giao diện UI/UX tại {company_name}.",
                 "Xây dựng và chuẩn hóa Hệ thống thiết kế (Design System) đồng nhất cho toàn bộ sản phẩm.",
@@ -493,7 +766,16 @@ def generate_dynamic_job_content(job: Job):
             ],
         },
         "marketing_manager": {
-            "skills": ["Giao tiếp", "Làm việc nhóm", "Quản lý dự án", "SEO", "Google Analytics", "Content Marketing", "Digital Marketing", "SQL"],
+            "skills": [
+                "Giao tiếp",
+                "Làm việc nhóm",
+                "Quản lý dự án",
+                "SEO",
+                "Google Analytics",
+                "Content Marketing",
+                "Digital Marketing",
+                "SQL",
+            ],
             "resp": [
                 f"Xây dựng và thực thi chiến lược Marketing cho các sản phẩm công nghệ của {company_name}.",
                 "Tối ưu hóa các chiến dịch chuyển đổi số, phân tích dữ liệu tăng trưởng người dùng.",
@@ -536,20 +818,24 @@ def generate_dynamic_job_content(job: Job):
 
     # Unique identifier stamp inside text
     job_code = f"JOB-{job.id:04d}"
-    province_str = job.address.province.province_name if job.address and job.address.province else "Việt Nam"
+    province_str = (
+        job.address.province.province_name
+        if job.address and job.address.province
+        else "Việt Nam"
+    )
 
     # Select dynamic components
     resp_items = list(arch_info["resp"])
     rng.shuffle(resp_items)
-    selected_resp = resp_items[:min(len(resp_items), rng.randint(4, 5))]
+    selected_resp = resp_items[: min(len(resp_items), rng.randint(4, 5))]
 
     req_items = list(arch_info["req"])
     rng.shuffle(req_items)
-    selected_req = req_items[:min(len(req_items), rng.randint(4, 5))]
+    selected_req = req_items[: min(len(req_items), rng.randint(4, 5))]
 
     chosen_ben = rng.choice(BENEFIT_PACKAGES)
     rng.shuffle(chosen_ben)
-    selected_ben = chosen_ben[:min(len(chosen_ben), rng.randint(5, 6))]
+    selected_ben = chosen_ben[: min(len(chosen_ben), rng.randint(5, 6))]
 
     # Build unique intro
     intros = [
@@ -565,9 +851,7 @@ def generate_dynamic_job_content(job: Job):
         f"{intro_html}"
         f"<p><strong>Mục tiêu công việc:</strong> Trực tiếp tham gia thiết kế, phát triển và tối ưu hóa các module tính năng quan trọng cho dự án tại {company_name}, đảm bảo hệ thống vận hành ổn định và đạt hiệu năng cao nhất.</p>"
         f"<p><strong>Trách nhiệm chính:</strong></p>"
-        f"<ul>"
-        + "".join(f"<li>{r}</li>" for r in selected_resp)
-        + f"</ul>"
+        f"<ul>" + "".join(f"<li>{r}</li>" for r in selected_resp) + f"</ul>"
         f"<p><strong>Môi trường làm việc:</strong> Làm việc cùng các kỹ sư tài năng, văn hóa Agile chuyên nghiệp và cơ hội thử thách với công nghệ mới tại {company_name}.</p>"
     )
 
@@ -582,15 +866,13 @@ def generate_dynamic_job_content(job: Job):
         f"<ul>"
         f"<li>{seniority_bullet}</li>"
         + "".join(f"<li>{r}</li>" for r in selected_req)
-        + f"</ul>"
+        + "</ul>"
     )
 
     # HTML Benefits
     benefits_html = (
         f"<p><strong>Chế độ đãi ngộ & Quyền lợi tại {company_name}:</strong></p>"
-        f"<ul>"
-        + "".join(f"<li>{b}</li>" for b in selected_ben)
-        + f"</ul>"
+        f"<ul>" + "".join(f"<li>{b}</li>" for b in selected_ben) + "</ul>"
     )
 
     # Skills selection
@@ -598,7 +880,7 @@ def generate_dynamic_job_content(job: Job):
     core_skills = raw_skills[:4]
     extra_skills = raw_skills[4:]
     rng.shuffle(extra_skills)
-    job_skills = core_skills + extra_skills[:rng.randint(2, 3)]
+    job_skills = core_skills + extra_skills[: rng.randint(2, 3)]
 
     return {
         "description": description_html,
@@ -636,12 +918,20 @@ class Command(BaseCommand):
         limit = options["limit"]
         target_job_id = options["job_id"]
 
-        self.stdout.write(self.style.MIGRATE_HEADING("=== BẮT ĐẦU QUY TRÌNH LÀM GIÀU DỮ LIỆU JOB (DYNAMIC 100% UNIQUE) ==="))
-        self.stdout.write(f"Chế độ: {'DRY RUN (Mô phỏng)' if dry_run else 'THỰC THI THẬT'}")
+        self.stdout.write(
+            self.style.MIGRATE_HEADING(
+                "=== BẮT ĐẦU QUY TRÌNH LÀM GIÀU DỮ LIỆU JOB (DYNAMIC 100% UNIQUE) ==="
+            )
+        )
+        self.stdout.write(
+            f"Chế độ: {'DRY RUN (Mô phỏng)' if dry_run else 'THỰC THI THẬT'}"
+        )
 
         all_skills_map = {s.name.lower(): s for s in Skill.objects.all()}
 
-        jobs_qs = Job.objects.select_related("company", "category", "address__province").order_by("id")
+        jobs_qs = Job.objects.select_related(
+            "company", "category", "address__province"
+        ).order_by("id")
         if target_job_id > 0:
             jobs_qs = jobs_qs.filter(id=target_job_id)
         elif limit > 0:
@@ -661,7 +951,9 @@ class Command(BaseCommand):
         for job in jobs_qs:
             job_key = str(job.id)
             category_name = job.category.name if job.category else "Chưa phân loại"
-            company_name = job.company.company_name if job.company else "JOBIO Tuyển Dụng"
+            company_name = (
+                job.company.company_name if job.company else "JOBIO Tuyển Dụng"
+            )
 
             dynamic_data = generate_dynamic_job_content(job)
 
@@ -679,12 +971,25 @@ class Command(BaseCommand):
             elif level_str in ("lead", "manager", "director"):
                 min_exp, max_exp = 5, 12
 
-            exp_min_val = job.experience_years_min if job.experience_years_min and job.experience_years_min > 0 else min_exp
-            exp_max_val = job.experience_years_max if job.experience_years_max else max_exp
+            exp_min_val = (
+                job.experience_years_min
+                if job.experience_years_min and job.experience_years_min > 0
+                else min_exp
+            )
+            exp_max_val = (
+                job.experience_years_max if job.experience_years_max else max_exp
+            )
 
             seo_title = f"{job.title} | {company_name}"[:70]
-            seo_desc = f"Tuyển dụng {job.title} tại {company_name}. Mức lương hấp dẫn, môi trường làm việc chuyên nghiệp."[:160]
-            seo_kw = list(set([job.title.lower(), category_name.lower()] + [s.lower() for s in dynamic_data["skills"][:5]]))
+            seo_desc = f"Tuyển dụng {job.title} tại {company_name}. Mức lương hấp dẫn, môi trường làm việc chuyên nghiệp."[
+                :160
+            ]
+            seo_kw = list(
+                set(
+                    [job.title.lower(), category_name.lower()]
+                    + [s.lower() for s in dynamic_data["skills"][:5]]
+                )
+            )
 
             changes = {
                 "title": job.title,
@@ -702,7 +1007,7 @@ class Command(BaseCommand):
 
             if dry_run:
                 self.stdout.write(
-                    f"[DRY-RUN] Sẽ làm giàu Job ID {job.id}: \"{job.title}\" | "
+                    f'[DRY-RUN] Sẽ làm giàu Job ID {job.id}: "{job.title}" | '
                     f"Company: {company_name} | Archetype: {dynamic_data['archetype']} | "
                     f"Skills: {', '.join(dynamic_data['skills'][:4])}"
                 )
@@ -721,12 +1026,19 @@ class Command(BaseCommand):
                     job.seo_description = seo_desc
                     job.seo_keywords = seo_kw
                     job.updated_at = timezone.now()
-                    job.save(update_fields=[
-                        "description", "requirements", "benefits",
-                        "experience_years_min", "experience_years_max",
-                        "seo_title", "seo_description", "seo_keywords",
-                        "updated_at",
-                    ])
+                    job.save(
+                        update_fields=[
+                            "description",
+                            "requirements",
+                            "benefits",
+                            "experience_years_min",
+                            "experience_years_max",
+                            "seo_title",
+                            "seo_description",
+                            "seo_keywords",
+                            "updated_at",
+                        ]
+                    )
 
                     JobSkill.objects.filter(job=job).delete()
                     for idx, skill_name in enumerate(dynamic_data["skills"]):
@@ -751,7 +1063,7 @@ class Command(BaseCommand):
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"✅ [Job ID {job.id}] Đã làm giàu thành công: \"{job.title}\" ({company_name}) | "
+                        f'✅ [Job ID {job.id}] Đã làm giàu thành công: "{job.title}" ({company_name}) | '
                         f"Embedding: {emb_res.get('status', 'done')}"
                     )
                 )
@@ -768,7 +1080,9 @@ class Command(BaseCommand):
                 enriched_count += 1
 
             except Exception as exc:
-                self.stdout.write(self.style.ERROR(f"❌ [Job ID {job.id}] Lỗi khi làm giàu: {exc}"))
+                self.stdout.write(
+                    self.style.ERROR(f"❌ [Job ID {job.id}] Lỗi khi làm giàu: {exc}")
+                )
                 error_count += 1
                 progress_data[job_key] = {
                     "job_id": job.id,
@@ -794,4 +1108,8 @@ class Command(BaseCommand):
         self.stdout.write(f"Số Jobs bị lỗi: {error_count}")
         if not dry_run:
             self.stdout.write(f"Số Embeddings đã re-encode: {embeddings_updated}")
-            self.stdout.write(self.style.SUCCESS("🎉 Hoàn thành làm giàu dữ liệu và re-encode embeddings 100% thành công!"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "🎉 Hoàn thành làm giàu dữ liệu và re-encode embeddings 100% thành công!"
+                )
+            )

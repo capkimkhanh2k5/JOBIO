@@ -137,7 +137,9 @@ def cached(
                     key_prefix or "func", _hash_value(_stable_json(key_data))
                 )
 
-            return CacheService.get_or_set(cache_key, lambda: func(*args, **kwargs), timeout)
+            return CacheService.get_or_set(
+                cache_key, lambda: func(*args, **kwargs), timeout
+            )
 
         wrapper.invalidate = lambda *args, **kwargs: cache.delete(
             key_func(*args, **kwargs)
@@ -203,7 +205,9 @@ class CacheService:
             if batch:
                 deleted += redis_conn.delete(*batch)
         except Exception as exc:
-            logger.debug("Cache delete_pattern skipped pattern=%s error=%s", pattern, exc)
+            logger.debug(
+                "Cache delete_pattern skipped pattern=%s error=%s", pattern, exc
+            )
         return deleted
 
     @staticmethod
@@ -257,12 +261,16 @@ class CacheService:
 
     @staticmethod
     def invalidate_taxonomy():
-        CacheService.delete_pattern(f"{CacheKeyBuilder.PREFIX}:{CacheKeyBuilder.VERSION}:taxonomy")
+        CacheService.delete_pattern(
+            f"{CacheKeyBuilder.PREFIX}:{CacheKeyBuilder.VERSION}:taxonomy"
+        )
         logger.info("Taxonomy cache invalidated")
 
     @staticmethod
     def invalidate_geography():
-        CacheService.delete_pattern(f"{CacheKeyBuilder.PREFIX}:{CacheKeyBuilder.VERSION}:geography")
+        CacheService.delete_pattern(
+            f"{CacheKeyBuilder.PREFIX}:{CacheKeyBuilder.VERSION}:geography"
+        )
         logger.info("Geography cache invalidated")
 
     @staticmethod
@@ -319,7 +327,9 @@ class CachedTaxonomySelectors:
             return list(
                 SkillCategory.objects.filter(is_active=True)
                 .order_by("display_order", "name")
-                .values("id", "name", "slug", "description", "parent_id", "display_order")
+                .values(
+                    "id", "name", "slug", "description", "parent_id", "display_order"
+                )
             )
 
         return CacheService.get_or_set(cache_key, fetch_categories, CACHE_TIMEOUT_LONG)

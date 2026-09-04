@@ -872,9 +872,7 @@ class JobViewTests(APITestCase):
         self.assertIsNone(self.job.featured_until)
         self.assertEqual(self.job.domain_status, Job.DomainStatus.NEEDS_REVIEW)
         self.assertEqual(self.job.moderation_status, Job.ModerationStatus.NEEDS_REVIEW)
-        self.assertNotEqual(
-            self.job.moderation_reasons, [{"code": "client_supplied"}]
-        )
+        self.assertNotEqual(self.job.moderation_reasons, [{"code": "client_supplied"}])
 
     def test_update_draft_to_published_enforces_quota(self):
         CompanySubscription.objects.filter(company=self.company).delete()

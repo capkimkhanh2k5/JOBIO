@@ -127,7 +127,9 @@ def upload_user_avatar(user: CustomUser, file) -> CustomUser:
     Upload avatar cho user lên Cloudinary.
     """
 
-    validate_upload_file(file, purpose="avatar", max_size_mb=2, user=user, is_public=True)
+    validate_upload_file(
+        file, purpose="avatar", max_size_mb=2, user=user, is_public=True
+    )
 
     # Upload to Cloudinary
     public_id = f"Jobio/Avatars/{user.id}/avatar_{int(time.time())}"

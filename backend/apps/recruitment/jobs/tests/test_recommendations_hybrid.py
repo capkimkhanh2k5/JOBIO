@@ -34,13 +34,16 @@ class EmbeddingModelCacheIntegrityTests(SimpleTestCase):
     def test_missing_model_cache_is_not_blocking_first_download(self):
         from apps.recruitment.jobs.services import recommendations
 
-        with TemporaryDirectory() as temp_dir, patch.dict(
-            os.environ,
-            {
-                "HF_HOME": temp_dir,
-                "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
-            },
-            clear=False,
+        with (
+            TemporaryDirectory() as temp_dir,
+            patch.dict(
+                os.environ,
+                {
+                    "HF_HOME": temp_dir,
+                    "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
+                },
+                clear=False,
+            ),
         ):
             result = recommendations.verify_embedding_model_cache_integrity(
                 "BAAI/bge-m3"
@@ -53,13 +56,16 @@ class EmbeddingModelCacheIntegrityTests(SimpleTestCase):
     def test_safetensors_cache_is_accepted(self):
         from apps.recruitment.jobs.services import recommendations
 
-        with TemporaryDirectory() as temp_dir, patch.dict(
-            os.environ,
-            {
-                "HF_HOME": temp_dir,
-                "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
-            },
-            clear=False,
+        with (
+            TemporaryDirectory() as temp_dir,
+            patch.dict(
+                os.environ,
+                {
+                    "HF_HOME": temp_dir,
+                    "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
+                },
+                clear=False,
+            ),
         ):
             model_dir = Path(temp_dir) / "hub" / "models--BAAI--bge-m3"
             snapshot_dir = model_dir / "snapshots" / "abc"
@@ -78,13 +84,16 @@ class EmbeddingModelCacheIntegrityTests(SimpleTestCase):
     def test_pickle_only_cache_is_marked_unsafe(self):
         from apps.recruitment.jobs.services import recommendations
 
-        with TemporaryDirectory() as temp_dir, patch.dict(
-            os.environ,
-            {
-                "HF_HOME": temp_dir,
-                "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
-            },
-            clear=False,
+        with (
+            TemporaryDirectory() as temp_dir,
+            patch.dict(
+                os.environ,
+                {
+                    "HF_HOME": temp_dir,
+                    "HUGGINGFACE_HUB_CACHE": str(Path(temp_dir) / "hub"),
+                },
+                clear=False,
+            ),
         ):
             model_dir = Path(temp_dir) / "hub" / "models--BAAI--bge-m3"
             snapshot_dir = model_dir / "snapshots" / "abc"
@@ -984,7 +993,10 @@ class EnhancedRecommendationFlowTests(APITestCase):
             name="Programming", slug="prog-enh"
         )
         self.python = Skill.objects.create(
-            name="Python", slug="python-enh", category=self.skill_category, is_active=True
+            name="Python",
+            slug="python-enh",
+            category=self.skill_category,
+            is_active=True,
         )
         RecruiterSkill.objects.create(recruiter=self.recruiter, skill=self.python)
         self.cv = RecruiterCV.objects.create(
@@ -1025,7 +1037,9 @@ class EnhancedRecommendationFlowTests(APITestCase):
         )
 
         # Initially both jobs recommended
-        res1 = recommend_jobs_for_recruiter(self.recruiter, cv_id=self.cv.id, bypass_cache=True)
+        res1 = recommend_jobs_for_recruiter(
+            self.recruiter, cv_id=self.cv.id, bypass_cache=True
+        )
         job_ids_1 = [item["job"].id for item in res1["results"]]
         self.assertIn(self.job1.id, job_ids_1)
         self.assertIn(self.job2.id, job_ids_1)
@@ -1038,7 +1052,9 @@ class EnhancedRecommendationFlowTests(APITestCase):
         )
 
         # Subsequent recommendation should exclude job1
-        res2 = recommend_jobs_for_recruiter(self.recruiter, cv_id=self.cv.id, bypass_cache=True)
+        res2 = recommend_jobs_for_recruiter(
+            self.recruiter, cv_id=self.cv.id, bypass_cache=True
+        )
         job_ids_2 = [item["job"].id for item in res2["results"]]
         self.assertNotIn(self.job1.id, job_ids_2)
         self.assertIn(self.job2.id, job_ids_2)
@@ -1068,4 +1084,3 @@ class EnhancedRecommendationFlowTests(APITestCase):
         self.assertIsNotNone(app.match_score)
         self.assertGreater(app.match_score, 0)
         self.assertIn("skill", app.score_breakdown)
-

@@ -304,7 +304,9 @@ class Command(BaseCommand):
         try:
             taxonomy_data = load_json("recommendation_taxonomy.json")
         except Exception as exc:
-            self.stdout.write(self.style.WARNING(f"  ! recommendation_taxonomy.json skipped: {exc}"))
+            self.stdout.write(
+                self.style.WARNING(f"  ! recommendation_taxonomy.json skipped: {exc}")
+            )
             return
 
         CanonicalTitle = get_model("CanonicalTitle")
@@ -330,7 +332,9 @@ class Command(BaseCommand):
             canonical_id = item.get("canonical_title_id")
             canonical_obj = canonical_objs.get(canonical_id)
             if canonical_obj:
-                norm = item.get("normalized_alias") or slugify(item["alias_name"]).replace("-", " ")
+                norm = item.get("normalized_alias") or slugify(
+                    item["alias_name"]
+                ).replace("-", " ")
                 obj, created = JobTitleAlias.objects.get_or_create(
                     normalized_alias=norm,
                     canonical_title=canonical_obj,
@@ -347,9 +351,15 @@ class Command(BaseCommand):
         created_skill_aliases = 0
         for item in taxonomy_data.get("skill_aliases", []):
             skill_name = item.get("skill_name")
-            skill_obj = Skill.objects.filter(name__icontains=skill_name).first() if skill_name else None
+            skill_obj = (
+                Skill.objects.filter(name__icontains=skill_name).first()
+                if skill_name
+                else None
+            )
             if skill_obj:
-                norm = item.get("normalized_alias") or slugify(item["alias_name"]).replace("-", " ")
+                norm = item.get("normalized_alias") or slugify(
+                    item["alias_name"]
+                ).replace("-", " ")
                 obj, created = SkillAlias.objects.get_or_create(
                     normalized_alias=norm,
                     skill=skill_obj,

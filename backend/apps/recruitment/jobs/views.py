@@ -272,9 +272,7 @@ class JobViewSet(viewsets.GenericViewSet):
         except JobPublishBlocked as e:
             return _job_policy_error_response(e)
         except JobQuotaExceeded as e:
-            return Response(
-                {"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED
-            )
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -341,9 +339,7 @@ class JobViewSet(viewsets.GenericViewSet):
         except JobPublishBlocked as e:
             return _job_policy_error_response(e)
         except JobQuotaExceeded as e:
-            return Response(
-                {"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED
-            )
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -401,9 +397,7 @@ class JobViewSet(viewsets.GenericViewSet):
         except JobPublishBlocked as e:
             return _job_policy_error_response(e)
         except JobQuotaExceeded as e:
-            return Response(
-                {"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED
-            )
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -455,9 +449,7 @@ class JobViewSet(viewsets.GenericViewSet):
         except JobPublishBlocked as e:
             return _job_policy_error_response(e)
         except JobQuotaExceeded as e:
-            return Response(
-                {"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED
-            )
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

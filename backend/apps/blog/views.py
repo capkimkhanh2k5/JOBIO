@@ -141,8 +141,12 @@ class PostViewSet(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
+        user = self.request.user
         status_val = serializer.validated_data.get("status", serializer.instance.status)
         published_at = serializer.instance.published_at
+
+        if not _is_admin_user(user):
+            status_val = Post.Status.DRAFT
 
         if status_val == Post.Status.PUBLISHED and not published_at:
             published_at = timezone.now()

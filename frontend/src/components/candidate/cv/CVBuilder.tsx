@@ -374,6 +374,9 @@ export function CVBuilder({
             let current = nextData;
 
             for (let index = 0; index < parts.length - 1; index += 1) {
+                if (parts[index] === '__proto__' || parts[index] === 'constructor' || parts[index] === 'prototype') {
+                    continue;
+                }
                 if (!current[parts[index]]) current[parts[index]] = {};
                 current = current[parts[index]];
             }

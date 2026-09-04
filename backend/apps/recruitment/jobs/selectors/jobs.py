@@ -59,14 +59,11 @@ def _with_effective_expired(queryset: QuerySet[Job]) -> QuerySet[Job]:
 
 
 def _active_published_jobs(queryset: QuerySet[Job]) -> QuerySet[Job]:
-    return (
-        queryset.filter(
-            status=Job.Status.PUBLISHED,
-            domain_status=Job.DomainStatus.IT_APPROVED,
-            moderation_status=Job.ModerationStatus.APPROVED,
-        )
-        .filter(_not_deadline_expired_q())
-    )
+    return queryset.filter(
+        status=Job.Status.PUBLISHED,
+        domain_status=Job.DomainStatus.IT_APPROVED,
+        moderation_status=Job.ModerationStatus.APPROVED,
+    ).filter(_not_deadline_expired_q())
 
 
 def publicly_available_jobs(queryset: Optional[QuerySet[Job]] = None) -> QuerySet[Job]:
@@ -225,7 +222,10 @@ def list_jobs(filters: dict = None) -> QuerySet[Job]:
                         output_field=IntegerField(),
                     )
                     + Case(
-                        When(required_skills__skill__name__icontains=search, then=Value(70)),
+                        When(
+                            required_skills__skill__name__icontains=search,
+                            then=Value(70),
+                        ),
                         default=Value(0),
                         output_field=IntegerField(),
                     )

@@ -3,7 +3,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("candidate_recruiter_cvs", "0004_add_parsed_status_fields"),
         ("candidate_recruiters", "0004_remove_job_search_status_and_is_profile_public"),
@@ -23,7 +22,12 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("source_type", models.CharField(choices=[("profile", "Profile"), ("cv", "CV")], max_length=20)),
+                (
+                    "source_type",
+                    models.CharField(
+                        choices=[("profile", "Profile"), ("cv", "CV")], max_length=20
+                    ),
+                ),
                 ("source_hash", models.CharField(db_index=True, max_length=64)),
                 ("model", models.CharField(default="BAAI/bge-m3", max_length=100)),
                 (
@@ -146,7 +150,12 @@ class Migration(migrations.Migration):
                 ("score_breakdown", models.JSONField(blank=True, default=dict)),
                 ("source_type", models.CharField(default="profile", max_length=20)),
                 ("source_id", models.PositiveIntegerField(blank=True, null=True)),
-                ("request_id", models.CharField(blank=True, db_index=True, default="", max_length=64)),
+                (
+                    "request_id",
+                    models.CharField(
+                        blank=True, db_index=True, default="", max_length=64
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True, db_index=True)),
                 (
                     "cv",
@@ -206,6 +215,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="jobrecommendationevent",
-            index=models.Index(fields=["job", "event_type"], name="idx_job_rec_event_job"),
+            index=models.Index(
+                fields=["job", "event_type"], name="idx_job_rec_event_job"
+            ),
         ),
     ]

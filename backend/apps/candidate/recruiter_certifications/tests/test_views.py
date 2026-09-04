@@ -155,7 +155,9 @@ class RecruiterCertificationViewTest(APITestCase):
             self.certification.certification_name, "AWS Solutions Architect"
         )
 
-    def test_partial_update_certification_rejects_expiry_before_existing_issue_date(self):
+    def test_partial_update_certification_rejects_expiry_before_existing_issue_date(
+        self,
+    ):
         response = self.client.patch(
             f"/api/candidates/{self.recruiter.id}/certifications/{self.certification.id}/",
             {"expiry_date": "2022-12-31"},
@@ -166,7 +168,9 @@ class RecruiterCertificationViewTest(APITestCase):
         self.certification.refresh_from_db()
         self.assertIsNone(self.certification.expiry_date)
 
-    def test_partial_update_certification_non_expiring_rejects_existing_expiry_date(self):
+    def test_partial_update_certification_non_expiring_rejects_existing_expiry_date(
+        self,
+    ):
         self.certification.expiry_date = "2025-01-01"
         self.certification.does_not_expire = False
         self.certification.save(update_fields=["expiry_date", "does_not_expire"])

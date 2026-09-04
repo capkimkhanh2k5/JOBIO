@@ -65,7 +65,9 @@ class Migration(migrations.Migration):
                 ("confidence", models.FloatField(default=0.0)),
                 (
                     "content_hash",
-                    models.CharField(blank=True, db_index=True, default="", max_length=64),
+                    models.CharField(
+                        blank=True, db_index=True, default="", max_length=64
+                    ),
                 ),
                 ("metadata", models.JSONField(blank=True, default=dict)),
                 ("created_at", models.DateTimeField(auto_now_add=True, db_index=True)),

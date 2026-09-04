@@ -233,7 +233,11 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
             days = 7
         return Response(recommendation_health_snapshot(days=days))
 
-    @action(detail=False, methods=["post"], url_path="recommendations/sync-missing-embeddings")
+    @action(
+        detail=False,
+        methods=["post"],
+        url_path="recommendations/sync-missing-embeddings",
+    )
     def sync_missing_embeddings(self, request):
         """
         Sinh Vector Embeddings CHỈ cho các tin tuyển dụng và hồ sơ ứng viên còn thiếu.
@@ -241,7 +245,11 @@ class AdminJobViewSet(viewsets.ReadOnlyModelViewSet):
         result = sync_missing_embeddings()
         return Response(result)
 
-    @action(detail=False, methods=["get"], url_path="recommendations/sync-missing-embeddings/status")
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="recommendations/sync-missing-embeddings/status",
+    )
     def sync_missing_embeddings_status(self, request):
         """
         Lấy % tiến trình thời gian thực của tác vụ ngầm sinh Vector.

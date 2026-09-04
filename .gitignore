@@ -45,6 +45,8 @@ media/
 .vscode
 .postman
 .idea/
+.impeccable/
+strix_runs
 .DS_Store
 **/.DS_Store
 *.swp

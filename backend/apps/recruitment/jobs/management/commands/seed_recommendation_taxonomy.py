@@ -13,14 +13,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         data_dir = os.path.normpath(
-            os.path.join(base_dir, "..", "..", "..", "..", "..", "..", "DataSet", "Data")
+            os.path.join(
+                base_dir, "..", "..", "..", "..", "..", "..", "DataSet", "Data"
+            )
         )
         json_path = os.path.join(data_dir, "recommendation_taxonomy.json")
 
         if not os.path.exists(json_path):
-            self.stdout.write(
-                self.style.ERROR(f"File not found: {json_path}")
-            )
+            self.stdout.write(self.style.ERROR(f"File not found: {json_path}"))
             return
 
         with open(json_path, "r", encoding="utf-8") as f:
@@ -45,7 +45,9 @@ class Command(BaseCommand):
                 canonical_id = item.get("canonical_title_id")
                 canonical_obj = canonical_objs.get(canonical_id)
                 if canonical_obj:
-                    norm = item.get("normalized_alias") or normalize_key(item["alias_name"])
+                    norm = item.get("normalized_alias") or normalize_key(
+                        item["alias_name"]
+                    )
                     if norm:
                         obj, created = JobTitleAlias.objects.get_or_create(
                             normalized_alias=norm,
@@ -63,9 +65,15 @@ class Command(BaseCommand):
             created_skill_aliases = 0
             for item in taxonomy_data.get("skill_aliases", []):
                 skill_name = item.get("skill_name")
-                skill_obj = Skill.objects.filter(name__icontains=skill_name).first() if skill_name else None
+                skill_obj = (
+                    Skill.objects.filter(name__icontains=skill_name).first()
+                    if skill_name
+                    else None
+                )
                 if skill_obj:
-                    norm = item.get("normalized_alias") or normalize_key(item["alias_name"])
+                    norm = item.get("normalized_alias") or normalize_key(
+                        item["alias_name"]
+                    )
                     if norm:
                         obj, created = SkillAlias.objects.get_or_create(
                             normalized_alias=norm,

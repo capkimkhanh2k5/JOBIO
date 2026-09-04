@@ -122,7 +122,7 @@ def create_application(
         match_result = score_candidate_job(recruiter, job, cv)
         match_score = match_result.get("match_score")
         score_breakdown = match_result.get("score_breakdown", {})
-    except Exception as exc:
+    except Exception:
         pass
 
     application = Application.objects.create(
@@ -166,7 +166,9 @@ def update_application(
 
     if cv_changed:
         try:
-            from apps.recruitment.jobs.services.recommendations import score_candidate_job
+            from apps.recruitment.jobs.services.recommendations import (
+                score_candidate_job,
+            )
 
             match_result = score_candidate_job(
                 application.recruiter, application.job, application.cv

@@ -15,16 +15,20 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         limit = max(1, int(options["limit"]))
         recruiter_ids = list(
-            Recruiter.objects.order_by("-updated_at").values_list("id", flat=True)[:limit]
+            Recruiter.objects.order_by("-updated_at").values_list("id", flat=True)[
+                :limit
+            ]
         )
         processed = 0
         for recruiter_id in recruiter_ids:
-            self.stdout.write(f"recruiter={recruiter_id} {generate_candidate_embedding(recruiter_id)}")
+            self.stdout.write(
+                f"recruiter={recruiter_id} {generate_candidate_embedding(recruiter_id)}"
+            )
             processed += 1
             if options["include_cvs"]:
-                cv_ids = RecruiterCV.objects.filter(recruiter_id=recruiter_id).values_list(
-                    "id", flat=True
-                )
+                cv_ids = RecruiterCV.objects.filter(
+                    recruiter_id=recruiter_id
+                ).values_list("id", flat=True)
                 for cv_id in cv_ids:
                     result = generate_candidate_embedding(recruiter_id, cv_id, "cv")
                     self.stdout.write(f"recruiter={recruiter_id} cv={cv_id} {result}")

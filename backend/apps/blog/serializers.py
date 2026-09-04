@@ -135,12 +135,8 @@ class PostSerializer(serializers.ModelSerializer):
         user = getattr(request, "user", None)
         requested_status = attrs.get("status")
         if requested_status and requested_status != Post.Status.DRAFT:
-            company_profile = getattr(user, "company_profile", None)
-            is_company_user = bool(company_profile or getattr(user, "role", None) == "company")
-            is_allowed = is_admin_user(user) or is_company_user
-
-            if not is_allowed:
+            if not is_admin_user(user):
                 raise serializers.ValidationError(
-                    {"status": "Chỉ Doanh nghiệp hoặc Admin mới có quyền xuất bản bài viết."}
+                    {"status": "Chỉ Admin mới có quyền xuất bản bài viết."}
                 )
         return attrs

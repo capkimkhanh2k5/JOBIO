@@ -30,7 +30,9 @@ class ModerationAudit(models.Model):
     blocked_fields = models.JSONField(default=list, blank=True)
     provider = models.CharField(max_length=80, default="rule")
     confidence = models.FloatField(default=0.0)
-    content_hash = models.CharField(max_length=64, blank=True, default="", db_index=True)
+    content_hash = models.CharField(
+        max_length=64, blank=True, default="", db_index=True
+    )
     metadata = models.JSONField(default=dict, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

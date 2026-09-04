@@ -43,7 +43,9 @@ class JobTaskTests(TestCase):
     @patch(
         "apps.recruitment.jobs.services.recommendations.remove_job_from_vector_store"
     )
-    def test_expire_published_jobs_task_closes_deadline_expired_jobs(self, remove_vector):
+    def test_expire_published_jobs_task_closes_deadline_expired_jobs(
+        self, remove_vector
+    ):
         today = timezone.localdate()
         expired = self._job(
             slug="expired-job-task-test",

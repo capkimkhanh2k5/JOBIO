@@ -1,0 +1,15 @@
+*** Begin Patch
+*** Update File: apps/core/users/services/auth.py
+@@ def login_user(data: LoginInput) -> dict:
+     if not user:
+         _record_login_failure(email)
+         raise AuthenticationError(GENERIC_LOGIN_ERROR)
++        
++    if not user.has_usable_password():
++        _record_login_failure(email, user=user)
++        raise AuthenticationError(GENERIC_LOGIN_ERROR)
+ 
+     if not user.check_password(data.password):
+         _record_login_failure(email, user=user)
+         raise AuthenticationError(GENERIC_LOGIN_ERROR)
+*** End Patch

@@ -18,11 +18,14 @@ class TemplateAssetStatusFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == "complete":
-            return queryset.exclude(thumbnail_url__isnull=True).exclude(
-                thumbnail_url=""
-            ).exclude(preview_url__isnull=True).exclude(preview_url="").exclude(
-                file_name__isnull=True
-            ).exclude(file_name="")
+            return (
+                queryset.exclude(thumbnail_url__isnull=True)
+                .exclude(thumbnail_url="")
+                .exclude(preview_url__isnull=True)
+                .exclude(preview_url="")
+                .exclude(file_name__isnull=True)
+                .exclude(file_name="")
+            )
         if value == "missing_thumbnail":
             return queryset.filter(thumbnail_url__in=[""]) | queryset.filter(
                 thumbnail_url__isnull=True
