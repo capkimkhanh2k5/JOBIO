@@ -102,6 +102,9 @@ export function ManageJobsList({
 
                         {/* Title + meta */}
                         <div
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate(`/jobs/${job.id}`)}
                             className="flex-1 min-w-0 cursor-pointer"
                             onClick={() => navigate(`/jobs/${job.id}`)}
                         >

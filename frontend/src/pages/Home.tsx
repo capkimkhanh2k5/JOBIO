@@ -5,7 +5,7 @@ import {
     ArrowRight, DollarSign, Clock, Wifi, ChevronRight,
     Monitor, Landmark, Factory, ShoppingBag, Headphones,
     Home as HomeIcon,
-    Bot, Code, Target, Palette, Bug, ArrowUpRight,
+    Bot, Code, Target, Palette, Bug,
 } from "lucide-react";
 import { taxonomyService } from "../services/taxonomyService";
 import { jobService } from "../services/jobService";

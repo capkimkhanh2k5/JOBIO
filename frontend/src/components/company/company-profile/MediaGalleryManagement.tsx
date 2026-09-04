@@ -311,7 +311,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                             {isLink ? (
                                                 <a href={mediaUrl} target="_blank" rel="noreferrer" className="group block h-full w-full">
                                                     {youtubeThumbnailUrl ? (
-                                                        <img src={youtubeThumbnailUrl} alt={title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                                        <img loading="lazy" src={youtubeThumbnailUrl} alt={title} className="h-full w-full object-cover transition group-hover:scale-105" />
                                                     ) : (
                                                         <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                                             <LinkIcon className="h-8 w-8" />
@@ -328,7 +328,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                         <PlayCircle className="h-10 w-10 text-white/90" />
                                                     </div>
                                                     {thumbnailUrl ? (
-                                                        <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
+                                                        <img loading="lazy" src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
                                                     ) : mediaUrl ? (
                                                         <video src={mediaUrl} className="h-full w-full object-cover" muted preload="metadata" />
                                                     ) : (
@@ -342,7 +342,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                     onClick={() => setPreviewImage({ url: imageUrl, title })}
                                                     aria-label={`Xem ảnh ${title}`}
                                                 >
-                                                    <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                                    <img loading="lazy" src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                                                 </button>
                                             ) : (
                                                 <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-8 w-8 opacity-30" /></div>
@@ -450,7 +450,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                 <Label>{isImageType ? 'Ảnh' : 'File media'}</Label>
                                 {localPreviewUrl ? (
                                     <div className="relative overflow-hidden rounded-xl border border-border bg-muted aspect-video">
-                                        <img src={localPreviewUrl} alt="Preview media" className="h-full w-full object-cover" />
+                                        <img loading="lazy" src={localPreviewUrl} alt="Preview media" className="h-full w-full object-cover" />
                                         {isUploadingPreview && (
                                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/45 text-white">
                                                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -546,7 +546,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                     </DialogHeader>
                     <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
                         {previewImage && (
-                            <img
+                            <img loading="lazy"
                                 src={previewImage.url}
                                 alt={previewImage.title}
                                 className="max-h-[82vh] w-full object-contain"

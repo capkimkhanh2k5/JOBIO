@@ -176,13 +176,13 @@ export const JobDetailHeader = ({ job, locations, onApply }: JobDetailHeaderProp
                         {companyHref ? (
                             <Link to={companyHref} className="w-full h-full flex items-center justify-center p-1" aria-label={`Xem công ty ${job.company?.company_name}`}>
                                 {job.company?.logo_url ? (
-                                    <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain" />
+                                    <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain" loading="eager" fetchPriority="high" />
                                 ) : (
                                     <Building2 className="w-8 h-8 text-muted-foreground/40" />
                                 )}
                             </Link>
                         ) : job.company?.logo_url ? (
-                            <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain p-1" />
+                            <img src={job.company?.logo_url} alt={job.company?.company_name} className="w-full h-full object-contain p-1" loading="eager" fetchPriority="high" />
                         ) : (
                             <Building2 className="w-8 h-8 text-muted-foreground/40" />
                         )}

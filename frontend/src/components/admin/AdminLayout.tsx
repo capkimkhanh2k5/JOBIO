@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminTopNav } from './AdminTopNav';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 
 /**
  * AdminLayout – Re-architected Sidebar-First monitoring layout.
@@ -13,7 +14,7 @@ export function AdminLayout() {
             <AdminSidebar />
 
             {/* Main content column – grows and scrolls naturally with the window */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
                 {/* Internal TopNav: Acting as a contextual toolbar */}
                 <AdminTopNav />
 
@@ -24,6 +25,7 @@ export function AdminLayout() {
                     </div>
                 </main>
             </div>
+            <MobileBottomNav />
         </div>
     );
 }

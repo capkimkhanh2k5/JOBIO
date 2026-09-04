@@ -213,7 +213,8 @@ function CompanyCard({ company }: { company: any }) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "50px" }}
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.25 }}
             className="group bg-card border border-border/80 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-teal-500/30 transition-all duration-300 flex flex-col h-full"

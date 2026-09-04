@@ -43,7 +43,7 @@ export function CompanyTopNav() {
                 to="/"
                 className=""
                 imageClassName="h-12 w-auto object-contain drop-shadow"
-                textClassName="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary tracking-tighter"
+                textClassName="text-2xl font-black text-teal-600 tracking-tighter"
             />
 
             {/* Right actions */}

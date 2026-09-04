@@ -651,6 +651,9 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                                     onDragLeave={handleDrag}
                                     onDragOver={handleDrag}
                                     onDrop={handleDrop}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
                                     onClick={() => fileInputRef.current?.click()}
                                 >
                                     <input

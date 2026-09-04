@@ -105,7 +105,7 @@ export function Step3Location({ control }: Step3LocationProps) {
                         {/* Company logo preview */}
                         {company && (
                             <div className="flex items-center gap-3 p-3 rounded-xl bg-muted border border-border">
-                                <img
+                                <img loading="lazy"
                                     src={company.logo_url || '/placeholder-company.png'}
                                     alt={company.company_name}
                                     className="w-10 h-10 rounded-lg object-cover bg-card"

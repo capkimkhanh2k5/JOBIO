@@ -176,7 +176,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                                             onClick={() => setPlayingLinkId(item.id)}
                                         >
                                             {youtubeThumbnailUrl ? (
-                                                <img
+                                                <img loading="lazy"
                                                     src={youtubeThumbnailUrl}
                                                     alt={title}
                                                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
@@ -208,7 +208,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                                         onClick={() => setPreviewImage({ url: thumbnailUrl, title })}
                                         aria-label={`Xem ảnh ${title}`}
                                     >
-                                        <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                        <img loading="lazy" src={thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                                     </button>
                                 )}
                             </div>
@@ -229,7 +229,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                     </DialogHeader>
                     <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
                         {previewImage && (
-                            <img
+                            <img loading="lazy"
                                 src={previewImage.url}
                                 alt={previewImage.title}
                                 className="max-h-[82vh] w-full object-contain"

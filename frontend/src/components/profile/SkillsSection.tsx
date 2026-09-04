@@ -10,7 +10,7 @@ import { taxonomyService } from '@/services/taxonomyService';
 import { SectionWrapper } from './SectionWrapper';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,12 +36,6 @@ interface SkillEditDialogProps {
     selectedSkillInfo?: { id: number | null; name: string } | null;
 }
 
-const SKILL_LEVELS = [
-    { id: 'basic', label: 'Cơ bản', desc: 'Có hiểu biết nền tảng', color: 'border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400' },
-    { id: 'intermediate', label: 'Trung bình', desc: 'Sử dụng thành thạo trong công việc', color: 'border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400' },
-    { id: 'advanced', label: 'Nâng cao', desc: 'Giải quyết tốt bài toán phức tạp', color: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-    { id: 'expert', label: 'Chuyên gia', desc: 'Làm chủ và định hướng chuyên môn', color: 'border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400' },
-];
 
 const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: SkillEditDialogProps) => {
     const queryClient = useQueryClient();

@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCandidateStore } from '@/store/candidateStore';
 import { applicationService } from '@/services/applicationService';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Calendar, GripVertical, Inbox, Video, CheckCircle2, XCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Inbox, Video, CheckCircle2, XCircle, User, GripVertical, Calendar } from "lucide-react";
 
 interface Application {
     id: string;

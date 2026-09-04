@@ -233,7 +233,7 @@
 /* ── Aurora orbs — warm tones ── */
 @utility aurora-orb {
   filter: blur(120px);
-  will-change: transform, opacity;
+  
   animation: aurora-float 15s infinite alternate ease-in-out;
 }
 
@@ -271,12 +271,12 @@
 
 /* ── Hero blob float — editorial organic shapes ── */
 @utility hero-blob {
-  will-change: transform;
+  
   animation: hero-blob-float 18s ease-in-out infinite alternate;
 }
 
 @utility hero-blob-alt {
-  will-change: transform;
+  
   animation: hero-blob-float 22s ease-in-out infinite alternate-reverse;
 }
 
@@ -374,3 +374,8 @@
     transparent 22px
   );
 }
+
+@utility pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+}
+

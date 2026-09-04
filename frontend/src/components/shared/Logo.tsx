@@ -11,7 +11,7 @@ interface LogoProps {
 export const Logo = ({ 
     className = "", 
     imageClassName = "h-10 w-auto object-contain", 
-    textClassName = "text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-emerald-500 tracking-tighter",
+    textClassName = "text-2xl font-black text-teal-600 tracking-tighter",
     showText = true,
     to = "/"
 }: LogoProps) => {
@@ -24,6 +24,8 @@ export const Logo = ({
                     src={logoUrl} 
                     alt="Jobio Logo" 
                     className={imageClassName}
+                    loading="eager"
+                    fetchPriority="high"
                     onError={(e) => {
                         // Fallback to text if image fails to load
                         (e.target as HTMLImageElement).style.display = 'none';

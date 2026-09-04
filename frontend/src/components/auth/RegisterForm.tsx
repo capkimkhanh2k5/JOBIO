@@ -567,7 +567,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 Đã có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
+                    className="p-2 -mx-2 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToLogin}
                 >
                     Đăng nhập ngay

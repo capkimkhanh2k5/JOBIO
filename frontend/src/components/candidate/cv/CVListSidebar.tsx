@@ -36,7 +36,7 @@ function CVThumbnail({ cv }: { cv: CVItem }) {
     if (canShowImage && cv.thumbnail_url) {
         return (
             <div className="w-10 h-12 rounded-lg bg-card border border-teal-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-                <img
+                <img loading="lazy"
                     src={cv.thumbnail_url}
                     alt={cv.template_name || cv.cv_name}
                     className="w-full h-full object-cover"
@@ -91,13 +91,12 @@ export function CVListSidebar({
                 <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
                     Danh sách CV ({cvList.length})
                 </p>
-                <div 
-                    onClick={onCreateNew}
+                <button type="button" onClick={onCreateNew}
                     className="w-7 h-7 rounded-md bg-teal-100 hover:bg-teal-200 text-teal-600 flex items-center justify-center cursor-pointer transition-colors shadow-sm"
                     title="Tạo CV mới"
                 >
                     <Plus className="w-4 h-4" />
-                </div>
+                </button>
             </div>
 
             {/* CV Cards list */}
@@ -123,6 +122,9 @@ export function CVListSidebar({
                             transition={{ delay: i * 0.05 }}
                         >
                             <div
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(cv)}
                                 onClick={() => onSelect(cv)}
                                 className={`group relative rounded-xl border p-3.5 cursor-pointer transition-all duration-200 ${selectedId === cv.id
                                         ? 'border-teal-300 bg-teal-50 shadow-sm shadow-teal-100'

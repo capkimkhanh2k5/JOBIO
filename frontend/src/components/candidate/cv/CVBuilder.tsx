@@ -31,13 +31,6 @@ import { taxonomyService } from '@/services/taxonomyService';
 import { AutoSaveStatus, CVItem } from '@/pages/candidate/CVManager';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -318,6 +311,7 @@ export function CVBuilder({
 }: Props) {
     const [isTemplateExpanded, setIsTemplateExpanded] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
+    const [renameValue, setRenameValue] = useState('');
     const [isSavingPdf, setIsSavingPdf] = useState(false);
     const [rewritingKey, setRewritingKey] = useState<string | null>(null);
     const [skillInput, setSkillInput] = useState('');

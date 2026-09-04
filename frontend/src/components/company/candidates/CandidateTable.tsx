@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, Calendar, MoreHorizontal, User } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { useCandidateStore } from '@/store/candidateStore';
 
 interface Application {
     id: string;

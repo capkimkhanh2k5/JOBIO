@@ -57,9 +57,7 @@ export function Step4SeoReview({ control }: Step4SeoReviewProps) {
 
     const locations = data.locations || [];
     const primaryLocation = locations.find((location: LocationRow) => location.is_primary) || locations[0];
-    const experience = data.experience_min != null || data.experience_max != null
-        ? `${data.experience_min ?? 0} - ${data.experience_max ?? data.experience_min ?? 0} năm`
-        : 'Không yêu cầu';
+    
     const salary = !data.is_salary_visible
         ? 'Thương lượng'
         : data.salary_min != null || data.salary_max != null
@@ -83,7 +81,7 @@ export function Step4SeoReview({ control }: Step4SeoReviewProps) {
                 <div className="p-5 space-y-5">
                     <div className="flex items-start gap-3">
                         {company?.logo_url ? (
-                            <img src={company.logo_url} alt={company.company_name} className="w-14 h-14 rounded-xl object-contain border border-border bg-card" />
+                            <img loading="lazy" src={company.logo_url} alt={company.company_name} className="w-14 h-14 rounded-xl object-contain border border-border bg-card" />
                         ) : (
                             <div className="w-14 h-14 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600 font-bold">
                                 {(company?.company_name || 'C')[0]}

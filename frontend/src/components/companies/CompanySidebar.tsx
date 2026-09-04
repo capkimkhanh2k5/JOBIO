@@ -103,7 +103,7 @@ export const CompanySidebar = ({ company }: CompanySidebarProps) => {
                     <div className="h-20 w-20 rounded-2xl bg-muted p-2 border border-border flex items-center justify-center shrink-0">
                         <Link to={companyHref} className="w-full h-full flex items-center justify-center" aria-label={`Xem công ty ${company.company_name}`}>
                             {company.logo_url ? (
-                                <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
+                                <img loading="lazy" src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
                             ) : (
                                 <Building className="w-9 h-9 text-muted-foreground/40" />
                             )}

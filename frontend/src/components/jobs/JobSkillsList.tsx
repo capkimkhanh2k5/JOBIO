@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Brain } from 'lucide-react';
 
 interface Skill {

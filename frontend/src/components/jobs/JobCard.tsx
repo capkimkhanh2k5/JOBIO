@@ -143,7 +143,7 @@ export function JobCard({ job, view }: JobCardProps) {
     const experienceText = getExperienceText(job);
     const positionsText = getPositionsText(job.number_of_positions);
     const categoryText = job.category_name ?? "Chưa phân loại";
-    const summary = getShortText(job.description, 180);
+    
     const benefitsSummary = getShortText(job.benefits, 120);
     const requirementSummary = getShortText(job.requirements, benefitsSummary ? 140 : 280);
     const hasBothDetailSummaries = Boolean(requirementSummary && benefitsSummary);
@@ -217,7 +217,8 @@ export function JobCard({ job, view }: JobCardProps) {
         return (
             <motion.div
                 initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "50px" }}
                 exit={{ opacity: 0, scale: 0.97 }}
                 transition={{ duration: 0.25 }}
                 onClick={() => navigate(`/jobs/${job.id}`)}
@@ -226,14 +227,14 @@ export function JobCard({ job, view }: JobCardProps) {
                 <div className={cn(
                     "relative bg-card border border-border rounded-xl p-5 sm:p-6",
                     "hover:border-primary/35 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
-                    isFeatured && !isExpired && "border-l-4 border-l-primary",
-                    isExpired && "border-l-4 border-l-rose-300 bg-rose-50/30"
+                    isFeatured && !isExpired && "shadow-md ring-1 ring-primary/20",
+                    isExpired && "opacity-75 bg-muted/50 border-dashed"
                 )}>
                     <div className="flex flex-col xl:flex-row gap-5">
                         <div className="flex min-w-0 flex-1 gap-4">
                             <div className="w-14 h-14 rounded-xl bg-muted border border-border/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                 {logoUrl
-                                    ? <img src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1.5" />
+                                    ? <img loading="lazy" src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1.5" />
                                     : <span className="text-xl font-bold text-muted-foreground/60">{companyName?.[0]}</span>
                                 }
                             </div>
@@ -277,10 +278,10 @@ export function JobCard({ job, view }: JobCardProps) {
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5">
-                                    <MetaPill icon={<DollarSign className="w-4 h-4 text-emerald-500" />} label="Lương" value={salaryText} strong />
-                                    <MetaPill icon={<MapPin className="w-4 h-4 text-muted-foreground/60" />} label="Địa điểm" value={locationText} />
-                                    <MetaPill icon={<Target className="w-4 h-4 text-teal-500" />} label="Kinh nghiệm" value={experienceText} />
-                                    <MetaPill icon={<Users className="w-4 h-4 text-teal-500" />} label="Tuyển" value={positionsText} />
+                                    <InfoBadge icon={<DollarSign className="w-4 h-4 text-emerald-500" />} label="Lương" value={salaryText} strong />
+                                    <InfoBadge icon={<MapPin className="w-4 h-4 text-muted-foreground/60" />} label="Địa điểm" value={locationText} />
+                                    <InfoBadge icon={<Target className="w-4 h-4 text-teal-500" />} label="Kinh nghiệm" value={experienceText} />
+                                    <InfoBadge icon={<Users className="w-4 h-4 text-teal-500" />} label="Tuyển" value={positionsText} />
                                 </div>
 
                                 <div className="flex flex-wrap gap-1.5">
@@ -390,7 +391,8 @@ export function JobCard({ job, view }: JobCardProps) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "50px" }}
             exit={{ opacity: 0, scale: 0.97 }}
             transition={{ duration: 0.25 }}
             onClick={() => navigate(`/jobs/${job.id}`)}
@@ -399,8 +401,8 @@ export function JobCard({ job, view }: JobCardProps) {
             <div className={cn(
                 "relative bg-card border border-border rounded-xl overflow-hidden flex flex-col h-full",
                 "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200",
-                isFeatured && !isExpired && "border-t-2 border-t-primary",
-                isExpired && "border-t-2 border-t-rose-300 bg-rose-50/30"
+                isFeatured && !isExpired && "shadow-md ring-1 ring-primary/20",
+                isExpired && "opacity-75 bg-muted/50 border-dashed"
             )}>
                 {isFeatured && !isExpired && (
                     <div className="absolute top-3 right-3 z-10">
@@ -415,7 +417,7 @@ export function JobCard({ job, view }: JobCardProps) {
                         <div className="flex items-center gap-2.5 min-w-0">
                             <div className="w-10 h-10 rounded-xl bg-muted/80 border border-border/60 flex-shrink-0 flex items-center justify-center overflow-hidden">
                                 {logoUrl
-                                    ? <img src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1" />
+                                    ? <img loading="lazy" src={logoUrl} alt={companyName} className="w-full h-full object-contain p-1" />
                                     : <span className="text-sm font-bold text-muted-foreground/60">{companyName?.[0]}</span>
                                 }
                             </div>
@@ -549,23 +551,13 @@ export function JobCard({ job, view }: JobCardProps) {
     );
 }
 
-function MetaPill({
-    icon,
-    label,
-    value,
-    strong,
-}: {
-    icon: ReactNode;
-    label: string;
-    value: string;
-    strong?: boolean;
-}) {
+function InfoBadge({ icon, label, value, strong }: { icon: ReactNode; label: string; value: string | ReactNode; strong?: boolean }) {
     return (
-        <div className="min-w-0 rounded-lg bg-muted border border-border/60 px-3 py-2 flex items-center gap-2">
+        <div className="min-w-0 flex items-center gap-2 py-1">
             <span className="shrink-0">{icon}</span>
             <span className="min-w-0">
-                <span className="block text-[10px] uppercase tracking-wide text-muted-foreground/60 font-semibold">{label}</span>
-                <span className={cn("block truncate text-xs text-foreground/80", strong && "font-bold text-emerald-600")}>{value}</span>
+                <span className="block text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold">{label}</span>
+                <span className={cn("block truncate text-[13px] font-medium text-foreground/80", strong && "font-bold text-teal-600")}>{value}</span>
             </span>
         </div>
     );

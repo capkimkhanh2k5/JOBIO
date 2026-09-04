@@ -183,7 +183,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                 <div className="flex items-start gap-4">
                                     <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-border bg-card p-2 shadow-sm">
                                         {app.logo_url ? (
-                                            <img src={app.logo_url} alt={app.company} className="h-full w-full object-contain" />
+                                            <img loading="lazy" src={app.logo_url} alt={app.company} className="h-full w-full object-contain" />
                                         ) : (
                                             <Building2 className="h-7 w-7 text-muted-foreground/40" />
                                         )}

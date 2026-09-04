@@ -88,7 +88,7 @@ export default function ManageJobs() {
             companyService.listMyJobs({
                 ordering: '-posted_at',
                 page: 1,
-                page_size: 1000,
+                page_size: 100,
             }).then(r => r.data),
         staleTime: 30_000,
         enabled: !!user?.company_id,

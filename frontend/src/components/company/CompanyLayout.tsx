@@ -3,6 +3,7 @@ import { Header } from '@/components/layout/Header';
 import { CompanySidebar } from './CompanySidebar';
 import { ScrollProgress } from '@/components/shared/ScrollProgress';
 import { MiniFooter } from '@/components/layout/MiniFooter';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 
 /**
  * CompanyLayout – wraps all /company/* routes.
@@ -18,7 +19,7 @@ export function CompanyLayout() {
 
             <Header />
             {/* pt to offset fixed header */}
-            <div className="flex flex-1 pt-[84px]">
+            <div className="flex flex-1 pt-[84px] pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
                 <CompanySidebar />
                 <main className="flex-1 flex flex-col min-w-0 w-full dashboard-surface">
                     <div className="flex-1 w-full">
@@ -29,6 +30,7 @@ export function CompanyLayout() {
                     </div>
                 </main>
             </div>
+            <MobileBottomNav />
         </div>
     );
 }

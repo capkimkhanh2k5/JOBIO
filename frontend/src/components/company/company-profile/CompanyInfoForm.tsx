@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loader2, UploadCloud, Building2, MapPin, Globe, Calendar, FileText, Image as ImageIcon, ChevronDown } from 'lucide-react';
@@ -226,7 +226,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
             <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
                 <div className="relative w-full h-44 sm:h-52 bg-gradient-to-r from-teal-600/30 via-emerald-600/20 to-teal-800/40 border-b border-border/50 group" aria-busy={isUploadingBanner}>
                     {bannerImageUrl ? (
-                        <img
+                        <img loading="lazy"
                             src={bannerImageUrl}
                             alt="Banner"
                             className={`h-full w-full object-cover transition-all duration-300 ${isUploadingBanner ? 'opacity-60 blur-[1px]' : ''}`}
@@ -248,7 +248,7 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                     <div className="flex items-end gap-4">
                         <div className="relative group w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-card border-4 border-card shadow-xl flex items-center justify-center shrink-0" aria-busy={isUploadingLogo}>
                             {logoImageUrl ? (
-                                <img src={logoImageUrl} alt="Logo" className={`w-full h-full object-contain p-2 transition-all ${isUploadingLogo ? 'opacity-50 blur-[1px]' : ''}`} />
+                                <img loading="lazy" src={logoImageUrl} alt="Logo" className={`w-full h-full object-contain p-2 transition-all ${isUploadingLogo ? 'opacity-50 blur-[1px]' : ''}`} />
                             ) : (
                                 <div className="p-3 bg-muted rounded-xl">
                                     <Building2 className="w-10 h-10 text-muted-foreground/40" />
@@ -279,18 +279,18 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
             </Card>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 bg-card border border-border/60 shadow-sm rounded-3xl p-6 md:p-8">
                     {/* Brand Info Card */}
-                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
-                        <CardHeader className="p-5 pb-3">
-                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                    <div>
+                        <div className="pb-3">
+                            <h3 className="flex items-center gap-2.5 text-base font-black text-foreground">
                                 <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
                                     <Building2 className="w-4 h-4" />
                                 </div>
                                 Thông tin thương hiệu & Quy mô
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="company_name"
@@ -442,20 +442,21 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                     </FormItem>
                                 )}
                             />
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
+                    <div className="h-px w-full bg-border/40 my-2" />
 
                     {/* Address Card */}
-                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
-                        <CardHeader className="p-5 pb-3">
-                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                    <div>
+                        <div className="pb-3">
+                            <h3 className="flex items-center gap-2.5 text-base font-black text-foreground">
                                 <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
                                     <MapPin className="w-4 h-4" />
                                 </div>
                                 Địa chỉ & Trụ sở chính
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-5 pt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="province_id"
@@ -519,20 +520,21 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                     </FormItem>
                                 )}
                             />
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
+                    <div className="h-px w-full bg-border/40 my-2" />
 
                     {/* About & Culture Card */}
-                    <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
-                        <CardHeader className="p-5 pb-3">
-                            <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                    <div>
+                        <div className="pb-3">
+                            <h3 className="flex items-center gap-2.5 text-base font-black text-foreground">
                                 <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600">
                                     <FileText className="w-4 h-4" />
                                 </div>
                                 Giới thiệu & Văn hóa Doanh nghiệp
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-5 pt-0">
+                            </h3>
+                        </div>
+                        <div className="pt-2">
                             <FormField
                                 control={form.control}
                                 name="description"
@@ -549,8 +551,9 @@ export function CompanyInfoForm({ company, industries }: CompanyInfoFormProps) {
                                     </FormItem>
                                 )}
                             />
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
+                    <div className="h-px w-full bg-border/40 my-2" />
 
                     <div className="flex items-center justify-end gap-3 pt-2">
                         <Button

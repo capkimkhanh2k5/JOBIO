@@ -90,7 +90,7 @@ export function AdminSidebar() {
                 <Logo
                     to="/"
                     imageClassName="h-9 w-auto object-contain drop-shadow"
-                    textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-500 tracking-tighter"
+                    textClassName="text-xl font-black text-teal-600 tracking-tighter"
                 />
             </div>
 

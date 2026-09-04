@@ -30,7 +30,7 @@ export default function ManageCandidates() {
         queryKey: ['company-candidates', filters.jobId],
         queryFn: () => applicationService.list({
             ordering: '-applied_at',
-            page_size: 1000,
+            page_size: 100,
         } as any).then(r => r.data),
     });
     const rawApplications = applicationsRes?.results ?? [];

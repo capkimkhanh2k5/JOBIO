@@ -428,7 +428,7 @@ export default function Pricing() {
                                 const isCurrentTier = currentRank > 0 && currentTierKey === tier.key;
                                 const isUpgrade = currentRank > 0 && cardRank > currentRank;
                                 const isDowngrade = currentRank > 0 && cardRank < currentRank;
-                                const isExactActivePlan = activePlan?.id === plan?.id;
+                                
 
                                 return (
                                     <FadeIn key={tier.key} delay={i * 0.1}>

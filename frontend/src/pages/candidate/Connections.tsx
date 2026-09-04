@@ -114,14 +114,14 @@ export default function Connections() {
                                     </div>
                                 ) : isConnectionsError ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-muted-foreground/40" />}
+                                        icon={Users}
                                         title="Tính năng kết nối chưa hoạt động"
-                                        description="Backend hiện chưa trả dữ liệu danh sách kết nối cho candidate. Phần UI đã có, nhưng API kết nối chưa sẵn sàng."
+                                        description="Tính năng đang được phát triển."
                                         action={{ label: "Xem gợi ý tạm thời", onClick: () => setActiveTab('suggestions') }}
                                     />
                                 ) : connectionsData?.connections?.length === 0 ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-muted-foreground/40" />}
+                                        icon={Users}
                                         title="Chưa có kết nối nào"
                                         description="Bắt đầu kết nối với các Candidate và ứng viên khác để mở rộng mạng lưới của bạn."
                                         action={{ label: "Khám phá gợi ý", onClick: () => setActiveTab('suggestions') }}
@@ -155,13 +155,13 @@ export default function Connections() {
                                     </div>
                                 ) : isPendingError ? (
                                     <EmptyState
-                                        icon={<UserPlus className="w-12 h-12 text-muted-foreground/40" />}
+                                        icon={UserPlus}
                                         title="Chưa tải được lời mời"
                                         description="API lời mời kết nối hiện chưa sẵn sàng hoặc đang lỗi."
                                     />
                                 ) : pendingData?.results?.length === 0 ? (
                                     <EmptyState
-                                        icon={<UserPlus className="w-12 h-12 text-muted-foreground/40" />}
+                                        icon={UserPlus}
                                         title="Không có lời mời nào"
                                         description="Bạn không có lời mời kết nối nào đang chờ xử lý."
                                     />
@@ -190,7 +190,7 @@ export default function Connections() {
                                     </div>
                                 ) : effectiveSuggestions?.length === 0 ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-muted-foreground/40" />}
+                                        icon={Users}
                                         title={isSuggestionsError ? "Chưa có dữ liệu gợi ý" : "Không tìm thấy gợi ý"}
                                         description={isSuggestionsError
                                             ? "API gợi ý kết nối chưa có sẵn và hệ thống cũng chưa tìm được candidate phù hợp để hiển thị tạm thời."

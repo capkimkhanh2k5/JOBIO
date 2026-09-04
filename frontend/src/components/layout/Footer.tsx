@@ -66,7 +66,7 @@ export const Footer = () => (
                                 style={{ fontFamily: 'var(--font-display)' }}
                             >
                                 Sẵn sàng kết nối với
-                                <span className="bg-gradient-to-r from-teal-300 to-emerald-300 bg-clip-text text-transparent"> cơ hội mới</span>?
+                                <span className="text-teal-300"> cơ hội mới</span>?
                             </h3>
                             <p className="text-white/80 text-xs sm:text-sm font-normal leading-relaxed">
                                 Hàng nghìn vị trí đang chờ bạn trên JOBIO — nền tảng tuyển dụng hàng đầu Việt Nam.
@@ -109,7 +109,7 @@ export const Footer = () => (
                         <Logo
                             to="/"
                             imageClassName="h-7 w-auto object-contain drop-shadow"
-                            textClassName="text-xl font-black bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent"
+                            textClassName="text-xl font-black text-teal-300"
                         />
                         <p className="text-white/40 text-xs leading-relaxed max-w-xs font-light">
                             Nền tảng tuyển dụng hàng đầu Việt Nam — kết nối ứng viên tài năng với doanh nghiệp hàng đầu mỗi ngày.

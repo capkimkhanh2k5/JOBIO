@@ -51,7 +51,7 @@ export function CompanyFollowersTab({ companyId }: Props) {
                         className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-border/60 shadow-sm hover:border-border hover:shadow transition-all"
                     >
                         {follower.avatar_url ? (
-                            <img
+                            <img loading="lazy"
                                 src={follower.avatar_url}
                                 alt={follower.full_name}
                                 className="h-10 w-10 rounded-full object-cover border border-border shrink-0"

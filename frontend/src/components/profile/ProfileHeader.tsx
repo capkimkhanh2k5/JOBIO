@@ -223,19 +223,19 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
                     </div>
                 </div>
 
-                <div className="relative z-10 mt-6 w-full bg-[#F5F5F7]/80 backdrop-blur-xl border border-black/[0.03] shadow-sm p-4 sm:p-5 rounded-2xl sm:rounded-[24px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:shadow-md hover:bg-[#F5F5F7]">
+                <div className="relative z-10 mt-6 w-full bg-muted/80 backdrop-blur-xl border border-black/[0.03] shadow-sm p-4 sm:p-5 rounded-2xl sm:rounded-[24px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:shadow-md hover:bg-muted">
                     <div className="flex-1 pr-0 sm:pr-8">
                         <Label className="text-xs font-bold uppercase tracking-[0.15em] text-teal-600 mb-2 flex items-center gap-1.5">
                             <Sparkles className="w-4 h-4" />
                             Hoàn thiện nhanh
                         </Label>
-                        <p className="text-[14px] text-[#86868b] leading-[1.5] font-medium tracking-tight">
+                        <p className="text-[14px] text-muted-foreground leading-[1.5] font-medium tracking-tight">
                             Upload CV (PDF) để AI tự động trích xuất và điền toàn bộ thông tin cá nhân, học vấn và kinh nghiệm vào hồ sơ của bạn.
                         </p>
                     </div>
                     <button
                         onClick={() => setIsCVDialogOpen(true)}
-                        className="shrink-0 flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-[#5E5CE6] text-white hover:bg-[#5351CC] hover:shadow-lg active:scale-[0.96]"
+                        className="shrink-0 flex items-center justify-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold cursor-pointer transition-all duration-300 bg-primary text-white hover:bg-primary/90 hover:shadow-lg active:scale-[0.96]"
                         id="cv-autofill-btn"
                     >
                         <div className="p-1.5 bg-card/20 backdrop-blur-sm rounded-lg shrink-0">

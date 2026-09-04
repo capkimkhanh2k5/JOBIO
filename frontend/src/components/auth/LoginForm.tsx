@@ -121,7 +121,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                                     <FormLabel>Mật khẩu</FormLabel>
                                     <Button
                                         variant="link"
-                                        className="p-0 h-auto text-sm text-primary hover:text-primary hover:no-underline font-semibold transition-colors"
+                                        className="p-2 -mx-2 h-auto text-sm text-primary hover:text-primary hover:no-underline font-semibold transition-colors"
                                         onClick={onForgotPassword}
                                         type="button"
                                         tabIndex={-1}
@@ -191,7 +191,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
                 Chưa có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
+                    className="p-2 -mx-2 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToRegister}
                 >
                     Đăng ký ngay

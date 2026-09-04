@@ -158,7 +158,7 @@ export const Header = () => {
                                     "w-auto object-contain drop-shadow-md transition-all duration-500",
                                     isScrolled ? "h-9" : "h-10"
                                 )}
-                                textClassName="text-2xl lg:text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-500 tracking-tighter transition-all duration-500"
+                                textClassName="text-2xl lg:text-3xl font-black text-teal-600 tracking-tighter transition-all duration-500"
                             />
 
                             {/* Desktop Navigation — editorial uppercase with gold underline hover */}
@@ -399,7 +399,7 @@ export const Header = () => {
                         <div className="flex items-center justify-between p-5 border-b border-border/40">
                             <Logo
                                 imageClassName="h-9 w-auto object-contain"
-                                textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-emerald-500 tracking-tighter"
+                                textClassName="text-xl font-black text-teal-600 tracking-tighter"
                             />
                             <Button
                                 variant="ghost"
