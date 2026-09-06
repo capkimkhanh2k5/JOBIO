@@ -648,7 +648,7 @@ class DownloadPdfTest(TestCase):
 
         pdf_bytes = _build_test_cv_bytes()
         with patch("requests.get", return_value=FakeResponse(pdf_bytes)) as mock_get:
-            result = _download_pdf("https://res.cloudinary.com/demo/raw/upload/cv.pdf")
+            result = _download_pdf("https://res.cloudinary.com/demo/image/upload/cv.pdf")
 
         self.assertEqual(result, pdf_bytes)
         self.assertTrue(mock_get.call_args.kwargs["stream"])
@@ -657,7 +657,7 @@ class DownloadPdfTest(TestCase):
         from apps.candidate.recruiter_cvs.tasks import _download_pdf
 
         with self.assertRaisesMessage(ValueError, "cv_url_host_not_allowed"):
-            _download_pdf("http://res.cloudinary.com/demo/raw/upload/cv.pdf")
+            _download_pdf("http://res.cloudinary.com/demo/image/upload/cv.pdf")
 
         with self.assertRaisesMessage(ValueError, "cv_url_host_not_allowed"):
             _download_pdf("https://example.com/cv.pdf")
@@ -672,11 +672,11 @@ class DownloadPdfTest(TestCase):
             ),
         ):
             with self.assertRaisesMessage(ValueError, "pdf_too_large"):
-                _download_pdf("https://res.cloudinary.com/demo/raw/upload/cv.pdf")
+                _download_pdf("https://res.cloudinary.com/demo/image/upload/cv.pdf")
 
         with patch("requests.get", return_value=FakeResponse(b"not pdf")):
             with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
-                _download_pdf("https://res.cloudinary.com/demo/raw/upload/cv.pdf")
+                _download_pdf("https://res.cloudinary.com/demo/image/upload/cv.pdf")
 
 
 class SilentParseTaskTest(TestCase):
@@ -690,7 +690,7 @@ class SilentParseTaskTest(TestCase):
         self.cv = RecruiterCV.objects.create(
             recruiter=self.recruiter,
             cv_name="Uploaded CV",
-            cv_url="https://res.cloudinary.com/demo/raw/upload/cv.pdf",
+            cv_url="https://res.cloudinary.com/demo/image/upload/cv.pdf",
             cv_data={},
         )
 
@@ -768,12 +768,12 @@ class UploadCvPdfServiceTest(TestCase):
 
     @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs._dispatch_cv_parse")
     @patch(
-        "apps.candidate.recruiter_cvs.services.recruiter_cvs.save_raw_file",
-        return_value="https://res.cloudinary.com/demo/raw/upload/cv.pdf",
+        "apps.candidate.recruiter_cvs.services.recruiter_cvs.cloudinary.uploader.upload",
+        return_value={"secure_url": "https://res.cloudinary.com/demo/image/upload/cv.pdf"},
     )
     def test_upload_validates_pdf_saves_url_and_dispatches_background_task(
         self,
-        mock_save_raw_file,
+        mock_cloudinary.uploader.upload,
         mock_dispatch,
     ):
         from apps.candidate.recruiter_cvs.services.recruiter_cvs import upload_cv_pdf
@@ -789,12 +789,12 @@ class UploadCvPdfServiceTest(TestCase):
 
         self.assertEqual(cv.cv_name, "alex-cv")
         self.assertEqual(cv.cv_data, {})
-        self.assertEqual(cv.cv_url, "https://res.cloudinary.com/demo/raw/upload/cv.pdf")
-        mock_save_raw_file.assert_called_once()
+        self.assertEqual(cv.cv_url, "https://res.cloudinary.com/demo/image/upload/cv.pdf")
+        mock_cloudinary.uploader.upload.assert_called_once()
         mock_dispatch.assert_called_once_with(cv.id)
 
-    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs.save_raw_file")
-    def test_upload_rejects_non_pdf_before_cloudinary_upload(self, mock_save_raw_file):
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs.cloudinary.uploader.upload")
+    def test_upload_rejects_non_pdf_before_cloudinary_upload(self, mock_cloudinary.uploader.upload):
         from apps.candidate.recruiter_cvs.services.recruiter_cvs import upload_cv_pdf
 
         uploaded_file = SimpleUploadedFile(
@@ -806,7 +806,7 @@ class UploadCvPdfServiceTest(TestCase):
         with self.assertRaisesMessage(ValueError, "invalid_pdf_magic"):
             upload_cv_pdf(self.recruiter, uploaded_file)
 
-        mock_save_raw_file.assert_not_called()
+        mock_cloudinary.uploader.upload.assert_not_called()
 
     @override_settings(
         CLOUDINARY_STORAGE={
@@ -856,7 +856,7 @@ class UploadCvPdfServiceTest(TestCase):
         )
 
         public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'a' * 32}"
-        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
+        secure_url = f"https://res.cloudinary.com/demo/image/upload/v123/{public_id}.pdf"
         mock_download.return_value = _build_test_cv_bytes()
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -865,7 +865,7 @@ class UploadCvPdfServiceTest(TestCase):
                 {
                     "public_id": public_id,
                     "secure_url": secure_url,
-                    "resource_type": "raw",
+                    "resource_type": "image",
                     "bytes": 12345,
                 },
                 "alex-cv.pdf",
@@ -898,7 +898,7 @@ class UploadCvPdfServiceTest(TestCase):
         )
 
         public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'b' * 32}.pdf"
-        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}"
+        secure_url = f"https://res.cloudinary.com/demo/image/upload/v123/{public_id}"
         mock_download.return_value = _build_test_cv_bytes()
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -907,7 +907,7 @@ class UploadCvPdfServiceTest(TestCase):
                 {
                     "public_id": public_id,
                     "secure_url": secure_url,
-                    "resource_type": "raw",
+                    "resource_type": "image",
                     "bytes": 12345,
                 },
                 "alex-cv.pdf",
@@ -941,8 +941,8 @@ class UploadCvPdfServiceTest(TestCase):
                 self.recruiter,
                 {
                     "public_id": f"Jobio/CVs/cv_upload_999_{'a' * 32}",
-                    "secure_url": "https://res.cloudinary.com/demo/raw/upload/v123/file.pdf",
-                    "resource_type": "raw",
+                    "secure_url": "https://res.cloudinary.com/demo/image/upload/v123/file.pdf",
+                    "resource_type": "image",
                     "bytes": 12345,
                 },
                 "alex-cv.pdf",
@@ -975,10 +975,10 @@ class UploadCvPdfServiceTest(TestCase):
                 {
                     "public_id": public_id,
                     "secure_url": (
-                        "https://res.cloudinary.com/other-cloud/raw/upload/v123/"
+                        "https://res.cloudinary.com/other-cloud/image/upload/v123/"
                         f"{public_id}.pdf"
                     ),
-                    "resource_type": "raw",
+                    "resource_type": "image",
                     "bytes": 12345,
                 },
                 "alex-cv.pdf",
@@ -1010,7 +1010,7 @@ class UploadCvPdfServiceTest(TestCase):
         )
 
         public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'c' * 32}"
-        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
+        secure_url = f"https://res.cloudinary.com/demo/image/upload/v123/{public_id}.pdf"
         mock_download.side_effect = ValueError("download failed")
 
         with self.assertRaisesMessage(ValueError, "download failed"):
@@ -1019,7 +1019,7 @@ class UploadCvPdfServiceTest(TestCase):
                 {
                     "public_id": public_id,
                     "secure_url": secure_url,
-                    "resource_type": "raw",
+                    "resource_type": "image",
                     "bytes": 12345,
                 },
                 "alex-cv.pdf",
@@ -1038,19 +1038,19 @@ class UploadCvPdfTransactionBoundaryTest(TransactionTestCase):
         self.recruiter = Recruiter.objects.create(user=self.user)
 
     @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs._dispatch_cv_parse")
-    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs.save_raw_file")
+    @patch("apps.candidate.recruiter_cvs.services.recruiter_cvs.cloudinary.uploader.upload")
     def test_upload_does_not_hold_transaction_during_cloudinary_upload(
-        self, mock_save_raw_file, mock_dispatch
+        self, mock_cloudinary.uploader.upload, mock_dispatch
     ):
         from apps.candidate.recruiter_cvs.services.recruiter_cvs import upload_cv_pdf
 
         in_atomic_during_upload = []
 
-        def fake_save_raw_file(*args, **kwargs):
+        def fake_cloudinary.uploader.upload(*args, **kwargs):
             in_atomic_during_upload.append(connection.in_atomic_block)
-            return "https://res.cloudinary.com/demo/raw/upload/cv.pdf"
+            return {"secure_url": "https://res.cloudinary.com/demo/image/upload/cv.pdf"}
 
-        mock_save_raw_file.side_effect = fake_save_raw_file
+        mock_cloudinary.uploader.upload.side_effect = fake_cloudinary.uploader.upload
         uploaded_file = SimpleUploadedFile(
             "alex-cv.pdf",
             _build_test_cv_bytes(),
@@ -1060,7 +1060,7 @@ class UploadCvPdfTransactionBoundaryTest(TransactionTestCase):
         cv = upload_cv_pdf(self.recruiter, uploaded_file)
 
         self.assertEqual(in_atomic_during_upload, [False])
-        self.assertEqual(cv.cv_url, "https://res.cloudinary.com/demo/raw/upload/cv.pdf")
+        self.assertEqual(cv.cv_url, "https://res.cloudinary.com/demo/image/upload/cv.pdf")
         mock_dispatch.assert_called_once_with(cv.id)
 
     @override_settings(
@@ -1088,7 +1088,7 @@ class UploadCvPdfTransactionBoundaryTest(TransactionTestCase):
             return _build_test_cv_bytes()
 
         public_id = f"Jobio/CVs/cv_upload_{self.recruiter.id}_{'d' * 32}"
-        secure_url = f"https://res.cloudinary.com/demo/raw/upload/v123/{public_id}.pdf"
+        secure_url = f"https://res.cloudinary.com/demo/image/upload/v123/{public_id}.pdf"
         mock_download.side_effect = fake_download
 
         cv = create_cv_from_direct_upload(
@@ -1096,7 +1096,7 @@ class UploadCvPdfTransactionBoundaryTest(TransactionTestCase):
             {
                 "public_id": public_id,
                 "secure_url": secure_url,
-                "resource_type": "raw",
+                "resource_type": "image",
                 "bytes": 12345,
             },
             "alex-cv.pdf",

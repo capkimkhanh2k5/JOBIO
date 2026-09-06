@@ -9,12 +9,12 @@ export function MiniFooter() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="w-full mt-auto border-t border-border/60 bg-[var(--brand-warm-surface)]/50 py-4 px-6 dark:bg-[oklch(0.06_0.025_175)]/50 dark:border-white/8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground/60">
+        <footer className="w-full mt-auto border-t border-border/40 bg-background/95 backdrop-blur-sm py-4 px-6 dark:bg-card/80 dark:border-white/10">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5 font-medium">
-                    <span className="text-foreground/70 dark:text-white/50">© {currentYear} JOBIO</span>
-                    <span className="text-border">·</span>
-                    <span>Bản quyền thuộc về JOBIO.</span>
+                    <span className="text-slate-800 font-semibold dark:text-white/90">© {currentYear} JOBIO</span>
+                    <span className="text-slate-400 mx-1">·</span>
+                    <span className="text-muted-foreground">Bản quyền thuộc về JOBIO.</span>
                 </div>
 
                 <nav className="flex items-center gap-5">

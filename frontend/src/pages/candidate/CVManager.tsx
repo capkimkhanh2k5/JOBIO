@@ -144,7 +144,7 @@ export default function CVManager() {
 
             updateMutation.mutate({ 
                 cv_name: finalCvName, 
-                template_id: finalTemplateId, 
+                template_id: finalTemplateId ? Number(finalTemplateId) : null, 
                 cv_data: finalCvData 
             });
         }, 500);
@@ -229,7 +229,7 @@ export default function CVManager() {
         setAutoSaveStatus('saving');
         await updateMutation.mutateAsync({
             cv_name: cvName,
-            template_id: selectedTemplateId,
+            template_id: selectedTemplateId ? Number(selectedTemplateId) : null,
             cv_data: cvData,
         });
     };

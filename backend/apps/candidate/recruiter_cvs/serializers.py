@@ -15,9 +15,7 @@ class RecruiterCVListSerializer(serializers.ModelSerializer):
     template_name = serializers.CharField(
         source="template.name", read_only=True, allow_null=True
     )
-    thumbnail_url = serializers.URLField(
-        source="template.thumbnail_url", read_only=True, allow_null=True
-    )
+    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = RecruiterCV
@@ -52,6 +50,16 @@ class RecruiterCVListSerializer(serializers.ModelSerializer):
     def get_cv_url(self, obj) -> str | None:
         return self.get_cv_file_url(obj)
 
+    def get_thumbnail_url(self, obj) -> str | None:
+        if obj.template_id and hasattr(obj.template, "thumbnail_url"):
+            return obj.template.thumbnail_url
+        if obj.cv_url and "/image/upload/" in obj.cv_url and obj.cv_url.lower().endswith(".pdf"):
+            url_parts = obj.cv_url.split('/upload/')
+            if len(url_parts) == 2:
+                path = url_parts[1].rsplit('.', 1)[0] + '.jpg'
+                return f"{url_parts[0]}/upload/w_300,c_fill,pg_1/{path}"
+        return None
+
 
 class RecruiterCVDetailSerializer(serializers.ModelSerializer):
     """
@@ -60,6 +68,7 @@ class RecruiterCVDetailSerializer(serializers.ModelSerializer):
 
     cv_url = serializers.SerializerMethodField()
     cv_file_url = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
     template = CVTemplateListSerializer(read_only=True)
 
     class Meta:
@@ -68,6 +77,7 @@ class RecruiterCVDetailSerializer(serializers.ModelSerializer):
             "id",
             "cv_name",
             "template",
+            "thumbnail_url",
             "cv_data",
             "cv_url",
             "cv_file_url",
@@ -93,6 +103,16 @@ class RecruiterCVDetailSerializer(serializers.ModelSerializer):
 
     def get_cv_url(self, obj) -> str | None:
         return self.get_cv_file_url(obj)
+        
+    def get_thumbnail_url(self, obj) -> str | None:
+        if obj.template_id and hasattr(obj.template, "thumbnail_url"):
+            return obj.template.thumbnail_url
+        if obj.cv_url and "/image/upload/" in obj.cv_url and obj.cv_url.lower().endswith(".pdf"):
+            url_parts = obj.cv_url.split('/upload/')
+            if len(url_parts) == 2:
+                path = url_parts[1].rsplit('.', 1)[0] + '.jpg'
+                return f"{url_parts[0]}/upload/w_300,c_fill,pg_1/{path}"
+        return None
 
 
 class RecruiterCVCreateSerializer(serializers.ModelSerializer):
