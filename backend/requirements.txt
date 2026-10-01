@@ -27,7 +27,7 @@ celery[redis]>=5.3.0
 
 # Real-time (WebSocket + SSE)
 channels>=4.0.0
-channels-redis>=4.2.0
+channels-redis>=4.3.0
 daphne>=4.1.0
 django-eventstream>=5.3.0
 redis>=5.0.0
