@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from pydantic import BaseModel, EmailStr
 from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from django.core.cache import cache
@@ -18,6 +19,25 @@ from ..models import CustomUser
 import string
 from apps.email.services import EmailService
 from . import social_auth
+
+
+GENERIC_LOGIN_ERROR = "Email hoặc mật khẩu không đúng"
+REGISTRATION_OTP_TIMEOUT_SECONDS = 5 * 60
+REGISTRATION_OTP_MAX_ATTEMPTS = 5
+PASSWORD_RESET_TIMEOUT_SECONDS = 10 * 60
+PASSWORD_RESET_MAX_ATTEMPTS = 5
+PASSWORD_RESET_REQUEST_TIMEOUT_SECONDS = 60 * 60
+PASSWORD_RESET_REQUEST_MAX_ATTEMPTS = 3
+PASSWORD_RESET_REQUEST_LIMIT_ERROR = (
+    "Bạn đã yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau."
+)
+TWO_FACTOR_CHALLENGE_TIMEOUT_SECONDS = 5 * 60
+TWO_FACTOR_MAX_ATTEMPTS = 5
+LOGIN_ACCOUNT_LOCKOUT_TIMEOUT_SECONDS = 60 * 60
+LOGIN_ACCOUNT_LOCKOUT_MAX_ATTEMPTS = 10
+LOGIN_ACCOUNT_LOCKOUT_ERROR = (
+    "Tài khoản tạm thời bị khóa do đăng nhập sai quá nhiều lần. Vui lòng thử lại sau."
+)
 
 
 # Input Models
@@ -69,6 +89,146 @@ def generate_tokens(
         "refresh_token": str(refresh),
         "user": user,
     }
+
+
+def _normalize_public_role(role: str | None) -> str:
+    return "company" if role == CustomUser.Role.COMPANY else CustomUser.Role.CANDIDATE
+
+
+def _registration_otp_cache_key(email: str) -> str:
+    return f"reg_otp_{str(email).lower()}"
+
+
+def _registration_otp_attempts_key(email: str) -> str:
+    return f"reg_otp_attempts_{str(email).lower()}"
+
+
+def _password_reset_attempts_key(user_id: int) -> str:
+    return f"password_reset_attempts_{user_id}"
+
+
+def _password_reset_request_key(email: str) -> str:
+    return f"password_reset_requests_{_normalize_login_email(email)}"
+
+
+def _normalize_login_email(email: str) -> str:
+    return str(email or "").strip().lower()
+
+
+def _login_failure_cache_key(email: str) -> str:
+    return f"login_failures_{_normalize_login_email(email)}"
+
+
+def _login_lock_cache_key(email: str) -> str:
+    return f"login_lock_{_normalize_login_email(email)}"
+
+
+def _two_factor_attempts_key(identifier: str) -> str:
+    return f"two_factor_attempts_{identifier}"
+
+
+def _verify_otp_hash(stored_value: str | None, otp: str) -> bool:
+    if not stored_value:
+        return False
+    stored = str(stored_value)
+    if "$" in stored or stored.startswith("pbkdf2_"):
+        try:
+            return check_password(str(otp), stored)
+        except Exception:
+            pass
+    return secrets.compare_digest(stored, str(otp))
+
+
+def _increment_attempts(
+    cache_key: str,
+    timeout: int,
+    max_attempts: int,
+    error_message: str = "Quá nhiều lần thử. Vui lòng yêu cầu mã mới.",
+) -> None:
+    try:
+        cache.add(cache_key, 0, timeout=timeout)
+        attempts = cache.incr(cache_key)
+        try:
+            cache.touch(cache_key, timeout=timeout)
+        except Exception:
+            pass
+    except (ValueError, NotImplementedError):
+        attempts = cache.get(cache_key, 0) + 1
+        cache.set(cache_key, attempts, timeout=timeout)
+
+    if attempts > max_attempts:
+        raise AuthenticationError(error_message)
+
+
+def _assert_login_not_locked(email: str) -> None:
+    if cache.get(_login_lock_cache_key(email)):
+        raise AuthenticationError(LOGIN_ACCOUNT_LOCKOUT_ERROR)
+
+
+def _send_login_lockout_notice(user: CustomUser) -> None:
+    EmailService.send_email(
+        recipient=user.email,
+        subject="[JOBIO] Cảnh báo đăng nhập thất bại nhiều lần",
+        body=(
+            "JOBIO phát hiện nhiều lần đăng nhập thất bại vào tài khoản của bạn. "
+            "Tài khoản đã được khóa tạm thời trong 1 giờ để bảo vệ an toàn."
+        ),
+    )
+
+
+def _record_login_failure(email: str, user: CustomUser | None = None) -> None:
+    attempts_key = _login_failure_cache_key(email)
+    try:
+        cache.add(attempts_key, 0, timeout=LOGIN_ACCOUNT_LOCKOUT_TIMEOUT_SECONDS)
+        attempts = cache.incr(attempts_key)
+        try:
+            cache.touch(attempts_key, timeout=LOGIN_ACCOUNT_LOCKOUT_TIMEOUT_SECONDS)
+        except Exception:
+            pass
+    except (ValueError, NotImplementedError):
+        attempts = cache.get(attempts_key, 0) + 1
+        cache.set(
+            attempts_key,
+            attempts,
+            timeout=LOGIN_ACCOUNT_LOCKOUT_TIMEOUT_SECONDS,
+        )
+
+    if attempts >= LOGIN_ACCOUNT_LOCKOUT_MAX_ATTEMPTS:
+        cache.set(
+            _login_lock_cache_key(email),
+            True,
+            timeout=LOGIN_ACCOUNT_LOCKOUT_TIMEOUT_SECONDS,
+        )
+        cache.delete(attempts_key)
+        if user:
+            _send_login_lockout_notice(user)
+        raise AuthenticationError(LOGIN_ACCOUNT_LOCKOUT_ERROR)
+
+
+def _clear_login_failures(email: str) -> None:
+    cache.delete(_login_failure_cache_key(email))
+    cache.delete(_login_lock_cache_key(email))
+
+
+def _create_2fa_challenge(user: CustomUser, remember_me: bool = False) -> dict:
+    challenge_id = secrets.token_urlsafe(32)
+    cache.set(
+        f"login_2fa_{challenge_id}",
+        {"user_id": user.id, "remember_me": bool(remember_me)},
+        timeout=TWO_FACTOR_CHALLENGE_TIMEOUT_SECONDS,
+    )
+    return {"requires_2fa": True, "challenge_id": challenge_id}
+
+
+def _issue_login_tokens(user: CustomUser, remember_me: bool = False) -> dict:
+    user.last_login = timezone.now()
+    user.save(update_fields=["last_login"])
+    refresh_lifetime = (
+        getattr(settings, "REMEMBER_ME_REFRESH_TOKEN_LIFETIME", timedelta(days=7))
+        if remember_me
+        else None
+    )
+    return generate_tokens(user, refresh_lifetime=refresh_lifetime)
 
 
 def verify_social_token(provider: str, token: str) -> dict:
@@ -136,6 +296,8 @@ def social_login(
     Raises:
         SocialAuthError subclasses for various error conditions.
     """
+    normalized_role = _normalize_public_role(role)
+
     with transaction.atomic():
         # 1. Verify social token (adapter-first with legacy fallback for compatibility)
         profile_data = verify_social_token(provider, access_token)
@@ -202,7 +364,7 @@ def social_login(
                     full_name=profile_name or profile_email.split("@")[0],
                     social_provider=profile_provider,
                     social_id=profile_provider_id,
-                    role=role,  # Use the provided role
+                    role=normalized_role,
                 )
                 user.email_verified = True  # Social login = email verified
                 if profile_data.get("picture"):
@@ -210,7 +372,7 @@ def social_login(
                 user.save()
 
                 # Create profiles for new social user
-                if role == "company":
+                if normalized_role == "company":
                     # Use full_name as placeholder company_name if none provided
                     create_company(
                         user=user,
@@ -218,19 +380,17 @@ def social_login(
                             company_name=profile_name or profile_email.split("@")[0]
                         ),
                     )
-                elif role == "candidate":
+                elif normalized_role == "candidate":
                     Recruiter.objects.create(user=user)
 
         # 3. Check user status
         if user.status != "active":
             raise AuthenticationError("Tài khoản đã bị vô hiệu hóa.")
 
-        # 4. Update last_login
-        user.last_login = timezone.now()
-        user.save(update_fields=["last_login"])
-
-        # 5. Generate tokens
-        result = generate_tokens(user)
+        if user.two_factor_enabled:
+            result = _create_2fa_challenge(user)
+        else:
+            result = _issue_login_tokens(user)
         result["is_new_user"] = is_new_user
 
         return result
@@ -249,29 +409,33 @@ def login_user(data: LoginInput) -> dict:
     Raises:
         AuthenticationError nếu email/password sai
     """
+    email = _normalize_login_email(data.email)
+    _assert_login_not_locked(email)
+
     # Lấy user từ selector
-    user = get_user_by_email(email=data.email)
+    user = get_user_by_email(email=email)
 
     if not user:
-        raise AuthenticationError("Email không tồn tại")
+        _record_login_failure(email)
+        raise AuthenticationError(GENERIC_LOGIN_ERROR)
+
+    if not user.has_usable_password():
+        _record_login_failure(email, user=user)
+        raise AuthenticationError(GENERIC_LOGIN_ERROR)
 
     if not user.check_password(data.password):
-        raise AuthenticationError("Mật khẩu không đúng")
+        _record_login_failure(email, user=user)
+        raise AuthenticationError(GENERIC_LOGIN_ERROR)
+
+    _clear_login_failures(email)
 
     if user.status != "active":
         raise AuthenticationError("Tài khoản đã bị khóa")
 
-    # Update last_login
-    user.last_login = timezone.now()
-    user.save(update_fields=["last_login"])
+    if user.two_factor_enabled:
+        return _create_2fa_challenge(user, remember_me=data.remember_me)
 
-    refresh_lifetime = (
-        getattr(settings, "REMEMBER_ME_REFRESH_TOKEN_LIFETIME", timedelta(days=7))
-        if data.remember_me
-        else None
-    )
-
-    return generate_tokens(user, refresh_lifetime=refresh_lifetime)
+    return _issue_login_tokens(user, remember_me=data.remember_me)
 
 
 def logout_user(data: LogoutInput) -> bool:
@@ -307,8 +471,12 @@ def send_registration_otp(data: SendRegistrationOtpInput) -> bool:
     # Generate 6-digit OTP
     otp_code = "".join(secrets.choice(string.digits) for _ in range(6))
 
-    # Cache the OTP for 5 minutes (300 seconds)
-    cache.set(f"reg_otp_{data.email}", otp_code, timeout=300)
+    cache.set(
+        _registration_otp_cache_key(data.email),
+        make_password(otp_code),
+        timeout=REGISTRATION_OTP_TIMEOUT_SECONDS,
+    )
+    cache.delete(_registration_otp_attempts_key(data.email))
 
     # Send OTP Email
     EmailService.send_email(
@@ -330,12 +498,18 @@ def verify_registration_otp(data: VerifyRegistrationOtpInput) -> bool:
     Xác thực mã OTP 6 số do user nhập vào độc lập.
     Được dùng cho tính năng auto-verify trên giao diện.
     """
-    cached_otp = cache.get(f"reg_otp_{data.email}")
+    cached_otp = cache.get(_registration_otp_cache_key(data.email))
 
     if not cached_otp:
         raise AuthenticationError("Mã OTP đã hết hạn hoặc chưa được gửi.")
 
-    if str(cached_otp) != str(data.otp):
+    _increment_attempts(
+        _registration_otp_attempts_key(data.email),
+        REGISTRATION_OTP_TIMEOUT_SECONDS,
+        REGISTRATION_OTP_MAX_ATTEMPTS,
+    )
+
+    if not _verify_otp_hash(cached_otp, data.otp):
         raise AuthenticationError("Mã OTP không chính xác.")
 
     return True
@@ -370,13 +544,18 @@ def register_user(data: RegisterInput) -> dict:
 
         # Xác thực OTP nếu client gửi OTP (giữ tương thích với luồng cũ không OTP)
         if data.otp:
-            cached_otp = cache.get(f"reg_otp_{data.email}")
+            cached_otp = cache.get(_registration_otp_cache_key(data.email))
             if not cached_otp:
                 raise AuthenticationError("Mã xác thực đã hết hạn hoặc chưa được gửi!")
-            if str(cached_otp) != str(data.otp):
+            _increment_attempts(
+                _registration_otp_attempts_key(data.email),
+                REGISTRATION_OTP_TIMEOUT_SECONDS,
+                REGISTRATION_OTP_MAX_ATTEMPTS,
+            )
+            if not _verify_otp_hash(cached_otp, data.otp):
                 raise AuthenticationError("Mã xác thực không chính xác!")
 
-        normalized_role = data.role
+        normalized_role = _normalize_public_role(data.role)
 
         # Create new user
         user = CustomUser.objects.create_user(
@@ -410,7 +589,8 @@ def register_user(data: RegisterInput) -> dict:
 
         # Clean up OTP from cache
         if data.otp:
-            cache.delete(f"reg_otp_{data.email}")
+            cache.delete(_registration_otp_cache_key(data.email))
+            cache.delete(_registration_otp_attempts_key(data.email))
 
         # Return kết quả
         return generate_tokens(user)
@@ -437,10 +617,15 @@ class ConfirmSetPasswordInput(BaseModel):
 
 
 SET_PASSWORD_OTP_TIMEOUT_SECONDS = 10 * 60
+SET_PASSWORD_OTP_MAX_ATTEMPTS = 5
 
 
 def _set_password_cache_key(user_id: int) -> str:
     return f"set_password_otp_{user_id}"
+
+
+def _set_password_attempts_key(user_id: int) -> str:
+    return f"set_password_attempts_{user_id}"
 
 
 def forgot_password(data: ForgotPasswordInput) -> bool:
@@ -451,22 +636,29 @@ def forgot_password(data: ForgotPasswordInput) -> bool:
     Raises:
         AuthenticationError nếu email không tồn tại
     """
-    user = get_user_by_email(email=data.email)
+    email = _normalize_login_email(data.email)
+    _increment_attempts(
+        _password_reset_request_key(email),
+        PASSWORD_RESET_REQUEST_TIMEOUT_SECONDS,
+        PASSWORD_RESET_REQUEST_MAX_ATTEMPTS,
+        error_message=PASSWORD_RESET_REQUEST_LIMIT_ERROR,
+    )
+
+    user = get_user_by_email(email=email)
     if not user:
-        raise AuthenticationError("Email not found!")
+        return True
 
     if not user.has_usable_password():
-        raise AuthenticationError(
-            "Tai khoan nay chua co mat khau. Vui long dang nhap bang Google va dung chuc nang dat mat khau."
-        )
+        return True
 
     # Generate 6-digit OTP
     otp_code = "".join(secrets.choice(string.digits) for _ in range(6))
     reset_expires = timezone.now() + timedelta(minutes=10)
 
-    user.password_reset_token = otp_code
+    user.password_reset_token = make_password(otp_code)
     user.password_reset_expires = reset_expires
     user.save(update_fields=["password_reset_token", "password_reset_expires"])
+    cache.delete(_password_reset_attempts_key(user.id))
 
     # Send OTP Email
     send_ok = EmailService.send_email(
@@ -506,7 +698,13 @@ def reset_password(data: ResetPasswordInput) -> bool:
             "Tai khoan nay chua co mat khau. Vui long dang nhap bang Google va dung chuc nang dat mat khau."
         )
 
-    if str(user.password_reset_token or "") != str(data.otp):
+    _increment_attempts(
+        _password_reset_attempts_key(user.id),
+        PASSWORD_RESET_TIMEOUT_SECONDS,
+        PASSWORD_RESET_MAX_ATTEMPTS,
+    )
+
+    if not _verify_otp_hash(user.password_reset_token, data.otp):
         raise AuthenticationError("Mã OTP không chính xác!")
 
     if not user.password_reset_expires:
@@ -521,6 +719,7 @@ def reset_password(data: ResetPasswordInput) -> bool:
     user.save(
         update_fields=["password", "password_reset_token", "password_reset_expires"]
     )
+    cache.delete(_password_reset_attempts_key(user.id))
 
     return True
 
@@ -544,7 +743,12 @@ def request_set_password(data: RequestSetPasswordInput) -> bool:
 
     otp_code = "".join(secrets.choice(string.digits) for _ in range(6))
     cache_key = _set_password_cache_key(user.id)
-    cache.set(cache_key, otp_code, timeout=SET_PASSWORD_OTP_TIMEOUT_SECONDS)
+    cache.set(
+        cache_key,
+        make_password(otp_code),
+        timeout=SET_PASSWORD_OTP_TIMEOUT_SECONDS,
+    )
+    cache.delete(_set_password_attempts_key(user.id))
 
     send_ok = EmailService.send_email(
         recipient=user.email,
@@ -586,13 +790,20 @@ def confirm_set_password(data: ConfirmSetPasswordInput) -> bool:
     if not cached_otp:
         raise AuthenticationError("Ma OTP da het han hoac chua duoc gui.")
 
-    if str(cached_otp) != str(data.otp):
+    _increment_attempts(
+        _set_password_attempts_key(user.id),
+        SET_PASSWORD_OTP_TIMEOUT_SECONDS,
+        SET_PASSWORD_OTP_MAX_ATTEMPTS,
+    )
+
+    if not _verify_otp_hash(cached_otp, data.otp):
         raise AuthenticationError("Ma OTP khong chinh xac.")
 
     user.set_password(data.new_password)
     user.email_verified = True
     user.save(update_fields=["password", "email_verified"])
     cache.delete(cache_key)
+    cache.delete(_set_password_attempts_key(user.id))
 
     return True
 
@@ -747,7 +958,7 @@ def _legacy_social_login(data: SocialLoginInput) -> dict:
             email=email,
             password=None,  # Social user không bắt buộc password
             full_name=full_name,
-            role="candidate" if data.role not in ("company", "admin") else data.role,
+            role=_normalize_public_role(data.role),
         )
         # Tự động verify email cho social user
         user.email_verified = True
@@ -765,10 +976,54 @@ def verify_2fa(data: Verify2FAInput) -> bool:
     if not user.two_factor_enabled:
         raise AuthenticationError("Account is not enabled 2FA!")
 
+    attempts_key = _two_factor_attempts_key(f"user:{user.id}")
     if not user.check_2fa_code(data.code):
+        _increment_attempts(
+            attempts_key,
+            timeout=TWO_FACTOR_CHALLENGE_TIMEOUT_SECONDS,
+            max_attempts=TWO_FACTOR_MAX_ATTEMPTS,
+        )
         raise AuthenticationError("2FA code is incorrect!")
 
+    cache.delete(attempts_key)
     return True
+
+
+def complete_2fa_login(challenge_id: str, code: str) -> dict:
+    """
+    Hoàn tất login 2FA bằng challenge tạm, rồi mới phát JWT.
+    """
+    challenge_key = f"login_2fa_{challenge_id}"
+    challenge = cache.get(challenge_key)
+    if not challenge:
+        raise AuthenticationError("Phiên xác thực 2FA đã hết hạn.")
+
+    user = CustomUser.objects.get(id=challenge["user_id"])
+    if not user.two_factor_enabled:
+        cache.delete(challenge_key)
+        raise AuthenticationError("Account is not enabled 2FA!")
+
+    if user.status != "active":
+        cache.delete(challenge_key)
+        raise AuthenticationError("Tài khoản đã bị khóa")
+
+    attempts_key = _two_factor_attempts_key(f"challenge:{challenge_id}")
+    if not user.check_2fa_code(code):
+        try:
+            _increment_attempts(
+                attempts_key,
+                timeout=TWO_FACTOR_CHALLENGE_TIMEOUT_SECONDS,
+                max_attempts=TWO_FACTOR_MAX_ATTEMPTS,
+            )
+        except AuthenticationError:
+            cache.delete(challenge_key)
+            cache.delete(attempts_key)
+            raise
+        raise AuthenticationError("2FA code is incorrect!")
+
+    cache.delete(challenge_key)
+    cache.delete(attempts_key)
+    return _issue_login_tokens(user, remember_me=challenge.get("remember_me", False))
 
 
 def get_2fa_status(user: CustomUser) -> dict:

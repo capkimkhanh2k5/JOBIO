@@ -35,26 +35,26 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
 
     return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} layout>
-            <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4 hover:shadow-lg hover:shadow-violet-500/5 transition-all duration-300 border-white/40 bg-white/60 backdrop-blur-xl shadow-sm">
+            <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 gap-4 hover:shadow-lg hover:shadow-teal-500/5 transition-all duration-300 border-white/40 bg-card/60 backdrop-blur-xl shadow-sm">
                 <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16 border-2 border-white shadow-sm ring-1 ring-slate-100">
                         <AvatarImage src={connectedUser.avatar_url || ''} alt={connectedUser.full_name} />
-                        <AvatarFallback className="bg-gradient-to-br from-violet-100 to-cyan-100 text-violet-700 font-medium text-lg">
+                        <AvatarFallback className="bg-gradient-to-br from-teal-100 to-emerald-100 text-teal-700 font-medium text-lg">
                             {connectedUser.full_name?.charAt(0) || 'U'}
                         </AvatarFallback>
                     </Avatar>
 
                     <div className="flex flex-col">
-                        <h3 className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">
+                        <h3 className="font-semibold text-foreground group-hover:text-teal-600 transition-colors">
                             {connectedUser.full_name}
                         </h3>
                         {connectedUser.headline && (
-                            <div className="flex items-center text-sm text-slate-500 mt-1">
+                            <div className="flex items-center text-sm text-muted-foreground mt-1">
                                 <Briefcase className="w-3.5 h-3.5 mr-1.5 opacity-70" />
                                 <span>{connectedUser.headline}</span>
                             </div>
                         )}
-                        <span className="text-xs text-slate-400 mt-2">
+                        <span className="text-xs text-muted-foreground/60 mt-2">
                             Kết nối từ {new Date(connection.updated_at).toLocaleDateString('vi-VN')}
                         </span>
                     </div>
@@ -63,12 +63,12 @@ export function ConnectionCard({ connection, currentUserId }: ConnectionCardProp
                 <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 data-[state=open]:bg-slate-100">
-                                <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 data-[state=open]:bg-muted">
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                                 <span className="sr-only">More menu</span>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 border-slate-200 shadow-lg">
+                        <DropdownMenuContent align="end" className="w-40 border-border shadow-lg">
                             <DropdownMenuItem
                                 className="text-red-600 focus:bg-red-50 focus:text-red-700 cursor-pointer"
                                 onClick={() => removeMutation.mutate()}

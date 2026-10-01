@@ -54,6 +54,19 @@ class RecruiterServiceTest(TestCase):
         ):
             create_recruiter_service(self.user, data)
 
+    def test_create_recruiter_profile_requires_candidate_role(self):
+        company_user = CustomUser.objects.create_user(
+            email="company-profile@example.com",
+            password="password123",
+            full_name="Company User",
+            role="company",
+        )
+
+        with self.assertRaisesMessage(
+            ValueError, "Only candidate accounts can create a recruiter profile."
+        ):
+            create_recruiter_service(company_user, RecruiterInput(bio="Wrong role"))
+
     def test_update_recruiter_profile(self):
         recruiter = Recruiter.objects.create(
             user=self.user, bio="Old Bio", years_of_experience=1

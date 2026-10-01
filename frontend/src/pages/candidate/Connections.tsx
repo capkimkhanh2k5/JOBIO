@@ -78,24 +78,22 @@ export default function Connections() {
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Page header */}
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Mạng lưới kết nối"
-                    description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Candidate."
-                    icon={Users}
-                />
-            </div>
+            <PageHeader
+                title="Mạng lưới kết nối"
+                description="Mở rộng mạng lưới quan hệ, tìm kiếm cơ hội nghề nghiệp mới và kết nối với các Candidate."
+                icon={Users}
+            />
 
             <div className="p-6 lg:p-8 w-full flex-1 relative z-10 space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="bg-white/60 backdrop-blur-md border border-slate-200/50 p-1 mb-8 rounded-xl h-auto">
-                        <TabsTrigger value="connections" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
-                            Kết nối của tôi <span className="ml-2 bg-white/20 text-slate-700 data-[state=active]:text-white px-2 py-0.5 rounded-full text-xs transition-colors group-data-[state=active]:text-white group-data-[state=active]:bg-white/20">{connectionsCount}</span>
+                    <TabsList className="bg-card/60 backdrop-blur-md border border-border/50 p-1 mb-8 rounded-xl h-auto">
+                        <TabsTrigger value="connections" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all data-[state=active]:shadow-sm flex items-center justify-center">
+                            Kết nối của tôi <span className="ml-2 bg-card/20 text-foreground/80 data-[state=active]:text-white px-2 py-0.5 rounded-full text-xs transition-colors group-data-[state=active]:text-white group-data-[state=active]:bg-card/20">{connectionsCount}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="pending" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
+                        <TabsTrigger value="pending" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all data-[state=active]:shadow-sm flex items-center justify-center">
                             Lời mời chờ duyệt {pendingCount > 0 && <span className="ml-2 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-black">{pendingCount}</span>}
                         </TabsTrigger>
-                        <TabsTrigger value="suggestions" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all data-[state=active]:shadow-sm flex items-center justify-center">
+                        <TabsTrigger value="suggestions" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white rounded-lg px-6 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all data-[state=active]:shadow-sm flex items-center justify-center">
                             Gợi ý kết nối
                         </TabsTrigger>
                     </TabsList>
@@ -104,8 +102,8 @@ export default function Connections() {
                         <TabsContent value="connections" className="mt-0 outline-none">
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <div className="flex items-center justify-between mb-6 px-1">
-                                    <h2 className="text-xl font-bold text-slate-900 flex items-center">
-                                        <Users className="w-5 h-5 mr-2 text-violet-600" />
+                                    <h2 className="text-xl font-bold text-foreground flex items-center">
+                                        <Users className="w-5 h-5 mr-2 text-teal-600" />
                                         Mạng lưới của bạn
                                     </h2>
                                 </div>
@@ -116,14 +114,14 @@ export default function Connections() {
                                     </div>
                                 ) : isConnectionsError ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-slate-300" />}
+                                        icon={Users}
                                         title="Tính năng kết nối chưa hoạt động"
-                                        description="Backend hiện chưa trả dữ liệu danh sách kết nối cho candidate. Phần UI đã có, nhưng API kết nối chưa sẵn sàng."
+                                        description="Tính năng đang được phát triển."
                                         action={{ label: "Xem gợi ý tạm thời", onClick: () => setActiveTab('suggestions') }}
                                     />
                                 ) : connectionsData?.connections?.length === 0 ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-slate-300" />}
+                                        icon={Users}
                                         title="Chưa có kết nối nào"
                                         description="Bắt đầu kết nối với các Candidate và ứng viên khác để mở rộng mạng lưới của bạn."
                                         action={{ label: "Khám phá gợi ý", onClick: () => setActiveTab('suggestions') }}
@@ -145,8 +143,8 @@ export default function Connections() {
                         <TabsContent value="pending" className="mt-0 outline-none">
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <div className="flex items-center justify-between mb-6 px-1">
-                                    <h2 className="text-xl font-bold text-slate-900 flex items-center">
-                                        <Send className="w-5 h-5 mr-2 text-violet-600" />
+                                    <h2 className="text-xl font-bold text-foreground flex items-center">
+                                        <Send className="w-5 h-5 mr-2 text-teal-600" />
                                         Lời mời kết nối đang chờ
                                     </h2>
                                 </div>
@@ -157,13 +155,13 @@ export default function Connections() {
                                     </div>
                                 ) : isPendingError ? (
                                     <EmptyState
-                                        icon={<UserPlus className="w-12 h-12 text-slate-300" />}
+                                        icon={UserPlus}
                                         title="Chưa tải được lời mời"
                                         description="API lời mời kết nối hiện chưa sẵn sàng hoặc đang lỗi."
                                     />
                                 ) : pendingData?.results?.length === 0 ? (
                                     <EmptyState
-                                        icon={<UserPlus className="w-12 h-12 text-slate-300" />}
+                                        icon={UserPlus}
                                         title="Không có lời mời nào"
                                         description="Bạn không có lời mời kết nối nào đang chờ xử lý."
                                     />
@@ -180,8 +178,8 @@ export default function Connections() {
                         <TabsContent value="suggestions" className="mt-0 outline-none">
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
                                 <div className="flex items-center justify-between mb-6 px-1">
-                                    <h2 className="text-xl font-bold text-slate-900 flex items-center">
-                                        <Sparkles className="w-5 h-5 mr-2 text-violet-600" />
+                                    <h2 className="text-xl font-bold text-foreground flex items-center">
+                                        <Sparkles className="w-5 h-5 mr-2 text-teal-600" />
                                         Có thể bạn quen biết
                                     </h2>
                                 </div>
@@ -192,7 +190,7 @@ export default function Connections() {
                                     </div>
                                 ) : effectiveSuggestions?.length === 0 ? (
                                     <EmptyState
-                                        icon={<Users className="w-12 h-12 text-slate-300" />}
+                                        icon={Users}
                                         title={isSuggestionsError ? "Chưa có dữ liệu gợi ý" : "Không tìm thấy gợi ý"}
                                         description={isSuggestionsError
                                             ? "API gợi ý kết nối chưa có sẵn và hệ thống cũng chưa tìm được candidate phù hợp để hiển thị tạm thời."

@@ -11,6 +11,15 @@ on:
         required: true
         type: boolean
         default: false
+      rebuild_embeddings:
+        description: Rebuild PGVector job and candidate embeddings after import
+        required: true
+        type: boolean
+        default: true
+      embedding_limit:
+        description: Maximum jobs/recruiters to rebuild; 0 means all
+        required: true
+        default: "0"
 
 concurrency:
   group: seed-demo-data-production
@@ -23,7 +32,7 @@ jobs:
   seed-demo-data:
     name: Seed demo data on GCP VM
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: read
 
@@ -129,12 +138,14 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           RESET_EXISTING_DATA: ${{ inputs.reset_existing_data }}
+          REBUILD_EMBEDDINGS: ${{ inputs.rebuild_embeddings }}
+          EMBEDDING_LIMIT: ${{ inputs.embedding_limit }}
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USERNAME }}
           key: ${{ secrets.GCP_VM_SSH_KEY }}
-          command_timeout: 45m
-          envs: RESET_EXISTING_DATA
+          command_timeout: 75m
+          envs: RESET_EXISTING_DATA,REBUILD_EMBEDDINGS,EMBEDDING_LIMIT
           script: |
             set -euo pipefail
 
@@ -156,6 +167,13 @@ jobs:
             : "${POSTGRES_DB:?POSTGRES_DB is required in ~/jobio/.env.production}"
             : "${POSTGRES_USER:?POSTGRES_USER is required in ~/jobio/.env.production}"
             : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in ~/jobio/.env.production}"
+
+            case "$EMBEDDING_LIMIT" in
+              ""|*[!0-9]*)
+                echo "::error::embedding_limit must be a non-negative integer. Use 0 to rebuild all."
+                exit 1
+                ;;
+            esac
 
             compose() {
               docker compose --env-file .env.production "$@"
@@ -272,5 +290,16 @@ jobs:
               -v "$PWD/seed/Data_To_Load:/seed/Data_Final:ro" \
               -v "$PWD/seed/load_production_seed_data.py:/app/scripts/load_production_seed_data.py:ro" \
               backend python scripts/load_production_seed_data.py /seed/Data_Final
+
+            if [ "$REBUILD_EMBEDDINGS" = "true" ]; then
+              compose run --rm -T backend \
+                python manage.py rebuild_pgvector_jobs --force --limit "$EMBEDDING_LIMIT"
+              compose run --rm -T backend \
+                python manage.py rebuild_pgvector_candidates --force --limit "$EMBEDDING_LIMIT"
+              compose run --rm -T backend \
+                python manage.py check_pgvector_recommendations --limit "$EMBEDDING_LIMIT"
+            else
+              echo "Skipping PGVector embedding rebuild because rebuild_embeddings=false."
+            fi
 
             printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > .seeded-demo-data

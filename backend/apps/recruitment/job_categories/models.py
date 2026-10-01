@@ -5,6 +5,10 @@ from apps.core.utils import slugify_vietnamese as slugify
 class JobCategory(models.Model):
     """Bảng Job_Categories - Danh mục vị trí công việc"""
 
+    class Domain(models.TextChoices):
+        IT = "it", "Công nghệ thông tin"
+        OTHER = "other", "Ngoài công nghệ thông tin"
+
     name = models.CharField(max_length=100, verbose_name="Tên danh mục")
     slug = models.SlugField(
         max_length=100, unique=True, db_index=True, verbose_name="Slug"
@@ -23,6 +27,16 @@ class JobCategory(models.Model):
         verbose_name="Danh mục cha",
     )
     is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
+    domain = models.CharField(
+        max_length=20,
+        choices=Domain.choices,
+        default=Domain.IT,
+        db_index=True,
+        verbose_name="Domain tuyển dụng",
+    )
+    is_publishable = models.BooleanField(
+        default=True, db_index=True, verbose_name="Cho phép đăng tuyển"
+    )
     display_order = models.IntegerField(default=0, verbose_name="Thứ tự hiển thị")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")

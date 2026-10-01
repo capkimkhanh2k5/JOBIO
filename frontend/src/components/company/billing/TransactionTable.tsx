@@ -43,7 +43,7 @@ const statusConfig = {
     },
     refunded: {
         label: "Hoàn tiền",
-        color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+        color: "bg-primary/80/10 text-primary border-primary/20",
         icon: RefreshCcw,
     },
 };
@@ -64,17 +64,17 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
     }
 
     return (
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300">
             <Table>
-                <TableHeader className="bg-slate-50/50">
-                    <TableRow className="hover:bg-transparent border-slate-100">
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest pl-6">Mã giao dịch</TableHead>
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest">Nội dung</TableHead>
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest">Số tiền</TableHead>
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest">Phương thức</TableHead>
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest">Trạng thái</TableHead>
-                        <TableHead className="text-slate-500 uppercase text-[10px] font-bold tracking-widest">Ngày</TableHead>
-                        <TableHead className="text-right text-slate-500 uppercase text-[10px] font-bold tracking-widest pr-6">Thao tác</TableHead>
+                <TableHeader className="bg-muted/50">
+                    <TableRow className="hover:bg-transparent border-border/60">
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest pl-6">Mã giao dịch</TableHead>
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest">Nội dung</TableHead>
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest">Số tiền</TableHead>
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest">Phương thức</TableHead>
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest">Trạng thái</TableHead>
+                        <TableHead className="text-muted-foreground uppercase text-[10px] font-bold tracking-widest">Ngày</TableHead>
+                        <TableHead className="text-right text-muted-foreground uppercase text-[10px] font-bold tracking-widest pr-6">Thao tác</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -90,18 +90,18 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                             const StatusIcon = status.icon;
 
                             return (
-                                <TableRow key={tx.id} className="hover:bg-slate-50/80 border-slate-100 transition-colors group">
-                                    <TableCell className="font-mono text-[10px] font-bold text-slate-500 pl-6">
+                                <TableRow key={tx.id} className="hover:bg-muted/80 border-border/60 transition-colors group">
+                                    <TableCell className="font-mono text-[10px] font-bold text-muted-foreground pl-6">
                                         {(tx.reference_code || String(tx.id)).substring(0, 12)}
                                         {(tx.reference_code || String(tx.id)).length > 12 && '...'}
                                     </TableCell>
-                                    <TableCell className="max-w-[200px] truncate text-slate-900 font-bold">
+                                    <TableCell className="max-w-[200px] truncate text-foreground font-bold">
                                         {tx.clean_description || tx.description}
                                     </TableCell>
-                                    <TableCell className="font-black text-slate-900">
+                                    <TableCell className="font-black text-foreground">
                                         {formatCurrency(Number(tx.amount), tx.currency)}
                                     </TableCell>
-                                    <TableCell className="capitalize text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                    <TableCell className="capitalize text-muted-foreground text-[10px] font-bold uppercase tracking-wider">
                                         {(tx.payment_method?.name || tx.payment_method?.code || 'N/A').replace('_', ' ')}
                                     </TableCell>
                                     <TableCell>
@@ -110,14 +110,14 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                                             {status.label}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-slate-400 text-[11px] font-medium">
+                                    <TableCell className="text-muted-foreground/60 text-[11px] font-medium">
                                         {formatDate(tx.created_at || tx.date)}
                                     </TableCell>
                                     <TableCell className="text-right pr-6">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all rounded-lg opacity-0 group-hover:opacity-100 shadow-sm border border-transparent hover:border-violet-100"
+                                            className="h-8 w-8 text-muted-foreground/60 hover:text-teal-600 hover:bg-teal-50 transition-all rounded-lg opacity-0 group-hover:opacity-100 shadow-sm border border-transparent hover:border-teal-100"
                                             onClick={() => onViewDetail(tx)}
                                         >
                                             <Eye className="h-4 w-4" />

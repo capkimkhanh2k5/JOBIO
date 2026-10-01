@@ -49,7 +49,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password = '
             </div>
             <Progress
                 value={strength}
-                className="h-1 bg-white/5"
+                className="h-1 bg-card/5"
                 indicatorClassName={cn("transition-all duration-500", getStrengthColor(strength))}
             />
             <div className="grid grid-cols-4 gap-1 h-1 mt-1">
@@ -57,7 +57,7 @@ export const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password = '
                     <div
                         key={i}
                         className={cn("h-full rounded-full transition-colors",
-                            strength >= i * 25 ? getStrengthColor(strength) : "bg-white/5"
+                            strength >= i * 25 ? getStrengthColor(strength) : "bg-card/5"
                         )}
                     />
                 ))}

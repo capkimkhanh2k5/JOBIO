@@ -182,39 +182,19 @@ export const candidateService = {
       timeout: 120_000, // LLM parsing can take time
     });
   },
-};
 
-// ─── Recommendations (Real API) ──────────────────────────────────────────────
-import type {
-  Recommendation,
-  RecommendationCreateRequest,
-  RecommendationUpdateRequest,
-} from '@/types/api';
-
-export interface RecommendationsResponse {
-  candidate_id: number;
-  recommendations: Recommendation[];
-  total: number;
-}
-
-export const recommendationService = {
-  getRecommendations(candidateId: number) {
-    return api.get<RecommendationsResponse>(`/api/candidates/${candidateId}/recommendations/`).then(r => r.data);
-  },
-
-  writeRecommendation(candidateId: number, data: RecommendationCreateRequest) {
-    return api.post<Recommendation>(`/api/candidates/${candidateId}/recommend/`, data);
-  },
-
-  updateRecommendation(id: number, data: RecommendationUpdateRequest) {
-    return api.put<Recommendation>(`/api/recommendations/${id}/`, data);
-  },
-
-  toggleVisibility(id: number, isVisible: boolean) {
-    return api.patch<Recommendation>(`/api/recommendations/${id}/visibility/`, { is_visible: isVisible });
-  },
-
-  deleteRecommendation(id: number) {
-    return api.delete(`/api/recommendations/${id}/`);
+  /**
+   * Upload a file attachment (image, pdf, document) and return file path URL
+   */
+  uploadFile(file: File, entityType = 'certification') {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('entity_type', entityType);
+    formData.append('is_public', 'true');
+    return api.post<{ id: number; file_path: string; original_name: string; mime_type?: string }>('/api/file-uploads/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   },
 };
+
+

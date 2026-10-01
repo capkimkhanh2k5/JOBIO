@@ -67,8 +67,8 @@ function LocationRowItem({
     }, [communes, onUpdate]);
 
     const triggerClass = cn(
-        'h-10 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm',
-        'outline-none transition-all duration-200 focus:border-violet-500/40 focus:ring-4 focus:ring-violet-500/5'
+        'h-10 w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-foreground shadow-sm',
+        'outline-none transition-all duration-200 focus:border-teal-500/40 focus:ring-4 focus:ring-teal-500/5'
     );
 
     const provinceOptions = provinces.map((province) => ({
@@ -82,25 +82,25 @@ function LocationRowItem({
     }));
 
     return (
-        <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="space-y-3 rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100">
-                        <MapPin size={12} className="text-violet-600" />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-100">
+                        <MapPin size={12} className="text-teal-600" />
                     </div>
-                    <span className="text-xs font-bold text-slate-500">Địa điểm #{index + 1}</span>
+                    <span className="text-xs font-bold text-muted-foreground">Địa điểm #{index + 1}</span>
                 </div>
                 <div className="flex items-center gap-3">
                     <label className="group flex cursor-pointer items-center gap-1.5">
-                        <Star size={12} className={row.is_primary ? 'fill-amber-500 text-amber-500' : 'text-slate-300 group-hover:text-slate-400'} />
-                        <span className="text-xs font-medium text-slate-500">Chính</span>
+                        <Star size={12} className={row.is_primary ? 'fill-amber-500 text-amber-500' : 'text-muted-foreground/40 group-hover:text-muted-foreground/60'} />
+                        <span className="text-xs font-medium text-muted-foreground">Chính</span>
                         <Switch checked={row.is_primary} onCheckedChange={(checked) => onUpdate({ is_primary: checked })} />
                     </label>
                     {canRemove && (
                         <button
                             type="button"
                             onClick={onRemove}
-                            className="p-1 text-slate-300 transition-colors hover:text-red-500"
+                            className="p-1 text-muted-foreground/40 transition-colors hover:text-red-500"
                         >
                             <Trash2 size={14} />
                         </button>
@@ -110,7 +110,7 @@ function LocationRowItem({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-500">
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
                         Tỉnh / Thành phố <span className="text-red-500">*</span>
                     </label>
                     {provinceLoading ? (
@@ -129,7 +129,7 @@ function LocationRowItem({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-500">Quận / Huyện</label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">Quận / Huyện</label>
                     {communeLoading && row.province_id ? (
                         <Skeleton className="h-10 w-full rounded-xl" />
                     ) : (
@@ -152,13 +152,13 @@ function LocationRowItem({
             </div>
 
             <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500">Địa chỉ cụ thể</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">Địa chỉ cụ thể</label>
                 <input
                     type="text"
                     value={row.address_line}
                     onChange={(e) => onUpdate({ address_line: e.target.value })}
                     placeholder="Số nhà, tên đường..."
-                    className={cn(triggerClass, 'placeholder:text-slate-400')}
+                    className={cn(triggerClass, 'placeholder:text-muted-foreground/60')}
                 />
             </div>
         </div>
@@ -220,8 +220,8 @@ export function LocationBuilder({ value, onChange }: LocationBuilderProps) {
                 type="button"
                 onClick={addRow}
                 className={cn(
-                    'group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 py-3 text-sm font-medium text-slate-400',
-                    'transition-all duration-200 hover:border-violet-500/40 hover:bg-violet-50/30 hover:text-violet-600'
+                    'group flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border py-3 text-sm font-medium text-muted-foreground/60',
+                    'transition-all duration-200 hover:border-teal-500/40 hover:bg-teal-50/30 hover:text-teal-600'
                 )}
             >
                 <Plus size={15} className="transition-transform duration-200 group-hover:rotate-90" />

@@ -6,8 +6,10 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 
 from apps.company.companies.models import Company
+from apps.candidate.recruiters.models import Recruiter
 from apps.recruitment.applications.models import Application
 from apps.recruitment.interviews.models import Interview
 from apps.recruitment.jobs.models import Job
@@ -51,12 +53,69 @@ def _get_company_for_user(user):
         return None
 
 
+def _get_candidate_for_user(user):
+    if getattr(user, "role", None) != "candidate":
+        return None
+
+    try:
+        return user.recruiter_profile
+    except Recruiter.DoesNotExist:
+        return Recruiter.objects.create(user=user)
+    except AttributeError:
+        return None
+
+
 def _percent_delta(current, previous):
     if previous == 0:
         return 100 if current > 0 else 0
     return round(((current - previous) / previous) * 100)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def candidate_dashboard_stats(request):
+    recruiter = _get_candidate_for_user(request.user)
+    if not recruiter:
+        return Response(
+            {"detail": "You do not have a candidate profile."},
+            status=404,
+        )
+
+    now = timezone.localtime()
+    today = timezone.localdate()
+    upcoming_statuses = [
+        Interview.Status.SCHEDULED,
+        Interview.Status.CONFIRMED,
+        Interview.Status.RESCHEDULED,
+    ]
+
+    applied_jobs_count = Application.objects.filter(recruiter=recruiter).count()
+    upcoming_interviews_count = Interview.objects.filter(
+        application__recruiter=recruiter,
+        status__in=upcoming_statuses,
+        scheduled_at__gte=now,
+    ).count()
+    matching_jobs_count = (
+        Job.objects.filter(status=Job.Status.PUBLISHED)
+        .filter(
+            Q(application_deadline__isnull=True) | Q(application_deadline__gte=today)
+        )
+        .exclude(applications__recruiter=recruiter)
+        .count()
+    )
+
+    return Response(
+        {
+            "applied_jobs_count": applied_jobs_count,
+            "upcoming_interviews_count": upcoming_interviews_count,
+            "profile_views_count": recruiter.profile_views_count,
+            "matching_jobs_count": matching_jobs_count,
+        }
+    )
+
+
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def company_dashboard_stats(request):
@@ -123,6 +182,7 @@ def company_dashboard_stats(request):
     )
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def company_dashboard_analytics(request):

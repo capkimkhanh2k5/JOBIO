@@ -63,7 +63,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
             <DialogContent className="max-w-md border-border bg-background/95 text-foreground backdrop-blur-xl glass-effect shadow-2xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                        <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        <CreditCard className="h-5 w-5 text-primary dark:text-primary" />
                         Thêm phương thức mới
                     </DialogTitle>
                 </DialogHeader>
@@ -79,7 +79,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                                     <FormControl>
                                         <Input
                                             placeholder="NGUYEN VAN A"
-                                            className="border-border bg-muted/30 uppercase focus:border-indigo-500/50 text-foreground"
+                                            className="border-border bg-muted/30 uppercase focus:border-primary/50 text-foreground"
                                             {...field}
                                         />
                                     </FormControl>
@@ -98,7 +98,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                                         <div className="relative">
                                             <Input
                                                 placeholder="0000 0000 0000 0000"
-                                                className="border-border bg-muted/30 pl-10 focus:border-indigo-500/50 text-foreground"
+                                                className="border-border bg-muted/30 pl-10 focus:border-primary/50 text-foreground"
                                                 {...field}
                                             />
                                             <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground/30" />
@@ -120,7 +120,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                                             <div className="relative">
                                                 <Input
                                                     placeholder="MM/YY"
-                                                    className="border-border bg-muted/30 pl-10 focus:border-indigo-500/50 text-foreground"
+                                                    className="border-border bg-muted/30 pl-10 focus:border-primary/50 text-foreground"
                                                     {...field}
                                                 />
                                                 <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground/30" />
@@ -141,7 +141,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                                             <Input
                                                 type="password"
                                                 placeholder="***"
-                                                className="border-border bg-muted/30 focus:border-indigo-500/50 text-foreground"
+                                                className="border-border bg-muted/30 focus:border-primary/50 text-foreground"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -168,7 +168,7 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px]"
+                                className="bg-primary hover:bg-primary min-w-[120px]"
                             >
                                 {isLoading ? "Đang xử lý..." : "Lưu thẻ"}
                             </Button>

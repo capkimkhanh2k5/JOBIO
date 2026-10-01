@@ -30,6 +30,7 @@ class RecruiterCertificationViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = CertificationSerializer
 
     def get_queryset(self):
         recruiter_id = self.kwargs.get("recruiter_id")

@@ -134,6 +134,35 @@ class RecruiterExperienceViewTest(APITestCase):
         self.experience.refresh_from_db()
         self.assertEqual(self.experience.company_name, "Updated Company")
 
+    def test_partial_update_experience_rejects_end_date_before_existing_start_date(
+        self,
+    ):
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/experience/{self.experience.id}/",
+            {"end_date": "2019-12-31"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.experience.refresh_from_db()
+        self.assertIsNone(self.experience.end_date)
+
+    def test_partial_update_experience_current_rejects_existing_end_date(self):
+        self.experience.end_date = "2022-01-01"
+        self.experience.is_current = False
+        self.experience.save(update_fields=["end_date", "is_current"])
+
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/experience/{self.experience.id}/",
+            {"is_current": True},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.experience.refresh_from_db()
+        self.assertFalse(self.experience.is_current)
+        self.assertIsNotNone(self.experience.end_date)
+
     def test_update_experience_not_owner(self):
         """Test PUT by non-owner returns 403"""
         exp2 = RecruiterExperience.objects.create(

@@ -77,14 +77,14 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
     return (
         <div className="space-y-6">
             <div className="flex justify-center mb-8">
-                <div className="w-20 h-20 bg-violet-500/20 rounded-full flex items-center justify-center text-violet-600 shadow-lg shadow-violet-500/10 border border-violet-500/20">
+                <div className="w-20 h-20 bg-teal-500/20 rounded-full flex items-center justify-center text-teal-600 shadow-lg shadow-teal-500/10 border border-teal-500/20">
                     <ShieldCheck className="w-10 h-10" />
                 </div>
             </div>
 
             {email && (
-                <p className="text-center text-sm text-slate-500">
-                    Mã OTP đã được gửi tới <span className="font-semibold text-slate-700">{email}</span>
+                <p className="text-center text-sm text-muted-foreground">
+                    Mã OTP đã được gửi tới <span className="font-semibold text-foreground/80">{email}</span>
                 </p>
             )}
 
@@ -99,7 +99,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="Nhập mã 6 số"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-xl tracking-widest"
+                                        className="bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-xl tracking-widest"
                                         {...field}
                                     />
                                 </FormControl>
@@ -118,7 +118,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
+                                        className="bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
                                         {...field}
                                     />
                                 </FormControl>
@@ -138,7 +138,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                                     <Input
                                         type="password"
                                         placeholder="••••••••"
-                                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
+                                        className="bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/10 h-12"
                                         {...field}
                                     />
                                 </FormControl>
@@ -159,7 +159,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
                     <Button
                         type="button"
                         variant="ghost"
-                        className="w-full h-11 text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium transition-colors"
+                        className="w-full h-11 text-muted-foreground hover:text-foreground hover:bg-muted font-medium transition-colors"
                         onClick={onBackToForgot}
                     >
                         <ArrowLeft className="mr-2 h-4 w-4" />

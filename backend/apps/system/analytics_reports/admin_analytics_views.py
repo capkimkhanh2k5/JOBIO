@@ -10,6 +10,7 @@ from django.db.models.functions import TruncMonth, TruncDate
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from drf_spectacular.utils import OpenApiTypes, extend_schema
 
 from apps.core.users.permissions import IsAdmin
 from apps.core.users.models import CustomUser
@@ -65,6 +66,7 @@ def _month_sequence(now, months: int):
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def user_growth(request):
@@ -123,6 +125,7 @@ def user_growth(request):
     return Response(result)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def industry_distribution(request):
@@ -151,6 +154,7 @@ def industry_distribution(request):
     return Response(result)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def revenue_trend(request):
@@ -189,6 +193,7 @@ def revenue_trend(request):
     return Response(result)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def application_stats(request):
@@ -306,6 +311,7 @@ def application_stats(request):
     )
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def top_jobs(request):
@@ -341,6 +347,7 @@ def top_jobs(request):
     return Response(result)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def violation_breakdown(request):
@@ -369,6 +376,7 @@ def violation_breakdown(request):
     return Response(result)
 
 
+@extend_schema(responses={200: OpenApiTypes.OBJECT})
 @api_view(["GET"])
 @permission_classes([IsAdmin])
 def admin_overview_stats(request):

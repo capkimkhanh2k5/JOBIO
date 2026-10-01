@@ -1,16 +1,25 @@
 from unittest.mock import patch
 
 from django.db.models.signals import post_delete
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 
 from apps.blog.models import Post
 from apps.candidate.recruiter_cvs.models import RecruiterCV
 from apps.candidate.recruiters.models import Recruiter
 from apps.core.users.models import CustomUser
+from apps.core.caching import CacheKeyBuilder, CacheService
 from apps.system.file_uploads.models import FileUpload
+from apps.system.file_uploads.tasks import delete_cloudinary_file_task
 
 
 class TestCloudinarySignals(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
     def test_signal_receivers_are_registered_on_app_ready(self):
         receiver_names = {
             getattr(receiver_ref(), "__name__", "")
@@ -141,6 +150,17 @@ class TestCloudinarySignals(TestCase):
         mock_destroy.assert_called_once_with(
             "Jobio/Avatars/1/avatar", resource_type="image", invalidate=True
         )
+
+    @patch("apps.system.file_uploads.tasks.delete_cloudinary_file")
+    def test_delete_cloudinary_task_skips_when_lock_is_held(self, mock_delete):
+        url = "https://res.cloudinary.com/demo/image/upload/v1234/Jobio/file.jpg"
+        lock_key = CacheKeyBuilder.task_lock("cloudinary_delete", url, "image")
+        self.assertTrue(CacheService.add(lock_key, timeout=30))
+
+        result = delete_cloudinary_file_task(url, "image")
+
+        self.assertEqual(result["reason"], "already_running")
+        mock_delete.assert_not_called()
 
     @override_settings(CLOUDINARY_STORAGE={"CLOUD_NAME": "demo"})
     @patch("cloudinary.uploader.destroy")

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T15:45:00Z",
+  "title": "Design System: JOBIO",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Deep Teal",
+        "canonical": "oklch(0.50 0.14 175)",
+        "tonalRamp": [
+          "oklch(0.15 0.14 175)",
+          "oklch(0.25 0.14 175)",
+          "oklch(0.38 0.14 175)",
+          "oklch(0.50 0.14 175)",
+          "oklch(0.60 0.14 175)",
+          "oklch(0.70 0.14 175)",
+          "oklch(0.85 0.14 175)",
+          "oklch(0.95 0.14 175)"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Warm Gold",
+        "canonical": "oklch(0.72 0.15 85)",
+        "tonalRamp": [
+          "oklch(0.25 0.15 85)",
+          "oklch(0.40 0.15 85)",
+          "oklch(0.60 0.15 85)",
+          "oklch(0.72 0.15 85)",
+          "oklch(0.82 0.10 85)",
+          "oklch(0.90 0.10 85)",
+          "oklch(0.95 0.10 85)",
+          "oklch(0.98 0.10 85)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Warm Off-White",
+        "canonical": "oklch(0.985 0.006 85)",
+        "tonalRamp": []
+      },
+      "neutral": {
+        "role": "neutral",
+        "displayName": "Teal-Tinted Black",
+        "canonical": "oklch(0.13 0.02 175)",
+        "tonalRamp": []
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Warm Border",
+        "canonical": "oklch(0.92 0.008 85)",
+        "tonalRamp": []
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines only."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Paragraphs and general UI text."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-low",
+        "value": "0 4px 16px -4px oklch(0 0 0 / 0.06)",
+        "purpose": "Diffuse glow for basic cards."
+      },
+      {
+        "name": "deep-glass",
+        "value": "0 20px 40px -12px oklch(0 0 0 / 0.10)",
+        "purpose": "Deep shadow for floating elements like Modals."
+      }
+    ],
+    "motion": [
+      {
+        "name": "magnetic",
+        "value": "transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1)",
+        "purpose": "Snappy, confident interactions."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Nút bấm hành động chính mang tính từ tính (magnetic).",
+      "html": "<button class=\"ds-btn-primary\">ỨNG TUYỂN NGAY</button>",
+      "css": ".ds-btn-primary { background: oklch(0.50 0.14 175); color: oklch(0.985 0.006 85); padding: 12px 24px; font-weight: 500; border: none; border-radius: 0.625rem; transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); cursor: pointer; } .ds-btn-primary:hover { transform: scale(1.03); } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Editorial Card",
+      "kind": "card",
+      "refersTo": "card-editorial",
+      "description": "Thẻ chứa nội dung chuyên nghiệp, viền nhạt và bóng đổ mềm.",
+      "html": "<div class=\"ds-card-editorial\"><h3>Chuyên viên Marketing</h3><p>Công ty ABC</p></div>",
+      "css": ".ds-card-editorial { background: oklch(0.985 0.006 85); border: 1px solid oklch(0.92 0.008 85); border-radius: 1rem; padding: 24px; box-shadow: 0 4px 16px -4px oklch(0 0 0 / 0.06); transition: box-shadow 0.3s ease, border-color 0.3s ease; } .ds-card-editorial h3 { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0 0 8px 0; color: oklch(0.13 0.02 175); } .ds-card-editorial p { margin: 0; color: oklch(0.13 0.02 175); opacity: 0.8; } .ds-card-editorial:hover { box-shadow: 0 8px 24px -6px oklch(0 0 0 / 0.10); border-color: oklch(0.50 0.14 175); }"
+    },
+    {
+      "name": "Glass Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Trường nhập liệu phẳng, viền chuyển xanh Deep Teal khi focus.",
+      "html": "<input type=\"text\" class=\"ds-input\" placeholder=\"Tìm kiếm việc làm...\" />",
+      "css": ".ds-input { width: 100%; background: transparent; border: 1px solid oklch(0.92 0.008 85); border-radius: 0.625rem; padding: 12px 16px; color: oklch(0.13 0.02 175); font-family: inherit; transition: border-color 0.2s ease, box-shadow 0.2s ease; outline: none; } .ds-input:focus { border-color: oklch(0.50 0.14 175); box-shadow: 0 0 0 2px oklch(0.50 0.14 175 / 0.2); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Editorial Luxury",
+    "overview": "Hệ thống mang âm hưởng sang trọng, tinh tế như một tạp chí doanh nghiệp cao cấp nhưng vẫn đảm bảo tính hiện đại, sắc bén của một nền tảng công nghệ. Giao diện ưu tiên sự rõ ràng, sử dụng các dải màu ấm (warm) kết hợp với các hiệu ứng kính (glass-effect) và noise/grain texture để tạo chiều sâu tự nhiên. Thiết kế không lạm dụng màu sắc mà kiềm chế để làm nổi bật thông tin B2B quan trọng.",
+    "keyCharacteristics": [
+      "Tinh tế, sang trọng và tập trung vào trải nghiệm đọc.",
+      "Bề mặt ấm (warm off-white) kết hợp điểm nhấn vàng (gold) và xanh cổ vịt sâu (deep teal).",
+      "Chiều sâu linh hoạt với hiệu ứng Glass-effect và shadow sâu ở các thành phần nổi bật.",
+      "Cảm giác tương tác chạm rõ ràng (Tactile and confident) thông qua hiệu ứng từ tính (magnetic)."
+    ],
+    "rules": [
+      {
+        "name": "The One Voice Rule",
+        "body": "Màu Accent (Warm Gold) chỉ được sử dụng dưới 5% diện tích màn hình để duy trì tính quý hiếm và sang trọng.",
+        "section": "colors"
+      },
+      {
+        "name": "The Focused Depth Rule",
+        "body": "Shadow sâu chỉ xuất hiện ở các thành phần cần sự tập trung cao độ (Modal, Popover) hoặc khi người dùng tương tác (Hover).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do sử dụng các thành phần trang trí (aurora orb, noise texture) ở cường độ cực kỳ thấp để tránh làm phân tâm nội dung chính.",
+      "Do duy trì khoảng trắng (white-space) rộng rãi đặc trưng của phong cách Editorial."
+    ],
+    "donts": [
+      "Don't lạm dụng màu Warm Gold cho các nút bấm chính (nút bấm chính luôn là Deep Teal).",
+      "Don't sử dụng shadow gắt, đen tuyền. Luôn sử dụng shadow có độ trong suốt và nhòe cao."
+    ]
+  }
+}

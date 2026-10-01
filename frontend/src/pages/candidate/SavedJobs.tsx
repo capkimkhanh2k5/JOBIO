@@ -80,13 +80,11 @@ export default function SavedJobs() {
     if (isLoading) {
         return (
             <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
-                <div className="sticky top-0 z-20">
-                    <PageHeader
-                        title="Việc làm đã lưu"
-                        description="Đang tải danh sách việc làm đã lưu..."
-                        icon={Bookmark}
-                    />
-                </div>
+            <PageHeader
+                title="Việc làm đã lưu"
+                description="Đang tải danh sách việc làm đã lưu..."
+                icon={Bookmark}
+            />
                 <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
                     <div className="space-y-4">
                         {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full rounded-3xl" />)}
@@ -98,26 +96,24 @@ export default function SavedJobs() {
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Việc làm đã lưu"
-                    description={`Quản lý và theo dõi các vị trí bạn quan tâm (${displaySavedJobs.length})`}
-                    icon={Bookmark}
-                />
-            </div>
+            <PageHeader
+                title="Việc làm đã lưu"
+                description={`Quản lý và theo dõi các vị trí bạn quan tâm (${displaySavedJobs.length})`}
+                icon={Bookmark}
+            />
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
                 {displaySavedJobs.length === 0 ? (
-                    <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-violet-500/20">
+                    <div className="text-center py-16 bg-card rounded-2xl border border-border shadow-sm">
+                        <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-teal-500/20">
                             <Bookmark className="w-8 h-8" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">Chưa có công việc nào được lưu</h3>
-                        <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                        <h3 className="text-lg font-bold text-foreground mb-2">Chưa có công việc nào được lưu</h3>
+                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                             Hãy khám phá hàng ngàn cơ hội việc làm hấp dẫn trên JOBIO và lưu lại những vị trí phù hợp với bạn.
                         </p>
                         <Link to="/jobs">
-                            <Button className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
+                            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
                                 Tìm việc ngay
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
@@ -135,41 +131,41 @@ export default function SavedJobs() {
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <Card className="overflow-hidden bg-white border-slate-200 hover:border-violet-200 hover:shadow-md transition-all rounded-2xl group shadow-sm">
+                                    <Card className="overflow-hidden bg-card border-border hover:border-teal-200 hover:shadow-md transition-all rounded-2xl group shadow-sm">
                                         <div className="p-6 flex flex-col md:flex-row gap-6">
-                                            <div className="w-16 h-16 rounded-3xl bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                            <div className="w-16 h-16 rounded-3xl bg-muted border border-border flex-shrink-0 flex items-center justify-center overflow-hidden">
                                                 {job.logo_url ? (
                                                     <img src={job.logo_url} alt={job.company_name} className="w-10 h-10 object-contain" />
                                                 ) : (
-                                                    <span className="text-xs font-bold text-slate-500">{(job.company_name || 'CO').slice(0, 2).toUpperCase()}</span>
+                                                    <span className="text-xs font-bold text-muted-foreground">{(job.company_name || 'CO').slice(0, 2).toUpperCase()}</span>
                                                 )}
                                             </div>
 
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-3">
                                                     <div>
-                                                        <Link to={`/jobs/${job.job_id}`} className="hover:text-violet-600 transition-colors">
-                                                            <h3 className="text-lg font-bold text-slate-900 line-clamp-1">{job.title}</h3>
+                                                        <Link to={`/jobs/${job.job_id}`} className="hover:text-teal-600 transition-colors">
+                                                            <h3 className="text-lg font-bold text-foreground line-clamp-1">{job.title}</h3>
                                                         </Link>
-                                                        <Link to={job.company_slug ? `/companies/${job.company_slug}` : '#'} className="text-sm text-slate-500 hover:text-violet-600 transition-colors font-medium">
+                                                        <Link to={job.company_slug ? `/companies/${job.company_slug}` : '#'} className="text-sm text-muted-foreground hover:text-teal-600 transition-colors font-medium">
                                                             {job.company_name}
                                                         </Link>
                                                     </div>
-                                                    <Badge variant="secondary" className="bg-slate-100 text-slate-700 w-fit shrink-0">
+                                                    <Badge variant="secondary" className="bg-muted text-foreground/80 w-fit shrink-0">
                                                         {job.status}
                                                     </Badge>
                                                 </div>
 
-                                                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600 mb-4">
-                                                    <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                                                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground mb-4">
+                                                    <div className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg border border-border/60">
                                                         <MapPin className="w-4 h-4 text-emerald-500" />
                                                         {job.locations}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                                                    <div className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg border border-border/60">
                                                         <DollarSign className="w-4 h-4 text-emerald-500" />
                                                         {formatSalary(job)}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-slate-400">
+                                                    <div className="flex items-center gap-1.5 text-muted-foreground/60">
                                                         <Clock className="w-4 h-4" />
                                                         Lưu {formatDate(job.saved_at)}
                                                     </div>
@@ -179,13 +175,13 @@ export default function SavedJobs() {
                                                     </div>
                                                 </div>
 
-                                                <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm relative">
+                                                <div className="bg-card rounded-xl p-4 border border-border shadow-sm relative">
                                                     {editingNoteId === String(job.id) ? (
                                                         <div className="space-y-3">
                                                             <textarea
                                                                 value={editingNoteText}
                                                                 onChange={e => setEditingNoteText(e.target.value)}
-                                                                className="w-full bg-white border border-violet-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all outline-none resize-none"
+                                                                className="w-full bg-card border border-teal-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all outline-none resize-none"
                                                                 rows={2}
                                                                 placeholder="Thêm ghi chú của bạn cho công việc này..."
                                                                 autoFocus
@@ -194,7 +190,7 @@ export default function SavedJobs() {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="sm"
-                                                                    className="h-8 text-slate-500 hover:text-slate-700"
+                                                                    className="h-8 text-muted-foreground hover:text-foreground/80"
                                                                     onClick={() => setEditingNoteId(null)}
                                                                 >
                                                                     <X className="w-4 h-4 mr-1" />
@@ -202,7 +198,7 @@ export default function SavedJobs() {
                                                                 </Button>
                                                                 <Button
                                                                     size="sm"
-                                                                    className="h-8 bg-violet-600 hover:bg-violet-700 text-white rounded-lg"
+                                                                    className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
                                                                     onClick={() => handleSaveNote(String(job.id))}
                                                                     disabled={updateNoteMutation.isPending}
                                                                 >
@@ -214,15 +210,15 @@ export default function SavedJobs() {
                                                     ) : (
                                                         <div className="group/note flex items-start justify-between gap-4 min-h-[48px]">
                                                             <div className="flex-1">
-                                                                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">Ghi chú cá nhân</span>
-                                                                <p className={`text-sm ${job.notes ? 'text-slate-700' : 'text-slate-400 italic'}`}>
+                                                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Ghi chú cá nhân</span>
+                                                                <p className={`text-sm ${job.notes ? 'text-foreground/80' : 'text-muted-foreground/60 italic'}`}>
                                                                     {job.notes || 'Chưa có ghi chú...'}
                                                                 </p>
                                                             </div>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="h-8 w-8 rounded-lg border border-violet-200 bg-white text-violet-600 shadow-sm opacity-80 hover:opacity-100 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-700 transition-all shrink-0"
+                                                                className="h-8 w-8 rounded-lg border border-teal-200 bg-card text-teal-600 shadow-sm opacity-80 hover:opacity-100 hover:bg-teal-50 hover:border-teal-300 hover:text-teal-700 transition-all shrink-0"
                                                                 onClick={() => handleEditNote(String(job.id), job.notes)}
                                                                 aria-label="Chỉnh sửa ghi chú"
                                                             >
@@ -235,7 +231,7 @@ export default function SavedJobs() {
 
                                             <div className="flex md:flex-col items-center md:items-end gap-3 shrink-0 pt-1">
                                                 <Link to={`/jobs/${job.job_id}`} className="w-full md:w-auto flex-1">
-                                                    <Button className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
+                                                    <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-md hover:shadow-lg transition-all">
                                                         Ứng tuyển <ExternalLink className="w-4 h-4 ml-2" />
                                                     </Button>
                                                 </Link>
@@ -243,7 +239,7 @@ export default function SavedJobs() {
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="group/unsave w-full md:w-auto md:flex-none h-9 px-3 border-rose-200 bg-white text-rose-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 rounded-lg font-semibold shadow-sm hover:shadow transition-all"
+                                                        className="group/unsave w-full md:w-auto md:flex-none h-9 px-3 border-rose-200 bg-card text-rose-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 rounded-lg font-semibold shadow-sm hover:shadow transition-all"
                                                         onClick={() => removeMutation.mutate(String(job.id))}
                                                         disabled={removeMutation.isPending}
                                                     >

@@ -4,6 +4,8 @@ import {
     ListCheck,
     Gift
 } from 'lucide-react';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
+import { Separator } from '@/components/ui/separator';
 
 interface JobDetailContentProps {
     description: string;
@@ -12,83 +14,72 @@ interface JobDetailContentProps {
 }
 
 export const JobDetailContent = ({ description, requirements, benefits }: JobDetailContentProps) => {
+    const safeDescription = sanitizeHtml(description);
+    const safeRequirements = sanitizeHtml(requirements);
+    const safeBenefits = sanitizeHtml(benefits);
+
     return (
-        <div className="flex flex-col gap-6">
+        <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-card rounded-2xl p-5 md:p-7 border border-border/80 shadow-sm space-y-7"
+        >
             {/* Description Section */}
-            <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 md:p-10 border border-slate-200 shadow-sm relative overflow-hidden group"
-            >
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="h-10 w-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                        <FileText size={22} />
+            <section className="space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                        <FileText size={17} />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900">Mô tả công việc</h3>
+                    <h3 className="text-base font-bold text-foreground">Mô tả công việc</h3>
                 </div>
                 <div
-                    className="prose prose-slate max-w-none 
-                    text-slate-700 leading-relaxed
-                    prose-p:mb-4
-                    prose-strong:text-slate-900 prose-strong:font-bold
-                    prose-ul:list-disc prose-ul:pl-5 prose-ul:mb-4
-                    prose-li:mb-2"
-                    dangerouslySetInnerHTML={{ __html: description }}
+                    className="prose prose-slate max-w-none text-sm text-foreground/80 leading-relaxed prose-p:mb-3 prose-strong:text-foreground prose-strong:font-semibold prose-ul:list-disc prose-ul:pl-5 prose-ul:mb-3 prose-li:mb-1.5"
+                    dangerouslySetInnerHTML={{ __html: safeDescription }}
                 />
-            </motion.section>
+            </section>
+
+            <Separator className="bg-border/50" />
 
             {/* Requirements Section */}
-            <motion.section
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 md:p-10 border border-slate-200 shadow-sm relative overflow-hidden group"
-            >
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="h-10 w-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                        <ListCheck size={22} />
+            <section className="space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                        <ListCheck size={17} />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900">Yêu cầu ứng viên</h3>
+                    <h3 className="text-base font-bold text-foreground">Yêu cầu ứng viên</h3>
                 </div>
                 <div
-                    className="prose prose-slate max-w-none 
-                    text-slate-700 leading-relaxed
-                    prose-strong:text-slate-900
-                    [&>ul]:list-none [&>ul]:p-0
-                    [&>ul>li]:relative [&>ul>li]:pl-8 [&>ul>li]:mb-3"
+                    className="prose prose-slate max-w-none text-sm text-foreground/80 leading-relaxed prose-strong:text-foreground [&>ul]:list-none [&>ul]:p-0 [&>ul>li]:relative [&>ul>li]:pl-7 [&>ul>li]:mb-2"
                     dangerouslySetInnerHTML={{
-                        __html: requirements.replace(/<li>/g, '<li class="flex items-start"><span class="absolute left-0 top-1 text-violet-600 bg-violet-50 p-1 rounded-md"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>')
+                        __html: safeRequirements.replace(/<li>/g, '<li class="flex items-start"><span class="absolute left-0 top-0.5 text-teal-600 bg-teal-500/10 p-0.5 rounded-md"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>')
                     }}
                 />
-            </motion.section>
+            </section>
 
             {/* Benefits Section */}
             {benefits && (
-                <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="bg-white rounded-2xl p-8 md:p-10 border border-slate-200 shadow-sm relative overflow-hidden group"
-                >
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="h-10 w-10 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                            <Gift size={22} />
+                <>
+                    <Separator className="bg-border/50" />
+                    <section className="space-y-3.5">
+                        <div className="flex items-center gap-2.5">
+                            <div className="h-8 w-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                                <Gift size={17} />
+                            </div>
+                            <h3 className="text-base font-bold text-foreground">Quyền lợi</h3>
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900">Quyền lợi</h3>
-                    </div>
-                    <div
-                        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                        dangerouslySetInnerHTML={{
-                            __html: benefits.replace(/<li>/g, '<div class="flex items-start gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-white hover:border-violet-300 transition-all group/benefit"><span class="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center text-violet-600 group-hover/benefit:scale-110 transition-transform"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></span><p class="text-sm font-semibold text-slate-700">')
-                                .replace(/<\/li>/g, '</p></div>')
-                                .replace(/<ul>/g, '')
-                                .replace(/<\/ul>/g, '')
-                        }}
-                    />
-                </motion.section>
+                        <div
+                            className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                            dangerouslySetInnerHTML={{
+                                __html: safeBenefits.replace(/<li>/g, '<div class="flex items-start gap-2.5 p-3 rounded-xl bg-muted/60 border border-border/70 hover:bg-card hover:border-teal-300 transition-all group/benefit"><span class="flex-shrink-0 w-6 h-6 rounded-md bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover/benefit:scale-110 transition-transform"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></span><p class="text-xs font-semibold text-foreground/80">')
+                                    .replace(/<\/li>/g, '</p></div>')
+                                    .replace(/<ul>/g, '')
+                                    .replace(/<\/ul>/g, '')
+                            }}
+                        />
+                    </section>
+                </>
             )}
-        </div>
+        </motion.div>
     );
 };
-

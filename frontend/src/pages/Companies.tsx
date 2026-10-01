@@ -66,49 +66,49 @@ export default function CompaniesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="min-h-screen bg-muted flex flex-col">
             {/* ── Search Hero (Full width, extends to header) ── */}
             <div className="relative overflow-hidden pt-28 pb-16 px-4 border-b border-primary/10 shadow-sm" style={{
-                background: 'linear-gradient(135deg, oklch(0.92 0.06 265) 0%, oklch(0.95 0.04 282) 45%, oklch(0.97 0.02 218) 100%)'
+                background: 'linear-gradient(160deg, oklch(0.16 0.04 175) 0%, oklch(0.13 0.03 175) 40%, oklch(0.11 0.02 175) 100%)'
             }}>
                 {/* Blobs */}
                 <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full pointer-events-none"
-                    style={{ background: 'radial-gradient(circle, oklch(0.68 0.22 272 / 0.18) 0%, transparent 68%)' }} />
+                    style={{ background: 'radial-gradient(circle, oklch(0.45 0.14 175 / 0.2) 0%, transparent 68%)' }} />
                 <div className="absolute -bottom-24 right-0 w-[400px] h-[400px] rounded-full pointer-events-none"
-                    style={{ background: 'radial-gradient(circle, oklch(0.72 0.18 202 / 0.15) 0%, transparent 68%)' }} />
+                    style={{ background: 'radial-gradient(circle, oklch(0.65 0.12 85 / 0.12) 0%, transparent 68%)' }} />
                 {/* Dot grid */}
                 <div className="absolute inset-0 pointer-events-none opacity-[0.14]" style={{
-                    backgroundImage: 'radial-gradient(circle, oklch(0.45 0.20 265) 1.2px, transparent 1.2px)',
+                    backgroundImage: 'radial-gradient(circle, oklch(0.65 0.14 175 / 0.15) 1px, transparent 1.2px)',
                     backgroundSize: '24px 24px'
                 }} />
 
                 <div className="relative z-10 max-w-4xl mx-auto text-center">
-                    <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight drop-shadow-sm">
+                    <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
                         Khám phá{' '}
-                        <span className="bg-gradient-to-r from-primary via-violet-600 to-cyan-500 bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary via-teal-600 to-emerald-500 bg-clip-text text-transparent">
                             Môi trường làm việc
                         </span>
                         {' '}hàng đầu
                     </h1>
-                    <p className="text-gray-600 text-base md:text-lg mb-8 font-medium max-w-2xl mx-auto">
+                    <p className="text-white/40 text-base md:text-lg mb-8 font-light max-w-2xl mx-auto">
                         Tìm hiểu văn hóa công ty, chế độ phúc lợi và các cơ hội việc làm hấp dẫn từ các nhà tuyển dụng hàng đầu.
                     </p>
 
                     {/* Search card */}
-                    <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl shadow-primary/5 border border-white/60 p-2 flex gap-2 w-full max-w-2xl mx-auto ring-1 ring-black/5">
-                        <div className="flex items-center flex-1 bg-gray-50 border border-transparent rounded-xl px-4 gap-2 focus-within:border-primary/50 focus-within:bg-white transition-colors">
-                            <Search className="h-5 w-5 text-gray-400" />
+                    <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl w-full max-w-2xl mx-auto focus-within:border-teal-400/60 focus-within:ring-2 focus-within:ring-teal-400/20 transition-all">
+                        <div className="flex items-center flex-1 px-4 gap-3">
+                            <Search className="h-5 w-5 text-white/70 shrink-0" />
                             <Input
                                 value={searchInput}
                                 onChange={e => setSearchInput(e.target.value)}
                                 onKeyDown={handleSearch}
                                 placeholder="Nhập tên công ty hoặc lĩnh vực..."
-                                className="border-0 bg-transparent h-12 px-0 focus-visible:ring-0 text-base"
+                                className="border-0 bg-transparent h-12 px-0 focus-visible:ring-0 text-base text-white font-medium placeholder:text-white/70"
                             />
                         </div>
                         <Button
                             onClick={handleSearchClick}
-                            className="px-8 h-12 rounded-xl font-bold bg-primary hover:bg-primary/90 text-white"
+                            className="px-8 h-12 rounded-xl font-extrabold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white shadow-lg shadow-teal-500/25 shrink-0"
                         >
                             Tìm kiếm
                         </Button>
@@ -125,21 +125,21 @@ export default function CompaniesPage() {
                         ))}
                     </div>
                 ) : isError ? (
-                    <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-gray-200 text-center max-w-2xl mx-auto">
+                    <div className="flex flex-col items-center justify-center py-24 bg-card rounded-2xl border border-border text-center max-w-2xl mx-auto">
                         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
                             <AlertCircle className="h-8 w-8 text-red-500" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Đã có lỗi xảy ra</h3>
-                        <p className="text-gray-500 mb-6">Xin lỗi, chúng tôi không thể tải danh sách công ty do sự cố máy chủ.</p>
+                        <h3 className="text-xl font-bold text-foreground mb-2">Đã có lỗi xảy ra</h3>
+                        <p className="text-muted-foreground mb-6">Xin lỗi, chúng tôi không thể tải danh sách công ty do sự cố máy chủ.</p>
                         <Button variant="outline" onClick={() => window.location.reload()}>Thử lại</Button>
                     </div>
                 ) : !data || data.items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl border border-dashed border-gray-200 text-center max-w-2xl mx-auto">
-                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
-                            <Building2 className="h-10 w-10 text-gray-300" />
+                    <div className="flex flex-col items-center justify-center py-24 bg-card rounded-2xl border border-dashed border-border text-center max-w-2xl mx-auto">
+                        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4 border border-border/60">
+                            <Building2 className="h-10 w-10 text-muted-foreground/40" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy công ty nào</h3>
-                        <p className="text-gray-500 mb-6">Không có kết quả nào phù hợp với từ khóa "{search}". Vui lòng thử lại với từ khóa khác.</p>
+                        <h3 className="text-xl font-bold text-foreground mb-2">Không tìm thấy công ty nào</h3>
+                        <p className="text-muted-foreground mb-6">Không có kết quả nào phù hợp với từ khóa "{search}". Vui lòng thử lại với từ khóa khác.</p>
                         <Button onClick={clearFilters} variant="outline">
                             Xem tất cả công ty
                         </Button>
@@ -147,8 +147,8 @@ export default function CompaniesPage() {
                 ) : (
                     <>
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-gray-900">
-                                {data?.total} <span className="font-normal text-gray-500">công ty phù hợp</span>
+                            <h2 className="text-xl font-bold text-foreground">
+                                {data?.total} <span className="font-normal text-muted-foreground">công ty phù hợp</span>
                             </h2>
                         </div>
 
@@ -179,7 +179,7 @@ export default function CompaniesPage() {
                                             variant={page === pageNum ? "default" : "outline"}
                                             className={cn(
                                                 "w-10 h-10",
-                                                page === pageNum ? "bg-primary text-white border-primary" : "text-gray-600"
+                                                page === pageNum ? "bg-primary text-white border-primary" : "text-muted-foreground"
                                             )}
                                             onClick={() => handlePageChange(pageNum)}
                                         >
@@ -212,46 +212,48 @@ function CompanyCard({ company }: { company: any }) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="group bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-primary/20 transition-all duration-300 flex flex-col h-full"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "50px" }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.25 }}
+            className="group bg-card border border-border/80 rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-teal-500/30 transition-all duration-300 flex flex-col h-full"
         >
-            <div className="flex gap-4 mb-4">
-                <div className="w-16 h-16 rounded-xl border border-gray-100 flex items-center justify-center p-2 bg-white flex-shrink-0">
+            <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-xl border border-border/60 flex items-center justify-center p-1.5 bg-card flex-shrink-0 shadow-sm overflow-hidden">
                     {company.logo_url ? (
                         <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-contain" />
                     ) : (
-                        <Building2 className="w-8 h-8 text-gray-300" />
+                        <Building2 className="w-6 h-6 text-muted-foreground/40" />
                     )}
                 </div>
-                <div>
-                    <Link to={`/companies/${company.id}`} className="font-bold text-gray-900 text-lg hover:text-primary transition-colors line-clamp-2">
+                <div className="min-w-0 flex-1">
+                    <Link to={`/companies/${company.id}`} className="font-bold text-foreground text-base hover:text-teal-600 transition-colors truncate block">
                         {company.company_name}
                     </Link>
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-1">{industryName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{industryName}</p>
                 </div>
             </div>
 
             {description && (
-                <p className="text-sm leading-6 text-gray-600 line-clamp-2 mb-4">
+                <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2 mb-3">
                     {description}
                 </p>
             )}
 
-            <div className="space-y-2 mt-auto pt-4 border-t border-gray-50">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="line-clamp-1">{addressText || "Chưa cập nhật địa chỉ"}</span>
+            <div className="grid grid-cols-2 gap-2 mt-auto pt-3 border-t border-border/50 text-xs text-muted-foreground bg-muted/40 rounded-xl p-2.5">
+                <div className="flex items-center gap-1.5 min-w-0" title={addressText || "Chưa cập nhật địa chỉ"}>
+                    <MapPin className="w-3.5 h-3.5 text-teal-600/70 shrink-0" />
+                    <span className="truncate text-foreground/80">{addressText || "Chưa cập nhật"}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Users className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span>{sizeText || "Chưa cập nhật quy mô"}</span>
+                <div className="flex items-center gap-1.5 min-w-0" title={sizeText || "Chưa cập nhật quy mô"}>
+                    <Users className="w-3.5 h-3.5 text-teal-600/70 shrink-0" />
+                    <span className="truncate text-foreground/80">{sizeText || "Chưa cập nhật"}</span>
                 </div>
             </div>
 
-            <Link to={`/companies/${company.id}`} className="mt-5 w-full">
-                <Button variant="outline" className="w-full group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20 transition-all">
+            <Link to={`/companies/${company.id}`} className="mt-3.5 w-full">
+                <Button variant="outline" className="w-full h-9 rounded-xl font-bold text-xs group-hover:bg-primary/5 group-hover:text-primary group-hover:border-primary/20 transition-all">
                     Xem hồ sơ
                 </Button>
             </Link>
@@ -261,19 +263,16 @@ function CompanyCard({ company }: { company: any }) {
 
 function CompanySkeleton() {
     return (
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col h-full">
-            <div className="flex gap-4 mb-4">
-                <Skeleton className="w-16 h-16 rounded-xl flex-shrink-0" />
-                <div className="flex-1 space-y-2 pt-1">
-                    <Skeleton className="h-5 w-full" />
-                    <Skeleton className="h-4 w-2/3" />
+        <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 flex flex-col h-full">
+            <div className="flex gap-3 mb-3">
+                <Skeleton className="w-12 h-12 rounded-xl flex-shrink-0" />
+                <div className="flex-1 space-y-1.5 pt-0.5">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
                 </div>
             </div>
-            <div className="space-y-3 mt-auto pt-4 border-t border-gray-50">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-            </div>
-            <Skeleton className="h-10 w-full rounded-md mt-5" />
+            <Skeleton className="h-10 w-full mb-3 rounded-lg" />
+            <Skeleton className="h-9 w-full mt-auto rounded-xl" />
         </div>
     );
 }

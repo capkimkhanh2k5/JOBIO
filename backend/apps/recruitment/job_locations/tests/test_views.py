@@ -23,7 +23,10 @@ class JobLocationViewTests(APITestCase):
 
         # Create company
         self.company = Company.objects.create(
-            user=self.owner, company_name="Test Company", description="A test company"
+            user=self.owner,
+            company_name="Test Company",
+            description="A test company",
+            verification_status=Company.VerificationStatus.VERIFIED,
         )
 
         # Create job

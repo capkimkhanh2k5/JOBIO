@@ -1,0 +1,314 @@
+**Public**
+- Trang chủ
+- Tìm kiếm việc làm
+- Lọc việc làm theo từ khóa, ngành, tỉnh/thành, loại việc, cấp bậc, lương, remote, kinh nghiệm
+- Sắp xếp việc làm theo liên quan, mới nhất, nổi bật, lương, lượt ứng tuyển
+- Xem chi tiết việc làm
+- Việc làm nổi bật
+- Việc làm gấp
+- Việc làm tương tự
+- Xem danh sách công ty
+- Tìm kiếm công ty
+- Xem chi tiết công ty
+- Xem việc làm của công ty
+- Theo dõi/bỏ theo dõi công ty
+- Blog công khai
+- Chi tiết bài blog
+- Trang giới thiệu
+- Trang liên hệ
+- Trang bảng giá
+- FAQ
+- HR Solutions
+- Terms
+- Privacy
+- Cookie
+
+**Auth/User**
+- Đăng ký
+- Đăng nhập
+- Đăng xuất
+- JWT refresh token
+- Kiểm tra email
+- Xác thực email
+- Quên mật khẩu
+- Đặt lại mật khẩu
+- Đổi mật khẩu
+- Social login
+- 2FA status
+- Bật 2FA
+- Tắt 2FA
+- Xác thực 2FA
+- Passkey register options
+- Passkey register verify
+- Passkey authenticate options
+- Passkey authenticate verify
+- Danh sách passkey
+- Xoá passkey
+- Hồ sơ người dùng hiện tại
+- Cập nhật tài khoản
+- Quản lý trạng thái user
+- Quản lý role user
+- Verify email bởi admin
+- Lịch sử hoạt động user
+- Thống kê user
+- Export user
+- Bulk action user
+
+**Candidate**
+- Dashboard ứng viên
+- Hồ sơ cá nhân ứng viên
+- Cập nhật thông tin cá nhân
+- Upload avatar
+- Tính điểm hoàn thiện hồ sơ
+- Parse CV để auto-fill profile
+- Quản lý học vấn
+- Sắp xếp học vấn
+- Quản lý kinh nghiệm
+- Sắp xếp kinh nghiệm
+- Quản lý kỹ năng
+- Thêm nhiều kỹ năng cùng lúc
+- Quản lý chứng chỉ
+- Sắp xếp chứng chỉ
+- Quản lý ngôn ngữ
+- Quản lý dự án
+- Sắp xếp dự án
+- Quản lý CV
+- Tạo CV từ template
+- Tạo CV tự động từ profile
+- Upload PDF CV
+- Direct upload CV
+- Preview CV
+- Download CV
+- Đặt CV mặc định
+- Đổi quyền riêng tư CV
+- Rewrite section CV bằng AI
+- Quản lý CV template
+- Danh mục CV template
+- Template phổ biến
+- Template premium
+- Preview template
+- Đánh giá template
+- Gợi ý việc làm cho ứng viên
+- Gợi ý việc làm theo CV
+- Match score việc làm
+- Breakdown điểm match
+- Lưu việc làm
+- Bỏ lưu việc làm
+- Kiểm tra job đã lưu
+- Danh sách việc đã lưu
+- Folder saved jobs
+- Ứng tuyển việc làm
+- Xem đơn ứng tuyển của mình
+- Xem chi tiết đơn ứng tuyển
+- Rút đơn ứng tuyển
+- Theo dõi lịch sử trạng thái ứng tuyển
+- Xem lịch phỏng vấn
+- Xem chi tiết phỏng vấn
+- Job Alerts
+- Tạo job alert
+- Sửa job alert
+- Bật/tắt job alert
+- Xem job đã match alert
+- Đánh dấu alert match đã xem
+- Thông báo ứng viên
+- Cài đặt thông báo
+- Cài đặt tài khoản
+- Cài đặt bảo mật
+- Kết nối/networking candidate
+- Gợi ý kết nối
+- Gửi lời mời kết nối
+- Quản lý lời mời kết nối
+- Đánh giá/recommendation candidate
+
+**Company**
+- Dashboard công ty
+- Hồ sơ công ty
+- Cập nhật thông tin công ty
+- Upload logo
+- Upload banner
+- Quản lý benefits công ty
+- Sắp xếp benefits
+- Quản lý media/gallery công ty
+- Bulk upload media
+- Sắp xếp media
+- Yêu cầu xác minh công ty
+- Claim company
+- Quản lý việc làm
+- Tạo tin tuyển dụng
+- Chỉnh sửa tin tuyển dụng
+- Validate trước khi publish
+- Publish job
+- Đóng job
+- Đổi trạng thái job
+- Duplicate job
+- Xoá job
+- Đánh dấu job nổi bật
+- Quản lý kỹ năng yêu cầu của job
+- Quản lý địa điểm của job
+- SEO review cho tin tuyển dụng
+- Quản lý ứng viên theo job
+- Kanban ứng viên
+- Bảng ứng viên
+- Lọc ứng viên
+- Bulk shortlist/reject ứng viên
+- Xem chi tiết application/candidate
+- Xem/preview/download CV của ứng viên đã ứng tuyển
+- Cập nhật trạng thái ứng tuyển
+- Ghi chú/đánh giá application
+- Lịch sử trạng thái application
+- Quản lý phỏng vấn
+- Tạo lịch phỏng vấn
+- Sửa lịch phỏng vấn
+- Huỷ/xoá lịch phỏng vấn
+- Cập nhật kết quả phỏng vấn
+- Scorecard phỏng vấn
+- Calendar phỏng vấn
+- Interview types
+- Analytics công ty
+- Biểu đồ applications
+- Upcoming interviews
+- Recent applications
+- Thông báo công ty
+- Cài đặt thông báo công ty
+- Billing dashboard
+- Gói subscription
+- Đăng ký gói
+- Pre-check subscription
+- VNPay payment return
+- Huỷ subscription
+- Payment methods
+- Payment transactions
+- Payment result page
+- Company support
+- Quản lý blog của công ty/user
+- Tạo bài blog
+- Sửa bài blog
+
+**Admin**
+- Admin dashboard
+- Quản lý user
+- Quản lý moderation
+- Job marketplace moderation
+- Quản lý blog
+- Quản lý category/tag blog
+- Quản lý tài chính
+- Quản lý master data
+- Quản lý báo cáo vi phạm
+- System settings
+- Admin notifications
+- Admin notification stats
+- Admin notification list
+- Broadcast notification
+- Admin analytics
+- Dashboard stats
+- User stats
+- Company moderation stats
+- Blog admin stats
+- Activity log stats
+- File upload stats
+- Quản lý notification types
+- Quản lý industries
+- Quản lý job categories
+- Quản lý skills
+- Quản lý benefit categories
+- Quản lý media types
+- Quản lý provinces
+- Quản lý communes
+- Quản lý addresses
+- Quản lý report types
+- Quản lý reports
+- Quản lý system settings
+
+**Recruitment Core**
+- CRUD jobs
+- Job slug detail
+- Job view tracking
+- Job view chart
+- Viewer demographics
+- Job stats
+- Job categories
+- Job skills
+- Job locations
+- Applications
+- Application status history
+- Application state machine
+- Bulk application status update
+- CV preview từ application
+- CV download từ application
+- Interviews
+- Interview types
+- Saved jobs
+- Job recommendations
+- Recommendation events tracking
+- Embedding generation cho job
+- Embedding generation cho candidate/profile/CV
+- Backfill job embeddings
+- Backfill candidate embeddings
+- Recommendation profile normalization
+- Canonical title/taxonomy recommendation metadata
+- Chroma/semantic health check path
+- Job publish policy validation
+- IT-domain job policy
+- Moderation audit for jobs/content
+
+**Communication**
+- Notifications
+- Unread notifications
+- Notification count
+- Mark notification read
+- Bulk mark read
+- Mark all read
+- Clear all notifications
+- Notification stream/SSE
+- Persisted notification settings
+- Notification types
+- Job alerts
+- Job alert matching task
+- Due job alert sweep task
+
+**Billing**
+- Subscription plans
+- Company subscriptions
+- Current subscription
+- Subscribe
+- Cancel subscription
+- Payment pre-check
+- Payment return
+- Payment methods
+- Payment transactions
+- Payment confirmation task
+- Cleanup expired transactions
+- Cleanup expired subscriptions
+
+**Blog/Social**
+- Blog posts
+- Blog categories
+- Blog tags
+- Blog comments
+- Blog publish
+- Blog ban
+- Blog admin stats
+- Company followers
+- Following companies
+- Company reviews/recommendations UI
+
+**System**
+- Health check
+- Deep health check
+- Database health
+- Redis cache health
+- Celery broker health
+- Celery worker health
+- Celery beat health
+- Chroma health
+- Activity logs
+- Activity log types
+- File uploads
+- Cloudinary upload/delete task
+- File upload moderation
+- Reports
+- Report types
+- Contact form
+- System settings
+- Security headers
+- Caching utilities

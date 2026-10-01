@@ -66,6 +66,8 @@ QUY TẮC:
 
 JSON SCHEMA BẮT BUỘC:
 {
+  "language": "vi|en (xác định ngôn ngữ chính của CV: 'vi' cho Tiếng Việt, 'en' cho Tiếng Anh)",
+  "canonical_english_text": "string (Tóm tắt chuẩn hóa bằng TIẾNG ANH gồm: Current Title, Key Skills, Work Experience & Education summary để tạo Vector Embedding)",
   "personal": {
     "full_name": "string",
     "email": "string",
@@ -88,9 +90,7 @@ JSON SCHEMA BẮT BUỘC:
   },
   "skills": [
     {
-      "name": "string",
-      "proficiency_level": "beginner|intermediate|advanced|expert",
-      "years_of_experience": null
+      "name": "string"
     }
   ],
   "education": [
@@ -389,25 +389,11 @@ class LinksData(CVSchemaModel):
 
 class SkillData(CVSchemaModel):
     name: str = ""
-    proficiency_level: str = "intermediate"
-    years_of_experience: Optional[int] = None
 
     @field_validator("name", mode="before")
     @classmethod
     def clean_name(cls, value: Any) -> str:
         return _clean_text(value, 100)
-
-    @field_validator("proficiency_level", mode="before")
-    @classmethod
-    def clean_skill_level(cls, value: Any) -> str:
-        return _clean_level(
-            value, {"basic", "intermediate", "advanced", "expert"}, "intermediate"
-        )
-
-    @field_validator("years_of_experience", mode="before")
-    @classmethod
-    def clean_years(cls, value: Any) -> Optional[int]:
-        return _clean_years(value)
 
 
 class EducationData(CVSchemaModel):
@@ -549,6 +535,8 @@ class LanguageData(CVSchemaModel):
 
 
 class ParsedCVData(CVSchemaModel):
+    language: str = "vi"
+    canonical_english_text: str = ""
     personal: PersonalData = Field(default_factory=PersonalData)
     location: LocationData = Field(default_factory=LocationData)
     links: LinksData = Field(default_factory=LinksData)

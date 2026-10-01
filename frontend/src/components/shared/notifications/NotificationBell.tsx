@@ -11,7 +11,14 @@ import {
 import { NotificationDropdown } from './NotificationDropdown';
 import { toast } from 'sonner';
 
-export const NotificationBell = () => {
+import { cn } from '@/lib/utils';
+
+interface NotificationBellProps {
+    isDarkHeader?: boolean;
+    className?: string;
+}
+
+export const NotificationBell = ({ isDarkHeader = false, className }: NotificationBellProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const isAuthenticated = useUserStore((state) => state.isAuthenticated);
 
@@ -60,12 +67,18 @@ export const NotificationBell = () => {
                     variant="ghost"
                     size="icon"
                     aria-label={`Thông báo${unreadCount > 0 ? ` (${unreadCount} chưa đọc)` : ''}`}
-                    className="relative rounded-full w-10 h-10 lg:w-12 lg:h-12 hover:bg-primary/10 transition-colors magnetic-button"
+                    className={cn(
+                        "relative rounded-full w-9 h-9 flex items-center justify-center transition-colors magnetic-button p-0",
+                        isDarkHeader
+                            ? "text-white hover:bg-white/20"
+                            : "text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800",
+                        className
+                    )}
                 >
-                    <Bell className="w-5 h-5 lg:w-6 lg:h-6 text-foreground/80" />
+                    <Bell className="w-5 h-5 drop-shadow-sm stroke-[2.2]" />
 
                     {unreadCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] font-black leading-[18px] text-white text-center shadow-sm ring-2 ring-background">
+                        <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 px-1 text-[10px] font-black leading-[18px] text-white text-center shadow-sm ring-2 ring-background">
                             {unreadCount > 99 ? '99+' : unreadCount}
                         </span>
                     )}
@@ -73,7 +86,7 @@ export const NotificationBell = () => {
             </PopoverTrigger>
             <PopoverContent
                 align="end"
-                className="w-80 md:w-[500px] p-0 border border-slate-200 bg-white shadow-2xl rounded-2xl overflow-hidden"
+                className="w-80 md:w-[500px] p-0 border border-border bg-card shadow-2xl rounded-2xl overflow-hidden"
                 sideOffset={8}
             >
                 <NotificationDropdown onClose={() => setIsOpen(false)} />

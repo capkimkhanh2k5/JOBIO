@@ -5,8 +5,11 @@ from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
+from PIL import Image
+import io
 
 from apps.core.users.models import CustomUser
+from apps.moderation.services import ModerationBlocked
 from apps.system.file_uploads.services.file_uploads import save_upload
 
 MEDIA_ROOT = tempfile.mkdtemp()
@@ -31,12 +34,17 @@ class SaveUploadServiceTests(TestCase):
             email="upload-service@test.com", password="pwd"
         )
 
+    def _image_file(self, name="avatar.jpg"):
+        buffer = io.BytesIO()
+        Image.new("RGB", (20, 20), "blue").save(buffer, "jpeg")
+        return SimpleUploadedFile(name, buffer.getvalue(), content_type="image/jpeg")
+
     @patch("cloudinary.uploader.upload")
     def test_cloudinary_image_public_id_does_not_include_extension(self, mock_upload):
         mock_upload.return_value = {
             "secure_url": "https://res.cloudinary.com/demo/image/upload/v1/id.jpg"
         }
-        file_obj = SimpleUploadedFile("avatar.jpg", b"image", content_type="image/jpeg")
+        file_obj = self._image_file()
 
         upload = save_upload(self.user, file_obj, is_public=True)
 
@@ -51,7 +59,7 @@ class SaveUploadServiceTests(TestCase):
             "secure_url": "https://res.cloudinary.com/demo/raw/upload/v1/file.pdf"
         }
         file_obj = SimpleUploadedFile(
-            "resume.pdf", b"%PDF", content_type="application/pdf"
+            "resume.pdf", b"%PDF-1.4\n", content_type="application/pdf"
         )
 
         save_upload(self.user, file_obj, is_public=False)
@@ -88,10 +96,45 @@ class SaveUploadServiceTests(TestCase):
         mock_upload.return_value = {"secure_url": cloudinary_url}
         mock_create.side_effect = RuntimeError("db down")
         file_obj = SimpleUploadedFile(
-            "resume.pdf", b"%PDF", content_type="application/pdf"
+            "resume.pdf", b"%PDF-1.4\n", content_type="application/pdf"
         )
 
         with self.assertRaisesMessage(RuntimeError, "db down"):
             save_upload(self.user, file_obj, is_public=False)
 
         mock_delete.assert_called_once_with(cloudinary_url, "raw")
+
+    def test_fake_public_image_mime_is_rejected_before_upload(self):
+        file_obj = SimpleUploadedFile(
+            "avatar.jpg", b"not really an image", content_type="image/jpeg"
+        )
+
+        with self.assertRaises(ModerationBlocked):
+            save_upload(self.user, file_obj, is_public=True)
+
+    def test_fake_pdf_magic_is_rejected_before_upload(self):
+        file_obj = SimpleUploadedFile(
+            "resume.pdf", b"not really a pdf", content_type="application/pdf"
+        )
+
+        with self.assertRaises(ModerationBlocked) as ctx:
+            save_upload(self.user, file_obj, is_public=False)
+
+        reason_codes = {reason["code"] for reason in ctx.exception.result.reasons}
+        self.assertIn("invalid_pdf_magic", reason_codes)
+
+    def test_svg_public_upload_is_rejected(self):
+        file_obj = SimpleUploadedFile(
+            "logo.svg",
+            b"<svg><script>alert('x')</script></svg>",
+            content_type="image/svg+xml",
+        )
+
+        with self.assertRaises(ModerationBlocked):
+            save_upload(self.user, file_obj, is_public=True)
+
+    def test_unsafe_image_filename_is_rejected(self):
+        file_obj = self._image_file("nsfw-avatar.jpg")
+
+        with self.assertRaises(ModerationBlocked):
+            save_upload(self.user, file_obj, is_public=True)

@@ -248,22 +248,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         className={cn(
                                             "relative flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group overflow-hidden",
                                             field.value === 'candidate'
-                                                ? "border-blue-600 bg-blue-50/50 shadow-md shadow-blue-500/10"
-                                                : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-white"
+                                                ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
+                                                : "border-border/60 bg-muted/50 hover:border-border hover:bg-card"
                                         )}
                                     >
                                         <div className={cn(
                                             "p-2 rounded-xl transition-all duration-300",
-                                            field.value === 'candidate' ? "bg-blue-600 text-white" : "bg-white text-slate-400 shadow-sm"
+                                            field.value === 'candidate' ? "bg-primary text-white" : "bg-card text-muted-foreground/60 shadow-sm"
                                         )}>
                                             <User className="w-5 h-5" />
                                         </div>
                                         <div className="flex flex-col items-start">
-                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'candidate' ? "text-blue-900" : "text-slate-600")}>Tìm việc làm</span>
-                                            <span className="text-[10px] text-slate-400 font-medium">Ứng viên</span>
+                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'candidate' ? "text-foreground" : "text-muted-foreground")}>Tìm việc làm</span>
+                                            <span className="text-[10px] text-muted-foreground/60 font-medium">Ứng viên</span>
                                         </div>
                                         {field.value === 'candidate' && (
-                                            <div className="absolute top-0 right-0 w-6 h-6 bg-blue-600 flex items-center justify-center rounded-bl-lg">
+                                            <div className="absolute top-0 right-0 w-6 h-6 bg-primary flex items-center justify-center rounded-bl-lg">
                                                 <CheckCircle2 className="w-3 h-3 text-white" />
                                             </div>
                                         )}
@@ -275,22 +275,22 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         className={cn(
                                             "relative flex items-center gap-3 p-3 rounded-2xl border-2 transition-all duration-300 group overflow-hidden",
                                             field.value === 'company'
-                                                ? "border-indigo-600 bg-indigo-50/50 shadow-md shadow-indigo-500/10"
-                                                : "border-slate-100 bg-slate-50/50 hover:border-slate-200 hover:bg-white"
+                                                ? "border-primary bg-primary/8/50 shadow-md shadow-primary/10"
+                                                : "border-border/60 bg-muted/50 hover:border-border hover:bg-card"
                                         )}
                                     >
                                         <div className={cn(
                                             "p-2 rounded-xl transition-all duration-300",
-                                            field.value === 'company' ? "bg-indigo-600 text-white" : "bg-white text-slate-400 shadow-sm"
+                                            field.value === 'company' ? "bg-primary text-white" : "bg-card text-muted-foreground/60 shadow-sm"
                                         )}>
                                             <Briefcase className="w-5 h-5" />
                                         </div>
                                         <div className="flex flex-col items-start">
-                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'company' ? "text-indigo-900" : "text-slate-600")}>Tuyển dụng</span>
-                                            <span className="text-[10px] text-slate-400 font-medium">Công ty</span>
+                                            <span className={cn("text-[14px] font-bold leading-tight", field.value === 'company' ? "text-primary" : "text-muted-foreground")}>Tuyển dụng</span>
+                                            <span className="text-[10px] text-muted-foreground/60 font-medium">Công ty</span>
                                         </div>
                                         {field.value === 'company' && (
-                                            <div className="absolute top-0 right-0 w-6 h-6 bg-indigo-600 flex items-center justify-center rounded-bl-lg">
+                                            <div className="absolute top-0 right-0 w-6 h-6 bg-primary flex items-center justify-center rounded-bl-lg">
                                                 <CheckCircle2 className="w-3 h-3 text-white" />
                                             </div>
                                         )}
@@ -311,7 +311,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                     <FormControl>
                                         <Input
                                             placeholder="Nguyễn Văn A"
-                                            className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                            className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                             {...field}
                                         />
                                     </FormControl>
@@ -332,7 +332,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         <FormControl>
                                             <Input
                                                 placeholder="Công ty CP Công Nghệ JOBIO"
-                                                className="h-11 bg-white border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder:font-normal"
+                                                className="h-11 bg-card border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -350,7 +350,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         <FormControl>
                                             <Input
                                                 placeholder="0101234567"
-                                                className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium placeholder:font-normal"
+                                                className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -372,7 +372,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         <Input
                                             placeholder="name@example.com"
                                             className={cn(
-                                                "h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal pr-10",
+                                                "h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal pr-10",
                                                 emailStatus === 'taken' && "border-red-500 focus:border-red-500 focus:ring-red-500/10",
                                                 (emailStatus === 'available' && isOtpVerified) && "border-green-500 focus:border-green-500 focus:ring-green-500/10"
                                             )}
@@ -416,7 +416,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                             }}
                                         />
                                         <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                            {isCheckingEmail && <Loader2 className="w-4 h-4 text-gray-400 animate-spin mr-2" />}
+                                            {isCheckingEmail && <Loader2 className="w-4 h-4 text-muted-foreground/60 animate-spin mr-2" />}
                                             {!isCheckingEmail && emailStatus === 'available' && <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />}
                                             {!isCheckingEmail && emailStatus === 'taken' && <XCircle className="w-4 h-4 text-red-500 mr-2" />}
 
@@ -426,7 +426,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                                 variant="outline"
                                                 className={cn(
                                                     "h-8 px-3 text-xs font-semibold transition-all",
-                                                    countdown > 0 ? "bg-slate-100 text-slate-500 border-slate-200" : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+                                                    countdown > 0 ? "bg-muted text-muted-foreground border-border" : "bg-card text-primary border-primary/20 hover:bg-primary/8 hover:border-primary/25"
                                                 )}
                                                 disabled={isSendingOtp || countdown > 0 || isCheckingEmail || emailStatus === 'taken' || !GMAIL_REGEX.test(form.watch('email'))}
                                                 onClick={handleSendOtp}
@@ -456,7 +456,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                 <FormItem>
                                     <div className="flex items-center justify-between">
                                         <FormLabel>Mã xác nhận (OTP)</FormLabel>
-                                        {isVerifyingOtp && <span className="text-xs text-blue-500 flex items-center"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Đang kiểm tra...</span>}
+                                        {isVerifyingOtp && <span className="text-xs text-primary flex items-center"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Đang kiểm tra...</span>}
                                     </div>
                                     <div className="flex justify-center">
                                         <FormControl>
@@ -489,7 +489,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         <Input
                                             type="password"
                                             placeholder="••••••••"
-                                            className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                            className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                             {...field}
                                         />
                                     </FormControl>
@@ -508,7 +508,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                         <Input
                                             type="password"
                                             placeholder="••••••••"
-                                            className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                            className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                             {...field}
                                         />
                                     </FormControl>
@@ -527,7 +527,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                                     id="agreeTerms"
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="border-gray-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary mt-1"
+                                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary mt-1"
                                     tabIndex={-1}
                                 />
                                 <Label htmlFor="agreeTerms" className="text-xs font-normal text-muted-foreground leading-relaxed">
@@ -542,8 +542,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                         className={cn(
                             "w-full h-11 font-semibold transition-all shadow-md hover:-translate-y-[1px]",
                             (isOtpVerified && form.formState.isValid)
-                                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
-                                : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none border border-slate-200"
+                                ? "bg-gradient-to-r from-primary to-primary hover:from-teal-700 hover:to-primary text-white shadow-primary/20"
+                                : "bg-muted text-muted-foreground/60 cursor-not-allowed shadow-none border border-border"
                         )}
                         disabled={form.formState.isSubmitting || !isOtpVerified || !form.formState.isValid}
                     >
@@ -554,11 +554,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             </Form>
 
             <div className="flex items-center gap-4 py-2">
-                <div className="h-[1px] flex-1 bg-gray-200" />
-                <span className="text-xs text-gray-400 whitespace-nowrap">
+                <div className="h-[1px] flex-1 bg-muted" />
+                <span className="text-xs text-muted-foreground/60 whitespace-nowrap">
                     Hoặc tiếp tục với
                 </span>
-                <div className="h-[1px] flex-1 bg-gray-200" />
+                <div className="h-[1px] flex-1 bg-muted" />
             </div>
 
             <SocialAuth />
@@ -567,7 +567,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
                 Đã có tài khoản?{' '}
                 <Button
                     variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-500 hover:no-underline font-bold transition-colors"
+                    className="p-2 -mx-2 h-auto text-primary hover:text-primary hover:no-underline font-bold transition-colors"
                     onClick={onSwitchToLogin}
                 >
                     Đăng nhập ngay

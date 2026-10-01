@@ -2,7 +2,7 @@ from typing import Optional
 from django.utils import timezone
 from pydantic import BaseModel, ConfigDict
 
-from apps.communication.notifications.models import Notification
+from apps.communication.notifications.models import Notification, NotificationPreference
 from apps.communication.notification_types.models import NotificationType
 from apps.core.users.models import CustomUser
 
@@ -175,6 +175,9 @@ def send_notification(
     except (CustomUser.DoesNotExist, NotificationType.DoesNotExist):
         return None
 
+    if not _notification_allowed(user, notification_type_name):
+        return None
+
     return Notification.objects.create(
         user=user,
         notification_type=notification_type,
@@ -217,7 +220,11 @@ def send_bulk_notifications(
     except NotificationType.DoesNotExist:
         return []
 
-    users = CustomUser.objects.filter(id__in=user_ids)
+    users = [
+        user
+        for user in CustomUser.objects.filter(id__in=user_ids)
+        if _notification_allowed(user, notification_type_name)
+    ]
 
     notifications = [
         Notification(
@@ -264,3 +271,19 @@ def notify_admins(
         entity_type=entity_type,
         entity_id=entity_id,
     )
+
+
+def _notification_allowed(user: CustomUser, notification_type_name: str) -> bool:
+    preference_field = {
+        "job_alert": "job_alerts",
+        "job_alert_match": "job_alerts",
+        "application": "application_updates",
+        "interview": "application_updates",
+        "message": "message_notifications",
+    }.get(notification_type_name)
+
+    if not preference_field:
+        return True
+
+    preferences, _ = NotificationPreference.objects.get_or_create(user=user)
+    return bool(getattr(preferences, preference_field, True))

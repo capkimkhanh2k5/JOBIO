@@ -50,7 +50,7 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
     return (
         <div className="space-y-6 text-center">
             <div className="flex justify-center mb-8">
-                <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-600 shadow-lg shadow-cyan-500/10 border border-cyan-500/20">
+                <div className="w-20 h-20 bg-teal-500/20 rounded-full flex items-center justify-center text-teal-600 shadow-lg shadow-cyan-500/10 border border-teal-500/20">
                     <MailCheck className="w-10 h-10" />
                 </div>
             </div>
@@ -59,7 +59,7 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
                 <div className="flex justify-center gap-2">
                     <Input
                         placeholder="Nhập mã xác thực"
-                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-xl tracking-widest max-w-[240px]"
+                        className="bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-xl tracking-widest max-w-[240px]"
                         value={token}
                         onChange={(e) => setToken(e.target.value)}
                     />
@@ -75,7 +75,7 @@ export const VerifyEmailView: React.FC<VerifyEmailViewProps> = ({
                 </Button>
 
                 <div className="pt-4">
-                    <p className="text-sm text-slate-600 font-medium mb-2">Bạn không nhận được mã?</p>
+                    <p className="text-sm text-muted-foreground font-medium mb-2">Bạn không nhận được mã?</p>
                     <Button
                         variant="link"
                         className="text-primary hover:text-primary/80 p-0 h-auto font-bold"

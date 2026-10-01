@@ -31,9 +31,18 @@ import {
 import { PageHeader } from '@/components/shared/PageHeader';
 import { DashboardKpiCard } from '@/components/shared/DashboardKpiCard';
 import { useUserStore } from '@/store/userStore';
+import type { PolicyReason } from '@/types/api';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 type BulkAction = 'close' | 'delete';
+
+function extractPolicyReasons(error: any): PolicyReason[] {
+    const data = error?.response?.data;
+    if (Array.isArray(data?.errors)) return data.errors;
+    if (Array.isArray(data?.moderation?.reasons)) return data.moderation.reasons;
+    if (data?.detail) return [{ code: data.code || 'job_status_error', message: data.detail }];
+    return [];
+}
 
 export default function ManageJobs() {
     const queryClient = useQueryClient();
@@ -79,7 +88,7 @@ export default function ManageJobs() {
             companyService.listMyJobs({
                 ordering: '-posted_at',
                 page: 1,
-                page_size: 1000,
+                page_size: 100,
             }).then(r => r.data),
         staleTime: 30_000,
         enabled: !!user?.company_id,
@@ -127,10 +136,25 @@ export default function ManageJobs() {
     });
 
     const statusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: string; status: string }) =>
-            jobService.update(Number(id), { status } as any).then(r => r.data),
+        mutationFn: ({ id, status }: { id: string; status: string }) => {
+            if (status === 'published') return jobService.publish(Number(id)).then(r => r.data);
+            if (status === 'closed') return jobService.close(Number(id)).then(r => r.data);
+            return jobService.update(Number(id), { status } as any).then(r => r.data);
+        },
         onSuccess: (_, { status }) => {
             toast.success(status === 'closed' ? 'Đã đóng tin tuyển dụng' : 'Đã mở lại tin tuyển dụng');
+            invalidate();
+        },
+        onError: (error: any) => {
+            const issues = extractPolicyReasons(error);
+            const firstIssue = issues[0];
+            if (firstIssue) {
+                toast.error(firstIssue.message, {
+                    description: firstIssue.suggestion || 'Tin đã được giữ ở trạng thái hiện tại để bạn chỉnh sửa trước khi publish.',
+                });
+            } else {
+                toast.error(error?.response?.data?.detail || 'Không thể cập nhật trạng thái tin. Vui lòng thử lại.');
+            }
             invalidate();
         },
     });
@@ -214,7 +238,7 @@ export default function ManageJobs() {
 
     return (
         <div className="w-full mx-auto min-h-screen">
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Quản lý tin tuyển dụng"
                     description={total > 0
@@ -223,7 +247,7 @@ export default function ManageJobs() {
                     icon={Briefcase}
                     action={
                         <Link to="/company/jobs/create">
-                            <button className="flex items-center gap-2 h-11 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition-all cursor-pointer">
+                            <button className="flex items-center gap-2 h-11 px-6 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-primary text-white font-bold rounded-xl shadow-md transition-all cursor-pointer">
                                 <PlusSquare className="w-4 h-4" />
                                 Đăng tin mới
                             </button>
@@ -242,16 +266,16 @@ export default function ManageJobs() {
                 >
                     {(
                         [
-                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, icon: ListChecks, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Tất cả', value: statsJobs.total, key: 'all' as const, icon: ListChecks, iconTone: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border', hoverBg: 'bg-muted/50' } },
                             { label: 'Đang tuyển', value: statsJobs.published, key: 'published' as const, icon: Radio, iconTone: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', hoverBg: 'bg-emerald-50/40' } },
-                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, icon: FilePenLine, iconTone: { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-300', hoverBg: 'bg-slate-50/50' } },
+                            { label: 'Nháp', value: statsJobs.draft, key: 'draft' as const, icon: FilePenLine, iconTone: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border', hoverBg: 'bg-muted/50' } },
                             { label: 'Đã đóng', value: statsJobs.closed, key: 'closed' as const, icon: CircleX, iconTone: { bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-200', hoverBg: 'bg-rose-50/40' } },
                         ] as const
                     ).map(stat => (
                         <div
                             key={stat.key}
                             onClick={() => handleStatusChange(stat.key)}
-                            className={`cursor-pointer transition-all duration-200 rounded-2xl ${statusFilter === stat.key ? 'ring-2 ring-violet-500 ring-offset-2' : 'hover:scale-[1.02]'}`}
+                            className={`cursor-pointer transition-all duration-200 rounded-2xl ${statusFilter === stat.key ? 'ring-2 ring-teal-500 ring-offset-2' : 'hover:scale-[1.02]'}`}
                         >
                             <DashboardKpiCard
                                 icon={<stat.icon className="w-5 h-5" />}
@@ -337,10 +361,10 @@ export default function ManageJobs() {
                                 value={pageSize.toString()}
                                 onValueChange={v => { setPageSize(Number(v)); setPage(1); }}
                             >
-                                <SelectTrigger className="w-16 h-8 bg-white border-border text-foreground text-xs shadow-sm">
+                                <SelectTrigger className="w-16 h-8 bg-card border-border text-foreground text-xs shadow-sm">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-border shadow-lg">
+                                <SelectContent className="bg-card border-border shadow-lg">
                                     {PAGE_SIZE_OPTIONS.map(n => (
                                         <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
                                     ))}
@@ -354,7 +378,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page <= 1}
                                 onClick={() => setPage(p => p - 1)}
-                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
+                                className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
                                 aria-label="Previous page"
                             >
                                 <ChevronLeft className="w-4 h-4" />
@@ -376,8 +400,8 @@ export default function ManageJobs() {
                                             onClick={() => setPage(p as number)}
                                             className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-all
                                                 ${page === p
-                                                    ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/20 border-violet-600'
-                                                    : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900'
+                                                    ? 'bg-teal-600 text-white shadow-sm shadow-teal-500/20 border-teal-600'
+                                                    : 'border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground'
                                                 }`}
                                             aria-current={page === p ? 'page' : undefined}
                                         >
@@ -389,7 +413,7 @@ export default function ManageJobs() {
                             <button
                                 disabled={page >= totalPages}
                                 onClick={() => setPage(p => p + 1)}
-                                className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-500 hover:text-slate-900 transition-all"
+                                className="p-1.5 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed text-muted-foreground hover:text-foreground transition-all"
                                 aria-label="Next page"
                             >
                                 <ChevronRight className="w-4 h-4" />
@@ -414,7 +438,7 @@ export default function ManageJobs() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel
-                            className="rounded-xl border-slate-200"
+                            className="rounded-xl border-border"
                             onClick={() => setDeleteTargetId(null)}
                         >
                             Hủy
@@ -439,7 +463,7 @@ export default function ManageJobs() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel
-                            className="rounded-xl border-slate-200"
+                            className="rounded-xl border-border"
                             onClick={() => setIsBulkDeleteOpen(false)}
                         >
                             Hủy

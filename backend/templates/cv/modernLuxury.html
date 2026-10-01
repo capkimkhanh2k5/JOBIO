@@ -54,142 +54,125 @@
     </div>
 
     <!-- Contact bar -->
-    <div class="flex flex-wrap gap-6 text-[11px] tracking-widest uppercase text-gray-500 pb-4 border-t border-black/10 pt-6">
+    <div class="flex flex-wrap gap-4 text-[10px] tracking-wider uppercase text-gray-500 pb-4 border-t border-black/10 pt-6 break-all">
         {% if data.personal.email %}
-        <span>{{ data.personal.email }}</span>
-        {% else %}
-        <span class="placeholder">Email</span>
+        <span class="break-all">{{ data.personal.email }}</span>
         {% endif %}
         {% if data.personal.phone %}
         <span>{{ data.personal.phone }}</span>
         {% endif %}
         {% if data.links %}
-            {% if data.links.linkedin %}<span>{{ data.links.linkedin }}</span>{% endif %}
-            {% if data.links.github %}<span>{{ data.links.github }}</span>{% endif %}
-            {% if data.links.portfolio %}<span>{{ data.links.portfolio }}</span>{% endif %}
+            {% if data.links.linkedin %}<span class="break-all">{{ data.links.linkedin }}</span>{% endif %}
+            {% if data.links.github %}<span class="break-all">{{ data.links.github }}</span>{% endif %}
+            {% if data.links.portfolio %}<span class="break-all">{{ data.links.portfolio }}</span>{% endif %}
         {% endif %}
     </div>
 </section>
 
+{% if data.personal.bio %}
 <!-- ── Bio / Narrative ── -->
-<section class="py-12 px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 border-b border-black/10">
+<section class="py-8 px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-8 border-b border-black/10">
     <div class="hidden md:flex md:col-span-3 border-r border-black/10 items-start">
-        <span class="text-[10px] tracking-[0.3em] uppercase text-gray-400 pt-4 block">— Giới thiệu</span>
+        <span class="text-[10px] tracking-[0.3em] uppercase text-gray-400 pt-4 block">— {% if data.language == 'en' %}About Me{% else %}Giới thiệu{% endif %}</span>
     </div>
     <div class="md:col-span-9 md:pl-12 flex flex-col justify-center">
-        {% if data.personal.bio %}
-        <p class="text-xl font-body leading-relaxed text-black/90">{{ data.personal.bio }}</p>
-        {% else %}
-        <p class="placeholder text-xl font-body leading-relaxed">Viết giới thiệu bản thân tại đây...</p>
-        {% endif %}
+        <p class="text-base font-body leading-relaxed text-black/90">{{ data.personal.bio }}</p>
     </div>
 </section>
+{% endif %}
 
+{% if data.experience %}
 <!-- ── Experience (The Chronicle) ── -->
-<section class="py-12 border-b border-black/10 bg-white/30">
-    <div class="px-6 md:px-12 mb-12">
-        <h2 class="font-display text-5xl md:text-7xl uppercase">Kinh nghiệm</h2>
+<section class="py-10 border-b border-black/10 bg-white/30">
+    <div class="px-6 md:px-12 mb-8">
+        <h2 class="font-display text-4xl md:text-5xl uppercase">{% if data.language == 'en' %}Experience{% else %}Kinh nghiệm{% endif %}</h2>
     </div>
-    {% if data.experience %}
     <div class="relative">
         <div class="absolute left-[28%] top-0 bottom-0 w-[1px] bg-black/10 hidden md:block"></div>
         <div class="space-y-0">
             {% for exp in data.experience %}
             <div class="experience-row grid grid-cols-1 md:grid-cols-[28%_1px_1fr] group border-t border-black/10">
-                <div class="p-6 md:p-10 text-right">
-                    <span class="text-sm font-body tracking-widest text-gray-400 uppercase">
+                <div class="p-6 md:p-8 text-right">
+                    <span class="text-xs font-body tracking-widest text-gray-400 uppercase">
                         {% if exp.start_date %}{{ exp.start_date }}{% endif %}
-                        {% if exp.is_current %} — Hiện tại{% elif exp.end_date %} — {{ exp.end_date }}{% endif %}
+                        {% if exp.is_current %} — {% if data.language == 'en' %}Present{% else %}Hiện tại{% endif %}{% elif exp.end_date %} — {{ exp.end_date }}{% endif %}
                     </span>
-                    <p class="font-body text-sm italic mt-1 text-black/50">{{ exp.company_name }}</p>
+                    <p class="font-body text-xs italic mt-1 text-black/50">{{ exp.company_name }}</p>
                 </div>
                 <div class="rail-line bg-black/10 hidden md:block"></div>
-                <div class="p-6 md:p-10 md:pl-16">
-                    <h3 class="font-display text-3xl md:text-4xl mb-3">
+                <div class="p-6 md:p-8 md:pl-12">
+                    <h3 class="font-display text-2xl md:text-3xl mb-2">
                         {% if exp.position %}{{ exp.position }}{% elif exp.job_title %}{{ exp.job_title }}{% else %}Chức vụ{% endif %}
                     </h3>
                     {% if exp.description %}
-                    <p class="text-black/70 max-w-2xl font-body text-sm leading-relaxed">{{ exp.description }}</p>
+                    <p class="text-black/70 max-w-2xl font-body text-xs leading-relaxed">{{ exp.description }}</p>
                     {% endif %}
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
-    {% else %}
-    <div class="px-6 md:px-12">
-        <p class="placeholder font-body">Thêm kinh nghiệm làm việc của bạn...</p>
-    </div>
-    {% endif %}
 </section>
+{% endif %}
 
 <!-- ── Footer Grid: Skills, Education, Contact ── -->
 <footer class="pt-0">
     <div class="grid grid-cols-1 md:grid-cols-3 border-t border-black">
 
         <!-- Skills -->
-        <div class="p-10 border-b md:border-b-0 md:border-r border-black/10">
-            <h4 class="font-display text-4xl mb-8">Kỹ năng</h4>
+        <div class="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10">
             {% if data.skills %}
-            <ul class="font-body text-sm space-y-3">
+            <h4 class="font-display text-2xl mb-6">{% if data.language == 'en' %}Skills{% else %}Kỹ năng{% endif %}</h4>
+            <div class="flex flex-wrap gap-1.5 font-body text-[10px]">
                 {% for skill in data.skills %}
-                <li class="flex justify-between items-center">
-                    <span>{{ skill.name }}</span>
-                    {% if skill.proficiency_level %}
-                    <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ skill.proficiency_level }}</span>
-                    {% endif %}
-                </li>
+                <span class="px-2 py-0.5 bg-black/5 rounded text-black/80 font-medium break-all">
+                    {{ skill.name }}
+                </span>
                 {% endfor %}
-            </ul>
-            {% else %}
-            <p class="placeholder font-body text-sm">Thêm kỹ năng...</p>
+            </div>
             {% endif %}
         </div>
 
         <!-- Education -->
-        <div class="p-10 border-b md:border-b-0 md:border-r border-black/10">
-            <h4 class="font-display text-4xl mb-8">Học vấn</h4>
+        <div class="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black/10">
             {% if data.education %}
-            <div class="space-y-6">
+            <h4 class="font-display text-2xl mb-6">{% if data.language == 'en' %}Education{% else %}Học vấn{% endif %}</h4>
+            <div class="space-y-4">
                 {% for edu in data.education %}
                 <div>
-                    <p class="font-body text-sm font-medium">
+                    <p class="font-body text-xs font-medium">
                         {% if edu.degree %}{{ edu.degree }}{% if edu.field_of_study %} · {{ edu.field_of_study }}{% endif %}
                         {% elif edu.field_of_study %}{{ edu.field_of_study }}
                         {% else %}Bằng cấp{% endif %}
                     </p>
-                    <p class="text-xs text-gray-400 mt-1">{{ edu.school_name }}</p>
-                    {% if edu.end_date %}<p class="text-[10px] text-gray-400 uppercase tracking-wider mt-1">{{ edu.end_date }}</p>{% elif edu.is_current %}<p class="text-[10px] text-gray-400 uppercase tracking-wider mt-1">Hiện tại</p>{% endif %}
+                    <p class="text-[11px] text-gray-500 mt-0.5">{{ edu.school_name }}</p>
+                    {% if edu.end_date %}<p class="text-[9px] text-gray-400 uppercase tracking-wider mt-0.5">{{ edu.end_date }}</p>{% elif edu.is_current %}<p class="text-[9px] text-gray-400 uppercase tracking-wider mt-0.5">Present</p>{% endif %}
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <p class="placeholder font-body text-sm">Thêm học vấn...</p>
             {% endif %}
         </div>
 
         <!-- Languages, Certifications & Contact -->
-        <div class="bg-[#0A0A0A] p-10 flex flex-col justify-between">
+        <div class="bg-[#0A0A0A] p-6 md:p-8 flex flex-col justify-between">
             <div>
-                <h4 class="font-display text-white text-3xl mb-6">Ngôn ngữ</h4>
                 {% if data.languages %}
-                <ul class="space-y-2 mb-8">
+                <h4 class="font-display text-white text-2xl mb-4">{% if data.language == 'en' %}Languages{% else %}Ngôn ngữ{% endif %}</h4>
+                <ul class="space-y-1.5 mb-6">
                     {% for lang in data.languages %}
-                    <li class="flex justify-between text-white/70 font-body text-sm">
+                    <li class="flex justify-between text-white/70 font-body text-xs">
                         <span>{{ lang.name }}</span>
-                        <span class="text-white/30 text-[10px] uppercase tracking-wider">{{ lang.proficiency_level }}</span>
+                        <span class="text-white/30 text-[9px] uppercase tracking-wider">{{ lang.proficiency_level }}</span>
                     </li>
                     {% endfor %}
                 </ul>
-                {% else %}
-                <p class="text-white/30 font-body text-sm mb-8 italic">Thêm ngôn ngữ...</p>
                 {% endif %}
 
                 {% if data.certifications %}
-                <h4 class="font-display text-white text-3xl mb-4">Chứng chỉ</h4>
-                <ul class="space-y-2 mb-8">
+                <h4 class="font-display text-white text-2xl mb-3">Chứng chỉ</h4>
+                <ul class="space-y-1.5 mb-6">
                     {% for cert in data.certifications %}
-                    <li class="text-white/70 font-body text-sm">
+                    <li class="text-white/70 font-body text-xs">
                         {{ cert.name }}{% if cert.issuing_organization %} <span class="text-white/30">· {{ cert.issuing_organization }}</span>{% endif %}
                     </li>
                     {% endfor %}
@@ -197,10 +180,10 @@
                 {% endif %}
             </div>
 
-            <div class="border-t border-white/10 pt-8">
-                <p class="text-[10px] tracking-widest text-white/30 uppercase mb-3">Liên hệ</p>
-                <p class="text-white font-body font-bold text-sm">
-                    {% if data.personal.email %}{{ data.personal.email }}{% else %}<span class="text-white/30 italic">Email chưa điền</span>{% endif %}
+            <div class="border-t border-white/10 pt-6">
+                <p class="text-[9px] tracking-widest text-white/40 uppercase mb-2">Liên hệ</p>
+                <p class="text-white font-body text-[10px] break-all leading-tight">
+                    {% if data.personal.email %}{{ data.personal.email }}{% endif %}
                 </p>
             </div>
         </div>

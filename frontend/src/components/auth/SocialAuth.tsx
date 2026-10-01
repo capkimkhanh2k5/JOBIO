@@ -14,7 +14,11 @@ const GoogleIcon = () => (
     </svg>
 );
 
-export const SocialAuth: React.FC = () => {
+interface SocialAuthProps {
+    onRequire2FA?: (challengeId: string) => void;
+}
+
+export const SocialAuth: React.FC<SocialAuthProps> = ({ onRequire2FA }) => {
     const setAuth = useUserStore(state => state.setAuth);
 
     const loginWithGoogle = useGoogleLogin({
@@ -26,6 +30,20 @@ export const SocialAuth: React.FC = () => {
                     provider: 'google',
                     access_token: tokenResponse.access_token,
                 });
+                if (data.requires_2fa) {
+                    toast.dismiss();
+                    if (!data.challenge_id || !onRequire2FA) {
+                        toast.error('Không thể tạo phiên xác thực 2FA. Vui lòng thử lại.');
+                        return;
+                    }
+                    onRequire2FA(data.challenge_id);
+                    return;
+                }
+                if (!data.user || !data.access_token || !data.refresh_token) {
+                    toast.dismiss();
+                    toast.error('Phản hồi đăng nhập không hợp lệ. Vui lòng thử lại.');
+                    return;
+                }
                 setAuth(data.user, data.access_token, data.refresh_token);
                 toast.dismiss();
                 toast.success(`Chào mừng ${data.user.full_name}!`);
@@ -43,11 +61,11 @@ export const SocialAuth: React.FC = () => {
         <Button
             type="button"
             variant="outline"
-            className="w-full bg-white border-gray-200 hover:bg-gray-50 text-gray-600 transition-all duration-300 shadow-sm gap-3 py-5"
+            className="w-full bg-card border-border hover:bg-muted text-muted-foreground transition-all duration-300 shadow-sm gap-3 py-5"
             onClick={() => loginWithGoogle()}
         >
             <GoogleIcon />
-            <span className="text-sm font-medium text-gray-700">Đăng nhập bằng Google</span>
+            <span className="text-sm font-medium text-foreground/80">Đăng nhập bằng Google</span>
         </Button>
     );
 };

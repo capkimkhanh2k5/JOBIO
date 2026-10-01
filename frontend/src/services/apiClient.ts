@@ -9,7 +9,6 @@ export { applicationService } from './applicationService';
 export { candidateService } from './candidateService';
 export { savedJobService } from './savedJobService';
 export { cvService } from './cvService';
-export { alertService } from './alertService';
 export { taxonomyService } from './taxonomyService';
 export { dashboardService } from './dashboardService';
 export { notificationService } from './notificationService';

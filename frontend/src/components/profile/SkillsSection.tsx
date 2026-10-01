@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, Award, TrendingUp, Pencil, Users } from 'lucide-react';
+import { Plus, X, Award, TrendingUp, Pencil, Users, Sparkles } from 'lucide-react';
 import { SkillIcon } from '@/components/ui/SkillIcon';
 import { Button } from '@/components/ui/button';
 
@@ -10,7 +10,7 @@ import { taxonomyService } from '@/services/taxonomyService';
 import { SectionWrapper } from './SectionWrapper';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,31 +36,25 @@ interface SkillEditDialogProps {
     selectedSkillInfo?: { id: number | null; name: string } | null;
 }
 
+
 const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: SkillEditDialogProps) => {
     const queryClient = useQueryClient();
     const isEdit = !!skill;
 
     const [name, setName] = useState(skill?.name || selectedSkillInfo?.name || '');
     const [skillId, setSkillId] = useState<number | null>(selectedSkillInfo?.id || null);
-    const [level, setLevel] = useState(skill?.proficiency_level || 'intermediate');
-    const [yearsExp, setYearsExp] = useState(skill?.years_of_experience?.toString() || '1');
 
     useEffect(() => {
         if (open) {
             setName(skill?.skill_name || skill?.name || selectedSkillInfo?.name || '');
             setSkillId(selectedSkillInfo?.id || null);
-            setLevel(skill?.proficiency_level || 'intermediate');
-            setYearsExp(skill?.years_of_experience?.toString() || '1');
         }
     }, [open, skill, selectedSkillInfo]);
 
     const mutation = useMutation({
         mutationFn: () => {
             const skillName = name.trim();
-            const payload: any = {
-                proficiency_level: level,
-                years_of_experience: Number(yearsExp) || 0,
-            };
+            const payload: any = {};
             if (!isEdit) {
                 if (skillId) {
                     payload.skill_id = Number(skillId);
@@ -83,19 +77,51 @@ const SkillEditDialog = ({ open, onClose, skill, userId, selectedSkillInfo }: Sk
 
     return (
         <Dialog open={open} onOpenChange={o => !o && onClose()}>
-            <DialogContent className="bg-white max-w-sm rounded-[24px] border border-slate-200 shadow-xl">
-                <DialogHeader>
-                    <DialogTitle>{isEdit ? 'Chỉnh sửa kỹ năng' : 'Thêm kỹ năng'}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-5 mt-2">
-                    <div className="space-y-2">
-                        <Label>Tên kỹ năng</Label>
-                        <Input className="" value={name} onChange={e => setName(e.target.value)} placeholder="ReactJS, Python, Figma..." />
+            <DialogContent className="bg-card max-w-md rounded-[28px] border border-teal-500/20 dark:border-teal-500/30 shadow-2xl overflow-hidden p-0">
+                {/* Header Banner */}
+                <div className="relative bg-gradient-to-r from-teal-500/10 via-emerald-500/5 to-transparent p-5 border-b border-border/50">
+                    <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-2xl bg-teal-600/10 dark:bg-teal-400/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20 shrink-0 shadow-xs">
+                            <Sparkles className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-bold text-foreground">
+                                    {isEdit ? 'Chỉnh sửa kỹ năng' : 'Thêm kỹ năng chuyên môn'}
+                                </h3>
+                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${isEdit ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 'bg-teal-500/10 text-teal-600 border-teal-500/20'}`}>
+                                    {isEdit ? 'Chỉnh sửa' : 'Thêm mới'}
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Điền tên kỹ năng chuyên môn của bạn
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex justify-end gap-3">
-                        <Button variant="outline" onClick={onClose} className="rounded-full">Huỷ</Button>
-                        <Button onClick={() => mutation.mutate()} className="rounded-full px-8" disabled={mutation.isPending || !name.trim()}>
-                            {mutation.isPending ? 'Lưu...' : 'Lưu kỹ năng'}
+                </div>
+
+                <div className="p-5 space-y-4">
+                    <div className="space-y-2">
+                        <Label className="text-xs font-semibold">Tên kỹ năng <span className="text-destructive">*</span></Label>
+                        <Input
+                            className="rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/30 focus-visible:border-teal-500"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="Ví dụ: ReactJS, Python, Figma..."
+                            required
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3 border-t border-border/40">
+                        <Button type="button" variant="outline" onClick={onClose} className="rounded-full px-5">
+                            Hủy
+                        </Button>
+                        <Button
+                            onClick={() => mutation.mutate()}
+                            className="rounded-full px-7 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold shadow-lg shadow-teal-600/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            disabled={mutation.isPending || !name.trim()}
+                        >
+                            {mutation.isPending ? 'Đang lưu...' : 'Lưu kỹ năng'}
                         </Button>
                     </div>
                 </div>
@@ -199,7 +225,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     whileHover={{ scale: 1.03, y: -2 }}
                                     onMouseEnter={() => setHoveredId(String(skill.id))}
                                     onMouseLeave={() => setHoveredId(null)}
-                                    className="bg-white border border-slate-200 shadow-sm px-3 py-2 rounded-xl flex items-center gap-2 relative overflow-hidden cursor-default select-none"
+                                    className="bg-card border border-border shadow-sm px-3 py-2 rounded-xl flex items-center gap-2 relative overflow-hidden cursor-default select-none"
                                 >
                                     {/* Verified badge */}
                                     {skill.is_verified && (
@@ -212,10 +238,10 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                     <SkillIcon skillName={skill.skill_name || skill.name || ''} size={22} />
 
                                     <div className="min-w-0">
-                                        <h4 className="font-semibold text-sm truncate text-slate-800">{skill.skill_name || skill.name}</h4>
+                                        <h4 className="font-semibold text-sm truncate text-foreground">{skill.skill_name || skill.name}</h4>
                                         {skill.endorsement_count > 0 && (
                                             <div className="mt-1">
-                                                <span className="text-[10px] text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 w-fit font-medium">
+                                                <span className="text-[10px] text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 w-fit font-medium">
                                                     <Users className="w-3 h-3" />
                                                     {skill.endorsement_count} lượt xác thực
                                                 </span>
@@ -227,7 +253,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                         className="flex gap-1 ml-1 transition-opacity duration-150"
                                         style={{ opacity: isHovered ? 1 : 0, pointerEvents: isHovered ? 'auto' : 'none' }}
                                     >
-                                        <button className="p-1 hover:text-violet-600 transition-colors rounded"
+                                        <button className="p-1 hover:text-teal-600 transition-colors rounded"
                                             onClick={() => { setEditSkill(skill); setEditDialogOpen(true); }}
                                             aria-label="Chỉnh sửa kỹ năng">
                                             <Pencil className="w-3 h-3" />
@@ -247,12 +273,12 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                     <Popover open={searchOpen} onOpenChange={setSearchOpen}>
                         <PopoverTrigger asChild>
                             <Button variant="outline"
-                                className="h-auto py-2 px-4 rounded-xl border-dashed border-2 hover:border-violet-600 hover:text-violet-600 transition-all">
+                                className="h-auto py-2 px-4 rounded-xl border-dashed border-2 hover:border-teal-600 hover:text-teal-600 transition-all">
                                 <Plus className="w-5 h-5 mr-2" />
                                 Thêm kỹ năng
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[280px] p-0 rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-lg" align="start">
+                        <PopoverContent className="w-[280px] p-0 rounded-2xl overflow-hidden bg-card border border-border shadow-lg" align="start">
                             <Command className="bg-transparent" shouldFilter={false}>
                                 <CommandInput
                                     placeholder="Tìm kỹ năng (React, Python...)"
@@ -260,12 +286,12 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                 />
                                 <CommandList>
                                     <CommandEmpty className="py-5 text-center px-4">
-                                        <p className="text-sm text-slate-500 mb-3">Không tìm thấy kỹ năng phù hợp.</p>
+                                        <p className="text-sm text-muted-foreground mb-3">Không tìm thấy kỹ năng phù hợp.</p>
                                         {searchValue.trim() && (
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 hover:text-violet-800"
+                                                className="w-full border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800"
                                                 onClick={() => handleSelectSearchResult({ id: null, name: searchValue })}
                                             >
                                                 <Plus className="w-4 h-4 mr-1.5" />
@@ -278,7 +304,7 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                                             <CommandItem
                                                 key={s.id}
                                                 onSelect={() => handleSelectSearchResult(s)}
-                                                className="cursor-pointer hover:bg-violet-100"
+                                                className="cursor-pointer hover:bg-teal-100"
                                             >
                                                 <SkillIcon skillName={s.name || ''} size={20} className="mr-2" />
                                                 {s.name}
@@ -292,10 +318,10 @@ export const SkillsSection = ({ userId }: { userId: number }) => {
                 </div>
 
                 {/* Tip */}
-                <div className="bg-violet-50 p-4 rounded-2xl border border-violet-100 flex gap-4 items-start">
-                    <TrendingUp className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
+                <div className="bg-teal-50 p-4 rounded-2xl border border-teal-100 flex gap-4 items-start">
+                    <TrendingUp className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                     <div>
-                        <h5 className="font-bold text-sm text-violet-600">Mẹo cho bạn</h5>
+                        <h5 className="font-bold text-sm text-teal-600">Mẹo cho bạn</h5>
                         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                             Thêm nhiều kỹ năng thực tế sẽ có nhiều <strong>cơ hội</strong> với nhà tuyển dụng.
                         </p>

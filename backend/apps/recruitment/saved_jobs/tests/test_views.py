@@ -192,6 +192,29 @@ class SavedJobViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_save_moderation_rejected_job(self):
+        """POST /api/jobs/:id/save/ - moderation rejected job → 400"""
+        rejected_job = Job.objects.create(
+            company=self.company,
+            title="Rejected Job",
+            slug="rejected-job-save-test",
+            job_type="full-time",
+            level="junior",
+            description="Rejected job",
+            requirements="Requirements",
+            status=Job.Status.PUBLISHED,
+            moderation_status=Job.ModerationStatus.REJECTED,
+            created_by=self.employer,
+        )
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(f"/api/jobs/{rejected_job.id}/save/")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(
+            SavedJob.objects.filter(recruiter=self.recruiter, job=rejected_job).exists()
+        )
+
     def test_save_job_no_recruiter_profile(self):
         """POST /api/jobs/:id/save/ - user không có recruiter profile → 404"""
         # Create user without recruiter profile

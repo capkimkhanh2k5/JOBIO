@@ -4,7 +4,9 @@ import { LayoutGrid, List, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SORT_OPTIONS = [
+    { value: "relevance", label: "Liên quan nhất" },
     { value: "-created_at", label: "Mới nhất" },
+    { value: "-featured", label: "Nổi bật" },
     { value: "-salary_max", label: "Lương: Cao đến thấp" },
     { value: "-applications_count", label: "Nhiều ứng tuyển nhất" },
 ];
@@ -23,10 +25,10 @@ export function JobSort({ view, setView, showViewToggle = true, onMobileFilterTo
     const sortLabel = SORT_OPTIONS.find(o => o.value === sort)?.label ?? "Mới nhất";
 
     return (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-border/60">
             <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-gray-900">Tất cả việc làm</h2>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
+                <h2 className="text-base font-bold text-foreground">Tất cả việc làm</h2>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
                     {totalResults.toLocaleString()} kết quả
                 </span>
             </div>
@@ -36,7 +38,7 @@ export function JobSort({ view, setView, showViewToggle = true, onMobileFilterTo
                 <Button
                     variant="outline"
                     size="sm"
-                    className="sm:hidden flex-1 border-gray-200 text-gray-600 h-8"
+                    className="sm:hidden flex-1 border-border text-muted-foreground h-8"
                     onClick={onMobileFilterToggle}
                 >
                     <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
@@ -47,12 +49,12 @@ export function JobSort({ view, setView, showViewToggle = true, onMobileFilterTo
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm"
-                            className="border-gray-200 text-gray-600 bg-white hover:bg-gray-50 h-8 text-xs gap-1">
+                            className="border-border text-muted-foreground bg-card hover:bg-muted h-8 text-xs gap-1">
                             Sắp xếp: {sortLabel}
                             <ChevronDown className="h-3.5 w-3.5 ml-1" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52 bg-white border-gray-200 shadow-lg">
+                    <DropdownMenuContent align="end" className="w-52 bg-card border-border shadow-lg">
                         {SORT_OPTIONS.map(opt => (
                             <DropdownMenuItem
                                 key={opt.value}
@@ -65,14 +67,14 @@ export function JobSort({ view, setView, showViewToggle = true, onMobileFilterTo
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {showViewToggle && <div className="h-6 w-[1px] bg-gray-200 mx-0.5 hidden sm:block" />}
+                {showViewToggle && <div className="h-6 w-[1px] bg-muted mx-0.5 hidden sm:block" />}
 
                 {/* View toggle */}
-                {showViewToggle && <div className="flex items-center bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+                {showViewToggle && <div className="flex items-center bg-muted p-0.5 rounded-lg border border-border">
                     <Button
                         variant={view === "grid" ? "secondary" : "ghost"}
                         size="icon"
-                        className={cn("h-7 w-7 rounded-md", view === "grid" && "bg-white shadow-sm text-primary")}
+                        className={cn("h-7 w-7 rounded-md", view === "grid" && "bg-card shadow-sm text-primary")}
                         onClick={() => setView("grid")}
                         title="Dạng lưới"
                     >
@@ -81,7 +83,7 @@ export function JobSort({ view, setView, showViewToggle = true, onMobileFilterTo
                     <Button
                         variant={view === "list" ? "secondary" : "ghost"}
                         size="icon"
-                        className={cn("h-7 w-7 rounded-md", view === "list" && "bg-white shadow-sm text-primary")}
+                        className={cn("h-7 w-7 rounded-md", view === "list" && "bg-card shadow-sm text-primary")}
                         onClick={() => setView("list")}
                         title="Dạng danh sách"
                     >

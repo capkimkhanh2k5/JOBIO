@@ -38,7 +38,7 @@ const PERIODS: { label: string; value: Period }[] = [
 // ─── Job status badge config ──────────────────────────────────────────────────
 const JOB_STATUS_CONFIG: Record<string, { label: string; className: string }> = {
     published: { label: 'Đang tuyển', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    draft: { label: 'Nháp', className: 'bg-slate-50 text-slate-600 border-slate-200' },
+    draft: { label: 'Nháp', className: 'bg-muted text-muted-foreground border-border' },
     closed: { label: 'Đã đóng', className: 'bg-red-50 text-red-600 border-red-200' },
     expired: { label: 'Hết hạn', className: 'bg-amber-50 text-amber-600 border-amber-200' },
 };
@@ -68,10 +68,10 @@ function SummaryKpiCard({
 
     if (isLoading) {
         return (
-            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 space-y-4 h-full">
-                <div className="w-11 h-11 rounded-xl bg-slate-100 animate-pulse" />
-                <div className="h-8 w-24 bg-slate-100 rounded animate-pulse" />
-                <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-5 space-y-4 h-full">
+                <div className="w-11 h-11 rounded-xl bg-muted animate-pulse" />
+                <div className="h-8 w-24 bg-muted rounded animate-pulse" />
+                <div className="h-4 w-32 bg-muted rounded animate-pulse" />
             </div>
         );
     }
@@ -96,15 +96,15 @@ function SummaryKpiCard({
 function AreaTooltip({ active, payload, label }: any) {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-white rounded-xl px-4 py-3 border border-slate-200 shadow-xl text-sm">
-            <p className="font-bold text-slate-900 mb-2">{label}</p>
+        <div className="bg-card rounded-xl px-4 py-3 border border-border shadow-xl text-sm">
+            <p className="font-bold text-foreground mb-2">{label}</p>
             {payload.map((p: any) => (
                 <div key={p.dataKey} className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />
-                    <span className="text-slate-500 font-medium">
+                    <span className="text-muted-foreground font-medium">
                         {p.dataKey === 'applications' ? 'Ứng tuyển' : 'Lượt xem'}:
                     </span>
-                    <span className="font-bold text-slate-900">{p.value}</span>
+                    <span className="font-bold text-foreground">{p.value}</span>
                 </div>
             ))}
         </div>
@@ -116,29 +116,29 @@ function PieTooltip({ active, payload }: any) {
     if (!active || !payload?.length) return null;
     const item = payload[0];
     return (
-        <div className="bg-white rounded-xl px-4 py-3 border border-slate-200 shadow-xl text-sm">
-            <p className="font-bold text-slate-900 mb-1">{item.name}</p>
-            <p className="text-slate-600 font-semibold">{item.value} hồ sơ</p>
+        <div className="bg-card rounded-xl px-4 py-3 border border-border shadow-xl text-sm">
+            <p className="font-bold text-foreground mb-1">{item.name}</p>
+            <p className="text-muted-foreground font-semibold">{item.value} hồ sơ</p>
         </div>
     );
 }
 
 // ─── Top Job Table Row ────────────────────────────────────────────────────────
 function JobTableRow({ job, index }: { job: TopJob; index: number }) {
-    const statusCfg = JOB_STATUS_CONFIG[job.status] ?? { label: job.status, className: 'bg-slate-50 text-slate-600' };
+    const statusCfg = JOB_STATUS_CONFIG[job.status] ?? { label: job.status, className: 'bg-muted text-muted-foreground' };
     return (
         <motion.tr
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.04, duration: 0.3 }}
-            className="border-b border-slate-100 hover:bg-slate-50 transition-colors group"
+            className="border-b border-border/60 hover:bg-muted transition-colors group"
         >
             <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-lg bg-violet-50 text-violet-600 text-xs font-black flex items-center justify-center shrink-0">
+                    <span className="w-6 h-6 rounded-lg bg-teal-50 text-teal-600 text-xs font-black flex items-center justify-center shrink-0">
                         {index + 1}
                     </span>
-                    <Link to={`/jobs/${job.id}`} className="font-semibold text-slate-800 hover:text-violet-600 transition-colors line-clamp-1 text-sm">
+                    <Link to={`/jobs/${job.id}`} className="font-semibold text-foreground hover:text-teal-600 transition-colors line-clamp-1 text-sm">
                         {job.title}
                     </Link>
                 </div>
@@ -148,14 +148,14 @@ function JobTableRow({ job, index }: { job: TopJob; index: number }) {
                     {statusCfg.label}
                 </Badge>
             </td>
-            <td className="px-5 py-4 text-sm font-semibold text-slate-800 text-right">{job.views.toLocaleString('vi-VN')}</td>
-            <td className="px-5 py-4 text-sm font-semibold text-slate-800 text-right">{job.applications}</td>
-            <td className="px-5 py-4 text-sm font-semibold text-slate-800 text-right">{job.interviews}</td>
+            <td className="px-5 py-4 text-sm font-semibold text-foreground text-right">{job.views.toLocaleString('vi-VN')}</td>
+            <td className="px-5 py-4 text-sm font-semibold text-foreground text-right">{job.applications}</td>
+            <td className="px-5 py-4 text-sm font-semibold text-foreground text-right">{job.interviews}</td>
             <td className="px-5 py-4 text-sm font-semibold text-emerald-600 text-right">{job.hired}</td>
             <td className="px-5 py-4 text-right">
                 <span className={`text-xs font-bold px-2 py-1 rounded-md ${
                     job.conversion_rate >= 50 ? 'bg-emerald-50 text-emerald-700' :
-                    job.conversion_rate >= 20 ? 'bg-blue-50 text-blue-700' :
+                    job.conversion_rate >= 20 ? 'bg-primary/8 text-primary' :
                     'bg-amber-50 text-amber-700'
                 }`}>
                     {job.conversion_rate}%
@@ -197,7 +197,7 @@ export function CompanyAnalyticsPage() {
             icon: <Briefcase className="w-5 h-5" />,
             label: 'Tin đang tuyển',
             value: summary?.active_jobs,
-            iconTone: { bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-200', hoverBg: 'bg-cyan-50/40' },
+            iconTone: { bg: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-200', hoverBg: 'bg-teal-50/40' },
             note: `Tổng ${summary?.total_jobs ?? 0} tin tất cả`,
         },
         {
@@ -205,7 +205,7 @@ export function CompanyAnalyticsPage() {
             label: 'Ứng tuyển mới (30 ngày)',
             value: summary?.new_applications_30d,
             delta: summary?.applications_delta,
-            iconTone: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-200', hoverBg: 'bg-violet-50/40' },
+            iconTone: { bg: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-200', hoverBg: 'bg-teal-50/40' },
         },
         {
             icon: <Eye className="w-5 h-5" />,
@@ -230,13 +230,13 @@ export function CompanyAnalyticsPage() {
             icon: <CalendarDays className="w-5 h-5" />,
             label: 'Đang phỏng vấn',
             value: summary?.interview_count,
-            iconTone: { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-200', hoverBg: 'bg-indigo-50/40' },
+            iconTone: { bg: 'bg-primary/8', text: 'text-primary', border: 'border-primary/20', hoverBg: 'bg-primary/8/40' },
         },
     ];
 
     return (
         <div className="w-full mx-auto min-h-screen">
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Báo cáo & Phân tích"
                     description="Theo dõi hiệu quả tuyển dụng và đưa ra quyết định dựa trên dữ liệu"
@@ -247,7 +247,7 @@ export function CompanyAnalyticsPage() {
                             size="sm"
                             onClick={() => refetch()}
                             disabled={isFetching}
-                            className="gap-2 text-slate-600 border-slate-200 hover:border-violet-200 hover:text-violet-600 cursor-pointer h-10 rounded-xl px-4"
+                            className="gap-2 text-muted-foreground border-border hover:border-teal-200 hover:text-teal-600 cursor-pointer h-10 rounded-xl px-4"
                             id="analytics-refresh-btn"
                         >
                             <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
@@ -289,13 +289,13 @@ export function CompanyAnalyticsPage() {
 
                 {/* ── Time-Series Chart ─────────────────────────────────────── */}
                 <motion.div {...fadeUp(0.12)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                             <div>
-                                <h2 className="font-bold text-lg text-slate-900">Xu hướng theo thời gian</h2>
-                                <p className="text-sm text-slate-500 font-medium mt-0.5">Số lượng ứng tuyển và lượt xem tin theo ngày</p>
+                                <h2 className="font-bold text-lg text-foreground">Xu hướng theo thời gian</h2>
+                                <p className="text-sm text-muted-foreground font-medium mt-0.5">Số lượng ứng tuyển và lượt xem tin theo ngày</p>
                             </div>
-                            <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 p-1 rounded-xl w-fit">
+                            <div className="flex items-center gap-1 bg-muted border border-border p-1 rounded-xl w-fit">
                                 {PERIODS.map((p) => (
                                     <button
                                         key={p.value}
@@ -303,8 +303,8 @@ export function CompanyAnalyticsPage() {
                                         onClick={() => setPeriod(p.value)}
                                         className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                                             period === p.value
-                                                ? 'bg-violet-600 text-white shadow-sm'
-                                                : 'text-slate-500 hover:text-slate-900 hover:bg-white'
+                                                ? 'bg-teal-600 text-white shadow-sm'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-card'
                                         }`}
                                     >
                                         {p.label}
@@ -386,16 +386,16 @@ export function CompanyAnalyticsPage() {
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     {/* Application Funnel */}
                     <motion.div {...fadeUp(0.18)}>
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full">
-                            <h2 className="font-bold text-lg text-slate-900 mb-1">Phễu tuyển dụng</h2>
-                            <p className="text-sm text-slate-500 font-medium mb-6">Ứng viên qua từng giai đoạn</p>
+                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 h-full">
+                            <h2 className="font-bold text-lg text-foreground mb-1">Phễu tuyển dụng</h2>
+                            <p className="text-sm text-muted-foreground font-medium mb-6">Ứng viên qua từng giai đoạn</p>
 
                             {isLoading ? (
                                 <div className="space-y-3">
                                     {Array(6).fill(null).map((_, i) => <Skeleton key={i} className="h-12 rounded-xl" />)}
                                 </div>
                             ) : funnelData.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60">
                                     <Target className="w-10 h-10 mb-3 opacity-30" />
                                     <p className="text-sm font-medium">Chưa có dữ liệu phễu</p>
                                 </div>
@@ -413,8 +413,8 @@ export function CompanyAnalyticsPage() {
                                                 transition={{ delay: idx * 0.07 }}
                                                 className="flex items-center gap-4 group"
                                             >
-                                                <div className="w-28 text-xs font-semibold text-slate-600 shrink-0 text-right">{stage.stage}</div>
-                                                <div className="flex-1 relative h-9 bg-slate-100 rounded-lg overflow-hidden">
+                                                <div className="w-28 text-xs font-semibold text-muted-foreground shrink-0 text-right">{stage.stage}</div>
+                                                <div className="flex-1 relative h-9 bg-muted rounded-lg overflow-hidden">
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${pct}%` }}
@@ -423,7 +423,7 @@ export function CompanyAnalyticsPage() {
                                                         style={{ background: stage.color }}
                                                     />
                                                     <div className="absolute inset-0 flex items-center px-3">
-                                                        <span className={`text-xs font-bold z-10 ${isEmptyStage ? 'text-slate-600' : 'text-white drop-shadow-sm'}`}>
+                                                        <span className={`text-xs font-bold z-10 ${isEmptyStage ? 'text-muted-foreground' : 'text-white drop-shadow-sm'}`}>
                                                             {stage.count} {pct < 100 && <span className="opacity-75 font-normal">({pct}%)</span>}
                                                         </span>
                                                     </div>
@@ -438,16 +438,16 @@ export function CompanyAnalyticsPage() {
 
                     {/* Status Pie Chart */}
                     <motion.div {...fadeUp(0.22)}>
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 h-full">
-                            <h2 className="font-bold text-lg text-slate-900 mb-1">Phân bổ trạng thái</h2>
-                            <p className="text-sm text-slate-500 font-medium mb-4">Tỷ lệ hồ sơ theo từng trạng thái</p>
+                        <div className="bg-card rounded-2xl border border-border shadow-sm p-6 h-full">
+                            <h2 className="font-bold text-lg text-foreground mb-1">Phân bổ trạng thái</h2>
+                            <p className="text-sm text-muted-foreground font-medium mb-4">Tỷ lệ hồ sơ theo từng trạng thái</p>
 
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-56">
                                     <Skeleton className="w-48 h-48 rounded-full" />
                                 </div>
                             ) : pieData.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/60">
                                     <Percent className="w-10 h-10 mb-3 opacity-30" />
                                     <p className="text-sm font-medium">Chưa có dữ liệu ứng tuyển</p>
                                 </div>
@@ -479,9 +479,9 @@ export function CompanyAnalyticsPage() {
                                             return (
                                                 <div key={item.status} className={`flex items-center gap-2 ${item.count === 0 ? 'opacity-60' : ''}`}>
                                                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
-                                                    <span className="text-xs font-medium text-slate-600 flex-1">{item.label}</span>
-                                                    <span className="text-xs font-bold text-slate-800">{item.count}</span>
-                                                    <span className="text-[10px] text-slate-400 w-8 text-right">{pct}%</span>
+                                                    <span className="text-xs font-medium text-muted-foreground flex-1">{item.label}</span>
+                                                    <span className="text-xs font-bold text-foreground">{item.count}</span>
+                                                    <span className="text-[10px] text-muted-foreground/60 w-8 text-right">{pct}%</span>
                                                 </div>
                                             );
                                         })}
@@ -494,15 +494,15 @@ export function CompanyAnalyticsPage() {
 
                 {/* ── Top Jobs Table ────────────────────────────────────────── */}
                 <motion.div {...fadeUp(0.28)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
                             <div>
-                                <h2 className="font-bold text-lg text-slate-900">Hiệu quả từng tin tuyển dụng</h2>
-                                <p className="text-xs text-slate-500 font-medium mt-0.5">Top 10 tin theo số lượng ứng tuyển</p>
+                                <h2 className="font-bold text-lg text-foreground">Hiệu quả từng tin tuyển dụng</h2>
+                                <p className="text-xs text-muted-foreground font-medium mt-0.5">Top 10 tin theo số lượng ứng tuyển</p>
                             </div>
                             <Link
                                 to="/company/manage-jobs"
-                                className="flex items-center gap-1 text-sm text-violet-600 hover:text-violet-700 font-medium transition-colors"
+                                className="flex items-center gap-1 text-sm text-teal-600 hover:text-teal-700 font-medium transition-colors"
                                 id="analytics-view-all-jobs-link"
                             >
                                 Tất cả tin <ChevronRight className="w-4 h-4" />
@@ -512,11 +512,11 @@ export function CompanyAnalyticsPage() {
                         <div className="overflow-x-auto">
                             <table className="w-full" role="table" aria-label="Bảng hiệu quả tuyển dụng">
                                 <thead>
-                                    <tr className="border-b border-slate-100 bg-slate-50/60">
+                                    <tr className="border-b border-border/60 bg-muted/60">
                                         {['Vị trí', 'Trạng thái', 'Lượt xem', 'Ứng tuyển', 'Phỏng vấn', 'Tuyển được', 'Tỷ lệ'].map((col) => (
                                             <th
                                                 key={col}
-                                                className={`px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 whitespace-nowrap ${
+                                                className={`px-5 py-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap ${
                                                     ['Lượt xem', 'Ứng tuyển', 'Phỏng vấn', 'Tuyển được', 'Tỷ lệ'].includes(col) ? 'text-right' : 'text-left'
                                                 }`}
                                             >
@@ -528,7 +528,7 @@ export function CompanyAnalyticsPage() {
                                 <tbody>
                                     {isLoading
                                         ? Array(5).fill(null).map((_, i) => (
-                                            <tr key={i} className="border-b border-slate-100">
+                                            <tr key={i} className="border-b border-border/60">
                                                 {Array(7).fill(null).map((__, j) => (
                                                     <td key={j} className="px-5 py-4">
                                                         <Skeleton className="h-5 w-full max-w-[100px]" />
@@ -539,10 +539,10 @@ export function CompanyAnalyticsPage() {
                                         : topJobs.length === 0 ? (
                                             <tr>
                                                 <td colSpan={7} className="px-5 py-12 text-center">
-                                                    <div className="flex flex-col items-center text-slate-400">
+                                                    <div className="flex flex-col items-center text-muted-foreground/60">
                                                         <Briefcase className="w-10 h-10 mb-3 opacity-30" />
                                                         <p className="text-sm font-medium">Chưa có tin tuyển dụng nào</p>
-                                                        <Link to="/company/jobs/create" className="mt-3 text-violet-600 text-sm font-semibold hover:underline" id="analytics-post-job-link">
+                                                        <Link to="/company/jobs/create" className="mt-3 text-teal-600 text-sm font-semibold hover:underline" id="analytics-post-job-link">
                                                             Đăng tin ngay →
                                                         </Link>
                                                     </div>
@@ -575,7 +575,7 @@ export function CompanyAnalyticsPage() {
                                     title: 'Phỏng vấn đang diễn ra',
                                     value: summary?.interview_count ?? 0,
                                     desc: 'Ứng viên đang ở vòng phỏng vấn',
-                                    tone: { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-200' },
+                                    tone: { bg: 'bg-primary/8', text: 'text-primary', border: 'border-primary/20' },
                                     icon: <CalendarDays className="w-5 h-5" />,
                                 },
                                 {
@@ -586,20 +586,20 @@ export function CompanyAnalyticsPage() {
                                     icon: <Users className="w-5 h-5" />,
                                 },
                             ].map((card) => (
-                                <div key={card.title} className={`bg-white rounded-2xl border ${card.tone.border} shadow-sm p-5 flex gap-4 items-start`}>
+                                <div key={card.title} className={`bg-card rounded-2xl border ${card.tone.border} shadow-sm p-5 flex gap-4 items-start`}>
                                     <div className={`w-10 h-10 rounded-xl ${card.tone.bg} ${card.tone.text} flex items-center justify-center shadow-sm shrink-0`}>
                                         {card.icon}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-start justify-between gap-4">
-                                            <p className="min-w-0 text-xs text-slate-500 font-semibold uppercase tracking-wide leading-snug">
+                                            <p className="min-w-0 text-xs text-muted-foreground font-semibold uppercase tracking-wide leading-snug">
                                                 {card.title}
                                             </p>
-                                            <p className="shrink-0 text-2xl font-black text-slate-900 leading-none text-right">
+                                            <p className="shrink-0 text-2xl font-black text-foreground leading-none text-right">
                                                 {card.value}
                                             </p>
                                         </div>
-                                        <p className="text-xs text-slate-400 font-medium mt-0.5">{card.desc}</p>
+                                        <p className="text-xs text-muted-foreground/60 font-medium mt-0.5">{card.desc}</p>
                                     </div>
                                 </div>
                             ))}

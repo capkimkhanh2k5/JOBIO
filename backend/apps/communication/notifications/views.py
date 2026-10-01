@@ -1,9 +1,13 @@
+from django.conf import settings
+from django.core.cache import cache
+from django.http import StreamingHttpResponse
+from django.utils import timezone
 from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.http import StreamingHttpResponse
-from django.utils import timezone
+
+from apps.core.throttles import NotificationStreamRateThrottle
 from .services.notifications import bulk_mark_as_read
 import json
 import time
@@ -13,6 +17,7 @@ from .serializers import (
     NotificationMarkReadSerializer,
     NotificationSettingSerializer,
 )
+from .models import NotificationPreference
 from .selectors.notifications import (
     list_notifications,
     list_unread_notifications,
@@ -51,9 +56,58 @@ class NotificationViewSet(
     permission_classes = [IsAuthenticated]
     serializer_class = NotificationSerializer
 
+    def get_throttles(self):
+        throttles = super().get_throttles()
+        if self.action == "stream":
+            throttles.append(NotificationStreamRateThrottle())
+        return throttles
+
     def get_queryset(self):
         """Get queryset filtered by current user."""
         return list_notifications(self.request.user.id)
+
+    def _stream_connection_key(self, user_id: int) -> str:
+        return f"notifications:stream:connections:{user_id}"
+
+    def _stream_connection_ttl(self) -> int:
+        max_duration = int(
+            getattr(settings, "NOTIFICATION_STREAM_MAX_DURATION_SECONDS", 300)
+        )
+        return max(60, max_duration + 30)
+
+    def _acquire_stream_slot(self, user_id: int) -> bool:
+        max_connections = max(
+            1, int(getattr(settings, "NOTIFICATION_STREAM_MAX_CONNECTIONS_PER_USER", 2))
+        )
+        key = self._stream_connection_key(user_id)
+        ttl = self._stream_connection_ttl()
+
+        cache.add(key, 0, timeout=ttl)
+        try:
+            current_connections = cache.incr(key)
+        except ValueError:
+            cache.set(key, 1, timeout=ttl)
+            current_connections = 1
+
+        if current_connections > max_connections:
+            self._release_stream_slot(user_id)
+            return False
+
+        try:
+            cache.touch(key, ttl)
+        except AttributeError:
+            cache.set(key, current_connections, timeout=ttl)
+        return True
+
+    def _release_stream_slot(self, user_id: int) -> None:
+        key = self._stream_connection_key(user_id)
+        try:
+            remaining = cache.decr(key)
+        except ValueError:
+            cache.delete(key)
+            return
+        if remaining <= 0:
+            cache.delete(key)
 
     def list(self, request):
         """
@@ -214,25 +268,23 @@ class NotificationViewSet(
             {"detail": "All notifications deleted", "deleted_count": deleted_count}
         )
 
-    @action(detail=False, methods=["get"], url_path="settings")
+    @action(detail=False, methods=["get", "patch"], url_path="settings")
     def notification_settings(self, request):
         """
-        GET /api/notifications/settings/
+        GET/PATCH /api/notifications/settings/
 
-        Get notification settings for the current user.
-        Note: This is a placeholder - actual settings would come from
-        a NotificationSetting model linked to the user.
+        Get or update notification settings for the current user.
         """
-        # Default settings - in real implementation, fetch from database
-        settings_data = {
-            "email_notifications": True,
-            "push_notifications": True,
-            "job_alerts": True,
-            "application_updates": True,
-            "message_notifications": True,
-        }
+        preferences, _ = NotificationPreference.objects.get_or_create(user=request.user)
+        if request.method == "PATCH":
+            serializer = NotificationSettingSerializer(
+                preferences, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
-        serializer = NotificationSettingSerializer(settings_data)
+        serializer = NotificationSettingSerializer(preferences)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="count")
@@ -253,34 +305,50 @@ class NotificationViewSet(
         SSE (Server-Sent Events) stream for real-time notifications.
         Client should connect to this endpoint and listen for events.
         """
+        user_id = request.user.id
+        if not self._acquire_stream_slot(user_id):
+            return Response(
+                {"detail": "Too many notification stream connections."},
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
 
         def event_stream():
             """Generator function for SSE."""
             last_check = None
+            started_at = timezone.now()
+            poll_seconds = max(
+                1, int(getattr(settings, "NOTIFICATION_STREAM_POLL_SECONDS", 15))
+            )
+            max_duration = max(
+                1,
+                int(getattr(settings, "NOTIFICATION_STREAM_MAX_DURATION_SECONDS", 300)),
+            )
 
-            while True:
-                # Get new notifications
-                queryset = list_unread_notifications(request.user.id)
+            try:
+                while (timezone.now() - started_at).total_seconds() < max_duration:
+                    # Get new notifications for the current user only.
+                    queryset = list_unread_notifications(user_id)
 
-                if last_check:
-                    queryset = queryset.filter(created_at__gt=last_check)
+                    if last_check:
+                        queryset = queryset.filter(created_at__gt=last_check)
 
-                if queryset.exists():
-                    for notification in queryset:
-                        data = {
-                            "id": notification.id,
-                            "title": notification.title,
-                            "content": notification.content,
-                            "notification_type": notification.notification_type.type_name,
-                            "created_at": notification.created_at.isoformat(),
-                        }
-                        yield f"data: {json.dumps(data)}\n\n"
+                    if queryset.exists():
+                        for notification in queryset:
+                            data = {
+                                "id": notification.id,
+                                "title": notification.title,
+                                "content": notification.content,
+                                "notification_type": notification.notification_type.type_name,
+                                "created_at": notification.created_at.isoformat(),
+                            }
+                            yield f"data: {json.dumps(data)}\n\n"
 
-                last_check = timezone.now()
+                    last_check = timezone.now()
 
-                # Send heartbeat every 30 seconds
-                yield ": heartbeat\n\n"
-                time.sleep(5)  # Check every 5 seconds
+                    yield ": heartbeat\n\n"
+                    time.sleep(poll_seconds)
+            finally:
+                self._release_stream_slot(user_id)
 
         response = StreamingHttpResponse(
             event_stream(), content_type="text/event-stream"

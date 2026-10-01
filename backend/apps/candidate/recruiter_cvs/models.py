@@ -4,6 +4,15 @@ from django.db import models
 class RecruiterCV(models.Model):
     """Bảng Recruiter_CVs - CV được tạo bởi người tìm việc"""
 
+    class ParseStatus(models.TextChoices):
+        NONE = "none", "Không cần parse"
+        QUEUED = "queued", "Đang chờ xử lý"
+        PARSING = "parsing", "Đang xử lý"
+        PARSED = "parsed", "Đã xử lý"
+        NOT_RESUME = "not_resume", "Không phải CV"
+        BLOCKED = "blocked", "Bị chặn bởi kiểm duyệt"
+        FAILED = "failed", "Xử lý thất bại"
+
     recruiter = models.ForeignKey(
         "candidate_recruiters.Recruiter",
         on_delete=models.CASCADE,
@@ -36,6 +45,25 @@ class RecruiterCV(models.Model):
     parsed_at = models.DateTimeField(
         null=True, blank=True, verbose_name="Thời điểm xử lý"
     )
+    parse_status = models.CharField(
+        max_length=20,
+        choices=ParseStatus.choices,
+        default=ParseStatus.NONE,
+        db_index=True,
+        verbose_name="Trạng thái xử lý CV",
+    )
+    parse_error_code = models.CharField(
+        max_length=80,
+        null=True,
+        blank=True,
+        verbose_name="Mã lỗi xử lý CV",
+    )
+    parse_error_message = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name="Thông báo lỗi xử lý CV",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
 
@@ -50,4 +78,4 @@ class RecruiterCV(models.Model):
     @property
     def is_parsed(self) -> bool:
         """CV đã được parse thành công (có cv_data)."""
-        return bool(self.cv_data)
+        return self.parse_status == self.ParseStatus.PARSED or bool(self.cv_data)

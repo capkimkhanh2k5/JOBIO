@@ -3,7 +3,9 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 import unittest
+from apps.company.companies.models import Company, CompanyMember
 from apps.company.industries.models import Industry
+from apps.recruitment.jobs.models import Job
 
 CustomUser = get_user_model()
 
@@ -30,6 +32,31 @@ class TestCompanyManagement(APITestCase):
         self.assertEqual(response.data["company_name"], "Công ty ABC")
         self.assertIn("cong-ty-abc", response.data["slug"])
         self.assertEqual(response.data["user"], user.id)
+        self.assertTrue(
+            CompanyMember.objects.filter(
+                company_id=response.data["id"],
+                user=user,
+                role=CompanyMember.Role.OWNER,
+                status=CompanyMember.Status.ACTIVE,
+            ).exists()
+        )
+
+    def test_create_company_rejects_insecure_website_url(self):
+        user = CustomUser.objects.create_user(
+            email="company-insecure-website@example.com",
+            password="password123",
+            role="company",
+        )
+        self.client.force_authenticate(user=user)
+
+        response = self.client.post(
+            reverse("company-list"),
+            {"company_name": "Insecure Website Co", "website": "http://example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Company.objects.filter(user=user).count(), 0)
 
     def test_create_company_duplicate_user(self):
         """Lỗi khi user đã có company (sử dụng API thay vì trực tiếp tạo)"""
@@ -48,6 +75,23 @@ class TestCompanyManagement(APITestCase):
         response2 = self.client.post(url, {"company_name": "Công ty 2"}, format="json")
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("đã có hồ sơ công ty", str(response2.data["detail"]))
+
+    def test_candidate_cannot_create_company(self):
+        """Candidate không được tạo hồ sơ công ty bằng API trực tiếp"""
+        user = CustomUser.objects.create_user(
+            email="candidate-create-company@example.com",
+            password="password123",
+            role="candidate",
+        )
+        self.client.force_authenticate(user=user)
+
+        response = self.client.post(
+            reverse("company-list"),
+            {"company_name": "Candidate Company"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_list_companies_public(self):
         """Danh sách công ty công khai (không cần auth)"""
@@ -154,6 +198,71 @@ class TestCompanyManagement(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_update_company_ignores_sensitive_fields(self):
+        """Company profile update does not allow mass-assignment of trust fields."""
+        owner = CustomUser.objects.create_user(
+            email="sensitive-owner@example.com", password="password", role="company"
+        )
+        other_owner = CustomUser.objects.create_user(
+            email="sensitive-other@example.com", password="password", role="company"
+        )
+
+        self.client.force_authenticate(user=owner)
+        create_response = self.client.post(
+            reverse("company-list"),
+            {"company_name": "Sensitive Company"},
+            format="json",
+        )
+        company_id = create_response.data["id"]
+
+        response = self.client.put(
+            reverse("company-detail", kwargs={"pk": company_id}),
+            {
+                "company_name": "Sensitive Company Updated",
+                "verification_status": Company.VerificationStatus.VERIFIED,
+                "verified_by": other_owner.id,
+                "user": other_owner.id,
+                "follower_count": 999,
+                "job_count": 999,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        company = Company.objects.get(id=company_id)
+        self.assertEqual(company.company_name, "Sensitive Company Updated")
+        self.assertEqual(company.user_id, owner.id)
+        self.assertEqual(
+            company.verification_status, Company.VerificationStatus.PENDING
+        )
+        self.assertIsNone(company.verified_by_id)
+        self.assertEqual(company.follower_count, 0)
+        self.assertEqual(company.job_count, 0)
+
+    def test_update_company_rejects_insecure_website_url(self):
+        owner = CustomUser.objects.create_user(
+            email="insecure-update-owner@example.com",
+            password="password",
+            role="company",
+        )
+        self.client.force_authenticate(user=owner)
+        create_response = self.client.post(
+            reverse("company-list"),
+            {"company_name": "Secure Company", "website": "https://example.com"},
+            format="json",
+        )
+        company_id = create_response.data["id"]
+
+        response = self.client.patch(
+            reverse("company-detail", kwargs={"pk": company_id}),
+            {"website": "http://example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        company = Company.objects.get(id=company_id)
+        self.assertEqual(company.website, "https://example.com")
+
     def test_delete_company_owner_only(self):
         """Chỉ chủ sở hữu mới được xóa"""
         owner = CustomUser.objects.create_user(
@@ -170,6 +279,97 @@ class TestCompanyManagement(APITestCase):
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_company_owner_can_manage_members(self):
+        owner = CustomUser.objects.create_user(
+            email="team-owner@example.com", password="password", role="company"
+        )
+        member_user = CustomUser.objects.create_user(
+            email="hr@example.com",
+            password="password",
+            full_name="HR User",
+            role="company",
+        )
+
+        self.client.force_authenticate(user=owner)
+        create_response = self.client.post(
+            reverse("company-list"), {"company_name": "Team Company"}, format="json"
+        )
+        company_id = create_response.data["id"]
+
+        add_response = self.client.post(
+            f"/api/companies/{company_id}/members/",
+            {"email": member_user.email, "role": "recruiter", "status": "active"},
+            format="json",
+        )
+
+        self.assertEqual(add_response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(add_response.data["user"], member_user.id)
+        self.assertEqual(add_response.data["role"], "recruiter")
+
+        list_response = self.client.get(f"/api/companies/{company_id}/members/")
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(list_response.data), 2)
+
+    def test_company_member_management_role_boundaries(self):
+        owner = CustomUser.objects.create_user(
+            email="team-boundary-owner@example.com", password="password", role="company"
+        )
+        admin_user = CustomUser.objects.create_user(
+            email="team-boundary-admin@example.com", password="password", role="company"
+        )
+        recruiter_user = CustomUser.objects.create_user(
+            email="team-boundary-recruiter@example.com",
+            password="password",
+            role="company",
+        )
+        viewer_user = CustomUser.objects.create_user(
+            email="team-boundary-viewer@example.com",
+            password="password",
+            role="company",
+        )
+
+        self.client.force_authenticate(user=owner)
+        create_response = self.client.post(
+            reverse("company-list"), {"company_name": "Boundary Company"}, format="json"
+        )
+        company_id = create_response.data["id"]
+
+        admin_response = self.client.post(
+            f"/api/companies/{company_id}/members/",
+            {"email": admin_user.email, "role": "admin", "status": "active"},
+            format="json",
+        )
+        self.assertEqual(admin_response.status_code, status.HTTP_201_CREATED)
+
+        self.client.force_authenticate(user=admin_user)
+        recruiter_response = self.client.post(
+            f"/api/companies/{company_id}/members/",
+            {"email": recruiter_user.email, "role": "recruiter", "status": "active"},
+            format="json",
+        )
+        self.assertEqual(recruiter_response.status_code, status.HTTP_201_CREATED)
+
+        self.client.force_authenticate(user=recruiter_user)
+        viewer_response = self.client.post(
+            f"/api/companies/{company_id}/members/",
+            {"email": viewer_user.email, "role": "viewer", "status": "active"},
+            format="json",
+        )
+        self.assertEqual(viewer_response.status_code, status.HTTP_403_FORBIDDEN)
+
+        owner_membership = CompanyMember.objects.get(
+            company_id=company_id, user=owner, role=CompanyMember.Role.OWNER
+        )
+        self.client.force_authenticate(user=admin_user)
+        owner_patch_response = self.client.patch(
+            f"/api/companies/{company_id}/members/{owner_membership.id}/",
+            {"role": "viewer"},
+            format="json",
+        )
+        self.assertEqual(owner_patch_response.status_code, status.HTTP_400_BAD_REQUEST)
+        owner_membership.refresh_from_db()
+        self.assertEqual(owner_membership.role, CompanyMember.Role.OWNER)
 
     # =========================================================================
     # Tests cho Company Stats API
@@ -273,6 +473,49 @@ class TestCompanyManagement(APITestCase):
         response = self.client.patch(url, {"status": "verified"}, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_rejecting_verified_company_closes_published_jobs(self):
+        owner = CustomUser.objects.create_user(
+            email="reject-verified-owner@example.com",
+            password="password",
+            role="company",
+        )
+        admin = CustomUser.objects.create_user(
+            email="reject-verified-admin@example.com",
+            password="password",
+            is_staff=True,
+        )
+        company = Company.objects.create(
+            user=owner,
+            company_name="Reject Verified Company",
+            slug="reject-verified-company",
+            verification_status=Company.VerificationStatus.VERIFIED,
+        )
+        job = Job.objects.create(
+            company=company,
+            title="Published Role",
+            slug="published-role-rejected-company",
+            job_type=Job.JobType.FULL_TIME,
+            level=Job.Level.JUNIOR,
+            description="Build APIs",
+            requirements="Python",
+            status=Job.Status.PUBLISHED,
+            featured=True,
+            created_by=owner,
+        )
+
+        self.client.force_authenticate(user=admin)
+        response = self.client.patch(
+            f"/api/companies/{company.id}/verification/",
+            {"status": Company.VerificationStatus.REJECTED},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        job.refresh_from_db()
+        self.assertEqual(job.status, Job.Status.CLOSED)
+        self.assertFalse(job.featured)
+        self.assertIsNone(job.featured_until)
 
     def test_admin_verification_not_admin(self):
         """PATCH /api/companies/:id/verification - User thường không được duyệt"""

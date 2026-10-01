@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Company
+from .models import Company, CompanyMember
 from apps.company.industries.models import Industry
+from apps.core.validators import validate_https_url
 from apps.geography.addresses.serializers import AddressDetailSerializer
 
 
@@ -79,6 +80,9 @@ class CompanyCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError("Ngành nghề không tồn tại")
         return value
 
+    def validate_website(self, value):
+        return validate_https_url(value)
+
     def validate_tax_code(self, value):
         """Kiểm tra tax_code unique nếu được cung cấp"""
         if value and Company.objects.filter(tax_code=value).exists():
@@ -106,6 +110,9 @@ class CompanyUpdateSerializer(serializers.Serializer):
         if value and not Industry.objects.filter(id=value).exists():
             raise serializers.ValidationError("Ngành nghề không tồn tại")
         return value
+
+    def validate_website(self, value):
+        return validate_https_url(value)
 
 
 class JobListSerializer(serializers.Serializer):
@@ -144,3 +151,58 @@ class CompanyStatsSerializer(serializers.Serializer):
     job_count = serializers.IntegerField()
     follower_count = serializers.IntegerField()
     application_count = serializers.DictField()
+
+
+class CompanyMemberSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source="user.email", read_only=True)
+    user_name = serializers.CharField(source="user.full_name", read_only=True)
+    invited_by_email = serializers.EmailField(source="invited_by.email", read_only=True)
+
+    class Meta:
+        model = CompanyMember
+        fields = [
+            "id",
+            "company",
+            "user",
+            "user_email",
+            "user_name",
+            "role",
+            "status",
+            "invited_by",
+            "invited_by_email",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "company",
+            "user_email",
+            "user_name",
+            "invited_by",
+            "invited_by_email",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class CompanyMemberWriteSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField(required=False)
+    email = serializers.EmailField(required=False)
+    role = serializers.ChoiceField(
+        choices=[
+            CompanyMember.Role.ADMIN,
+            CompanyMember.Role.RECRUITER,
+            CompanyMember.Role.VIEWER,
+        ],
+        default=CompanyMember.Role.RECRUITER,
+    )
+    status = serializers.ChoiceField(
+        choices=CompanyMember.Status.choices,
+        default=CompanyMember.Status.ACTIVE,
+        required=False,
+    )
+
+    def validate(self, attrs):
+        if not attrs.get("user_id") and not attrs.get("email"):
+            raise serializers.ValidationError("Cần cung cấp user_id hoặc email")
+        return attrs

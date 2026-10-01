@@ -4,6 +4,7 @@ from django.db import transaction
 
 from apps.candidate.recruiters.models import Recruiter
 from apps.recruitment.jobs.models import Job
+from apps.recruitment.jobs.selectors.jobs import ensure_job_publicly_available
 from apps.recruitment.saved_jobs.models import SavedJob
 
 
@@ -24,6 +25,8 @@ def save_job(recruiter: Recruiter, job: Job, folder_name: str = None) -> SavedJo
     """
     if SavedJob.objects.filter(recruiter=recruiter, job=job).exists():
         raise ValueError("You have already saved this job!")
+
+    ensure_job_publicly_available(job)
 
     saved_job = SavedJob.objects.create(
         recruiter=recruiter, job=job, folder_name=folder_name

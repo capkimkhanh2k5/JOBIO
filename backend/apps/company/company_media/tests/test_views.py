@@ -12,6 +12,7 @@ from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
 from apps.company.media_types.models import MediaType
 from apps.company.company_media.models import CompanyMedia
+from apps.company.company_media.serializers import CompanyMediaBulkUploadSerializer
 
 
 class CompanyMediaViewTest(TestCase):
@@ -106,3 +107,16 @@ class CompanyMediaViewTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         m1.refresh_from_db()
         self.assertEqual(m1.display_order, 5)
+
+    def test_bulk_upload_serializer_rejects_too_many_files(self):
+        files = [
+            SimpleUploadedFile(f"f{i}.jpg", b"content", content_type="image/jpeg")
+            for i in range(11)
+        ]
+
+        serializer = CompanyMediaBulkUploadSerializer(
+            data={"media_files": files, "media_type_id": self.media_type.id}
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("media_files", serializer.errors)

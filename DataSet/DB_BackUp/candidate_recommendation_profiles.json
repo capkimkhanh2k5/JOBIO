@@ -1,0 +1,469 @@
+[
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 9,
+  "fields": {
+    "recruiter": 13,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Figma",
+      "JavaScript",
+      "MySQL",
+      "Python"
+    ],
+    "years_experience": 1,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.319Z",
+    "error": "",
+    "created_at": "2026-08-05T07:48:41.452Z",
+    "updated_at": "2026-08-17T01:45:31.319Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 10,
+  "fields": {
+    "recruiter": 14,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Giao tiếp",
+      "JavaScript",
+      "Làm việc nhóm"
+    ],
+    "years_experience": 1,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.362Z",
+    "error": "",
+    "created_at": "2026-08-05T07:48:44.194Z",
+    "updated_at": "2026-08-17T01:45:31.362Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 11,
+  "fields": {
+    "recruiter": 15,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Giao tiếp",
+      "MongoDB",
+      "MySQL"
+    ],
+    "years_experience": 3,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.405Z",
+    "error": "",
+    "created_at": "2026-08-05T07:49:26.501Z",
+    "updated_at": "2026-08-17T01:45:31.405Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 16,
+  "fields": {
+    "recruiter": 16,
+    "current_title_raw": "AI Engineer Intern",
+    "current_title_core": "AI Engineer",
+    "current_title_canonical": 12,
+    "title_confidence": 0.98,
+    "title_normalization_method": "exact_alias",
+    "skills": [
+      "Axios",
+      "Caddy",
+      "Celery",
+      "ChromaDB",
+      "Cross-Encoder Reranking",
+      "Django REST Framework",
+      "Docker",
+      "Docker Compose",
+      "Embeddings",
+      "FastAPI",
+      "Firebase",
+      "GCP",
+      "GHCR",
+      "Git",
+      "GitHub Actions",
+      "Groq API",
+      "Hybrid Retrieval",
+      "Java",
+      "LLM Safeguards",
+      "MongoDB",
+      "Next.js",
+      "OCR",
+      "OpenAI API",
+      "pgvector",
+      "PostgreSQL",
+      "Postman",
+      "Prompt Engineering",
+      "Python",
+      "RAG",
+      "React",
+      "React Query",
+      "Redis",
+      "REST APIs",
+      "Semantic Search",
+      "Spring Boot",
+      "SQL",
+      "Structured JSON Generation",
+      "TypeScript",
+      "VS Code",
+      "WebSocket"
+    ],
+    "years_experience": 0,
+    "preferred_locations": [
+      "Đà Nẵng"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.419Z",
+    "error": "",
+    "created_at": "2026-08-05T09:22:20.811Z",
+    "updated_at": "2026-08-17T01:45:31.419Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 12,
+  "fields": {
+    "recruiter": 1,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Java",
+      "Làm việc nhóm"
+    ],
+    "years_experience": 7,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:27.966Z",
+    "error": "",
+    "created_at": "2026-08-05T08:41:18.350Z",
+    "updated_at": "2026-08-17T01:45:27.966Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 13,
+  "fields": {
+    "recruiter": 2,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Java",
+      "Photoshop"
+    ],
+    "years_experience": 10,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:30.821Z",
+    "error": "",
+    "created_at": "2026-08-05T08:41:27.623Z",
+    "updated_at": "2026-08-17T01:45:30.821Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 14,
+  "fields": {
+    "recruiter": 3,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Figma",
+      "Giao tiếp",
+      "Python"
+    ],
+    "years_experience": 9,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:30.869Z",
+    "error": "",
+    "created_at": "2026-08-05T08:42:03.441Z",
+    "updated_at": "2026-08-17T01:45:30.869Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 15,
+  "fields": {
+    "recruiter": 4,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Giao tiếp",
+      "MongoDB",
+      "Photoshop",
+      "Python"
+    ],
+    "years_experience": 5,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:30.912Z",
+    "error": "",
+    "created_at": "2026-08-05T08:42:13.738Z",
+    "updated_at": "2026-08-17T01:45:30.912Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 1,
+  "fields": {
+    "recruiter": 5,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Figma",
+      "Giao tiếp",
+      "Photoshop"
+    ],
+    "years_experience": 4,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:30.954Z",
+    "error": "",
+    "created_at": "2026-08-05T07:45:41.146Z",
+    "updated_at": "2026-08-17T01:45:30.954Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 2,
+  "fields": {
+    "recruiter": 6,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Java",
+      "JavaScript"
+    ],
+    "years_experience": 5,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.001Z",
+    "error": "",
+    "created_at": "2026-08-05T07:45:41.265Z",
+    "updated_at": "2026-08-17T01:45:31.001Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 3,
+  "fields": {
+    "recruiter": 7,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "JavaScript",
+      "Photoshop"
+    ],
+    "years_experience": 5,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.046Z",
+    "error": "",
+    "created_at": "2026-08-05T07:46:26.173Z",
+    "updated_at": "2026-08-17T01:45:31.046Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 4,
+  "fields": {
+    "recruiter": 8,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "MongoDB",
+      "Python"
+    ],
+    "years_experience": 1,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.090Z",
+    "error": "",
+    "created_at": "2026-08-05T07:46:26.346Z",
+    "updated_at": "2026-08-17T01:45:31.090Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 5,
+  "fields": {
+    "recruiter": 9,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "JavaScript",
+      "Làm việc nhóm",
+      "MySQL",
+      "Photoshop"
+    ],
+    "years_experience": 0,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.137Z",
+    "error": "",
+    "created_at": "2026-08-05T07:47:11.256Z",
+    "updated_at": "2026-08-17T01:45:31.137Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 6,
+  "fields": {
+    "recruiter": 10,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Figma",
+      "Giao tiếp",
+      "Python"
+    ],
+    "years_experience": 5,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.187Z",
+    "error": "",
+    "created_at": "2026-08-05T07:47:11.927Z",
+    "updated_at": "2026-08-17T01:45:31.187Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 7,
+  "fields": {
+    "recruiter": 11,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Figma",
+      "Giao tiếp",
+      "JavaScript",
+      "Làm việc nhóm"
+    ],
+    "years_experience": 1,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.232Z",
+    "error": "",
+    "created_at": "2026-08-05T07:47:56.354Z",
+    "updated_at": "2026-08-17T01:45:31.232Z"
+  }
+},
+{
+  "model": "recruitment_jobs.candidaterecommendationprofile",
+  "pk": 8,
+  "fields": {
+    "recruiter": 12,
+    "current_title_raw": "Backend Dev",
+    "current_title_core": "Backend Dev",
+    "current_title_canonical": 1,
+    "title_confidence": 0.7857,
+    "title_normalization_method": "token_similarity",
+    "skills": [
+      "Giao tiếp",
+      "Java"
+    ],
+    "years_experience": 5,
+    "preferred_locations": [
+      "Hà Nội"
+    ],
+    "preferred_workplace_type": "",
+    "status": "processed",
+    "processed_at": "2026-08-17T01:45:31.275Z",
+    "error": "",
+    "created_at": "2026-08-05T07:47:56.999Z",
+    "updated_at": "2026-08-17T01:45:31.275Z"
+  }
+}
+]

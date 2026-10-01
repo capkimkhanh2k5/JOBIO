@@ -34,7 +34,7 @@ export default function CompanyCVSearch() {
     return (
         <div className="w-full mx-auto min-h-screen flex flex-col">
             {/* Page Header */}
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Tìm kiếm ứng viên"
                     description="Duyệt qua hàng ngàn hồ sơ chất lượng cao"
@@ -44,14 +44,14 @@ export default function CompanyCVSearch() {
                             <Button
                                 onClick={handleExport}
                                 variant="outline"
-                                className="bg-white shadow-sm border-slate-200 text-slate-600 hover:text-slate-900 h-10 rounded-xl font-semibold"
+                                className="bg-card shadow-sm border-border text-muted-foreground hover:text-foreground h-10 rounded-xl font-semibold"
                             >
                                 <Download className="w-4 h-4 mr-2" />
                                 Xuất báo cáo
                             </Button>
                             <Button
                                 onClick={handleCreateJob}
-                                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-500/20 h-10 rounded-xl font-semibold"
+                                className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-primary text-white shadow-lg shadow-teal-500/20 h-10 rounded-xl font-semibold"
                             >
                                 <PlusSquare className="w-4 h-4 mr-2" />
                                 Đăng tin tuyển dụng
@@ -74,12 +74,12 @@ export default function CompanyCVSearch() {
                 </div>
 
                 {/* Right Content: Results Grid */}
-                <div className="flex-1 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div className="flex-1 bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
                         <div className="p-6 lg:p-8 space-y-8 min-h-full">
                         {/* Results count & loading indicator */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-lg font-semibold flex items-center gap-2">
-                                <Users className="w-5 h-5 text-violet-600" />
+                                <Users className="w-5 h-5 text-teal-600" />
                                 {isLoading ? (
                                     <Skeleton className="w-32 h-6" />
                                 ) : (
@@ -87,8 +87,8 @@ export default function CompanyCVSearch() {
                                 )}
                             </h2>
                             {isBackgroundFetching && (
-                                <div className="text-sm text-violet-600 flex items-center gap-2">
-                                    <div className="w-3 h-3 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
+                                <div className="text-sm text-teal-600 flex items-center gap-2">
+                                    <div className="w-3 h-3 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
                                     Đang làm mới...
                                 </div>
                             )}

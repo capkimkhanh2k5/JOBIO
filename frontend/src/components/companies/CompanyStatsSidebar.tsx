@@ -31,15 +31,15 @@ function StatItem({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay }}
-            className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all group"
+            className="flex items-center justify-between p-3.5 rounded-xl bg-muted border border-border/60 hover:border-border hover:shadow-sm transition-all group"
         >
             <div className="flex items-center gap-3">
                 <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${color} bg-opacity-10`}>
                     <Icon size={16} className={color.replace('bg-', 'text-').replace('/10', '')} />
                 </div>
-                <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900 transition-colors">{label}</span>
+                <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">{label}</span>
             </div>
-            <span className="font-bold text-gray-900 tabular-nums">
+            <span className="font-bold text-foreground tabular-nums">
                 {typeof value === 'number' && value > 999
                     ? `${(value / 1000).toFixed(1)}k`
                     : value}
@@ -51,10 +51,10 @@ function StatItem({
 export function CompanyStatsSidebar({ stats, followerCount: syncedFollowerCount }: Props) {
     if (!stats) {
         return (
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-3">
-                <Skeleton className="h-6 w-32 bg-gray-100" />
+            <div className="bg-card rounded-2xl p-6 border border-border/60 shadow-sm space-y-3">
+                <Skeleton className="h-6 w-32 bg-muted" />
                 {Array(3).fill(0).map((_, i) => (
-                    <Skeleton key={i} className="h-14 w-full rounded-xl bg-gray-50" />
+                    <Skeleton key={i} className="h-14 w-full rounded-xl bg-muted" />
                 ))}
             </div>
         );
@@ -80,9 +80,9 @@ export function CompanyStatsSidebar({ stats, followerCount: syncedFollowerCount 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
+            className="bg-card rounded-2xl p-6 border border-border/60 shadow-sm"
         >
-            <h3 className="font-bold text-gray-900 text-base mb-4 flex items-center gap-2">
+            <h3 className="font-bold text-foreground text-base mb-4 flex items-center gap-2">
                 <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center">
                     <BarChart3 size={14} className="text-primary" />
                 </div>
@@ -94,14 +94,14 @@ export function CompanyStatsSidebar({ stats, followerCount: syncedFollowerCount 
                     icon={Briefcase}
                     label="Đang tuyển dụng"
                     value={jobCount}
-                    color="bg-indigo-500/10"
+                    color="bg-primary/80/10"
                     delay={0.05}
                 />
                 <StatItem
                     icon={Users}
                     label="Người theo dõi"
                     value={followerCount}
-                    color="bg-violet-500/10"
+                    color="bg-teal-500/10"
                     delay={0.1}
                 />
                 <StatItem

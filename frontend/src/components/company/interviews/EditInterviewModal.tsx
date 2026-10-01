@@ -225,34 +225,34 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-none">
+            <DialogContent className="sm:max-w-[600px] bg-card border-border shadow-none">
                 <DialogHeader>
-                    <DialogTitle className="text-xl text-slate-900">Chỉnh sửa lịch phỏng vấn</DialogTitle>
-                    <DialogDescription className="text-slate-600">
+                    <DialogTitle className="text-xl text-foreground">Chỉnh sửa lịch phỏng vấn</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Cập nhật thời gian, hình thức và ghi chú cho lịch phỏng vấn hiện có.
                     </DialogDescription>
                 </DialogHeader>
 
                 {isLoadingInterview || isLoadingTypes || !interview || !isFormReady ? (
                     <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground/60" />
                     </div>
                 ) : (
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                        <div className="rounded-2xl border border-border bg-muted/80 p-4">
                             <div className="flex items-start gap-3">
-                                <Avatar className="h-11 w-11 border border-slate-200 bg-white">
+                                <Avatar className="h-11 w-11 border border-border bg-card">
                                     <AvatarImage
                                         src={(interview?.candidate_avatar || interview?.applicant_avatar) ?? undefined}
                                         alt={interview?.applicant_name || interview?.candidate_name || 'Ứng viên'}
                                     />
-                                    <AvatarFallback className="bg-white text-slate-700">
+                                    <AvatarFallback className="bg-card text-foreground/80">
                                         {(interview?.applicant_name || interview?.candidate_name || 'UV').substring(0, 2)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="min-w-0">
-                                    <div className="font-semibold text-slate-900">{interview?.applicant_name || 'Ứng viên'}</div>
-                                    <div className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+                                    <div className="font-semibold text-foreground">{interview?.applicant_name || 'Ứng viên'}</div>
+                                    <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                                         <Briefcase className="w-4 h-4" />
                                         {interview?.job_title || 'Chưa có vị trí'}
                                     </div>
@@ -264,12 +264,12 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                             <div className="space-y-2">
                                 <Label htmlFor="type">Hình thức <span className="text-red-500">*</span></Label>
                                 <Select onValueChange={(value) => form.setValue('type', value)} value={form.watch('type')}>
-                                    <SelectTrigger className="w-full bg-slate-50 border-slate-200 text-slate-900">
+                                    <SelectTrigger className="w-full bg-muted border-border text-foreground">
                                         <SelectValue placeholder="Chọn hình thức..." />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-white border-slate-200">
+                                    <SelectContent className="bg-card border-border">
                                         {isLoadingTypes ? (
-                                            <div className="p-2 text-sm text-center text-slate-500">Đang tải...</div>
+                                            <div className="p-2 text-sm text-center text-muted-foreground">Đang tải...</div>
                                         ) : (
                                             interviewTypeOptions.map((type: any) => (
                                                 <SelectItem key={type.id} value={String(type.id)}>
@@ -288,7 +288,7 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                     type="number"
                                     min="15"
                                     step="15"
-                                    className="bg-slate-50 border-slate-200 text-slate-900"
+                                    className="bg-muted border-border text-foreground"
                                     {...form.register('duration_minutes', { valueAsNumber: true })}
                                 />
                             </div>
@@ -296,12 +296,12 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                             <div className="space-y-2">
                                 <Label htmlFor="scheduled_date">Ngày phỏng vấn <span className="text-red-500">*</span></Label>
                                 <div className="relative">
-                                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         id="scheduled_date"
                                         type="date"
                                         min={getLocalDateInputValue()}
-                                        className={`pl-10 bg-slate-50 text-slate-900 ${form.formState.errors.scheduled_date ? 'border-red-500' : 'border-slate-200'}`}
+                                        className={`pl-10 bg-muted text-foreground ${form.formState.errors.scheduled_date ? 'border-red-500' : 'border-border'}`}
                                         {...form.register('scheduled_date')}
                                     />
                                 </div>
@@ -313,11 +313,11 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                             <div className="space-y-2">
                                 <Label htmlFor="scheduled_time">Giờ bắt đầu <span className="text-red-500">*</span></Label>
                                 <div className="relative">
-                                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         id="scheduled_time"
                                         type="time"
-                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                        className="pl-10 bg-muted border-border text-foreground"
                                         {...form.register('scheduled_time')}
                                     />
                                 </div>
@@ -330,11 +330,11 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                 <div className="md:col-span-2 space-y-2">
                                     <Label htmlFor="location">Địa điểm phỏng vấn <span className="text-red-500">*</span></Label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                                        <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                                         <Textarea
                                             id="location"
                                             placeholder="Nhập địa chỉ chi tiết hoặc phòng họp..."
-                                            className="pl-10 bg-slate-50 border-slate-200 text-slate-900 min-h-[60px]"
+                                            className="pl-10 bg-muted border-border text-foreground min-h-[60px]"
                                             {...form.register('location')}
                                         />
                                     </div>
@@ -345,11 +345,11 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                 <div className="md:col-span-2 space-y-2">
                                     <Label htmlFor="meeting_link">Link meeting / Số điện thoại <span className="text-red-500">*</span></Label>
                                     <div className="relative">
-                                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                         <Input
                                             id="meeting_link"
                                             placeholder={interviewMode === 'video' ? 'https://meet.google.com/...' : 'Nhập số điện thoại...'}
-                                            className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                            className="pl-10 bg-muted border-border text-foreground"
                                             {...form.register('meeting_link')}
                                         />
                                     </div>
@@ -361,7 +361,7 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                                 <Textarea
                                     id="notes"
                                     placeholder="Yêu cầu ứng viên chuẩn bị, nội dung phỏng vấn..."
-                                    className="bg-slate-50 border-slate-200 text-slate-900 min-h-[80px]"
+                                    className="bg-muted border-border text-foreground min-h-[80px]"
                                     {...form.register('notes')}
                                 />
                             </div>
@@ -371,7 +371,7 @@ export function EditInterviewModal({ interviewId, open, onOpenChange }: EditInte
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Hủy bỏ
                             </Button>
-                            <Button type="submit" className="bg-violet-600 hover:bg-violet-700 text-white" disabled={mutation.isPending}>
+                            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={mutation.isPending}>
                                 {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                 Lưu thay đổi
                             </Button>

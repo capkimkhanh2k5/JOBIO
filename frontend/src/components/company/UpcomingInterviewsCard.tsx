@@ -11,7 +11,7 @@ import { Video, Phone, MapPin, ExternalLink, ChevronRight, CalendarX } from 'luc
 import { Link } from 'react-router-dom';
 
 const TYPE_CONFIG = {
-    video: { label: 'Video call', icon: <Video className="w-3.5 h-3.5" />, className: 'bg-violet-50 text-violet-700 border-violet-200' },
+    video: { label: 'Video call', icon: <Video className="w-3.5 h-3.5" />, className: 'bg-teal-50 text-teal-700 border-teal-200' },
     phone: { label: 'Điện thoại', icon: <Phone className="w-3.5 h-3.5" />, className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
     onsite: { label: 'Trực tiếp', icon: <MapPin className="w-3.5 h-3.5" />, className: 'bg-amber-50 text-amber-700 border-amber-200' },
 };
@@ -24,13 +24,13 @@ export function UpcomingInterviewsCard() {
     });
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
+        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden h-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
-                <h3 className="font-bold text-lg text-slate-900">Phỏng vấn sắp tới</h3>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/60 shrink-0">
+                <h3 className="font-bold text-lg text-foreground">Phỏng vấn sắp tới</h3>
                 <Link
                     to="/company/interviews"
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
+                    className="flex items-center gap-1 text-sm text-primary hover:text-primary transition-colors font-medium"
                 >
                     Xem tất cả <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -51,7 +51,7 @@ export function UpcomingInterviewsCard() {
                     ))
                     : !data?.length
                         ? (
-                            <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-slate-400">
+                            <div className="flex flex-col items-center justify-center h-full py-12 gap-3 text-muted-foreground/60">
                                 <CalendarX className="w-10 h-10 opacity-50" />
                                 <p className="text-sm font-medium">Chưa có phỏng vấn nào sắp tới</p>
                             </div>
@@ -69,12 +69,12 @@ export function UpcomingInterviewsCard() {
                                     initial={{ opacity: 0, x: -8 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.06, duration: 0.3 }}
-                                    className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group"
+                                    className="flex items-center gap-4 px-6 py-4 hover:bg-muted transition-colors group"
                                 >
                                     {/* Avatar */}
-                                    <Avatar className="w-10 h-10 border border-slate-200 shrink-0 shadow-sm">
+                                    <Avatar className="w-10 h-10 border border-border shrink-0 shadow-sm">
                                         <AvatarImage src={interview.applicant_avatar || undefined} />
-                                        <AvatarFallback className="text-xs font-bold bg-blue-50 text-blue-700">
+                                        <AvatarFallback className="text-xs font-bold bg-primary/8 text-primary">
                                             {(interview.applicant_name || 'U').split(' ').pop()?.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
@@ -82,14 +82,14 @@ export function UpcomingInterviewsCard() {
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <p className="font-semibold text-slate-900 text-sm truncate">{interview.applicant_name || 'Ứng viên'}</p>
+                                            <p className="font-semibold text-foreground text-sm truncate">{interview.applicant_name || 'Ứng viên'}</p>
                                             <Badge className={`text-[10px] shadow-none font-bold border flex items-center gap-1 ${typeConf.className}`}>
                                                 {typeConf.icon}
                                                 {interview.interview_type_name || typeConf.label}
                                             </Badge>
                                         </div>
-                                        <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">{interview.job_title}</p>
-                                        <p className="text-xs text-blue-600 mt-1 font-semibold">
+                                        <p className="text-xs font-medium text-muted-foreground mt-0.5 truncate">{interview.job_title}</p>
+                                        <p className="text-xs text-primary mt-1 font-semibold">
                                             {format(scheduledDate, "EEEE, dd/MM · HH:mm", { locale: vi })}
                                         </p>
                                     </div>
@@ -99,7 +99,7 @@ export function UpcomingInterviewsCard() {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="border-slate-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all text-xs gap-1 shrink-0 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                                            className="border-border hover:border-primary/25 hover:bg-primary/8 hover:text-primary transition-all text-xs gap-1 shrink-0 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                                             asChild
                                         >
                                             <a href={interview.meeting_link} target="_blank" rel="noopener noreferrer">

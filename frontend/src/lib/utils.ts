@@ -26,7 +26,7 @@ export function formatCurrency(amount: number, currency: string = 'VND') {
   }).format(amount);
 }
 
-export function formatSalary(amount: number, currency: string = 'USD') {
+export function formatSalary(amount: number, currency: string = 'VND') {
   if (currency === 'VND') {
     return formatCurrency(amount, 'VND');
   }

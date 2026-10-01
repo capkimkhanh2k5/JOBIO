@@ -6,6 +6,7 @@ from apps.system.system_settings.services.system_settings import update_setting
 from apps.system.system_settings.selectors.system_settings import get_setting_by_key
 from apps.system.activity_logs.models import ActivityLog
 from apps.core.users.models import CustomUser
+from apps.core.caching import CacheKeyBuilder
 
 
 class SystemSettingsOptimizedTest(TestCase):
@@ -59,26 +60,27 @@ class SystemSettingsOptimizedTest(TestCase):
 
         # 1. First read (Cache Miss -> Set Cache)
         # Verify cache is empty initially
-        self.assertIsNone(cache.get(f"system_setting:{key}"))
+        cache_key = CacheKeyBuilder.system_setting(key)
+        self.assertIsNone(cache.get(cache_key))
 
         obj = get_setting_by_key(key)
         self.assertEqual(obj.setting_value, "10")
 
         # Verify cache is set
-        cached_obj = cache.get(f"system_setting:{key}")
+        cached_obj = cache.get(cache_key)
         self.assertIsNotNone(cached_obj)
-        self.assertEqual(cached_obj.setting_value, "10")
+        self.assertEqual(cached_obj["setting_value"], "10")
 
         # 2. Update (Should Invalidate Cache)
         update_setting(self.user, self.setting_num, "50")
 
         # Verify cache is deleted
-        self.assertIsNone(cache.get(f"system_setting:{key}"))
+        self.assertIsNone(cache.get(cache_key))
 
         # 3. Read again (Cache Miss -> Set Cache with New Value)
         obj_new = get_setting_by_key(key)
         self.assertEqual(obj_new.setting_value, "50")
-        self.assertEqual(cache.get(f"system_setting:{key}").setting_value, "50")
+        self.assertEqual(cache.get(cache_key)["setting_value"], "50")
 
     def test_audit_logging(self):
         """Test Activity Log creation"""

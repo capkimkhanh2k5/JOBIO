@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     LayoutDashboard, Users, FileText,
     Settings, Shield, LogOut,
-    Wallet, Briefcase, AlertTriangle, Database, Bell
+    Wallet, Briefcase, AlertTriangle, Database, Bell, Activity, Tags
 } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
 import { useUserStore } from '@/store/userStore';
@@ -17,17 +17,17 @@ import { useNotificationStore } from '@/store/notificationStore';
 import { useEffect } from 'react';
 
 const bottomItems = [
-    { label: 'Cài đặt hệ thống', path: '/admin/settings', icon: <Settings className="w-5 h-5" /> },
+    { label: 'Cài đặt hệ thống', path: '/admin/settings', icon: <Settings className="w-[18px] h-[18px]" /> },
 ];
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 16 },
     visible: (i: number) => ({
         opacity: 1,
         y: 0,
         transition: {
-            delay: i * 0.05,
-            duration: 0.4,
+            delay: i * 0.04,
+            duration: 0.35,
             ease: [0.215, 0.61, 0.355, 1] as any
         }
     }),
@@ -55,15 +55,17 @@ export function AdminSidebar() {
     }, [fetchUnreadCount]);
 
     const navItems = [
-        { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-        { label: 'Thông báo', path: '/admin/notifications', icon: <Bell className="w-5 h-5" />, badge: unreadCount },
-        { label: 'Quản lý Khách hàng', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
-        { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-5 h-5" /> },
-        { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-5 h-5" /> },
-        { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-5 h-5" />, badge: pendingReports },
-        { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-5 h-5" />, badge: pendingCompanies },
-        { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-5 h-5" /> },
-        { label: 'Dữ liệu danh mục', path: '/admin/master-data', icon: <Database className="w-5 h-5" /> },
+        { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
+        { label: 'Thông báo', path: '/admin/notifications', icon: <Bell className="w-[18px] h-[18px]" />, badge: unreadCount },
+        { label: 'Quản lý Khách hàng', path: '/admin/users', icon: <Users className="w-[18px] h-[18px]" /> },
+        { label: 'Tài chính', path: '/admin/financial', icon: <Wallet className="w-[18px] h-[18px]" /> },
+        { label: 'Thị trường Việc làm', path: '/admin/jobs', icon: <Briefcase className="w-[18px] h-[18px]" /> },
+        { label: 'Báo cáo vi phạm', path: '/admin/reports', icon: <AlertTriangle className="w-[18px] h-[18px]" />, badge: pendingReports },
+        { label: 'Duyệt & Kiểm duyệt', path: '/admin/moderation', icon: <Shield className="w-[18px] h-[18px]" />, badge: pendingCompanies },
+        { label: 'Quản lý Blog', path: '/admin/blog', icon: <FileText className="w-[18px] h-[18px]" /> },
+        { label: 'Dữ liệu danh mục', path: '/admin/master-data', icon: <Database className="w-[18px] h-[18px]" /> },
+        { label: 'Vận hành AI Gợi ý', path: '/admin/recommendations', icon: <Activity className="w-[18px] h-[18px]" /> },
+        { label: 'Từ điển Chuẩn hóa AI', path: '/admin/recommendation-taxonomy', icon: <Tags className="w-[18px] h-[18px]" /> },
     ];
 
     const handleLogout = async () => {
@@ -80,20 +82,27 @@ export function AdminSidebar() {
 
     return (
         <aside
-            className="hidden md:flex flex-col w-64 shrink-0 h-screen sticky top-0 border-r border-slate-200 bg-white"
+            className="hidden md:flex flex-col w-[230px] shrink-0 h-screen sticky top-0 border-r border-border/60 bg-card"
             aria-label="Admin Navigation"
         >
-            <div className="flex-1 pt-6 pb-4 flex flex-col gap-1 overflow-y-auto">
-                <div className="px-6 mb-8">
-                    <Logo
-                        to="/"
-                        imageClassName="h-10 w-auto object-contain drop-shadow"
-                        textClassName="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-violet-500 tracking-tighter"
-                    />
+            {/* Logo area */}
+            <div className="flex-none pt-6 pb-5 px-6">
+                <Logo
+                    to="/"
+                    imageClassName="h-9 w-auto object-contain drop-shadow"
+                    textClassName="text-xl font-black text-teal-600 tracking-tighter"
+                />
+            </div>
+
+            {/* Nav items — scrollable */}
+            <div className="flex-1 pb-4 flex flex-col gap-0.5 overflow-y-auto">
+                {/* Section label */}
+                <div className="px-6 mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
+                        Admin Control
+                    </p>
                 </div>
-                <div className="px-6 mb-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Admin Control</p>
-                </div>
+
                 {navItems.map((item, i) => (
                     <motion.div
                         key={item.path}
@@ -106,10 +115,10 @@ export function AdminSidebar() {
                             to={item.path}
                             end={item.path === '/admin/dashboard'}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group relative
+                                `flex items-center gap-3 mx-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group relative
                                 ${isActive
-                                    ? 'bg-violet-50/80 text-violet-700 shadow-sm border border-violet-100/50'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                                    ? 'bg-primary/8 text-primary shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                                 }`
                             }
                             aria-label={item.label}
@@ -119,15 +128,15 @@ export function AdminSidebar() {
                                     {isActive && (
                                         <motion.span
                                             layoutId="admin-sidebar-active"
-                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-violet-600 rounded-r-md -ml-3"
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gradient-to-b from-[var(--brand-teal)] to-[var(--brand-teal-light)] rounded-r-full -ml-3"
                                         />
                                     )}
-                                    <span className={`transition-colors duration-200 ${isActive ? 'text-violet-600' : 'text-slate-400 group-hover:text-violet-600'}`}>
+                                    <span className={`transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-primary'}`}>
                                         {item.icon}
                                     </span>
                                     <span className="flex-1">{item.label}</span>
                                     {item.badge !== undefined && item.badge > 0 && (
-                                        <span className="min-w-[20px] h-5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full flex items-center justify-center px-1.5 border border-red-200">
+                                        <span className="min-w-[18px] h-[18px] text-[9px] font-bold bg-red-100 text-red-600 rounded-full flex items-center justify-center px-1 border border-red-200/60">
                                             {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
@@ -137,8 +146,10 @@ export function AdminSidebar() {
                     </motion.div>
                 ))}
 
-                <div className="my-3 mx-6 border-t border-slate-100" />
+                {/* Divider */}
+                <div className="my-3 mx-6 border-t border-border/40" />
 
+                {/* Bottom items */}
                 {bottomItems.map((item, i) => (
                     <motion.div
                         key={item.path}
@@ -150,16 +161,16 @@ export function AdminSidebar() {
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 mx-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group
+                                `flex items-center gap-3 mx-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 group
                                 ${isActive
-                                    ? 'bg-slate-100 text-slate-900 border border-slate-200/60'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                                    ? 'bg-muted text-foreground'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                                 }`
                             }
                         >
                             {({ isActive }) => (
                                 <>
-                                    <span className={`transition-colors ${isActive ? 'text-slate-700' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                                    <span className={`transition-colors ${isActive ? 'text-foreground/70' : 'text-muted-foreground/50 group-hover:text-foreground/60'}`}>
                                         {item.icon}
                                     </span>
                                     <span>{item.label}</span>
@@ -171,25 +182,32 @@ export function AdminSidebar() {
             </div>
 
             {/* Admin Profile & Logout at Bottom */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-                <div className="flex items-center gap-3 px-2 mb-4">
-                    <Avatar className="h-9 w-9 border border-slate-200 shadow-sm">
-                        <AvatarImage src={user?.avatar_url ?? undefined} />
-                        <AvatarFallback className="bg-violet-600 text-white text-[10px] font-black">
-                            {user?.full_name?.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-xs font-black text-slate-900 truncate">{user?.full_name}</p>
-                        <p className="text-[10px] font-bold text-violet-600 uppercase truncate">Admin</p>
+            <div className="flex-none p-3 border-t border-border/60 bg-card">
+                <div className="p-2.5 rounded-2xl bg-muted/40 border border-border/60 shadow-xs mb-2.5">
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9 border border-emerald-500/30 shadow-xs shrink-0">
+                            <AvatarImage src={user?.avatar_url ?? undefined} />
+                            <AvatarFallback className="bg-gradient-to-br from-teal-600 to-emerald-500 text-white text-[10px] font-bold">
+                                {user?.full_name?.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs font-black text-foreground truncate leading-tight">{user?.full_name}</p>
+                            <div className="mt-1 flex items-center">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-xs shadow-emerald-500/50" />
+                                    ADMIN
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <Button
                     variant="ghost"
-                    className="w-full justify-start gap-3 h-10 rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 font-bold text-xs px-3 transition-colors"
+                    className="w-full justify-start gap-2.5 h-8.5 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 font-bold text-xs px-3 transition-colors"
                     onClick={handleLogout}
                 >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-3.5 h-3.5" />
                     Đăng xuất
                 </Button>
             </div>

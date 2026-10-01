@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Bell, Loader2 } from 'lucide-react';
-import { companyService } from '@/services/companyService';
+import { notificationService } from '@/services/notificationService';
 
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -23,7 +23,7 @@ export function NotificationSettings() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await companyService.getNotificationSettings();
+                const res = await notificationService.getNotificationSettings();
                 if (res.data) setSettings(res.data);
             } catch (error) {
                 console.error("Lỗi khi tải cài đặt thông báo:", error);
@@ -40,7 +40,7 @@ export function NotificationSettings() {
         setIsSaving(true);
 
         try {
-            await companyService.updateNotificationSettings({ [key]: newValue });
+            await notificationService.updateNotificationSettings({ [key]: newValue });
             toast.success("Đã cập nhật cài đặt thông báo");
         } catch (error: any) {
             // Rollback on fail
@@ -54,7 +54,7 @@ export function NotificationSettings() {
     if (isLoading) {
         return (
             <div className="p-12 flex justify-center">
-                <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
             </div>
         );
     }
@@ -63,7 +63,7 @@ export function NotificationSettings() {
         <div className="p-6">
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-start gap-3">
-                    <div className="p-2 bg-violet-100 text-violet-600 rounded-lg shrink-0">
+                    <div className="p-2 bg-teal-100 text-teal-600 rounded-lg shrink-0">
                         <Bell className="w-5 h-5" />
                     </div>
                     <div>
@@ -75,7 +75,7 @@ export function NotificationSettings() {
             </div>
 
             <div className="space-y-4">
-                <Card className="p-4 border border-slate-100 shadow-none flex items-center justify-between">
+                <Card className="p-4 border border-border/60 shadow-none flex items-center justify-between">
                     <div>
                         <Label className="text-base font-semibold">Ứng viên mới ứng tuyển</Label>
                         <p className="text-sm text-muted-foreground mt-1">Nhận email ngay khi có ứng viên nộp hồ sơ vào tin tuyển dụng của bạn.</p>
@@ -87,7 +87,7 @@ export function NotificationSettings() {
                     />
                 </Card>
 
-                <Card className="p-4 border border-slate-100 shadow-none flex items-center justify-between">
+                <Card className="p-4 border border-border/60 shadow-none flex items-center justify-between">
                     <div>
                         <Label className="text-base font-semibold">Tin nhắn mới</Label>
                         <p className="text-sm text-muted-foreground mt-1">Thông báo khi ứng viên phản hồi tin nhắn của bạn.</p>
@@ -99,7 +99,7 @@ export function NotificationSettings() {
                     />
                 </Card>
 
-                <Card className="p-4 border border-slate-100 shadow-none flex items-center justify-between">
+                <Card className="p-4 border border-border/60 shadow-none flex items-center justify-between">
                     <div>
                         <Label className="text-base font-semibold">Thông tin tiếp thị & Ưu đãi</Label>
                         <p className="text-sm text-muted-foreground mt-1">Nhận các bản tin về tính năng, dịch vụ và ưu đãi giảm giá.</p>

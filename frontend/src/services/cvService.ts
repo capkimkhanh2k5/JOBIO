@@ -155,4 +155,15 @@ export const cvService = {
       `/api/candidates/${candidateId}/cvs/${cvId}/preview/`
     );
   },
+
+  rewriteSection(
+    candidateId: number,
+    cvId: number,
+    data: { section: 'summary' | 'experience' | 'project'; text: string; context?: Record<string, any> }
+  ) {
+    return api.post<{ section: string; rewritten_text: string; model: string }>(
+      `/api/candidates/${candidateId}/cvs/${cvId}/rewrite-section/`,
+      data
+    );
+  },
 };

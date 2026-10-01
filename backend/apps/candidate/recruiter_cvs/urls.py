@@ -44,9 +44,19 @@ urlpatterns = [
         name="cv-download",
     ),
     path(
+        "<int:pk>/file/",
+        RecruiterCVViewSet.as_view({"get": "file"}),
+        name="cv-file",
+    ),
+    path(
         "<int:pk>/preview/",
         RecruiterCVViewSet.as_view({"post": "preview"}),
         name="cv-preview",
+    ),
+    path(
+        "<int:pk>/rewrite-section/",
+        RecruiterCVViewSet.as_view({"post": "rewrite_section"}),
+        name="cv-rewrite-section",
     ),
     path(
         "<int:pk>/privacy/",

@@ -92,6 +92,22 @@ class RecruiterProjectViewTest(APITestCase):
             RecruiterProject.objects.filter(recruiter=self.recruiter).count(), 2
         )
 
+    def test_create_project_rejects_insecure_project_url(self):
+        url = f"/api/candidates/{self.recruiter.id}/projects/"
+        response = self.client.post(
+            url,
+            {
+                "project_name": "Insecure project",
+                "project_url": "http://portfolio.example.com",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            RecruiterProject.objects.filter(project_name="Insecure project").count(), 0
+        )
+
     def test_create_project_not_owner(self):
         """Test POST by non-owner returns 403"""
         url = f"/api/candidates/{self.recruiter2.id}/projects/"
@@ -117,12 +133,35 @@ class RecruiterProjectViewTest(APITestCase):
     def test_update_project_success(self):
         """Test PUT /api/candidates/:id/projects/:pk/ - success"""
         url = f"/api/candidates/{self.recruiter.id}/projects/{self.project.id}/"
-        data = {"project_name": "Updated Portfolio", "is_ongoing": True}
+        data = {"project_name": "Updated Portfolio"}
         response = self.client.put(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.project.refresh_from_db()
         self.assertEqual(self.project.project_name, "Updated Portfolio")
+
+    def test_partial_update_project_rejects_end_date_before_existing_start_date(self):
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/projects/{self.project.id}/",
+            {"end_date": "2023-12-31"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.end_date, date(2024, 6, 1))
+
+    def test_partial_update_project_ongoing_rejects_existing_end_date(self):
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/projects/{self.project.id}/",
+            {"is_ongoing": True},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.project.refresh_from_db()
+        self.assertFalse(self.project.is_ongoing)
+        self.assertEqual(self.project.end_date, date(2024, 6, 1))
 
     def test_update_project_not_owner(self):
         """Test PUT by non-owner returns 403"""

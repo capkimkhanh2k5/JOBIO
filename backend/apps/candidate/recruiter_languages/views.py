@@ -27,6 +27,7 @@ class RecruiterLanguageViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = RecruiterLanguageSerializer
 
     def get_queryset(self):
         recruiter_id = self.kwargs.get("recruiter_id")

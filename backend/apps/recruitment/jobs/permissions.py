@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
+from apps.company.companies.permissions import can_manage_company_jobs
+
 
 class IsJobOwnerOrReadOnly(BasePermission):
     """
@@ -21,9 +23,7 @@ class IsJobOwnerOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # PUT/DELETE: User phải là owner của company sở hữu job
-        # Kiểm tra nếu user là owner của company sở hữu job
         if hasattr(obj, "company") and obj.company:
-            return obj.company.user == request.user
+            return can_manage_company_jobs(obj.company, request.user)
 
         return False

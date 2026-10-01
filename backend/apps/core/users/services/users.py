@@ -5,6 +5,7 @@ from ..models import CustomUser
 import time
 import cloudinary
 import cloudinary.uploader
+from apps.moderation.services import validate_upload_file
 
 
 class UserCreateInput(BaseModel):
@@ -126,14 +127,9 @@ def upload_user_avatar(user: CustomUser, file) -> CustomUser:
     Upload avatar cho user lên Cloudinary.
     """
 
-    # Validate file type
-    allowed_types = ["image/jpeg", "image/png", "image/gif", "image/webp"]
-    if file.content_type not in allowed_types:
-        raise ValueError("Loại file không hợp lệ. Chỉ chấp nhận: JPEG, PNG, GIF, WEBP")
-
-    # Validate file size (max 2MB)
-    if file.size > 2 * 1024 * 1024:
-        raise ValueError("File quá lớn. Tối đa 2MB")
+    validate_upload_file(
+        file, purpose="avatar", max_size_mb=2, user=user, is_public=True
+    )
 
     # Upload to Cloudinary
     public_id = f"Jobio/Avatars/{user.id}/avatar_{int(time.time())}"

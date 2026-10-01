@@ -229,10 +229,10 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white border-slate-200 shadow-none">
+            <DialogContent className="sm:max-w-[600px] bg-card border-border shadow-none">
                 <DialogHeader>
-                    <DialogTitle className="text-xl text-slate-900">Xếp lịch phỏng vấn</DialogTitle>
-                    <DialogDescription className="text-slate-600">
+                    <DialogTitle className="text-xl text-foreground">Xếp lịch phỏng vấn</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Lên lịch phỏng vấn mới với ứng viên. Thông báo sẽ được gửi tự động.
                     </DialogDescription>
                 </DialogHeader>
@@ -245,30 +245,30 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                 onValueChange={(value) => form.setValue('candidate_id', value)}
                                 value={form.watch('candidate_id')}
                             >
-                                <SelectTrigger className="w-full min-h-[56px] h-auto items-start bg-slate-50 border-slate-200 text-slate-900 py-2">
+                                <SelectTrigger className="w-full min-h-[56px] h-auto items-start bg-muted border-border text-foreground py-2">
                                     <SelectValue placeholder="Chọn ứng viên..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-slate-200">
+                                <SelectContent className="bg-card border-border">
                                     {isLoadingCandidates ? (
-                                        <div className="p-2 text-sm text-center text-slate-500">Đang tải...</div>
+                                        <div className="p-2 text-sm text-center text-muted-foreground">Đang tải...</div>
                                     ) : (
                                         candidateOptions.map((cand: any) => (
                                             <SelectItem key={cand.id} value={String(cand.id)}>
                                                 <div className="flex items-center gap-2.5">
-                                                    <Avatar className="h-8 w-8 border border-slate-200 bg-white">
+                                                    <Avatar className="h-8 w-8 border border-border bg-card">
                                                         <AvatarImage
                                                             src={getApplicationCandidateAvatar(cand) || undefined}
                                                             alt={getApplicationCandidateName(cand)}
                                                         />
-                                                        <AvatarFallback className="bg-violet-50 text-xs font-bold text-violet-700">
+                                                        <AvatarFallback className="bg-teal-50 text-xs font-bold text-teal-700">
                                                             {getApplicationCandidateName(cand).charAt(0).toUpperCase()}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div className="flex flex-col items-start text-left">
-                                                        <span className="font-medium text-slate-900">
+                                                        <span className="font-medium text-foreground">
                                                             {getApplicationCandidateName(cand)}
                                                         </span>
-                                                        <span className="text-xs text-slate-500">
+                                                        <span className="text-xs text-muted-foreground">
                                                             {cand.job_title || cand.job?.title || 'Chưa có vị trí'}
                                                         </span>
                                                     </div>
@@ -289,12 +289,12 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                 onValueChange={(value) => form.setValue('type', value)}
                                 value={form.watch('type')}
                             >
-                                <SelectTrigger className="w-full bg-slate-50 border-slate-200 text-slate-900">
+                                <SelectTrigger className="w-full bg-muted border-border text-foreground">
                                     <SelectValue placeholder="Chọn hình thức..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-slate-200">
+                                <SelectContent className="bg-card border-border">
                                     {isLoadingTypes ? (
-                                        <div className="p-2 text-sm text-center text-slate-500">Đang tải...</div>
+                                        <div className="p-2 text-sm text-center text-muted-foreground">Đang tải...</div>
                                     ) : (
                                         interviewTypeOptions.map((type: any) => (
                                             <SelectItem key={type.id} value={String(type.id)}>
@@ -316,7 +316,7 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                                 type="number"
                                 min="15"
                                 step="15"
-                                className="bg-slate-50 border-slate-200 text-slate-900"
+                                className="bg-muted border-border text-foreground"
                                 {...form.register('duration_minutes', { valueAsNumber: true })}
                             />
                         </div>
@@ -324,15 +324,15 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                         <div className="space-y-2">
                             <Label htmlFor="scheduled_date">Ngày phỏng vấn <span className="text-red-500">*</span></Label>
                             <div className="relative">
-                                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="scheduled_date"
                                     type="date"
                                     min={getLocalDateInputValue()}
-                                    className={`pl-10 bg-slate-50 text-slate-900 ${
+                                    className={`pl-10 bg-muted text-foreground ${
                                         form.formState.errors.scheduled_date
                                             ? 'border-red-500 focus-visible:ring-red-500/20'
-                                            : 'border-slate-200'
+                                            : 'border-border'
                                     }`}
                                     {...form.register('scheduled_date')}
                                 />
@@ -345,11 +345,11 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                         <div className="space-y-2">
                             <Label htmlFor="scheduled_time">Giờ bắt đầu <span className="text-red-500">*</span></Label>
                             <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="scheduled_time"
                                     type="time"
-                                    className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                    className="pl-10 bg-muted border-border text-foreground"
                                     {...form.register('scheduled_time')}
                                 />
                             </div>
@@ -362,11 +362,11 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="location">Địa điểm phỏng vấn <span className="text-red-500">*</span></Label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                                     <Textarea
                                         id="location"
                                         placeholder="Nhập địa chỉ chi tiết hoặc phòng họp..."
-                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900 min-h-[60px]"
+                                        className="pl-10 bg-muted border-border text-foreground min-h-[60px]"
                                         {...form.register('location')}
                                     />
                                 </div>
@@ -377,11 +377,11 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                             <div className="md:col-span-2 space-y-2">
                                 <Label htmlFor="meeting_link">Link meeting / Số điện thoại <span className="text-red-500">*</span></Label>
                                 <div className="relative">
-                                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <Input
                                         id="meeting_link"
                                         placeholder={interviewMode === 'video' ? "https://meet.google.com/..." : "Nhập số điện thoại..."}
-                                        className="pl-10 bg-slate-50 border-slate-200 text-slate-900"
+                                        className="pl-10 bg-muted border-border text-foreground"
                                         {...form.register('meeting_link')}
                                     />
                                 </div>
@@ -393,7 +393,7 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                             <Textarea
                                 id="notes"
                                 placeholder="Yêu cầu ứng viên chuẩn bị, nội dung phỏng vấn..."
-                                className="bg-slate-50 border-slate-200 text-slate-900 min-h-[80px]"
+                                className="bg-muted border-border text-foreground min-h-[80px]"
                                 {...form.register('notes')}
                             />
                         </div>
@@ -403,7 +403,7 @@ export function CreateInterviewModal({ open, onOpenChange, initialApplicationId 
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Hủy bỏ
                         </Button>
-                        <Button type="submit" className="bg-violet-600 hover:bg-violet-700 text-white" disabled={mutation.isPending}>
+                        <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={mutation.isPending}>
                             {mutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             Tạo lịch phỏng vấn
                         </Button>

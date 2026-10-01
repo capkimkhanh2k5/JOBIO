@@ -24,6 +24,13 @@ class EducationInput(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+def _validate_education_dates(start_date, end_date, is_current) -> None:
+    if end_date and start_date and end_date < start_date:
+        raise ValueError("End date must be after start date")
+    if is_current and end_date:
+        raise ValueError("End date should be empty when currently studying")
+
+
 @transaction.atomic
 def create_education_service(
     recruiter: Recruiter, data: EducationInput
@@ -42,6 +49,11 @@ def create_education_service(
     next_order = (max_order or 0) + 1
 
     fields = data.model_dump(exclude_unset=True)
+    _validate_education_dates(
+        fields.get("start_date"),
+        fields.get("end_date"),
+        fields.get("is_current", False),
+    )
 
     # Check for existing education with same school and degree
     school_name = fields.get("school_name")
@@ -55,6 +67,11 @@ def create_education_service(
 
         existing = qs.first()
         if existing:
+            _validate_education_dates(
+                fields.get("start_date", existing.start_date),
+                fields.get("end_date", existing.end_date),
+                fields.get("is_current", existing.is_current),
+            )
             for field, value in fields.items():
                 setattr(existing, field, value)
             existing.save()
@@ -75,6 +92,11 @@ def update_education_service(
     Chỉ update các fields có trong data.
     """
     fields = data.model_dump(exclude_unset=True)
+    _validate_education_dates(
+        fields.get("start_date", education.start_date),
+        fields.get("end_date", education.end_date),
+        fields.get("is_current", education.is_current),
+    )
 
     for field, value in fields.items():
         setattr(education, field, value)

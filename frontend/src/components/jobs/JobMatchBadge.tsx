@@ -10,10 +10,10 @@ interface JobMatchBadgeProps {
 
 export function JobMatchBadge({ score, className, showIcon = true }: JobMatchBadgeProps) {
     const getColors = (s: number) => {
-        if (s >= 90) return "from-emerald-400 to-cyan-400 shadow-emerald-500/20 text-emerald-950 dark:text-emerald-50";
-        if (s >= 80) return "from-cyan-400 to-blue-400 shadow-cyan-500/20 text-cyan-950 dark:text-cyan-50";
-        if (s >= 70) return "from-blue-400 to-indigo-400 shadow-blue-500/20 text-blue-950 dark:text-blue-50";
-        return "from-slate-400 to-slate-500 shadow-slate-500/20 text-slate-950 dark:text-slate-50";
+        if (s >= 90) return "from-emerald-400 to-emerald-400 shadow-emerald-500/20 text-emerald-950 dark:text-emerald-50";
+        if (s >= 80) return "from-teal-400 to-teal-400 shadow-cyan-500/20 text-cyan-950 dark:text-cyan-50";
+        if (s >= 70) return "from-primary to-primary shadow-primary/20 text-foreground dark:text-white";
+        return "from-slate-400 to-slate-500 shadow-slate-500/20 text-foreground dark:text-background";
     };
 
     return (

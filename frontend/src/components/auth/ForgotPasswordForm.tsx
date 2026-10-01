@@ -47,7 +47,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     return (
         <div className="space-y-6">
             <div className="flex justify-center mb-8">
-                <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
+                <div className="w-16 h-16 bg-primary/8 rounded-2xl flex items-center justify-center text-primary shadow-sm border border-primary/12">
                     <Mail className="w-8 h-8" />
                 </div>
             </div>
@@ -63,7 +63,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                                 <FormControl>
                                     <Input
                                         placeholder="name@example.com"
-                                        className="h-11 bg-slate-50/50 border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:font-normal"
+                                        className="h-11 bg-muted/50 border-border focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium placeholder:font-normal"
                                         {...field}
                                     />
                                 </FormControl>
@@ -74,7 +74,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
                     <Button
                         type="submit"
-                        className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-md shadow-blue-500/20 hover:-translate-y-[1px]"
+                        className="w-full h-11 bg-gradient-to-r from-primary to-primary hover:from-teal-700 hover:to-primary text-white font-semibold transition-all shadow-md shadow-primary/20 hover:-translate-y-[1px]"
                         disabled={form.formState.isSubmitting}
                     >
                         {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -85,7 +85,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
             <Button
                 variant="outline"
-                className="w-full h-11 border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 font-medium transition-all group shadow-sm"
+                className="w-full h-11 border-border text-muted-foreground hover:text-primary hover:border-primary/20 hover:bg-primary/8 font-medium transition-all group shadow-sm"
                 onClick={onBackToLogin}
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />

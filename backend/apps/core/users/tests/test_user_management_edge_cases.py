@@ -556,6 +556,30 @@ class TestBulkActionEdgeCases(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_bulk_action_rejects_non_list_ids(self):
+        """Bulk action with non-list ids → 400"""
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(
+            USER_BULK_ACTION,
+            {"ids": "1,2,3", "action": "update_status", "value": "banned"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_bulk_action_rejects_too_many_ids(self):
+        """Bulk action with too many ids → 400"""
+        self.client.force_authenticate(user=self.admin)
+        response = self.client.post(
+            USER_BULK_ACTION,
+            {
+                "ids": list(range(1, 102)),
+                "action": "update_status",
+                "value": "banned",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_bulk_action_without_authentication(self):
         """Bulk action without login → 401"""
         response = self.client.post(

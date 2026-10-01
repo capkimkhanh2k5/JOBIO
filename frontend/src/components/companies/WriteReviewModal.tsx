@@ -65,7 +65,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (val: number
                 >
                     <Star
                         size={24}
-                        className={`transition-colors duration-200 ${star <= (hover || value) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'
+                        className={`transition-colors duration-200 ${star <= (hover || value) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'
                             }`}
                     />
                 </button>
@@ -88,7 +88,7 @@ function MiniStarRating({ value, onChange }: { value: number; onChange: (val: nu
                 >
                     <Star
                         size={16}
-                        className={`transition-colors duration-200 ${star <= (hover || value) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'
+                        className={`transition-colors duration-200 ${star <= (hover || value) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'
                             }`}
                     />
                 </button>
@@ -138,11 +138,11 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-white/60 backdrop-blur-xl border-white/50 shadow-2xl rounded-3xl p-0">
-                <div className="p-6 pb-2 border-b border-gray-100/50">
+            <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-card/60 backdrop-blur-xl border-white/50 shadow-2xl rounded-3xl p-0">
+                <div className="p-6 pb-2 border-b border-border/60/50">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-gray-900">Viết đánh giá công ty</DialogTitle>
-                        <DialogDescription className="text-gray-500">
+                        <DialogTitle className="text-xl font-bold text-foreground">Viết đánh giá công ty</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
                             Chia sẻ trải nghiệm làm việc của bạn để giúp ứng viên khác.
                         </DialogDescription>
                     </DialogHeader>
@@ -174,32 +174,32 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                             {/* Detailed Ratings */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="work_environment_rating" render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                                        <FormLabel className="mb-0 text-sm text-gray-700">Môi trường</FormLabel>
+                                    <FormItem className="flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border/60">
+                                        <FormLabel className="mb-0 text-sm text-foreground/80">Môi trường</FormLabel>
                                         <FormControl>
                                             <div className="flex-shrink-0"><MiniStarRating value={field.value} onChange={field.onChange} /></div>
                                         </FormControl>
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="salary_benefits_rating" render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                                        <FormLabel className="mb-0 text-sm text-gray-700">Lương & Phúc lợi</FormLabel>
+                                    <FormItem className="flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border/60">
+                                        <FormLabel className="mb-0 text-sm text-foreground/80">Lương & Phúc lợi</FormLabel>
                                         <FormControl>
                                             <div className="flex-shrink-0"><MiniStarRating value={field.value} onChange={field.onChange} /></div>
                                         </FormControl>
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="management_rating" render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                                        <FormLabel className="mb-0 text-sm text-gray-700">Quản lý</FormLabel>
+                                    <FormItem className="flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border/60">
+                                        <FormLabel className="mb-0 text-sm text-foreground/80">Quản lý</FormLabel>
                                         <FormControl>
                                             <div className="flex-shrink-0"><MiniStarRating value={field.value} onChange={field.onChange} /></div>
                                         </FormControl>
                                     </FormItem>
                                 )} />
                                 <FormField control={form.control} name="career_development_rating" render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between bg-gray-50/50 p-3 rounded-xl border border-gray-100">
-                                        <FormLabel className="mb-0 text-sm text-gray-700">Đào tạo</FormLabel>
+                                    <FormItem className="flex items-center justify-between bg-muted/50 p-3 rounded-xl border border-border/60">
+                                        <FormLabel className="mb-0 text-sm text-foreground/80">Đào tạo</FormLabel>
                                         <FormControl>
                                             <div className="flex-shrink-0"><MiniStarRating value={field.value} onChange={field.onChange} /></div>
                                         </FormControl>
@@ -219,9 +219,9 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                     name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold text-gray-700">Tiêu đề đánh giá *</FormLabel>
+                                            <FormLabel className="font-semibold text-foreground/80">Tiêu đề đánh giá *</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Tóm tắt ngắn gọn trải nghiệm..." className="bg-white/70" {...field} />
+                                                <Input placeholder="Tóm tắt ngắn gọn trải nghiệm..." className="bg-card/70" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -233,11 +233,11 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                     name="content"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="font-semibold text-gray-700">Nội dung chi tiết *</FormLabel>
+                                            <FormLabel className="font-semibold text-foreground/80">Nội dung chi tiết *</FormLabel>
                                             <FormControl>
                                                 <Textarea
                                                     placeholder="Chia sẻ chi tiết về công việc, văn hóa, sếp, đồng nghiệp..."
-                                                    className="resize-none h-28 bg-white/70"
+                                                    className="resize-none h-28 bg-card/70"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -276,15 +276,15 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                 </div>
                             </div>
 
-                            <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-4">
-                                <h4 className="text-sm font-semibold text-slate-800">Thông tin cá nhân (Tùy chọn)</h4>
+                            <div className="bg-muted/50 p-4 rounded-xl border border-border/60 space-y-4">
+                                <h4 className="text-sm font-semibold text-foreground">Thông tin cá nhân (Tùy chọn)</h4>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="employment_status"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs text-slate-600">Trạng thái</FormLabel>
+                                                <FormLabel className="text-xs text-muted-foreground">Trạng thái</FormLabel>
                                                 <FormControl>
                                                     <select
                                                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -304,9 +304,9 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                         name="position"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs text-slate-600">Vị trí/Chức vụ</FormLabel>
+                                                <FormLabel className="text-xs text-muted-foreground">Vị trí/Chức vụ</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="VD: Frontend Dev" className="bg-white" {...field} />
+                                                    <Input placeholder="VD: Frontend Dev" className="bg-card" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -317,9 +317,9 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                         name="employment_duration"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs text-slate-600">Thời gian làm (Năm)</FormLabel>
+                                                <FormLabel className="text-xs text-muted-foreground">Thời gian làm (Năm)</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="VD: 2 năm" className="bg-white" {...field} />
+                                                    <Input placeholder="VD: 2 năm" className="bg-card" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -330,10 +330,10 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                     control={form.control}
                                     name="is_anonymous"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-200 bg-white p-3 shadow-sm mt-4">
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm mt-4">
                                             <div className="space-y-0.5">
-                                                <FormLabel className="text-sm font-semibold text-slate-800">Đánh giá ẩn danh</FormLabel>
-                                                <p className="text-[11px] text-slate-500">Tên và avatar của bạn sẽ không hiển thị công khai</p>
+                                                <FormLabel className="text-sm font-semibold text-foreground">Đánh giá ẩn danh</FormLabel>
+                                                <p className="text-[11px] text-muted-foreground">Tên và avatar của bạn sẽ không hiển thị công khai</p>
                                             </div>
                                             <FormControl>
                                                 <Switch
@@ -346,7 +346,7 @@ export function WriteReviewModal({ companyId, isOpen, onClose }: Props) {
                                 />
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <div className="flex justify-end gap-3 pt-4 border-t border-border/60">
                                 <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl px-6">
                                     Hủy
                                 </Button>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     LifeBuoy, Mail, MessageSquare, Phone, MapPin,
     Send, CheckCircle2, HelpCircle,
-    Clock, ArrowRight, ChevronDown
+    Clock, ExternalLink, ChevronDown
 } from 'lucide-react';
 import { useUserStore } from '@/store/userStore';
 import { Input } from '@/components/ui/input';
@@ -19,52 +19,53 @@ import api from '@/services/api';
 const faqs = [
     {
         question: "Làm thế nào để đăng tin tuyển dụng hiệu quả hơn?",
-        answer: "Để tin tuyển dụng thu hút ứng viên, bạn nên cung cấp đầy đủ thông tin về mức lương, mô tả công việc chi tiết và các phúc lợi hấp dẫn. Ngoài ra, việc sử dụng các từ khóa chuyên ngành trong tiêu đề cũng giúp tin của bạn dễ được tìm thấy hơn."
+        answer: "Để tin tuyển dụng thu hút ứng viên, bạn nên cung cấp đầy đủ thông tin về mức lương, mô tả công việc chi tiết và các phúc lợi hấp dẫn."
     },
     {
         question: "Tại sao tin đăng của tôi đang ở trạng thái 'Chờ duyệt'?",
-        answer: "Mọi tin đăng mới đều được đội ngũ kiểm duyệt của JOBIO xem xét trong vòng 2-4 giờ làm việc để đảm bảo tính xác thực và chất lượng nội dung trước khi hiển thị công khai."
+        answer: "Mọi tin đăng mới đều được đội ngũ kiểm duyệt xem xét trong vòng 2-4 giờ làm việc để đảm bảo tính xác thực nội dung."
     },
     {
         question: "Làm cách nào để thay đổi thông tin công ty?",
-        answer: "Bạn có thể vào mục 'Hồ sơ công ty' trong thanh điều hướng bên trái để cập nhật logo, mô tả, quy mô và các thông tin liên quan khác của doanh nghiệp."
+        answer: "Bạn có thể vào mục 'Hồ sơ công ty' trong thanh điều hướng bên trái để cập nhật logo, mô tả và quy mô doanh nghiệp."
     },
     {
         question: "Tôi có thể xuất dữ liệu ứng viên ra file Excel không?",
-        answer: "Có, JOBIO hỗ trợ xuất danh sách ứng viên chuyên sâu. Bạn có thể tìm thấy nút 'Xuất báo cáo' trong trang Chi tiết tin tuyển dụng hoặc trang Quản lý ứng viên."
+        answer: "Có, JOBIO hỗ trợ xuất danh sách ứng viên. Bạn có thể bấm nút 'Xuất báo cáo' trong trang Quản lý ứng viên."
     },
     {
         question: "Làm sao để gia hạn gói dịch vụ đang sử dụng?",
-        answer: "Bạn hãy truy cập vào mục 'Gói dịch vụ', hệ thống sẽ hiển thị các lựa chọn gia hạn hoặc nâng cấp phù hợp với nhu cầu hiện tại của bạn."
+        answer: "Bạn truy cập vào mục 'Gói dịch vụ', hệ thống sẽ hiển thị các lựa chọn gia hạn hoặc nâng cấp phù hợp."
     }
 ];
 
-const OFFICE_NAME = 'Trường Đại học Bách Khoa - Đại học Đà Nẵng';
-const OFFICE_ADDRESS = '54 Nguyễn Lương Bằng, Liên Chiểu, Đà Nẵng 550000, Việt Nam';
+const OFFICE_NAME = 'Văn phòng JOBIO';
+const OFFICE_ADDRESS = '54 Nguyễn Lương Bằng, Liên Chiểu, Đà Nẵng, Việt Nam';
+const MAP_EMBED_URL = 'https://maps.google.com/maps?q=54%20Nguy%E1%BB%85n%20L%C6%B0%C6%A1ng%20B%E1%BA%B1ng,%20Li%C3%AAn%20Chi%E1%BB%83u,%20%C4%90%C3%A0%20N%E1%BA%B5ng&t=&z=15&ie=UTF8&iwloc=&output=embed';
 const OFFICE_MAP_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${OFFICE_NAME}, ${OFFICE_ADDRESS}`)}`;
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div className={cn(
-            "border-b border-slate-100 last:border-0 transition-all",
-            isOpen ? "bg-slate-50/50" : "bg-transparent"
+            "border-b border-border/60 last:border-0 transition-all",
+            isOpen ? "bg-muted/40" : "bg-transparent"
         )}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between py-5 text-left group outline-none"
+                className="w-full flex items-center justify-between py-3.5 px-1 text-left group outline-none cursor-pointer"
             >
                 <span className={cn(
-                    "font-bold text-sm md:text-base transition-colors",
-                    isOpen ? "text-violet-600" : "text-slate-700 group-hover:text-violet-600"
+                    "font-bold text-xs sm:text-sm transition-colors",
+                    isOpen ? "text-primary" : "text-foreground/90 group-hover:text-primary"
                 )}>
                     {question}
                 </span>
                 <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center transition-all",
-                    isOpen ? "bg-violet-100 text-violet-600 rotate-180 shadow-sm" : "bg-slate-50 text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600"
+                    "w-6 h-6 rounded-full flex items-center justify-center transition-all shrink-0 ml-2",
+                    isOpen ? "bg-primary/12 text-primary rotate-180" : "bg-muted text-muted-foreground/60 group-hover:bg-primary/8 group-hover:text-primary"
                 )}>
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-3.5 h-3.5" />
                 </div>
             </button>
             <AnimatePresence>
@@ -73,10 +74,10 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="overflow-hidden"
                     >
-                        <p className="pb-6 text-slate-500 font-medium leading-relaxed pr-8 text-sm md:text-base">
+                        <p className="pb-3.5 px-1 text-muted-foreground font-medium leading-relaxed text-xs sm:text-sm">
                             {answer}
                         </p>
                     </motion.div>
@@ -123,115 +124,108 @@ export default function CompanySupportPage() {
     };
 
     return (
-        <div className="min-h-screen overflow-hidden relative">
-            {/* Background elements */}
-            <div className="absolute top-0 right-[-20%] w-[60%] h-[500px] bg-gradient-to-l from-violet-500/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[400px] bg-gradient-to-tr from-cyan-500/10 to-transparent blur-[100px] pointer-events-none rounded-full" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.4)_1px,transparent_0)] [background-size:6px_6px] opacity-[0.04] mix-blend-overlay pointer-events-none"></div>
-
-            <div className="sticky top-0 z-20">
+        <div className="w-full mx-auto min-h-screen">
+            <div>
                 <PageHeader
                     title="Hỗ trợ & Giải đáp"
-                    description="Chúng tôi luôn sẵn sàng hỗ trợ bạn giải quyết mọi vấn đề trong quá trình sử dụng hệ thống."
+                    description="Giải đáp thắc mắc và tiếp nhận yêu cầu hỗ trợ từ doanh nghiệp."
                     icon={LifeBuoy}
                     action={
-                        <Badge className="bg-white/80 text-violet-600 border-violet-100 px-4 py-2 rounded-xl font-bold shadow-sm backdrop-blur-sm">
+                        <Badge className="bg-primary/8 text-primary border-primary/20 px-3 py-1 rounded-lg font-bold shadow-none text-xs">
                             Trực tuyến 24/7
                         </Badge>
                     }
                 />
             </div>
 
-            <div className="w-full mx-auto space-y-8 relative z-10 p-6 lg:p-8 animate-in fade-in duration-700">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-4 space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-                    {/* ── Left Column: Contact Form ───────────────────────────── */}
-                    <div className="lg:col-span-2 space-y-8">
+                    {/* ── Left Column: Form & FAQs ───────────────────────────── */}
+                    <div className="lg:col-span-2 space-y-6">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.1 }}
-                            className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+                            transition={{ duration: 0.4 }}
+                            className="bg-card rounded-2xl border border-border/80 shadow-sm overflow-hidden"
                         >
-                            <div className="p-8 md:p-10">
-                                <div className="flex items-center gap-5 mb-10">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-violet-500/30">
-                                        <MessageSquare className="w-7 h-7" />
+                            <div className="p-5 sm:p-6">
+                                <div className="flex items-center gap-3 mb-5 border-b border-border/60 pb-4">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                        <MessageSquare className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Gửi yêu cầu hỗ trợ</h2>
-                                        <p className="text-slate-500 font-semibold mt-0.5">Thời gian phản hồi dự kiến: dưới 2 giờ</p>
+                                        <h2 className="text-lg font-extrabold text-foreground tracking-tight">Gửi yêu cầu hỗ trợ</h2>
+                                        <p className="text-xs text-muted-foreground mt-0.5">Thời gian phản hồi dự kiến: dưới 2 giờ</p>
                                     </div>
                                 </div>
 
-                                <form onSubmit={handleSubmit} className="space-y-8">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="space-y-3">
-                                            <Label htmlFor="email" className="text-sm font-bold text-slate-700 ml-1">
-                                                Email của bạn
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="email" className="text-xs font-bold text-foreground/80">
+                                                Email nhận phản hồi
                                             </Label>
-                                            <div className="relative group">
-                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-violet-600 transition-colors" />
+                                            <div className="relative">
+                                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                                                 <Input
                                                     id="email"
                                                     type="email"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
-                                                    className="pl-12 h-14 rounded-2xl border-slate-200 focus:border-violet-500 focus:ring-violet-500/20 transition-all font-bold text-slate-900 placeholder:text-slate-400"
+                                                    className="pl-10 h-10 rounded-xl border-border text-xs font-medium"
                                                     required
                                                 />
                                             </div>
                                         </div>
-                                        <div className="space-y-3">
-                                            <Label htmlFor="subject" className="text-sm font-bold text-slate-700 ml-1">
-                                                Chủ đề quan tâm
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="subject" className="text-xs font-bold text-foreground/80">
+                                                Chủ đề hỗ trợ
                                             </Label>
                                             <Input
                                                 id="subject"
-                                                placeholder="VD: Tài khoản, Đăng tin, Thanh toán..."
+                                                placeholder="VD: Đăng tin, Thanh toán, Tài khoản..."
                                                 value={subject}
                                                 onChange={(e) => setSubject(e.target.value)}
-                                                className="h-14 rounded-2xl border-slate-200 focus:border-violet-500 focus:ring-violet-500/20 transition-all font-bold text-slate-900 placeholder:text-slate-400"
+                                                className="h-10 rounded-xl border-border text-xs font-medium"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <Label htmlFor="message" className="text-sm font-bold text-slate-700 ml-1">
-                                            Nội dung cần giải đáp
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="message" className="text-xs font-bold text-foreground/80">
+                                            Nội dung yêu cầu
                                         </Label>
                                         <Textarea
                                             id="message"
                                             placeholder="Mô tả chi tiết vấn đề bạn đang gặp phải..."
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
-                                            className="min-h-[200px] rounded-2xl border-slate-200 focus:border-violet-500 focus:ring-violet-500/20 transition-all font-bold text-slate-900 p-5 resize-none placeholder:text-slate-400"
+                                            className="min-h-[110px] rounded-xl border-border text-xs font-medium p-3.5 resize-none"
                                             required
                                         />
                                     </div>
 
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-2">
-                                        <div className="flex items-center gap-2.5 text-slate-400 text-sm font-bold">
-                                            <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center">
-                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                            </div>
-                                            Thông tin được bảo mật mã hóa đầu cuối
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+                                        <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                                            <span>Thông tin bảo mật theo chuẩn ISO 27001</span>
                                         </div>
                                         <Button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-2xl px-12 h-14 font-black shadow-xl shadow-violet-600/25 transition-all gap-3 group relative overflow-hidden text-base shrink-0"
+                                            size="default"
+                                            className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-primary text-white rounded-xl px-6 h-10 font-bold shadow-md transition-all gap-2 cursor-pointer text-xs"
                                         >
-                                            <span className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                                             {isSubmitting ? (
-                                                <div className="relative flex items-center gap-2">
-                                                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                                    Đang xử lý...
-                                                </div>
+                                                <span className="flex items-center gap-2">
+                                                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                                    Đang gửi...
+                                                </span>
                                             ) : (
-                                                <div className="relative flex items-center gap-2">
-                                                    Gửi yêu cầu <Send className="w-5 h-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                                                </div>
+                                                <span className="flex items-center gap-1.5">
+                                                    Gửi yêu cầu <Send className="w-3.5 h-3.5 ml-0.5" />
+                                                </span>
                                             )}
                                         </Button>
                                     </div>
@@ -241,18 +235,18 @@ export default function CompanySupportPage() {
 
                         {/* FAQs Section */}
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                            className="space-y-5"
+                            transition={{ duration: 0.4, delay: 0.1 }}
+                            className="bg-card rounded-2xl border border-border/80 shadow-sm p-5 space-y-3"
                         >
-                            <div className="flex items-center gap-3 px-2">
-                                <div className="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center">
-                                    <HelpCircle className="w-5 h-5" />
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                    <HelpCircle className="w-4 h-4" />
                                 </div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Câu hỏi thường gặp</h3>
+                                <h3 className="text-base font-extrabold text-foreground tracking-tight">Câu hỏi thường gặp</h3>
                             </div>
-                            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 divide-y divide-slate-100">
+                            <div className="divide-y divide-border/60">
                                 {faqs.map((faq, idx) => (
                                     <FaqItem key={idx} question={faq.question} answer={faq.answer} />
                                 ))}
@@ -260,105 +254,104 @@ export default function CompanySupportPage() {
                         </motion.div>
                     </div>
 
-                    {/* ── Right Column: Contact Cards ──────────────────────────── */}
-                    <div className="space-y-8">
+                    {/* ── Right Column: Contact Cards & Light Google Map ────── */}
+                    <div className="space-y-6">
                         <motion.div
-                            initial={{ opacity: 0, x: 20 }}
+                            initial={{ opacity: 0, x: 15 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 space-y-8"
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            className="bg-card rounded-2xl border border-border/80 shadow-sm p-5 space-y-5"
                         >
-                            <h3 className="text-[11px] font-black text-violet-600 uppercase tracking-[0.2em] px-1">Thông tin liên hệ</h3>
+                            <h3 className="text-xs font-bold text-primary uppercase tracking-wider">Thông tin liên hệ</h3>
 
-                            <div className="space-y-5">
+                            <div className="space-y-3">
                                 {[
-                                    { icon: <Phone className="w-6 h-6" />, label: 'Hotline tuyển dụng', value: '0123 456 789', color: 'text-emerald-600 bg-emerald-50' },
-                                    { icon: <Mail className="w-6 h-6" />, label: 'Email hỗ trợ', value: 'support@jobio.vn', color: 'text-violet-600 bg-violet-50' },
+                                    { icon: <Phone className="w-4 h-4" />, label: 'Hotline tuyển dụng', value: '0123 456 789', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' },
+                                    { icon: <Mail className="w-4 h-4" />, label: 'Email hỗ trợ', value: 'support@jobio.vn', color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/30' },
                                 ].map((item, idx) => (
-                                    <div key={idx} className="flex items-center gap-5 p-5 rounded-2xl bg-slate-50/50 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-200 group">
-                                        <div className={`w-14 h-14 rounded-2xl ${item.color} flex items-center justify-center shadow-sm shrink-0 transition-transform group-hover:scale-110`}>
+                                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-all border border-border/40">
+                                        <div className={`w-10 h-10 rounded-lg ${item.color} flex items-center justify-center shrink-0 shadow-sm`}>
                                             {item.icon}
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
-                                            <p className="text-[15px] font-black text-slate-900">{item.value}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                                            <p className="text-xs sm:text-sm font-extrabold text-foreground">{item.value}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="pt-6 border-t border-slate-100">
-                                <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-5 px-1">Thời gian phục vụ</h4>
-                                <div className="space-y-4">
+                            <div className="pt-4 border-t border-border/60 space-y-3">
+                                <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Thời gian phục vụ</h4>
+                                <div className="space-y-2">
                                     {[
-                                        { day: 'Thứ 2 - Thứ 6', time: '08:00 - 21:00', icon: <Clock className="w-4 h-4" /> },
-                                        { day: 'Thứ 7 & Chủ nhật', time: '08:30 - 17:30', icon: <Clock className="w-4 h-4" /> }
+                                        { day: 'Thứ 2 - Thứ 6', time: '08:00 - 21:00' },
+                                        { day: 'Thứ 7 & Chủ nhật', time: '08:30 - 17:30' }
                                     ].map((t, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-sm font-bold">
-                                            <span className="text-slate-500 flex items-center gap-2.5">
-                                                {t.icon} {t.day}
+                                        <div key={idx} className="flex items-center justify-between text-xs font-semibold">
+                                            <span className="text-muted-foreground flex items-center gap-2">
+                                                <Clock className="w-3.5 h-3.5 text-primary/70" /> {t.day}
                                             </span>
-                                            <span className="text-slate-900">{t.time}</span>
+                                            <span className="text-foreground font-bold">{t.time}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </motion.div>
 
-                        {/* Office location card */}
+                        {/* Office Location Card — Light Style with Google Maps Preview */}
                         <motion.div
-                            initial={{ opacity: 0, x: 20 }}
+                            initial={{ opacity: 0, x: 15 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                            className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 text-white overflow-hidden relative group shadow-2xl shadow-slate-900/20"
+                            transition={{ duration: 0.4, delay: 0.3 }}
+                            className="bg-card rounded-2xl border border-border/80 shadow-sm overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 p-6 opacity-5 transition-transform group-hover:scale-125 group-hover:rotate-12 pointer-events-none duration-700">
-                                <MapPin className="w-32 h-32" />
+                            {/* Interactive Google Maps iframe */}
+                            <div className="w-full h-44 bg-muted relative border-b border-border/60">
+                                <iframe
+                                    title="JOBIO Office Location"
+                                    src={MAP_EMBED_URL}
+                                    className="w-full h-full border-0"
+                                    loading="lazy"
+                                    allowFullScreen
+                                />
                             </div>
-                            <div className="relative z-10">
-                                <div className="flex items-center gap-3 mb-5">
-                                    <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-lg">
-                                        <MapPin className="w-5 h-5 text-violet-400" />
+
+                            <div className="p-4 space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                        <MapPin className="w-4 h-4" />
                                     </div>
-                                    <h4 className="text-xl font-black tracking-tight">Văn phòng JOBIO</h4>
+                                    <div>
+                                        <h4 className="text-sm font-extrabold text-foreground">{OFFICE_NAME}</h4>
+                                        <p className="text-[11px] text-muted-foreground font-medium leading-snug">{OFFICE_ADDRESS}</p>
+                                    </div>
                                 </div>
-                                <p className="text-slate-300 text-sm font-bold leading-relaxed opacity-90 mb-8">
-                                    {OFFICE_ADDRESS}
-                                </p>
+
                                 <Button
                                     asChild
-                                    className="w-full bg-violet-600 hover:bg-violet-700 text-white border-0 rounded-2xl h-14 font-black gap-2 transition-all shadow-lg shadow-violet-600/30"
+                                    variant="outline"
+                                    className="w-full bg-card hover:bg-muted text-primary border-primary/20 hover:border-primary/40 rounded-xl h-9 text-xs font-bold gap-1.5 transition-all cursor-pointer"
                                 >
                                     <a href={OFFICE_MAP_URL} target="_blank" rel="noopener noreferrer">
-                                        Xem Google Maps <ArrowRight className="w-5 h-5" />
+                                        Xem trên Google Maps <ExternalLink className="w-3.5 h-3.5 ml-1" />
                                     </a>
                                 </Button>
                             </div>
                         </motion.div>
 
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.5 }}
-                            className="p-6 rounded-3xl bg-violet-50 border border-violet-100/50 text-center"
+                            transition={{ duration: 0.4, delay: 0.4 }}
+                            className="p-4 rounded-2xl bg-primary/8 border border-primary/15 text-center"
                         >
-                            <p className="text-xs font-bold text-violet-400 uppercase tracking-widest mb-1">Cần hỗ trợ kỹ thuật?</p>
-                            <p className="text-sm font-bold text-violet-900">tech-support@jobio.vn</p>
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-0.5">Cần hỗ trợ kỹ thuật?</p>
+                            <p className="text-xs font-extrabold text-foreground">tech-support@jobio.vn</p>
                         </motion.div>
                     </div>
 
                 </div>
-
-                {/* Standardized Footer */}
-                <footer className="max-w-6xl mx-auto px-8 pt-10 pb-20 text-center">
-                    <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-slate-50 border border-slate-100 rounded-full">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hệ thống an toàn bảo mật chuẩn ISO 27001</span>
-                    </div>
-                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-[0.3em]">
-                        &copy; 2026 JOBIO Technology Platform
-                    </p>
-                </footer>
             </div>
         </div>
     );

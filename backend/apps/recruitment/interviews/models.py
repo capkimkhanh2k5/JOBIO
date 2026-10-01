@@ -57,6 +57,9 @@ class Interview(models.Model):
     )
     notes = models.TextField(null=True, blank=True, verbose_name="Ghi chú")
     feedback = models.TextField(null=True, blank=True, verbose_name="Nhận xét")
+    scorecard = models.JSONField(
+        default=dict, blank=True, verbose_name="Scorecard phỏng vấn"
+    )
     rating = models.IntegerField(
         null=True,
         blank=True,

@@ -1,11 +1,14 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from datetime import timedelta
+from unittest.mock import patch
 from django.utils import timezone
 from apps.core.users.models import CustomUser
-from apps.company.companies.models import Company
+from apps.company.companies.models import Company, CompanyMember
 from apps.recruitment.jobs.models import Job
 from apps.recruitment.applications.models import Application
+from apps.recruitment.interviews.models import Interview
+from apps.recruitment.interview_types.models import InterviewType
 from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.recruiter_cvs.models import RecruiterCV
 
@@ -69,6 +72,12 @@ class ApplicationViewTests(APITestCase):
         self.other_recruiter = Recruiter.objects.create(
             user=self.other_user, bio="Another person"
         )
+        self.default_cv = RecruiterCV.objects.create(
+            recruiter=self.recruiter,
+            cv_name="Default Applicant CV",
+            cv_data={"skills": []},
+            is_default=True,
+        )
 
     # ========== API #1: POST /api/applications (Nộp đơn ứng tuyển) ==========
 
@@ -85,6 +94,7 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["job_id"], self.job.id)
+        self.assertEqual(response.data["cv_id"], self.default_cv.id)
         self.assertTrue(
             Application.objects.filter(job=self.job, recruiter=self.recruiter).exists()
         )
@@ -131,6 +141,31 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_application_moderation_rejected_job(self):
+        """POST /api/applications - moderation rejected job → 400"""
+        rejected_job = Job.objects.create(
+            company=self.company,
+            title="Rejected Job",
+            slug="rejected-job-application-test",
+            job_type="full-time",
+            level="junior",
+            description="Rejected job",
+            requirements="Requirements",
+            status=Job.Status.PUBLISHED,
+            moderation_status=Job.ModerationStatus.REJECTED,
+            created_by=self.job_owner,
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.post("/api/applications/", {"job_id": rejected_job.id})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(
+            Application.objects.filter(
+                job=rejected_job, recruiter=self.recruiter
+            ).exists()
+        )
+
     def test_create_application_job_deadline_expired(self):
         """POST /api/applications - job quá hạn nộp hồ sơ → 400"""
         expired_job = Job.objects.create(
@@ -161,6 +196,16 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["cover_letter"], "This is my cover letter")
+
+    def test_create_application_requires_a_cv(self):
+        """POST /api/applications - no existing CV → 400"""
+        RecruiterCV.objects.filter(recruiter=self.recruiter).delete()
+        self.client.force_authenticate(user=self.applicant_user)
+
+        response = self.client.post("/api/applications/", {"job_id": self.job.id})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("CV", response.data["detail"])
 
     def test_create_application_with_own_cv_success(self):
         """POST /api/applications - own cv_id → 201"""
@@ -305,6 +350,40 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    @patch("apps.candidate.recruiter_cvs.tasks._download_pdf")
+    def test_cv_file_proxy_allows_job_owner(self, mock_download):
+        """GET /api/applications/:id/cv-file - company owner được xem CV đã apply"""
+        mock_download.return_value = b"%PDF-1.4 test"
+        self.default_cv.cv_url = "https://res.cloudinary.com/demo/raw/upload/cv.pdf"
+        self.default_cv.save(update_fields=["cv_url"])
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, cv=self.default_cv
+        )
+
+        self.client.force_authenticate(user=self.job_owner)
+        response = self.client.get(f"/api/applications/{app.id}/cv-file/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        mock_download.assert_called_once_with(self.default_cv.cv_url)
+
+    def test_cv_file_proxy_blocks_unrelated_company(self):
+        """GET /api/applications/:id/cv-file - company khác bị chặn"""
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, cv=self.default_cv
+        )
+        other_company_user = CustomUser.objects.create_user(
+            email="other-company@example.com",
+            password="password123",
+            full_name="Other Company",
+            role="company",
+        )
+
+        self.client.force_authenticate(user=other_company_user)
+        response = self.client.get(f"/api/applications/{app.id}/cv-file/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     # ========== API #3: PUT /api/applications/:id (Cập nhật đơn) ==========
 
     def test_update_application_success(self):
@@ -317,6 +396,36 @@ class ApplicationViewTests(APITestCase):
         response = self.client.put(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_application_ignores_status_rating_and_notes_payload(self):
+        app = Application.objects.create(
+            job=self.job,
+            recruiter=self.recruiter,
+            status=Application.Status.PENDING,
+            rating=None,
+            notes=None,
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.put(
+            f"/api/applications/{app.id}/",
+            {
+                "cover_letter": "Updated cover letter",
+                "status": Application.Status.OFFERED,
+                "rating": 5,
+                "notes": "client supplied recruiter notes",
+                "reviewed_by": self.job_owner.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        app.refresh_from_db()
+        self.assertEqual(app.cover_letter, "Updated cover letter")
+        self.assertEqual(app.status, Application.Status.PENDING)
+        self.assertIsNone(app.rating)
+        self.assertIsNone(app.notes)
+        self.assertIsNone(app.reviewed_by_id)
 
     def test_update_application_rejects_foreign_cv(self):
         """PUT /api/applications/:id - foreign cv_id → 400"""
@@ -425,6 +534,19 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_delete_application_rejects_late_stage_withdraw(self):
+        """DELETE /api/applications/:id - shortlisted application cannot be withdrawn"""
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, status="shortlisted"
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.delete(f"/api/applications/{app.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        app.refresh_from_db()
+        self.assertEqual(app.status, "shortlisted")
+
     # ========== API #5: PATCH /api/applications/:id/status (Đổi trạng thái) ==========
 
     def test_change_status_success(self):
@@ -459,6 +581,32 @@ class ApplicationViewTests(APITestCase):
         response = self.client.patch(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_viewer_company_member_cannot_change_application_status(self):
+        app = Application.objects.create(job=self.job, recruiter=self.recruiter)
+        viewer_user = CustomUser.objects.create_user(
+            email="application-viewer@example.com",
+            password="password123",
+            full_name="Application Viewer",
+            role="company",
+        )
+        CompanyMember.objects.create(
+            company=self.company,
+            user=viewer_user,
+            role=CompanyMember.Role.VIEWER,
+            status=CompanyMember.Status.ACTIVE,
+        )
+
+        self.client.force_authenticate(user=viewer_user)
+        response = self.client.patch(
+            f"/api/applications/{app.id}/status/",
+            {"status": Application.Status.REVIEWING},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        app.refresh_from_db()
+        self.assertEqual(app.status, Application.Status.PENDING)
 
     def test_change_status_not_found(self):
         """PATCH /api/applications/:id/status - không tồn tại → 404"""
@@ -758,7 +906,7 @@ class ApplicationViewTests(APITestCase):
     def test_offer_success(self):
         """POST /api/applications/:id/offer - job owner → 200"""
         app = Application.objects.create(
-            job=self.job, recruiter=self.recruiter, status="shortlisted"
+            job=self.job, recruiter=self.recruiter, status="interview"
         )
 
         self.client.force_authenticate(user=self.job_owner)
@@ -800,7 +948,7 @@ class ApplicationViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_offer_not_shortlisted(self):
-        """POST /api/applications/:id/offer - chưa shortlist → 400 hoặc 200"""
+        """POST /api/applications/:id/offer - chưa interview → 400"""
         app = Application.objects.create(
             job=self.job, recruiter=self.recruiter, status="pending"
         )
@@ -810,10 +958,7 @@ class ApplicationViewTests(APITestCase):
         data = {"offer_details": "Test"}
         response = self.client.post(url, data)
 
-        # Business logic có thể cho phép hoặc không
-        self.assertIn(
-            response.status_code, [status.HTTP_200_OK, status.HTTP_400_BAD_REQUEST]
-        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     # ========== API #12: POST /api/applications/:id/withdraw (Rút đơn) ==========
 
@@ -827,6 +972,62 @@ class ApplicationViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], "withdrawn")
+
+    def test_withdraw_allows_reviewing_status(self):
+        """POST /api/applications/:id/withdraw - reviewing still withdrawable"""
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, status="reviewing"
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.post(f"/api/applications/{app.id}/withdraw/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "withdrawn")
+
+    def test_withdraw_cancels_open_interviews(self):
+        """Withdrawing an application cancels scheduled interview records."""
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, status="reviewing"
+        )
+        interview_type = InterviewType.objects.create(name="Technical")
+        open_interview = Interview.objects.create(
+            application=app,
+            interview_type=interview_type,
+            scheduled_at=timezone.now() + timedelta(days=3),
+            status=Interview.Status.SCHEDULED,
+            created_by=self.job_owner,
+        )
+        completed_interview = Interview.objects.create(
+            application=app,
+            interview_type=interview_type,
+            round_number=2,
+            scheduled_at=timezone.now() - timedelta(days=3),
+            status=Interview.Status.COMPLETED,
+            created_by=self.job_owner,
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.post(f"/api/applications/{app.id}/withdraw/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        open_interview.refresh_from_db()
+        completed_interview.refresh_from_db()
+        self.assertEqual(open_interview.status, Interview.Status.CANCELLED)
+        self.assertEqual(completed_interview.status, Interview.Status.COMPLETED)
+
+    def test_withdraw_rejects_late_stage_status(self):
+        """POST /api/applications/:id/withdraw - interview application cannot be withdrawn"""
+        app = Application.objects.create(
+            job=self.job, recruiter=self.recruiter, status="interview"
+        )
+
+        self.client.force_authenticate(user=self.applicant_user)
+        response = self.client.post(f"/api/applications/{app.id}/withdraw/")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        app.refresh_from_db()
+        self.assertEqual(app.status, "interview")
 
     def test_withdraw_unauthenticated(self):
         """POST /api/applications/:id/withdraw - không login → 401"""
@@ -989,6 +1190,27 @@ class ApplicationViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response["Content-Type"], "text/csv")
 
+    def test_export_rejects_invalid_job_id(self):
+        """GET /api/applications/export/?job_id=abc → 400"""
+        self.client.force_authenticate(user=self.job_owner)
+
+        response = self.client.get("/api/applications/export/?job_id=abc")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("job_id", response.data)
+
+    @patch("apps.recruitment.applications.views.APPLICATION_EXPORT_MAX_ROWS", 1)
+    def test_export_rejects_too_many_rows(self):
+        """GET /api/applications/export - oversized export → 400"""
+        Application.objects.create(job=self.job, recruiter=self.recruiter)
+        Application.objects.create(job=self.job, recruiter=self.other_recruiter)
+
+        self.client.force_authenticate(user=self.job_owner)
+        response = self.client.get(f"/api/applications/export/?job_id={self.job.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Export quá lớn", response.data["detail"])
+
 
 class JobApplicationFilterViewTests(APITestCase):
     """Test cases for Application Filter APIs - Phase 2 (5 endpoints, 27 tests)"""
@@ -1048,6 +1270,25 @@ class JobApplicationFilterViewTests(APITestCase):
         self.app_rejected = Application.objects.create(
             job=self.job, recruiter=self.recruiter3, status="rejected", rating=2
         )
+
+    def test_job_applications_returns_paginated_response(self):
+        """GET /api/jobs/:id/applications - job owner → paginated response"""
+        self.client.force_authenticate(user=self.job_owner)
+
+        response = self.client.get(f"/api/jobs/{self.job.id}/applications/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("results", response.data)
+        self.assertEqual(response.data["count"], 3)
+
+    def test_job_applications_invalid_rating_returns_400(self):
+        """GET /api/jobs/:id/applications?rating=abc → 400"""
+        self.client.force_authenticate(user=self.job_owner)
+
+        response = self.client.get(f"/api/jobs/{self.job.id}/applications/?rating=abc")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("rating", response.data)
 
     # ========== API #1: GET /api/jobs/:id/applications/pending ==========
 
@@ -1115,6 +1356,17 @@ class JobApplicationFilterViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for app in response.data:
             self.assertEqual(app["status"], "pending")
+
+    def test_pending_applications_supports_explicit_pagination(self):
+        """GET /api/jobs/:id/applications/pending?page=1 → paginated response"""
+        self.client.force_authenticate(user=self.job_owner)
+
+        response = self.client.get(
+            f"/api/jobs/{self.job.id}/applications/pending/?page=1&page_size=1"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("results", response.data)
 
     # ========== API #2: GET /api/jobs/:id/applications/shortlisted ==========
 
@@ -1256,6 +1508,17 @@ class JobApplicationFilterViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         for app in response.data:
             self.assertEqual(app["rating"], 4)
+
+    def test_by_rating_invalid_rating_returns_400(self):
+        """GET /api/jobs/:id/applications/by-rating?rating=abc → 400"""
+        self.client.force_authenticate(user=self.job_owner)
+
+        response = self.client.get(
+            f"/api/jobs/{self.job.id}/applications/by-rating/?rating=abc"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("rating", response.data)
 
     def test_by_rating_min_max(self):
         """GET /api/jobs/:id/applications/by-rating?min_rating=3&max_rating=5"""

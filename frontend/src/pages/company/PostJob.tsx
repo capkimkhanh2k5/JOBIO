@@ -20,35 +20,70 @@ import {
     Dialog, DialogContent,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Save, SendHorizonal, X, Clock } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Save, SendHorizonal, X } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
+import type { PolicyReason } from '@/types/api';
 
 const HISTORY_BACK_NAVIGATION = '__history_back__';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
+const positionItemSchema = z.object({
+    id: z.string(),
+    title: z.string().min(2, 'Tên vị trí phải có ít nhất 2 ký tự'),
+    category_id: z.string().min(1, 'Vui lòng chọn lĩnh vực'),
+    job_type: z.enum(['full_time', 'part_time', 'contract', 'internship', 'freelance'] as const).optional(),
+    is_remote: z.boolean().optional(),
+    level: z.enum(['intern', 'fresher', 'junior', 'middle', 'senior', 'lead', 'manager', 'director'] as const),
+    quantity: z.number().min(1, 'Số lượng ít nhất là 1'),
+    salary_min: z.number().nullable().optional(),
+    salary_max: z.number().nullable().optional(),
+    salary_currency: z.enum(['VND', 'USD'] as const).default('VND'),
+    is_salary_visible: z.boolean().optional(),
+});
+
 const step1Schema = z.object({
     title: z.string().min(5, 'Tối thiểu 5 ký tự').max(255, 'Tối đa 255 ký tự'),
-    category_id: z.string().min(1, 'Vui lòng chọn lĩnh vực'),
+    is_multi_position: z.boolean(),
+    positions: z.array(positionItemSchema),
+    category_id: z.string().optional(),
     job_type: z.enum(['full_time', 'part_time', 'contract', 'internship', 'freelance'] as const),
     level: z.enum(['intern', 'fresher', 'junior', 'middle', 'senior', 'lead', 'manager', 'director'] as const),
     quantity: z.number().min(1, 'Tối thiểu 1').max(999),
     salary_min: z.number().min(0, 'Lương tối thiểu không thể âm').nullable().optional(),
     salary_max: z.number().min(0, 'Lương tối đa không thể âm').nullable().optional(),
-    salary_currency: z.enum(['VND', 'USD'] as const),
+    salary_currency: z.enum(['VND', 'USD'] as const).default('VND'),
     is_salary_visible: z.boolean(),
-    experience_min: z.number().min(0, 'Kinh nghiệm không thể âm').max(50, 'Kinh nghiệm tối đa là 50 năm').nullable().optional(),
-    experience_max: z.number().min(0, 'Kinh nghiệm không thể âm').max(50, 'Kinh nghiệm tối đa là 50 năm').nullable().optional(),
+    experience_min: z.number().nullable().optional(),
+    experience_max: z.number().nullable().optional(),
     deadline: z.string().min(1, 'Vui lòng chọn hạn nộp hồ sơ').refine(
         value => value >= getTodayLocalDate(),
         'Hạn nộp hồ sơ không thể ở trong quá khứ'
     ),
     is_remote: z.boolean(),
 }).superRefine((data, ctx) => {
+    if (!data.is_multi_position) {
+        if (!data.category_id || data.category_id.trim() === '') {
+            ctx.addIssue({ code: 'custom', path: ['category_id'], message: 'Vui lòng chọn lĩnh vực tuyển dụng' });
+        }
+    } else {
+        if (data.positions.length === 0) {
+            ctx.addIssue({ code: 'custom', path: ['positions'], message: 'Vui lòng thêm ít nhất 1 vị trí tuyển dụng chi tiết' });
+        }
+        data.positions.forEach((pos, idx) => {
+            if (!pos.title || pos.title.trim().length < 2) {
+                ctx.addIssue({ code: 'custom', path: ['positions', idx, 'title'], message: `Vị trí #${idx + 1}: Tên vị trí phải có ít nhất 2 ký tự` });
+            }
+            if (!pos.category_id || pos.category_id.trim() === '') {
+                ctx.addIssue({ code: 'custom', path: ['positions', idx, 'category_id'], message: `Vị trí #${idx + 1}: Vui lòng chọn lĩnh vực` });
+            }
+            if (pos.salary_min != null && pos.salary_max != null && pos.salary_max < pos.salary_min) {
+                ctx.addIssue({ code: 'custom', path: ['positions', idx, 'salary_max'], message: `Vị trí #${idx + 1}: Lương tối đa phải lớn hơn lương tối thiểu` });
+            }
+        });
+    }
+
     if (data.salary_min != null && data.salary_max != null && data.salary_max < data.salary_min) {
         ctx.addIssue({ code: 'custom', path: ['salary_max'], message: 'Lương tối đa phải lớn hơn hoặc bằng lương tối thiểu' });
-    }
-    if (data.experience_min != null && data.experience_max != null && data.experience_max < data.experience_min) {
-        ctx.addIssue({ code: 'custom', path: ['experience_max'], message: 'Kinh nghiệm tối đa phải lớn hơn hoặc bằng tối thiểu' });
     }
 });
 
@@ -83,7 +118,7 @@ export type { PostJobFormData };
 
 // ─── Step validators (partial validation) ─────────────────────────────────────
 const STEP_FIELDS: Record<number, (keyof PostJobFormData)[]> = {
-    1: ['title', 'category_id', 'job_type', 'level', 'quantity', 'salary_min', 'salary_max', 'experience_min', 'experience_max', 'deadline'],
+    1: ['title', 'is_multi_position', 'positions', 'category_id', 'job_type', 'level', 'quantity', 'salary_min', 'salary_max', 'deadline'],
     2: ['description', 'requirements'],
     3: ['locations'],
     4: [],
@@ -153,6 +188,43 @@ function buildCompanyBenefitsContent(benefits: Array<{ benefit_name: string; des
     return items.length ? `<ul>${items.join('')}</ul>` : '';
 }
 
+function extractPolicyReasons(error: any): PolicyReason[] {
+    const data = error?.response?.data;
+    if (Array.isArray(data?.errors)) return data.errors;
+    if (Array.isArray(data?.moderation?.reasons)) return data.moderation.reasons;
+    if (data?.detail) return [{ code: data.code || 'publish_error', message: data.detail }];
+    return [];
+}
+
+function policyReasonLabel(reason: PolicyReason) {
+    const suffix = reason.skills?.length ? ` (${reason.skills.join(', ')})` : '';
+    return `${reason.message}${suffix}`;
+}
+
+function policyFixSuggestion(reason: PolicyReason) {
+    if (reason.suggestion) return reason.suggestion;
+    if (reason.code?.includes('non_it')) {
+        return 'Làm rõ đây là vai trò IT: chỉnh tiêu đề, chọn danh mục IT, thêm tech stack, trách nhiệm kỹ thuật và kỹ năng bắt buộc.';
+    }
+    if (reason.field === 'skills' || reason.skills?.length) {
+        return `Bổ sung kỹ năng IT bắt buộc${reason.skills?.length ? ` như ${reason.skills.slice(0, 4).join(', ')}` : ''}.`;
+    }
+    if (reason.field === 'description') {
+        return 'Viết rõ sản phẩm, hệ thống, API, dữ liệu, hạ tầng hoặc trách nhiệm kỹ thuật mà ứng viên sẽ làm.';
+    }
+    if (reason.field === 'requirements') {
+        return 'Thêm yêu cầu chuyên môn cụ thể: ngôn ngữ lập trình, framework, database, cloud/devops hoặc testing.';
+    }
+    return 'Điều chỉnh nội dung theo lý do bên trên rồi kiểm tra lại trước khi đăng.';
+}
+
+function shouldShowPolicyState(job: any) {
+    return job?.moderation_status === 'needs_review'
+        || job?.moderation_status === 'rejected'
+        || job?.domain_status === 'needs_review'
+        || job?.domain_status === 'non_it';
+}
+
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function PostJob() {
@@ -175,6 +247,7 @@ function PostJobEditor() {
     const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
     const [isSavingBeforeLeave, setIsSavingBeforeLeave] = useState(false);
     const [isPublishingFlow, setIsPublishingFlow] = useState(false);
+    const [publishIssues, setPublishIssues] = useState<PolicyReason[]>([]);
     const { id } = useParams<{ id: string }>();
     const [draftId, setDraftId] = useState<string | null>(id || null);
     const lastSavedRef = useRef<Date | null>(null);
@@ -239,6 +312,12 @@ function PostJobEditor() {
 
     // Helper to transform frontend data to backend format
     const transformToBackend = useCallback((data: PostJobFormData) => {
+        const effectiveCategoryId = data.category_id
+            ? Number(data.category_id)
+            : (data.is_multi_position && data.positions && data.positions.length > 0 && data.positions[0].category_id
+                ? Number(data.positions[0].category_id)
+                : null);
+
         return {
             ...data,
             company_id: user?.company_id,
@@ -247,7 +326,7 @@ function PostJobEditor() {
             application_deadline: normalizeDateForApi(data.deadline),
             experience_years_min: data.experience_min ?? 0,
             experience_years_max: data.experience_max,
-            category_id: data.category_id ? Number(data.category_id) : null,
+            category_id: effectiveCategoryId,
             is_salary_negotiable: !data.is_salary_visible,
         };
     }, [user?.company_id]);
@@ -258,13 +337,15 @@ function PostJobEditor() {
         resolver: zodResolver(fullSchema) as any,
         defaultValues: {
             title: '',
+            is_multi_position: false,
+            positions: [],
             category_id: '',
             job_type: 'full_time',
             level: 'middle',
             quantity: 1,
             salary_min: null,
             salary_max: null,
-            salary_currency: 'USD',
+            salary_currency: 'VND',
             is_salary_visible: true,
             experience_min: null,
             experience_max: null,
@@ -345,11 +426,16 @@ function PostJobEditor() {
         },
         enabled: !!id,
     });
+    const existingPolicyIssues = shouldShowPolicyState(existingJob)
+        ? ((existingJob as any)?.moderation_reasons || [])
+        : [];
 
     useEffect(() => {
         if (existingJob) {
             const hydratedJob = {
                 title: existingJob.title || '',
+                is_multi_position: Array.isArray((existingJob as any).positions) && (existingJob as any).positions.length > 0,
+                positions: (existingJob as any).positions || [],
                 category_id: (existingJob as any).category_id ? String((existingJob as any).category_id) : (existingJob.category?.id ? String(existingJob.category.id) : ''),
                 job_type: (existingJob.job_type?.replace('-', '_') as any) || 'full_time',
                 level: (existingJob.level as any) || 'middle',
@@ -370,6 +456,9 @@ function PostJobEditor() {
                     skill_name: skill.skill_name,
                     is_required: skill.is_required,
                     proficiency_level: toFrontendProficiency(skill.proficiency_level),
+                    is_verified: skill.skill_is_verified,
+                    domain: skill.skill_domain,
+                    is_publishable: skill.skill_is_publishable,
                 })),
                 locations: existingJob.editor_locations || [],
             };
@@ -379,38 +468,6 @@ function PostJobEditor() {
     }, [existingJob, reset]);
 
 
-    // ── Auto-save draft every 30s ──────────────────────────────────────────────
-    const autoSaveMutation = useMutation({
-        mutationFn: async (data: PostJobFormData) => {
-            const payload = transformToBackend(data);
-            if (draftId) {
-                const updatedJob = await jobService.update(Number(draftId), { ...payload, status: 'draft' } as any).then(r => r.data);
-                await syncNestedData(updatedJob.id, data);
-                return updatedJob;
-            }
-            const createdJob = await jobService.create({ ...payload, status: 'draft' } as any).then(r => r.data);
-            await syncNestedData(createdJob.id, data);
-            return createdJob;
-        },
-        onSuccess: (res: any, savedData) => {
-            if (!draftId && res?.id) setDraftId(res.id);
-            lastSavedRef.current = new Date();
-            markSavedIfCurrent(savedData);
-            toast.success('Đã tự động lưu nháp', {
-                description: `Lúc ${new Date().toLocaleTimeString('vi-VN')}`,
-                duration: 2000,
-            });
-        },
-    });
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (hasUnsavedChanges && !isPublishingFlow) {
-                autoSaveMutation.mutate(getValues());
-            }
-        }, 30_000);
-        return () => clearInterval(interval);
-    }, [hasUnsavedChanges, getValues, autoSaveMutation, isPublishingFlow]);
 
     // ── Submit mutations ───────────────────────────────────────────────────────
     const saveDraftMutation = useMutation({
@@ -436,6 +493,7 @@ function PostJobEditor() {
     const publishMutation = useMutation({
         onMutate: () => {
             setIsPublishingFlow(true);
+            setPublishIssues([]);
         },
         mutationFn: async (data: PostJobFormData) => {
             const payload = transformToBackend(data);
@@ -449,6 +507,7 @@ function PostJobEditor() {
             }
 
             await syncNestedData(job.id, data);
+            await jobService.validateForPublish(job.id);
 
             if (job.status === 'published') {
                 return job;
@@ -471,7 +530,9 @@ function PostJobEditor() {
         },
         onError: (error: any) => {
             setIsPublishingFlow(false);
-            toast.error(error?.response?.data?.detail || 'Không thể đăng tin. Vui lòng thử lại.');
+            const issues = extractPolicyReasons(error);
+            setPublishIssues(issues);
+            toast.error(issues[0]?.message || error?.response?.data?.detail || 'Không thể đăng tin. Vui lòng thử lại.');
         },
     });
 
@@ -479,7 +540,10 @@ function PostJobEditor() {
     const goNext = useCallback(async () => {
         const fields = STEP_FIELDS[step] as (keyof PostJobFormData)[];
         const valid = fields.length === 0 || await trigger(fields);
-        if (!valid) return;
+        if (!valid) {
+            toast.error('Vui lòng điền đầy đủ các thông tin bắt buộc trước khi chuyển bước!');
+            return;
+        }
         setDirection(1);
         setStep(s => Math.min(s + 1, 4));
     }, [step, trigger]);
@@ -626,11 +690,11 @@ function PostJobEditor() {
         <div className="min-h-screen overflow-hidden relative">
             {/* Background elements to match admin/candidate sections */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-violet-100/30 blur-[100px]" />
-                <div className="absolute -bottom-[10%] -left-[10%] w-[35%] h-[35%] rounded-full bg-indigo-100/30 blur-[100px]" />
+                <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-teal-100/30 blur-[100px]" />
+                <div className="absolute -bottom-[10%] -left-[10%] w-[35%] h-[35%] rounded-full bg-primary/12/30 blur-[100px]" />
             </div>
 
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Đăng tin tuyển dụng"
                     description={`Bước ${step} trên 4 · ${draftId ? `Draft ID: #${String(draftId).slice(-6)}` : 'Đang khởi tạo'}`}
@@ -639,7 +703,7 @@ function PostJobEditor() {
                         <Button
                             variant="outline"
                             onClick={() => requestPageNavigation('/company/jobs')}
-                            className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 h-11 shadow-sm"
+                            className="rounded-xl border-border text-muted-foreground hover:bg-muted gap-2 h-11 shadow-sm"
                         >
                             <X size={18} />
                             Hủy bỏ
@@ -651,10 +715,10 @@ function PostJobEditor() {
             <div className="w-full mx-auto relative z-10 space-y-8 p-6 lg:p-8 animate-in fade-in duration-700">
 
                 {/* Main Content Area */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     <div className="p-6 md:p-10 space-y-10">
                         {/* Progress Stepper with subtle styling */}
-                        <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
+                        <div className="bg-muted/50 rounded-3xl p-6 border border-border/60">
                             <WizardProgress current={step} />
                         </div>
 
@@ -678,14 +742,64 @@ function PostJobEditor() {
                             </AnimatePresence>
                         </div>
 
+                        {publishIssues.length > 0 && (
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-card text-amber-600 shadow-sm">
+                                        <AlertTriangle size={18} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="font-black text-amber-900">Tin chưa đủ điều kiện xuất bản</p>
+                                        <div className="mt-2 space-y-1.5">
+                                            {publishIssues.map((issue, index) => (
+                                                <div key={`${issue.code}-${index}`} className="rounded-xl bg-card/70 px-3 py-2">
+                                                    <p className="text-sm font-bold text-amber-900">
+                                                        {policyReasonLabel(issue)}
+                                                    </p>
+                                                    <p className="mt-1 text-xs font-medium text-amber-800">
+                                                        {policyFixSuggestion(issue)}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {existingPolicyIssues.length > 0 && publishIssues.length === 0 && (
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-card text-amber-600 shadow-sm">
+                                        <AlertTriangle size={18} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="font-black text-amber-900">Tin đang cần chỉnh sửa trước khi publish</p>
+                                        <div className="mt-2 space-y-2">
+                                            {existingPolicyIssues.map((issue: PolicyReason, index: number) => (
+                                                <div key={`${issue.code}-${index}`} className="rounded-xl bg-card/70 px-3 py-2">
+                                                    <p className="text-sm font-bold text-amber-900">
+                                                        {policyReasonLabel(issue)}
+                                                    </p>
+                                                    <p className="mt-1 text-xs font-medium text-amber-800">
+                                                        {policyFixSuggestion(issue)}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Spacious Navigation footer */}
-                        <div className="flex items-center justify-between pt-8 border-t border-slate-100 gap-4">
+                        <div className="flex items-center justify-between pt-4 gap-4">
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={goPrev}
                                 disabled={step === 1}
-                                className="h-12 px-6 rounded-xl gap-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-20 transition-all font-bold"
+                                className="h-12 px-6 rounded-xl gap-2 text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-20 transition-all font-bold"
                             >
                                 <ChevronLeft size={20} /> Quay lại
                             </Button>
@@ -696,10 +810,10 @@ function PostJobEditor() {
                                     variant="outline"
                                     onClick={onSaveDraft}
                                     disabled={saveDraftMutation.isPending}
-                                    className="h-12 px-6 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 font-bold transition-all shadow-sm"
+                                    className="h-12 px-6 rounded-xl border-border text-muted-foreground hover:bg-muted gap-2 font-bold transition-all shadow-sm"
                                 >
                                     {saveDraftMutation.isPending ? (
-                                        <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-border border-t-slate-600 rounded-full animate-spin" />
                                     ) : <Save size={18} />}
                                     Lưu nháp
                                 </Button>
@@ -708,7 +822,7 @@ function PostJobEditor() {
                                     <Button
                                         type="button"
                                         onClick={goNext}
-                                        className="h-12 px-8 rounded-xl bg-violet-600 hover:bg-violet-700 text-white gap-2 font-bold shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all transform hover:-translate-y-0.5"
+                                        className="h-12 px-8 rounded-xl bg-teal-600 hover:bg-teal-700 text-white gap-2 font-bold shadow-lg shadow-teal-200 hover:shadow-teal-300 transition-all transform hover:-translate-y-0.5"
                                     >
                                         Tiếp theo <ChevronRight size={20} />
                                     </Button>
@@ -717,7 +831,7 @@ function PostJobEditor() {
                                         type="button"
                                         onClick={onPublish}
                                         disabled={publishMutation.isPending}
-                                        className="h-12 px-8 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white gap-2 font-bold shadow-lg shadow-violet-200 hover:shadow-violet-300 transition-all transform hover:-translate-y-0.5 min-w-[140px]"
+                                        className="h-12 px-8 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-primary text-white gap-2 font-bold shadow-lg shadow-teal-200 hover:shadow-teal-300 transition-all transform hover:-translate-y-0.5 min-w-[140px]"
                                     >
                                         {publishMutation.isPending ? (
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -730,43 +844,19 @@ function PostJobEditor() {
                     </div>
                 </div>
 
-                {/* Enhancement Tips with modern look */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                    <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-violet-600 shadow-sm flex-shrink-0">
-                            <Clock size={20} />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="font-bold text-slate-900">Mẹo tối ưu: Hãy dành 5 phút để hoàn thảo tốt tin này</p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                                <div className="text-xs text-slate-600 flex items-start gap-2">
-                                    <span className="text-violet-500 font-bold">•</span>
-                                    <span>Tiêu đề rõ ràng giúp tăng <strong>40%</strong> lượt click từ ứng viên.</span>
-                                </div>
-                                <div className="text-xs text-slate-600 flex items-start gap-2">
-                                    <span className="text-violet-500 font-bold">•</span>
-                                    <span>Mô tả mức lương cụ thể thu hút hơn <strong>35%</strong> lượt ứng tuyển.</span>
-                                </div>
-                                <div className="text-xs text-slate-600 flex items-start gap-2">
-                                    <span className="text-violet-500 font-bold">•</span>
-                                    <span>Gắn thẻ kỹ năng chuẩn xác giúp AI gợi ý ứng viên phù hợp nhất.</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
 
             {/* Unsaved draft confirmation dialog */}
             <Dialog open={discardOpen} onOpenChange={(open) => open ? setDiscardOpen(true) : handleCancelLeave()}>
                 <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
-                    <div className="bg-white p-8 space-y-6">
+                    <div className="bg-card p-8 space-y-6">
                         <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto">
                             <X size={32} className="text-red-500" />
                         </div>
                         <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-black text-slate-900">Lưu bản nháp trước khi rời trang?</h2>
-                            <p className="text-slate-500">
+                            <h2 className="text-2xl font-black text-foreground">Lưu bản nháp trước khi rời trang?</h2>
+                            <p className="text-muted-foreground">
                                 Tin tuyển dụng vẫn còn thay đổi chưa được lưu. Bạn có thể lưu nháp để tiếp tục chỉnh sửa sau.
                             </p>
                         </div>
@@ -775,7 +865,7 @@ function PostJobEditor() {
                                 variant="ghost" 
                                 onClick={handleCancelLeave}
                                 disabled={isSavingBeforeLeave}
-                                className="h-12 rounded-xl font-bold text-slate-500 hover:bg-slate-100 order-3"
+                                className="h-12 rounded-xl font-bold text-muted-foreground hover:bg-muted order-3"
                             >
                                 Quay lại chỉnh sửa
                             </Button>
@@ -790,7 +880,7 @@ function PostJobEditor() {
                             <Button
                                 onClick={handleSaveBeforeLeave}
                                 disabled={isSavingBeforeLeave}
-                                className="h-12 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold shadow-lg shadow-violet-100 order-1"
+                                className="h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-lg shadow-teal-100 order-1"
                             >
                                 {isSavingBeforeLeave ? 'Đang lưu nháp...' : 'Lưu nháp và thoát'}
                             </Button>

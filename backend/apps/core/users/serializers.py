@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import CustomUser
 from apps.billing.services.subscriptions import SubscriptionService
+from apps.core.validators import validate_https_url
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -120,9 +121,11 @@ class LogoutSerializer(serializers.Serializer):
 
 
 class LoginResponseSerializer(serializers.Serializer):
-    access_token = serializers.CharField()
-    refresh_token = serializers.CharField()
-    user = CustomUserSerializer()
+    access_token = serializers.CharField(required=False)
+    refresh_token = serializers.CharField(required=False)
+    user = CustomUserSerializer(required=False)
+    requires_2fa = serializers.BooleanField(required=False)
+    challenge_id = serializers.CharField(required=False)
 
 
 class SendRegistrationOtpSerializer(serializers.Serializer):
@@ -276,12 +279,13 @@ class SocialAuthSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
     full_name = serializers.CharField(required=False)
     role = serializers.ChoiceField(
-        choices=["candidate", "company", "admin"], default="candidate", required=False
+        choices=["candidate", "company"], default="candidate", required=False
     )
 
 
 class Verify2FASerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
+    challenge_id = serializers.CharField(required=False, allow_blank=False)
 
 
 class TwoFactorStatusSerializer(serializers.Serializer):
@@ -295,14 +299,22 @@ class TwoFactorEnableSerializer(serializers.Serializer):
     provisioning_uri = serializers.CharField(required=False)
 
 
+class TwoFactorEnableRequestSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True, trim_whitespace=False)
+
+
 class TwoFactorDisableSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
+    current_password = serializers.CharField(write_only=True, trim_whitespace=False)
 
 
 class UserUpdateSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=255, required=False)
     phone = serializers.CharField(max_length=20, required=False)
     avatar_url = serializers.URLField(max_length=500, required=False)
+
+    def validate_avatar_url(self, value):
+        return validate_https_url(value)
 
 
 class UserStatusSerializer(serializers.Serializer):
@@ -398,6 +410,16 @@ class PasskeyDeleteSerializer(serializers.Serializer):
     """Input: xóa passkey"""
 
     passkey_id = serializers.IntegerField(help_text="ID của passkey cần xóa")
+
+
+class PasskeyDeleteConfirmSerializer(serializers.Serializer):
+    """Input: xác thực lại trước khi xóa passkey"""
+
+    current_password = serializers.CharField(
+        write_only=True,
+        trim_whitespace=False,
+        help_text="Mật khẩu hiện tại để xác thực lại trước khi xóa passkey",
+    )
 
 
 class PasskeyUpdateNameSerializer(serializers.Serializer):

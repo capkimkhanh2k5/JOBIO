@@ -14,12 +14,12 @@ interface KpiCardProps {
 }
 
 export function KpiCard({
-    icon, label, value, deltaValue, unit, iconGradient = 'from-cyan-500 to-violet-500',
+    icon, label, value, deltaValue, unit, iconGradient = 'from-teal-500 to-emerald-500',
     formattedValue, isLoading
 }: KpiCardProps) {
     if (isLoading) {
         return (
-            <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-5 space-y-4">
+            <div className="bg-card shadow-sm border border-border rounded-2xl p-5 space-y-4">
                 <Skeleton className="w-10 h-10 rounded-xl" />
                 <Skeleton className="h-8 w-24" />
                 <Skeleton className="h-4 w-32" />
@@ -36,10 +36,10 @@ export function KpiCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}
-            className="bg-white border border-slate-200 shadow-sm hover:shadow-md rounded-2xl p-5 relative overflow-hidden group cursor-default"
+            className="bg-card border border-border shadow-sm hover:shadow-md rounded-2xl p-5 relative overflow-hidden group cursor-default"
         >
             {/* Hover glow */}
-            <div className="absolute inset-0 bg-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
 
             {/* Icon */}
             <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center mb-4 relative z-10 shadow-sm group-hover:shadow-md transition-shadow`}>
@@ -49,15 +49,15 @@ export function KpiCard({
             {/* Value */}
             <div className="relative z-10">
                 <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-black text-slate-900 tracking-tight">{displayValue}</span>
-                    {unit && <span className="text-sm text-slate-500 font-medium">{unit}</span>}
+                    <span className="text-3xl font-black text-foreground tracking-tight">{displayValue}</span>
+                    {unit && <span className="text-sm text-muted-foreground font-medium">{unit}</span>}
                 </div>
 
-                <p className="text-sm text-slate-600 mt-1 font-medium">{label}</p>
+                <p className="text-sm text-muted-foreground mt-1 font-medium">{label}</p>
 
                 {/* Delta indicator */}
                 {deltaValue !== undefined && (
-                    <div className={`flex items-center gap-1 mt-2 text-xs font-semibold ${trend === 'up' ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md w-fit' : trend === 'down' ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md w-fit' : 'text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded-md w-fit'}`}>
+                    <div className={`flex items-center gap-1 mt-2 text-xs font-semibold ${trend === 'up' ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md w-fit' : trend === 'down' ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md w-fit' : 'text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md w-fit'}`}>
                         {trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> : trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> : <Minus className="w-3.5 h-3.5" />}
                         <span>
                             {deltaValue > 0 ? '+' : ''}{deltaValue}{typeof deltaValue === 'number' && !Number.isInteger(deltaValue) ? '%' : ''} so với tuần trước

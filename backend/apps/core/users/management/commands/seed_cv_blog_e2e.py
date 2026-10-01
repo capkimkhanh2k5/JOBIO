@@ -109,8 +109,6 @@ class Command(BaseCommand):
                 "address": address,
                 "current_position": "Python Developer",
                 "years_of_experience": 4,
-                "desired_salary_min": 20000000,
-                "desired_salary_max": 40000000,
             },
         )
 

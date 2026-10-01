@@ -30,7 +30,7 @@ export default function ManageCandidates() {
         queryKey: ['company-candidates', filters.jobId],
         queryFn: () => applicationService.list({
             ordering: '-applied_at',
-            page_size: 1000,
+            page_size: 100,
         } as any).then(r => r.data),
     });
     const rawApplications = applicationsRes?.results ?? [];
@@ -85,7 +85,7 @@ export default function ManageCandidates() {
     return (
         <div className="flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Header Area */}
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Quản lý Ứng viên"
                     description={`${applications.length} ứng viên đang hiển thị`}
@@ -93,13 +93,13 @@ export default function ManageCandidates() {
                     action={
                         <div className="flex flex-wrap items-center justify-end gap-3">
                             <CandidatesFilterSidebar />
-                            <div className="flex gap-1 bg-white border border-slate-200 shadow-sm p-1 w-fit rounded-xl">
+                            <div className="flex gap-1 bg-card border border-border shadow-sm p-1 w-fit rounded-xl">
                                 <Button
                                     variant="ghost"
                                     className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
                                         viewMode === 'kanban'
-                                            ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                            ? 'bg-teal-600 text-white hover:bg-teal-700 hover:text-white shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground bg-transparent hover:bg-card'
                                     }`}
                                     onClick={() => setViewMode('kanban')}
                                 >
@@ -109,15 +109,15 @@ export default function ManageCandidates() {
                                     variant="ghost"
                                     className={`rounded-lg px-6 py-2 h-auto text-sm font-semibold transition-all shadow-none ${
                                         viewMode === 'table'
-                                            ? 'bg-violet-600 text-white hover:bg-violet-700 hover:text-white shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-900 bg-transparent hover:bg-white'
+                                            ? 'bg-teal-600 text-white hover:bg-teal-700 hover:text-white shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground bg-transparent hover:bg-card'
                                     }`}
                                     onClick={() => setViewMode('table')}
                                 >
                                     <List className="w-4 h-4 mr-2" /> Table
                                 </Button>
                             </div>
-                            <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 bg-white border-slate-200 text-slate-600 hover:text-slate-900">
+                            <Button variant="outline" size="icon" onClick={() => refetch()} className="h-10 w-10 bg-card border-border text-muted-foreground hover:text-foreground">
                                 <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
                             </Button>
                         </div>
@@ -148,9 +148,9 @@ export default function ManageCandidates() {
             )}
 
             {/* Main Content Area */}
-            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-6 flex-1 min-h-0 w-full min-w-0 overflow-hidden">
-                <main className="h-[calc(100vh-250px)] min-h-[420px] min-w-0 overflow-hidden">
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm h-full p-4">
+            <div className="px-6 lg:px-8 pb-6 lg:pb-8 pt-4 flex-1 w-full min-w-0 flex flex-col">
+                <main className="w-full min-w-0 flex-1 flex flex-col">
+                    <div className="bg-card rounded-3xl border border-border/60 shadow-sm p-4 md:p-6 flex-1 min-h-[calc(100vh-210px)] flex flex-col">
                         {viewMode === 'kanban' ? (
                             <CandidateBoard
                                 applications={applications as any}

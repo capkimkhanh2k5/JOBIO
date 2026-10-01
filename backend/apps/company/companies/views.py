@@ -4,6 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 from django.conf import settings
@@ -11,11 +13,14 @@ from apps.email.services import EmailService
 from apps.company.companies.services.suggestions import CompanySuggestionService
 from apps.core.users.permissions import is_admin_user
 
-from .models import Company
+from .models import Company, CompanyMember
+from .permissions import can_manage_company_members, can_manage_company_profile
 from .serializers import (
     CompanySerializer,
     CompanyCreateSerializer,
     CompanyUpdateSerializer,
+    CompanyMemberSerializer,
+    CompanyMemberWriteSerializer,
     JobListSerializer,
     CompanyFollowerSerializer,
     CompanyStatsSerializer,
@@ -47,6 +52,57 @@ class CompanyViewSet(viewsets.GenericViewSet):
     """
 
     serializer_class = CompanySerializer
+
+    def _permission_denied(
+        self, detail="You don't have permission to update this company"
+    ):
+        return Response({"detail": detail}, status=status.HTTP_403_FORBIDDEN)
+
+    def _seat_limit_for_company(self, company):
+        try:
+            from apps.billing.models import CompanySubscription
+
+            subscription = (
+                CompanySubscription.objects.select_related("plan")
+                .filter(
+                    company=company,
+                    status=CompanySubscription.Status.ACTIVE,
+                )
+                .first()
+            )
+            features = (subscription.plan.features if subscription else {}) or {}
+            value = (
+                features.get("seat_limit")
+                or features.get("max_seats")
+                or features.get("member_limit")
+            )
+            return int(value) if value else None
+        except Exception:
+            return None
+
+    def _seat_limit_error(self, company, activating_existing=False):
+        seat_limit = self._seat_limit_for_company(company)
+        if not seat_limit:
+            return None
+
+        active_count = CompanyMember.objects.filter(
+            company=company,
+            status__in=[CompanyMember.Status.ACTIVE, CompanyMember.Status.INVITED],
+        ).count()
+        if not activating_existing:
+            active_count += 1
+
+        if active_count > seat_limit:
+            return Response(
+                {
+                    "detail": f"Gói hiện tại chỉ cho phép tối đa {seat_limit} thành viên."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return None
+
+    def _serialize_company(self, company):
+        return CompanySerializer(company, context={"request": self.request})
 
     def get_queryset(self):
         """
@@ -97,6 +153,12 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         POST /api/companies/ - Tạo hồ sơ công ty
         """
+        if getattr(request.user, "role", None) != "company":
+            return Response(
+                {"detail": "Only company accounts can create a company profile"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         # Validate input
         serializer = CompanyCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -110,7 +172,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Trả về response
-        output_serializer = CompanySerializer(company)
+        output_serializer = self._serialize_company(company)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
@@ -123,7 +185,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = self.get_serializer(company)
+        serializer = self._serialize_company(company)
         return Response(serializer.data)
 
     def update(self, request, pk=None):
@@ -136,12 +198,8 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        # Kiểm tra quyền sở hữu
-        if company.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to update this company"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        if not can_manage_company_profile(company, request.user):
+            return self._permission_denied()
 
         # Validate input
         serializer = CompanyUpdateSerializer(data=request.data)
@@ -152,7 +210,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
             company, CompanyUpdateInput(**serializer.validated_data)
         )
 
-        output_serializer = CompanySerializer(updated_company)
+        output_serializer = self._serialize_company(updated_company)
         return Response(output_serializer.data)
 
     def partial_update(self, request, pk=None):
@@ -171,11 +229,9 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        # Kiểm tra quyền sở hữu
-        if company.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to delete this company"},
-                status=status.HTTP_403_FORBIDDEN,
+        if not can_manage_company_profile(company, request.user):
+            return self._permission_denied(
+                "You don't have permission to delete this company"
             )
 
         delete_company(company)
@@ -186,15 +242,23 @@ class CompanyViewSet(viewsets.GenericViewSet):
         """
         GET /api/companies/me/ - Lấy công ty của user hiện tại
         """
-        try:
-            company = Company.objects.get(user=request.user)
-        except Company.DoesNotExist:
+        company = Company.objects.filter(user=request.user).first()
+        if not company:
+            company = (
+                Company.objects.filter(
+                    members__user=request.user,
+                    members__status=CompanyMember.Status.ACTIVE,
+                )
+                .distinct()
+                .first()
+            )
+        if not company:
             return Response(
                 {"detail": "You don't have a company profile"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        serializer = self.get_serializer(company)
+        serializer = self._serialize_company(company)
         return Response(serializer.data)
 
     @action(detail=False, methods=["get"], url_path="slug/(?P<slug>[^/.]+)")
@@ -208,7 +272,7 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = self.get_serializer(company)
+        serializer = self._serialize_company(company)
         return Response(serializer.data)
 
     @action(
@@ -227,11 +291,8 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if company.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to update this company"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        if not can_manage_company_profile(company, request.user):
+            return self._permission_denied()
 
         file = request.FILES.get("logo")
         if not file:
@@ -245,7 +306,13 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 company.user.avatar_url = logo_url
                 company.user.save(update_fields=["avatar_url", "updated_at"])
             return Response(
-                {"logo_url": logo_url, "avatar_url": logo_url},
+                {
+                    "logo_url": logo_url,
+                    "avatar_url": logo_url,
+                    "moderation_status": "approved",
+                    "moderation_reasons": [],
+                    "safe_preview_url": logo_url,
+                },
                 status=status.HTTP_200_OK,
             )
         except ValueError as e:
@@ -267,11 +334,8 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if company.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to update this company"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        if not can_manage_company_profile(company, request.user):
+            return self._permission_denied()
 
         file = request.FILES.get("banner")
         if not file:
@@ -281,7 +345,15 @@ class CompanyViewSet(viewsets.GenericViewSet):
 
         try:
             banner_url = upload_company_banner(company, file)
-            return Response({"banner_url": banner_url}, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "banner_url": banner_url,
+                    "moderation_status": "approved",
+                    "moderation_reasons": [],
+                    "safe_preview_url": banner_url,
+                },
+                status=status.HTTP_200_OK,
+            )
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -297,7 +369,13 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        jobs = company.jobs.filter(status="published")
+        from apps.recruitment.jobs.models import Job
+
+        jobs = company.jobs.filter(
+            status=Job.Status.PUBLISHED,
+            domain_status=Job.DomainStatus.IT_APPROVED,
+            moderation_status=Job.ModerationStatus.APPROVED,
+        )
 
         serializer = JobListSerializer(jobs, many=True)
         return Response(serializer.data)
@@ -357,11 +435,8 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        if company.user != request.user:
-            return Response(
-                {"detail": "You don't have permission to update this company"},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        if not can_manage_company_profile(company, request.user):
+            return self._permission_denied()
 
         if company.verification_status == "verified":
             return Response(
@@ -394,6 +469,141 @@ class CompanyViewSet(viewsets.GenericViewSet):
             {"detail": "Verification request sent successfully"},
             status=status.HTTP_200_OK,
         )
+
+    @action(detail=True, methods=["get", "post"], url_path="members")
+    def members(self, request, pk=None):
+        company = get_company_by_id(company_id=pk)
+        if not company:
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if not can_manage_company_members(company, request.user):
+            return self._permission_denied(
+                "You don't have permission to manage members"
+            )
+
+        if request.method.lower() == "get":
+            members = company.members.select_related("user", "invited_by").order_by(
+                "role", "user__email"
+            )
+            return Response(CompanyMemberSerializer(members, many=True).data)
+
+        serializer = CompanyMemberWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        User = get_user_model()
+        user_id = serializer.validated_data.get("user_id")
+        email = serializer.validated_data.get("email")
+        member_user = (
+            User.objects.filter(id=user_id).first()
+            if user_id
+            else User.objects.filter(email__iexact=email).first()
+        )
+        if not member_user:
+            return Response(
+                {"detail": "Không tìm thấy tài khoản để thêm vào công ty."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if getattr(member_user, "role", None) != "company":
+            return Response(
+                {
+                    "detail": "Chỉ tài khoản role company mới có thể là thành viên công ty."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        next_status = serializer.validated_data.get(
+            "status", CompanyMember.Status.ACTIVE
+        )
+        existing = CompanyMember.objects.filter(
+            company=company, user=member_user
+        ).first()
+        if existing and existing.role == CompanyMember.Role.OWNER:
+            return Response(
+                {"detail": "Owner membership cannot be changed from this endpoint."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        needs_seat = not existing or (
+            existing.status == CompanyMember.Status.DISABLED
+            and next_status
+            in {CompanyMember.Status.ACTIVE, CompanyMember.Status.INVITED}
+        )
+        if needs_seat:
+            limit_error = self._seat_limit_error(company)
+            if limit_error:
+                return limit_error
+
+        member, _created = CompanyMember.objects.update_or_create(
+            company=company,
+            user=member_user,
+            defaults={
+                "role": serializer.validated_data["role"],
+                "status": next_status,
+                "invited_by": request.user,
+            },
+        )
+        return Response(
+            CompanyMemberSerializer(member).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @action(
+        detail=True,
+        methods=["patch", "delete"],
+        url_path=r"members/(?P<member_id>[^/.]+)",
+    )
+    def member_detail(self, request, pk=None, member_id=None):
+        company = get_company_by_id(company_id=pk)
+        if not company:
+            return Response(
+                {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if not can_manage_company_members(company, request.user):
+            return self._permission_denied(
+                "You don't have permission to manage members"
+            )
+
+        member = (
+            CompanyMember.objects.select_related("user", "invited_by")
+            .filter(company=company, id=member_id)
+            .first()
+        )
+        if not member:
+            return Response(
+                {"detail": "Member not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if member.role == CompanyMember.Role.OWNER:
+            return Response(
+                {"detail": "Owner membership cannot be changed from this endpoint."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if request.method.lower() == "delete":
+            member.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        serializer = CompanyMemberWriteSerializer(
+            data={
+                "user_id": member.user_id,
+                "role": request.data.get("role", member.role),
+                "status": request.data.get("status", member.status),
+            }
+        )
+        serializer.is_valid(raise_exception=True)
+
+        next_status = serializer.validated_data.get("status", member.status)
+        if member.status == CompanyMember.Status.DISABLED and next_status in {
+            CompanyMember.Status.ACTIVE,
+            CompanyMember.Status.INVITED,
+        }:
+            limit_error = self._seat_limit_error(company)
+            if limit_error:
+                return limit_error
+
+        member.role = serializer.validated_data["role"]
+        member.status = next_status
+        member.save(update_fields=["role", "status", "updated_at"])
+        return Response(CompanyMemberSerializer(member).data)
 
     @action(detail=True, methods=["patch"], url_path="verification")
     def admin_verification(self, request, pk=None):
@@ -501,8 +711,42 @@ class CompanyViewSet(viewsets.GenericViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        company.user = user
-        company.save()
+        if getattr(user, "role", None) != "company":
+            return Response(
+                {"detail": "Only company accounts can claim a company"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if Company.objects.filter(user=user).exists():
+            return Response(
+                {"detail": "User already has a company profile"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        with transaction.atomic():
+            locked_company = (
+                Company.objects.select_for_update().filter(id=company.id).first()
+            )
+            if not locked_company:
+                return Response(
+                    {"detail": "Not found company"}, status=status.HTTP_404_NOT_FOUND
+                )
+            if locked_company.user_id is not None:
+                return Response(
+                    {"detail": "Company already claimed"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            locked_company.user = user
+            locked_company.save(update_fields=["user", "updated_at"])
+            CompanyMember.objects.get_or_create(
+                company=locked_company,
+                user=user,
+                defaults={
+                    "role": CompanyMember.Role.OWNER,
+                    "status": CompanyMember.Status.ACTIVE,
+                },
+            )
 
         return Response(
             {"detail": "Company claimed successfully"}, status=status.HTTP_200_OK

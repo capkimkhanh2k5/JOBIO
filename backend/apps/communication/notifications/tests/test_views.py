@@ -1,11 +1,13 @@
 # Notifications ViewSet Tests
 
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.utils import timezone
 
-from apps.communication.notifications.models import Notification
+from apps.communication.notifications.models import Notification, NotificationPreference
 from apps.communication.notification_types.models import NotificationType
 
 User = get_user_model()
@@ -236,6 +238,39 @@ class NotificationViewTests(APITestCase):
         ).count()
         self.assertEqual(unread_count, 0)
 
+    def test_bulk_mark_read_rejects_oversized_id_list(self):
+        response = self.client.patch(
+            "/api/notifications/mark-read/",
+            {"notification_ids": list(range(1, 102))},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_notification_settings_get_creates_defaults(self):
+        NotificationPreference.objects.filter(user=self.user).delete()
+
+        response = self.client.get("/api/notifications/settings/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["email_notifications"])
+        self.assertTrue(response.data["job_alerts"])
+        self.assertTrue(NotificationPreference.objects.filter(user=self.user).exists())
+
+    def test_notification_settings_patch_persists(self):
+        response = self.client.patch(
+            "/api/notifications/settings/",
+            {"job_alerts": False, "application_updates": False},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data["job_alerts"])
+        self.assertFalse(response.data["application_updates"])
+        preference = NotificationPreference.objects.get(user=self.user)
+        self.assertFalse(preference.job_alerts)
+        self.assertFalse(preference.application_updates)
+
     def test_delete_notification_success(self):
         """Test deleting a notification."""
         url = f"/api/notifications/{self.notification.id}/"
@@ -290,3 +325,41 @@ class NotificationViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("unread_count", response.data)
         self.assertGreaterEqual(response.data["unread_count"], 1)
+
+    def test_stream_requires_authentication(self):
+        self.client.logout()
+
+        response = self.client.get("/api/notifications/stream/")
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    @override_settings(NOTIFICATION_STREAM_MAX_CONNECTIONS_PER_USER=1)
+    def test_stream_rejects_excess_connections_per_user(self):
+        key = f"notifications:stream:connections:{self.user.id}"
+        cache.delete(key)
+
+        try:
+            first_response = self.client.get("/api/notifications/stream/")
+            second_response = self.client.get("/api/notifications/stream/")
+
+            self.assertEqual(first_response.status_code, status.HTTP_200_OK)
+            self.assertEqual(
+                second_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS
+            )
+        finally:
+            cache.delete(key)
+
+    def test_stream_initial_payload_is_scoped_to_current_user(self):
+        key = f"notifications:stream:connections:{self.user.id}"
+        cache.delete(key)
+
+        response = self.client.get("/api/notifications/stream/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        try:
+            chunk = next(iter(response.streaming_content)).decode("utf-8")
+            self.assertIn("Test Notification", chunk)
+            self.assertNotIn("Other User Notification", chunk)
+        finally:
+            response.close()
+            cache.delete(key)

@@ -145,6 +145,37 @@ class RecruiterEducationViewTest(APITestCase):
         self.education.refresh_from_db()
         self.assertEqual(self.education.school_name, "Updated School")
 
+    def test_partial_update_education_rejects_end_date_before_existing_start_date(self):
+        self.education.start_date = "2024-01-01"
+        self.education.save(update_fields=["start_date"])
+
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/education/{self.education.id}/",
+            {"end_date": "2023-12-31"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.education.refresh_from_db()
+        self.assertIsNone(self.education.end_date)
+
+    def test_partial_update_education_current_rejects_existing_end_date(self):
+        self.education.start_date = "2020-01-01"
+        self.education.end_date = "2024-01-01"
+        self.education.is_current = False
+        self.education.save(update_fields=["start_date", "end_date", "is_current"])
+
+        response = self.client.patch(
+            f"/api/candidates/{self.recruiter.id}/education/{self.education.id}/",
+            {"is_current": True},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.education.refresh_from_db()
+        self.assertFalse(self.education.is_current)
+        self.assertIsNotNone(self.education.end_date)
+
     def test_update_education_not_owner(self):
         """Test PUT by non-owner returns 403"""
         # Create education for recruiter2

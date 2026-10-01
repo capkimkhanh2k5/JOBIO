@@ -24,7 +24,7 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
         <div className="relative flex flex-col w-full h-full min-h-0">
             {/* Page header — identical to every other dashboard page */}
             {(title || description) && (
-                <div className="sticky top-0 z-20">
+                <div>
                     <PageHeader
                         title={title ?? ''}
                         description={description}
@@ -42,7 +42,7 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
                         transition={{ delay: 0.1 }}
                         className="md:col-span-1 flex flex-col gap-1"
                     >
-                        <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-2">
+                        <div className="bg-card border border-border shadow-sm rounded-2xl p-2">
                             {tabs.map((tab) => {
                                 const Icon = tab.icon;
                                 const isActive = activeTab === tab.id;
@@ -52,11 +52,11 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
                                         onClick={() => onTabChange(tab.id)}
                                         className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${
                                             isActive
-                                                ? 'bg-violet-50 text-violet-700 border border-violet-100'
-                                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
+                                                ? 'bg-teal-50 text-teal-700 border border-teal-100'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent'
                                         }`}
                                     >
-                                        <Icon className={`w-4 h-4 ${isActive ? 'text-violet-600' : 'text-slate-400'}`} />
+                                        <Icon className={`w-4 h-4 ${isActive ? 'text-teal-600' : 'text-muted-foreground/60'}`} />
                                         <span>{tab.label}</span>
                                     </button>
                                 );
@@ -71,7 +71,7 @@ export function SettingsLayout({ title, description, tabs, activeTab, onTabChang
                         transition={{ delay: 0.2 }}
                         className="md:col-span-3"
                     >
-                        <Card className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden min-h-[500px]">
+                        <Card className="bg-card border border-border shadow-sm rounded-2xl overflow-hidden min-h-[500px]">
                             {children}
                         </Card>
                     </motion.div>

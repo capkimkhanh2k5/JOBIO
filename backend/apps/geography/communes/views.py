@@ -10,6 +10,7 @@ from .serializers import (
     CommuneDetailSerializer,
     CommuneCreateUpdateSerializer,
 )
+from apps.core.caching import CacheService, CachedGeographySelectors
 
 
 class CommuneViewSet(viewsets.ModelViewSet):
@@ -49,16 +50,19 @@ class CommuneViewSet(viewsets.ModelViewSet):
             return CommuneCreateUpdateSerializer
         return CommuneListSerializer
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_geography()
+        return instance
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_geography()
+        return instance
+
     def by_province(self, request, province_id=None):
         """
         GET /api/provinces/:province_id/communes/
         Danh sách xã/phường theo tỉnh
         """
-        communes = (
-            Commune.objects.filter(province_id=province_id, is_active=True)
-            .select_related("province")
-            .order_by("commune_name")
-        )
-
-        serializer = CommuneListSerializer(communes, many=True)
-        return Response(serializer.data)
+        return Response(CachedGeographySelectors.get_communes_by_province(province_id))

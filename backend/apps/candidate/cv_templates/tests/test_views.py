@@ -2,6 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from apps.core.users.models import CustomUser
+from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.cv_templates.models import CVTemplate
 from apps.candidate.cv_template_categories.models import CVTemplateCategory
 
@@ -100,6 +101,54 @@ class CVTemplateViewSetTests(TestCase):
         """Test GET /api/cv-templates/popular/ - Popular templates"""
         response = self.client.get("/api/cv-templates/popular/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_preview_requires_authentication(self):
+        recruiter = Recruiter.objects.create(user=self.user)
+
+        response = self.client.post(
+            f"/api/cv-templates/{self.template.id}/preview/",
+            {"recruiter_id": recruiter.id},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_preview_rejects_other_recruiter(self):
+        owner = CustomUser.objects.create_user(
+            email="cv-owner@example.com",
+            password="testpass123",
+            full_name="CV Owner",
+            role="candidate",
+        )
+        other = CustomUser.objects.create_user(
+            email="cv-other@example.com",
+            password="testpass123",
+            full_name="CV Other",
+            role="candidate",
+        )
+        recruiter = Recruiter.objects.create(user=owner)
+        self.client.force_authenticate(user=other)
+
+        response = self.client.post(
+            f"/api/cv-templates/{self.template.id}/preview/",
+            {"recruiter_id": recruiter.id},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_preview_allows_recruiter_owner(self):
+        recruiter = Recruiter.objects.create(user=self.user)
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            f"/api/cv-templates/{self.template.id}/preview/",
+            {"recruiter_id": recruiter.id},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("html", response.data)
 
     def test_create_template_admin(self):
         """Test POST /api/cv-templates/ - Admin can create"""

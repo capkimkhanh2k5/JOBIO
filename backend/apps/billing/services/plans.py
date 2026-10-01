@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from apps.billing.models import SubscriptionPlan
+from apps.core.caching import CacheKeyBuilder, CacheService
 
 
 class PlanService:
@@ -15,7 +16,7 @@ class PlanService:
         if price < 0:
             raise ValidationError("Price cannot be negative")
 
-        return SubscriptionPlan.objects.create(
+        plan = SubscriptionPlan.objects.create(
             name=name,
             slug=slug,
             price=price,
@@ -23,10 +24,13 @@ class PlanService:
             features=features,
             currency=currency,
         )
+        CacheService.delete(CacheKeyBuilder.subscription_plans())
+        return plan
 
     @staticmethod
     def update_plan(plan: SubscriptionPlan, **kwargs) -> SubscriptionPlan:
         for key, value in kwargs.items():
             setattr(plan, key, value)
         plan.save()
+        CacheService.delete(CacheKeyBuilder.subscription_plans())
         return plan

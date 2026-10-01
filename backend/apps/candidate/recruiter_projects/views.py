@@ -27,6 +27,7 @@ class RecruiterProjectViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = ProjectSerializer
 
     def get_queryset(self):
         recruiter_id = self.kwargs.get("recruiter_id")

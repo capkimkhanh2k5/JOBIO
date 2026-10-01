@@ -4,6 +4,8 @@ const frontendUrl = process.env.E2E_BASE_URL ?? 'http://localhost:5173';
 const apiUrl = process.env.E2E_API_BASE_URL ?? 'http://127.0.0.1:8011';
 const backendEnv = {
   ...process.env,
+  DJANGO_SETTINGS_MODULE: 'config.settings_test',
+  E2E_SQLITE_NAME: process.env.E2E_SQLITE_NAME ?? '.e2e.sqlite3',
   CORS_ALLOWED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
   CSRF_TRUSTED_ORIGINS: 'http://localhost:5173,http://127.0.0.1:5173',
   CELERY_BROKER_URL: 'memory://',

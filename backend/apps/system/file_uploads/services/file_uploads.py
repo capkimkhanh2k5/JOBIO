@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
 from ..models import FileUpload
+from apps.moderation.services import validate_upload_file
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,16 @@ def save_upload(
     """
     Lưu file đã tải lên Cloudinary (nếu có config) hoặc local storage.
     """
+    moderation = validate_upload_file(
+        file_obj,
+        purpose="file_upload",
+        max_size_mb=25,
+        entity_type=entity_type or "file_upload",
+        entity_id=entity_id,
+        user=user,
+        is_public=is_public,
+    )
+
     ext = os.path.splitext(file_obj.name)[1].lower()
     unique_name = f"{uuid.uuid4()}{ext}"
     sub_folder = "public" if is_public else "private"
@@ -79,6 +90,11 @@ def save_upload(
             entity_type=entity_type,
             entity_id=entity_id,
             is_public=is_public,
+            moderation_status=FileUpload.ModerationStatus.APPROVED
+            if moderation.allowed
+            else FileUpload.ModerationStatus.REJECTED,
+            moderation_reasons=moderation.reasons,
+            safe_preview_url=file_url if is_public and moderation.allowed else None,
         )
     except Exception:
         if cloudinary_resource_type and "res.cloudinary.com" in str(file_url):

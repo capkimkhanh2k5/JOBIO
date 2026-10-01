@@ -49,14 +49,14 @@ const STATUS_LABEL_MAP: Record<string, string> = {
 };
 
 const statusColorMap: Record<string, string> = {
-    pending: 'bg-slate-100 text-slate-700 border-slate-200',
-    reviewing: 'bg-blue-100 text-blue-700 border-blue-200',
-    shortlisted: 'bg-purple-100 text-purple-700 border-purple-200',
+    pending: 'bg-muted text-foreground/80 border-border',
+    reviewing: 'bg-primary/12 text-primary border-primary/20',
+    shortlisted: 'bg-amber-100 text-amber-700 border-amber-200',
     interview: 'bg-amber-100 text-amber-700 border-amber-200',
     offered: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     accepted: 'bg-green-100 text-green-700 border-green-200',
     rejected: 'bg-red-100 text-red-700 border-red-200',
-    withdrawn: 'bg-gray-100 text-gray-500 border-gray-200',
+    withdrawn: 'bg-muted text-muted-foreground border-border',
 };
 
 export default function MyApplications() {
@@ -153,13 +153,11 @@ export default function MyApplications() {
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Việc làm đã ứng tuyển"
-                    description="Theo dõi và quản lý quá trình ứng tuyển của bạn."
-                    icon={Briefcase}
-                />
-            </div>
+            <PageHeader
+                title="Việc làm đã ứng tuyển"
+                description="Theo dõi và quản lý quá trình ứng tuyển của bạn."
+                icon={Briefcase}
+            />
 
             <div className="p-6 lg:p-8 space-y-6 w-full flex-1 relative z-10">
 
@@ -175,10 +173,10 @@ export default function MyApplications() {
                         value={stats.total}
                         layout="inlineValue"
                         iconTone={{
-                            bg: 'bg-slate-50',
-                            text: 'text-slate-600',
-                            border: 'border-slate-200',
-                            hoverBg: 'bg-slate-50/50',
+                            bg: 'bg-muted',
+                            text: 'text-muted-foreground',
+                            border: 'border-border',
+                            hoverBg: 'bg-muted/50',
                         }}
                         isLoading={isLoading}
                     />
@@ -188,10 +186,10 @@ export default function MyApplications() {
                         value={stats.active}
                         layout="inlineValue"
                         iconTone={{
-                            bg: 'bg-blue-50',
-                            text: 'text-blue-600',
-                            border: 'border-blue-200',
-                            hoverBg: 'bg-blue-50/40',
+                            bg: 'bg-primary/8',
+                            text: 'text-primary',
+                            border: 'border-primary/20',
+                            hoverBg: 'bg-primary/5',
                         }}
                         isLoading={isLoading}
                     />
@@ -223,11 +221,11 @@ export default function MyApplications() {
                     />
                 </motion.div>
 
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                     {/* Filter & Search Bar — notification style */}
-                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-50/50">
+                    <div className="p-4 border-b border-border/60 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-muted/50">
                         {/* Pill status filters */}
-                        <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto w-full sm:w-fit">
+                        <div className="flex items-center p-1 bg-card rounded-2xl border border-border shadow-sm overflow-x-auto w-full sm:w-fit">
                             {STATUS_FILTERS.map((s) => {
                                 const isActive = activeTab === s.id;
                                 const count = stats.counts?.[s.id] ?? 0;
@@ -238,15 +236,15 @@ export default function MyApplications() {
                                         className={cn(
                                             'flex-shrink-0 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap',
                                             isActive
-                                                ? 'bg-violet-600 text-white shadow-md'
-                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                                ? 'bg-teal-600 text-white shadow-md'
+                                                : 'text-muted-foreground hover:text-foreground/80 hover:bg-muted'
                                         )}
                                     >
                                         {s.label}
                                         {applications && count > 0 && (
                                             <span className={cn(
                                                 'text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center',
-                                                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                                isActive ? 'bg-card/20 text-white' : 'bg-muted text-muted-foreground'
                                             )}>
                                                 {count}
                                             </span>
@@ -258,11 +256,11 @@ export default function MyApplications() {
 
                         {/* Search input */}
                         <div className="relative w-full sm:w-72 shrink-0">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                             <input
                                 type="text"
                                 placeholder="Tìm theo tên công việc hoặc công ty..."
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-400 bg-white shadow-sm"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-400 bg-card shadow-sm"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -278,15 +276,15 @@ export default function MyApplications() {
                         </div>
                     ) : filteredApps.length === 0 ? (
                         <div className="py-20 text-center flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                <FileText className="w-8 h-8 text-slate-300" />
+                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                                <FileText className="w-8 h-8 text-muted-foreground/40" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-700 mb-1">Không tìm thấy hồ sơ</h3>
-                            <p className="text-slate-500 text-sm max-w-sm">
+                            <h3 className="text-lg font-bold text-foreground/80 mb-1">Không tìm thấy hồ sơ</h3>
+                            <p className="text-muted-foreground text-sm max-w-sm">
                                 {searchQuery ? "Không có kết quả nào phù hợp với tìm kiếm của bạn." : "Bạn chưa có đơn ứng tuyển nào ở trạng thái này."}
                             </p>
                             {!searchQuery && activeTab === 'all' && (
-                                <Button className="mt-6 bg-violet-600 hover:bg-violet-700 text-white shadow-sm" asChild>
+                                <Button className="mt-6 bg-teal-600 hover:bg-teal-700 text-white shadow-sm" asChild>
                                     <Link to="/jobs">Tìm việc ngay</Link>
                                 </Button>
                             )}
@@ -301,12 +299,12 @@ export default function MyApplications() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         transition={{ duration: 0.2, delay: idx * 0.05 }}
-                                        className="p-5 hover:bg-slate-50 transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
+                                        className="p-5 hover:bg-muted transition-colors group cursor-pointer flex flex-col sm:flex-row gap-5"
                                         onClick={() => setSelectedApp(app.id)}
                                     >
                                         {/* Left: Logo & Status */}
                                         <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-2">
-                                            <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-2 group-hover:border-violet-200 transition-colors">
+                                            <div className="w-16 h-16 bg-card rounded-xl border border-border shadow-sm flex items-center justify-center p-2 group-hover:border-teal-200 transition-colors">
                                                 <img src={app.logo_url} alt={app.company} className="w-full h-full object-contain" />
                                             </div>
                                             <Badge className={`${statusColorMap[app.status]} font-medium border hidden sm:inline-flex`}>
@@ -317,7 +315,7 @@ export default function MyApplications() {
                                         {/* Middle: Job Info */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
-                                                <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
+                                                <h3 className="text-base font-bold text-foreground truncate group-hover:text-teal-600 transition-colors">
                                                     {app.job_title}
                                                 </h3>
                                                 <Badge className={`${statusColorMap[app.status]} sm:hidden`}>
@@ -325,14 +323,14 @@ export default function MyApplications() {
                                                 </Badge>
                                             </div>
 
-                                            <div className="flex items-center gap-2 text-slate-600 mb-3 text-sm">
-                                                <span className="font-medium text-slate-700 flex items-center gap-1.5">
-                                                    <Building2 className="w-4 h-4 text-slate-400" />
+                                            <div className="flex items-center gap-2 text-muted-foreground mb-3 text-sm">
+                                                <span className="font-medium text-foreground/80 flex items-center gap-1.5">
+                                                    <Building2 className="w-4 h-4 text-muted-foreground/60" />
                                                     {app.company}
                                                 </span>
-                                                <span className="text-slate-300">•</span>
-                                                <span className="flex items-center gap-1.5 text-slate-500">
-                                                    <Clock className="w-4 h-4 text-slate-400" />
+                                                <span className="text-muted-foreground/40">•</span>
+                                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                                    <Clock className="w-4 h-4 text-muted-foreground/60" />
                                                     Đã gửi: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
                                                 </span>
                                             </div>
@@ -343,7 +341,7 @@ export default function MyApplications() {
                                                         <Star className="w-3 h-3 text-emerald-500" /> AI Match: {app.ai_score}%
                                                     </Badge>
                                                 )}
-                                                <Badge variant="outline" className="text-slate-500 border-slate-200 flex items-center gap-1 font-normal bg-white">
+                                                <Badge variant="outline" className="text-muted-foreground border-border flex items-center gap-1 font-normal bg-card">
                                                     <FileText className="w-3 h-3" /> CV: {app.cv_name}
                                                 </Badge>
                                             </div>
@@ -351,7 +349,7 @@ export default function MyApplications() {
 
                                         {/* Right: Actions */}
                                         <div className="flex-shrink-0 flex items-center gap-2 sm:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="outline" size="sm" className="bg-white hover:bg-slate-50 border-slate-200 text-slate-700 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
+                                            <Button variant="outline" size="sm" className="bg-card hover:bg-muted border-border text-foreground/80 rounded-lg" onClick={(e) => { e.stopPropagation(); setSelectedApp(app.id); }}>
                                                 Chi tiết
                                             </Button>
                                             {['pending', 'reviewing'].includes(app.status) && (

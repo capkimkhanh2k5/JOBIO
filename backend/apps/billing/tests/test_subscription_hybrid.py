@@ -15,6 +15,8 @@ from apps.core.users.models import CustomUser
 from apps.company.companies.models import Company
 from apps.billing.models import CompanySubscription, SubscriptionPlan, Transaction
 from apps.billing.services.subscriptions import SubscriptionService
+from apps.billing.tasks import cleanup_expired_subscriptions
+from apps.recruitment.jobs.models import Job
 
 
 class TestSubscriptionHybridLogic(TestCase):
@@ -82,6 +84,39 @@ class TestSubscriptionHybridLogic(TestCase):
         tx = Transaction.objects.filter(company=self.company).first()
         self.assertEqual(tx.amount, 100000)
         self.assertEqual(tx.status, Transaction.Status.PENDING)
+
+    def test_cleanup_expired_subscription_demotes_featured_jobs(self):
+        """Expired subscriptions should remove paid featured placement."""
+        today = timezone.localdate()
+        sub = CompanySubscription.objects.create(
+            company=self.company,
+            plan=self.basic_plan,
+            start_date=today - timedelta(days=31),
+            end_date=today - timedelta(days=1),
+            status=CompanySubscription.Status.ACTIVE,
+        )
+        job = Job.objects.create(
+            company=self.company,
+            created_by=self.user,
+            title="Featured Job",
+            slug="featured-job-expired-subscription",
+            job_type=Job.JobType.FULL_TIME,
+            level=Job.Level.JUNIOR,
+            description="Build APIs",
+            requirements="Python",
+            status=Job.Status.PUBLISHED,
+            featured=True,
+            featured_until=today + timedelta(days=7),
+        )
+
+        result = cleanup_expired_subscriptions()
+
+        self.assertEqual(result, "Expired 1 subscriptions")
+        sub.refresh_from_db()
+        job.refresh_from_db()
+        self.assertEqual(sub.status, CompanySubscription.Status.EXPIRED)
+        self.assertFalse(job.featured)
+        self.assertIsNone(job.featured_until)
 
     # ==========================================================================
     # Test: Replace Subscription (Upgrade/Change)

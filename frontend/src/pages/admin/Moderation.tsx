@@ -80,26 +80,26 @@ export default function Moderation() {
             {/* Header */}
             <motion.div {...fadeUp(0)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                        <Shield className="w-6 h-6 text-violet-600" />
+                    <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                        <Shield className="w-6 h-6 text-teal-600" />
                         Duyệt &amp; Kiểm duyệt
                     </h1>
-                    <p className="text-sm text-slate-500 mt-1">Duyệt hồ sơ công ty đang chờ xác minh.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Duyệt hồ sơ công ty đang chờ xác minh.</p>
                 </div>
             </motion.div>
 
             {/* Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {statCards.map((stat, i) => (
-                    <motion.div key={stat.label} {...fadeUp(0.05 + i * 0.05)} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <motion.div key={stat.label} {...fadeUp(0.05 + i * 0.05)} className="bg-card p-4 rounded-2xl border border-border shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 -mr-4 -mt-4 w-20 h-20 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 ease-out" />
                         <div className="relative flex items-center gap-3.5">
                             <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center ${stat.color} shadow-inner shrink-0`}>
                                 <stat.icon className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{stat.label}</p>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">{stat.value.toLocaleString('vi-VN')}</h3>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">{stat.label}</p>
+                                <h3 className="text-xl font-black text-foreground tracking-tight">{stat.value.toLocaleString('vi-VN')}</h3>
                             </div>
                         </div>
                     </motion.div>
@@ -109,53 +109,53 @@ export default function Moderation() {
             {/* Companies Tab */}
             {activeTab === 'companies' && (
                 <motion.div {...fadeUp(0.2)} className="space-y-4">
-                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="bg-card p-4 rounded-2xl border border-border shadow-sm">
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                             <input
                                 type="text"
                                 placeholder="Tìm kiếm công ty theo tên, mã số thuế..."
                                 value={companySearch}
                                 onChange={(e) => setCompanySearch(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-500 bg-slate-50/50 text-sm font-medium transition-all"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 bg-muted/50 text-sm font-medium transition-all"
                             />
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
-                                    <tr className="bg-slate-50/50 border-b border-slate-100">
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Công ty</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngành / Quy mô</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thông tin liên hệ</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Ngày đăng ký</th>
-                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-slate-500">Thao tác</th>
+                                    <tr className="bg-muted/50 border-b border-border/60">
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Công ty</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Ngành / Quy mô</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Thông tin liên hệ</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Ngày đăng ký</th>
+                                        <th className="text-left py-4 px-6 font-black text-[10px] uppercase tracking-wider text-muted-foreground">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
                                     {loadingCompanies ? (
-                                        <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" /></td></tr>
+                                        <tr><td colSpan={5} className="py-20 text-center"><Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" /></td></tr>
                                     ) : companiesData.length === 0 ? (
                                         <tr>
                                             <td colSpan={5} className="py-20 text-center">
                                                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-                                                <p className="text-sm font-bold text-slate-700">Tất cả đã duyệt!</p>
-                                                <p className="text-xs text-slate-400 mt-1">Không có công ty nào chờ xác minh.</p>
+                                                <p className="text-sm font-bold text-foreground/80">Tất cả đã duyệt!</p>
+                                                <p className="text-xs text-muted-foreground/60 mt-1">Không có công ty nào chờ xác minh.</p>
                                             </td>
                                         </tr>
                                     ) : companiesData.map((company: any) => (
-                                        <tr key={company.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <tr key={company.id} className="hover:bg-muted/50 transition-colors">
                                             <td className="py-4 px-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-sm shrink-0 overflow-hidden">
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-orange-500 flex items-center justify-center text-white font-black text-sm shadow-sm shrink-0 overflow-hidden">
                                                         {company.logo_url
                                                             ? <img src={company.logo_url} alt={company.company_name} className="w-full h-full object-cover" />
                                                             : company.company_name?.charAt(0)}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                        <span className="font-bold text-slate-900 text-sm">{company.company_name}</span>
+                                                        <span className="font-bold text-foreground text-sm">{company.company_name}</span>
                                                         <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-bold px-1.5 py-0 w-fit mt-0.5">
                                                             <AlertTriangle className="w-2.5 h-2.5 mr-0.5" /> Chờ duyệt
                                                         </Badge>
@@ -164,18 +164,18 @@ export default function Moderation() {
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="text-sm font-semibold text-slate-700">{company.industry?.name ?? '—'}</span>
-                                                    <span className="text-xs text-slate-400">{company.company_size ? `${company.company_size} nhân viên` : '—'}</span>
+                                                    <span className="text-sm font-semibold text-foreground/80">{company.industry?.name ?? '—'}</span>
+                                                    <span className="text-xs text-muted-foreground/60">{company.company_size ? `${company.company_size} nhân viên` : '—'}</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="text-xs font-medium text-slate-600 truncate max-w-[180px]">{company.website ?? '—'}</span>
-                                                    <span className="text-xs text-slate-400">MST: {company.tax_code ?? '—'}</span>
+                                                    <span className="text-xs font-medium text-muted-foreground truncate max-w-[180px]">{company.website ?? '—'}</span>
+                                                    <span className="text-xs text-muted-foreground/60">MST: {company.tax_code ?? '—'}</span>
                                                 </div>
                                             </td>
                                             <td className="py-4 px-6">
-                                                <span className="text-xs font-bold text-slate-700">
+                                                <span className="text-xs font-bold text-foreground/80">
                                                     {company.created_at ? new Date(company.created_at).toLocaleDateString('vi-VN') : '—'}
                                                 </span>
                                             </td>
@@ -194,20 +194,20 @@ export default function Moderation() {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-slate-100">
-                            <p className="text-xs text-slate-500 font-medium">
-                                Hiển thị <span className="font-bold text-slate-900">{companiesData.length}</span> / <span className="font-bold text-slate-900">{companyTotal}</span> công ty
+                        <div className="flex flex-col sm:flex-row items-center justify-end gap-6 px-6 py-4 border-t border-border/60">
+                            <p className="text-xs text-muted-foreground font-medium">
+                                Hiển thị <span className="font-bold text-foreground">{companiesData.length}</span> / <span className="font-bold text-foreground">{companyTotal}</span> công ty
                             </p>
-                            <div className="flex items-center gap-1.5 bg-slate-50/50 p-1 rounded-xl border border-slate-100">
-                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={companyPage <= 1} onClick={() => setCompanyPage(p => Math.max(1, p - 1))}>
+                            <div className="flex items-center gap-1.5 bg-muted/50 p-1 rounded-xl border border-border/60">
+                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={companyPage <= 1} onClick={() => setCompanyPage(p => Math.max(1, p - 1))}>
                                     <ChevronLeft className="w-4 h-4" />
                                 </Button>
-                                <div className="flex items-center px-3 h-8 bg-white border border-slate-200 rounded-lg shadow-sm">
-                                    <span className="text-xs font-black text-violet-600">{companyPage}</span>
-                                    <span className="mx-1.5 text-slate-300 text-[10px]">/</span>
-                                    <span className="text-xs font-bold text-slate-500">{companyTotalPages}</span>
+                                <div className="flex items-center px-3 h-8 bg-card border border-border rounded-lg shadow-sm">
+                                    <span className="text-xs font-black text-teal-600">{companyPage}</span>
+                                    <span className="mx-1.5 text-muted-foreground/40 text-[10px]">/</span>
+                                    <span className="text-xs font-bold text-muted-foreground">{companyTotalPages}</span>
                                 </div>
-                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-white hover:shadow-sm" disabled={companyPage >= companyTotalPages} onClick={() => setCompanyPage(p => Math.min(companyTotalPages, p + 1))}>
+                                <Button variant="ghost" size="sm" className="w-8 h-8 p-0 rounded-lg hover:bg-card hover:shadow-sm" disabled={companyPage >= companyTotalPages} onClick={() => setCompanyPage(p => Math.min(companyTotalPages, p + 1))}>
                                     <ChevronRight className="w-4 h-4" />
                                 </Button>
                             </div>

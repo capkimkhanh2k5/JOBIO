@@ -4,7 +4,7 @@ from django.core.files.uploadedfile import UploadedFile
 
 from pydantic import BaseModel
 
-from ..models import Company
+from ..models import Company, CompanyMember
 
 from apps.core.users.models import CustomUser
 from apps.company.industries.models import Industry
@@ -33,6 +33,9 @@ def create_company(user: CustomUser, data: CompanyCreateInput) -> Company:
     - Validate: User chưa có company profile (OneToOne)
     - Auto-generate slug nếu không cung cấp
     """
+    if getattr(user, "role", None) != "company":
+        raise ValueError("Only company accounts can create a company profile")
+
     # Kiểm tra user đã có company chưa
     if hasattr(user, "company_profile") and user.company_profile is not None:
         raise ValueError("Người dùng đã có hồ sơ công ty")
@@ -64,6 +67,14 @@ def create_company(user: CustomUser, data: CompanyCreateInput) -> Company:
             website=data.website or None,
             description=data.description or None,
             founded_year=data.founded_year or None,
+        )
+        CompanyMember.objects.get_or_create(
+            company=company,
+            user=user,
+            defaults={
+                "role": CompanyMember.Role.OWNER,
+                "status": CompanyMember.Status.ACTIVE,
+            },
         )
 
     return company

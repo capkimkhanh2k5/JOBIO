@@ -1,0 +1,1247 @@
+[
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 1,
+  "fields": {
+    "recruiter": 1,
+    "skill": 3,
+    "proficiency_level": "advanced",
+    "years_of_experience": 3,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-23T19:16:31Z",
+    "updated_at": "2026-04-24T22:16:31Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 2,
+  "fields": {
+    "recruiter": 1,
+    "skill": 6,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-03T10:25:34Z",
+    "updated_at": "2026-03-05T03:25:34Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 3,
+  "fields": {
+    "recruiter": 2,
+    "skill": 9,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 5,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-26T05:16:57Z",
+    "updated_at": "2026-03-28T23:16:57Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 4,
+  "fields": {
+    "recruiter": 2,
+    "skill": 3,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-03T15:26:31Z",
+    "updated_at": "2026-01-04T17:26:31Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 5,
+  "fields": {
+    "recruiter": 3,
+    "skill": 1,
+    "proficiency_level": "expert",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-23T14:45:43Z",
+    "updated_at": "2026-04-24T19:45:43Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 6,
+  "fields": {
+    "recruiter": 3,
+    "skill": 7,
+    "proficiency_level": "expert",
+    "years_of_experience": 1,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-31T07:41:21Z",
+    "updated_at": "2026-03-31T00:41:21Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 7,
+  "fields": {
+    "recruiter": 3,
+    "skill": 8,
+    "proficiency_level": "expert",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-07T08:15:18Z",
+    "updated_at": "2026-03-07T15:15:18Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 8,
+  "fields": {
+    "recruiter": 4,
+    "skill": 7,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 2,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-02-21T00:09:42Z",
+    "updated_at": "2026-02-23T00:09:42Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 9,
+  "fields": {
+    "recruiter": 4,
+    "skill": 5,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-11T20:57:59Z",
+    "updated_at": "2026-04-12T08:57:59Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 10,
+  "fields": {
+    "recruiter": 4,
+    "skill": 1,
+    "proficiency_level": "advanced",
+    "years_of_experience": 5,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-25T00:24:35Z",
+    "updated_at": "2026-04-25T21:24:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 11,
+  "fields": {
+    "recruiter": 4,
+    "skill": 9,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-05-02T22:08:05Z",
+    "updated_at": "2026-05-03T21:08:05Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 12,
+  "fields": {
+    "recruiter": 5,
+    "skill": 9,
+    "proficiency_level": "expert",
+    "years_of_experience": 4,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-25T13:18:28Z",
+    "updated_at": "2026-03-25T06:18:28Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 13,
+  "fields": {
+    "recruiter": 5,
+    "skill": 7,
+    "proficiency_level": "beginner",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-05T20:56:09Z",
+    "updated_at": "2026-04-07T07:56:09Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 14,
+  "fields": {
+    "recruiter": 5,
+    "skill": 8,
+    "proficiency_level": "beginner",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-30T12:03:40Z",
+    "updated_at": "2026-02-01T02:03:40Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 15,
+  "fields": {
+    "recruiter": 6,
+    "skill": 2,
+    "proficiency_level": "beginner",
+    "years_of_experience": 1,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-18T21:21:53Z",
+    "updated_at": "2026-04-19T23:21:53Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 16,
+  "fields": {
+    "recruiter": 6,
+    "skill": 3,
+    "proficiency_level": "beginner",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-02T08:50:33Z",
+    "updated_at": "2026-04-03T06:50:33Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 17,
+  "fields": {
+    "recruiter": 7,
+    "skill": 2,
+    "proficiency_level": "beginner",
+    "years_of_experience": 3,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-24T06:25:19Z",
+    "updated_at": "2026-03-25T19:25:19Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 18,
+  "fields": {
+    "recruiter": 7,
+    "skill": 9,
+    "proficiency_level": "expert",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-10T03:18:27Z",
+    "updated_at": "2026-01-12T10:18:27Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 19,
+  "fields": {
+    "recruiter": 8,
+    "skill": 1,
+    "proficiency_level": "beginner",
+    "years_of_experience": 3,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-22T16:31:17Z",
+    "updated_at": "2026-04-24T10:31:17Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 20,
+  "fields": {
+    "recruiter": 8,
+    "skill": 5,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-05-18T04:32:35Z",
+    "updated_at": "2026-05-19T06:32:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 21,
+  "fields": {
+    "recruiter": 9,
+    "skill": 9,
+    "proficiency_level": "expert",
+    "years_of_experience": 4,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-13T22:23:25Z",
+    "updated_at": "2026-01-15T05:23:25Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 22,
+  "fields": {
+    "recruiter": 9,
+    "skill": 4,
+    "proficiency_level": "beginner",
+    "years_of_experience": 5,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-02-06T20:25:44Z",
+    "updated_at": "2026-02-08T14:25:44Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 23,
+  "fields": {
+    "recruiter": 9,
+    "skill": 2,
+    "proficiency_level": "advanced",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-15T16:35:07Z",
+    "updated_at": "2026-01-16T14:35:07Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 24,
+  "fields": {
+    "recruiter": 9,
+    "skill": 6,
+    "proficiency_level": "expert",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-05-14T07:29:22Z",
+    "updated_at": "2026-05-15T03:29:22Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 25,
+  "fields": {
+    "recruiter": 10,
+    "skill": 1,
+    "proficiency_level": "expert",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-03T04:51:11Z",
+    "updated_at": "2026-04-04T02:51:11Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 26,
+  "fields": {
+    "recruiter": 10,
+    "skill": 8,
+    "proficiency_level": "expert",
+    "years_of_experience": 4,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-26T15:13:36Z",
+    "updated_at": "2026-04-27T13:13:36Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 27,
+  "fields": {
+    "recruiter": 10,
+    "skill": 7,
+    "proficiency_level": "beginner",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-08T07:11:13Z",
+    "updated_at": "2026-03-09T12:11:13Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 28,
+  "fields": {
+    "recruiter": 11,
+    "skill": 8,
+    "proficiency_level": "beginner",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-07T21:08:28Z",
+    "updated_at": "2026-04-09T01:08:28Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 29,
+  "fields": {
+    "recruiter": 11,
+    "skill": 7,
+    "proficiency_level": "expert",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-10T05:12:35Z",
+    "updated_at": "2026-01-11T11:12:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 30,
+  "fields": {
+    "recruiter": 11,
+    "skill": 6,
+    "proficiency_level": "expert",
+    "years_of_experience": 1,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-05-07T20:13:55Z",
+    "updated_at": "2026-05-10T04:13:55Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 31,
+  "fields": {
+    "recruiter": 11,
+    "skill": 2,
+    "proficiency_level": "advanced",
+    "years_of_experience": 1,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-02-22T11:52:47Z",
+    "updated_at": "2026-02-23T00:52:47Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 32,
+  "fields": {
+    "recruiter": 12,
+    "skill": 3,
+    "proficiency_level": "beginner",
+    "years_of_experience": 4,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-14T21:51:52Z",
+    "updated_at": "2026-01-17T02:51:52Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 33,
+  "fields": {
+    "recruiter": 12,
+    "skill": 7,
+    "proficiency_level": "beginner",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-07T14:36:40Z",
+    "updated_at": "2026-01-09T02:36:40Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 34,
+  "fields": {
+    "recruiter": 13,
+    "skill": 8,
+    "proficiency_level": "expert",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-28T23:07:56Z",
+    "updated_at": "2026-01-30T13:07:56Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 35,
+  "fields": {
+    "recruiter": 13,
+    "skill": 1,
+    "proficiency_level": "expert",
+    "years_of_experience": 2,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-20T05:05:25Z",
+    "updated_at": "2026-04-22T11:05:25Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 36,
+  "fields": {
+    "recruiter": 13,
+    "skill": 4,
+    "proficiency_level": "advanced",
+    "years_of_experience": 1,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-11T17:34:01Z",
+    "updated_at": "2026-03-11T20:34:01Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 37,
+  "fields": {
+    "recruiter": 13,
+    "skill": 2,
+    "proficiency_level": "beginner",
+    "years_of_experience": 4,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-14T11:42:27Z",
+    "updated_at": "2026-04-14T04:42:27Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 38,
+  "fields": {
+    "recruiter": 14,
+    "skill": 7,
+    "proficiency_level": "advanced",
+    "years_of_experience": 2,
+    "is_verified": true,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-05-08T19:47:53Z",
+    "updated_at": "2026-05-10T15:47:53Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 39,
+  "fields": {
+    "recruiter": 14,
+    "skill": 2,
+    "proficiency_level": "advanced",
+    "years_of_experience": 3,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-27T14:44:46Z",
+    "updated_at": "2026-01-28T14:44:46Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 40,
+  "fields": {
+    "recruiter": 14,
+    "skill": 6,
+    "proficiency_level": "expert",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-28T18:34:54Z",
+    "updated_at": "2026-03-29T10:34:54Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 41,
+  "fields": {
+    "recruiter": 15,
+    "skill": 5,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-01-05T11:47:35Z",
+    "updated_at": "2026-01-06T11:47:35Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 42,
+  "fields": {
+    "recruiter": 15,
+    "skill": 7,
+    "proficiency_level": "advanced",
+    "years_of_experience": 4,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-04-29T17:39:27Z",
+    "updated_at": "2026-05-02T01:39:27Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 43,
+  "fields": {
+    "recruiter": 15,
+    "skill": 4,
+    "proficiency_level": "beginner",
+    "years_of_experience": 5,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": "2026-01-01",
+    "created_at": "2026-03-30T02:09:15Z",
+    "updated_at": "2026-03-30T23:09:15Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 44,
+  "fields": {
+    "recruiter": 16,
+    "skill": 1,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.872Z",
+    "updated_at": "2026-08-07T14:16:52.872Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 45,
+  "fields": {
+    "recruiter": 16,
+    "skill": 3,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.885Z",
+    "updated_at": "2026-08-07T14:16:52.885Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 46,
+  "fields": {
+    "recruiter": 16,
+    "skill": 10,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.897Z",
+    "updated_at": "2026-08-07T14:16:52.897Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 47,
+  "fields": {
+    "recruiter": 16,
+    "skill": 245,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.924Z",
+    "updated_at": "2026-08-07T14:16:52.924Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 48,
+  "fields": {
+    "recruiter": 16,
+    "skill": 246,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.940Z",
+    "updated_at": "2026-08-07T14:16:52.940Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 49,
+  "fields": {
+    "recruiter": 16,
+    "skill": 247,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.953Z",
+    "updated_at": "2026-08-07T14:16:52.953Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 50,
+  "fields": {
+    "recruiter": 16,
+    "skill": 248,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.967Z",
+    "updated_at": "2026-08-07T14:16:52.967Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 51,
+  "fields": {
+    "recruiter": 16,
+    "skill": 249,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.981Z",
+    "updated_at": "2026-08-07T14:16:52.981Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 52,
+  "fields": {
+    "recruiter": 16,
+    "skill": 250,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:52.994Z",
+    "updated_at": "2026-08-07T14:16:52.994Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 53,
+  "fields": {
+    "recruiter": 16,
+    "skill": 251,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.008Z",
+    "updated_at": "2026-08-07T14:16:53.008Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 54,
+  "fields": {
+    "recruiter": 16,
+    "skill": 252,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.022Z",
+    "updated_at": "2026-08-07T14:16:53.022Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 55,
+  "fields": {
+    "recruiter": 16,
+    "skill": 253,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.038Z",
+    "updated_at": "2026-08-07T14:16:53.038Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 56,
+  "fields": {
+    "recruiter": 16,
+    "skill": 254,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.053Z",
+    "updated_at": "2026-08-07T14:16:53.053Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 57,
+  "fields": {
+    "recruiter": 16,
+    "skill": 255,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.067Z",
+    "updated_at": "2026-08-07T14:16:53.067Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 58,
+  "fields": {
+    "recruiter": 16,
+    "skill": 256,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.081Z",
+    "updated_at": "2026-08-07T14:16:53.081Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 59,
+  "fields": {
+    "recruiter": 16,
+    "skill": 257,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.095Z",
+    "updated_at": "2026-08-07T14:16:53.095Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 60,
+  "fields": {
+    "recruiter": 16,
+    "skill": 65,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.107Z",
+    "updated_at": "2026-08-07T14:16:53.107Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 61,
+  "fields": {
+    "recruiter": 16,
+    "skill": 66,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.120Z",
+    "updated_at": "2026-08-07T14:16:53.120Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 62,
+  "fields": {
+    "recruiter": 16,
+    "skill": 258,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.132Z",
+    "updated_at": "2026-08-07T14:16:53.132Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 63,
+  "fields": {
+    "recruiter": 16,
+    "skill": 81,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.144Z",
+    "updated_at": "2026-08-07T14:16:53.144Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 64,
+  "fields": {
+    "recruiter": 16,
+    "skill": 259,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.156Z",
+    "updated_at": "2026-08-07T14:16:53.156Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 65,
+  "fields": {
+    "recruiter": 16,
+    "skill": 260,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.169Z",
+    "updated_at": "2026-08-07T14:16:53.169Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 66,
+  "fields": {
+    "recruiter": 16,
+    "skill": 261,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.183Z",
+    "updated_at": "2026-08-07T14:16:53.183Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 67,
+  "fields": {
+    "recruiter": 16,
+    "skill": 41,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.196Z",
+    "updated_at": "2026-08-07T14:16:53.196Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 68,
+  "fields": {
+    "recruiter": 16,
+    "skill": 50,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.208Z",
+    "updated_at": "2026-08-07T14:16:53.208Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 69,
+  "fields": {
+    "recruiter": 16,
+    "skill": 262,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.220Z",
+    "updated_at": "2026-08-07T14:16:53.220Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 70,
+  "fields": {
+    "recruiter": 16,
+    "skill": 80,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.232Z",
+    "updated_at": "2026-08-07T14:16:53.232Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 71,
+  "fields": {
+    "recruiter": 16,
+    "skill": 5,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.247Z",
+    "updated_at": "2026-08-07T14:16:53.247Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 72,
+  "fields": {
+    "recruiter": 16,
+    "skill": 84,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.259Z",
+    "updated_at": "2026-08-07T14:16:53.259Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 73,
+  "fields": {
+    "recruiter": 16,
+    "skill": 263,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.271Z",
+    "updated_at": "2026-08-07T14:16:53.271Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 74,
+  "fields": {
+    "recruiter": 16,
+    "skill": 264,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.285Z",
+    "updated_at": "2026-08-07T14:16:53.285Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 75,
+  "fields": {
+    "recruiter": 16,
+    "skill": 100,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.297Z",
+    "updated_at": "2026-08-07T14:16:53.297Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 76,
+  "fields": {
+    "recruiter": 16,
+    "skill": 265,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.310Z",
+    "updated_at": "2026-08-07T14:16:53.310Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 77,
+  "fields": {
+    "recruiter": 16,
+    "skill": 108,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.321Z",
+    "updated_at": "2026-08-07T14:16:53.321Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 78,
+  "fields": {
+    "recruiter": 16,
+    "skill": 266,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.334Z",
+    "updated_at": "2026-08-07T14:16:53.334Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 79,
+  "fields": {
+    "recruiter": 16,
+    "skill": 267,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.346Z",
+    "updated_at": "2026-08-07T14:16:53.346Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 80,
+  "fields": {
+    "recruiter": 16,
+    "skill": 268,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.359Z",
+    "updated_at": "2026-08-07T14:16:53.359Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 81,
+  "fields": {
+    "recruiter": 16,
+    "skill": 170,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.373Z",
+    "updated_at": "2026-08-07T14:16:53.373Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 82,
+  "fields": {
+    "recruiter": 16,
+    "skill": 182,
+    "proficiency_level": "advanced",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.386Z",
+    "updated_at": "2026-08-07T14:16:53.386Z"
+  }
+},
+{
+  "model": "candidate_recruiter_skills.recruiterskill",
+  "pk": 83,
+  "fields": {
+    "recruiter": 16,
+    "skill": 181,
+    "proficiency_level": "intermediate",
+    "years_of_experience": 0,
+    "is_verified": false,
+    "endorsement_count": 0,
+    "last_used_date": null,
+    "created_at": "2026-08-07T14:16:53.398Z",
+    "updated_at": "2026-08-07T14:16:53.398Z"
+  }
+}
+]

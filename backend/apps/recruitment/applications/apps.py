@@ -7,4 +7,4 @@ class ApplicationsConfig(AppConfig):
     label = "recruitment_applications"
 
     def ready(self):
-        pass
+        import apps.recruitment.applications.signals  # noqa: F401

@@ -28,6 +28,8 @@ class MediaTypeViewSet(viewsets.GenericViewSet):
     - DELETE /api/media-types/:id/     → destroy (admin)
     """
 
+    serializer_class = MediaTypeSerializer
+
     def get_permissions(self):
         if self.action == "list":
             return [AllowAny()]

@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from apps.billing.models import Transaction, SubscriptionPlan
+from apps.billing.models import CompanySubscription, Transaction, SubscriptionPlan
 from apps.billing.services.subscriptions import SubscriptionService
 
 # send_payment_confirmation_email_task sẽ được import bên trong method để tránh circular import
@@ -58,6 +58,33 @@ class VNPayService:
         return value.astimezone(vnpay_tz).strftime("%Y%m%d%H%M%S")
 
     @staticmethod
+    def _build_hash_data(params) -> str:
+        filtered_params = {
+            key: val
+            for key, val in params.items()
+            if key.startswith("vnp_")
+            and key not in ["vnp_SecureHash", "vnp_SecureHashType"]
+        }
+        return "&".join(
+            f"{key}={urllib.parse.quote_plus(str(val))}"
+            for key, val in sorted(filtered_params.items())
+        )
+
+    @staticmethod
+    def _sign_hash_data(hash_data: str) -> str:
+        vnp_hash_secret = settings.VNP_HASH_SECRET
+        return hmac.new(
+            vnp_hash_secret.encode("utf-8"), hash_data.encode("utf-8"), hashlib.sha512
+        ).hexdigest()
+
+    @staticmethod
+    def _secure_hash_matches(expected_hash: str, received_hash: str) -> bool:
+        return hmac.compare_digest(
+            str(expected_hash).upper(),
+            str(received_hash).upper(),
+        )
+
+    @staticmethod
     def get_payment_url(order_id, amount, order_desc, ip_addr):
         """
         Generate VNPay payment URL.
@@ -104,21 +131,13 @@ class VNPayService:
             "vnp_ExpireDate": expire_date,
         }
 
-        # 2. Sort Params by Key (Alphabetical)
-        inputData = sorted(vnp_params.items())
+        # 2. Create canonical query string & raw hash data
+        hasData = VNPayService._build_hash_data(vnp_params)
 
-        # 3. Create Query String & Raw Hash Data
-        hasData = "&".join(
-            [f"{key}={urllib.parse.quote_plus(str(val))}" for key, val in inputData]
-        )
+        # 3. Generate Checksum (HMAC-SHA512)
+        vnp_SecureHash = VNPayService._sign_hash_data(hasData)
 
-        # 4. Generate Checksum (HMAC-SHA512)
-        vnp_HashSecret = settings.VNP_HASH_SECRET
-        vnp_SecureHash = hmac.new(
-            vnp_HashSecret.encode("utf-8"), hasData.encode("utf-8"), hashlib.sha512
-        ).hexdigest()
-
-        # 5. Build Final URL
+        # 4. Build Final URL
         payment_url = f"{settings.VNP_URL}?{hasData}&vnp_SecureHash={vnp_SecureHash}"
 
         logger.info(
@@ -145,36 +164,11 @@ class VNPayService:
         if not vnp_SecureHash:
             return False
 
-        # Filter and Sort params
-        inputData = {}
-        for key, val in query_params.items():
-            if key.startswith("vnp_") and key not in [
-                "vnp_SecureHash",
-                "vnp_SecureHashType",
-            ]:
-                inputData[key] = val
+        # Recreate Hash Data and verify using constant-time comparison.
+        hasData = VNPayService._build_hash_data(query_params)
+        secureHash = VNPayService._sign_hash_data(hasData)
 
-        inputData = sorted(inputData.items())
-
-        # Recreate Hash Data
-        hasData = ""
-        seq = 0
-        for key, val in inputData:
-            if seq == 1:
-                hasData = (
-                    hasData + "&" + str(key) + "=" + urllib.parse.quote_plus(str(val))
-                )
-            else:
-                seq = 1
-                hasData = str(key) + "=" + urllib.parse.quote_plus(str(val))
-
-        # Verify
-        vnp_HashSecret = settings.VNP_HASH_SECRET
-        secureHash = hmac.new(
-            vnp_HashSecret.encode("utf-8"), hasData.encode("utf-8"), hashlib.sha512
-        ).hexdigest()
-
-        return secureHash == vnp_SecureHash
+        return VNPayService._secure_hash_matches(secureHash, vnp_SecureHash)
 
     @staticmethod
     def validate_payment_secure(query_params):
@@ -223,38 +217,12 @@ class VNPayService:
             )
             return False, f"Missing required fields: {missing_fields}"
 
-        # Filter and Sort params
-        inputData = {}
-        for key, val in query_params.items():
-            if key.startswith("vnp_") and key not in [
-                "vnp_SecureHash",
-                "vnp_SecureHashType",
-            ]:
-                inputData[key] = val
-
-        inputData = sorted(inputData.items())
-
-        # Recreate Hash Data
-        hasData = ""
-        seq = 0
-        for key, val in inputData:
-            if seq == 1:
-                hasData = (
-                    hasData + "&" + str(key) + "=" + urllib.parse.quote_plus(str(val))
-                )
-            else:
-                seq = 1
-                hasData = str(key) + "=" + urllib.parse.quote_plus(str(val))
-
-        # Verify
+        # Recreate Hash Data and verify using constant-time comparison.
         VNPayService.ensure_configured("VNP_HASH_SECRET")
-        vnp_HashSecret = settings.VNP_HASH_SECRET
+        hasData = VNPayService._build_hash_data(query_params)
+        secureHash = VNPayService._sign_hash_data(hasData)
 
-        secureHash = hmac.new(
-            vnp_HashSecret.encode("utf-8"), hasData.encode("utf-8"), hashlib.sha512
-        ).hexdigest()
-
-        if secureHash != vnp_SecureHash:
+        if not VNPayService._secure_hash_matches(secureHash, vnp_SecureHash):
             logger.warning(
                 f"VNPay signature mismatch! TxnRef: {vnp_TxnRef}. "
                 f"Expected: {secureHash[:20]}..., Got: {vnp_SecureHash[:20]}..."
@@ -263,6 +231,92 @@ class VNPayService:
 
         logger.info(f"VNPay signature verified successfully. TxnRef: {vnp_TxnRef}")
         return True, None
+
+    @staticmethod
+    def _get_transaction_plan(transaction_obj: Transaction) -> SubscriptionPlan:
+        plan_id = SubscriptionService.get_transaction_plan_id(transaction_obj)
+        if not plan_id:
+            raise ValueError("Missing PLAN_ID metadata in transaction")
+        return SubscriptionPlan.objects.select_for_update().get(id=plan_id)
+
+    @staticmethod
+    def _completed_subscription_for_transaction(
+        transaction_obj: Transaction, plan: SubscriptionPlan
+    ) -> CompanySubscription | None:
+        completed_date = timezone.localdate(
+            transaction_obj.updated_at or transaction_obj.created_at
+        )
+        candidates = (
+            CompanySubscription.objects.select_for_update()
+            .select_related("plan")
+            .filter(
+                company=transaction_obj.company,
+                start_date__lte=completed_date,
+                end_date__gte=completed_date,
+            )
+            .order_by("-end_date", "-created_at")
+        )
+        for subscription in candidates:
+            if (
+                subscription.plan_id == plan.id
+                or SubscriptionService.is_same_plan_family(subscription.plan, plan)
+            ):
+                return subscription
+        return None
+
+    @staticmethod
+    def _activate_subscription_for_transaction(
+        transaction_obj: Transaction,
+    ) -> CompanySubscription:
+        plan = VNPayService._get_transaction_plan(transaction_obj)
+        return SubscriptionService.activate_paid_subscription(
+            transaction_obj.company, plan
+        )
+
+    @staticmethod
+    def _recover_completed_subscription(
+        transaction_obj: Transaction,
+    ) -> CompanySubscription:
+        plan = VNPayService._get_transaction_plan(transaction_obj)
+        current_subscription = (
+            CompanySubscription.objects.select_for_update()
+            .select_related("plan")
+            .filter(
+                company=transaction_obj.company,
+                status=CompanySubscription.Status.ACTIVE,
+                start_date__lte=timezone.localdate(),
+                end_date__gte=timezone.localdate(),
+            )
+            .order_by("-end_date", "-created_at")
+            .first()
+        )
+        if current_subscription:
+            return current_subscription
+
+        subscription = VNPayService._completed_subscription_for_transaction(
+            transaction_obj, plan
+        )
+        if subscription:
+            return subscription
+        return SubscriptionService.activate_paid_subscription(
+            transaction_obj.company, plan
+        )
+
+    @staticmethod
+    def _queue_payment_confirmation_email(transaction_id: int, txn_ref: str) -> None:
+        def enqueue() -> None:
+            try:
+                from apps.billing.tasks import send_payment_confirmation_email_task
+
+                send_payment_confirmation_email_task.delay(transaction_id)
+            except Exception as exc:
+                logger.error(
+                    "Failed to queue confirmation email for txn %s: %s",
+                    txn_ref,
+                    exc,
+                )
+
+        transaction.on_commit(enqueue)
 
     @staticmethod
     def process_callback_secure(query_params):
@@ -346,12 +400,27 @@ class VNPayService:
                 logger.info(
                     f"VNPay Transaction already processed: {txn_ref} with status {txn.status}"
                 )
+                try:
+                    subscription = VNPayService._recover_completed_subscription(txn)
+                except Exception as e:
+                    logger.error(
+                        "Completed VNPay txn %s has no recoverable subscription: %s",
+                        txn_ref,
+                        e,
+                    )
+                    return {
+                        "success": False,
+                        "message": "Subscription activation failed",
+                        "rsp_code": "99",
+                        "transaction": txn,
+                        "subscription": None,
+                    }
                 return {
                     "success": True,
                     "message": "Order already confirmed",
                     "rsp_code": "02",
                     "transaction": txn,
-                    "subscription": None,
+                    "subscription": subscription,
                 }
 
             # Allow delayed success callback to recover transactions that were marked failed earlier.
@@ -379,42 +448,34 @@ class VNPayService:
 
             if response_code == "00":
                 # Thanh toán thành công
-                txn.status = Transaction.Status.COMPLETED
-                txn.save()
-
-                # Kích hoạt Subscription
                 try:
-                    plan_id = SubscriptionService.get_transaction_plan_id(txn)
-                    if plan_id:
-                        plan = SubscriptionPlan.objects.select_for_update().get(
-                            id=plan_id
-                        )
-                        subscription = SubscriptionService.activate_paid_subscription(
-                            txn.company, plan
-                        )
-                        logger.info(
-                            f"Subscription {subscription.id} activated successfully via IPN/Callback. Ref: {txn_ref}"
-                        )
-
-                        # Gửi email xác nhận thanh toán thành công
-                        try:
-                            from apps.billing.tasks import (
-                                send_payment_confirmation_email_task,
-                            )
-
-                            send_payment_confirmation_email_task.delay(txn.id)
-                        except Exception as e:
-                            logger.error(
-                                f"Failed to queue confirmation email for txn {txn_ref}: {e}"
-                            )
-                    else:
-                        logger.error(
-                            f"Missing PLAN_ID metadata in transaction description. Ref: {txn_ref}"
-                        )
+                    subscription = VNPayService._activate_subscription_for_transaction(
+                        txn
+                    )
                 except Exception as e:
                     logger.error(
                         f"Failed to activate subscription for txn {txn_ref}: {str(e)}"
                     )
+                    metadata = txn.metadata if isinstance(txn.metadata, dict) else {}
+                    txn.metadata = {
+                        **metadata,
+                        "subscription_activation_error": str(e)[:200],
+                    }
+                    txn.save()
+                    return {
+                        "success": False,
+                        "message": "Subscription activation failed",
+                        "rsp_code": "99",
+                        "transaction": txn,
+                        "subscription": None,
+                    }
+
+                txn.status = Transaction.Status.COMPLETED
+                txn.save()
+                logger.info(
+                    f"Subscription {subscription.id} activated successfully via IPN/Callback. Ref: {txn_ref}"
+                )
+                VNPayService._queue_payment_confirmation_email(txn.id, txn_ref)
 
                 return {
                     "success": True,

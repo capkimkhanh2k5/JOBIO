@@ -183,22 +183,22 @@ export default function SystemSettings() {
     return (
         <div className="p-6 lg:p-8 space-y-6 w-full flex-1">
             <motion.div {...fadeUp(0)}>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                    <Settings className="w-6 h-6 text-violet-600" />
+                <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
+                    <Settings className="w-6 h-6 text-teal-600" />
                     Cài đặt hệ thống
                 </h1>
-                <p className="text-sm text-slate-500 mt-1">Chỉ giữ các phần cấu hình chung, gói dịch vụ và thông báo</p>
+                <p className="text-sm text-muted-foreground mt-1">Chỉ giữ các phần cấu hình chung, gói dịch vụ và thông báo</p>
             </motion.div>
 
             <motion.div {...fadeUp(0.05)}>
-                <div className="flex gap-1 bg-slate-50/50 border border-slate-200 p-1 w-fit rounded-xl overflow-x-auto">
+                <div className="flex gap-1 bg-muted/50 border border-border p-1 w-fit rounded-xl overflow-x-auto">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === tab.id ? 'bg-violet-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${activeTab === tab.id ? 'bg-teal-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
                             >
                                 <Icon className="w-4 h-4" />
                                 {tab.label}
@@ -210,17 +210,17 @@ export default function SystemSettings() {
 
             {activeTab === 'plans' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-6">
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100/50 flex items-center justify-between gap-4">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-border/60/50 flex items-center justify-between gap-4">
                             <div>
-                                <p className="text-sm font-bold text-slate-900">Quản lý gói dịch vụ</p>
-                                <p className="text-xs text-slate-500 mt-1">Chỉnh sửa giá, thời hạn và trạng thái hoạt động</p>
+                                <p className="text-sm font-bold text-foreground">Quản lý gói dịch vụ</p>
+                                <p className="text-xs text-muted-foreground mt-1">Chỉnh sửa giá, thời hạn và trạng thái hoạt động</p>
                             </div>
                             <Button
                                 size="sm"
                                 onClick={() => updatePlansMut.mutate()}
                                 disabled={Object.keys(editedPlans).length === 0 || updatePlansMut.isPending}
-                                className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white"
+                                className="rounded-lg bg-teal-600 hover:bg-teal-700 text-xs font-semibold text-white"
                             >
                                 {updatePlansMut.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                                 Lưu tất cả thay đổi
@@ -228,9 +228,9 @@ export default function SystemSettings() {
                         </div>
 
                         {loadingPlans ? (
-                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
+                            <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-teal-500" /></div>
                         ) : plans.length === 0 ? (
-                            <div className="py-12 text-center text-sm font-medium text-slate-400">Chưa có gói</div>
+                            <div className="py-12 text-center text-sm font-medium text-muted-foreground/60">Chưa có gói</div>
                         ) : (
                             <div className="divide-y divide-slate-50">
                                 {[...plans].sort((a, b) => {
@@ -251,14 +251,14 @@ export default function SystemSettings() {
                                     const currentDuration = draft.duration_days ?? plan.duration_days;
 
                                     return (
-                                        <div key={plan.id} className="px-6 py-4 grid grid-cols-1 lg:grid-cols-10 gap-4 items-center hover:bg-slate-50/30 transition-colors">
+                                        <div key={plan.id} className="px-6 py-4 grid grid-cols-1 lg:grid-cols-10 gap-4 items-center hover:bg-muted/30 transition-colors">
                                             <div className="lg:col-span-4">
-                                                <p className="text-sm font-bold text-slate-900">{plan.name}</p>
-                                                <p className="text-xs text-slate-500">{plan.slug}</p>
+                                                <p className="text-sm font-bold text-foreground">{plan.name}</p>
+                                                <p className="text-xs text-muted-foreground">{plan.slug}</p>
                                             </div>
 
                                             <div className="lg:col-span-3">
-                                                <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Giá ({plan.currency})</label>
+                                                <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block mb-1">Giá ({plan.currency})</label>
                                                 <Input
                                                     type="text"
                                                     value={currentPrice}
@@ -275,7 +275,7 @@ export default function SystemSettings() {
                                             </div>
 
                                             <div className="lg:col-span-3">
-                                                <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">Thời hạn (ngày)</label>
+                                                <label className="text-[10px] font-black uppercase tracking-wider text-muted-foreground block mb-1">Thời hạn (ngày)</label>
                                                 <Input
                                                     type="number"
                                                     min="1"
@@ -298,17 +298,17 @@ export default function SystemSettings() {
 
             {activeTab === 'general' && (
                 <motion.div {...fadeUp(0.1)}>
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100/50 flex items-center justify-between gap-4">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-border/60/50 flex items-center justify-between gap-4">
                             <div>
-                                <p className="text-sm font-bold text-slate-900">Cấu hình chung hệ thống</p>
-                                <p className="text-xs text-slate-500 mt-1">Quản lý các biến môi trường động</p>
+                                <p className="text-sm font-bold text-foreground">Cấu hình chung hệ thống</p>
+                                <p className="text-xs text-muted-foreground mt-1">Quản lý các biến môi trường động</p>
                             </div>
                             <Button
                                 size="sm"
                                 onClick={() => updateSettingsMut.mutate()}
                                 disabled={Object.keys(editedSettings).length === 0 || updateSettingsMut.isPending}
-                                className="rounded-lg bg-violet-600 hover:bg-violet-700 text-xs font-semibold text-white"
+                                className="rounded-lg bg-teal-600 hover:bg-teal-700 text-xs font-semibold text-white"
                             >
                                 {updateSettingsMut.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                                 Lưu thay đổi
@@ -317,26 +317,26 @@ export default function SystemSettings() {
 
                         <div className="divide-y divide-slate-50">
                             {loadingSettings ? (
-                                <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-violet-500" /></div>
+                                <div className="py-12 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-teal-500" /></div>
                             ) : settings.length === 0 ? (
-                                <div className="py-8 text-center text-sm text-slate-400">Không có cấu hình nào</div>
+                                <div className="py-8 text-center text-sm text-muted-foreground/60">Không có cấu hình nào</div>
                             ) : (
                                 settings.map((setting) => {
                                     const currentValue = editedSettings[setting.id] !== undefined ? editedSettings[setting.id] : setting.setting_value;
                                     
                                     return (
-                                        <div key={setting.id} className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 items-center hover:bg-slate-50/50 transition-colors">
+                                        <div key={setting.id} className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 items-center hover:bg-muted/50 transition-colors">
                                             <div className="lg:col-span-1">
                                                 <div className="flex items-center gap-1.5">
-                                                    <p className="text-sm font-bold text-slate-900">{setting.setting_key}</p>
-                                                    <Info className="w-3.5 h-3.5 text-slate-400" />
+                                                    <p className="text-sm font-bold text-foreground">{setting.setting_key}</p>
+                                                    <Info className="w-3.5 h-3.5 text-muted-foreground/60" />
                                                 </div>
-                                                <p className="text-xs text-slate-500 mt-0.5">{setting.description}</p>
+                                                <p className="text-xs text-muted-foreground mt-0.5">{setting.description}</p>
                                             </div>
                                             <div className="lg:col-span-2">
                                                 {setting.setting_type === 'boolean' ? (
                                                     <select
-                                                        className="w-full text-sm border border-slate-200 rounded-lg h-10 px-3"
+                                                        className="w-full text-sm border border-border rounded-lg h-10 px-3"
                                                         value={currentValue.toLowerCase()}
                                                         onChange={(e) => setEditedSettings(prev => ({ ...prev, [setting.id]: e.target.value }))}
                                                     >
@@ -363,19 +363,19 @@ export default function SystemSettings() {
 
             {activeTab === 'audit_logs' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-4">
-                    <div className="flex flex-col lg:flex-row gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                    <div className="flex flex-col lg:flex-row gap-4 bg-card p-4 rounded-xl border border-border">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                             <Input
                                 placeholder="Tìm kiếm hành động hoặc người dùng..."
                                 value={logSearch}
                                 onChange={(e) => { setLogSearch(e.target.value); setLogPage(1); }}
-                                className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white"
+                                className="pl-9 h-10 bg-muted border-border focus:bg-card"
                             />
                         </div>
                         <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
                             <select
-                                className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[150px]"
+                                className="h-10 px-3 py-2 text-sm border border-border rounded-lg bg-muted focus:bg-card min-w-[150px]"
                                 value={logType}
                                 onChange={(e) => { setLogType(e.target.value); setLogPage(1); }}
                             >
@@ -385,8 +385,8 @@ export default function SystemSettings() {
                                 <option value="post_job">Đăng việc (post_job)</option>
                                 <option value="login">Đăng nhập (login)</option>
                             </select>
-                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
-                                <span className="text-xs text-slate-500 whitespace-nowrap">Từ</span>
+                            <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-2">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">Từ</span>
                                 <input
                                     type="date"
                                     className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
@@ -394,8 +394,8 @@ export default function SystemSettings() {
                                     onChange={(e) => { setLogDateFrom(e.target.value); setLogPage(1); }}
                                 />
                             </div>
-                            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
-                                <span className="text-xs text-slate-500 whitespace-nowrap">Đến</span>
+                            <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-2">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">Đến</span>
                                 <input
                                     type="date"
                                     className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
@@ -406,10 +406,10 @@ export default function SystemSettings() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                                <thead className="text-xs text-muted-foreground uppercase bg-muted border-b border-border">
                                     <tr>
                                         <th className="px-6 py-4 font-bold tracking-wider">Thời gian</th>
                                         <th className="px-6 py-4 font-bold tracking-wider">Người dùng</th>
@@ -421,49 +421,49 @@ export default function SystemSettings() {
                                     {loadingLogs ? (
                                         <tr>
                                             <td colSpan={4} className="px-6 py-12 text-center">
-                                                <Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" />
+                                                <Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" />
                                             </td>
                                         </tr>
                                     ) : logs.length === 0 ? (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-slate-400">Không tìm thấy nhật ký</td>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground/60">Không tìm thấy nhật ký</td>
                                         </tr>
                                     ) : (
                                         logs.map((log) => (
-                                            <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <tr key={log.id} className="hover:bg-muted/50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center gap-2 text-slate-600">
-                                                        <Calendar className="w-4 h-4 text-slate-400" />
+                                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                                        <Calendar className="w-4 h-4 text-muted-foreground/60" />
                                                         <span>{format(new Date(log.created_at), 'dd/MM/yyyy HH:mm')}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {log.user ? (
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                                                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
                                                                 {log.user.avatar_url ? (
                                                                     <img src={log.user.avatar_url} alt="" className="w-full h-full object-cover" />
                                                                 ) : (
-                                                                    <User className="w-3.5 h-3.5 text-slate-400" />
+                                                                    <User className="w-3.5 h-3.5 text-muted-foreground/60" />
                                                                 )}
                                                             </div>
                                                             <div>
-                                                                <p className="font-medium text-slate-900 truncate max-w-[150px]">{log.user.full_name || 'Admin'}</p>
-                                                                <p className="text-[10px] text-slate-500 truncate max-w-[150px]">{log.user.email}</p>
+                                                                <p className="font-medium text-foreground truncate max-w-[150px]">{log.user.full_name || 'Admin'}</p>
+                                                                <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">{log.user.email}</p>
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-slate-400 italic">Hệ thống</span>
+                                                        <span className="text-muted-foreground/60 italic">Hệ thống</span>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <p className="font-semibold text-slate-900">{log.action}</p>
-                                                    <p className="text-xs text-slate-500 mt-0.5 max-w-[250px] truncate" title={JSON.stringify(log.details)}>
+                                                    <p className="font-semibold text-foreground">{log.action}</p>
+                                                    <p className="text-xs text-muted-foreground mt-0.5 max-w-[250px] truncate" title={JSON.stringify(log.details)}>
                                                         {log.entity_type} {log.entity_id ? `#${log.entity_id}` : ''}
                                                     </p>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-slate-100 text-slate-600">
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-muted text-muted-foreground">
                                                         <Activity className="w-3 h-3" />
                                                         {log.log_type?.type_name || 'General'}
                                                     </span>
@@ -476,8 +476,8 @@ export default function SystemSettings() {
                         </div>
                         
                         {logsTotalPages > 1 && (
-                            <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-                                <span className="text-sm text-slate-500">
+                            <div className="p-4 border-t border-border/60 flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">
                                     Hiển thị trang {logPage} / {logsTotalPages}
                                 </span>
                                 <div className="flex gap-2">
@@ -507,34 +507,34 @@ export default function SystemSettings() {
             {activeTab === 'file_uploads' && (
                 <motion.div {...fadeUp(0.1)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 shrink-0">
+                        <div className="bg-card p-6 rounded-2xl border border-border flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center text-teal-600 shrink-0">
                                 <HardDrive className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">Tổng dung lượng đã sử dụng</p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">
-                                    {((statsData?.total_bytes || 0) / (1024 ** 3)).toFixed(4)} <span className="text-base font-medium text-slate-400">GB</span>
+                                <p className="text-sm font-medium text-muted-foreground">Tổng dung lượng đã sử dụng</p>
+                                <p className="text-2xl font-black text-foreground mt-1">
+                                    {((statsData?.total_bytes || 0) / (1024 ** 3)).toFixed(4)} <span className="text-base font-medium text-muted-foreground/60">GB</span>
                                 </p>
                             </div>
                         </div>
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 flex items-center gap-4">
+                        <div className="bg-card p-6 rounded-2xl border border-border flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600 shrink-0">
                                 <File className="w-6 h-6" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-500">Tổng số tập tin</p>
-                                <p className="text-2xl font-black text-slate-900 mt-1">
-                                    {statsData?.total_files || 0} <span className="text-base font-medium text-slate-400">files</span>
+                                <p className="text-sm font-medium text-muted-foreground">Tổng số tập tin</p>
+                                <p className="text-2xl font-black text-foreground mt-1">
+                                    {statsData?.total_files || 0} <span className="text-base font-medium text-muted-foreground/60">files</span>
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="p-4 border-b border-slate-100 flex flex-col gap-4">
+                    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="p-4 border-b border-border/60 flex flex-col gap-4">
                             <div className="flex items-center justify-between gap-4">
-                                <h2 className="font-bold text-slate-900">Danh sách tập tin</h2>
+                                <h2 className="font-bold text-foreground">Danh sách tập tin</h2>
                                 <div className="flex items-center gap-2 text-[10px] sm:text-xs font-medium text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full shrink-0">
                                     <AlertTriangle className="w-3.5 h-3.5" />
                                     <span className="hidden sm:inline">Xóa file có thể ảnh hưởng dữ liệu hiển thị</span>
@@ -544,17 +544,17 @@ export default function SystemSettings() {
                             
                             <div className="flex flex-col lg:flex-row gap-3">
                                 <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                                     <Input
                                         placeholder="Tìm kiếm theo tên file..."
                                         value={fileSearch}
                                         onChange={(e) => { setFileSearch(e.target.value); setFilePage(1); }}
-                                        className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white"
+                                        className="pl-9 h-10 bg-muted border-border focus:bg-card"
                                     />
                                 </div>
                                 <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
                                     <select
-                                        className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[120px]"
+                                        className="h-10 px-3 py-2 text-sm border border-border rounded-lg bg-muted focus:bg-card min-w-[120px]"
                                         value={fileType}
                                         onChange={(e) => { setFileType(e.target.value); setFilePage(1); }}
                                     >
@@ -565,7 +565,7 @@ export default function SystemSettings() {
                                         <option value="docx">DOCX</option>
                                     </select>
                                     <select
-                                        className="h-10 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 focus:bg-white min-w-[120px]"
+                                        className="h-10 px-3 py-2 text-sm border border-border rounded-lg bg-muted focus:bg-card min-w-[120px]"
                                         value={fileEntity}
                                         onChange={(e) => { setFileEntity(e.target.value); setFilePage(1); }}
                                     >
@@ -575,8 +575,8 @@ export default function SystemSettings() {
                                         <option value="Candidate">Ứng viên (Candidate)</option>
                                         <option value="Job">Công việc (Job)</option>
                                     </select>
-                                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
-                                        <span className="text-xs text-slate-500 whitespace-nowrap">Từ</span>
+                                    <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-2">
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">Từ</span>
                                         <input
                                             type="date"
                                             className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
@@ -584,8 +584,8 @@ export default function SystemSettings() {
                                             onChange={(e) => { setFileDateFrom(e.target.value); setFilePage(1); }}
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-2">
-                                        <span className="text-xs text-slate-500 whitespace-nowrap">Đến</span>
+                                    <div className="flex items-center gap-2 bg-muted border border-border rounded-lg px-2">
+                                        <span className="text-xs text-muted-foreground whitespace-nowrap">Đến</span>
                                         <input
                                             type="date"
                                             className="h-10 bg-transparent text-sm border-none focus:ring-0 w-[120px]"
@@ -599,7 +599,7 @@ export default function SystemSettings() {
                         
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                                <thead className="text-xs text-muted-foreground uppercase bg-muted border-b border-border">
                                     <tr>
                                         <th className="px-6 py-4 font-bold tracking-wider">Tên File</th>
                                         <th className="px-6 py-4 font-bold tracking-wider">Kích thước</th>
@@ -612,45 +612,45 @@ export default function SystemSettings() {
                                     {loadingFiles ? (
                                         <tr>
                                             <td colSpan={5} className="px-6 py-12 text-center">
-                                                <Loader2 className="w-6 h-6 animate-spin text-violet-500 mx-auto" />
+                                                <Loader2 className="w-6 h-6 animate-spin text-teal-500 mx-auto" />
                                             </td>
                                         </tr>
                                     ) : files.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center text-slate-400">Chưa có tập tin nào</td>
+                                            <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground/60">Chưa có tập tin nào</td>
                                         </tr>
                                     ) : (
                                         files.map((file) => (
-                                            <tr key={file.id} className="hover:bg-slate-50/50 transition-colors">
+                                            <tr key={file.id} className="hover:bg-muted/50 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
+                                                        <div className="w-8 h-8 rounded bg-muted flex items-center justify-center text-muted-foreground/60 shrink-0">
                                                             <File className="w-4 h-4" />
                                                         </div>
                                                         <div className="max-w-[150px] lg:max-w-[250px]">
-                                                            <a href={file.file_path} target="_blank" rel="noreferrer" className="font-medium text-slate-900 hover:text-violet-600 truncate block">
+                                                            <a href={file.file_path} target="_blank" rel="noreferrer" className="font-medium text-foreground hover:text-teal-600 truncate block">
                                                                 {file.original_name}
                                                             </a>
-                                                            <p className="text-[10px] text-slate-500 truncate mt-0.5">{file.file_name}</p>
+                                                            <p className="text-[10px] text-muted-foreground truncate mt-0.5">{file.file_name}</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-mono">
+                                                <td className="px-6 py-4 whitespace-nowrap text-muted-foreground font-mono">
                                                     {formatBytes(file.file_size)}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="inline-flex px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase bg-slate-100 text-slate-600">
+                                                    <span className="inline-flex px-2 py-1 rounded text-[10px] font-bold tracking-wider uppercase bg-muted text-muted-foreground">
                                                         {file.file_type || 'UNKNOWN'}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {file.entity_type ? (
                                                         <div>
-                                                            <span className="text-xs font-semibold text-slate-700">{file.entity_type}</span>
-                                                            <span className="text-xs text-slate-500 ml-1">#{file.entity_id}</span>
+                                                            <span className="text-xs font-semibold text-foreground/80">{file.entity_type}</span>
+                                                            <span className="text-xs text-muted-foreground ml-1">#{file.entity_id}</span>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-xs italic text-slate-400">Không rõ</span>
+                                                        <span className="text-xs italic text-muted-foreground/60">Không rõ</span>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
@@ -663,7 +663,7 @@ export default function SystemSettings() {
                                                             }
                                                         }}
                                                         disabled={deleteFileMut.isPending && deleteFileMut.variables === file.id}
-                                                        className="text-slate-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                                                        className="text-muted-foreground/60 hover:text-red-600 hover:bg-red-50 h-8 w-8"
                                                     >
                                                         {deleteFileMut.isPending && deleteFileMut.variables === file.id ? (
                                                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -680,8 +680,8 @@ export default function SystemSettings() {
                         </div>
 
                         {filesTotalPages > 1 && (
-                            <div className="p-4 border-t border-slate-100 flex items-center justify-between">
-                                <span className="text-sm text-slate-500">
+                            <div className="p-4 border-t border-border/60 flex items-center justify-between">
+                                <span className="text-sm text-muted-foreground">
                                     Hiển thị trang {filePage} / {filesTotalPages}
                                 </span>
                                 <div className="flex gap-2">

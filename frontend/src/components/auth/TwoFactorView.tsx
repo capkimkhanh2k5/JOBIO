@@ -9,11 +9,13 @@ import { Loader2, ShieldAlert } from 'lucide-react';
 interface TwoFactorViewProps {
     email: string;
     rememberMe?: boolean;
+    challengeId?: string;
     onSuccess: () => void;
 }
 
 export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
     rememberMe = false,
+    challengeId,
     onSuccess
 }) => {
     const [code, setCode] = useState('');
@@ -24,11 +26,14 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
         if (code.length < 6) return;
         setIsSubmitting(true);
         try {
-            const { data } = await authService.verify2FA(code);
+            const { data } = await authService.verify2FA(code, challengeId);
 
             // Backend returns tokens + user after successful 2FA
-            if (data.access_token && data.user) {
+            if (data.access_token && data.refresh_token && data.user) {
                 setAuth(data.user, data.access_token, data.refresh_token, rememberMe);
+            } else {
+                toast.error('Phản hồi xác thực không hợp lệ. Vui lòng thử lại.');
+                return;
             }
 
             toast.success("Xác thực 2FA thành công!");
@@ -56,7 +61,7 @@ export const TwoFactorView: React.FC<TwoFactorViewProps> = ({
                     <Input
                         placeholder="000000"
                         maxLength={6}
-                        className="bg-white border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-2xl tracking-[0.5em] max-w-[200px] font-mono"
+                        className="bg-card border-border focus:border-primary focus:ring-2 focus:ring-primary/10 h-12 text-center text-2xl tracking-[0.5em] max-w-[200px] font-mono"
                         value={code}
                         onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ''))}
                     />

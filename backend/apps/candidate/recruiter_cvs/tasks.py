@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
+from apps.core.caching import CacheKeyBuilder, CacheService
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,14 @@ def parse_cv_task(self, cv_id: int):
     On failure after all retries, CV stays with empty cv_data and scoring
     automatically falls back to recruiter profile.
     """
+    lock_key = CacheKeyBuilder.task_lock("parse_cv", cv_id)
+    with CacheService.lock(lock_key, timeout=120) as acquired:
+        if not acquired:
+            return {"status": "skipped", "reason": "already_running", "cv_id": cv_id}
+        return _parse_cv_task_locked(self, cv_id)
+
+
+def _parse_cv_task_locked(self, cv_id: int):
     from apps.candidate.recruiter_cvs.models import RecruiterCV
 
     try:
@@ -54,6 +63,11 @@ def parse_cv_task(self, cv_id: int):
     if cv.cv_data:
         logger.info(f"CV {cv_id} already has cv_data, skipping parse")
         return {"status": "skipped", "reason": "already_parsed"}
+
+    cv.parse_status = RecruiterCV.ParseStatus.PARSING
+    cv.parse_error_code = None
+    cv.parse_error_message = None
+    cv.save(update_fields=["parse_status", "parse_error_code", "parse_error_message"])
 
     from apps.candidate.recruiter_cvs.services.cv_parser import (
         CVModerationBlocked,
@@ -84,7 +98,30 @@ def parse_cv_task(self, cv_id: int):
             # Success: save parsed data
             cv.cv_data = cv_data
             cv.parsed_at = timezone.now()
-            cv.save(update_fields=["cv_data", "parsed_at"])
+            cv.parse_status = RecruiterCV.ParseStatus.PARSED
+            cv.parse_error_code = None
+            cv.parse_error_message = None
+            cv.save(
+                update_fields=[
+                    "cv_data",
+                    "parsed_at",
+                    "parse_status",
+                    "parse_error_code",
+                    "parse_error_message",
+                ]
+            )
+            try:
+                from apps.recruitment.jobs.services.recommendations import (
+                    schedule_candidate_embedding_refresh,
+                )
+
+                schedule_candidate_embedding_refresh(
+                    cv.recruiter_id,
+                    cv.id,
+                    source_type="cv",
+                )
+            except Exception as exc:
+                logger.debug("Could not enqueue CV recommendation embedding: %s", exc)
 
             logger.info(
                 f"CV {cv_id} parsed successfully: "
@@ -104,9 +141,21 @@ def parse_cv_task(self, cv_id: int):
 
     except CVModerationBlocked:
         logger.warning("CV %s parsing blocked by safeguard", cv_id)
+        _mark_parse_terminal(
+            cv,
+            RecruiterCV.ParseStatus.BLOCKED,
+            "moderation_blocked",
+            "CV content was blocked by moderation.",
+        )
         return {"status": "blocked", "reason": "moderation_blocked"}
     except CVNotResume:
         logger.warning("CV %s parsing skipped because PDF is not resume-like", cv_id)
+        _mark_parse_terminal(
+            cv,
+            RecruiterCV.ParseStatus.NOT_RESUME,
+            "not_resume",
+            "Uploaded PDF does not look like a resume.",
+        )
         return {"status": "skipped", "reason": "not_resume"}
     except Exception as exc:
         error_code = _parse_error_code(exc)
@@ -130,8 +179,21 @@ def parse_cv_task(self, cv_id: int):
             self.max_retries + 1,
             error_code,
         )
+        _mark_parse_terminal(
+            cv,
+            RecruiterCV.ParseStatus.FAILED,
+            error_code,
+            "CV parsing failed after all retries.",
+        )
 
         return {"status": "failed", "reason": error_code}
+
+
+def _mark_parse_terminal(cv, status: str, code: str, message: str) -> None:
+    cv.parse_status = status
+    cv.parse_error_code = str(code or "")[:80] or None
+    cv.parse_error_message = str(message or "")[:255] or None
+    cv.save(update_fields=["parse_status", "parse_error_code", "parse_error_message"])
 
 
 def _download_pdf(cv_url: str) -> bytes:

@@ -538,6 +538,29 @@ class InterviewViewSetTests(APITestCase):
             f"/api/interviews/{self.interview.id}/complete/", data, format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.application.refresh_from_db()
+        self.assertEqual(self.application.status, Application.Status.INTERVIEW)
+
+    def test_complete_interview_persists_scorecard(self):
+        """PATCH /api/interviews/:id/complete - scorecard → 200"""
+        self.client.force_authenticate(user=self.employer)
+        data = {
+            "result": "pass",
+            "feedback": "Strong backend fundamentals",
+            "scorecard": {
+                "technical": 5,
+                "system_design": 4,
+                "problem_solving": 5,
+                "communication": 4,
+            },
+        }
+        response = self.client.patch(
+            f"/api/interviews/{self.interview.id}/complete/", data, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["scorecard"]["technical"], 5)
+        self.assertEqual(response.data["rating"], 5)
 
     def test_complete_interview_unauthenticated(self):
         """PATCH /api/interviews/:id/complete - không login → 401"""

@@ -7,4 +7,4 @@ class InterviewsConfig(AppConfig):
     label = "recruitment_interviews"
 
     def ready(self):
-        pass
+        import apps.recruitment.interviews.signals  # noqa: F401

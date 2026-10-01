@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from apps.core.users.permissions import IsAdmin, is_admin_user
+from apps.core.caching import CacheService
 
 from .models import Industry
 from .serializers import IndustrySerializer, IndustryTreeSerializer
@@ -49,6 +50,20 @@ class IndustryViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve", "tree"]:
             return [AllowAny()]
         return [IsAdmin()]
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_taxonomy()
+        return instance
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        CacheService.invalidate_taxonomy()
+        return instance
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        CacheService.invalidate_taxonomy()
 
     @action(detail=False, methods=["get"])
     def tree(self, request):

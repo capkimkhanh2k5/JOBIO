@@ -1,13 +1,14 @@
 import { useSearchParams } from 'react-router-dom';
-import { ShieldCheck, User } from 'lucide-react';
+import { Bell, ShieldCheck, User } from 'lucide-react';
 import { SettingsLayout, SettingsTab } from '@/components/shared/settings/SettingsLayout';
 import { AccountSettings } from '@/components/shared/settings/AccountSettings';
 import { SecuritySettings } from '@/components/shared/settings/SecuritySettings';
+import { NotificationSettings } from '@/components/shared/settings/NotificationSettings';
 
 const CANDIDATE_TABS: SettingsTab[] = [
     { id: 'account', label: 'Tài khoản', icon: User },
     { id: 'security', label: 'Bảo mật', icon: ShieldCheck },
-    // Notification tab omitted until BE supports it for candidates
+    { id: 'notifications', label: 'Thông báo', icon: Bell },
 ];
 
 export function CandidateSettingsPage() {
@@ -28,6 +29,7 @@ export function CandidateSettingsPage() {
         >
             {activeTab === 'account' && <AccountSettings />}
             {activeTab === 'security' && <SecuritySettings />}
+            {activeTab === 'notifications' && <NotificationSettings />}
         </SettingsLayout>
     );
 }

@@ -8,9 +8,10 @@ from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.recruiter_skills.models import RecruiterSkill
 from apps.candidate.skill_categories.models import SkillCategory
 from apps.candidate.skills.models import Skill
-from apps.company.companies.models import Company
+from apps.company.companies.models import Company, CompanyMember
 from apps.geography.addresses.models import Address
 from apps.geography.provinces.models import Province
+from apps.recruitment.job_categories.models import JobCategory
 from apps.recruitment.job_locations.models import JobLocation
 from apps.recruitment.job_skills.models import JobSkill
 from apps.recruitment.jobs.models import Job
@@ -48,7 +49,9 @@ class JobViewTests(APITestCase):
             name="Python",
             slug="python",
             category=self.skill_category,
+            is_verified=True,
         )
+        self.category = JobCategory.objects.create(name="Backend", slug="backend")
         self.province = Province.objects.create(
             province_name="Ho Chi Minh",
             province_type=Province.ProvinceType.MUNICIPALITY,
@@ -87,6 +90,7 @@ class JobViewTests(APITestCase):
             company=self.company,
             title="Python Developer",
             slug="python-developer-1-test",
+            category=self.category,
             job_type="full-time",
             level="senior",
             description="Job description",
@@ -423,7 +427,7 @@ class JobViewTests(APITestCase):
         response = self.client.get(
             f"/api/jobs/recommendations/?cv_id={cv.id}&page_size=10"
         )
-        job_ids = [job["id"] for job in response.data]
+        job_ids = [job["id"] for job in response.data["results"]]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertLess(
@@ -457,7 +461,9 @@ class JobViewTests(APITestCase):
         response = self.client.get(f"/api/jobs/recommendations/?cv_id={cv.id}")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        matched_job = next(job for job in response.data if job["id"] == self.job.id)
+        matched_job = next(
+            job for job in response.data["results"] if job["id"] == self.job.id
+        )
         self.assertGreater(matched_job["match_score"], 0)
         self.assertIsInstance(matched_job["match_reasons"], list)
         self.assertGreater(len(matched_job["match_reasons"]), 0)
@@ -487,7 +493,7 @@ class JobViewTests(APITestCase):
 
         self.client.force_authenticate(user=candidate_user)
         response = self.client.get("/api/jobs/recommendations/?page_size=20")
-        job_ids = [job["id"] for job in response.data]
+        job_ids = [job["id"] for job in response.data["results"]]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.job.id, job_ids)
@@ -524,7 +530,7 @@ class JobViewTests(APITestCase):
         response = self.client.get(
             f"/api/jobs/recommendations/?cv_id={cv.id}&page_size=20"
         )
-        job_ids = [job["id"] for job in response.data]
+        job_ids = [job["id"] for job in response.data["results"]]
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(self.job.id, job_ids)
@@ -684,8 +690,57 @@ class JobViewTests(APITestCase):
         self.assertEqual(response.data["title"], "React Developer")
         self.assertEqual(response.data["status"], "draft")
 
+    def test_create_job_ignores_sensitive_mass_assignment_fields(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            "/api/jobs/",
+            {
+                "company_id": self.company.id,
+                "title": "Mass Assign Create Job",
+                "job_type": "full-time",
+                "level": "junior",
+                "description": "Build Django APIs",
+                "requirements": "Python and Django",
+                "featured": True,
+                "featured_until": str(timezone.localdate() + timedelta(days=30)),
+                "domain_status": Job.DomainStatus.NON_IT,
+                "moderation_status": Job.ModerationStatus.REJECTED,
+                "moderation_reasons": [{"code": "client_supplied"}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        job = Job.objects.get(id=response.data["id"])
+        self.assertFalse(job.featured)
+        self.assertIsNone(job.featured_until)
+        self.assertEqual(job.domain_status, Job.DomainStatus.IT_APPROVED)
+        self.assertEqual(job.moderation_status, Job.ModerationStatus.APPROVED)
+        self.assertEqual(job.moderation_reasons, [])
+
+    def test_create_published_job_quota_exceeded_returns_payment_required(self):
+        CompanySubscription.objects.filter(company=self.company).delete()
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            "/api/jobs/",
+            {
+                "company_id": self.company.id,
+                "title": "Paid Publish Create Job",
+                "job_type": "full-time",
+                "level": "junior",
+                "description": "Build backend software APIs with Python.",
+                "requirements": "Python and API experience.",
+                "status": "published",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_402_PAYMENT_REQUIRED)
+
     def test_create_job_not_company_member(self):
-        """Test POST by non-company owner returns 400"""
+        """Test POST by non-company member returns 403"""
         self.client.force_authenticate(user=self.user2)
 
         url = "/api/jobs/"
@@ -699,7 +754,68 @@ class JobViewTests(APITestCase):
         }
         response = self.client.post(url, data)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_recruiter_member_can_create_job_for_company(self):
+        """Company recruiter members can create draft jobs for their company."""
+        recruiter_user = CustomUser.objects.create_user(
+            email="recruiter-member@example.com",
+            password="password123",
+            full_name="Recruiter Member",
+            role="company",
+        )
+        CompanyMember.objects.create(
+            company=self.company,
+            user=recruiter_user,
+            role=CompanyMember.Role.RECRUITER,
+            status=CompanyMember.Status.ACTIVE,
+        )
+        self.client.force_authenticate(user=recruiter_user)
+
+        response = self.client.post(
+            "/api/jobs/",
+            {
+                "company_id": self.company.id,
+                "title": "Member Draft Job",
+                "job_type": "full-time",
+                "level": "junior",
+                "description": "Backend API role",
+                "requirements": "Python and Django",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["company_id"], self.company.id)
+
+    def test_viewer_member_cannot_create_job_for_company(self):
+        """Company viewer members can view, but cannot manage jobs."""
+        viewer_user = CustomUser.objects.create_user(
+            email="viewer-member@example.com",
+            password="password123",
+            full_name="Viewer Member",
+            role="company",
+        )
+        CompanyMember.objects.create(
+            company=self.company,
+            user=viewer_user,
+            role=CompanyMember.Role.VIEWER,
+            status=CompanyMember.Status.ACTIVE,
+        )
+        self.client.force_authenticate(user=viewer_user)
+
+        response = self.client.post(
+            "/api/jobs/",
+            {
+                "company_id": self.company.id,
+                "title": "Viewer Draft Job",
+                "job_type": "full-time",
+                "level": "junior",
+                "description": "Backend API role",
+                "requirements": "Python and Django",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # ========== UPDATE Tests ==========
 
@@ -734,6 +850,58 @@ class JobViewTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_update_job_ignores_sensitive_mass_assignment_fields(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.put(
+            f"/api/jobs/{self.job.id}/",
+            {
+                "description": "Updated public description",
+                "featured": True,
+                "featured_until": str(timezone.localdate() + timedelta(days=30)),
+                "domain_status": Job.DomainStatus.NON_IT,
+                "moderation_status": Job.ModerationStatus.REJECTED,
+                "moderation_reasons": [{"code": "client_supplied"}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.job.refresh_from_db()
+        self.assertFalse(self.job.featured)
+        self.assertIsNone(self.job.featured_until)
+        self.assertEqual(self.job.domain_status, Job.DomainStatus.NEEDS_REVIEW)
+        self.assertEqual(self.job.moderation_status, Job.ModerationStatus.NEEDS_REVIEW)
+        self.assertNotEqual(self.job.moderation_reasons, [{"code": "client_supplied"}])
+
+    def test_update_draft_to_published_enforces_quota(self):
+        CompanySubscription.objects.filter(company=self.company).delete()
+        draft_job = Job.objects.create(
+            company=self.company,
+            title="Draft Quota Job",
+            slug="draft-quota-job-test",
+            category=self.category,
+            job_type="full-time",
+            level="junior",
+            description="Build backend software APIs with Python.",
+            requirements="Python and API experience.",
+            status="draft",
+            created_by=self.user,
+        )
+        JobSkill.objects.create(job=draft_job, skill=self.skill, is_required=True)
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.put(
+            f"/api/jobs/{draft_job.id}/",
+            {"status": "published"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_402_PAYMENT_REQUIRED)
+        draft_job.refresh_from_db()
+        self.assertEqual(draft_job.status, Job.Status.DRAFT)
+        self.assertIsNone(draft_job.published_at)
+
     # ========== DELETE Tests ==========
 
     def test_delete_job_success(self):
@@ -764,15 +932,17 @@ class JobViewTests(APITestCase):
         # Create draft job first
         draft_job = Job.objects.create(
             company=self.company,
-            title="Draft Job",
+            title="Draft Python Backend Developer",
             slug="draft-job-test",
+            category=self.category,
             job_type="full-time",
             level="junior",
-            description="Desc",
-            requirements="Req",
+            description="Build backend software APIs with Python.",
+            requirements="Python and API experience.",
             status="draft",
             created_by=self.user,
         )
+        JobSkill.objects.create(job=draft_job, skill=self.skill, is_required=True)
 
         url = f"/api/jobs/{draft_job.id}/status/"
         response = self.client.patch(url, {"status": "published"})
@@ -790,15 +960,17 @@ class JobViewTests(APITestCase):
 
         draft_job = Job.objects.create(
             company=self.company,
-            title="Unpublished Job",
+            title="Unpublished Python Backend Developer",
             slug="unpublished-job-test",
+            category=self.category,
             job_type="full-time",
             level="junior",
-            description="Desc",
-            requirements="Req",
+            description="Build backend software APIs with Python.",
+            requirements="Python and API experience.",
             status="draft",
             created_by=self.user,
         )
+        JobSkill.objects.create(job=draft_job, skill=self.skill, is_required=True)
 
         url = f"/api/jobs/{draft_job.id}/publish/"
         response = self.client.post(url)
@@ -1241,6 +1413,16 @@ class JobViewTests(APITestCase):
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_feature_without_subscription_returns_payment_required(self):
+        CompanySubscription.objects.filter(company=self.company).delete()
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(f"/api/jobs/{self.job.id}/feature/")
+
+        self.assertEqual(response.status_code, status.HTTP_402_PAYMENT_REQUIRED)
+        self.job.refresh_from_db()
+        self.assertFalse(self.job.featured)
 
     def test_feature_not_found(self):
         """Test POST /api/jobs/:id/feature/ - job không tồn tại → 404"""

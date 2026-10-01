@@ -26,11 +26,35 @@ class RecruiterViewTest(APITestCase):
         self.assertEqual(Recruiter.objects.first().user, self.user)
         self.assertEqual(response.data["user"]["email"], "test@example.com")
 
+    def test_create_recruiter_rejects_insecure_profile_url(self):
+        response = self.client.post(
+            self.list_url,
+            {"bio": "Profile", "portfolio_url": "http://portfolio.example.com"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Recruiter.objects.count(), 0)
+
     def test_create_duplicate_fail(self):
         Recruiter.objects.create(user=self.user)
         data = {"bio": "Duplicate"}
         response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_company_user_cannot_create_recruiter_profile(self):
+        company_user = CustomUser.objects.create_user(
+            email="company-candidate-create@example.com",
+            password="password123",
+            full_name="Company User",
+            role="company",
+        )
+        self.client.force_authenticate(user=company_user)
+
+        response = self.client.post(self.list_url, {"bio": "Wrong role"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Recruiter.objects.count(), 0)
 
     def test_create_unauthenticated(self):
         self.client.logout()
@@ -63,6 +87,20 @@ class RecruiterViewTest(APITestCase):
         # Verify db update
         recruiter.refresh_from_db()
         self.assertEqual(recruiter.bio, "New")
+
+    def test_update_recruiter_rejects_insecure_profile_url(self):
+        recruiter = Recruiter.objects.create(
+            user=self.user, linkedin_url="https://linkedin.com/in/user"
+        )
+        response = self.client.patch(
+            f"/api/candidates/{recruiter.id}/",
+            {"linkedin_url": "http://linkedin.com/in/user"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        recruiter.refresh_from_db()
+        self.assertEqual(recruiter.linkedin_url, "https://linkedin.com/in/user")
 
     def test_update_recruiter_not_owner(self):
         recruiter2 = Recruiter.objects.create(user=self.user2, bio="User 2")

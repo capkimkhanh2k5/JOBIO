@@ -25,6 +25,8 @@ class SkillListSerializer(serializers.ModelSerializer):
             "category",
             "category_name",
             "is_verified",
+            "domain",
+            "is_publishable",
             "usage_count",
         ]
 
@@ -43,6 +45,8 @@ class SkillDetailSerializer(serializers.ModelSerializer):
             "category",
             "description",
             "is_verified",
+            "domain",
+            "is_publishable",
             "usage_count",
             "created_at",
         ]
@@ -53,7 +57,15 @@ class SkillCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Skill
-        fields = ["name", "slug", "category", "description", "is_verified"]
+        fields = [
+            "name",
+            "slug",
+            "category",
+            "description",
+            "is_verified",
+            "domain",
+            "is_publishable",
+        ]
 
 
 class SkillCategoryTreeSerializer(serializers.ModelSerializer):

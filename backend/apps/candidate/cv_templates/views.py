@@ -3,7 +3,7 @@ from pathlib import Path
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from apps.core.users.permissions import IsAdmin, is_admin_user
 
 from .models import CVTemplate
@@ -251,7 +251,7 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         serializer = CVTemplateListSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["post"], permission_classes=[])
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def preview(self, request, pk=None):
         """
         POST /api/cv-templates/:id/preview/
@@ -290,6 +290,10 @@ class CVTemplateViewSet(viewsets.ModelViewSet):
         except Recruiter.DoesNotExist:
             return Response(
                 {"detail": "Recruiter not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        if recruiter.user != request.user and not is_admin_user(request.user):
+            return Response(
+                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
             )
 
         # Build profile data (same structure as auto_generate_cv)

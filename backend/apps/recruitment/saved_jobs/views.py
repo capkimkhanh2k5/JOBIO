@@ -32,6 +32,7 @@ class RecruiterSavedJobViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = SavedJobSerializer
 
     def get_queryset(self):
         recruiter_id = self.kwargs.get("recruiter_id")
@@ -81,6 +82,7 @@ class SavedJobViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = SavedJobSerializer
 
     def _get_recruiter(self, request):
         """Lấy recruiter profile của user hiện tại."""

@@ -80,7 +80,7 @@ const BillingDashboard: React.FC = () => {
 
     return (
         <div className="w-full mx-auto min-h-screen">
-            <div className="sticky top-0 z-20">
+            <div>
                 <PageHeader
                     title="Thanh toán & Gói dịch vụ"
                     description="Quản lý đăng ký, phương thức thanh toán và xem lịch sử giao dịch của bạn."
@@ -97,7 +97,7 @@ const BillingDashboard: React.FC = () => {
                     transition={{ duration: 0.4, delay: 0.1 }}
                 >
                     {isLoadingSub ? (
-                        <div className="h-64 rounded-[32px] border border-slate-200 bg-white animate-pulse shadow-sm" />
+                        <div className="h-64 rounded-[32px] border border-border bg-card animate-pulse shadow-sm" />
                     ) : (
                         <SubscriptionStatusCard
                             subscription={currentSub?.data}
@@ -115,20 +115,20 @@ const BillingDashboard: React.FC = () => {
                 >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-1">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600 border border-violet-100 shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 border border-teal-100 shadow-sm">
                                 <History className="h-5 w-5" />
                             </div>
-                            <h2 className="text-xl font-black text-slate-900 tracking-tight">Lịch sử giao dịch</h2>
+                            <h2 className="text-xl font-black text-foreground tracking-tight">Lịch sử giao dịch</h2>
                         </div>
 
                         <div className="flex items-center gap-3">
                             <div className="relative group">
-                                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-500 transition-colors" />
+                                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 group-focus-within:text-teal-500 transition-colors" />
                                 <Input
                                     placeholder="Tìm mã hoặc nội dung..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="h-11 w-[280px] border-slate-200 bg-white pl-10 text-sm focus:border-violet-500 focus:ring-violet-500/20 text-slate-900 rounded-xl transition-all"
+                                    className="h-11 w-[280px] border-border bg-card pl-10 text-sm focus:border-teal-500 focus:ring-teal-500/20 text-foreground rounded-xl transition-all"
                                 />
                             </div>
 
@@ -136,10 +136,10 @@ const BillingDashboard: React.FC = () => {
                                 value={statusFilter}
                                 onValueChange={setStatusFilter}
                             >
-                                <SelectTrigger className="h-11 w-[180px] rounded-xl border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all focus:border-violet-500 focus:ring-violet-500/20">
+                                <SelectTrigger className="h-11 w-[180px] rounded-xl border-border bg-card px-4 text-sm font-bold text-foreground/80 shadow-sm transition-all focus:border-teal-500 focus:ring-teal-500/20">
                                     <SelectValue placeholder="Trạng thái" />
                                 </SelectTrigger>
-                                <SelectContent align="end" className="rounded-xl border-slate-200 bg-white p-1 shadow-xl">
+                                <SelectContent align="end" className="rounded-xl border-border bg-card p-1 shadow-xl">
                                     <SelectItem value="all" className="rounded-lg font-medium">Tất cả trạng thái</SelectItem>
                                     <SelectItem value="completed" className="rounded-lg font-medium">Thành công</SelectItem>
                                     <SelectItem value="pending" className="rounded-lg font-medium">Đang xử lý</SelectItem>
@@ -172,7 +172,7 @@ const BillingDashboard: React.FC = () => {
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel className="rounded-xl border-slate-200" onClick={() => setCancelId(null)}>Đóng</AlertDialogCancel>
+                            <AlertDialogCancel className="rounded-xl border-border" onClick={() => setCancelId(null)}>Đóng</AlertDialogCancel>
                             <AlertDialogAction onClick={confirmCancel} className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold border-none shadow-sm">
                                 Đồng ý hủy
                             </AlertDialogAction>

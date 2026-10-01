@@ -207,6 +207,71 @@ export const dashboardService = {
     return api.get('/api/jobs/admin-jobs/export/', { params, responseType: 'blob' });
   },
 
+  getRecommendationHealth(days = 7) {
+    return api.get('/api/jobs/admin-jobs/recommendations/health/', { params: { days } });
+  },
+
+  syncMissingEmbeddings() {
+    return api.post<{
+      status: string;
+      jobs_processed: number;
+      candidates_processed: number;
+      message: string;
+    }>('/api/jobs/admin-jobs/recommendations/sync-missing-embeddings/');
+  },
+
+  getVectorSyncProgress() {
+    return api.get<{
+      status: 'idle' | 'running' | 'completed' | 'failed';
+      progress: number;
+      jobs_total: number;
+      jobs_done: number;
+      candidates_total: number;
+      candidates_done: number;
+      message: string;
+      finished_at: string | null;
+    }>('/api/jobs/admin-jobs/recommendations/sync-missing-embeddings/status/');
+  },
+
+  listCanonicalTitles(params?: { search?: string; page?: number; page_size?: number }) {
+    return api.get('/api/jobs/admin-canonical-titles/', { params });
+  },
+  createCanonicalTitle(data: { name: string; description?: string; category?: string; is_active?: boolean }) {
+    return api.post('/api/jobs/admin-canonical-titles/', data);
+  },
+  updateCanonicalTitle(id: number, data: Partial<{ name: string; description: string; category: string; is_active: boolean }>) {
+    return api.patch(`/api/jobs/admin-canonical-titles/${id}/`, data);
+  },
+  deleteCanonicalTitle(id: number) {
+    return api.delete(`/api/jobs/admin-canonical-titles/${id}/`);
+  },
+
+  listJobTitleAliases(params?: { search?: string; canonical_title?: number; page?: number; page_size?: number }) {
+    return api.get('/api/jobs/admin-job-title-aliases/', { params });
+  },
+  createJobTitleAlias(data: { alias_name: string; canonical_title: number; language?: string; weight?: number }) {
+    return api.post('/api/jobs/admin-job-title-aliases/', data);
+  },
+  updateJobTitleAlias(id: number, data: Partial<{ alias_name: string; canonical_title: number; language: string; weight: number }>) {
+    return api.patch(`/api/jobs/admin-job-title-aliases/${id}/`, data);
+  },
+  deleteJobTitleAlias(id: number) {
+    return api.delete(`/api/jobs/admin-job-title-aliases/${id}/`);
+  },
+
+  listSkillAliases(params?: { search?: string; skill?: number; page?: number; page_size?: number }) {
+    return api.get('/api/jobs/admin-skill-aliases/', { params });
+  },
+  createSkillAlias(data: { alias_name: string; skill: number }) {
+    return api.post('/api/jobs/admin-skill-aliases/', data);
+  },
+  updateSkillAlias(id: number, data: Partial<{ alias_name: string; skill: number }>) {
+    return api.patch(`/api/jobs/admin-skill-aliases/${id}/`, data);
+  },
+  deleteSkillAlias(id: number) {
+    return api.delete(`/api/jobs/admin-skill-aliases/${id}/`);
+  },
+
   // ─── Job Marketplace (Admin) ──────────────────────────────────────────────
 
   getJobStats() {

@@ -15,6 +15,32 @@ def _validate_future_scheduled_at(value):
     return value
 
 
+def _validate_scorecard(value):
+    if value in (None, ""):
+        return {}
+    if not isinstance(value, dict):
+        raise serializers.ValidationError("Scorecard must be an object.")
+
+    normalized = {}
+    for key, raw_score in value.items():
+        key = str(key).strip()
+        if not key:
+            continue
+        try:
+            score = int(raw_score)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError(
+                f"Scorecard value for '{key}' must be a number."
+            )
+        if score < 1 or score > 5:
+            raise serializers.ValidationError(
+                f"Scorecard value for '{key}' must be between 1 and 5."
+            )
+        normalized[key] = score
+
+    return normalized
+
+
 def _format_address(address):
     if not address:
         return None
@@ -168,6 +194,7 @@ class InterviewListSerializer(InterviewDisplayMixin):
             "notes",
             "result",
             "rating",
+            "scorecard",
             "interviewer",
             "interviewer_name",
             "interviewer_avatar",
@@ -225,6 +252,7 @@ class InterviewDetailSerializer(InterviewDisplayMixin):
             "status",
             "notes",
             "feedback",
+            "scorecard",
             "result",
             "rating",
             "interviewer",
@@ -291,9 +319,13 @@ class InterviewUpdateSerializer(serializers.Serializer):
     rating = serializers.IntegerField(
         required=False, allow_null=True, min_value=1, max_value=5
     )
+    scorecard = serializers.JSONField(required=False, default=dict)
 
     def validate_scheduled_at(self, value):
         return _validate_future_scheduled_at(value)
+
+    def validate_scorecard(self, value):
+        return _validate_scorecard(value)
 
 
 class InterviewRescheduleSerializer(serializers.Serializer):
@@ -326,6 +358,10 @@ class InterviewCompleteSerializer(serializers.Serializer):
     rating = serializers.IntegerField(
         required=False, allow_null=True, min_value=1, max_value=5
     )
+    scorecard = serializers.JSONField(required=False, default=dict)
+
+    def validate_scorecard(self, value):
+        return _validate_scorecard(value)
 
 
 class InterviewFeedbackSerializer(serializers.Serializer):

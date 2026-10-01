@@ -28,6 +28,7 @@ class RecruiterSkillViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = RecruiterSkillSerializer
 
     def get_permissions(self):
         if self.action in {"list", "retrieve"}:

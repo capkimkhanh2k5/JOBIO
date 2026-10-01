@@ -26,12 +26,12 @@ import { cn } from '@/lib/utils';
 type InterviewMode = 'video' | 'phone' | 'onsite';
 
 const statusStyles: Record<string, string> = {
-    scheduled: 'bg-blue-100 text-blue-700 border-blue-200',
+    scheduled: 'bg-primary/12 text-primary border-primary/20',
     confirmed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     in_progress: 'bg-amber-100 text-amber-700 border-amber-200',
     completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     cancelled: 'bg-red-100 text-red-700 border-red-200',
-    rescheduled: 'bg-violet-100 text-violet-700 border-violet-200',
+    rescheduled: 'bg-teal-100 text-teal-700 border-teal-200',
     no_show: 'bg-rose-100 text-rose-700 border-rose-200',
     'no-show': 'bg-rose-100 text-rose-700 border-rose-200',
     pending: 'bg-amber-100 text-amber-700 border-amber-200',
@@ -74,8 +74,8 @@ const modeConfig: Record<InterviewMode, {
         icon: MapPin,
         label: 'Phỏng vấn trực tiếp',
         emptyText: 'Nhà tuyển dụng chưa cập nhật địa điểm phỏng vấn',
-        avatarClass: 'from-violet-50 to-fuchsia-50 border-violet-200',
-        iconClass: 'text-violet-600',
+        avatarClass: 'from-teal-50 to-fuchsia-50 border-teal-200',
+        iconClass: 'text-teal-600',
     },
 };
 
@@ -173,18 +173,16 @@ export default function Interviews() {
 
     return (
         <div className="relative flex flex-col w-full h-full min-h-0">
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Lịch phỏng vấn"
-                    description="Theo dõi và quản lý các buổi phỏng vấn sắp tới của bạn."
-                    icon={CalendarClock}
-                />
-            </div>
+            <PageHeader
+                title="Lịch phỏng vấn"
+                description="Theo dõi và quản lý các buổi phỏng vấn sắp tới của bạn."
+                icon={CalendarClock}
+            />
 
             <div className="p-6 lg:p-8 w-full flex-1 relative z-10">
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-slate-50/50">
-                        <div className="flex items-center p-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto w-full sm:w-fit">
+                <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="p-4 border-b border-border/60 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-muted/50">
+                        <div className="flex items-center p-1 bg-card rounded-2xl border border-border shadow-sm overflow-x-auto w-full sm:w-fit">
                             {[
                                 { key: 'upcoming', label: 'Sắp tới' },
                                 { key: 'completed', label: 'Đã xong' },
@@ -201,15 +199,15 @@ export default function Interviews() {
                                         className={cn(
                                             'flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 flex items-center gap-1.5 cursor-pointer whitespace-nowrap',
                                             isActive
-                                                ? 'bg-violet-600 text-white shadow-md'
-                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                                ? 'bg-teal-600 text-white shadow-md'
+                                                : 'text-muted-foreground hover:text-foreground/80 hover:bg-muted'
                                         )}
                                     >
                                         {tab.label}
                                         {count > 0 && (
                                             <span className={cn(
                                                 'text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[18px] text-center',
-                                                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                                isActive ? 'bg-card/20 text-white' : 'bg-muted text-muted-foreground'
                                             )}>
                                                 {count}
                                             </span>
@@ -220,11 +218,11 @@ export default function Interviews() {
                         </div>
 
                         <div className="relative w-full sm:w-72 shrink-0">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                             <input
                                 type="text"
                                 placeholder="Tìm theo vị trí hoặc công ty..."
-                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/10 focus:border-violet-400 bg-white shadow-sm"
+                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-400 bg-card shadow-sm"
                                 value={searchQuery}
                                 onChange={(event) => setSearchQuery(event.target.value)}
                             />
@@ -237,11 +235,11 @@ export default function Interviews() {
                         </div>
                     ) : !filteredInterviews.length ? (
                         <div className="py-20 text-center flex flex-col items-center">
-                            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                <Calendar className="w-8 h-8 text-slate-300" />
+                            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                                <Calendar className="w-8 h-8 text-muted-foreground/40" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-700 mb-1">Không tìm thấy lịch phỏng vấn</h3>
-                            <p className="text-slate-500 text-sm max-w-sm">
+                            <h3 className="text-lg font-bold text-foreground/80 mb-1">Không tìm thấy lịch phỏng vấn</h3>
+                            <p className="text-muted-foreground text-sm max-w-sm">
                                 {searchQuery
                                     ? 'Không có kết quả nào phù hợp với tìm kiếm của bạn.'
                                     : 'Bạn chưa có lịch phỏng vấn nào ở trạng thái này.'}
@@ -267,14 +265,14 @@ export default function Interviews() {
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
                                             transition={{ duration: 0.2, delay: idx * 0.05 }}
-                                            className="p-5 hover:bg-slate-50 transition-colors group flex flex-col sm:flex-row gap-5"
+                                            className="p-5 hover:bg-muted transition-colors group flex flex-col sm:flex-row gap-5"
                                         >
                                             <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-2">
-                                                <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-center p-2 group-hover:border-violet-200 transition-colors overflow-hidden">
+                                                <div className="w-16 h-16 bg-card rounded-xl border border-border shadow-sm flex items-center justify-center p-2 group-hover:border-teal-200 transition-colors overflow-hidden">
                                                     {interview.company_logo ? (
                                                         <img src={interview.company_logo} alt={companyName} className="w-full h-full object-contain" />
                                                     ) : (
-                                                        <Building2 className="w-7 h-7 text-slate-300" />
+                                                        <Building2 className="w-7 h-7 text-muted-foreground/40" />
                                                     )}
                                                 </div>
                                                 <Badge className={`${statusStyles[interview.status] || statusStyles.pending} font-medium border hidden sm:inline-flex`}>
@@ -284,7 +282,7 @@ export default function Interviews() {
 
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-start gap-3 mb-1">
-                                                    <h3 className="text-base font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
+                                                    <h3 className="text-base font-bold text-foreground truncate group-hover:text-teal-600 transition-colors">
                                                         {interview.job_title || 'Vị trí ứng tuyển'}
                                                     </h3>
                                                     <Badge className={`${statusStyles[interview.status] || statusStyles.pending} font-medium border sm:hidden shrink-0`}>
@@ -292,29 +290,29 @@ export default function Interviews() {
                                                     </Badge>
                                                 </div>
 
-                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-600 mb-3">
-                                                    <span className="font-medium text-slate-700 flex items-center gap-1.5">
-                                                        <Building2 className="w-4 h-4 text-slate-400" />
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mb-3">
+                                                    <span className="font-medium text-foreground/80 flex items-center gap-1.5">
+                                                        <Building2 className="w-4 h-4 text-muted-foreground/60" />
                                                         {companyName}
                                                     </span>
-                                                    <span className="text-slate-300">•</span>
-                                                    <span className="flex items-center gap-1.5 text-slate-500 capitalize">
-                                                        <Calendar className="w-4 h-4 text-slate-400" />
+                                                    <span className="text-muted-foreground/40">•</span>
+                                                    <span className="flex items-center gap-1.5 text-muted-foreground capitalize">
+                                                        <Calendar className="w-4 h-4 text-muted-foreground/60" />
                                                         {format(scheduledAt, 'eeee, dd/MM/yyyy', { locale: vi })}
                                                     </span>
-                                                    <span className="text-slate-300">•</span>
-                                                    <span className="flex items-center gap-1.5 text-slate-500">
-                                                        <Clock className="w-4 h-4 text-slate-400" />
+                                                    <span className="text-muted-foreground/40">•</span>
+                                                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                                                        <Clock className="w-4 h-4 text-muted-foreground/60" />
                                                         {format(scheduledAt, 'HH:mm')} ({interview.duration_minutes || interview.duration || 0} phút)
                                                     </span>
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                                                    <Badge variant="outline" className="bg-white text-slate-600 border-slate-200 flex items-center gap-1.5 font-normal">
+                                                    <Badge variant="outline" className="bg-card text-muted-foreground border-border flex items-center gap-1.5 font-normal">
                                                         <ModeIcon className={`w-3.5 h-3.5 ${config.iconClass}`} />
                                                         {config.label}
                                                     </Badge>
-                                                    <span className="text-slate-500 line-clamp-1">
+                                                    <span className="text-muted-foreground line-clamp-1">
                                                         {getModeDetail(interview, mode)}
                                                     </span>
                                                 </div>
@@ -322,7 +320,7 @@ export default function Interviews() {
 
                                             <div className="flex-shrink-0 flex items-center gap-2 sm:self-center">
                                                 {mode === 'video' && meetingLink && canAct && (
-                                                    <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-sm">
+                                                    <Button asChild size="sm" className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm">
                                                         <a href={meetingLink} target="_blank" rel="noreferrer">
                                                             <ExternalLink className="w-3.5 h-3.5 mr-2" />
                                                             Tham gia

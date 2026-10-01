@@ -481,8 +481,6 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                     try {
                         await candidateService.addSkill(candidateId, {
                             skill_name: skillName,
-                            proficiency_level: skill.proficiency_level || 'intermediate',
-                            years_of_experience: skill.years_of_experience || 0,
                         });
                         if (skillKey) existingSkillKeys.add(skillKey);
                         successCount++;
@@ -605,16 +603,16 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.3, ease: [0.1, 0.9, 0.2, 1] }}
-                className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[88dvh] overflow-hidden flex flex-col"
+                className="relative bg-card rounded-3xl shadow-2xl w-full max-w-lg max-h-[88dvh] overflow-hidden flex flex-col"
             >
                 {/* Header */}
-                <div className="p-6 pb-4 border-b border-slate-100 shrink-0">
+                <div className="p-6 pb-4 border-b border-border/60 shrink-0">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <Sparkles className="w-6 h-6 text-violet-600" />
+                            <Sparkles className="w-6 h-6 text-teal-600" />
                             <div>
-                                <h2 className="text-lg font-bold text-slate-900">Hoàn thiện hồ sơ bằng CV</h2>
-                                <p className="text-xs text-slate-500">
+                                <h2 className="text-lg font-bold text-foreground">Hoàn thiện hồ sơ bằng CV</h2>
+                                <p className="text-xs text-muted-foreground">
                                     {step === 'upload' && 'Chọn hoặc kéo thả file PDF để AI tự phân tích'}
                                     {step === 'processing' && 'Đang phân tích CV của bạn...'}
                                     {step === 'review' && 'Phân tích thành công, hãy kiểm tra trước khi cập nhật'}
@@ -623,10 +621,10 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                         </div>
                         <button
                             onClick={handleClose}
-                            className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
+                            className="p-2 hover:bg-muted rounded-xl transition-colors"
                             aria-label="Đóng"
                         >
-                            <X className="w-5 h-5 text-slate-400" />
+                            <X className="w-5 h-5 text-muted-foreground/60" />
                         </button>
                     </div>
                 </div>
@@ -644,15 +642,18 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                             >
                                 <div
                                     className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${dragActive
-                                        ? 'border-violet-400 bg-violet-50'
+                                        ? 'border-teal-400 bg-teal-50'
                                         : selectedFile
                                             ? 'border-emerald-300 bg-emerald-50/50'
-                                            : 'border-slate-200 hover:border-violet-300 hover:bg-violet-50/30'
+                                            : 'border-border hover:border-teal-300 hover:bg-teal-50/30'
                                         }`}
                                     onDragEnter={handleDrag}
                                     onDragLeave={handleDrag}
                                     onDragOver={handleDrag}
                                     onDrop={handleDrop}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && fileInputRef.current?.click()}
                                     onClick={() => fileInputRef.current?.click()}
                                 >
                                     <input
@@ -664,22 +665,22 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                                     />
 
                                     <div className="space-y-3">
-                                        <div className="mx-auto w-14 h-14 bg-violet-100 rounded-2xl flex items-center justify-center">
-                                            <Upload className="w-7 h-7 text-violet-500" />
+                                        <div className="mx-auto w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center">
+                                            <Upload className="w-7 h-7 text-teal-500" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-700">Kéo thả file CV vào đây</p>
-                                            <p className="text-xs text-slate-400 mt-1">hoặc bấm để chọn file • PDF • Tối đa 10MB</p>
+                                            <p className="text-sm font-semibold text-foreground/80">Kéo thả file CV vào đây</p>
+                                            <p className="text-xs text-muted-foreground/60 mt-1">hoặc bấm để chọn file • PDF • Tối đa 10MB</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Info box */}
-                                <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                    <div className="flex items-start gap-2 text-xs text-slate-500">
-                                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-slate-400" />
+                                <div className="mt-4 p-3 bg-muted rounded-xl border border-border/60">
+                                    <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-muted-foreground/60" />
                                         <div>
-                                            <p className="font-semibold text-slate-600 mb-0.5">AI sẽ trích xuất thông tin từ CV</p>
+                                            <p className="font-semibold text-muted-foreground mb-0.5">AI sẽ trích xuất thông tin từ CV</p>
                                             <p>Kinh nghiệm, học vấn, kỹ năng, chứng chỉ, dự án... sẽ được phân tích tự động. Bạn có thể xem lại trước khi cập nhật.</p>
                                         </div>
                                     </div>
@@ -701,19 +702,19 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                                         animate={{ scale: [1, 1.15, 1] }}
                                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                                     >
-                                        <Sparkles className="w-12 h-12 text-violet-600" />
+                                        <Sparkles className="w-12 h-12 text-teal-600" />
                                     </motion.div>
                                     <motion.div
-                                        className="absolute inset-0 rounded-full border-[1.5px] border-violet-400/60"
+                                        className="absolute inset-0 rounded-full border-[1.5px] border-teal-400/60"
                                         animate={{ scale: [0.6, 1.5], opacity: [1, 0] }}
                                         transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
                                     />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900 mt-6">Đang phân tích CV</h3>
-                                <p className="text-sm text-slate-500 mt-1">AI đang đọc và trích xuất thông tin...</p>
+                                <h3 className="text-lg font-bold text-foreground mt-6">Đang phân tích CV</h3>
+                                <p className="text-sm text-muted-foreground mt-1">AI đang đọc và trích xuất thông tin...</p>
                                 <div className="flex items-center gap-2 mt-4">
-                                    <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
-                                    <span className="text-xs text-slate-400">Có thể mất 15-30 giây</span>
+                                    <Loader2 className="w-4 h-4 animate-spin text-teal-500" />
+                                    <span className="text-xs text-muted-foreground/60">Có thể mất 15-30 giây</span>
                                 </div>
                             </motion.div>
                         )}
@@ -730,8 +731,8 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                                 <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
                                     <CheckCircle2 className="h-8 w-8" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-900">Phân tích CV thành công</h3>
-                                <p className="mt-2 max-w-sm text-sm leading-relaxed text-slate-500">
+                                <h3 className="text-lg font-bold text-foreground">Phân tích CV thành công</h3>
+                                <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
                                     AI có thể sai sót, hãy kiểm tra lại hồ sơ sau khi cập nhật.
                                 </p>
                             </motion.div>
@@ -740,11 +741,11 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 pt-4 border-t border-slate-100 shrink-0">
+                <div className="p-6 pt-4 border-t border-border/60 shrink-0">
                     {step === 'upload' && (
                         <button
                             onClick={handleClose}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                            className="w-full px-4 py-3 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
                         >
                             Huỷ
                         </button>
@@ -753,7 +754,7 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                     {step === 'processing' && (
                         <button
                             onClick={handleClose}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                            className="w-full px-4 py-3 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors"
                         >
                             Huỷ bỏ
                         </button>
@@ -763,7 +764,7 @@ export const CVAutoFillDialog = ({ open, onOpenChange, candidateId }: CVAutoFill
                         <button
                             onClick={handleApply}
                             disabled={isApplying || sections.filter(s => s.checked).length === 0}
-                            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-bold hover:from-emerald-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
+                            className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-500 text-white text-sm font-bold hover:from-emerald-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2"
                         >
                             {isApplying ? (
                                 <>

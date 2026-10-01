@@ -118,7 +118,7 @@ class TestLoginUserService(TestCase):
         with self.assertRaises(AuthenticationError) as ctx:
             login_user(data=login_input)
 
-        self.assertIn("Email không tồn tại", str(ctx.exception))
+        self.assertIn("Email hoặc mật khẩu không đúng", str(ctx.exception))
 
     def test_login_wrong_password(self):
         """Test login with wrong password"""
@@ -127,7 +127,7 @@ class TestLoginUserService(TestCase):
         with self.assertRaises(AuthenticationError) as ctx:
             login_user(data=login_input)
 
-        self.assertIn("Mật khẩu không đúng", str(ctx.exception))
+        self.assertIn("Email hoặc mật khẩu không đúng", str(ctx.exception))
 
     def test_login_inactive_user(self):
         """Test login with locked user"""

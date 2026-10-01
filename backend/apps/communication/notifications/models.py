@@ -44,3 +44,31 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.full_name} - {self.title}"
+
+
+class NotificationPreference(models.Model):
+    """User-level notification delivery preferences."""
+
+    user = models.OneToOneField(
+        "core_users.CustomUser",
+        on_delete=models.CASCADE,
+        related_name="notification_preference",
+        verbose_name="Người dùng",
+    )
+    email_notifications = models.BooleanField(default=True, verbose_name="Email")
+    push_notifications = models.BooleanField(default=True, verbose_name="Push")
+    job_alerts = models.BooleanField(default=True, verbose_name="Thông báo việc làm")
+    application_updates = models.BooleanField(
+        default=True, verbose_name="Cập nhật ứng tuyển"
+    )
+    message_notifications = models.BooleanField(default=True, verbose_name="Tin nhắn")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Ngày cập nhật")
+
+    class Meta:
+        db_table = "notification_preferences"
+        verbose_name = "Cài đặt thông báo"
+        verbose_name_plural = "Cài đặt thông báo"
+
+    def __str__(self):
+        return f"{self.user.full_name} notification preferences"

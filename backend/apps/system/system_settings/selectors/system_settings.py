@@ -3,6 +3,32 @@ from django.db.models import QuerySet
 from django.core.cache import cache
 
 from ..models import SystemSetting
+from apps.core.caching import CacheKeyBuilder
+
+
+_SETTING_CACHE_FIELDS = [
+    "id",
+    "setting_key",
+    "setting_value",
+    "setting_type",
+    "category",
+    "description",
+    "is_public",
+    "updated_by_id",
+]
+
+
+def _setting_to_cache(setting: SystemSetting) -> dict:
+    return {field: getattr(setting, field) for field in _SETTING_CACHE_FIELDS}
+
+
+def _setting_from_cache(data) -> SystemSetting:
+    if isinstance(data, SystemSetting):
+        return data
+    setting = SystemSetting(**data)
+    setting._state.adding = False
+    setting._state.db = "default"
+    return setting
 
 
 def list_settings(filters: dict = None) -> QuerySet[SystemSetting]:
@@ -26,17 +52,17 @@ def get_setting_by_key(key: str) -> Optional[SystemSetting]:
     """
     Lấy setting theo key (có caching)
     """
-    cache_key = f"system_setting:{key}"
+    cache_key = CacheKeyBuilder.system_setting(key)
 
     # Try getting from cache
     setting_data = cache.get(cache_key)
     if setting_data:
-        return setting_data
+        return _setting_from_cache(setting_data)
 
     try:
         setting = SystemSetting.objects.get(setting_key=key)
         # Cache for 24 hours
-        cache.set(cache_key, setting, timeout=86400)
+        cache.set(cache_key, _setting_to_cache(setting), timeout=86400)
         return setting
     except SystemSetting.DoesNotExist:
         return None

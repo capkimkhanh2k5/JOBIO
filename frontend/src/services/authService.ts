@@ -102,16 +102,24 @@ export const authService = {
     return api.get<TwoFactorStatus>('/api/users/auth/2fa/status/');
   },
 
-  enable2FA() {
-    return api.post<TwoFactorStatus>('/api/users/auth/2fa/enable/');
+  enable2FA(currentPassword: string) {
+    return api.post<TwoFactorStatus>('/api/users/auth/2fa/enable/', {
+      current_password: currentPassword,
+    });
   },
 
-  verify2FA(code: string) {
-    return api.post('/api/users/auth/verify-2fa/', { code });
+  verify2FA(code: string, challengeId?: string) {
+    return api.post<LoginResponse>('/api/users/auth/verify-2fa/', {
+      code,
+      ...(challengeId ? { challenge_id: challengeId } : {}),
+    });
   },
 
-  disable2FA(code: string) {
-    return api.post('/api/users/auth/2fa/disable/', { code });
+  disable2FA(code: string, currentPassword: string) {
+    return api.post('/api/users/auth/2fa/disable/', {
+      code,
+      current_password: currentPassword,
+    });
   },
 
   // ─── Social Auth ─────────────────────────────────────────────────────────

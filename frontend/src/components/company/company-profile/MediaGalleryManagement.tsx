@@ -267,29 +267,30 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
 
     return (
         <>
-            <Card className="border-violet-500/10 bg-white/5 backdrop-blur-md">
-                <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="border-border/60 bg-card shadow-sm rounded-3xl overflow-hidden">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 md:p-6 pb-4 border-b border-border/50">
                     <div>
-                        <CardTitle className="flex items-center gap-2">
-                            <ImageIcon className="w-5 h-5 text-violet-400" />
-                            Thư viện Media
+                        <CardTitle className="flex items-center gap-2.5 text-base font-black text-foreground">
+                            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-500">
+                                <ImageIcon className="w-4 h-4" />
+                            </div>
+                            Thư viện Media & Hình ảnh Công ty
                         </CardTitle>
-                        <CardDescription>Hình ảnh và video giới thiệu không gian làm việc, văn hóa công ty.</CardDescription>
+                        <CardDescription className="text-xs text-muted-foreground font-medium mt-1">Hình ảnh và video giới thiệu không gian làm việc, hoạt động văn hóa công ty.</CardDescription>
                     </div>
                     <Button
-                        variant="outline"
-                        className="border-violet-500/30 text-violet-600 hover:bg-violet-500/10"
+                        className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white h-10 px-4 rounded-xl font-black shadow-md shadow-teal-500/15 text-xs transition-all cursor-pointer shrink-0"
                         disabled={isLoadingMediaTypes || mediaTypes.length === 0}
                         onClick={openAddDialog}
                     >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Thêm
+                        <Plus className="w-4 h-4 mr-1.5" />
+                        Thêm Media
                     </Button>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-5 md:p-6">
                     {isLoading ? (
                         <div className="flex justify-center py-12">
-                            <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+                            <Loader2 className="w-6 h-6 animate-spin text-teal-500" />
                         </div>
                     ) : mediaList.length > 0 ? (
                         <div className="space-y-3">
@@ -305,14 +306,14 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                 const caption = media.caption || (isLink ? mediaUrl : 'Chưa có caption');
 
                                 return (
-                                    <div key={media.id} className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center">
-                                        <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:h-28 sm:w-44 lg:h-32 lg:w-56">
+                                    <div key={media.id} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center">
+                                        <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-lg bg-muted sm:h-28 sm:w-44 lg:h-32 lg:w-56">
                                             {isLink ? (
                                                 <a href={mediaUrl} target="_blank" rel="noreferrer" className="group block h-full w-full">
                                                     {youtubeThumbnailUrl ? (
-                                                        <img src={youtubeThumbnailUrl} alt={title} className="h-full w-full object-cover transition group-hover:scale-105" />
+                                                        <img loading="lazy" src={youtubeThumbnailUrl} alt={title} className="h-full w-full object-cover transition group-hover:scale-105" />
                                                     ) : (
-                                                        <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-slate-500">
+                                                        <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                                             <LinkIcon className="h-8 w-8" />
                                                             <span className="text-xs font-semibold">YouTube link</span>
                                                         </div>
@@ -327,7 +328,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                         <PlayCircle className="h-10 w-10 text-white/90" />
                                                     </div>
                                                     {thumbnailUrl ? (
-                                                        <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
+                                                        <img loading="lazy" src={thumbnailUrl} alt={title} className="h-full w-full object-cover" />
                                                     ) : mediaUrl ? (
                                                         <video src={mediaUrl} className="h-full w-full object-cover" muted preload="metadata" />
                                                     ) : (
@@ -341,7 +342,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                     onClick={() => setPreviewImage({ url: imageUrl, title })}
                                                     aria-label={`Xem ảnh ${title}`}
                                                 >
-                                                    <img src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                                    <img loading="lazy" src={imageUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                                                 </button>
                                             ) : (
                                                 <div className="flex h-full w-full items-center justify-center"><ImageIcon className="h-8 w-8 opacity-30" /></div>
@@ -349,15 +350,15 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="line-clamp-2 text-base font-bold text-slate-900">{title}</h3>
-                                            <p className="mt-1 line-clamp-3 text-sm leading-6 text-slate-600">{caption}</p>
+                                            <h3 className="line-clamp-2 text-base font-bold text-foreground">{title}</h3>
+                                            <p className="mt-1 line-clamp-3 text-sm leading-6 text-muted-foreground">{caption}</p>
                                         </div>
 
                                         <div className="flex shrink-0 items-center justify-end gap-2 sm:self-stretch">
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                className="h-9 w-9 rounded-lg border-slate-200 text-slate-600 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
+                                                className="h-9 w-9 rounded-lg border-border text-muted-foreground hover:border-teal-200 hover:bg-teal-50 hover:text-teal-600"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setEditingMedia(media);
@@ -373,7 +374,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                className="h-9 w-9 rounded-lg border-slate-200 text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                                                className="h-9 w-9 rounded-lg border-border text-red-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setDeleteTarget(media);
@@ -387,7 +388,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                             })}
                         </div>
                     ) : (
-                        <div className="text-center py-16 border border-dashed rounded-xl border-slate-200 flex flex-col items-center">
+                        <div className="text-center py-16 border border-dashed rounded-xl border-border flex flex-col items-center">
                             <ImageIcon className="w-12 h-12 text-muted-foreground opacity-30 mb-4" />
                             <h3 className="font-medium text-lg">Chưa có ảnh/video nào</h3>
                             <p className="text-muted-foreground mb-4">Thêm media để giúp ứng viên hiểu rõ hơn về văn hóa công ty bạn.</p>
@@ -426,10 +427,10 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                         <div className="grid gap-2">
                             <Label>Loại media</Label>
                             <Select value={addData.media_type_id} onValueChange={handleTypeChange} disabled={isUploadingPreview || isPosting}>
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="bg-card">
                                     <SelectValue placeholder="Chọn media type" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white">
+                                <SelectContent className="bg-card">
                                     {mediaTypes.map((type: any) => (
                                         <SelectItem key={type.id} value={String(type.id)}>{type.type_name}</SelectItem>
                                     ))}
@@ -440,7 +441,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                             <div className="grid gap-2">
                                 <Label>Link YouTube</Label>
                                 <div className="relative">
-                                    <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                    <LinkIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
                                     <Input value={addData.media_url} onChange={(e) => setAddData(prev => ({ ...prev, media_url: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." className="pl-9" />
                                 </div>
                             </div>
@@ -448,8 +449,8 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                             <div className="grid gap-3">
                                 <Label>{isImageType ? 'Ảnh' : 'File media'}</Label>
                                 {localPreviewUrl ? (
-                                    <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100 aspect-video">
-                                        <img src={localPreviewUrl} alt="Preview media" className="h-full w-full object-cover" />
+                                    <div className="relative overflow-hidden rounded-xl border border-border bg-muted aspect-video">
+                                        <img loading="lazy" src={localPreviewUrl} alt="Preview media" className="h-full w-full object-cover" />
                                         {isUploadingPreview && (
                                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/45 text-white">
                                                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -461,7 +462,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                                 type="button"
                                                 variant="secondary"
                                                 size="icon"
-                                                className="absolute right-2 top-2 h-8 w-8 rounded-full bg-white/90"
+                                                className="absolute right-2 top-2 h-8 w-8 rounded-full bg-card/90"
                                                 onClick={async () => {
                                                     await discardUploadedPreview();
                                                     setAddFile(null);
@@ -474,7 +475,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                                         )}
                                     </div>
                                 ) : (
-                                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm font-semibold text-slate-500 transition hover:border-violet-300 hover:bg-violet-50/40 hover:text-violet-600">
+                                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card px-4 py-6 text-sm font-semibold text-muted-foreground transition hover:border-teal-300 hover:bg-teal-50/40 hover:text-teal-600">
                                         <Upload className="h-4 w-4" />
                                         Chọn ảnh để tải lên Cloudinary
                                         <input type="file" accept={isImageType ? 'image/*' : 'image/*,video/*'} className="hidden" onChange={handleImageFileChange} disabled={!addData.media_type_id || isUploadingPreview || isPosting} />
@@ -545,7 +546,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                     </DialogHeader>
                     <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
                         {previewImage && (
-                            <img
+                            <img loading="lazy"
                                 src={previewImage.url}
                                 alt={previewImage.title}
                                 className="max-h-[82vh] w-full object-contain"
@@ -564,7 +565,7 @@ export function MediaGalleryManagement({ companyId }: { companyId: string }) {
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl border-slate-200" disabled={deleteMutation.isPending}>
+                        <AlertDialogCancel className="rounded-xl border-border" disabled={deleteMutation.isPending}>
                             Hủy
                         </AlertDialogCancel>
                         <AlertDialogAction

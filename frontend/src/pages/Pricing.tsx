@@ -55,20 +55,20 @@ const TIER_CONFIG: TierConfig[] = [
         name: 'Plus',
         description: 'Bắt đầu tuyển dụng hiệu quả với tin tuyển dụng nổi bật.',
         icon: Briefcase,
-        cardBg: 'bg-white/80 backdrop-blur-xl',
-        cardBorder: 'border-blue-100/80',
-        cardHoverBorder: 'hover:border-blue-300',
-        iconBg: 'bg-blue-50',
-        iconColor: 'text-blue-600',
-        badgeBg: 'bg-blue-50',
-        badgeText: 'text-blue-700',
-        priceColor: 'text-slate-900',
-        checkBg: 'bg-blue-50 border-blue-100',
-        checkColor: 'text-blue-600',
-        btnClass: 'bg-white border-2 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 shadow-sm',
-        headerGradient: 'from-blue-500 to-blue-600',
-        textColor: 'text-slate-900',
-        subTextColor: 'text-slate-600',
+        cardBg: 'bg-card/80 backdrop-blur-xl',
+        cardBorder: 'border-primary/12/80',
+        cardHoverBorder: 'hover:border-primary/25',
+        iconBg: 'bg-primary/8',
+        iconColor: 'text-primary',
+        badgeBg: 'bg-primary/8',
+        badgeText: 'text-primary',
+        priceColor: 'text-foreground',
+        checkBg: 'bg-primary/8 border-primary/12',
+        checkColor: 'text-primary',
+        btnClass: 'bg-card border-2 border-primary/20 text-primary hover:bg-primary/8 hover:border-primary/25 shadow-sm',
+        headerGradient: 'from-primary to-primary',
+        textColor: 'text-foreground',
+        subTextColor: 'text-muted-foreground',
     },
     {
         key: 'pro',
@@ -76,20 +76,20 @@ const TIER_CONFIG: TierConfig[] = [
         description: 'Đẩy mạnh tuyển dụng với tin nổi bật và hỗ trợ ưu tiên.',
         icon: Rocket,
         popular: true,
-        cardBg: 'bg-white/90 backdrop-blur-xl',
+        cardBg: 'bg-card/90 backdrop-blur-xl',
         cardBorder: 'border-orange-200/80',
         cardHoverBorder: 'hover:border-orange-400',
         iconBg: 'bg-orange-50',
         iconColor: 'text-orange-500',
         badgeBg: 'bg-orange-50',
         badgeText: 'text-orange-700',
-        priceColor: 'text-slate-900',
+        priceColor: 'text-foreground',
         checkBg: 'bg-orange-50 border-orange-100',
         checkColor: 'text-orange-600',
         btnClass: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 shadow-md shadow-orange-500/20 border-0',
         headerGradient: 'from-orange-500 to-orange-600',
-        textColor: 'text-slate-900',
-        subTextColor: 'text-slate-600',
+        textColor: 'text-foreground',
+        subTextColor: 'text-muted-foreground',
         glowEffect: true,
     },
     {
@@ -104,13 +104,13 @@ const TIER_CONFIG: TierConfig[] = [
         iconColor: 'text-amber-600',
         badgeBg: 'bg-amber-50',
         badgeText: 'text-amber-700',
-        priceColor: 'text-slate-900',
+        priceColor: 'text-foreground',
         checkBg: 'bg-amber-50 border-amber-200',
         checkColor: 'text-amber-600',
         btnClass: 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 shadow-md shadow-amber-500/20 border-0 font-bold',
         headerGradient: 'from-amber-500 to-yellow-500',
-        textColor: 'text-slate-900',
-        subTextColor: 'text-slate-600',
+        textColor: 'text-foreground',
+        subTextColor: 'text-muted-foreground',
     },
 ];
 
@@ -170,14 +170,14 @@ function FadeIn({ children, delay = 0, className }: { children: React.ReactNode;
 function FaqAccordion({ item }: { item: FaqItem }) {
     const [open, setOpen] = useState(false);
     return (
-        <div className={cn('bg-white rounded-2xl border overflow-hidden transition-all shadow-sm', open ? 'border-indigo-200 ring-1 ring-indigo-50' : 'border-gray-200')}>
+        <div className={cn('bg-card rounded-2xl border overflow-hidden transition-all shadow-sm', open ? 'border-primary/20 ring-1 ring-primary/8' : 'border-border')}>
             <button
                 onClick={() => setOpen(p => !p)}
                 className="w-full flex items-center justify-between p-5 text-left group cursor-pointer"
                 aria-expanded={open}
             >
-                <span className="font-semibold text-sm pr-4 text-gray-900 group-hover:text-indigo-700 transition-colors">{item.q}</span>
-                <ChevronDown className={cn('w-4 h-4 shrink-0 text-gray-400 transition-transform group-hover:text-gray-600', open && 'rotate-180 text-indigo-600')} />
+                <span className="font-semibold text-sm pr-4 text-foreground group-hover:text-primary transition-colors">{item.q}</span>
+                <ChevronDown className={cn('w-4 h-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:text-muted-foreground', open && 'rotate-180 text-primary')} />
             </button>
             <AnimatePresence>
                 {open && (
@@ -185,7 +185,7 @@ function FaqAccordion({ item }: { item: FaqItem }) {
                         initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     >
-                        <div className="px-5 pb-5 text-sm text-gray-600 leading-relaxed border-t border-gray-100 pt-4 bg-gray-50/50">
+                        <div className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border/60 pt-4 bg-muted/50">
                             {item.a}
                         </div>
                     </motion.div>
@@ -200,11 +200,36 @@ const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(price);
 };
 
+const TIER_RANKS: Record<TierKey, number> = {
+    plus: 1,
+    pro: 2,
+    max: 3,
+};
+
 /* ─── Main Component ─── */
 export default function Pricing() {
     const navigate = useNavigate();
     const { isAuthenticated, user } = useUserStore();
     const [selectedDuration, setSelectedDuration] = useState<Duration>('3_months');
+
+    // Query active subscription of current company
+    const { data: currentSubscription } = useQuery({
+        queryKey: ['current-subscription'],
+        queryFn: async () => {
+            if (!isAuthenticated || user?.role !== 'company') return null;
+            try {
+                const res = await billingService.getCurrentSubscription();
+                return res.data;
+            } catch {
+                return null;
+            }
+        },
+        enabled: isAuthenticated && user?.role === 'company',
+    });
+
+    const activePlan = currentSubscription?.plan;
+    const currentTierKey = activePlan?.slug ? SLUG_TO_TIER[activePlan.slug] : undefined;
+    const currentRank = currentTierKey ? TIER_RANKS[currentTierKey] : 0;
 
     // Mutation for subscription
     const subscribeMutation = useMutation({
@@ -213,30 +238,73 @@ export default function Pricing() {
             if (res.data.payment_url) {
                 window.location.href = res.data.payment_url;
             } else {
-                toast.success('Đăng ký gói thành công!');
+                toast.success('Đăng ký gói dịch vụ thành công!');
                 navigate('/company/dashboard');
             }
         },
         onError: (err: any) => {
-            const msg = err.response?.data?.error || err.response?.data?.message || 'Có lỗi xảy ra khi đăng ký gói.';
-            toast.error(msg);
+            const data = err.response?.data;
+            const code = data?.code;
+            const errorMsg = data?.error || data?.detail || data?.message;
+
+            if (code === 'NO_COMPANY_PROFILE') {
+                toast.error('Chưa có thông tin công ty', {
+                    description: 'Tài khoản của bạn chưa có hồ sơ công ty. Vui lòng tạo hồ sơ công ty trước.',
+                    action: {
+                        label: 'Tạo hồ sơ',
+                        onClick: () => navigate('/company/profile'),
+                    },
+                });
+            } else if (code === 'COMPANY_NOT_VERIFIED') {
+                toast.error('Công ty chưa được xác minh', {
+                    description: 'Hồ sơ công ty của bạn đang chờ Quản trị viên duyệt. Vui lòng liên hệ hỗ trợ để được duyệt nhanh.',
+                });
+            } else if (code === 'CANNOT_DOWNGRADE') {
+                toast.error('Không thể hạ gói dịch vụ', {
+                    description: errorMsg || `Bạn đang sử dụng gói ${activePlan?.name || 'cao hơn'}. Hệ thống chỉ cho phép gia hạn gói hiện tại hoặc nâng cấp lên gói cao hơn.`,
+                });
+            } else if (code === 'ACTIVE_SUBSCRIPTION_EXISTS') {
+                toast.error('Đang có gói dịch vụ hoạt động', {
+                    description: errorMsg || 'Bạn đang có gói hoạt động. Vui lòng gia hạn cùng gói hiện tại hoặc chọn gói nâng cấp.',
+                });
+            } else {
+                toast.error('Không thể đăng ký gói', {
+                    description: errorMsg || 'Đã có lỗi xảy ra trong quá trình xử lý đăng ký. Vui lòng thử lại sau.',
+                });
+            }
         }
     });
 
-    const handleSelectPlan = (planId: number | undefined) => {
+    const handleSelectPlan = (planId: number | undefined, planTierKey: TierKey) => {
         if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để tiếp tục');
-            navigate('/auth');
+            toast.error('Cần đăng nhập', {
+                description: 'Vui lòng đăng nhập tài khoản Nhà tuyển dụng để tiếp tục.',
+                action: {
+                    label: 'Đăng nhập',
+                    onClick: () => navigate('/auth'),
+                },
+            });
             return;
         }
 
         if (user?.role !== 'company') {
-            toast.error('Gói dịch vụ này chỉ dành cho tài khoản Nhà tuyển dụng');
+            toast.error('Tài khoản không phù hợp', {
+                description: 'Gói dịch vụ này chỉ dành riêng cho tài khoản Nhà tuyển dụng (Doanh nghiệp).',
+            });
+            return;
+        }
+
+        if (currentRank > 0 && TIER_RANKS[planTierKey] < currentRank) {
+            toast.error('Không thể hạ gói', {
+                description: `Tài khoản đang sử dụng gói ${activePlan?.name || 'cao hơn'}. Bạn chỉ có thể Gia hạn gói hiện tại hoặc Nâng cấp lên gói cao hơn.`,
+            });
             return;
         }
 
         if (!planId) {
-            toast.error('Không tìm thấy thông tin gói dịch vụ');
+            toast.error('Lỗi dữ liệu gói', {
+                description: 'Không tìm thấy mã gói dịch vụ. Vui lòng làm mới trang và thử lại.',
+            });
             return;
         }
 
@@ -285,37 +353,37 @@ export default function Pricing() {
         <div className="relative min-h-screen bg-[#F8FAFC] overflow-hidden">
             {/* ── Background Mesh Gradient ── */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[120px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]" />
                 <div className="absolute top-[20%] right-[-5%] w-[35%] h-[45%] bg-orange-400/15 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[40%] bg-indigo-600/10 rounded-full blur-[100px]" />
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
+                <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[40%] bg-primary/10 rounded-full blur-[100px]" />
+                <div className="absolute inset-0 bg-card/40 backdrop-blur-[2px]" />
             </div>
 
             {/* ── Hero ── */}
             <section className="relative z-10 pt-28 pb-10 px-4 text-center">
                 <FadeIn>
-                    <Badge className="mb-4 bg-blue-50/80 backdrop-blur-sm border-blue-200 text-blue-700 hover:bg-blue-100 px-4 py-1.5 shadow-sm">
+                    <Badge className="mb-4 bg-primary/8 backdrop-blur-sm border-primary/20 text-primary hover:bg-primary/12 px-4 py-1.5 shadow-sm">
                         <Zap className="w-3.5 h-3.5 mr-1.5 inline" />
                         Bảng giá dịch vụ
                     </Badge>
                 </FadeIn>
                 <FadeIn delay={0.08}>
-                    <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 text-slate-900 drop-shadow-sm">
+                    <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 text-foreground drop-shadow-sm" style={{ fontFamily: 'var(--font-display)' }}>
                         Chọn gói{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary">
                             phù hợp với bạn
                         </span>
                     </h1>
                 </FadeIn>
                 <FadeIn delay={0.14}>
-                    <p className="text-slate-600 max-w-xl mx-auto mb-10 text-lg">
+                    <p className="text-muted-foreground max-w-xl mx-auto mb-10 text-lg">
                         3 gói dịch vụ — từ đội HR nhỏ đến doanh nghiệp lớn. Linh hoạt chọn chu kỳ thanh toán phù hợp.
                     </p>
                 </FadeIn>
 
                 {/* Duration Selector */}
                 <FadeIn delay={0.18}>
-                    <div className="inline-flex items-center bg-white/60 backdrop-blur-xl rounded-2xl p-1.5 border border-white/80 shadow-sm ring-1 ring-slate-900/5">
+                    <div className="inline-flex items-center bg-card/60 backdrop-blur-xl rounded-2xl p-1.5 border border-white/80 shadow-sm ring-1 ring-foreground/5">
                         {(['3_months', '6_months', '1_year'] as Duration[]).map(dur => (
                             <button
                                 key={dur}
@@ -323,8 +391,8 @@ export default function Pricing() {
                                 className={cn(
                                     'px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer relative',
                                     selectedDuration === dur
-                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50/50'
+                                        ? 'bg-primary text-white shadow-md shadow-primary/20'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 )}
                             >
                                 {DURATION_LABELS[dur]}
@@ -356,6 +424,12 @@ export default function Pricing() {
                                 const price = plan ? parseFloat(String(plan.price)) : 0;
                                 const features = (plan?.features as unknown as Record<string, unknown>) ?? {};
 
+                                const cardRank = TIER_RANKS[tier.key];
+                                const isCurrentTier = currentRank > 0 && currentTierKey === tier.key;
+                                const isUpgrade = currentRank > 0 && cardRank > currentRank;
+                                const isDowngrade = currentRank > 0 && cardRank < currentRank;
+                                
+
                                 return (
                                     <FadeIn key={tier.key} delay={i * 0.1}>
                                         <div className="relative h-full">
@@ -374,21 +448,34 @@ export default function Pricing() {
                                                     tier.cardHoverBorder,
                                                     tier.glowEffect && 'shadow-[0_8px_32px_0_rgba(251,146,60,0.12)]',
                                                     tier.darkCard && 'shadow-[0_8px_40px_0_rgba(99,102,241,0.15)]',
-                                                    !tier.glowEffect && !tier.darkCard && 'hover:shadow-lg ring-1 ring-slate-900/5'
+                                                    !tier.glowEffect && !tier.darkCard && 'hover:shadow-lg ring-1 ring-foreground/5',
+                                                    isDowngrade && 'opacity-65 grayscale-[30%]'
                                                 )}
                                             >
-                                                {/* Popular badge */}
-                                                {tier.popular && (
+                                                {/* Active or Popular badge */}
+                                                {isCurrentTier ? (
+                                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                                                        <Badge className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white border-0 px-4 py-1.5 shadow-lg shadow-teal-500/30 text-xs font-bold tracking-wide uppercase">
+                                                            <Check className="w-3.5 h-3.5 mr-1.5 stroke-[3]" /> Gói đang sử dụng
+                                                        </Badge>
+                                                    </div>
+                                                ) : isUpgrade ? (
+                                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                                                        <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 px-4 py-1.5 shadow-lg shadow-amber-500/30 text-xs font-bold tracking-wide uppercase">
+                                                            <Rocket className="w-3.5 h-3.5 mr-1.5" /> Khuyên dùng nâng cấp
+                                                        </Badge>
+                                                    </div>
+                                                ) : tier.popular ? (
                                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
                                                         <Badge className="bg-gradient-to-r from-orange-500 to-orange-400 text-white border-0 px-4 py-1.5 shadow-lg shadow-orange-500/30 text-xs hover:from-orange-600 hover:to-orange-500 font-semibold tracking-wide uppercase">
                                                             <Star className="w-3.5 h-3.5 mr-1.5 fill-current" /> Phổ biến nhất
                                                         </Badge>
                                                     </div>
-                                                )}
+                                                ) : null}
 
                                                 {/* Header */}
                                                 <div className="mb-6">
-                                                    <div className={cn('p-3.5 rounded-2xl w-fit mb-5 border', tier.iconBg, tier.darkCard ? 'border-indigo-400/20' : 'border-transparent')}>
+                                                    <div className={cn('p-3.5 rounded-2xl w-fit mb-5 border', tier.iconBg, tier.darkCard ? 'border-primary/20' : 'border-transparent')}>
                                                         <Icon className={cn('w-6 h-6', tier.iconColor)} />
                                                     </div>
                                                     <h3 className={cn('font-extrabold text-2xl mb-2', tier.textColor)}>{tier.name}</h3>
@@ -396,9 +483,9 @@ export default function Pricing() {
                                                 </div>
 
                                                 {/* Price */}
-                                                <div className={cn('mb-8 pb-6 border-b', tier.darkCard ? 'border-indigo-500/20' : 'border-slate-200/50')}>
+                                                <div className={cn('mb-8 pb-6 border-b', tier.darkCard ? 'border-primary/80/20' : 'border-border/50')}>
                                                     <div className={cn('flex items-baseline gap-1', tier.priceColor)}>
-                                                        <span className="text-4xl font-extrabold tracking-tight drop-shadow-sm">
+                                                        <span className="text-4xl font-extrabold tracking-tight drop-shadow-sm" style={{ fontFamily: 'var(--font-display)' }}>
                                                             {formatPrice(price)}
                                                         </span>
                                                         <span className={cn('text-sm font-medium', tier.subTextColor)}>/{DURATION_LABELS[selectedDuration]}</span>
@@ -439,18 +526,18 @@ export default function Pricing() {
                                                                     'flex items-start gap-3 text-sm transition-colors',
                                                                     ok
                                                                         ? cn('font-medium', tier.textColor)
-                                                                        : cn(tier.darkCard ? 'text-slate-600' : 'text-slate-400')
+                                                                        : cn(tier.darkCard ? 'text-muted-foreground' : 'text-muted-foreground/60')
                                                                 )}
                                                             >
                                                                 <div className={cn(
                                                                     'w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 border',
                                                                     ok
                                                                         ? tier.checkBg
-                                                                        : cn(tier.darkCard ? 'bg-slate-700/50 border-slate-600' : 'bg-slate-50 border-slate-100')
+                                                                        : cn(tier.darkCard ? 'bg-foreground/70/50 border-border' : 'bg-muted border-border/60')
                                                                 )}>
                                                                     {ok
                                                                         ? <Check className={cn('w-3 h-3 font-bold', tier.checkColor)} />
-                                                                        : <X className={cn('w-3 h-3', tier.darkCard ? 'text-slate-600' : 'text-slate-300')} />
+                                                                        : <X className={cn('w-3 h-3', tier.darkCard ? 'text-muted-foreground' : 'text-muted-foreground/40')} />
                                                                     }
                                                                 </div>
                                                                 <span className="leading-snug">{feat.label}</span>
@@ -461,15 +548,38 @@ export default function Pricing() {
 
                                                 {/* CTA */}
                                                 <Button
-                                                    onClick={() => handleSelectPlan(plan?.id)}
-                                                    disabled={subscribeMutation.isPending}
+                                                    onClick={() => handleSelectPlan(plan?.id, tier.key)}
+                                                    disabled={subscribeMutation.isPending || isDowngrade}
                                                     size="lg"
-                                                    className={cn('w-full font-bold transition-all duration-300 mt-auto rounded-xl h-12 cursor-pointer', tier.btnClass)}
+                                                    className={cn(
+                                                        'w-full font-bold transition-all duration-300 mt-auto rounded-xl h-12 cursor-pointer',
+                                                        isDowngrade
+                                                            ? 'bg-muted text-muted-foreground border border-border cursor-not-allowed hover:bg-muted opacity-70'
+                                                            : isCurrentTier
+                                                            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-teal-500/20'
+                                                            : isUpgrade
+                                                            ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-white hover:brightness-110 shadow-lg shadow-amber-500/25'
+                                                            : tier.btnClass
+                                                    )}
                                                 >
                                                     {subscribeMutation.isPending && plan?.id === subscribeMutation.variables ? (
                                                         <span className="flex items-center gap-2">
                                                             <Rocket className="w-4 h-4 animate-bounce" />
                                                             Đang xử lý...
+                                                        </span>
+                                                    ) : isDowngrade ? (
+                                                        <span className="flex items-center justify-center w-full text-xs">
+                                                            Không thể hạ gói
+                                                        </span>
+                                                    ) : isCurrentTier ? (
+                                                        <span className="flex items-center justify-center w-full">
+                                                            Gia hạn {tier.name} ({DURATION_LABELS[selectedDuration]})
+                                                            <ArrowRight className="w-4 h-4 ml-2" />
+                                                        </span>
+                                                    ) : isUpgrade ? (
+                                                        <span className="flex items-center justify-center w-full">
+                                                            Nâng cấp lên {tier.name}
+                                                            <Zap className="w-4 h-4 ml-1.5 fill-current text-yellow-200" />
                                                         </span>
                                                     ) : (
                                                         <span className="flex items-center justify-center w-full">
@@ -493,25 +603,25 @@ export default function Pricing() {
                 <section className="relative z-10 py-20 px-4">
                     <div className="max-w-5xl mx-auto">
                         <FadeIn>
-                            <h2 className="text-3xl font-extrabold mb-3 text-center text-slate-900 drop-shadow-sm">So sánh chi tiết tính năng</h2>
-                            <p className="text-center text-slate-500 mb-10 text-sm">Chọn gói phù hợp nhất với nhu cầu tuyển dụng của bạn</p>
+                            <h2 className="text-3xl font-extrabold mb-3 text-center text-foreground drop-shadow-sm" style={{ fontFamily: 'var(--font-display)' }}>So sánh chi tiết tính năng</h2>
+                            <p className="text-center text-muted-foreground mb-10 text-sm">Chọn gói phù hợp nhất với nhu cầu tuyển dụng của bạn</p>
 
-                            <div className="bg-white/70 backdrop-blur-xl rounded-[24px] border border-white/80 overflow-hidden shadow-lg shadow-blue-900/5 ring-1 ring-slate-900/5">
+                            <div className="bg-card/70 backdrop-blur-xl rounded-[24px] border border-white/80 overflow-hidden shadow-lg shadow-primary/5 ring-1 ring-foreground/5">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
                                             <tr>
-                                                <th className="py-5 px-6 w-[36%] bg-slate-50/80 border-b border-slate-200/60">
-                                                    <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tính năng</span>
+                                                <th className="py-5 px-6 w-[36%] bg-muted/80 border-b border-border/60">
+                                                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Tính năng</span>
                                                 </th>
                                                 {TIER_CONFIG.map(tier => (
-                                                    <th key={tier.key} className="py-5 px-6 text-center border-b border-slate-200/60 bg-slate-50/80">
+                                                    <th key={tier.key} className="py-5 px-6 text-center border-b border-border/60 bg-muted/80">
                                                         <div className="flex flex-col items-center gap-2">
                                                             <span className={cn(
                                                                 'inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold',
-                                                                tier.key === 'plus' && 'bg-blue-100 text-blue-700',
+                                                                tier.key === 'plus' && 'bg-primary/12 text-primary',
                                                                 tier.key === 'pro' && 'bg-orange-100 text-orange-700',
-                                                                tier.key === 'max' && 'bg-indigo-100 text-indigo-700',
+                                                                tier.key === 'max' && 'bg-primary/12 text-primary',
                                                             )}>
                                                                 {tier.popular && <Star className="w-3.5 h-3.5 fill-current" />}
                                                                 {tier.name}
@@ -526,12 +636,12 @@ export default function Pricing() {
                                                 const RowIcon = feat.icon;
                                                 return (
                                                     <tr key={feat.key} className={cn(
-                                                        'border-b border-slate-100/80 last:border-0 transition-colors hover:bg-blue-50/30',
-                                                        idx % 2 === 0 ? 'bg-white/50' : 'bg-slate-50/30'
+                                                        'border-b border-border/60/80 last:border-0 transition-colors hover:bg-primary/8/30',
+                                                        idx % 2 === 0 ? 'bg-card/50' : 'bg-muted/30'
                                                     )}>
-                                                        <td className="py-4 px-6 text-sm font-medium text-slate-700">
+                                                        <td className="py-4 px-6 text-sm font-medium text-foreground/80">
                                                             <div className="flex items-center gap-2.5">
-                                                                <RowIcon className="w-4 h-4 text-slate-400 shrink-0" />
+                                                                <RowIcon className="w-4 h-4 text-muted-foreground/60 shrink-0" />
                                                                 {feat.label}
                                                             </div>
                                                         </td>
@@ -546,26 +656,26 @@ export default function Pricing() {
                                                                         val ? (
                                                                             <div className={cn(
                                                                                 'w-6 h-6 rounded-full flex items-center justify-center mx-auto',
-                                                                                tier.key === 'plus' && 'bg-blue-100',
+                                                                                tier.key === 'plus' && 'bg-primary/12',
                                                                                 tier.key === 'pro' && 'bg-orange-100',
-                                                                                tier.key === 'max' && 'bg-indigo-100',
+                                                                                tier.key === 'max' && 'bg-primary/12',
                                                                             )}>
                                                                                 <Check className={cn(
                                                                                     'w-3.5 h-3.5 font-bold',
-                                                                                    tier.key === 'plus' && 'text-blue-600',
+                                                                                    tier.key === 'plus' && 'text-primary',
                                                                                     tier.key === 'pro' && 'text-orange-600',
-                                                                                    tier.key === 'max' && 'text-indigo-600',
+                                                                                    tier.key === 'max' && 'text-primary',
                                                                                 )} />
                                                                             </div>
                                                                         ) : (
-                                                                            <X className="w-5 h-5 text-slate-300 mx-auto" />
+                                                                            <X className="w-5 h-5 text-muted-foreground/40 mx-auto" />
                                                                         )
                                                                     ) : (
                                                                         <span className={cn(
                                                                             'text-sm font-bold px-3 py-1 rounded-lg',
-                                                                            tier.key === 'plus' && 'text-blue-700 bg-blue-50',
+                                                                            tier.key === 'plus' && 'text-primary bg-primary/8',
                                                                             tier.key === 'pro' && 'text-orange-700 bg-orange-50',
-                                                                            tier.key === 'max' && 'text-indigo-700 bg-indigo-50',
+                                                                            tier.key === 'max' && 'text-primary bg-primary/8',
                                                                         )}>
                                                                             {val != null ? String(val) : '—'}
                                                                         </span>
@@ -577,8 +687,8 @@ export default function Pricing() {
                                                 );
                                             })}
                                             {/* Price row */}
-                                            <tr className="bg-slate-50/60 border-t-2 border-slate-200/60">
-                                                <td className="py-5 px-6 text-sm font-bold text-slate-900">
+                                            <tr className="bg-muted/60 border-t-2 border-border/60">
+                                                <td className="py-5 px-6 text-sm font-bold text-foreground">
                                                     Giá / {DURATION_LABELS[selectedDuration]}
                                                 </td>
                                                 {TIER_CONFIG.map(tier => {
@@ -588,9 +698,9 @@ export default function Pricing() {
                                                         <td key={tier.key} className="py-5 px-6 text-center">
                                                             <span className={cn(
                                                                 'text-lg font-extrabold',
-                                                                tier.key === 'plus' && 'text-blue-700',
+                                                                tier.key === 'plus' && 'text-primary',
                                                                 tier.key === 'pro' && 'text-orange-700',
-                                                                tier.key === 'max' && 'text-indigo-700',
+                                                                tier.key === 'max' && 'text-primary',
                                                             )}>
                                                                 {formatPrice(price)}
                                                             </span>
@@ -613,16 +723,16 @@ export default function Pricing() {
                 <div className="max-w-3xl mx-auto flex flex-col items-center md:items-stretch">
                     <FadeIn>
                         <div className="flex items-center justify-center md:justify-start gap-4 mb-10">
-                            <div className="p-3 bg-white border border-slate-200 shadow-sm rounded-xl text-blue-600">
+                            <div className="p-3 bg-card border border-border shadow-sm rounded-xl text-primary">
                                 <HelpCircle className="w-6 h-6" />
                             </div>
-                            <h2 className="text-3xl font-extrabold text-slate-900">Câu hỏi thường gặp</h2>
+                            <h2 className="text-3xl font-extrabold text-foreground" style={{ fontFamily: 'var(--font-display)' }}>Câu hỏi thường gặp</h2>
                         </div>
                     </FadeIn>
                     <div className="space-y-4 w-full">
                         {BILLING_FAQS.map((item, i) => (
                             <FadeIn key={i} delay={i * 0.05}>
-                                <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm ring-1 ring-slate-900/5 overflow-hidden">
+                                <div className="bg-card/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm ring-1 ring-foreground/5 overflow-hidden">
                                     <FaqAccordion item={item} />
                                 </div>
                             </FadeIn>
@@ -630,13 +740,13 @@ export default function Pricing() {
                     </div>
 
                     <FadeIn delay={0.3} className="w-full">
-                        <div className="mt-16 text-center bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-[32px] p-12 border border-blue-100/50 relative overflow-hidden">
+                        <div className="mt-16 text-center bg-gradient-to-br from-primary/8 to-primary/5 rounded-[32px] p-12 border border-primary/12/50 relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-8 opacity-10">
                                 <Headphones className="w-32 h-32" />
                             </div>
-                            <h3 className="text-2xl font-extrabold text-slate-900 mb-4 relative z-10">Bạn cần tư vấn thêm?</h3>
-                            <p className="text-slate-600 mb-8 font-medium text-lg max-w-xl mx-auto relative z-10">Đội ngũ chuyên gia của JOBIO luôn sẵn sàng hỗ trợ bạn 24/7 để tạo ra trải nghiệm tuyển dụng tốt nhất.</p>
-                            <Button asChild className="bg-white text-blue-600 hover:bg-slate-50 font-bold shadow-md shadow-blue-900/5 border border-slate-200 rounded-xl px-8 h-12 relative z-10 cursor-pointer" size="lg">
+                            <h3 className="text-2xl font-extrabold text-foreground mb-4 relative z-10" style={{ fontFamily: 'var(--font-display)' }}>Bạn cần tư vấn thêm?</h3>
+                            <p className="text-muted-foreground mb-8 font-medium text-lg max-w-xl mx-auto relative z-10">Đội ngũ chuyên gia của JOBIO luôn sẵn sàng hỗ trợ bạn 24/7 để tạo ra trải nghiệm tuyển dụng tốt nhất.</p>
+                            <Button asChild className="bg-card text-primary hover:bg-muted font-bold shadow-md shadow-primary/5 border border-border rounded-xl px-8 h-12 relative z-10 cursor-pointer" size="lg">
                                 <Link to="/contact">Liên hệ chúng tôi <ArrowRight className="w-4 h-4 ml-2" /></Link>
                             </Button>
                         </div>

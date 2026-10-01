@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Company
+from .models import Company, CompanyMember
 from apps.communication.notifications.services.notifications import (
     notify_admins,
     send_notification,
@@ -12,6 +12,15 @@ from apps.communication.notifications.services.notifications import (
 def notify_admin_on_new_company(sender, instance, created, **kwargs):
     """Notify all admins when a new company is registered and needs verification."""
     if created:
+        if instance.user_id:
+            CompanyMember.objects.get_or_create(
+                company=instance,
+                user=instance.user,
+                defaults={
+                    "role": CompanyMember.Role.OWNER,
+                    "status": CompanyMember.Status.ACTIVE,
+                },
+            )
         notify_admins(
             notification_type_name="verification",
             title="Công ty mới chờ duyệt",
@@ -26,6 +35,21 @@ def notify_admin_on_new_company(sender, instance, created, **kwargs):
             hasattr(instance, "_old_status")
             and instance._old_status != instance.verification_status
         ):
+            if (
+                instance._old_status == Company.VerificationStatus.VERIFIED
+                and instance.verification_status != Company.VerificationStatus.VERIFIED
+            ):
+                from apps.recruitment.jobs.models import Job
+
+                Job.objects.filter(
+                    company=instance,
+                    status=Job.Status.PUBLISHED,
+                ).update(
+                    status=Job.Status.CLOSED,
+                    featured=False,
+                    featured_until=None,
+                )
+
             if instance.user:
                 status_label = (
                     "được duyệt"

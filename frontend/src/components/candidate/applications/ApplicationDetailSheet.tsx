@@ -21,6 +21,7 @@ import { Building2, Calendar, FileText, CheckCircle2 } from 'lucide-react';
 import { applicationService } from '@/services/applicationService';
 import { toast } from 'sonner';
 import type { ApplicationStatusHistoryItem } from '@/types/api';
+import { sanitizeHtmlDocument } from '@/lib/sanitizeHtml';
 
 const STATUS_LABEL_MAP: Record<string, string> = {
     pending: 'Mới gửi',
@@ -57,7 +58,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
             cv_name: appDetail.cv?.file_name || (appDetail as any).cv_name || applicationPreview?.cv_name || 'CV.pdf',
             cv_id: appDetail.cv?.id || (appDetail as any).cv_id || applicationPreview?.cv_id,
             cv_template_id: (appDetail as any).cv_template_id ?? null,
-            cv_url: (appDetail as any).cv_url ?? null,
+            cv_url: (appDetail as any).cv_file_url ?? (appDetail as any).cv_url ?? null,
             candidate_id: appDetail.candidate?.id || appDetail.candidate_id,
             statusLabel: STATUS_LABEL_MAP[appDetail.status] || appDetail.status,
         }
@@ -92,15 +93,13 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
             return;
         }
 
-        const isUploadedCv = !app.cv_template_id && !!app.cv_url;
+        const isUploadedCv = !app.cv_template_id && !!app.cv_id;
 
         if (isUploadedCv) {
-            // CV_Upload: fetch PDF as blob → create blob URL → show in Dialog iframe
-            // Blob URL is same-origin so browser PDF viewer works without security restrictions
             try {
                 toast.loading("Đang tải CV...");
-                const res = await fetch(app.cv_url!);
-                const blob = await res.blob();
+                const res = await applicationService.getCvFile(Number(applicationId));
+                const blob = res.data;
                 const blobUrl = URL.createObjectURL(blob);
                 setPdfBlobUrl(blobUrl);
                 setPreviewHtml(null);
@@ -161,7 +160,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-xl md:max-w-2xl overflow-hidden flex flex-col p-0 border-l border-slate-200">
+            <SheetContent className="w-full sm:max-w-xl md:max-w-2xl overflow-hidden flex flex-col p-0 border-l border-border">
                 {isLoadingApp || !app ? (
                     <div className="p-6 space-y-4">
                         <Skeleton className="h-24 w-full" />
@@ -169,7 +168,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                     </div>
                 ) : (
                     <>
-                        <div className="relative border-b border-slate-100 bg-slate-50/80">
+                        <div className="relative border-b border-border/60 bg-muted/80">
                             {canWithdraw && (
                                 <Button
                                     variant="destructive"
@@ -182,16 +181,16 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                             )}
                             <SheetHeader className="px-6 pb-4 pt-6 pr-24 text-left">
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-sm">
+                                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-border bg-card p-2 shadow-sm">
                                         {app.logo_url ? (
-                                            <img src={app.logo_url} alt={app.company} className="h-full w-full object-contain" />
+                                            <img loading="lazy" src={app.logo_url} alt={app.company} className="h-full w-full object-contain" />
                                         ) : (
-                                            <Building2 className="h-7 w-7 text-slate-300" />
+                                            <Building2 className="h-7 w-7 text-muted-foreground/40" />
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <SheetTitle className="text-xl font-bold line-clamp-1">{app.job_title}</SheetTitle>
-                                        <SheetDescription className="flex items-center gap-2 mt-1 font-medium text-slate-600">
+                                        <SheetDescription className="flex items-center gap-2 mt-1 font-medium text-muted-foreground">
                                             <Building2 className="w-4 h-4" /> {app.company || 'Chưa có tên công ty'}
                                         </SheetDescription>
                                     </div>
@@ -203,16 +202,16 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                         <span
                                             key={st}
                                             className={`text-center text-[11px] font-semibold leading-tight transition-colors sm:text-xs ${
-                                                i <= currentStepIndex ? 'text-cyan-700' : 'text-slate-400'
+                                                i <= currentStepIndex ? 'text-teal-700' : 'text-muted-foreground/60'
                                             }`}
                                         >
                                             {st}
                                         </span>
                                     ))}
                                 </div>
-                                <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200 shadow-inner">
+                                <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted shadow-inner">
                                     <div
-                                        className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 transition-all duration-500"
+                                        className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
                                         style={{
                                             width: `${progressWidth}%`,
                                             backgroundColor: app.status === 'rejected' ? '#ef4444' : app.status === 'withdrawn' ? '#94a3b8' : '',
@@ -225,47 +224,47 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                         <ScrollArea className="flex-1">
                             <div className="p-6 space-y-8">
                                 <section>
-                                    <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                        <FileText className="w-4 h-4 text-cyan-600" />
+                                    <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-teal-600" />
                                         Hồ sơ ứng tuyển
                                     </h3>
-                                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 grid gap-4 text-sm">
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
-                                            <span className="text-slate-500">Ngày gửi đơn:</span>
-                                            <span className="font-medium text-slate-900">{new Date(app.applied_at).toLocaleString('vi-VN')}</span>
+                                    <div className="bg-muted border border-border/60 rounded-xl p-4 grid gap-4 text-sm">
+                                        <div className="flex justify-between items-center py-2 border-b border-border/60 last:border-0">
+                                            <span className="text-muted-foreground">Ngày gửi đơn:</span>
+                                            <span className="font-medium text-foreground">{new Date(app.applied_at).toLocaleString('vi-VN')}</span>
                                         </div>
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
-                                            <span className="text-slate-500">CV đính kèm:</span>
+                                        <div className="flex justify-between items-center py-2 border-b border-border/60 last:border-0">
+                                            <span className="text-muted-foreground">CV đính kèm:</span>
                                             <button
                                                 onClick={handlePreviewCv}
                                                 type="button"
-                                                className="flex cursor-pointer items-center gap-1.5 font-medium text-cyan-600 transition-colors hover:text-cyan-700 hover:underline"
+                                                className="flex cursor-pointer items-center gap-1.5 font-medium text-teal-600 transition-colors hover:text-teal-700 hover:underline"
                                             >
                                                 <FileText className="w-4 h-4" /> {app.cv_name || "CV.pdf"}
                                             </button>
                                         </div>
-                                        <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
-                                            <span className="text-slate-500">Số CV đính kèm:</span>
-                                            <span className="font-medium text-slate-900">{app.cv_id ? 1 : 0}</span>
+                                        <div className="flex justify-between items-center py-2 border-b border-border/60 last:border-0">
+                                            <span className="text-muted-foreground">Số CV đính kèm:</span>
+                                            <span className="font-medium text-foreground">{app.cv_id ? 1 : 0}</span>
                                         </div>
                                         {app.ai_score !== null && app.ai_score !== undefined && app.ai_score > 0 && (
-                                            <div className="flex justify-between items-center py-2 border-b border-slate-200/60 last:border-0">
-                                                <span className="text-slate-500">Độ phù hợp (AI):</span>
+                                            <div className="flex justify-between items-center py-2 border-b border-border/60 last:border-0">
+                                                <span className="text-muted-foreground">Độ phù hợp (AI):</span>
                                                 <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none">{app.ai_score}%</Badge>
                                             </div>
                                         )}
                                     </div>
                                     {app.cover_letter && (
-                                        <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                            <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Thư giới thiệu (Cover Letter)</p>
-                                            <p className="text-sm text-slate-700 italic">"{app.cover_letter}"</p>
+                                        <div className="mt-4 p-4 bg-muted rounded-xl border border-border/60">
+                                            <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Thư giới thiệu (Cover Letter)</p>
+                                            <p className="text-sm text-foreground/80 italic">"{app.cover_letter}"</p>
                                         </div>
                                     )}
                                 </section>
 
                                 <section>
-                                    <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 text-cyan-600" />
+                                    <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-teal-600" />
                                         Lịch sử trạng thái
                                     </h3>
                                     {isLoadingHistory ? (
@@ -274,24 +273,24 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                                             <Skeleton className="h-10 w-2/3" />
                                         </div>
                                     ) : isHistoryError ? (
-                                        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                                        <div className="rounded-xl border border-dashed border-border bg-muted px-4 py-5 text-sm text-muted-foreground">
                                             Không tải được lịch sử trạng thái từ hệ thống.
                                         </div>
                                     ) : (
-                                        <div className="relative space-y-4 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-0.5 before:bg-slate-300">
+                                        <div className="relative space-y-4 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-0.5 before:bg-muted-foreground/20">
                                             {timelineItems.map((hist, idx) => (
                                                 <div key={hist.id} className="relative pl-14">
-                                                    <div className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300 bg-white text-slate-700 shadow-md">
-                                                        <CheckCircle2 className={`w-5 h-5 ${idx === 0 ? 'text-cyan-600' : 'text-slate-500'}`} />
+                                                    <div className="absolute left-0 top-1 flex h-10 w-10 items-center justify-center rounded-full border-2 border-cyan-300 bg-card text-foreground/80 shadow-md">
+                                                        <CheckCircle2 className={`w-5 h-5 ${idx === 0 ? 'text-teal-600' : 'text-muted-foreground'}`} />
                                                     </div>
-                                                    <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                                                    <div className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
                                                         <div className="mb-1 flex items-center justify-between gap-3">
-                                                            <div className="font-bold text-slate-900">{STATUS_LABEL_MAP[hist.new_status] || hist.new_status}</div>
-                                                            <div className="shrink-0 text-xs text-slate-500">
+                                                            <div className="font-bold text-foreground">{STATUS_LABEL_MAP[hist.new_status] || hist.new_status}</div>
+                                                            <div className="shrink-0 text-xs text-muted-foreground">
                                                                 {new Date(hist.created_at).toLocaleString('vi-VN')}
                                                             </div>
                                                         </div>
-                                                        <div className="text-sm text-slate-600">
+                                                        <div className="text-sm text-muted-foreground">
                                                             {hist.notes || 'Không có ghi chú cho lần cập nhật này.'}
                                                         </div>
                                                     </div>
@@ -312,7 +311,7 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                     <DialogHeader className="sr-only">
                         <DialogTitle>Xem trước CV</DialogTitle>
                     </DialogHeader>
-                    <div className="bg-white mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
+                    <div className="bg-card mx-auto shadow-2xl relative group" style={{ minWidth: '210mm', minHeight: '297mm' }}>
                         {pdfBlobUrl ? (
                             // CV_Upload: blob URL is same-origin → browser PDF viewer works
                             <iframe
@@ -324,17 +323,17 @@ export function ApplicationDetailSheet({ applicationId, open, onOpenChange, onWi
                         ) : previewHtml ? (
                             // CV_Template: HTML rendered in iframe
                             <iframe
-                                srcDoc={`<!DOCTYPE html><html><head><style>body{margin:0;padding:0;background:white;}</style></head><body>${previewHtml}</body></html>`}
+                                srcDoc={sanitizeHtmlDocument(previewHtml)}
                                 className="w-full pointer-events-auto"
                                 style={{ height: '297mm', border: 'none', display: 'block' }}
                                 title="CV Preview"
-                                sandbox="allow-same-origin allow-scripts"
+                                sandbox=""
                             />
                         ) : null}
                         <Button
                             variant="default"
                             size="sm"
-                            className="absolute top-4 right-4 z-50 cursor-pointer border border-slate-900 bg-slate-900 px-3 font-semibold text-white shadow-lg hover:bg-slate-800"
+                            className="absolute top-4 right-4 z-50 cursor-pointer border border-foreground/30 bg-foreground/90 px-3 font-semibold text-white shadow-lg hover:bg-foreground/80"
                             onClick={handleClosePreview}
                         >
                             Đóng

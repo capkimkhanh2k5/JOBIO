@@ -8,4 +8,4 @@ class JobAlertsConfig(AppConfig):
     verbose_name = "Job Alerts"
 
     def ready(self):
-        pass
+        import apps.communication.job_alerts.signals  # noqa: F401

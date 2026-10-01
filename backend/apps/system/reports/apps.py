@@ -7,4 +7,4 @@ class ReportsConfig(AppConfig):
     label = "system_reports"
 
     def ready(self):
-        pass
+        from . import signals  # noqa: F401

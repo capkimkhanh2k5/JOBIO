@@ -277,7 +277,12 @@ class TestClaimCompany(BaseCompanyTestCase):
 
     def test_claim_company_success(self):
         """Claim company chưa có owner thành công"""
-        self.client.force_authenticate(user=self.other_user)
+        claim_user = CustomUser.objects.create_user(
+            email="claim-company-success@example.com",
+            password="password123",
+            role="company",
+        )
+        self.client.force_authenticate(user=claim_user)
 
         response = self.client.post(company_claim(self.orphan_company.id))
 
@@ -286,7 +291,27 @@ class TestClaimCompany(BaseCompanyTestCase):
 
         # Verify DB
         self.orphan_company.refresh_from_db()
-        self.assertEqual(self.orphan_company.user, self.other_user)
+        self.assertEqual(self.orphan_company.user, claim_user)
+
+    def test_candidate_cannot_claim_company(self):
+        """Candidate không được claim company chưa có owner"""
+        self.client.force_authenticate(user=self.other_user)
+
+        response = self.client.post(company_claim(self.orphan_company.id))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.orphan_company.refresh_from_db()
+        self.assertIsNone(self.orphan_company.user)
+
+    def test_company_user_with_existing_profile_cannot_claim_company(self):
+        """Company user đã có hồ sơ công ty không được claim thêm company khác"""
+        self.client.force_authenticate(user=self.company_user)
+
+        response = self.client.post(company_claim(self.orphan_company.id))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.orphan_company.refresh_from_db()
+        self.assertIsNone(self.orphan_company.user)
 
     def test_claim_company_already_claimed(self):
         """Company đã có owner → 400"""

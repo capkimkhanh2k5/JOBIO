@@ -25,6 +25,13 @@ class ProjectInput(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
+def _validate_project_dates(start_date, end_date, is_ongoing) -> None:
+    if end_date and start_date and end_date < start_date:
+        raise ValueError("End date must be after start date")
+    if is_ongoing and end_date:
+        raise ValueError("End date should be empty when is_ongoing=True")
+
+
 @transaction.atomic
 def create_project(recruiter: Recruiter, data: ProjectInput) -> RecruiterProject:
     """
@@ -39,12 +46,22 @@ def create_project(recruiter: Recruiter, data: ProjectInput) -> RecruiterProject
     next_order = (max_order or 0) + 1
 
     fields = data.model_dump(exclude_unset=True)
+    _validate_project_dates(
+        fields.get("start_date"),
+        fields.get("end_date"),
+        fields.get("is_ongoing", False),
+    )
 
     if "project_name" in fields:
         existing = RecruiterProject.objects.filter(
             recruiter=recruiter, project_name__iexact=fields["project_name"]
         ).first()
         if existing:
+            _validate_project_dates(
+                fields.get("start_date", existing.start_date),
+                fields.get("end_date", existing.end_date),
+                fields.get("is_ongoing", existing.is_ongoing),
+            )
             for field, value in fields.items():
                 setattr(existing, field, value)
             existing.save()
@@ -62,6 +79,11 @@ def update_project(project: RecruiterProject, data: ProjectInput) -> RecruiterPr
     Cập nhật thông tin dự án.
     """
     fields = data.model_dump(exclude_unset=True)
+    _validate_project_dates(
+        fields.get("start_date", project.start_date),
+        fields.get("end_date", project.end_date),
+        fields.get("is_ongoing", project.is_ongoing),
+    )
 
     for field, value in fields.items():
         setattr(project, field, value)

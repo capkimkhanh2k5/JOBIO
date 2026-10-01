@@ -1,11 +1,13 @@
 from typing import Optional
 from pydantic import BaseModel
 from django.db import transaction
-from django.utils import timezone
+from django.db.models import Case, F, IntegerField, Value, When
 
 from apps.candidate.recruiters.models import Recruiter
 from apps.candidate.recruiter_cvs.models import RecruiterCV
+from apps.company.companies.permissions import can_manage_company_jobs
 from apps.recruitment.jobs.models import Job
+from apps.recruitment.jobs.selectors.jobs import ensure_job_publicly_available
 from apps.recruitment.applications.models import Application
 from apps.recruitment.application_status_history.services.application_status_history import (
     log_status_history,
@@ -38,12 +40,59 @@ class ApplicationUpdateInput(BaseModel):
     cover_letter: Optional[str] = None
 
 
+WITHDRAWABLE_STATUSES = {"pending", "reviewing"}
+
+
 def _ensure_recruiter_owns_cv(recruiter: Recruiter, cv_id: int | None) -> None:
     if cv_id is None:
         return
 
     if not RecruiterCV.objects.filter(id=cv_id, recruiter=recruiter).exists():
         raise ValueError("CV not found!")
+
+
+def _resolve_application_cv(recruiter: Recruiter, cv_id: int | None) -> RecruiterCV:
+    if cv_id is not None:
+        cv = RecruiterCV.objects.filter(id=cv_id, recruiter=recruiter).first()
+        if not cv:
+            raise ValueError("CV not found!")
+        return cv
+
+    cv = (
+        RecruiterCV.objects.filter(recruiter=recruiter)
+        .order_by("-is_default", "-updated_at")
+        .first()
+    )
+    if not cv:
+        raise ValueError("Bạn cần tạo hoặc tải lên ít nhất một CV trước khi ứng tuyển.")
+    return cv
+
+
+def _increment_job_application_count(job_id: int) -> None:
+    Job.objects.filter(id=job_id).update(application_count=F("application_count") + 1)
+
+
+def _decrement_job_application_count(job_id: int) -> None:
+    Job.objects.filter(id=job_id).update(
+        application_count=Case(
+            When(application_count__gt=0, then=F("application_count") - 1),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    )
+
+
+def _cancel_open_interviews(application: Application) -> None:
+    from apps.recruitment.interviews.models import Interview
+
+    Interview.objects.filter(
+        application=application,
+        status__in=[
+            Interview.Status.SCHEDULED,
+            Interview.Status.CONFIRMED,
+            Interview.Status.RESCHEDULED,
+        ],
+    ).update(status=Interview.Status.CANCELLED)
 
 
 @transaction.atomic
@@ -61,30 +110,36 @@ def create_application(
     # Lấy job
     job = Job.objects.get(id=data.job_id)
 
-    # Kiểm tra job status
-    if job.status != "published":
-        raise ValueError("This job is no longer recruiting!")
-    if job.application_deadline and job.application_deadline < timezone.localdate():
-        raise ValueError("This job is no longer recruiting!")
+    ensure_job_publicly_available(job)
 
-    _ensure_recruiter_owns_cv(recruiter, data.cv_id)
+    cv = _resolve_application_cv(recruiter, data.cv_id)
+
+    match_score = None
+    score_breakdown = {}
+    try:
+        from apps.recruitment.jobs.services.recommendations import score_candidate_job
+
+        match_result = score_candidate_job(recruiter, job, cv)
+        match_score = match_result.get("match_score")
+        score_breakdown = match_result.get("score_breakdown", {})
+    except Exception:
+        pass
 
     application = Application.objects.create(
         recruiter=recruiter,
         job=job,
-        cv_id=data.cv_id,
+        cv=cv,
         cover_letter=data.cover_letter,
         status="pending",
+        match_score=match_score,
+        score_breakdown=score_breakdown,
     )
 
     log_status_history(
         application, None, "pending", recruiter.user, "Ứng viên đã gửi đơn ứng tuyển"
     )
 
-    # Cập nhật số lượng ứng tuyển
-    Job.objects.filter(id=data.job_id).update(
-        application_count=job.application_count + 1
-    )
+    _increment_job_application_count(data.job_id)
 
     return application
 
@@ -100,12 +155,28 @@ def update_application(
     if application.status not in ["pending", "reviewing"]:
         raise ValueError("You cannot update this application!")
 
-    if data.cv_id is not None:
+    cv_changed = False
+    if data.cv_id is not None and data.cv_id != application.cv_id:
         _ensure_recruiter_owns_cv(application.recruiter, data.cv_id)
         application.cv_id = data.cv_id
+        cv_changed = True
 
     if data.cover_letter is not None:
         application.cover_letter = data.cover_letter if data.cover_letter else None
+
+    if cv_changed:
+        try:
+            from apps.recruitment.jobs.services.recommendations import (
+                score_candidate_job,
+            )
+
+            match_result = score_candidate_job(
+                application.recruiter, application.job, application.cv
+            )
+            application.match_score = match_result.get("match_score")
+            application.score_breakdown = match_result.get("score_breakdown", {})
+        except Exception:
+            pass
 
     application.save()
     return application
@@ -116,16 +187,14 @@ def withdraw_application(application: Application) -> None:
     """
     Rút đơn ứng tuyển (bởi ứng viên).
     """
-    if application.status in ["accepted", "withdrawn"]:
+    if application.status not in WITHDRAWABLE_STATUSES:
         raise ValueError("You cannot withdraw this application!")
 
     application.status = "withdrawn"
     application.save()
+    _cancel_open_interviews(application)
 
-    # Giảm số lượng ứng tuyển
-    Job.objects.filter(id=application.job_id).update(
-        application_count=application.job.application_count - 1
-    )
+    _decrement_job_application_count(application.job_id)
 
 
 @transaction.atomic
@@ -220,17 +289,6 @@ def send_offer(
     """
     Gửi offer cho ứng viên (bởi job owner).
     """
-    if application.status == "withdrawn":
-        raise ValueError("You cannot send an offer to this application!")
-
-    if application.status == "rejected":
-        raise ValueError("You cannot send an offer to this application!")
-
-    # Update status to offered
-    application.status = "offered"
-    application.reviewed_by = user
-    application.reviewed_at = timezone.now()
-
     # Build notes with offer details
     offer_notes = f"Offer: {offer_details}"
     if salary:
@@ -238,8 +296,12 @@ def send_offer(
     if start_date:
         offer_notes += f"\nStart date: {start_date}"
 
-    application.notes = offer_notes
-    application.save()
+    application = change_application_status(
+        application=application,
+        status=ApplicationStatus.OFFERED.value,
+        reviewed_by=user,
+        notes=offer_notes,
+    )
 
     # Send Offer Email
     EmailService.send_email(
@@ -267,7 +329,7 @@ def applicant_withdraw(application: Application, reason: str = None) -> Applicat
     Ứng viên rút đơn ứng tuyển.
     """
 
-    if application.status in ["accepted", "withdrawn"]:
+    if application.status not in WITHDRAWABLE_STATUSES:
         raise ValueError("You cannot withdraw this application!")
 
     old_status = application.status
@@ -277,6 +339,7 @@ def applicant_withdraw(application: Application, reason: str = None) -> Applicat
         application.notes = f"Reason: {reason}"
 
     application.save()
+    _cancel_open_interviews(application)
 
     # Log history
     log_status_history(
@@ -287,10 +350,7 @@ def applicant_withdraw(application: Application, reason: str = None) -> Applicat
         reason or "Applicant withdrew the application",
     )
 
-    # Decrease job application count
-    Job.objects.filter(id=application.job_id).update(
-        application_count=application.job.application_count - 1
-    )
+    _decrement_job_application_count(application.job_id)
 
     return application
 
@@ -301,48 +361,41 @@ def bulk_action(application_ids: list, action: str, user, notes: str = None) -> 
     Thực hiện thao tác hàng loạt trên nhiều applications.
     """
 
-    # Get applications và validate ownership
-    applications = Application.objects.filter(
-        id__in=application_ids,
-        job__company__user=user,  # Chỉ với jobs mà user sở hữu
-    ).select_related("job")
+    # Get applications và validate ownership at object level.
+    applications = Application.objects.filter(id__in=application_ids).select_related(
+        "job__company"
+    )
 
     if applications.count() != len(application_ids):
         raise ValueError(
             "Some applications do not exist or you do not have permission!"
         )
 
+    for application in applications:
+        if not can_manage_company_jobs(application.job.company, user):
+            raise ValueError(
+                "Some applications do not exist or you do not have permission!"
+            )
+        if application.job.company.verification_status != "verified":
+            raise ValueError("Company must be verified before processing applications.")
+
     processed = 0
     errors = []
 
     for app in applications:
         try:
-            old_status = app.status
-
             if action == "reject":
-                app.status = "rejected"
-                app.reviewed_by = user
-                app.reviewed_at = timezone.now()
-                if notes:
-                    app.notes = notes
-                app.save()
+                change_application_status(app, "rejected", user, notes or "Bulk reject")
 
             elif action == "shortlist":
-                app.status = "shortlisted"
-                app.reviewed_by = user
-                app.reviewed_at = timezone.now()
-                if notes:
-                    app.notes = notes
-                app.save()
+                change_application_status(
+                    app, "shortlisted", user, notes or "Bulk shortlist"
+                )
 
             elif action == "delete":
+                job_id = app.job_id
                 app.delete()
-
-            # Log history (except delete)
-            if action != "delete":
-                log_status_history(
-                    app, old_status, app.status, user, notes or f"Bulk {action}"
-                )
+                _decrement_job_application_count(job_id)
 
             processed += 1
 

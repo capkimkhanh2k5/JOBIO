@@ -12,8 +12,27 @@ from apps.recruitment.jobs.models import Job
 from apps.recruitment.job_locations.models import JobLocation
 from apps.recruitment.job_skills.models import JobSkill
 from apps.company.companies.models import Company
+from apps.company.companies.permissions import can_manage_company_jobs
 from apps.core.users.models import CustomUser
 from apps.billing.services.subscriptions import SubscriptionService
+from apps.moderation.services import ensure_job_can_publish
+
+POLICY_REVIEW_FIELDS = frozenset(
+    {
+        "title",
+        "category_id",
+        "description",
+        "requirements",
+        "benefits",
+        "seo_title",
+        "seo_description",
+        "seo_keywords",
+    }
+)
+
+
+class JobQuotaExceeded(ValueError):
+    """Raised when a subscription or quota rule blocks a paid job action."""
 
 
 class JobInput(BaseModel):
@@ -60,6 +79,90 @@ def generate_slug(title: str, company_id: int) -> str:
     return f"{base_slug}-{company_id}-{short_uuid}"
 
 
+def _policy_sensitive_changed_fields(job: Job, fields: dict) -> list[str]:
+    changed_fields = []
+    for field in sorted(POLICY_REVIEW_FIELDS):
+        if field not in fields:
+            continue
+
+        if field == "category_id":
+            current_value = job.category_id
+            label = "category"
+        else:
+            current_value = getattr(job, field)
+            label = field
+
+        if current_value != fields[field]:
+            changed_fields.append(label)
+
+    return changed_fields
+
+
+def mark_published_job_policy_needs_review(
+    job: Job,
+    *,
+    reason_code: str = "job_content_updated",
+    field_names: list[str] | tuple[str, ...] | set[str] | None = None,
+) -> Job:
+    if job.status != Job.Status.PUBLISHED:
+        return job
+
+    changed_fields = sorted({field for field in (field_names or []) if field})
+    field_label = ", ".join(changed_fields) if changed_fields else "job"
+    job.domain_status = Job.DomainStatus.NEEDS_REVIEW
+    job.moderation_status = Job.ModerationStatus.NEEDS_REVIEW
+    job.moderation_reasons = [
+        {
+            "code": reason_code,
+            "field": field_label,
+            "message": "Nội dung tuyển dụng đã thay đổi sau khi được duyệt.",
+            "suggestion": "Chờ admin kiểm duyệt lại trước khi tin hiển thị công khai.",
+        }
+    ]
+    job.last_moderated_at = timezone.now()
+    job.save(
+        update_fields=[
+            "domain_status",
+            "moderation_status",
+            "moderation_reasons",
+            "last_moderated_at",
+            "updated_at",
+        ]
+    )
+    return job
+
+
+def _ensure_job_publish_quota(company_id: int) -> None:
+    company = Company.objects.get(id=company_id)
+    sub = SubscriptionService.get_active_subscription(company.id)
+    if not sub:
+        # Cho phép đăng 1 tin miễn phí suốt đời nếu chưa từng có tin nào được đăng/đóng/hết hạn.
+        total_published_ever = Job.objects.filter(
+            company=company,
+            status__in=[
+                Job.Status.PUBLISHED,
+                Job.Status.CLOSED,
+                Job.Status.EXPIRED,
+            ],
+        ).count()
+
+        if total_published_ever >= 1:
+            raise JobQuotaExceeded(
+                "Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin."
+            )
+        limit = 1
+    else:
+        limit = sub.plan.features.get("job_post_limit", 0)
+
+    current_active_count = Job.objects.filter(
+        company=company, status=Job.Status.PUBLISHED
+    ).count()
+    if current_active_count >= limit:
+        raise JobQuotaExceeded(
+            f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục."
+        )
+
+
 @transaction.atomic
 def create_job(user: CustomUser, data: JobInput) -> Job:
     """
@@ -76,7 +179,7 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
         raise ValueError("Company is not found!")
 
     # Kiểm tra user có quyền tạo tin tuyển dụng cho company
-    if company.user != user:
+    if not can_manage_company_jobs(company, user):
         raise ValueError("You do not have permission to create a job for this company!")
 
     # Tạo unique slug
@@ -98,33 +201,7 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
 
     # Kiểm tra Quota nếu status là published
     if status == "published":
-        sub = SubscriptionService.get_active_subscription(company.id)
-        if not sub:
-            # Cho phép đăng 1 tin miễn phí suốt đời nếu chưa từng có tin nào được đăng/đóng/hết hạn
-            total_published_ever = Job.objects.filter(
-                company=company,
-                status__in=[
-                    Job.Status.PUBLISHED,
-                    Job.Status.CLOSED,
-                    Job.Status.EXPIRED,
-                ],
-            ).count()
-
-            if total_published_ever >= 1:
-                raise ValueError(
-                    "Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin."
-                )
-            limit = 1
-        else:
-            limit = sub.plan.features.get("job_post_limit", 0)
-
-        current_active_count = Job.objects.filter(
-            company=company, status="published"
-        ).count()
-        if current_active_count >= limit:
-            raise ValueError(
-                f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục."
-            )
+        _ensure_job_publish_quota(company.id)
 
     # Tạo job
     job = Job.objects.create(
@@ -137,11 +214,14 @@ def create_job(user: CustomUser, data: JobInput) -> Job:
         **fields,
     )
 
+    if status == "published":
+        ensure_job_can_publish(job, user=user)
+
     return job
 
 
 @transaction.atomic
-def update_job(job: Job, data: JobInput) -> Job:
+def update_job(job: Job, data: JobInput, user: CustomUser | None = None) -> Job:
     """
     Cập nhật tin tuyển dụng.
 
@@ -151,6 +231,8 @@ def update_job(job: Job, data: JobInput) -> Job:
 
     # Không cho update company_id
     fields.pop("company_id", None)
+    original_status = job.status
+    changed_policy_fields = _policy_sensitive_changed_fields(job, fields)
 
     # Lấy category_id
     if "category_id" in fields:
@@ -162,6 +244,7 @@ def update_job(job: Job, data: JobInput) -> Job:
         if job.status == "published" and new_status == "draft":
             raise ValueError("You cannot change a published job to draft!")
         if new_status == "published" and job.status != "published":
+            _ensure_job_publish_quota(job.company_id)
             job.published_at = timezone.now()
         job.status = new_status
 
@@ -170,6 +253,17 @@ def update_job(job: Job, data: JobInput) -> Job:
         setattr(job, field, value)
 
     job.save()
+    is_new_publish = (
+        job.status == Job.Status.PUBLISHED and original_status != Job.Status.PUBLISHED
+    )
+    if is_new_publish:
+        ensure_job_can_publish(job, user=user or job.created_by)
+    elif job.status == Job.Status.PUBLISHED and changed_policy_fields:
+        mark_published_job_policy_needs_review(
+            job,
+            reason_code="job_content_updated",
+            field_names=changed_policy_fields,
+        )
     return job
 
 
@@ -181,7 +275,6 @@ def delete_job(job: Job) -> None:
     job.delete()
 
 
-@transaction.atomic
 def change_job_status(job: Job, new_status: str) -> Job:
     """
      Thay đổi trạng thái tin tuyển dụng.
@@ -200,33 +293,8 @@ def change_job_status(job: Job, new_status: str) -> Job:
 
     # Kiểm tra Quota nếu chuyển sang published
     if new_status == "published" and job.status != "published":
-        sub = SubscriptionService.get_active_subscription(job.company_id)
-        if not sub:
-            total_published_ever = Job.objects.filter(
-                company_id=job.company_id,
-                status__in=[
-                    Job.Status.PUBLISHED,
-                    Job.Status.CLOSED,
-                    Job.Status.EXPIRED,
-                ],
-            ).count()
-
-            if total_published_ever >= 1:
-                raise ValueError(
-                    "Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin."
-                )
-            limit = 1
-        else:
-            limit = sub.plan.features.get("job_post_limit", 0)
-
-        current_active_count = Job.objects.filter(
-            company_id=job.company_id, status="published"
-        ).count()
-        if current_active_count >= limit:
-            raise ValueError(
-                f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục."
-            )
-
+        _ensure_job_publish_quota(job.company_id)
+        ensure_job_can_publish(job, user=job.created_by)
         job.published_at = timezone.now()
 
     job.status = new_status
@@ -234,7 +302,6 @@ def change_job_status(job: Job, new_status: str) -> Job:
     return job
 
 
-@transaction.atomic
 def publish_job(job: Job) -> Job:
     """
     Xuất bản tin tuyển dụng.
@@ -244,29 +311,8 @@ def publish_job(job: Job) -> Job:
         raise ValueError("The job is already published!")
 
     # Kiểm tra Quota
-    sub = SubscriptionService.get_active_subscription(job.company_id)
-    if not sub:
-        total_published_ever = Job.objects.filter(
-            company_id=job.company_id,
-            status__in=[Job.Status.PUBLISHED, Job.Status.CLOSED, Job.Status.EXPIRED],
-        ).count()
-
-        if total_published_ever >= 1:
-            raise ValueError(
-                "Bạn không có gói dịch vụ đang hoạt động. Vui lòng nâng cấp gói để tiếp tục đăng thêm tin."
-            )
-        limit = 1
-    else:
-        limit = sub.plan.features.get("job_post_limit", 0)
-
-    current_active_count = Job.objects.filter(
-        company_id=job.company_id, status="published"
-    ).count()
-    if current_active_count >= limit:
-        raise ValueError(
-            f"Bạn đã đạt giới hạn đăng tin ({limit} tin). Vui lòng nâng cấp gói dịch vụ để tiếp tục."
-        )
-
+    _ensure_job_publish_quota(job.company_id)
+    ensure_job_can_publish(job, user=job.created_by)
     job.status = "published"
     job.published_at = timezone.now()
     job.save()
@@ -390,12 +436,14 @@ def set_job_featured(job: Job, featured: bool, featured_until=None) -> Job:
         # Kiểm tra Quota Tin nổi bật
         sub = SubscriptionService.get_active_subscription(job.company_id)
         if not sub:
-            raise ValueError("You don't have an active subscription to feature jobs!")
+            raise JobQuotaExceeded(
+                "You don't have an active subscription to feature jobs!"
+            )
 
         # Kiểm tra xem gói có cho phép featured không (boolean) VÀ số lượng (limit)
         can_featured = sub.plan.features.get("top_job", False)
         if not can_featured:
-            raise ValueError("Your current plan does not support featured jobs.")
+            raise JobQuotaExceeded("Your current plan does not support featured jobs.")
 
         limit = sub.plan.features.get("featured_job_limit", 0)
         current_featured = Job.objects.filter(
@@ -404,7 +452,9 @@ def set_job_featured(job: Job, featured: bool, featured_until=None) -> Job:
 
         # Nếu job này CHƯA featured thì mới check limit
         if not job.featured and current_featured >= limit:
-            raise ValueError(f"You have reached your limit of {limit} featured jobs.")
+            raise JobQuotaExceeded(
+                f"You have reached your limit of {limit} featured jobs."
+            )
 
     job.featured = featured
 

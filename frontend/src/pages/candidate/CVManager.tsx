@@ -27,9 +27,14 @@ export interface CVItem {
     view_count: number;
     download_count: number;
     pdf_generated_at?: string | null;
+    parsed_at?: string | null;
+    parse_status?: string | null;
+    parse_error_code?: string | null;
+    parse_error_message?: string | null;
     updated_at: string;
     thumbnail_url?: string | null;
-    cv_url?: string | null;        // URL of uploaded PDF for CV_Upload
+    cv_url?: string | null;        // Protected PDF URL for uploaded/generated CVs
+    cv_file_url?: string | null;
 }
 
 export type AutoSaveStatus = 'idle' | 'saving' | 'saved';
@@ -139,7 +144,7 @@ export default function CVManager() {
 
             updateMutation.mutate({ 
                 cv_name: finalCvName, 
-                template_id: finalTemplateId, 
+                template_id: finalTemplateId ? Number(finalTemplateId) : null, 
                 cv_data: finalCvData 
             });
         }, 500);
@@ -224,7 +229,7 @@ export default function CVManager() {
         setAutoSaveStatus('saving');
         await updateMutation.mutateAsync({
             cv_name: cvName,
-            template_id: selectedTemplateId,
+            template_id: selectedTemplateId ? Number(selectedTemplateId) : null,
             cv_data: cvData,
         });
     };
@@ -387,11 +392,10 @@ export default function CVManager() {
     return (
         <div className="relative flex flex-col w-full h-full min-h-0 bg-transparent">
             {/* Page header */}
-            <div className="sticky top-0 z-20">
-                <PageHeader
-                    title="Quản lý CV"
-                    description="Tạo và quản lý CV chuyên nghiệp với AI hỗ trợ"
-                    icon={FileText}
+            <PageHeader
+                title="Quản lý CV"
+                description="Tạo và quản lý CV chuyên nghiệp với AI hỗ trợ"
+                icon={FileText}
                     action={
                         <div className="flex items-center gap-3">
                             {/* Hidden file input for PDF upload */}
@@ -405,7 +409,7 @@ export default function CVManager() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-4 rounded-xl"
+                                className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-card/50 backdrop-blur-sm gap-2 h-11 px-4 rounded-xl"
                                 onClick={() => requestPageNavigation(`/candidate/suggested-jobs${selectedCvId ? `?cv_id=${selectedCvId}` : ''}`)}
                             >
                                 <Lightbulb className="w-4 h-4" />
@@ -414,7 +418,7 @@ export default function CVManager() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-violet-200 text-violet-700 hover:bg-violet-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl font-semibold"
+                                className="border-teal-200 text-teal-700 hover:bg-teal-50 bg-card/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl font-semibold"
                                 onClick={() => handleDownloadCV()}
                                 disabled={!selectedCV || downloadingCvId === selectedCV?.id}
                             >
@@ -428,7 +432,7 @@ export default function CVManager() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="border-blue-200 text-blue-700 hover:bg-blue-50 bg-white/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl"
+                                className="border-primary/20 text-primary hover:bg-primary/8 bg-card/50 backdrop-blur-sm gap-2 h-11 px-5 rounded-xl"
                                 onClick={handleUploadClick}
                                 disabled={isUploading}
                             >
@@ -441,7 +445,7 @@ export default function CVManager() {
                             </Button>
                             <Button
                                 size="sm"
-                                className="bg-violet-600 hover:bg-violet-700 text-white shadow-md shadow-violet-500/25 gap-2 transition-all h-11 px-6 rounded-xl font-bold"
+                                className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-500/25 gap-2 transition-all h-11 px-6 rounded-xl font-bold"
                                 onClick={() => setShowNewDialog(true)}
                             >
                                 <Plus className="w-4 h-4" /> Tạo CV mới
@@ -449,11 +453,10 @@ export default function CVManager() {
                         </div>
                     }
                 />
-            </div>
 
             <div className="flex-1 min-h-0 p-6 lg:p-8">
                 {/* Main 3-column layout */}
-                <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1 bg-white border border-slate-200 shadow-sm rounded-3xl overflow-hidden">
+                <div className="flex h-[calc(100vh-140px)] relative z-10 w-full flex-1 bg-card border border-border shadow-sm rounded-3xl overflow-hidden">
                     {/* Column 1: CV List Sidebar */}
                     <CVListSidebar
                         cvList={cvList as any}
@@ -499,13 +502,15 @@ export default function CVManager() {
                     </div>
 
                     {/* Column 3: Live Preview */}
-                    <div className="hidden xl:flex flex-col w-[380px] shrink-0 overflow-hidden bg-white/20 border-l border-white/40">
+                    <div className="hidden xl:flex flex-col w-[420px] 2xl:w-[460px] shrink-0 overflow-hidden bg-card/20 border-l border-white/40">
                         <CVLivePreview
                             cvName={cvName}
                             templateId={selectedTemplateId}
                             cvId={selectedCvId}
                             cvUrl={selectedCV?.cv_url}
                             previewKey={previewKey}
+                            cvData={cvData}
+                            onCvDataChange={(nextData) => handleFieldChange('cv_data', nextData)}
                         />
                     </div>
                 </div>

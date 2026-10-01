@@ -19,8 +19,6 @@ from .selectors.jobs import (
     list_featured_jobs,
     list_urgent_jobs,
     get_similar_jobs,
-    get_job_recommendations,
-    get_job_suggestions_for_cv,
 )
 from .services.jobs import (
     create_job,
@@ -33,6 +31,14 @@ from .services.jobs import (
     record_job_view,
     set_job_featured,
     JobInput,
+    JobQuotaExceeded,
+)
+from .services.recommendations import (
+    RecommendationCVNotFound,
+    invalidate_recommendations_cache,
+    recommendation_event_batch_limit,
+    recommend_jobs_for_recruiter,
+    record_recommendation_events,
 )
 from apps.candidate.recruiters.selectors.recruiters import get_recruiter_by_user
 from apps.recruitment.saved_jobs.services.saved_jobs import save_job
@@ -46,6 +52,18 @@ from apps.recruitment.job_views.selectors.job_views import get_view_chart_data
 from apps.recruitment.job_views.selectors.job_views import (
     get_view_stats as get_job_view_stats,
 )
+from apps.company.companies.models import Company
+from apps.company.companies.permissions import (
+    can_manage_company_jobs,
+    can_view_company_panel,
+)
+from apps.core.throttles import JobSearchRateThrottle
+from apps.core.users.permissions import is_admin_user
+from apps.moderation.services import JobPublishBlocked, validate_job_for_publish
+
+
+def _job_policy_error_response(exc: JobPublishBlocked) -> Response:
+    return Response(exc.as_response(), status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobViewSet(viewsets.GenericViewSet):
@@ -61,19 +79,27 @@ class JobViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [IsJobOwnerOrReadOnly]
+    serializer_class = JobDetailSerializer
 
-    def _ensure_verified_company(self, request, job=None):
+    def get_throttles(self):
+        throttles = super().get_throttles()
+        if self.action == "list":
+            throttles.append(JobSearchRateThrottle())
+        return throttles
+
+    def _ensure_verified_company(self, request, job=None, company=None):
         if getattr(request.user, "role", None) != "company":
             return None
 
-        company_profile = getattr(request.user, "company_profile", None)
-        if not company_profile:
+        target_company = company or (job.company if job is not None else None)
+        if target_company is None:
+            target_company = getattr(request.user, "company_profile", None)
+        if target_company is None:
             return Response(
                 {"detail": "Tài khoản công ty chưa có hồ sơ công ty."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        target_company = job.company if job is not None else company_profile
         if target_company.verification_status != "verified":
             return Response(
                 {
@@ -83,6 +109,20 @@ class JobViewSet(viewsets.GenericViewSet):
             )
 
         return None
+
+    def _can_view_job(self, request, job):
+        user = request.user
+        if is_admin_user(user):
+            return True
+        if getattr(user, "is_authenticated", False) and can_view_company_panel(
+            job.company, user
+        ):
+            return True
+        return (
+            job.status == job.Status.PUBLISHED
+            and job.domain_status == job.DomainStatus.IT_APPROVED
+            and job.moderation_status == job.ModerationStatus.APPROVED
+        )
 
     def get_queryset(self):
         filters = self._build_filters()
@@ -181,8 +221,8 @@ class JobViewSet(viewsets.GenericViewSet):
         ):
             try:
                 company_id = int(params["company_id"])
-                company_profile = getattr(self.request.user, "company_profile", None)
-                if company_profile and company_profile.id == company_id:
+                company = Company.objects.filter(id=company_id).first()
+                if company and can_view_company_panel(company, self.request.user):
                     filters["include_all_statuses"] = True
             except (TypeError, ValueError):
                 pass
@@ -211,7 +251,15 @@ class JobViewSet(viewsets.GenericViewSet):
         serializer = JobCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        permission_error = self._ensure_verified_company(request)
+        company = Company.objects.filter(
+            id=serializer.validated_data.get("company_id")
+        ).first()
+        if company and not can_manage_company_jobs(company, request.user):
+            return Response(
+                {"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN
+            )
+
+        permission_error = self._ensure_verified_company(request, company=company)
         if permission_error:
             return permission_error
 
@@ -221,6 +269,10 @@ class JobViewSet(viewsets.GenericViewSet):
             return Response(
                 JobDetailSerializer(job).data, status=status.HTTP_201_CREATED
             )
+        except JobPublishBlocked as e:
+            return _job_policy_error_response(e)
+        except JobQuotaExceeded as e:
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -231,6 +283,10 @@ class JobViewSet(viewsets.GenericViewSet):
         """
         job = get_job_by_id(pk)
         if not job:
+            return Response(
+                {"detail": "Job not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if not self._can_view_job(request, job):
             return Response(
                 {"detail": "Job not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -245,6 +301,10 @@ class JobViewSet(viewsets.GenericViewSet):
         """
         job = get_job_by_slug(slug)
         if not job:
+            return Response(
+                {"detail": "Job not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if not self._can_view_job(request, job):
             return Response(
                 {"detail": "Job not found"}, status=status.HTTP_404_NOT_FOUND
             )
@@ -274,8 +334,12 @@ class JobViewSet(viewsets.GenericViewSet):
 
         try:
             input_data = JobInput(**serializer.validated_data)
-            updated = update_job(job, input_data)
+            updated = update_job(job, input_data, user=request.user)
             return Response(JobDetailSerializer(updated).data)
+        except JobPublishBlocked as e:
+            return _job_policy_error_response(e)
+        except JobQuotaExceeded as e:
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -330,8 +394,36 @@ class JobViewSet(viewsets.GenericViewSet):
         try:
             updated = change_job_status(job, serializer.validated_data["status"])
             return Response(JobDetailSerializer(updated).data)
+        except JobPublishBlocked as e:
+            return _job_policy_error_response(e)
+        except JobQuotaExceeded as e:
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["post"], url_path="validate-for-publish")
+    def validate_for_publish(self, request, pk=None):
+        """
+        POST /api/jobs/:id/validate-for-publish/
+        Kiểm tra sẵn sàng xuất bản mà không đổi status.
+        """
+        job = get_job_by_id(pk)
+        if not job:
+            return Response(
+                {"detail": "Job not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        self.check_object_permissions(request, job)
+
+        permission_error = self._ensure_verified_company(request, job)
+        if permission_error:
+            return permission_error
+
+        readiness = validate_job_for_publish(job, user=request.user, persist=True)
+        response_status = (
+            status.HTTP_200_OK if readiness["allowed"] else status.HTTP_400_BAD_REQUEST
+        )
+        return Response(readiness, status=response_status)
 
     @action(detail=True, methods=["post"], url_path="publish")
     def publish(self, request, pk=None):
@@ -354,6 +446,10 @@ class JobViewSet(viewsets.GenericViewSet):
         try:
             updated = publish_job(job)
             return Response(JobDetailSerializer(updated).data)
+        except JobPublishBlocked as e:
+            return _job_policy_error_response(e)
+        except JobQuotaExceeded as e:
+            return Response({"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
         except ValueError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -495,8 +591,8 @@ class JobViewSet(viewsets.GenericViewSet):
         except (TypeError, ValueError):
             limit = 20
 
+        cv_id_int = None
         if cv_id:
-            # CV-based suggestions with match_score
             try:
                 cv_id_int = int(cv_id)
             except (ValueError, TypeError):
@@ -505,22 +601,88 @@ class JobViewSet(viewsets.GenericViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            suggestions = get_job_suggestions_for_cv(cv_id_int, recruiter, limit=limit)
+        try:
+            recommendations = recommend_jobs_for_recruiter(
+                recruiter, cv_id=cv_id_int, limit=limit
+            )
+        except RecommendationCVNotFound as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_404_NOT_FOUND)
 
-            result = []
-            for item in suggestions:
-                job = item["job"]
-                serialized = JobListSerializer(job).data
-                serialized["match_score"] = item["match_score"]
-                serialized["match_reasons"] = item["match_reasons"]
-                result.append(serialized)
+        results = []
+        for item in recommendations["results"]:
+            serialized = JobListSerializer(item["job"]).data
+            serialized["match_score"] = item["match_score"]
+            serialized["match_label"] = item["match_label"]
+            serialized["match_reasons"] = item["match_reasons"]
+            serialized["score_breakdown"] = item["score_breakdown"]
+            serialized["semantic_score"] = item["semantic_score"]
+            serialized["skill_match_score"] = item["skill_match_score"]
+            serialized["title_match_score"] = item["title_match_score"]
+            serialized["seniority_score"] = item["seniority_score"]
+            serialized["location_score"] = item["location_score"]
+            serialized["structured_score"] = item["structured_score"]
+            serialized["final_score"] = item["final_score"]
+            serialized["scoring_mode"] = item["scoring_mode"]
+            serialized["structured_confidence"] = item["structured_confidence"]
+            serialized["semantic_similarity"] = item["semantic_similarity"]
+            serialized["matched_skills"] = item["matched_skills"]
+            serialized["missing_required_skills"] = item["missing_required_skills"]
+            results.append(serialized)
 
-            return Response(result)
+        return Response(
+            {
+                "source": recommendations["source"],
+                "source_id": recommendations["source_id"],
+                "source_parse_status": recommendations["source_parse_status"],
+                "semantic_status": recommendations["semantic_status"],
+                "personalization_notice": recommendations["personalization_notice"],
+                "model_version": recommendations["model_version"],
+                "results": results,
+            }
+        )
 
-        # Default: skill-based recommendations (legacy)
-        queryset = get_job_recommendations(recruiter.id, limit=limit)
-        serializer = JobListSerializer(queryset, many=True)
-        return Response(serializer.data)
+    @action(detail=False, methods=["post"], url_path="recommendations/events")
+    def recommendation_events(self, request):
+        """
+        POST /api/jobs/recommendations/events/
+        Log recommendation impressions/clicks/saves/applies/dismisses for future ranking.
+        """
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Authentication required"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        recruiter = get_recruiter_by_user(request.user)
+        if not recruiter:
+            return Response(
+                {"detail": "Recruiter profile not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        events = request.data.get("events", request.data)
+        if not isinstance(events, list):
+            return Response(
+                {"detail": "events must be a list"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        batch_limit = recommendation_event_batch_limit()
+        if len(events) > batch_limit:
+            return Response(
+                {"detail": f"events cannot contain more than {batch_limit} items"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        count = record_recommendation_events(recruiter, events)
+        if any(
+            isinstance(e, dict)
+            and (
+                e.get("event_type") == "dismiss"
+                or bool(str(e.get("not_relevant_reason") or "").strip())
+            )
+            for e in events
+        ):
+            invalidate_recommendations_cache(recruiter.id)
+        return Response({"created": count}, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], url_path="view")
     def record_view(self, request, pk=None):
@@ -557,7 +719,14 @@ class JobViewSet(viewsets.GenericViewSet):
 
         if request.method == "POST":
             featured_until = request.data.get("featured_until")
-            updated = set_job_featured(job, True, featured_until)
+            try:
+                updated = set_job_featured(job, True, featured_until)
+            except JobQuotaExceeded as e:
+                return Response(
+                    {"detail": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED
+                )
+            except ValueError as e:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         else:  # DELETE
             updated = set_job_featured(job, False)
 

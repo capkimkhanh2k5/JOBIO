@@ -110,12 +110,12 @@ export function CompanyMediaTab({ companyId }: Props) {
         return (
             <div className="space-y-4">
                 {Array(3).fill(0).map((_, i) => (
-                    <div key={i} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 sm:flex-row">
-                        <Skeleton className="aspect-video w-full rounded-xl bg-gray-100 sm:w-72 lg:w-80" />
+                    <div key={i} className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-card p-4 sm:flex-row">
+                        <Skeleton className="aspect-video w-full rounded-xl bg-muted sm:w-72 lg:w-80" />
                         <div className="flex-1 space-y-3 py-2">
-                            <Skeleton className="h-5 w-2/5 bg-gray-100" />
-                            <Skeleton className="h-4 w-full bg-gray-100" />
-                            <Skeleton className="h-4 w-4/5 bg-gray-100" />
+                            <Skeleton className="h-5 w-2/5 bg-muted" />
+                            <Skeleton className="h-4 w-full bg-muted" />
+                            <Skeleton className="h-4 w-4/5 bg-muted" />
                         </div>
                     </div>
                 ))}
@@ -126,10 +126,10 @@ export function CompanyMediaTab({ companyId }: Props) {
     if (media.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground/60 mb-4">
                     <Image size={28} />
                 </div>
-                <p className="font-medium text-gray-500">Chưa có media nào</p>
+                <p className="font-medium text-muted-foreground">Chưa có media nào</p>
             </div>
         );
     }
@@ -157,9 +157,9 @@ export function CompanyMediaTab({ companyId }: Props) {
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex flex-col gap-5 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row"
+                            className="flex flex-col gap-5 rounded-2xl border border-border/60 bg-card p-4 shadow-sm sm:flex-row"
                         >
-                            <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:w-72 lg:w-80 xl:w-96">
+                            <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-muted sm:w-72 lg:w-80 xl:w-96">
                                 {isLink ? (
                                     isPlaying ? (
                                         <iframe
@@ -176,20 +176,20 @@ export function CompanyMediaTab({ companyId }: Props) {
                                             onClick={() => setPlayingLinkId(item.id)}
                                         >
                                             {youtubeThumbnailUrl ? (
-                                                <img
+                                                <img loading="lazy"
                                                     src={youtubeThumbnailUrl}
                                                     alt={title}
                                                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                                                 />
                                             ) : (
-                                                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-gray-500">
+                                                <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                                     <LinkIcon size={34} />
                                                     <span className="text-xs font-semibold">YouTube link</span>
                                                 </div>
                                             )}
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
-                                                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition group-hover:scale-105">
-                                                    <Play size={26} className="ml-1 fill-gray-900 text-gray-900" />
+                                                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-card/90 shadow-lg transition group-hover:scale-105">
+                                                    <Play size={26} className="ml-1 fill-gray-900 text-foreground" />
                                                 </span>
                                             </div>
                                         </button>
@@ -208,14 +208,14 @@ export function CompanyMediaTab({ companyId }: Props) {
                                         onClick={() => setPreviewImage({ url: thumbnailUrl, title })}
                                         aria-label={`Xem ảnh ${title}`}
                                     >
-                                        <img src={thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                        <img loading="lazy" src={thumbnailUrl} alt={title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
                                     </button>
                                 )}
                             </div>
 
                             <div className="min-w-0 flex-1 py-1">
-                                <h3 className="line-clamp-2 text-lg font-bold text-gray-950">{title}</h3>
-                                <p className="mt-2 line-clamp-4 text-sm leading-6 text-gray-600">{caption}</p>
+                                <h3 className="line-clamp-2 text-lg font-bold text-foreground">{title}</h3>
+                                <p className="mt-2 line-clamp-4 text-sm leading-6 text-muted-foreground">{caption}</p>
                             </div>
                         </motion.article>
                     );
@@ -229,7 +229,7 @@ export function CompanyMediaTab({ companyId }: Props) {
                     </DialogHeader>
                     <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
                         {previewImage && (
-                            <img
+                            <img loading="lazy"
                                 src={previewImage.url}
                                 alt={previewImage.title}
                                 className="max-h-[82vh] w-full object-contain"
